@@ -1,1 +1,4 @@
 .idea
+dist
+cmd/scripts/bindata
+cmd/bot1

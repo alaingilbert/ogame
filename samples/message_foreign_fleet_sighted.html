@@ -1,0 +1,95 @@
+
+<ul class="pagination"><li class="p_li last"><a class="fright txt_link msg_action_link" data-messageid="6971151" data-tabid="20">|&lt;&lt;</a></li><li class="p_li"><a class="fright txt_link msg_action_link" data-messageid="6971104" data-tabid="20">&lt;</a></li><li class="p_li active"><a class="fright txt_link msg_action_link active" data-messageid="6970988" data-tabid="20">3/9</a></li><li class="p_li"><a class="fright txt_link msg_action_link" data-messageid="6970860" data-tabid="20">&gt;</a></li><li class="p_li last"><a class="fright txt_link msg_action_link" data-messageid="6864443" data-tabid="20">&gt;&gt;|</a></li></ul>
+    <div class="detail_msg" data-msg-id="6970988" data-message-type="10">
+        <div class="detail_msg_head">
+            <div class="msg_status"></div>
+            <span class="msg_title new blue_txt">Espionage action on <a href="https://s152-en.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=4&amp;system=212&amp;position=8" class="txt_link"><figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Homeworld [4:212:8]</a></span>
+            <span class="msg_date fright">26.07.2018 06:05:42</span>
+            <br/>
+            <span class="msg_sender_label">From: </span>
+            <span class="msg_sender">Fleet Command</span>
+
+            <!-- only if comments are allowed (Only shared reports and broadcasts have comments): -->
+            
+            <div class="msg_actions clearfix">
+                                    <a href="https://s152-en.ogame.gameforge.com/game/index.php?page=shareReportOverlay&messageId=6970988"
+                       data-overlay-title="share message" title='share message'
+                       class="icon_nf_link fleft overlay tooltip js_hideTipOnMobile"
+                    >
+                        <span class="icon_nf icon_share tooltip js_hideTipOnMobile"
+                              title='share message'></span>
+                    </a>
+
+                                        <a href="https://s152-en.ogame.gameforge.com/game/index.php?page=fleet1&galaxy=4&system=184&position=10&type=1&mission=1" class="icon_nf_link fleft">
+                        <span class="icon_nf icon_attack tooltip js_hideTipOnMobile" title='Attack'>
+                                                    </span>
+                    </a>
+                                        <a href="#" onClick="outlawWarning(6,4,184,10,1,0, function sendEspionageProbes() { sendShipsWithPopup(6,4,184,10,1,0); }); return false;; return false;" class="icon_nf_link fleft">
+                        <span class="icon_nf icon_espionage tooltip js_hideTipOnMobile"
+                              title='Espionage'>
+                                                    </span>
+                    </a>
+                                        <a href="javascript:void(0);" class="icon_nf_link fright">
+                        <span class="icon_nf icon_refuse js_actionKillDetail tooltip js_hideTipOnMobile"
+                              title='delete'></span>
+                    </a>
+                                </div>
+        </div>
+                    <div class="detail_msg_ctn">
+                <span class="espionageDefText">A foreign fleet from planet <a href="https://s152-en.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=4&amp;system=184&amp;position=10" class="txt_link"><figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Homerworld [4:184:10]</a> was sighted near your planet <a href="https://s152-en.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=4&amp;system=212&amp;position=8" class="txt_link"><figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Homeworld [4:212:8]</a>. Chance of counter-espionage: 0 %</span>                                <br class="clearfloat">
+                <div class="section_title">
+                    <div class="c-left"></div>
+                    <div class="c-right"></div>
+                    <span class="title_txt">Comments</span>
+                </div>
+
+                <ul class="tab_inner ctn_with_new_msg clearfix">
+                    <li class="msg">
+                        <form id="newCommentForm" class="clearfix" action="index.php?page=messages" method="POST">
+                            <input type="hidden" name="action" value="108">
+                            <input type="hidden" name="messageId" value="6970988">
+                            <link rel="stylesheet" href="/cdn/css/select2.css" type="text/css">
+<div>
+    <button class="btn_blue js_send_comment fright ally_send_button" onclick="return false;">Send</button>
+    <div class="editor_wrap">
+   		<textarea name="text" class="new_msg_textarea"></textarea>
+    </div>
+</div>
+<script language="javascript">
+initBBCodeEditor(locaKeys, itemNames, false, '.new_msg_textarea', 2000, true);
+</script>
+                        </form>
+                    </li>
+                                    </ul>
+                <script language="javascript">
+                    ogame.messages.initCommentForm();
+                </script>
+            </div>
+                </div>
+    <script type="text/javascript">
+                        ogame.messages.initDetailMessages(true);
+                ogame.messagecounter.resetCounterByType(ogame.messagecounter.type_message);
+                    var elem, messageId, senderId, receiverId, associationId;
+        function reportMessageConfirmation(_elem, _messageId, _senderId, _receiverId, _question)
+        {
+            elem       = _elem;
+            messageId  = _messageId;
+            senderId   = _senderId;
+            receiverId = _receiverId;
+
+            errorBoxDecision(
+                "Caution",
+                _question,
+                "yes",
+                "No",
+                reportMessageCallback
+            );
+        }
+
+        function reportMessageCallback()
+        {
+            elem.hide();
+            reportMessage(messageId, senderId, receiverId);
+        }
+    </script>
+    
