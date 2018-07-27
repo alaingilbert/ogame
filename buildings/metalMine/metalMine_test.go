@@ -17,6 +17,6 @@ func TestProduction(t *testing.T) {
 
 func TestConstructionTime(t *testing.T) {
 	mm := New()
-	ct := mm.ConstructionTime(20, 7, ogame.Facilities{RoboticsFactory: 3})
-	assert.Equal(t, 8550, ct)
+	assert.Equal(t, 8550, mm.ConstructionTime(20, 7, ogame.Facilities{RoboticsFactory: 3}))
+	assert.Equal(t, 30, mm.ConstructionTime(4, 6, ogame.Facilities{}))
 }

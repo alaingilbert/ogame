@@ -28,3 +28,8 @@ func TestPrice(t *testing.T) {
 	price = ds.GetPrice(11)
 	assert.Equal(t, ogame.Resources{Metal: 12974, Crystal: 4324}, price)
 }
+
+func TestConstructionTime(t *testing.T) {
+	ds := New()
+	assert.Equal(t, 1845, ds.ConstructionTime(9, 6, ogame.Facilities{}))
+}
