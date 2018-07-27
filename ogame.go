@@ -471,7 +471,7 @@ func (b *OGame) login() error {
 	b.donutSystem, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-system]").AttrOr("content", "1"))
 	b.ogameVersion = doc.Find("meta[name=ogame-version]").AttrOr("content", "")
 
-	b.Player = extractUserInfos(pageHTML, b.language)
+	b.Player, _ = extractUserInfos(pageHTML, b.language)
 	b.Planets = extractPlanets(pageHTML, b)
 
 	return nil
@@ -556,7 +556,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 	})
 
 	if page == "overview" {
-		b.Player = extractUserInfos(pageHTML, b.language)
+		b.Player, _ = extractUserInfos(pageHTML, b.language)
 		b.Planets = extractPlanets(pageHTML, b)
 	} else if isAjaxPage(page) {
 	} else {
@@ -813,14 +813,26 @@ func (b *OGame) serverTime() time.Time {
 	return serverTime
 }
 
-func extractUserInfos(pageHTML, lang string) UserInfos {
+func extractUserInfos(pageHTML, lang string) (UserInfos, error) {
 	playerIDRgx := regexp.MustCompile(`playerId="(\w+)"`)
 	playerNameRgx := regexp.MustCompile(`playerName="([^"]+)"`)
 	txtContent := regexp.MustCompile(`textContent\[7]="([^"]+)"`)
+	playerIDGroups := playerIDRgx.FindStringSubmatch(pageHTML)
+	playerNameGroups := playerNameRgx.FindStringSubmatch(pageHTML)
+	subHTMLGroups := txtContent.FindStringSubmatch(pageHTML)
+	if len(playerIDGroups) < 2 {
+		return UserInfos{}, errors.New("cannot find player id")
+	}
+	if len(playerNameGroups) < 2 {
+		return UserInfos{}, errors.New("cannot find player name")
+	}
+	if len(subHTMLGroups) < 2 {
+		return UserInfos{}, errors.New("cannot find sub html")
+	}
 	res := UserInfos{}
-	res.PlayerID, _ = strconv.Atoi(playerIDRgx.FindStringSubmatch(pageHTML)[1])
-	res.PlayerName = playerNameRgx.FindStringSubmatch(pageHTML)[1]
-	html2 := txtContent.FindStringSubmatch(pageHTML)[1]
+	res.PlayerID, _ = strconv.Atoi(playerIDGroups[1])
+	res.PlayerName = playerNameGroups[1]
+	html2 := subHTMLGroups[1]
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(html2))
 
 	infosRgx := regexp.MustCompile(`([\d\\.]+) \(Place ([\d.]+) of ([\d.]+)\)`)
@@ -836,17 +848,28 @@ func extractUserInfos(pageHTML, lang string) UserInfos {
 	// de: 0 (Platz 2.979 von 2.980)
 	// jp: 0 (73人中72位)
 	infos := infosRgx.FindStringSubmatch(doc.Text())
+	if len(infos) < 4 {
+		return UserInfos{}, errors.New("cannot find infos in sub html")
+	}
 	res.Points = parseInt(infos[1])
 	res.Rank = parseInt(infos[2])
 	res.Total = parseInt(infos[3])
-	tmpRgx := regexp.MustCompile(`textContent\[9]="([^"]+)"`)
-	res.HonourPoints = parseInt(tmpRgx.FindStringSubmatch(pageHTML)[1])
-	return res
+	honourPointsRgx := regexp.MustCompile(`textContent\[9]="([^"]+)"`)
+	honourPointsGroups := honourPointsRgx.FindStringSubmatch(pageHTML)
+	if len(honourPointsGroups) < 2 {
+		return UserInfos{}, errors.New("cannot find honour points")
+	}
+	res.HonourPoints = parseInt(honourPointsGroups[1])
+	return res, nil
 }
 
 func (b *OGame) getUserInfos() UserInfos {
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractUserInfos(pageHTML, b.language)
+	userInfos, err := extractUserInfos(pageHTML, b.language)
+	if err != nil {
+		b.error(err)
+	}
+	return userInfos
 }
 
 func (b *OGame) sendMessage(playerID int, message string) error {
