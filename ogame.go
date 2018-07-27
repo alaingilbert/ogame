@@ -31,6 +31,8 @@ type Wrapper interface {
 	GetPageContent(url.Values) string
 	Login() error
 	Logout()
+	GetUsername() string
+	GetUniverseName() string
 	GetUniverseSpeed() int
 	GetUniverseSpeedFleet() int
 	IsDonutGalaxy() bool
@@ -2056,6 +2058,16 @@ func (b *OGame) Logout() {
 	b.Lock()
 	defer b.Unlock()
 	b.logout()
+}
+
+// GetUniverseName ...
+func (b *OGame) GetUniverseName() string {
+	return b.Universe
+}
+
+// GetUsername ...
+func (b *OGame) GetUsername() string {
+	return b.Username
 }
 
 // GetUniverseSpeed ...
