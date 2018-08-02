@@ -35,3 +35,18 @@ func (s *SolarSatellite) Production(temperatureMax, nbr int) int {
 func IsAvailable(shipyard int) bool {
 	return shipyard >= 1
 }
+
+// GetIncreaseFactor ...
+func (s *SolarSatellite) GetIncreaseFactor() float64 {
+	return 0
+}
+
+// GetBaseCost ...
+func (s *SolarSatellite) GetBaseCost() ogame.Resources {
+	return s.Price
+}
+
+// GetLevel ...
+func (s *SolarSatellite) GetLevel(ogame.ResourcesBuildings, ogame.Facilities, ogame.Researches) int {
+	return 0
+}

@@ -21,6 +21,7 @@ import (
 	"github.com/alaingilbert/ogame/buildings/spaceDock"
 	"github.com/alaingilbert/ogame/buildings/terraformer"
 	"github.com/alaingilbert/ogame/buildings/undergroundCrystalDen"
+	"github.com/alaingilbert/ogame/ships/solarSatellite"
 )
 
 // Building ...
@@ -56,10 +57,11 @@ var (
 	SpaceDock             = spaceDock.New()
 	Terraformer           = terraformer.New()
 	UndergroundCrystalDen = undergroundCrystalDen.New()
+	SolarSatellite        = solarSatellite.New()
 
 	All = []Building{AllianceDepot, CrystalMine, CrystalStorage, DeuteriumSynthesizer, DeuteriumTank, FusionReactor,
 		MetalMine, MetalStorage, MissileSilo, NaniteFactory, ResearchLab, RoboticsFactory, SeabedDeuteriumDen,
-		ShieldedMetalDen, Shipyard, SolarPlant, SpaceDock, Terraformer, UndergroundCrystalDen}
+		ShieldedMetalDen, Shipyard, SolarPlant, SpaceDock, Terraformer, UndergroundCrystalDen, SolarSatellite}
 )
 
 // GetByID ...
