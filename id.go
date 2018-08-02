@@ -128,9 +128,9 @@ func (o ID) String() string {
 	case GravitonTechnology:
 		res += "GravitonTechnology"
 	default:
-		res += "Invalid"
+		res += "Invalid" + "(" + strconv.Itoa(int(o)) + ")"
 	}
-	return res + "(" + strconv.Itoa(int(o)) + ")"
+	return res
 }
 
 // IsFacility ...
