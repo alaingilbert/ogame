@@ -58,6 +58,11 @@ func (p *Planet) GetFacilities() (Facilities, error) {
 	return p.ogame.GetFacilities(p.ID)
 }
 
+// BuildCancelable ...
+func (p *Planet) BuildCancelable(ogameID ID) error {
+	return p.ogame.BuildCancelable(p.ID, ogameID)
+}
+
 // BuildBuilding ...
 func (p *Planet) BuildBuilding(buildingID ID) error {
 	return p.ogame.BuildBuilding(p.ID, buildingID)
@@ -87,4 +92,24 @@ func (p *Planet) GetResources() (Resources, error) {
 func (p *Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, mission MissionID,
 	resources Resources) (FleetID, error) {
 	return p.ogame.SendFleet(p.ID, ships, speed, where, mission, resources)
+}
+
+// ConstructionsBeingBuilt ...
+func (p *Planet) ConstructionsBeingBuilt() (ID, int, ID, int) {
+	return p.ogame.ConstructionsBeingBuilt(p.ID)
+}
+
+// CancelBuilding ...
+func (p *Planet) CancelBuilding() error {
+	return p.ogame.CancelBuilding(p.ID)
+}
+
+// CancelResearch ...
+func (p *Planet) CancelResearch() error {
+	return p.ogame.CancelResearch(p.ID)
+}
+
+// GetResourcesProductions ...
+func (p *Planet) GetResourcesProductions() (Resources, error) {
+	return p.ogame.GetResourcesProductions(p.ID)
 }
