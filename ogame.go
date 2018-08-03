@@ -93,6 +93,7 @@ var ErrBadCredentials = errors.New("bad credentials")
 // ErrInvalidPlanetID ...
 var ErrInvalidPlanetID = errors.New("invalid planet id")
 
+// All ogame objects
 var (
 	AllianceDepot                = NewAllianceDepot() // Buildings
 	CrystalMine                  = NewCrystalMine()
@@ -208,6 +209,7 @@ type Defense interface {
 	GetRapidfireFrom() map[ID]int
 }
 
+// Ships ...
 var Ships = []Ship{
 	Battlecruiser,
 	Battleship,
@@ -225,6 +227,7 @@ var Ships = []Ship{
 	SolarSatellite,
 }
 
+// Buildings ...
 var Buildings = []Building{
 	AllianceDepot,
 	CrystalMine,
@@ -248,6 +251,7 @@ var Buildings = []Building{
 	SolarSatellite,
 }
 
+// Technologies ...
 var Technologies = []Technology{
 	ArmourTechnology,
 	Astrophysics,
@@ -1942,11 +1946,16 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	return 0, errors.New("could not find new fleet ID")
 }
 
+// EspionageReportType ...
 type EspionageReportType int
 
+// Action ...
 const Action EspionageReportType = 0
+
+// Report ...
 const Report EspionageReportType = 1
 
+// EspionageReportSummary ...
 type EspionageReportSummary struct {
 	ID     int
 	Type   EspionageReportType
@@ -2011,6 +2020,7 @@ func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
 	return msgs, nil
 }
 
+// EspionageReport ...
 type EspionageReport struct {
 	Resources
 	ResourcesBuildings
@@ -2582,7 +2592,7 @@ func (b *OGame) SendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	return b.sendFleet(planetID, ships, speed, where, mission, resources)
 }
 
-// GetEspionageReportMessageIDs ...
+// GetEspionageReportMessages ...
 func (b *OGame) GetEspionageReportMessages() ([]EspionageReportSummary, error) {
 	b.Lock()
 	defer b.Unlock()

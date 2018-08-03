@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// Defense ...
+// Defenses ...
 type Defenses struct {
 	RocketLauncher         int
 	LightLaser             int

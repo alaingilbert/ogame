@@ -5,7 +5,7 @@ type metalStorage struct {
 	StorageBuilding
 }
 
-// New ...
+// NewMetalStorage ...
 func NewMetalStorage() *metalStorage {
 	b := new(metalStorage)
 	b.ID = MetalStorageID

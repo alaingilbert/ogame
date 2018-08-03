@@ -5,7 +5,7 @@ type allianceDepot struct {
 	BaseBuilding
 }
 
-// New ...
+// NewAllianceDepot ...
 func NewAllianceDepot() *allianceDepot {
 	b := new(allianceDepot)
 	b.ID = AllianceDepotID

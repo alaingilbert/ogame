@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// Ships ...
+// ShipsInfos ...
 type ShipsInfos struct {
 	LightFighter   int
 	HeavyFighter   int

@@ -7,7 +7,7 @@ type metalMine struct {
 	BaseBuilding
 }
 
-// NeNewMetalMinew ...
+// NewMetalMine ...
 func NewMetalMine() *metalMine {
 	b := new(metalMine)
 	b.ID = MetalMineID

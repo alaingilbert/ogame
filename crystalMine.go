@@ -7,7 +7,7 @@ type crystalMine struct {
 	BaseBuilding
 }
 
-// New ...
+// NewCrystalMine ...
 func NewCrystalMine() *crystalMine {
 	b := new(crystalMine)
 	b.ID = CrystalMineID
