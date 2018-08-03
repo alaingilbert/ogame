@@ -16,21 +16,21 @@ type Facilities struct {
 
 // ByOGameID ...
 func (f Facilities) ByOGameID(ogameID ID) int {
-	if ogameID == RoboticsFactory {
+	if ogameID == RoboticsFactory.ID {
 		return f.RoboticsFactory
-	} else if ogameID == Shipyard {
+	} else if ogameID == Shipyard.ID {
 		return f.Shipyard
-	} else if ogameID == ResearchLab {
+	} else if ogameID == ResearchLab.ID {
 		return f.ResearchLab
-	} else if ogameID == AllianceDepot {
+	} else if ogameID == AllianceDepot.ID {
 		return f.AllianceDepot
-	} else if ogameID == MissileSilo {
+	} else if ogameID == MissileSilo.ID {
 		return f.MissileSilo
-	} else if ogameID == NaniteFactory {
+	} else if ogameID == NaniteFactory.ID {
 		return f.NaniteFactory
-	} else if ogameID == Terraformer {
+	} else if ogameID == Terraformer.ID {
 		return f.Terraformer
-	} else if ogameID == SpaceDock {
+	} else if ogameID == SpaceDock.ID {
 		return f.SpaceDock
 	}
 	return 0

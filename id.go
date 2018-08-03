@@ -9,123 +9,123 @@ type ID int
 func (o ID) String() string {
 	res := ""
 	switch o {
-	case AllianceDepot:
+	case AllianceDepot.ID:
 		res += "AllianceDepot"
-	case RoboticsFactory:
+	case RoboticsFactory.ID:
 		res += "RoboticsFactory"
-	case Shipyard:
+	case Shipyard.ID:
 		res += "Shipyard"
-	case ResearchLab:
+	case ResearchLab.ID:
 		res += "ResearchLab"
-	case MissileSilo:
+	case MissileSilo.ID:
 		res += "MissileSilo"
-	case NaniteFactory:
+	case NaniteFactory.ID:
 		res += "NaniteFactory"
-	case Terraformer:
+	case Terraformer.ID:
 		res += "Terraformer"
-	case SpaceDock:
+	case SpaceDock.ID:
 		res += "SpaceDock"
-	case MetalMine:
+	case MetalMine.ID:
 		res += "MetalMine"
-	case CrystalMine:
+	case CrystalMine.ID:
 		res += "CrystalMine"
-	case DeuteriumSynthesizer:
+	case DeuteriumSynthesizer.ID:
 		res += "DeuteriumSynthesizer"
-	case SolarPlant:
+	case SolarPlant.ID:
 		res += "SolarPlant"
-	case FusionReactor:
+	case FusionReactor.ID:
 		res += "FusionReactor"
-	case MetalStorage:
+	case MetalStorage.ID:
 		res += "MetalStorage"
-	case CrystalStorage:
+	case CrystalStorage.ID:
 		res += "CrystalStorage"
-	case DeuteriumTank:
+	case DeuteriumTank.ID:
 		res += "DeuteriumTank"
-	case ShieldedMetalDen:
+	case ShieldedMetalDen.ID:
 		res += "ShieldedMetalDen"
-	case UndergroundCrystalDen:
+	case UndergroundCrystalDen.ID:
 		res += "UndergroundCrystalDen"
-	case SeabedDeuteriumDen:
+	case SeabedDeuteriumDen.ID:
 		res += "SeabedDeuteriumDen"
-	case RocketLauncher:
+	case RocketLauncher.ID:
 		res += "RocketLauncher"
-	case LightLaser:
+	case LightLaser.ID:
 		res += "LightLaser"
-	case HeavyLaser:
+	case HeavyLaser.ID:
 		res += "HeavyLaser"
-	case GaussCannon:
+	case GaussCannon.ID:
 		res += "GaussCannon"
-	case IonCannon:
+	case IonCannon.ID:
 		res += "IonCannon"
-	case PlasmaTurret:
+	case PlasmaTurret.ID:
 		res += "PlasmaTurret"
-	case SmallShieldDome:
+	case SmallShieldDome.ID:
 		res += "SmallShieldDome"
-	case LargeShieldDome:
+	case LargeShieldDome.ID:
 		res += "LargeShieldDome"
-	case AntiBallisticMissiles:
+	case AntiBallisticMissiles.ID:
 		res += "AntiBallisticMissiles"
-	case InterplanetaryMissiles:
+	case InterplanetaryMissiles.ID:
 		res += "InterplanetaryMissiles"
-	case SmallCargo:
+	case SmallCargo.ID:
 		res += "SmallCargo"
-	case LargeCargo:
+	case LargeCargo.ID:
 		res += "LargeCargo"
-	case LightFighter:
+	case LightFighter.ID:
 		res += "LightFighter"
-	case HeavyFighter:
+	case HeavyFighter.ID:
 		res += "HeavyFighter"
-	case Cruiser:
+	case Cruiser.ID:
 		res += "Cruiser"
-	case Battleship:
+	case Battleship.ID:
 		res += "Battleship"
-	case ColonyShip:
+	case ColonyShip.ID:
 		res += "ColonyShip"
-	case Recycler:
+	case Recycler.ID:
 		res += "Recycler"
-	case EspionageProbe:
+	case EspionageProbe.ID:
 		res += "EspionageProbe"
-	case Bomber:
+	case Bomber.ID:
 		res += "Bomber"
-	case SolarSatellite:
+	case SolarSatellite.ID:
 		res += "SolarSatellite"
-	case Destroyer:
+	case Destroyer.ID:
 		res += "Destroyer"
-	case Deathstar:
+	case Deathstar.ID:
 		res += "Deathstar"
-	case Battlecruiser:
+	case Battlecruiser.ID:
 		res += "Battlecruiser"
-	case EspionageTechnology:
+	case EspionageTechnology.ID:
 		res += "EspionageTechnology"
-	case ComputerTechnology:
+	case ComputerTechnology.ID:
 		res += "ComputerTechnology"
-	case WeaponsTechnology:
+	case WeaponsTechnology.ID:
 		res += "WeaponsTechnology"
-	case ShieldingTechnology:
+	case ShieldingTechnology.ID:
 		res += "ShieldingTechnology"
-	case ArmourTechnology:
+	case ArmourTechnology.ID:
 		res += "ArmourTechnology"
-	case EnergyTechnology:
+	case EnergyTechnology.ID:
 		res += "EnergyTechnology"
-	case HyperspaceTechnology:
+	case HyperspaceTechnology.ID:
 		res += "HyperspaceTechnology"
-	case CombustionDrive:
+	case CombustionDrive.ID:
 		res += "CombustionDrive"
-	case ImpulseDrive:
+	case ImpulseDrive.ID:
 		res += "ImpulseDrive"
-	case HyperspaceDrive:
+	case HyperspaceDrive.ID:
 		res += "HyperspaceDrive"
-	case LaserTechnology:
+	case LaserTechnology.ID:
 		res += "LaserTechnology"
-	case IonTechnology:
+	case IonTechnology.ID:
 		res += "IonTechnology"
-	case PlasmaTechnology:
+	case PlasmaTechnology.ID:
 		res += "PlasmaTechnology"
-	case IntergalacticResearchNetwork:
+	case IntergalacticResearchNetwork.ID:
 		res += "IntergalacticResearchNetwork"
-	case Astrophysics:
+	case Astrophysics.ID:
 		res += "Astrophysics"
-	case GravitonTechnology:
+	case GravitonTechnology.ID:
 		res += "GravitonTechnology"
 	default:
 		res += "Invalid" + "(" + strconv.Itoa(int(o)) + ")"
@@ -135,29 +135,29 @@ func (o ID) String() string {
 
 // IsFacility ...
 func (o ID) IsFacility() bool {
-	return o == AllianceDepot ||
-		o == RoboticsFactory ||
-		o == Shipyard ||
-		o == ResearchLab ||
-		o == MissileSilo ||
-		o == NaniteFactory ||
-		o == Terraformer ||
-		o == SpaceDock
+	return o == AllianceDepot.ID ||
+		o == RoboticsFactory.ID ||
+		o == Shipyard.ID ||
+		o == ResearchLab.ID ||
+		o == MissileSilo.ID ||
+		o == NaniteFactory.ID ||
+		o == Terraformer.ID ||
+		o == SpaceDock.ID
 }
 
 // IsResourceBuilding ...
 func (o ID) IsResourceBuilding() bool {
-	return o == MetalMine ||
-		o == CrystalMine ||
-		o == DeuteriumSynthesizer ||
-		o == SolarPlant ||
-		o == FusionReactor ||
-		o == MetalStorage ||
-		o == CrystalStorage ||
-		o == DeuteriumTank ||
-		o == ShieldedMetalDen ||
-		o == UndergroundCrystalDen ||
-		o == SeabedDeuteriumDen
+	return o == MetalMine.ID ||
+		o == CrystalMine.ID ||
+		o == DeuteriumSynthesizer.ID ||
+		o == SolarPlant.ID ||
+		o == FusionReactor.ID ||
+		o == MetalStorage.ID ||
+		o == CrystalStorage.ID ||
+		o == DeuteriumTank.ID ||
+		o == ShieldedMetalDen.ID ||
+		o == UndergroundCrystalDen.ID ||
+		o == SeabedDeuteriumDen.ID
 }
 
 // IsBuilding ...
@@ -167,52 +167,52 @@ func (o ID) IsBuilding() bool {
 
 // IsTech ...
 func (o ID) IsTech() bool {
-	return o == EspionageTechnology ||
-		o == ComputerTechnology ||
-		o == WeaponsTechnology ||
-		o == ShieldingTechnology ||
-		o == ArmourTechnology ||
-		o == EnergyTechnology ||
-		o == HyperspaceTechnology ||
-		o == CombustionDrive ||
-		o == ImpulseDrive ||
-		o == HyperspaceDrive ||
-		o == LaserTechnology ||
-		o == IonTechnology ||
-		o == PlasmaTechnology ||
-		o == IntergalacticResearchNetwork ||
-		o == Astrophysics ||
-		o == GravitonTechnology
+	return o == EspionageTechnology.ID ||
+		o == ComputerTechnology.ID ||
+		o == WeaponsTechnology.ID ||
+		o == ShieldingTechnology.ID ||
+		o == ArmourTechnology.ID ||
+		o == EnergyTechnology.ID ||
+		o == HyperspaceTechnology.ID ||
+		o == CombustionDrive.ID ||
+		o == ImpulseDrive.ID ||
+		o == HyperspaceDrive.ID ||
+		o == LaserTechnology.ID ||
+		o == IonTechnology.ID ||
+		o == PlasmaTechnology.ID ||
+		o == IntergalacticResearchNetwork.ID ||
+		o == Astrophysics.ID ||
+		o == GravitonTechnology.ID
 }
 
 // IsDefense ...
 func (o ID) IsDefense() bool {
-	return o == RocketLauncher ||
-		o == LightLaser ||
-		o == HeavyLaser ||
-		o == GaussCannon ||
-		o == IonCannon ||
-		o == PlasmaTurret ||
-		o == SmallShieldDome ||
-		o == LargeShieldDome ||
-		o == AntiBallisticMissiles ||
-		o == InterplanetaryMissiles
+	return o == RocketLauncher.ID ||
+		o == LightLaser.ID ||
+		o == HeavyLaser.ID ||
+		o == GaussCannon.ID ||
+		o == IonCannon.ID ||
+		o == PlasmaTurret.ID ||
+		o == SmallShieldDome.ID ||
+		o == LargeShieldDome.ID ||
+		o == AntiBallisticMissiles.ID ||
+		o == InterplanetaryMissiles.ID
 }
 
 // IsShip ...
 func (o ID) IsShip() bool {
-	return o == SmallCargo ||
-		o == LargeCargo ||
-		o == LightFighter ||
-		o == HeavyFighter ||
-		o == Cruiser ||
-		o == Battleship ||
-		o == ColonyShip ||
-		o == Recycler ||
-		o == EspionageProbe ||
-		o == Bomber ||
-		o == SolarSatellite ||
-		o == Destroyer ||
-		o == Deathstar ||
-		o == Battlecruiser
+	return o == SmallCargo.ID ||
+		o == LargeCargo.ID ||
+		o == LightFighter.ID ||
+		o == HeavyFighter.ID ||
+		o == Cruiser.ID ||
+		o == Battleship.ID ||
+		o == ColonyShip.ID ||
+		o == Recycler.ID ||
+		o == EspionageProbe.ID ||
+		o == Bomber.ID ||
+		o == SolarSatellite.ID ||
+		o == Destroyer.ID ||
+		o == Deathstar.ID ||
+		o == Battlecruiser.ID
 }

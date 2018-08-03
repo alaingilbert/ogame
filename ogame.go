@@ -58,8 +58,8 @@ type Wrapper interface {
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
 	GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
-	GetDefense(PlanetID) (Defense, error)
-	GetShips(PlanetID) (Ships, error)
+	GetDefense(PlanetID) (Defenses, error)
+	GetShips(PlanetID) (ShipsInfos, error)
 	GetFacilities(PlanetID) (Facilities, error)
 	Build(planetID PlanetID, ogameID ID, nbr int) error
 	BuildCancelable(PlanetID, ID) error
@@ -74,6 +74,8 @@ type Wrapper interface {
 	CancelResearch(PlanetID) error
 	GetResources(PlanetID) (Resources, error)
 	SendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, error)
+	//GetResourcesProductionRatio(PlanetID) (float64, error)
+	GetResourcesProductions(PlanetID) (Resources, error)
 }
 
 const defaultUserAgent = "" +
@@ -90,6 +92,180 @@ var ErrBadCredentials = errors.New("bad credentials")
 
 // ErrInvalidPlanetID ...
 var ErrInvalidPlanetID = errors.New("invalid planet id")
+
+var (
+	AllianceDepot                = NewAllianceDepot() // Buildings
+	CrystalMine                  = NewCrystalMine()
+	CrystalStorage               = NewCrystalStorage()
+	DeuteriumSynthesizer         = NewDeuteriumSynthesizer()
+	DeuteriumTank                = NewDeuteriumTank()
+	FusionReactor                = NewFusionReactor()
+	MetalMine                    = NewMetalMine()
+	MetalStorage                 = NewMetalStorage()
+	MissileSilo                  = NewMissileSilo()
+	NaniteFactory                = NewNaniteFactory()
+	ResearchLab                  = NewResearchLab()
+	RoboticsFactory              = NewRoboticsFactory()
+	SeabedDeuteriumDen           = NewSeabedDeuteriumDen()
+	ShieldedMetalDen             = NewShieldedMetalDen()
+	Shipyard                     = NewShipyard()
+	SolarPlant                   = NewSolarPlant()
+	SpaceDock                    = NewSpaceDock()
+	Terraformer                  = NewTerraformer()
+	UndergroundCrystalDen        = NewUndergroundCrystalDen()
+	SolarSatellite               = NewSolarSatellite()
+	AntiBallisticMissiles        = NewAntiBallisticMissiles() // Defense
+	GaussCannon                  = NewGaussCannon()
+	HeavyLaser                   = NewHeavyLaser()
+	InterplanetaryMissiles       = NewInterplanetaryMissiles()
+	IonCannon                    = NewIonCannon()
+	LargeShieldDome              = NewLargeShieldDome()
+	LightLaser                   = NewLightLaser()
+	PlasmaTurret                 = NewPlasmaTurret()
+	RocketLauncher               = NewRocketLauncher()
+	SmallShieldDome              = NewSmallShieldDome()
+	Battlecruiser                = NewBattlecruiser() // Ships
+	Battleship                   = NewBattleship()
+	Bomber                       = NewBomber()
+	ColonyShip                   = NewColonyShip()
+	Cruiser                      = NewCruiser()
+	Deathstar                    = NewDeathstar()
+	Destroyer                    = NewDestroyer()
+	EspionageProbe               = NewEspionageProbe()
+	HeavyFighter                 = NewHeavyFighter()
+	LargeCargo                   = NewLargeCargo()
+	LightFighter                 = NewLightFighter()
+	Recycler                     = NewRecycler()
+	SmallCargo                   = NewSmallCargo()
+	ArmourTechnology             = NewArmourTechnology() // Technologies
+	Astrophysics                 = NewAstrophysics()
+	CombustionDrive              = NewCombustionDrive()
+	ComputerTechnology           = NewComputerTechnology()
+	EnergyTechnology             = NewEnergyTechnology()
+	EspionageTechnology          = NewEspionageTechnology()
+	GravitonTechnology           = NewGravitonTechnology()
+	HyperspaceDrive              = NewHyperspaceDrive()
+	HyperspaceTechnology         = NewHyperspaceTechnology()
+	ImpulseDrive                 = NewImpulseDrive()
+	IntergalacticResearchNetwork = NewIntergalacticResearchNetwork()
+	IonTechnology                = NewIonTechnology()
+	LaserTechnology              = NewLaserTechnology()
+	PlasmaTechnology             = NewPlasmaTechnology()
+	ShieldingTechnology          = NewShieldingTechnology()
+	WeaponsTechnology            = NewWeaponsTechnology()
+)
+
+// Technology ...
+type Technology interface {
+	GetOGameID() ID
+	GetBaseCost() Resources
+	GetIncreaseFactor() float64
+	GetRequirements() map[ID]int
+	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
+	GetLevel(ResourcesBuildings, Facilities, Researches) int
+	GetPrice(level int) Resources
+	ConstructionTime(level, universeSpeed int, facilities Facilities) int
+}
+
+// Building ...
+type Building interface {
+	GetOGameID() ID
+	GetBaseCost() Resources
+	GetIncreaseFactor() float64
+	GetRequirements() map[ID]int
+	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
+	GetLevel(ResourcesBuildings, Facilities, Researches) int
+	GetPrice(level int) Resources
+	ConstructionTime(level, universeSpeed int, facilities Facilities) int
+}
+
+// Ship ...
+type Ship interface {
+	GetOGameID() ID
+	GetRequirements() map[ID]int
+	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
+	GetPrice(int) Resources
+	GetStructuralIntegrity() int
+	GetShieldPower() int
+	GetWeaponPower() int
+	GetCargoCapacity() int
+	GetBaseSpeed() int
+	GetSpeed(researches Researches) int
+	GetFuelConsumption() int
+	GetRapidfireFrom() map[ID]int
+	GetRapidfireAgainst() map[ID]int
+}
+
+// Defense ...
+type Defense interface {
+	GetOGameID() ID
+	GetPrice(int) Resources
+	GetRequirements() map[ID]int
+	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
+	GetStructuralIntegrity() int
+	GetShieldPower() int
+	GetWeaponPower() int
+	GetRapidfireFrom() map[ID]int
+}
+
+var Ships = []Ship{
+	Battlecruiser,
+	Battleship,
+	Bomber,
+	ColonyShip,
+	Cruiser,
+	Deathstar,
+	Destroyer,
+	EspionageProbe,
+	HeavyFighter,
+	LargeCargo,
+	LightFighter,
+	Recycler,
+	SmallCargo,
+	SolarSatellite,
+}
+
+var Buildings = []Building{
+	AllianceDepot,
+	CrystalMine,
+	CrystalStorage,
+	DeuteriumSynthesizer,
+	DeuteriumTank,
+	FusionReactor,
+	MetalMine,
+	MetalStorage,
+	MissileSilo,
+	NaniteFactory,
+	ResearchLab,
+	RoboticsFactory,
+	SeabedDeuteriumDen,
+	ShieldedMetalDen,
+	Shipyard,
+	SolarPlant,
+	SpaceDock,
+	Terraformer,
+	UndergroundCrystalDen,
+	SolarSatellite,
+}
+
+var Technologies = []Technology{
+	ArmourTechnology,
+	Astrophysics,
+	CombustionDrive,
+	ComputerTechnology,
+	EnergyTechnology,
+	EspionageTechnology,
+	GravitonTechnology,
+	HyperspaceDrive,
+	HyperspaceTechnology,
+	ImpulseDrive,
+	IntergalacticResearchNetwork,
+	IonTechnology,
+	LaserTechnology,
+	PlasmaTechnology,
+	ShieldingTechnology,
+	WeaponsTechnology,
+}
 
 // OGame is a client for ogame.org. It is safe for concurrent use by
 // multiple goroutines (thread-safe)
@@ -1008,7 +1184,7 @@ func planetDistance(planet1, planet2 int) (distance int) {
 	return int(1000 + 5*math.Abs(float64(planet2-planet1)))
 }
 
-func calcFlightTime(origin, destination Coordinate, speed float64, universeSpeedFleet int, ships Ships, techs Researches) (secs, fuel int) {
+func calcFlightTime(origin, destination Coordinate, speed float64, universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
 	baseFuel := 1000.0
 	baseSpeed := 2500.0
 	s := 1.0
@@ -1284,14 +1460,14 @@ func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, er
 	return res, nil
 }
 
-func extractDefense(pageHTML string) (Defense, error) {
+func extractDefense(pageHTML string) (Defenses, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
-		return Defense{}, ErrInvalidPlanetID
+		return Defenses{}, ErrInvalidPlanetID
 	}
 	doc.Find("span.textlabel").Remove()
-	res := Defense{}
+	res := Defenses{}
 	res.RocketLauncher, _ = getNbr(doc, "defense401")
 	res.LightLaser, _ = getNbr(doc, "defense402")
 	res.HeavyLaser, _ = getNbr(doc, "defense403")
@@ -1306,20 +1482,20 @@ func extractDefense(pageHTML string) (Defense, error) {
 	return res, nil
 }
 
-func (b *OGame) getDefense(planetID PlanetID) (Defense, error) {
+func (b *OGame) getDefense(planetID PlanetID) (Defenses, error) {
 	planetIDStr := planetID.String()
 	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {planetIDStr}})
 	return extractDefense(pageHTML)
 }
 
-func extractShips(pageHTML string) (Ships, error) {
+func extractShips(pageHTML string) (ShipsInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
-		return Ships{}, ErrInvalidPlanetID
+		return ShipsInfos{}, ErrInvalidPlanetID
 	}
-	res := Ships{}
+	res := ShipsInfos{}
 	res.LightFighter, _ = getNbr(doc, "military204")
 	res.HeavyFighter, _ = getNbr(doc, "military205")
 	res.Cruiser, _ = getNbr(doc, "military206")
@@ -1338,7 +1514,7 @@ func extractShips(pageHTML string) (Ships, error) {
 	return res, nil
 }
 
-func (b *OGame) getShips(planetID PlanetID) (Ships, error) {
+func (b *OGame) getShips(planetID PlanetID) (ShipsInfos, error) {
 	planetIDStr := planetID.String()
 	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetIDStr}})
 	return extractShips(pageHTML)
@@ -1840,8 +2016,8 @@ type EspionageReport struct {
 	ResourcesBuildings
 	Facilities
 	Researches
-	Ships
-	Defense
+	ShipsInfos
+	Defenses
 	Coordinate Coordinate
 	Type       EspionageReportType
 	Date       time.Time
@@ -1872,43 +2048,44 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 			report.Deuterium = parseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
 			report.Energy = parseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
+			fmt.Println("CALISS1")
 			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
 				level, _ := strconv.Atoi(s2.Find("span.fright").Text())
 				switch ID(buildingID) {
-				case MetalMine:
+				case MetalMine.ID:
 					report.MetalMine = level
-				case CrystalMine:
+				case CrystalMine.ID:
 					report.CrystalMine = level
-				case DeuteriumSynthesizer:
+				case DeuteriumSynthesizer.ID:
 					report.DeuteriumSynthesizer = level
-				case SolarPlant:
+				case SolarPlant.ID:
 					report.SolarPlant = level
-				case FusionReactor:
+				case FusionReactor.ID:
 					report.FusionReactor = level
-				case MetalStorage:
+				case MetalStorage.ID:
 					report.MetalStorage = level
-				case CrystalStorage:
+				case CrystalStorage.ID:
 					report.CrystalStorage = level
-				case DeuteriumTank:
+				case DeuteriumTank.ID:
 					report.DeuteriumTank = level
-				case AllianceDepot:
+				case AllianceDepot.ID:
 					report.AllianceDepot = level
-				case RoboticsFactory:
+				case RoboticsFactory.ID:
 					report.RoboticsFactory = level
-				case Shipyard:
+				case Shipyard.ID:
 					report.Shipyard = level
-				case ResearchLab:
+				case ResearchLab.ID:
 					report.ResearchLab = level
-				case MissileSilo:
+				case MissileSilo.ID:
 					report.MissileSilo = level
-				case NaniteFactory:
+				case NaniteFactory.ID:
 					report.NaniteFactory = level
-				case Terraformer:
+				case Terraformer.ID:
 					report.Terraformer = level
-				case SpaceDock:
+				case SpaceDock.ID:
 					report.SpaceDock = level
 				}
 			})
@@ -1919,37 +2096,37 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				researchID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
 				level, _ := strconv.Atoi(s2.Find("span.fright").Text())
 				switch ID(researchID) {
-				case EspionageTechnology:
+				case EspionageTechnology.ID:
 					report.EspionageTechnology = level
-				case ComputerTechnology:
+				case ComputerTechnology.ID:
 					report.ComputerTechnology = level
-				case WeaponsTechnology:
+				case WeaponsTechnology.ID:
 					report.WeaponsTechnology = level
-				case ShieldingTechnology:
+				case ShieldingTechnology.ID:
 					report.ShieldingTechnology = level
-				case ArmourTechnology:
+				case ArmourTechnology.ID:
 					report.ArmourTechnology = level
-				case EnergyTechnology:
+				case EnergyTechnology.ID:
 					report.EnergyTechnology = level
-				case HyperspaceTechnology:
+				case HyperspaceTechnology.ID:
 					report.HyperspaceTechnology = level
-				case CombustionDrive:
+				case CombustionDrive.ID:
 					report.CombustionDrive = level
-				case ImpulseDrive:
+				case ImpulseDrive.ID:
 					report.ImpulseDrive = level
-				case HyperspaceDrive:
+				case HyperspaceDrive.ID:
 					report.HyperspaceDrive = level
-				case LaserTechnology:
+				case LaserTechnology.ID:
 					report.LaserTechnology = level
-				case IonTechnology:
+				case IonTechnology.ID:
 					report.IonTechnology = level
-				case PlasmaTechnology:
+				case PlasmaTechnology.ID:
 					report.PlasmaTechnology = level
-				case IntergalacticResearchNetwork:
+				case IntergalacticResearchNetwork.ID:
 					report.IntergalacticResearchNetwork = level
-				case Astrophysics:
+				case Astrophysics.ID:
 					report.Astrophysics = level
-				case GravitonTechnology:
+				case GravitonTechnology.ID:
 					report.GravitonTechnology = level
 				}
 			})
@@ -1960,33 +2137,33 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				shipID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
 				level, _ := strconv.Atoi(s2.Find("span.fright").Text())
 				switch ID(shipID) {
-				case SmallCargo:
+				case SmallCargo.ID:
 					report.SmallCargo = level
-				case LargeCargo:
+				case LargeCargo.ID:
 					report.LargeCargo = level
-				case LightFighter:
+				case LightFighter.ID:
 					report.LightFighter = level
-				case HeavyFighter:
+				case HeavyFighter.ID:
 					report.HeavyFighter = level
-				case Cruiser:
+				case Cruiser.ID:
 					report.Cruiser = level
-				case Battleship:
+				case Battleship.ID:
 					report.Battleship = level
-				case ColonyShip:
+				case ColonyShip.ID:
 					report.ColonyShip = level
-				case Recycler:
+				case Recycler.ID:
 					report.Recycler = level
-				case EspionageProbe:
+				case EspionageProbe.ID:
 					report.EspionageProbe = level
-				case Bomber:
+				case Bomber.ID:
 					report.Bomber = level
 				//case SolarSatellite:
 				//	report.SolarSatellite = level
-				case Destroyer:
+				case Destroyer.ID:
 					report.Destroyer = level
-				case Deathstar:
+				case Deathstar.ID:
 					report.Deathstar = level
-				case Battlecruiser:
+				case Battlecruiser.ID:
 					report.Battlecruiser = level
 				}
 			})
@@ -1997,25 +2174,25 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				defenceID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
 				level, _ := strconv.Atoi(s2.Find("span.fright").Text())
 				switch ID(defenceID) {
-				case RocketLauncher:
+				case RocketLauncher.ID:
 					report.RocketLauncher = level
-				case LightLaser:
+				case LightLaser.ID:
 					report.LightLaser = level
-				case HeavyLaser:
+				case HeavyLaser.ID:
 					report.HeavyLaser = level
-				case GaussCannon:
+				case GaussCannon.ID:
 					report.GaussCannon = level
-				case IonCannon:
+				case IonCannon.ID:
 					report.IonCannon = level
-				case PlasmaTurret:
+				case PlasmaTurret.ID:
 					report.PlasmaTurret = level
-				case SmallShieldDome:
+				case SmallShieldDome.ID:
 					report.SmallShieldDome = level
-				case LargeShieldDome:
+				case LargeShieldDome.ID:
 					report.LargeShieldDome = level
-				case AntiBallisticMissiles:
+				case AntiBallisticMissiles.ID:
 					report.AntiBallisticMissiles = level
-				case InterplanetaryMissiles:
+				case InterplanetaryMissiles.ID:
 					report.InterplanetaryMissiles = level
 				}
 			})
@@ -2056,6 +2233,64 @@ func (b *OGame) deleteMessage(msgID int) error {
 		return errors.New("unable to find message id " + strconv.Itoa(msgID))
 	}
 	return nil
+}
+
+func energyProduced(maxTemp int, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology, solarSatellite int) int {
+	energyProduced := int(float64(SolarPlant.Production(resourcesBuildings.SolarPlant)) * (float64(resSettings.SolarPlant) / 100))
+	energyProduced += int(float64(FusionReactor.Production(energyTechnology, resourcesBuildings.FusionReactor)) * (float64(resSettings.FusionReactor) / 100))
+	energyProduced += int(float64(SolarSatellite.Production(maxTemp, solarSatellite)) * (float64(resSettings.SolarSatellite) / 100))
+	return energyProduced
+}
+
+func energyNeeded(resourcesBuildings ResourcesBuildings, resSettings ResourceSettings) int {
+	energyNeeded := int(float64(MetalMine.EnergyConsumption(resourcesBuildings.MetalMine)) * (float64(resSettings.MetalMine) / 100))
+	energyNeeded += int(float64(CrystalMine.EnergyConsumption(resourcesBuildings.CrystalMine)) * (float64(resSettings.CrystalMine) / 100))
+	energyNeeded += int(float64(DeuteriumSynthesizer.EnergyConsumption(resourcesBuildings.DeuteriumSynthesizer)) * (float64(resSettings.DeuteriumSynthesizer) / 100))
+	return energyNeeded
+}
+
+func productionRatio(maxTemp int, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology int) float64 {
+	energyProduced := energyProduced(maxTemp, resourcesBuildings, resSettings, energyTechnology, resourcesBuildings.SolarSatellite)
+	energyNeeded := energyNeeded(resourcesBuildings, resSettings)
+	ratio := 1.0
+	if energyNeeded > energyProduced {
+		ratio = float64(energyProduced) / float64(energyNeeded)
+	}
+	return ratio
+}
+
+func getProductions(resBuildings ResourcesBuildings, resSettings ResourceSettings, researches Researches, universeSpeed,
+	maxTemp int, productionRatio float64) Resources {
+	energyProduced := energyProduced(maxTemp, resBuildings, resSettings, researches.EnergyTechnology, resBuildings.SolarSatellite)
+	energyNeeded := energyNeeded(resBuildings, resSettings)
+	return Resources{
+		Metal:     MetalMine.Production(universeSpeed, productionRatio, resBuildings.MetalMine),
+		Crystal:   CrystalMine.Production(universeSpeed, productionRatio, resBuildings.CrystalMine),
+		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, maxTemp, productionRatio, resBuildings.DeuteriumSynthesizer),
+		Energy:    energyProduced - energyNeeded,
+	}
+}
+
+func extractResourcesProductions(pageHTML string) (Resources, error) {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	res := Resources{}
+	selector := "table.listOfResourceSettingsPerPlanet tr.summary td span"
+	res.Metal = parseInt(strings.Trim(doc.Find(selector).Eq(0).AttrOr("title", "0"), "\n\t\r "))
+	res.Crystal = parseInt(strings.Trim(doc.Find(selector).Eq(1).AttrOr("title", "0"), "\n\t\r "))
+	res.Deuterium = parseInt(strings.Trim(doc.Find(selector).Eq(2).AttrOr("title", "0"), "\n\t\r "))
+	res.Energy = parseInt(strings.Trim(doc.Find(selector).Eq(3).AttrOr("title", "0"), "\n\t\r "))
+	return res, nil
+}
+
+func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
+	planet, _ := b.getPlanet(planetID)
+	resBuildings, _ := b.getResourcesBuildings(planetID)
+	researches := b.getResearch()
+	universeSpeed := b.getUniverseSpeed()
+	resSettings, _ := b.getResourceSettings(planetID)
+	ratio := productionRatio(planet.Temperature.Max, resBuildings, resSettings, researches.EnergyTechnology)
+	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, planet.Temperature.Max, ratio)
+	return productions, nil
 }
 
 // ServerURL ...
@@ -2227,14 +2462,14 @@ func (b *OGame) GetResourcesBuildings(planetID PlanetID) (ResourcesBuildings, er
 
 // GetDefense ...
 // Fails if planetID is invalid
-func (b *OGame) GetDefense(planetID PlanetID) (Defense, error) {
+func (b *OGame) GetDefense(planetID PlanetID) (Defenses, error) {
 	b.Lock()
 	defer b.Unlock()
 	return b.getDefense(planetID)
 }
 
 // GetShips ...
-func (b *OGame) GetShips(planetID PlanetID) (Ships, error) {
+func (b *OGame) GetShips(planetID PlanetID) (ShipsInfos, error) {
 	b.Lock()
 	defer b.Unlock()
 	return b.getShips(planetID)
@@ -2366,4 +2601,11 @@ func (b *OGame) DeleteMessage(msgID int) error {
 	b.Lock()
 	defer b.Unlock()
 	return b.deleteMessage(msgID)
+}
+
+// GetResourcesProductions ...
+func (b *OGame) GetResourcesProductions(planetID PlanetID) (Resources, error) {
+	b.Lock()
+	defer b.Unlock()
+	return b.getResourcesProductions(planetID)
 }

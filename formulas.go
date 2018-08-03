@@ -34,10 +34,6 @@ func SolarSatellitesProduction(avgTemp int) float64 {
 	return float64(avgTemp)/4 + 20
 }
 
-func buildingCost(baseCost int, increaseFactor float64, level int) int {
-	return int(math.Floor(float64(baseCost) * math.Pow(increaseFactor, float64(level)-1)))
-}
-
 // MetalMineCost ...
 func MetalMineCost(level int) Resources {
 	return Resources{

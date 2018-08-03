@@ -3,7 +3,7 @@ package ogame
 import "strconv"
 
 // Ships ...
-type Ships struct {
+type ShipsInfos struct {
 	LightFighter   int
 	HeavyFighter   int
 	Cruiser        int
@@ -21,73 +21,73 @@ type Ships struct {
 }
 
 // ByOGameID ...
-func (s Ships) ByOGameID(ogameID ID) int {
-	if ogameID == LightFighter {
+func (s ShipsInfos) ByOGameID(ogameID ID) int {
+	if ogameID == LightFighter.ID {
 		return s.LightFighter
-	} else if ogameID == HeavyFighter {
+	} else if ogameID == HeavyFighter.ID {
 		return s.HeavyFighter
-	} else if ogameID == Cruiser {
+	} else if ogameID == Cruiser.ID {
 		return s.Cruiser
-	} else if ogameID == Battleship {
+	} else if ogameID == Battleship.ID {
 		return s.Battleship
-	} else if ogameID == Battlecruiser {
+	} else if ogameID == Battlecruiser.ID {
 		return s.Battlecruiser
-	} else if ogameID == Bomber {
+	} else if ogameID == Bomber.ID {
 		return s.Bomber
-	} else if ogameID == Destroyer {
+	} else if ogameID == Destroyer.ID {
 		return s.Destroyer
-	} else if ogameID == Deathstar {
+	} else if ogameID == Deathstar.ID {
 		return s.Deathstar
-	} else if ogameID == SmallCargo {
+	} else if ogameID == SmallCargo.ID {
 		return s.SmallCargo
-	} else if ogameID == LargeCargo {
+	} else if ogameID == LargeCargo.ID {
 		return s.LargeCargo
-	} else if ogameID == ColonyShip {
+	} else if ogameID == ColonyShip.ID {
 		return s.ColonyShip
-	} else if ogameID == Recycler {
+	} else if ogameID == Recycler.ID {
 		return s.Recycler
-	} else if ogameID == EspionageProbe {
+	} else if ogameID == EspionageProbe.ID {
 		return s.EspionageProbe
-	} else if ogameID == SolarSatellite {
+	} else if ogameID == SolarSatellite.ID {
 		return s.SolarSatellite
 	}
 	return 0
 }
 
 // Set ...
-func (s *Ships) Set(ogameID ID, val int) {
-	if ogameID == LightFighter {
+func (s *ShipsInfos) Set(ogameID ID, val int) {
+	if ogameID == LightFighter.ID {
 		s.LightFighter = val
-	} else if ogameID == HeavyFighter {
+	} else if ogameID == HeavyFighter.ID {
 		s.HeavyFighter = val
-	} else if ogameID == Cruiser {
+	} else if ogameID == Cruiser.ID {
 		s.Cruiser = val
-	} else if ogameID == Battleship {
+	} else if ogameID == Battleship.ID {
 		s.Battleship = val
-	} else if ogameID == Battlecruiser {
+	} else if ogameID == Battlecruiser.ID {
 		s.Battlecruiser = val
-	} else if ogameID == Bomber {
+	} else if ogameID == Bomber.ID {
 		s.Bomber = val
-	} else if ogameID == Destroyer {
+	} else if ogameID == Destroyer.ID {
 		s.Destroyer = val
-	} else if ogameID == Deathstar {
+	} else if ogameID == Deathstar.ID {
 		s.Deathstar = val
-	} else if ogameID == SmallCargo {
+	} else if ogameID == SmallCargo.ID {
 		s.SmallCargo = val
-	} else if ogameID == LargeCargo {
+	} else if ogameID == LargeCargo.ID {
 		s.LargeCargo = val
-	} else if ogameID == ColonyShip {
+	} else if ogameID == ColonyShip.ID {
 		s.ColonyShip = val
-	} else if ogameID == Recycler {
+	} else if ogameID == Recycler.ID {
 		s.Recycler = val
-	} else if ogameID == EspionageProbe {
+	} else if ogameID == EspionageProbe.ID {
 		s.EspionageProbe = val
-	} else if ogameID == SolarSatellite {
+	} else if ogameID == SolarSatellite.ID {
 		s.SolarSatellite = val
 	}
 }
 
-func (s Ships) String() string {
+func (s ShipsInfos) String() string {
 	return "\n" +
 		"  Light Fighter: " + strconv.Itoa(s.LightFighter) + "\n" +
 		"  Heavy Fighter: " + strconv.Itoa(s.HeavyFighter) + "\n" +

@@ -20,6 +20,12 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 117, 9}, msgs[1].Target)
 }
 
+func TestExtractResourcesProductions(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_settings.html")
+	prods, _ := extractResourcesProductions(string(pageHTMLBytes))
+	assert.Equal(t, Resources{Metal: 10352, Crystal: 5104, Deuterium: 1282, Energy: -52}, prods)
+}
+
 func TestExtractAttacks(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks := extractAttacks(string(pageHTMLBytes))
@@ -41,13 +47,13 @@ func TestExtractGalaxyInfos(t *testing.T) {
 
 func TestExtractUserInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
-	infos := extractUserInfos(string(pageHTMLBytes), "en")
+	infos, _ := extractUserInfos(string(pageHTMLBytes), "en")
 	assert.Equal(t, 1295, infos.Points)
 }
 
 func TestExtractUserInfos_de(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/de_overview.html")
-	infos := extractUserInfos(string(pageHTMLBytes), "de")
+	infos, _ := extractUserInfos(string(pageHTMLBytes), "de")
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 2980, infos.Rank)
 	assert.Equal(t, 2980, infos.Total)
@@ -55,7 +61,7 @@ func TestExtractUserInfos_de(t *testing.T) {
 
 func TestExtractUserInfos_jp(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/jp_overview.html")
-	infos := extractUserInfos(string(pageHTMLBytes), "jp")
+	infos, _ := extractUserInfos(string(pageHTMLBytes), "jp")
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 73, infos.Rank)
 	assert.Equal(t, 73, infos.Total)
@@ -63,7 +69,7 @@ func TestExtractUserInfos_jp(t *testing.T) {
 
 func TestExtractUserInfos_fr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr_overview.html")
-	infos := extractUserInfos(string(pageHTMLBytes), "fr")
+	infos, _ := extractUserInfos(string(pageHTMLBytes), "fr")
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 3197, infos.Rank)
 	assert.Equal(t, 3348, infos.Total)
@@ -226,36 +232,36 @@ func TestExtractProduction(t *testing.T) {
 }
 
 func TestIsShipID(t *testing.T) {
-	assert.True(t, IsShipID(int(SmallCargo)))
-	assert.False(t, IsShipID(int(RocketLauncher)))
+	assert.True(t, IsShipID(int(SmallCargoID)))
+	assert.False(t, IsShipID(int(RocketLauncherID)))
 }
 
 func TestIsDefenseID(t *testing.T) {
-	assert.True(t, IsDefenseID(int(RocketLauncher)))
-	assert.False(t, IsDefenseID(int(SmallCargo)))
+	assert.True(t, IsDefenseID(int(RocketLauncherID)))
+	assert.False(t, IsDefenseID(int(SmallCargoID)))
 }
 
 func TestIsTechID(t *testing.T) {
-	assert.True(t, IsTechID(int(CombustionDrive)))
-	assert.False(t, IsTechID(int(SmallCargo)))
+	assert.True(t, IsTechID(int(CombustionDriveID)))
+	assert.False(t, IsTechID(int(SmallCargoID)))
 }
 
 func TestIsBuildingID(t *testing.T) {
-	assert.True(t, IsBuildingID(int(MetalMine)))
-	assert.True(t, IsBuildingID(int(RoboticsFactory)))
-	assert.False(t, IsBuildingID(int(SmallCargo)))
+	assert.True(t, IsBuildingID(int(MetalMineID)))
+	assert.True(t, IsBuildingID(int(RoboticsFactoryID)))
+	assert.False(t, IsBuildingID(int(SmallCargoID)))
 }
 
 func TestIsResourceBuildingID(t *testing.T) {
-	assert.True(t, IsResourceBuildingID(int(MetalMine)))
-	assert.False(t, IsResourceBuildingID(int(RoboticsFactory)))
-	assert.False(t, IsResourceBuildingID(int(SmallCargo)))
+	assert.True(t, IsResourceBuildingID(int(MetalMineID)))
+	assert.False(t, IsResourceBuildingID(int(RoboticsFactoryID)))
+	assert.False(t, IsResourceBuildingID(int(SmallCargoID)))
 }
 
 func TestIsFacilityID(t *testing.T) {
-	assert.False(t, IsFacilityID(int(MetalMine)))
-	assert.True(t, IsFacilityID(int(RoboticsFactory)))
-	assert.False(t, IsFacilityID(int(SmallCargo)))
+	assert.False(t, IsFacilityID(int(MetalMineID)))
+	assert.True(t, IsFacilityID(int(RoboticsFactoryID)))
+	assert.False(t, IsFacilityID(int(SmallCargoID)))
 }
 
 func TestExtractEspionageReport_action(t *testing.T) {

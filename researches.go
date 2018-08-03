@@ -24,37 +24,37 @@ type Researches struct {
 
 // ByOGameID ...
 func (s Researches) ByOGameID(ogameID ID) int {
-	if ogameID == EnergyTechnology {
+	if ogameID == EnergyTechnology.ID {
 		return s.EnergyTechnology
-	} else if ogameID == LaserTechnology {
+	} else if ogameID == LaserTechnology.ID {
 		return s.LaserTechnology
-	} else if ogameID == IonTechnology {
+	} else if ogameID == IonTechnology.ID {
 		return s.IonTechnology
-	} else if ogameID == HyperspaceTechnology {
+	} else if ogameID == HyperspaceTechnology.ID {
 		return s.HyperspaceTechnology
-	} else if ogameID == PlasmaTechnology {
+	} else if ogameID == PlasmaTechnology.ID {
 		return s.PlasmaTechnology
-	} else if ogameID == CombustionDrive {
+	} else if ogameID == CombustionDrive.ID {
 		return s.CombustionDrive
-	} else if ogameID == ImpulseDrive {
+	} else if ogameID == ImpulseDrive.ID {
 		return s.ImpulseDrive
-	} else if ogameID == HyperspaceDrive {
+	} else if ogameID == HyperspaceDrive.ID {
 		return s.HyperspaceDrive
-	} else if ogameID == EspionageTechnology {
+	} else if ogameID == EspionageTechnology.ID {
 		return s.EspionageTechnology
-	} else if ogameID == ComputerTechnology {
+	} else if ogameID == ComputerTechnology.ID {
 		return s.ComputerTechnology
-	} else if ogameID == Astrophysics {
+	} else if ogameID == Astrophysics.ID {
 		return s.Astrophysics
-	} else if ogameID == IntergalacticResearchNetwork {
+	} else if ogameID == IntergalacticResearchNetwork.ID {
 		return s.IntergalacticResearchNetwork
-	} else if ogameID == GravitonTechnology {
+	} else if ogameID == GravitonTechnology.ID {
 		return s.GravitonTechnology
-	} else if ogameID == WeaponsTechnology {
+	} else if ogameID == WeaponsTechnology.ID {
 		return s.WeaponsTechnology
-	} else if ogameID == ShieldingTechnology {
+	} else if ogameID == ShieldingTechnology.ID {
 		return s.ShieldingTechnology
-	} else if ogameID == ArmourTechnology {
+	} else if ogameID == ArmourTechnology.ID {
 		return s.ArmourTechnology
 	}
 	return 0

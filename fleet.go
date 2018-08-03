@@ -8,6 +8,6 @@ type Fleet struct {
 	Resources    Resources
 	Origin       Coordinate
 	Destination  Coordinate
-	Ships        Ships
+	Ships        ShipsInfos
 	ArriveIn     int
 }

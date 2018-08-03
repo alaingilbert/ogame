@@ -1,0 +1,16 @@
+package ogame
+
+// SpaceDock ...
+type spaceDock struct {
+	BaseBuilding
+}
+
+// NewSpaceDock ...
+func NewSpaceDock() *spaceDock {
+	b := new(spaceDock)
+	b.ID = SpaceDockID
+	b.IncreaseFactor = 5
+	b.BaseCost = Resources{Metal: 200, Crystal: 50, Energy: 50}
+	b.Requirements = map[ID]int{ShipyardID: 2}
+	return b
+}

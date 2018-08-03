@@ -17,23 +17,23 @@ type ResourcesBuildings struct {
 
 // ByOGameID ...
 func (r ResourcesBuildings) ByOGameID(ogameID ID) int {
-	if ogameID == MetalMine {
+	if ogameID == MetalMine.ID {
 		return r.MetalMine
-	} else if ogameID == CrystalMine {
+	} else if ogameID == CrystalMine.ID {
 		return r.CrystalMine
-	} else if ogameID == DeuteriumSynthesizer {
+	} else if ogameID == DeuteriumSynthesizer.ID {
 		return r.DeuteriumSynthesizer
-	} else if ogameID == SolarPlant {
+	} else if ogameID == SolarPlant.ID {
 		return r.SolarPlant
-	} else if ogameID == FusionReactor {
+	} else if ogameID == FusionReactor.ID {
 		return r.FusionReactor
-	} else if ogameID == SolarSatellite {
+	} else if ogameID == SolarSatellite.ID {
 		return r.SolarSatellite
-	} else if ogameID == MetalStorage {
+	} else if ogameID == MetalStorage.ID {
 		return r.MetalStorage
-	} else if ogameID == CrystalStorage {
+	} else if ogameID == CrystalStorage.ID {
 		return r.CrystalStorage
-	} else if ogameID == DeuteriumTank {
+	} else if ogameID == DeuteriumTank.ID {
 		return r.DeuteriumTank
 	}
 	return 0
