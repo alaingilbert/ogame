@@ -75,6 +75,21 @@ func TestExtractUserInfos_fr(t *testing.T) {
 	assert.Equal(t, 3348, infos.Total)
 }
 
+func TestExtractPlanets_fieldsFilled(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_fields_filled.html")
+	planets := extractPlanets(string(pageHTMLBytes), nil)
+	assert.Equal(t, 5, len(planets))
+	assert.Equal(t, PlanetID(33698658), planets[0].ID)
+	assert.Equal(t, Coordinate{Galaxy: 4, System: 116, Position: 12}, planets[0].Coordinate)
+	assert.Equal(t, "Homeworld", planets[0].Name)
+	assert.Equal(t, "https://gf3.geo.gfsrv.net/cdnea/7d7ba402d90247ef7d89aa1035e525.png", planets[0].Img)
+	assert.Equal(t, -23, planets[0].Temperature.Min)
+	assert.Equal(t, 17, planets[0].Temperature.Max)
+	assert.Equal(t, 188, planets[0].Fields.Built)
+	assert.Equal(t, 188, planets[0].Fields.Total)
+	assert.Equal(t, 12800, planets[0].Diameter)
+}
+
 func TestExtractPlanets(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
 	planets := extractPlanets(string(pageHTMLBytes), nil)

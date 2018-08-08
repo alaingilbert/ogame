@@ -20,6 +20,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Sirupsen/logrus"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 )
@@ -892,8 +893,9 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 		planetPic, _ := s.Find("img.planetPic").Attr("src")
 
 		txt, _ := s.Find("a.planetlink").Attr("title")
-		r1 := regexp.MustCompile(`<b>([^\[]+) \[(\d+):(\d+):(\d+)]</b><br/>([\d.]+)km \((\d+)/(\d+)\)<(?:BR|br)>([-\d]+).+C (?:bis|to|à) ([-\d]+).+C<br/>`)
-		m1 := r1.FindStringSubmatch(txt)
+		p := bluemonday.StrictPolicy()
+		r1 := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)([-\d]+).+C (?:bis|to|à) ([-\d]+).+C`)
+		m1 := r1.FindStringSubmatch(p.Sanitize(txt))
 		if len(m1) < 10 {
 			b.error("failed to parse planet infos: " + txt)
 			return
