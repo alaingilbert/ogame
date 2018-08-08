@@ -15,25 +15,25 @@ type ResourcesBuildings struct {
 	DeuteriumTank        int
 }
 
-// ByOGameID ...
-func (r ResourcesBuildings) ByOGameID(ogameID ID) int {
-	if ogameID == MetalMine.ID {
+// ByID ...
+func (r ResourcesBuildings) ByID(id ID) int {
+	if id == MetalMine.ID {
 		return r.MetalMine
-	} else if ogameID == CrystalMine.ID {
+	} else if id == CrystalMine.ID {
 		return r.CrystalMine
-	} else if ogameID == DeuteriumSynthesizer.ID {
+	} else if id == DeuteriumSynthesizer.ID {
 		return r.DeuteriumSynthesizer
-	} else if ogameID == SolarPlant.ID {
+	} else if id == SolarPlant.ID {
 		return r.SolarPlant
-	} else if ogameID == FusionReactor.ID {
+	} else if id == FusionReactor.ID {
 		return r.FusionReactor
-	} else if ogameID == SolarSatellite.ID {
+	} else if id == SolarSatellite.ID {
 		return r.SolarSatellite
-	} else if ogameID == MetalStorage.ID {
+	} else if id == MetalStorage.ID {
 		return r.MetalStorage
-	} else if ogameID == CrystalStorage.ID {
+	} else if id == CrystalStorage.ID {
 		return r.CrystalStorage
-	} else if ogameID == DeuteriumTank.ID {
+	} else if id == DeuteriumTank.ID {
 		return r.DeuteriumTank
 	}
 	return 0

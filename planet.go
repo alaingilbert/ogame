@@ -59,8 +59,8 @@ func (p *Planet) GetFacilities() (Facilities, error) {
 }
 
 // BuildCancelable ...
-func (p *Planet) BuildCancelable(ogameID ID) error {
-	return p.ogame.BuildCancelable(p.ID, ogameID)
+func (p *Planet) BuildCancelable(id ID) error {
+	return p.ogame.BuildCancelable(p.ID, id)
 }
 
 // BuildBuilding ...

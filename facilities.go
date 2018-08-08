@@ -14,23 +14,23 @@ type Facilities struct {
 	SpaceDock       int
 }
 
-// ByOGameID ...
-func (f Facilities) ByOGameID(ogameID ID) int {
-	if ogameID == RoboticsFactory.ID {
+// ByID ...
+func (f Facilities) ByID(id ID) int {
+	if id == RoboticsFactory.ID {
 		return f.RoboticsFactory
-	} else if ogameID == Shipyard.ID {
+	} else if id == Shipyard.ID {
 		return f.Shipyard
-	} else if ogameID == ResearchLab.ID {
+	} else if id == ResearchLab.ID {
 		return f.ResearchLab
-	} else if ogameID == AllianceDepot.ID {
+	} else if id == AllianceDepot.ID {
 		return f.AllianceDepot
-	} else if ogameID == MissileSilo.ID {
+	} else if id == MissileSilo.ID {
 		return f.MissileSilo
-	} else if ogameID == NaniteFactory.ID {
+	} else if id == NaniteFactory.ID {
 		return f.NaniteFactory
-	} else if ogameID == Terraformer.ID {
+	} else if id == Terraformer.ID {
 		return f.Terraformer
-	} else if ogameID == SpaceDock.ID {
+	} else if id == SpaceDock.ID {
 		return f.SpaceDock
 	}
 	return 0

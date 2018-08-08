@@ -107,13 +107,13 @@ func (b BaseShip) GetRequirements() map[ID]int {
 
 // IsAvailable ...
 func (b BaseShip) IsAvailable(_ ResourcesBuildings, facilities Facilities, researches Researches, _ int) bool {
-	for ogameID, levelNeeded := range b.Requirements {
-		if ogameID.IsFacility() {
-			if facilities.ByOGameID(ogameID) < levelNeeded {
+	for id, levelNeeded := range b.Requirements {
+		if id.IsFacility() {
+			if facilities.ByID(id) < levelNeeded {
 				return false
 			}
-		} else if ogameID.IsTech() {
-			if researches.ByOGameID(ogameID) < levelNeeded {
+		} else if id.IsTech() {
+			if researches.ByID(id) < levelNeeded {
 				return false
 			}
 		}

@@ -58,26 +58,26 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Faci
 // GetLevel ...
 func (b BaseBuilding) GetLevel(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches) int {
 	if b.ID.IsResourceBuilding() {
-		return resourcesBuildings.ByOGameID(b.ID)
+		return resourcesBuildings.ByID(b.ID)
 	} else if b.ID.IsFacility() {
-		return facilities.ByOGameID(b.ID)
+		return facilities.ByID(b.ID)
 	}
 	return 0
 }
 
 // IsAvailable ...
 func (b BaseBuilding) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, _ int) bool {
-	for ogameID, levelNeeded := range b.Requirements {
-		if ogameID.IsResourceBuilding() {
-			if resourcesBuildings.ByOGameID(ogameID) < levelNeeded {
+	for id, levelNeeded := range b.Requirements {
+		if id.IsResourceBuilding() {
+			if resourcesBuildings.ByID(id) < levelNeeded {
 				return false
 			}
-		} else if ogameID.IsFacility() {
-			if facilities.ByOGameID(ogameID) < levelNeeded {
+		} else if id.IsFacility() {
+			if facilities.ByID(id) < levelNeeded {
 				return false
 			}
-		} else if ogameID.IsTech() {
-			if researches.ByOGameID(ogameID) < levelNeeded {
+		} else if id.IsTech() {
+			if researches.ByID(id) < levelNeeded {
 				return false
 			}
 		}

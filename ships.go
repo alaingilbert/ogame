@@ -20,69 +20,69 @@ type ShipsInfos struct {
 	SolarSatellite int
 }
 
-// ByOGameID ...
-func (s ShipsInfos) ByOGameID(ogameID ID) int {
-	if ogameID == LightFighter.ID {
+// ByID ...
+func (s ShipsInfos) ByID(id ID) int {
+	if id == LightFighter.ID {
 		return s.LightFighter
-	} else if ogameID == HeavyFighter.ID {
+	} else if id == HeavyFighter.ID {
 		return s.HeavyFighter
-	} else if ogameID == Cruiser.ID {
+	} else if id == Cruiser.ID {
 		return s.Cruiser
-	} else if ogameID == Battleship.ID {
+	} else if id == Battleship.ID {
 		return s.Battleship
-	} else if ogameID == Battlecruiser.ID {
+	} else if id == Battlecruiser.ID {
 		return s.Battlecruiser
-	} else if ogameID == Bomber.ID {
+	} else if id == Bomber.ID {
 		return s.Bomber
-	} else if ogameID == Destroyer.ID {
+	} else if id == Destroyer.ID {
 		return s.Destroyer
-	} else if ogameID == Deathstar.ID {
+	} else if id == Deathstar.ID {
 		return s.Deathstar
-	} else if ogameID == SmallCargo.ID {
+	} else if id == SmallCargo.ID {
 		return s.SmallCargo
-	} else if ogameID == LargeCargo.ID {
+	} else if id == LargeCargo.ID {
 		return s.LargeCargo
-	} else if ogameID == ColonyShip.ID {
+	} else if id == ColonyShip.ID {
 		return s.ColonyShip
-	} else if ogameID == Recycler.ID {
+	} else if id == Recycler.ID {
 		return s.Recycler
-	} else if ogameID == EspionageProbe.ID {
+	} else if id == EspionageProbe.ID {
 		return s.EspionageProbe
-	} else if ogameID == SolarSatellite.ID {
+	} else if id == SolarSatellite.ID {
 		return s.SolarSatellite
 	}
 	return 0
 }
 
 // Set ...
-func (s *ShipsInfos) Set(ogameID ID, val int) {
-	if ogameID == LightFighter.ID {
+func (s *ShipsInfos) Set(id ID, val int) {
+	if id == LightFighter.ID {
 		s.LightFighter = val
-	} else if ogameID == HeavyFighter.ID {
+	} else if id == HeavyFighter.ID {
 		s.HeavyFighter = val
-	} else if ogameID == Cruiser.ID {
+	} else if id == Cruiser.ID {
 		s.Cruiser = val
-	} else if ogameID == Battleship.ID {
+	} else if id == Battleship.ID {
 		s.Battleship = val
-	} else if ogameID == Battlecruiser.ID {
+	} else if id == Battlecruiser.ID {
 		s.Battlecruiser = val
-	} else if ogameID == Bomber.ID {
+	} else if id == Bomber.ID {
 		s.Bomber = val
-	} else if ogameID == Destroyer.ID {
+	} else if id == Destroyer.ID {
 		s.Destroyer = val
-	} else if ogameID == Deathstar.ID {
+	} else if id == Deathstar.ID {
 		s.Deathstar = val
-	} else if ogameID == SmallCargo.ID {
+	} else if id == SmallCargo.ID {
 		s.SmallCargo = val
-	} else if ogameID == LargeCargo.ID {
+	} else if id == LargeCargo.ID {
 		s.LargeCargo = val
-	} else if ogameID == ColonyShip.ID {
+	} else if id == ColonyShip.ID {
 		s.ColonyShip = val
-	} else if ogameID == Recycler.ID {
+	} else if id == Recycler.ID {
 		s.Recycler = val
-	} else if ogameID == EspionageProbe.ID {
+	} else if id == EspionageProbe.ID {
 		s.EspionageProbe = val
-	} else if ogameID == SolarSatellite.ID {
+	} else if id == SolarSatellite.ID {
 		s.SolarSatellite = val
 	}
 }

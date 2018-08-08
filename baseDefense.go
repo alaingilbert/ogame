@@ -59,17 +59,17 @@ func (b BaseDefense) GetRequirements() map[ID]int {
 
 // IsAvailable ...
 func (b BaseDefense) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, _ int) bool {
-	for ogameID, levelNeeded := range b.Requirements {
-		if ogameID.IsResourceBuilding() {
-			if resourcesBuildings.ByOGameID(ogameID) < levelNeeded {
+	for id, levelNeeded := range b.Requirements {
+		if id.IsResourceBuilding() {
+			if resourcesBuildings.ByID(id) < levelNeeded {
 				return false
 			}
-		} else if ogameID.IsFacility() {
-			if facilities.ByOGameID(ogameID) < levelNeeded {
+		} else if id.IsFacility() {
+			if facilities.ByID(id) < levelNeeded {
 				return false
 			}
-		} else if ogameID.IsTech() {
-			if researches.ByOGameID(ogameID) < levelNeeded {
+		} else if id.IsTech() {
+			if researches.ByID(id) < levelNeeded {
 				return false
 			}
 		}

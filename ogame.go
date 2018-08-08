@@ -62,9 +62,9 @@ type Wrapper interface {
 	GetDefense(PlanetID) (Defenses, error)
 	GetShips(PlanetID) (ShipsInfos, error)
 	GetFacilities(PlanetID) (Facilities, error)
-	Build(planetID PlanetID, ogameID ID, nbr int) error
+	Build(planetID PlanetID, id ID, nbr int) error
 	BuildCancelable(PlanetID, ID) error
-	BuildProduction(planetID PlanetID, ogameID ID, nbr int) error
+	BuildProduction(planetID PlanetID, id ID, nbr int) error
 	BuildBuilding(planetID PlanetID, buildingID ID) error
 	BuildTechnology(planetID PlanetID, technologyID ID) error
 	BuildDefense(planetID PlanetID, defenseID ID, nbr int) error
@@ -1664,15 +1664,15 @@ func extractProduction(pageHTML string) ([]Quantifiable, error) {
 	if len(m) == 0 {
 		return []Quantifiable{}, nil
 	}
-	ogameIDint, _ := strconv.Atoi(m[1])
-	activeOgameID := ID(ogameIDint)
+	idInt, _ := strconv.Atoi(m[1])
+	activeID := ID(idInt)
 	activeNbr, _ := strconv.Atoi(active.Find("div.shipSumCount").Text())
-	res = append(res, Quantifiable{ID: activeOgameID, Nbr: activeNbr})
+	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	doc.Find("div#pqueue ul li").Each(func(i int, s *goquery.Selection) {
-		itemOgameIDstr, _ := s.Find("a").Attr("ref")
-		itemOgameID, _ := strconv.Atoi(itemOgameIDstr)
+		itemIDstr, _ := s.Find("a").Attr("ref")
+		itemID, _ := strconv.Atoi(itemIDstr)
 		itemNbr := parseInt(s.Find("span.number").Text())
-		res = append(res, Quantifiable{ID: ID(itemOgameID), Nbr: itemNbr})
+		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
 	})
 	return res, nil
 }
@@ -1712,27 +1712,27 @@ func (b *OGame) getResearch() Researches {
 	return extractResearch(pageHTML)
 }
 
-func (b *OGame) build(planetID PlanetID, ogameID ID, nbr int) error {
+func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
 	var page string
-	if ogameID.IsDefense() {
+	if id.IsDefense() {
 		page = "defense"
-	} else if ogameID.IsShip() {
+	} else if id.IsShip() {
 		page = "shipyard"
-	} else if ogameID.IsBuilding() {
+	} else if id.IsBuilding() {
 		page = "resources"
-	} else if ogameID.IsTech() {
+	} else if id.IsTech() {
 		page = "research"
 	} else {
-		return errors.New("invalid id " + ogameID.String())
+		return errors.New("invalid id " + id.String())
 	}
 	planetIDStr := planetID.String()
 	payload := url.Values{
 		"modus": {"1"},
-		"type":  {strconv.Itoa(int(ogameID))},
+		"type":  {strconv.Itoa(int(id))},
 	}
 
 	// Techs don't have a token
-	if !ogameID.IsTech() {
+	if !id.IsTech() {
 		pageHTML := b.getPageContent(url.Values{"page": {page}, "cp": {planetIDStr}})
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 		if err != nil {
@@ -1745,7 +1745,7 @@ func (b *OGame) build(planetID PlanetID, ogameID ID, nbr int) error {
 		payload.Add("token", token)
 	}
 
-	if ogameID.IsDefense() || ogameID.IsShip() {
+	if id.IsDefense() || id.IsShip() {
 		payload.Add("menge", strconv.Itoa(nbr))
 	}
 
@@ -1758,18 +1758,18 @@ func (b *OGame) build(planetID PlanetID, ogameID ID, nbr int) error {
 	return nil
 }
 
-func (b *OGame) buildCancelable(planetID PlanetID, ogameID ID) error {
-	if !ogameID.IsBuilding() && !ogameID.IsTech() {
-		return errors.New("invalid id " + ogameID.String())
+func (b *OGame) buildCancelable(planetID PlanetID, id ID) error {
+	if !id.IsBuilding() && !id.IsTech() {
+		return errors.New("invalid id " + id.String())
 	}
-	return b.build(planetID, ogameID, 0)
+	return b.build(planetID, id, 0)
 }
 
-func (b *OGame) buildProduction(planetID PlanetID, ogameID ID, nbr int) error {
-	if !ogameID.IsDefense() && !ogameID.IsShip() {
-		return errors.New("invalid id " + ogameID.String())
+func (b *OGame) buildProduction(planetID PlanetID, id ID, nbr int) error {
+	if !id.IsDefense() && !id.IsShip() {
+		return errors.New("invalid id " + id.String())
 	}
-	return b.build(planetID, ogameID, nbr)
+	return b.build(planetID, id, nbr)
 }
 
 func (b *OGame) buildBuilding(planetID PlanetID, buildingID ID) error {
@@ -2613,24 +2613,24 @@ func (b *OGame) GetResearch() Researches {
 }
 
 // Build ...
-func (b *OGame) Build(planetID PlanetID, ogameID ID, nbr int) error {
+func (b *OGame) Build(planetID PlanetID, id ID, nbr int) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.build(planetID, ogameID, nbr)
+	return b.build(planetID, id, nbr)
 }
 
 // BuildCancelable ...
-func (b *OGame) BuildCancelable(planetID PlanetID, ogameID ID) error {
+func (b *OGame) BuildCancelable(planetID PlanetID, id ID) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.buildCancelable(planetID, ogameID)
+	return b.buildCancelable(planetID, id)
 }
 
 // BuildProduction ...
-func (b *OGame) BuildProduction(planetID PlanetID, ogameID ID, nbr int) error {
+func (b *OGame) BuildProduction(planetID PlanetID, id ID, nbr int) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.buildProduction(planetID, ogameID, nbr)
+	return b.buildProduction(planetID, id, nbr)
 }
 
 // BuildBuilding ...

@@ -22,39 +22,39 @@ type Researches struct {
 	ArmourTechnology             int
 }
 
-// ByOGameID ...
-func (s Researches) ByOGameID(ogameID ID) int {
-	if ogameID == EnergyTechnology.ID {
+// ByID ...
+func (s Researches) ByID(id ID) int {
+	if id == EnergyTechnology.ID {
 		return s.EnergyTechnology
-	} else if ogameID == LaserTechnology.ID {
+	} else if id == LaserTechnology.ID {
 		return s.LaserTechnology
-	} else if ogameID == IonTechnology.ID {
+	} else if id == IonTechnology.ID {
 		return s.IonTechnology
-	} else if ogameID == HyperspaceTechnology.ID {
+	} else if id == HyperspaceTechnology.ID {
 		return s.HyperspaceTechnology
-	} else if ogameID == PlasmaTechnology.ID {
+	} else if id == PlasmaTechnology.ID {
 		return s.PlasmaTechnology
-	} else if ogameID == CombustionDrive.ID {
+	} else if id == CombustionDrive.ID {
 		return s.CombustionDrive
-	} else if ogameID == ImpulseDrive.ID {
+	} else if id == ImpulseDrive.ID {
 		return s.ImpulseDrive
-	} else if ogameID == HyperspaceDrive.ID {
+	} else if id == HyperspaceDrive.ID {
 		return s.HyperspaceDrive
-	} else if ogameID == EspionageTechnology.ID {
+	} else if id == EspionageTechnology.ID {
 		return s.EspionageTechnology
-	} else if ogameID == ComputerTechnology.ID {
+	} else if id == ComputerTechnology.ID {
 		return s.ComputerTechnology
-	} else if ogameID == Astrophysics.ID {
+	} else if id == Astrophysics.ID {
 		return s.Astrophysics
-	} else if ogameID == IntergalacticResearchNetwork.ID {
+	} else if id == IntergalacticResearchNetwork.ID {
 		return s.IntergalacticResearchNetwork
-	} else if ogameID == GravitonTechnology.ID {
+	} else if id == GravitonTechnology.ID {
 		return s.GravitonTechnology
-	} else if ogameID == WeaponsTechnology.ID {
+	} else if id == WeaponsTechnology.ID {
 		return s.WeaponsTechnology
-	} else if ogameID == ShieldingTechnology.ID {
+	} else if id == ShieldingTechnology.ID {
 		return s.ShieldingTechnology
-	} else if ogameID == ArmourTechnology.ID {
+	} else if id == ArmourTechnology.ID {
 		return s.ArmourTechnology
 	}
 	return 0
