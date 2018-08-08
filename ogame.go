@@ -878,6 +878,8 @@ type resourcesResp struct {
 	HonorScore int
 }
 
+var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)([-\d]+).+C (?:bis|to|à) ([-\d]+).+C`)
+
 func extractPlanets(pageHTML string, b *OGame) []Planet {
 	res := make([]Planet, 0)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
@@ -894,8 +896,7 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 
 		txt, _ := s.Find("a.planetlink").Attr("title")
 		p := bluemonday.StrictPolicy()
-		r1 := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)([-\d]+).+C (?:bis|to|à) ([-\d]+).+C`)
-		m1 := r1.FindStringSubmatch(p.Sanitize(txt))
+		m1 := planetInfosRgx.FindStringSubmatch(p.Sanitize(txt))
 		if len(m1) < 10 {
 			b.error("failed to parse planet infos: " + txt)
 			return
@@ -945,8 +946,7 @@ func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
 			return Planet{}, err
 		}
 		txt := goquery.NewDocumentFromNode(root).Text()
-		r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)([-\d]+).+C (?:bis|to|à) ([-\d]+).+C`)
-		m := r.FindStringSubmatch(txt)
+		m := planetInfosRgx.FindStringSubmatch(txt)
 
 		res := Planet{}
 		res.ogame = b
