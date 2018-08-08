@@ -894,6 +894,10 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 		txt, _ := s.Find("a.planetlink").Attr("title")
 		r1 := regexp.MustCompile(`<b>([^\[]+) \[(\d+):(\d+):(\d+)]</b><br/>([\d.]+)km \((\d+)/(\d+)\)<(?:BR|br)>([-\d]+).+C (?:bis|to|à) ([-\d]+).+C<br/>`)
 		m1 := r1.FindStringSubmatch(txt)
+		if len(m1) < 10 {
+			b.error("failed to parse planet infos: " + txt)
+			return
+		}
 
 		planet := Planet{}
 		planet.ogame = b
