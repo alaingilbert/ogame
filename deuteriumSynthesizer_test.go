@@ -7,7 +7,7 @@ import (
 )
 
 func TestDeuteriumSynthesizerPrice(t *testing.T) {
-	ds := NewDeuteriumSynthesizer()
+	ds := newDeuteriumSynthesizer()
 
 	price := ds.GetPrice(1)
 	assert.Equal(t, Resources{Metal: 225, Crystal: 75}, price)
@@ -29,6 +29,6 @@ func TestDeuteriumSynthesizerPrice(t *testing.T) {
 }
 
 func TestDeuteriumSynthesizerConstructionTime(t *testing.T) {
-	ds := NewDeuteriumSynthesizer()
+	ds := newDeuteriumSynthesizer()
 	assert.Equal(t, 1845, ds.ConstructionTime(9, 6, Facilities{}))
 }

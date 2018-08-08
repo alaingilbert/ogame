@@ -7,7 +7,7 @@ import (
 )
 
 func TestDeuteriumTankCost(t *testing.T) {
-	dt := NewDeuteriumTank()
+	dt := newDeuteriumTank()
 	assert.Equal(t, Resources{Metal: 1000, Crystal: 1000}, dt.GetPrice(1))
 	assert.Equal(t, Resources{Metal: 2000, Crystal: 2000}, dt.GetPrice(2))
 	assert.Equal(t, Resources{Metal: 4000, Crystal: 4000}, dt.GetPrice(3))
@@ -17,7 +17,7 @@ func TestDeuteriumTankCost(t *testing.T) {
 }
 
 func TestDeuteriumTankCapacity(t *testing.T) {
-	dt := NewDeuteriumTank()
+	dt := newDeuteriumTank()
 	assert.Equal(t, 10000, dt.Capacity(0))
 	assert.Equal(t, 20000, dt.Capacity(1))
 	assert.Equal(t, 40000, dt.Capacity(2))

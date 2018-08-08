@@ -7,7 +7,7 @@ import (
 )
 
 func TestCrystalStorageCost(t *testing.T) {
-	cs := NewCrystalStorage()
+	cs := newCrystalStorage()
 	assert.Equal(t, Resources{Metal: 1000, Crystal: 500}, cs.GetPrice(1))
 	assert.Equal(t, Resources{Metal: 2000, Crystal: 1000}, cs.GetPrice(2))
 	assert.Equal(t, Resources{Metal: 4000, Crystal: 2000}, cs.GetPrice(3))
@@ -17,7 +17,7 @@ func TestCrystalStorageCost(t *testing.T) {
 }
 
 func TestCrystalStorageCapacity(t *testing.T) {
-	cs := NewCrystalStorage()
+	cs := newCrystalStorage()
 	assert.Equal(t, 10000, cs.Capacity(0))
 	assert.Equal(t, 20000, cs.Capacity(1))
 	assert.Equal(t, 40000, cs.Capacity(2))

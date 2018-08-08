@@ -7,6 +7,6 @@ import (
 )
 
 func TestCrystalMineConstructionTime(t *testing.T) {
-	cm := NewCrystalMine()
+	cm := newCrystalMine()
 	assert.Equal(t, 75, cm.ConstructionTime(5, 6, Facilities{}))
 }

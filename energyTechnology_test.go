@@ -7,7 +7,7 @@ import (
 )
 
 func TestEnergyTechnologyConstructionTime(t *testing.T) {
-	mm := NewEnergyTechnology()
+	mm := newEnergyTechnology()
 	ct := mm.ConstructionTime(5, 7, Facilities{ResearchLab: 3})
 	assert.Equal(t, 1645, ct)
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func TestSmallCargoConstructionTime(t *testing.T) {
-	sc := NewSmallCargo()
+	sc := newSmallCargo()
 	assert.Equal(t, 164, sc.ConstructionTime(1, 7, Facilities{Shipyard: 4}))
 	assert.Equal(t, 328, sc.ConstructionTime(2, 7, Facilities{Shipyard: 4}))
 }

@@ -7,6 +7,6 @@ import (
 )
 
 func TestFusionReactorCapacity(t *testing.T) {
-	fr := NewFusionReactor()
+	fr := newFusionReactor()
 	assert.Equal(t, 38, fr.ConstructionTime(2, 7, Facilities{RoboticsFactory: 3}))
 }

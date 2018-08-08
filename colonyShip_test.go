@@ -7,7 +7,7 @@ import (
 )
 
 func TestColonyShipSpeed(t *testing.T) {
-	cs := NewColonyShip()
+	cs := newColonyShip()
 	speed := cs.GetSpeed(Researches{ImpulseDrive: 6})
 	assert.Equal(t, 5500, speed)
 }

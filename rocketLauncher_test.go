@@ -7,7 +7,7 @@ import (
 )
 
 func TestRocketLauncherConstructionTime(t *testing.T) {
-	rl := NewRocketLauncher()
+	rl := newRocketLauncher()
 	assert.Equal(t, 82, rl.ConstructionTime(1, 7, Facilities{Shipyard: 4}))
 	assert.Equal(t, 164, rl.ConstructionTime(2, 7, Facilities{Shipyard: 4}))
 }
