@@ -5,8 +5,7 @@ type plasmaTechnology struct {
 	BaseTechnology
 }
 
-// NewPlasmaTechnology ...
-func NewPlasmaTechnology() *plasmaTechnology {
+func newPlasmaTechnology() *plasmaTechnology {
 	b := new(plasmaTechnology)
 	b.ID = PlasmaTechnologyID
 	b.IncreaseFactor = 2.0

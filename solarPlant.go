@@ -7,8 +7,7 @@ type solarPlant struct {
 	BaseBuilding
 }
 
-// NewSolarPlant ...
-func NewSolarPlant() *solarPlant {
+func newSolarPlant() *solarPlant {
 	b := new(solarPlant)
 	b.ID = SolarPlantID
 	b.IncreaseFactor = 1.5

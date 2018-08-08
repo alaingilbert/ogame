@@ -5,8 +5,7 @@ type heavyFighter struct {
 	BaseShip
 }
 
-// NewHeavyFighter ...
-func NewHeavyFighter() *heavyFighter {
+func newHeavyFighter() *heavyFighter {
 	s := new(heavyFighter)
 	s.ID = HeavyFighterID
 	s.StructuralIntegrity = 10000

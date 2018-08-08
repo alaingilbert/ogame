@@ -5,8 +5,7 @@ type intergalacticResearchNetwork struct {
 	BaseTechnology
 }
 
-// NewIntergalacticResearchNetwork ...
-func NewIntergalacticResearchNetwork() *intergalacticResearchNetwork {
+func newIntergalacticResearchNetwork() *intergalacticResearchNetwork {
 	b := new(intergalacticResearchNetwork)
 	b.ID = IntergalacticResearchNetworkID
 	b.IncreaseFactor = 2.0

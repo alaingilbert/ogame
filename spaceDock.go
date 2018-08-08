@@ -5,8 +5,7 @@ type spaceDock struct {
 	BaseBuilding
 }
 
-// NewSpaceDock ...
-func NewSpaceDock() *spaceDock {
+func newSpaceDock() *spaceDock {
 	b := new(spaceDock)
 	b.ID = SpaceDockID
 	b.IncreaseFactor = 5

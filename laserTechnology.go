@@ -5,8 +5,7 @@ type laserTechnology struct {
 	BaseTechnology
 }
 
-// NewLaserTechnology ...
-func NewLaserTechnology() *laserTechnology {
+func newLaserTechnology() *laserTechnology {
 	b := new(laserTechnology)
 	b.ID = LaserTechnologyID
 	b.IncreaseFactor = 2.0

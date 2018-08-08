@@ -5,8 +5,7 @@ type astrophysics struct {
 	BaseTechnology
 }
 
-// NewAstrophysics ...
-func NewAstrophysics() *astrophysics {
+func newAstrophysics() *astrophysics {
 	b := new(astrophysics)
 	b.ID = AstrophysicsID
 	b.IncreaseFactor = 1.75

@@ -5,8 +5,7 @@ type destroyer struct {
 	BaseShip
 }
 
-// NewDestroyer ...
-func NewDestroyer() *destroyer {
+func newDestroyer() *destroyer {
 	s := new(destroyer)
 	s.ID = DestroyerID
 	s.StructuralIntegrity = 110000

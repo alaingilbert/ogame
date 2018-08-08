@@ -5,8 +5,7 @@ type heavyLaser struct {
 	BaseDefense
 }
 
-// NewHeavyLaser ...
-func NewHeavyLaser() *heavyLaser {
+func newHeavyLaser() *heavyLaser {
 	d := new(heavyLaser)
 	d.ID = HeavyLaserID
 	d.Price = Resources{Metal: 6000, Crystal: 2000}

@@ -5,8 +5,7 @@ type rocketLauncher struct {
 	BaseDefense
 }
 
-// NewRocketLauncher ...
-func NewRocketLauncher() *rocketLauncher {
+func newRocketLauncher() *rocketLauncher {
 	d := new(rocketLauncher)
 	d.ID = RocketLauncherID
 	d.Price = Resources{Metal: 2000}

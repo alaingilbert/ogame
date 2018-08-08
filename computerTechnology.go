@@ -5,8 +5,7 @@ type computerTechnology struct {
 	BaseTechnology
 }
 
-// NewComputerTechnology ...
-func NewComputerTechnology() *computerTechnology {
+func newComputerTechnology() *computerTechnology {
 	b := new(computerTechnology)
 	b.ID = ComputerTechnologyID
 	b.IncreaseFactor = 2.0

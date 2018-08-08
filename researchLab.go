@@ -5,8 +5,7 @@ type researchLab struct {
 	BaseBuilding
 }
 
-// NewResearchLab ...
-func NewResearchLab() *researchLab {
+func newResearchLab() *researchLab {
 	b := new(researchLab)
 	b.ID = ResearchLabID
 	b.IncreaseFactor = 2.0

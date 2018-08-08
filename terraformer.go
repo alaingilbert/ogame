@@ -5,8 +5,7 @@ type terraformer struct {
 	BaseBuilding
 }
 
-// NewTerraformer ...
-func NewTerraformer() *terraformer {
+func newTerraformer() *terraformer {
 	b := new(terraformer)
 	b.ID = TerraformerID
 	b.IncreaseFactor = 2.0

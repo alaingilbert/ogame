@@ -5,8 +5,7 @@ type smallCargo struct {
 	BaseShip
 }
 
-// NewSmallCargo ...
-func NewSmallCargo() *smallCargo {
+func newSmallCargo() *smallCargo {
 	s := new(smallCargo)
 	s.ID = SmallCargoID
 	s.StructuralIntegrity = 4000

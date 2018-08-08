@@ -5,8 +5,7 @@ type impulseDrive struct {
 	BaseTechnology
 }
 
-// NewImpulseDrive ...
-func NewImpulseDrive() *impulseDrive {
+func newImpulseDrive() *impulseDrive {
 	b := new(impulseDrive)
 	b.ID = ImpulseDriveID
 	b.IncreaseFactor = 2.0

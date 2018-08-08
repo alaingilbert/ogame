@@ -5,8 +5,7 @@ type lightFighter struct {
 	BaseShip
 }
 
-// NewLightFighter ...
-func NewLightFighter() *lightFighter {
+func newLightFighter() *lightFighter {
 	l := new(lightFighter)
 	l.ID = LightFighterID
 	l.StructuralIntegrity = 4000

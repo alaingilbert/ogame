@@ -5,8 +5,7 @@ type deathstar struct {
 	BaseShip
 }
 
-// NewDeathstar ...
-func NewDeathstar() *deathstar {
+func newDeathstar() *deathstar {
 	s := new(deathstar)
 	s.ID = DeathstarID
 	s.StructuralIntegrity = 9000000

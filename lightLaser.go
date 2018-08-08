@@ -5,8 +5,7 @@ type lightLaser struct {
 	BaseDefense
 }
 
-// NewLightLaser ...
-func NewLightLaser() *lightLaser {
+func newLightLaser() *lightLaser {
 	d := new(lightLaser)
 	d.ID = LightLaserID
 	d.Price = Resources{Metal: 1500, Crystal: 500}

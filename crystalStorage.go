@@ -5,8 +5,7 @@ type crystalStorage struct {
 	StorageBuilding
 }
 
-// NewCrystalStorage ...
-func NewCrystalStorage() *crystalStorage {
+func newCrystalStorage() *crystalStorage {
 	b := new(crystalStorage)
 	b.ID = CrystalStorageID
 	b.IncreaseFactor = 2.0

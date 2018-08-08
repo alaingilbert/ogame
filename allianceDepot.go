@@ -5,8 +5,7 @@ type allianceDepot struct {
 	BaseBuilding
 }
 
-// NewAllianceDepot ...
-func NewAllianceDepot() *allianceDepot {
+func newAllianceDepot() *allianceDepot {
 	b := new(allianceDepot)
 	b.ID = AllianceDepotID
 	b.IncreaseFactor = 2.0

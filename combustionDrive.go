@@ -5,8 +5,7 @@ type combustionDrive struct {
 	BaseTechnology
 }
 
-// NewCombustionDrive ...
-func NewCombustionDrive() *combustionDrive {
+func newCombustionDrive() *combustionDrive {
 	b := new(combustionDrive)
 	b.ID = CombustionDriveID
 	b.IncreaseFactor = 2.0

@@ -5,8 +5,7 @@ type battleship struct {
 	BaseShip
 }
 
-// NewBattleship ...
-func NewBattleship() *battleship {
+func newBattleship() *battleship {
 	b := new(battleship)
 	b.ID = BattleshipID
 	b.StructuralIntegrity = 60000

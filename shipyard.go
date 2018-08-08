@@ -5,8 +5,7 @@ type shipyard struct {
 	BaseBuilding
 }
 
-// NewShipyard ...
-func NewShipyard() *shipyard {
+func newShipyard() *shipyard {
 	b := new(shipyard)
 	b.ID = ShipyardID
 	b.IncreaseFactor = 2.0

@@ -5,8 +5,7 @@ type undergroundCrystalDen struct {
 	BaseBuilding
 }
 
-// NewUndergroundCrystalDen ...
-func NewUndergroundCrystalDen() *undergroundCrystalDen {
+func newUndergroundCrystalDen() *undergroundCrystalDen {
 	b := new(undergroundCrystalDen)
 	b.ID = UndergroundCrystalDenID
 	b.IncreaseFactor = 2.3

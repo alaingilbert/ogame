@@ -5,8 +5,7 @@ type espionageTechnology struct {
 	BaseTechnology
 }
 
-// NewEspionageTechnology ...
-func NewEspionageTechnology() *espionageTechnology {
+func newEspionageTechnology() *espionageTechnology {
 	b := new(espionageTechnology)
 	b.ID = EspionageTechnologyID
 	b.IncreaseFactor = 2.0

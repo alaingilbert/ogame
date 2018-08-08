@@ -5,8 +5,7 @@ type shieldedMetalDen struct {
 	BaseBuilding
 }
 
-// NewShieldedMetalDen ...
-func NewShieldedMetalDen() *shieldedMetalDen {
+func newShieldedMetalDen() *shieldedMetalDen {
 	b := new(shieldedMetalDen)
 	b.ID = ShieldedMetalDenID
 	b.IncreaseFactor = 2.3

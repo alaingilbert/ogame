@@ -5,8 +5,7 @@ type ionTechnology struct {
 	BaseTechnology
 }
 
-// NewIonTechnology ...
-func NewIonTechnology() *ionTechnology {
+func newIonTechnology() *ionTechnology {
 	b := new(ionTechnology)
 	b.ID = IonTechnologyID
 	b.IncreaseFactor = 2.0

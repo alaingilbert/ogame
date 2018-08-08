@@ -5,8 +5,7 @@ type battlecruiser struct {
 	BaseShip
 }
 
-// NewBattlecruiser ...
-func NewBattlecruiser() *battlecruiser {
+func newBattlecruiser() *battlecruiser {
 	b := new(battlecruiser)
 	b.ID = BattlecruiserID
 	b.StructuralIntegrity = 70000

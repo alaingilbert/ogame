@@ -10,8 +10,7 @@ type seabedDeuteriumDen struct {
 	BaseBuilding
 }
 
-// NewSeabedDeuteriumDen ...
-func NewSeabedDeuteriumDen() *seabedDeuteriumDen {
+func newSeabedDeuteriumDen() *seabedDeuteriumDen {
 	b := new(seabedDeuteriumDen)
 	b.ID = SeabedDeuteriumDenID
 	b.IncreaseFactor = 2.3

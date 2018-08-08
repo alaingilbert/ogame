@@ -7,8 +7,7 @@ type crystalMine struct {
 	BaseBuilding
 }
 
-// NewCrystalMine ...
-func NewCrystalMine() *crystalMine {
+func newCrystalMine() *crystalMine {
 	b := new(crystalMine)
 	b.ID = CrystalMineID
 	b.IncreaseFactor = 1.6

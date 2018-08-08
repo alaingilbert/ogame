@@ -7,8 +7,7 @@ type metalMine struct {
 	BaseBuilding
 }
 
-// NewMetalMine ...
-func NewMetalMine() *metalMine {
+func newMetalMine() *metalMine {
 	b := new(metalMine)
 	b.ID = MetalMineID
 	b.IncreaseFactor = 1.5

@@ -5,8 +5,7 @@ type interplanetaryMissiles struct {
 	BaseDefense
 }
 
-// NewInterplanetaryMissiles ...
-func NewInterplanetaryMissiles() *interplanetaryMissiles {
+func newInterplanetaryMissiles() *interplanetaryMissiles {
 	d := new(interplanetaryMissiles)
 	d.ID = InterplanetaryMissilesID
 	d.Price = Resources{Metal: 12500, Crystal: 2500, Deuterium: 10000}

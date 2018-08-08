@@ -5,8 +5,7 @@ type gravitonTechnology struct {
 	BaseTechnology
 }
 
-// NewGravitonTechnology ...
-func NewGravitonTechnology() *gravitonTechnology {
+func newGravitonTechnology() *gravitonTechnology {
 	b := new(gravitonTechnology)
 	b.ID = GravitonTechnologyID
 	b.IncreaseFactor = 3.0

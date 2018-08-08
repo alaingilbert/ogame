@@ -5,8 +5,7 @@ type colonyShip struct {
 	BaseShip
 }
 
-// NewColonyShip ...
-func NewColonyShip() *colonyShip {
+func newColonyShip() *colonyShip {
 	s := new(colonyShip)
 	s.ID = ColonyShipID
 	s.StructuralIntegrity = 30000

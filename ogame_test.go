@@ -339,3 +339,11 @@ func TestSystemDistance(t *testing.T) {
 func TestPlanetDistance(t *testing.T) {
 	assert.Equal(t, 1015, planetDistance(6, 3))
 }
+
+func TestCalcFlightTime(t *testing.T) {
+	secs, fuel := calcFlightTime(Coordinate{1, 1, 1}, Coordinate{1, 1, 2},
+		1, false, false, 1, 1,
+		ShipsInfos{LightFighter: 1}, Researches{})
+	assert.Equal(t, 2121, secs)
+	assert.Equal(t, 3, fuel)
+}

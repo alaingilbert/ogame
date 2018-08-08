@@ -5,8 +5,7 @@ type metalStorage struct {
 	StorageBuilding
 }
 
-// NewMetalStorage ...
-func NewMetalStorage() *metalStorage {
+func newMetalStorage() *metalStorage {
 	b := new(metalStorage)
 	b.ID = MetalStorageID
 	b.IncreaseFactor = 2.0

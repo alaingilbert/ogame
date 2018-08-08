@@ -5,8 +5,7 @@ type cruiser struct {
 	BaseShip
 }
 
-// NewCruiser ...
-func NewCruiser() *cruiser {
+func newCruiser() *cruiser {
 	s := new(cruiser)
 	s.ID = CruiserID
 	s.StructuralIntegrity = 27000

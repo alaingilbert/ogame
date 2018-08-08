@@ -5,8 +5,7 @@ type espionageProbe struct {
 	BaseShip
 }
 
-// NewEspionageProbe ...
-func NewEspionageProbe() *espionageProbe {
+func newEspionageProbe() *espionageProbe {
 	s := new(espionageProbe)
 	s.ID = EspionageProbeID
 	s.StructuralIntegrity = 1000

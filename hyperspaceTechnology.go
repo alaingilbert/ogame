@@ -5,8 +5,7 @@ type hyperspaceTechnology struct {
 	BaseTechnology
 }
 
-// NewHyperspaceTechnology ...
-func NewHyperspaceTechnology() *hyperspaceTechnology {
+func newHyperspaceTechnology() *hyperspaceTechnology {
 	b := new(hyperspaceTechnology)
 	b.ID = HyperspaceTechnologyID
 	b.IncreaseFactor = 2.0

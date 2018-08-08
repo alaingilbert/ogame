@@ -95,65 +95,65 @@ var ErrInvalidPlanetID = errors.New("invalid planet id")
 
 // All ogame objects
 var (
-	AllianceDepot                = NewAllianceDepot() // Buildings
-	CrystalMine                  = NewCrystalMine()
-	CrystalStorage               = NewCrystalStorage()
-	DeuteriumSynthesizer         = NewDeuteriumSynthesizer()
-	DeuteriumTank                = NewDeuteriumTank()
-	FusionReactor                = NewFusionReactor()
-	MetalMine                    = NewMetalMine()
-	MetalStorage                 = NewMetalStorage()
-	MissileSilo                  = NewMissileSilo()
-	NaniteFactory                = NewNaniteFactory()
-	ResearchLab                  = NewResearchLab()
-	RoboticsFactory              = NewRoboticsFactory()
-	SeabedDeuteriumDen           = NewSeabedDeuteriumDen()
-	ShieldedMetalDen             = NewShieldedMetalDen()
-	Shipyard                     = NewShipyard()
-	SolarPlant                   = NewSolarPlant()
-	SpaceDock                    = NewSpaceDock()
-	Terraformer                  = NewTerraformer()
-	UndergroundCrystalDen        = NewUndergroundCrystalDen()
-	SolarSatellite               = NewSolarSatellite()
-	AntiBallisticMissiles        = NewAntiBallisticMissiles() // Defense
-	GaussCannon                  = NewGaussCannon()
-	HeavyLaser                   = NewHeavyLaser()
-	InterplanetaryMissiles       = NewInterplanetaryMissiles()
-	IonCannon                    = NewIonCannon()
-	LargeShieldDome              = NewLargeShieldDome()
-	LightLaser                   = NewLightLaser()
-	PlasmaTurret                 = NewPlasmaTurret()
-	RocketLauncher               = NewRocketLauncher()
-	SmallShieldDome              = NewSmallShieldDome()
-	Battlecruiser                = NewBattlecruiser() // Ships
-	Battleship                   = NewBattleship()
-	Bomber                       = NewBomber()
-	ColonyShip                   = NewColonyShip()
-	Cruiser                      = NewCruiser()
-	Deathstar                    = NewDeathstar()
-	Destroyer                    = NewDestroyer()
-	EspionageProbe               = NewEspionageProbe()
-	HeavyFighter                 = NewHeavyFighter()
-	LargeCargo                   = NewLargeCargo()
-	LightFighter                 = NewLightFighter()
-	Recycler                     = NewRecycler()
-	SmallCargo                   = NewSmallCargo()
-	ArmourTechnology             = NewArmourTechnology() // Technologies
-	Astrophysics                 = NewAstrophysics()
-	CombustionDrive              = NewCombustionDrive()
-	ComputerTechnology           = NewComputerTechnology()
-	EnergyTechnology             = NewEnergyTechnology()
-	EspionageTechnology          = NewEspionageTechnology()
-	GravitonTechnology           = NewGravitonTechnology()
-	HyperspaceDrive              = NewHyperspaceDrive()
-	HyperspaceTechnology         = NewHyperspaceTechnology()
-	ImpulseDrive                 = NewImpulseDrive()
-	IntergalacticResearchNetwork = NewIntergalacticResearchNetwork()
-	IonTechnology                = NewIonTechnology()
-	LaserTechnology              = NewLaserTechnology()
-	PlasmaTechnology             = NewPlasmaTechnology()
-	ShieldingTechnology          = NewShieldingTechnology()
-	WeaponsTechnology            = NewWeaponsTechnology()
+	AllianceDepot                = newAllianceDepot() // Buildings
+	CrystalMine                  = newCrystalMine()
+	CrystalStorage               = newCrystalStorage()
+	DeuteriumSynthesizer         = newDeuteriumSynthesizer()
+	DeuteriumTank                = newDeuteriumTank()
+	FusionReactor                = newFusionReactor()
+	MetalMine                    = newMetalMine()
+	MetalStorage                 = newMetalStorage()
+	MissileSilo                  = newMissileSilo()
+	NaniteFactory                = newNaniteFactory()
+	ResearchLab                  = newResearchLab()
+	RoboticsFactory              = newRoboticsFactory()
+	SeabedDeuteriumDen           = newSeabedDeuteriumDen()
+	ShieldedMetalDen             = newShieldedMetalDen()
+	Shipyard                     = newShipyard()
+	SolarPlant                   = newSolarPlant()
+	SpaceDock                    = newSpaceDock()
+	Terraformer                  = newTerraformer()
+	UndergroundCrystalDen        = newUndergroundCrystalDen()
+	SolarSatellite               = newSolarSatellite()
+	AntiBallisticMissiles        = newAntiBallisticMissiles() // Defense
+	GaussCannon                  = newGaussCannon()
+	HeavyLaser                   = newHeavyLaser()
+	InterplanetaryMissiles       = newInterplanetaryMissiles()
+	IonCannon                    = newIonCannon()
+	LargeShieldDome              = newLargeShieldDome()
+	LightLaser                   = newLightLaser()
+	PlasmaTurret                 = newPlasmaTurret()
+	RocketLauncher               = newRocketLauncher()
+	SmallShieldDome              = newSmallShieldDome()
+	Battlecruiser                = newBattlecruiser() // Ships
+	Battleship                   = newBattleship()
+	Bomber                       = newBomber()
+	ColonyShip                   = newColonyShip()
+	Cruiser                      = newCruiser()
+	Deathstar                    = newDeathstar()
+	Destroyer                    = newDestroyer()
+	EspionageProbe               = newEspionageProbe()
+	HeavyFighter                 = newHeavyFighter()
+	LargeCargo                   = newLargeCargo()
+	LightFighter                 = newLightFighter()
+	Recycler                     = newRecycler()
+	SmallCargo                   = newSmallCargo()
+	ArmourTechnology             = newArmourTechnology() // Technologies
+	Astrophysics                 = newAstrophysics()
+	CombustionDrive              = newCombustionDrive()
+	ComputerTechnology           = newComputerTechnology()
+	EnergyTechnology             = newEnergyTechnology()
+	EspionageTechnology          = newEspionageTechnology()
+	GravitonTechnology           = newGravitonTechnology()
+	HyperspaceDrive              = newHyperspaceDrive()
+	HyperspaceTechnology         = newHyperspaceTechnology()
+	ImpulseDrive                 = newImpulseDrive()
+	IntergalacticResearchNetwork = newIntergalacticResearchNetwork()
+	IonTechnology                = newIonTechnology()
+	LaserTechnology              = newLaserTechnology()
+	PlasmaTechnology             = newPlasmaTechnology()
+	ShieldingTechnology          = newShieldingTechnology()
+	WeaponsTechnology            = newWeaponsTechnology()
 )
 
 // Technology ...
@@ -1192,16 +1192,115 @@ func planetDistance(planet1, planet2 int) (distance int) {
 	return int(1000 + 5*math.Abs(float64(planet2-planet1)))
 }
 
-func calcFlightTime(origin, destination Coordinate, speed float64, universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
-	baseFuel := 1000.0
-	baseSpeed := 2500.0
-	s := 1.0
+func distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool) (distance int) {
+	if c1.Galaxy != c2.Galaxy {
+		return galaxyDistance(c1.Galaxy, c2.Galaxy, universeSize, donutGalaxy)
+	}
+	if c1.System != c2.System {
+		return systemDistance(c1.System, c2.System, donutSystem)
+	}
+	return planetDistance(c1.Position, c2.Position)
+}
+
+func findSlowestSpeed(ships ShipsInfos) int {
+	minSpeed := math.MaxInt32
+	if ships.LightFighter > 0 && LightFighter.BaseSpeed < minSpeed {
+		minSpeed = LightFighter.BaseSpeed
+	}
+	if ships.HeavyFighter > 0 && HeavyFighter.BaseSpeed < minSpeed {
+		minSpeed = HeavyFighter.BaseSpeed
+	}
+	if ships.Cruiser > 0 && Cruiser.BaseSpeed < minSpeed {
+		minSpeed = Cruiser.BaseSpeed
+	}
+	if ships.Battleship > 0 && Battleship.BaseSpeed < minSpeed {
+		minSpeed = Battleship.BaseSpeed
+	}
+	if ships.Battlecruiser > 0 && Battlecruiser.BaseSpeed < minSpeed {
+		minSpeed = Battlecruiser.BaseSpeed
+	}
+	if ships.Bomber > 0 && Bomber.BaseSpeed < minSpeed {
+		minSpeed = Bomber.BaseSpeed
+	}
+	if ships.Destroyer > 0 && Destroyer.BaseSpeed < minSpeed {
+		minSpeed = Destroyer.BaseSpeed
+	}
+	if ships.Deathstar > 0 && Deathstar.BaseSpeed < minSpeed {
+		minSpeed = Deathstar.BaseSpeed
+	}
+	if ships.SmallCargo > 0 && SmallCargo.BaseSpeed < minSpeed {
+		minSpeed = SmallCargo.BaseSpeed
+	}
+	if ships.LargeCargo > 0 && LargeCargo.BaseSpeed < minSpeed {
+		minSpeed = LargeCargo.BaseSpeed
+	}
+	if ships.ColonyShip > 0 && ColonyShip.BaseSpeed < minSpeed {
+		minSpeed = ColonyShip.BaseSpeed
+	}
+	if ships.Recycler > 0 && Recycler.BaseSpeed < minSpeed {
+		minSpeed = Recycler.BaseSpeed
+	}
+	if ships.EspionageProbe > 0 && EspionageProbe.BaseSpeed < minSpeed {
+		minSpeed = EspionageProbe.BaseSpeed
+	}
+	return minSpeed
+}
+
+func calcFuel(ships ShipsInfos, dist int, speed float64) (fuel int) {
+	tmpFn := func(baseFuel int) int {
+		return int(1 + math.Round(((float64(baseFuel)*float64(dist))/35000)*math.Pow(speed+1, 2)))
+	}
+	if ships.LightFighter > 0 {
+		fuel += tmpFn(LightFighter.FuelConsumption) * ships.LightFighter
+	}
+	if ships.HeavyFighter > 0 {
+		fuel += tmpFn(HeavyFighter.FuelConsumption) * ships.LightFighter
+	}
+	if ships.Cruiser > 0 {
+		fuel += tmpFn(Cruiser.FuelConsumption) * ships.LightFighter
+	}
+	if ships.Battleship > 0 {
+		fuel += tmpFn(Battleship.FuelConsumption) * ships.LightFighter
+	}
+	if ships.Battlecruiser > 0 {
+		fuel += tmpFn(Battlecruiser.FuelConsumption) * ships.LightFighter
+	}
+	if ships.Bomber > 0 {
+		fuel += tmpFn(Bomber.FuelConsumption) * ships.LightFighter
+	}
+	if ships.Destroyer > 0 {
+		fuel += tmpFn(Destroyer.FuelConsumption) * ships.LightFighter
+	}
+	if ships.Deathstar > 0 {
+		fuel += tmpFn(Deathstar.FuelConsumption) * ships.LightFighter
+	}
+	if ships.SmallCargo > 0 {
+		fuel += tmpFn(SmallCargo.FuelConsumption) * ships.LightFighter
+	}
+	if ships.LargeCargo > 0 {
+		fuel += tmpFn(LargeCargo.FuelConsumption) * ships.LightFighter
+	}
+	if ships.ColonyShip > 0 {
+		fuel += tmpFn(ColonyShip.FuelConsumption) * ships.LightFighter
+	}
+	if ships.Recycler > 0 {
+		fuel += tmpFn(Recycler.FuelConsumption) * ships.LightFighter
+	}
+	if ships.EspionageProbe > 0 {
+		fuel += tmpFn(EspionageProbe.FuelConsumption) * ships.LightFighter
+	}
+	return
+}
+
+func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalaxy, donutSystem bool, speed float64,
+	universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
+	baseSpeed := float64(findSlowestSpeed(ships))
+	s := speed
 	v := baseSpeed + (baseSpeed*0.2)*6
-	a := 2.0
-	d := 2700 + 95*(math.Abs(208-116))
-	t := ((10 + (3500 / s)) * math.Sqrt((10*d)/v)) / a
-	fuel = int(1 + math.Round((((baseFuel)*d)/35000)*math.Pow(s+1, 2)))
-	fmt.Println(d, t, fuel)
+	a := float64(universeSpeedFleet)
+	d := float64(distance(origin, destination, universeSize, donutGalaxy, donutSystem))
+	secs = int(((10 + (3500 / s)) * math.Sqrt((10*d)/v)) / a)
+	fuel = calcFuel(ships, int(d), speed)
 	return
 }
 

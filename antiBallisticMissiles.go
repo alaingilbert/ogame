@@ -5,8 +5,7 @@ type antiBallisticMissiles struct {
 	BaseDefense
 }
 
-// NewAntiBallisticMissiles ...
-func NewAntiBallisticMissiles() *antiBallisticMissiles {
+func newAntiBallisticMissiles() *antiBallisticMissiles {
 	d := new(antiBallisticMissiles)
 	d.ID = AntiBallisticMissilesID
 	d.Price = Resources{Metal: 8000, Crystal: 2000}

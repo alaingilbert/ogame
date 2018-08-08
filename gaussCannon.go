@@ -5,8 +5,7 @@ type gaussCannon struct {
 	BaseDefense
 }
 
-// NewGaussCannon ...
-func NewGaussCannon() *gaussCannon {
+func newGaussCannon() *gaussCannon {
 	d := new(gaussCannon)
 	d.ID = GaussCannonID
 	d.Price = Resources{Metal: 20000, Crystal: 15000, Deuterium: 2000}

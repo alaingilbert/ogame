@@ -7,8 +7,7 @@ type deuteriumSynthesizer struct {
 	BaseBuilding
 }
 
-// NewDeuteriumSynthesizer ...
-func NewDeuteriumSynthesizer() *deuteriumSynthesizer {
+func newDeuteriumSynthesizer() *deuteriumSynthesizer {
 	b := new(deuteriumSynthesizer)
 	b.ID = DeuteriumSynthesizerID
 	b.IncreaseFactor = 1.5

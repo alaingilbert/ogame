@@ -5,8 +5,7 @@ type largeShieldDome struct {
 	BaseDefense
 }
 
-// NewLargeShieldDome ...
-func NewLargeShieldDome() *largeShieldDome {
+func newLargeShieldDome() *largeShieldDome {
 	d := new(largeShieldDome)
 	d.ID = LargeShieldDomeID
 	d.Price = Resources{Metal: 50000, Crystal: 50000}

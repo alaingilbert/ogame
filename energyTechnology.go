@@ -5,8 +5,7 @@ type energyTechnology struct {
 	BaseTechnology
 }
 
-// NewEnergyTechnology ...
-func NewEnergyTechnology() *energyTechnology {
+func newEnergyTechnology() *energyTechnology {
 	b := new(energyTechnology)
 	b.ID = EnergyTechnologyID
 	b.IncreaseFactor = 2.0

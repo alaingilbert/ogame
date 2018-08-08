@@ -5,8 +5,7 @@ type shieldingTechnology struct {
 	BaseTechnology
 }
 
-// NewShieldingTechnology ...
-func NewShieldingTechnology() *shieldingTechnology {
+func newShieldingTechnology() *shieldingTechnology {
 	b := new(shieldingTechnology)
 	b.ID = ShieldingTechnologyID
 	b.IncreaseFactor = 2.0

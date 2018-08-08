@@ -5,8 +5,7 @@ type recycler struct {
 	BaseShip
 }
 
-// NewRecycler ...
-func NewRecycler() *recycler {
+func newRecycler() *recycler {
 	s := new(recycler)
 	s.ID = RecyclerID
 	s.StructuralIntegrity = 16000

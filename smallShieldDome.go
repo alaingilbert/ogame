@@ -5,8 +5,7 @@ type smallShieldDome struct {
 	BaseDefense
 }
 
-// NewSmallShieldDome ...
-func NewSmallShieldDome() *smallShieldDome {
+func newSmallShieldDome() *smallShieldDome {
 	d := new(smallShieldDome)
 	d.ID = SmallShieldDomeID
 	d.Price = Resources{Metal: 10000, Crystal: 10000}

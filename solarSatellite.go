@@ -5,8 +5,7 @@ type solarSatellite struct {
 	BaseShip
 }
 
-// NewSolarSatellite ...
-func NewSolarSatellite() *solarSatellite {
+func newSolarSatellite() *solarSatellite {
 	s := new(solarSatellite)
 	s.ID = SolarSatelliteID
 	s.StructuralIntegrity = 2000

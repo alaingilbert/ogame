@@ -5,8 +5,7 @@ type naniteFactory struct {
 	BaseBuilding
 }
 
-// NewNaniteFactory ...
-func NewNaniteFactory() *naniteFactory {
+func newNaniteFactory() *naniteFactory {
 	b := new(naniteFactory)
 	b.ID = NaniteFactoryID
 	b.IncreaseFactor = 2.0

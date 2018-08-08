@@ -5,8 +5,7 @@ type deuteriumTank struct {
 	StorageBuilding
 }
 
-// NewDeuteriumTank ...
-func NewDeuteriumTank() *deuteriumTank {
+func newDeuteriumTank() *deuteriumTank {
 	b := new(deuteriumTank)
 	b.ID = DeuteriumTankID
 	b.IncreaseFactor = 2.0

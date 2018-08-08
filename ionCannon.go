@@ -5,8 +5,7 @@ type ionCannon struct {
 	BaseDefense
 }
 
-// NewIonCannon ...
-func NewIonCannon() *ionCannon {
+func newIonCannon() *ionCannon {
 	d := new(ionCannon)
 	d.ID = IonCannonID
 	d.Price = Resources{Metal: 2000, Crystal: 6000}

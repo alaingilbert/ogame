@@ -5,8 +5,7 @@ type plasmaTurret struct {
 	BaseDefense
 }
 
-// NewPlasmaTurret ...
-func NewPlasmaTurret() *plasmaTurret {
+func newPlasmaTurret() *plasmaTurret {
 	d := new(plasmaTurret)
 	d.ID = PlasmaTurretID
 	d.Price = Resources{Metal: 50000, Crystal: 50000, Deuterium: 30000}

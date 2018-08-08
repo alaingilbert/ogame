@@ -5,8 +5,7 @@ type hyperspaceDrive struct {
 	BaseTechnology
 }
 
-// NewHyperspaceDrive ...
-func NewHyperspaceDrive() *hyperspaceDrive {
+func newHyperspaceDrive() *hyperspaceDrive {
 	b := new(hyperspaceDrive)
 	b.ID = HyperspaceDriveID
 	b.IncreaseFactor = 2.0

@@ -7,8 +7,7 @@ type fusionReactor struct {
 	BaseBuilding
 }
 
-// NewFusionReactor ...
-func NewFusionReactor() *fusionReactor {
+func newFusionReactor() *fusionReactor {
 	b := new(fusionReactor)
 	b.ID = FusionReactorID
 	b.IncreaseFactor = 1.8

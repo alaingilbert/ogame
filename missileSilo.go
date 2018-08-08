@@ -5,8 +5,7 @@ type missileSilo struct {
 	BaseBuilding
 }
 
-// NewMissileSilo ...
-func NewMissileSilo() *missileSilo {
+func newMissileSilo() *missileSilo {
 	b := new(missileSilo)
 	b.ID = MissileSiloID
 	b.IncreaseFactor = 2.0

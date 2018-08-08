@@ -5,8 +5,7 @@ type roboticsFactory struct {
 	BaseBuilding
 }
 
-// NewRoboticsFactory ...
-func NewRoboticsFactory() *roboticsFactory {
+func newRoboticsFactory() *roboticsFactory {
 	b := new(roboticsFactory)
 	b.ID = RoboticsFactoryID
 	b.IncreaseFactor = 2.0

@@ -5,8 +5,7 @@ type bomber struct {
 	BaseShip
 }
 
-// NewBomber ...
-func NewBomber() *bomber {
+func newBomber() *bomber {
 	b := new(bomber)
 	b.ID = BomberID
 	b.StructuralIntegrity = 75000
