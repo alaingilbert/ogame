@@ -13,8 +13,8 @@ type BaseDefense struct {
 	Requirements        map[ID]int
 }
 
-// GetOGameID ...
-func (b BaseDefense) GetOGameID() ID {
+// GetID ...
+func (b BaseDefense) GetID() ID {
 	return b.ID
 }
 

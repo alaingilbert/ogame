@@ -12,8 +12,8 @@ type BaseTechnology struct {
 	Requirements   map[ID]int
 }
 
-// GetOGameID ...
-func (b BaseTechnology) GetOGameID() ID {
+// GetID ...
+func (b BaseTechnology) GetID() ID {
 	return b.ID
 }
 

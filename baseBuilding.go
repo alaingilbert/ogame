@@ -10,8 +10,8 @@ type BaseBuilding struct {
 	Requirements   map[ID]int
 }
 
-// GetOGameID ...
-func (b BaseBuilding) GetOGameID() ID {
+// GetID ...
+func (b BaseBuilding) GetID() ID {
 	return b.ID
 }
 

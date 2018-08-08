@@ -19,8 +19,8 @@ type BaseShip struct {
 	Price               Resources
 }
 
-// GetOGameID ...
-func (b BaseShip) GetOGameID() ID {
+// GetID ...
+func (b BaseShip) GetID() ID {
 	return b.ID
 }
 

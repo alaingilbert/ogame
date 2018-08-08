@@ -64,9 +64,9 @@ GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
 GetDefense(PlanetID) (Defense, error)
 GetShips(PlanetID) (Ships, error)
 GetFacilities(PlanetID) (Facilities, error)
-Build(planetID PlanetID, ogameID ID, nbr int) error
+Build(planetID PlanetID, id ID, nbr int) error
 BuildCancelable(PlanetID, ID) error
-BuildProduction(planetID PlanetID, ogameID ID, nbr int) error
+BuildProduction(planetID PlanetID, id ID, nbr int) error
 BuildBuilding(planetID PlanetID, buildingID ID) error
 BuildTechnology(planetID PlanetID, technologyID ID) error
 BuildDefense(planetID PlanetID, defenseID ID, nbr int) error

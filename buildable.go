@@ -2,7 +2,7 @@ package ogame
 
 //// Buildable ...
 //type Buildable interface {
-//	GetOGameID() ID
+//	GetID() ID
 //	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
 //	GetPrice(int) Resources
 //	GetRequirements() map[ID]int

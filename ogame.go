@@ -159,7 +159,7 @@ var (
 
 // Technology ...
 type Technology interface {
-	GetOGameID() ID
+	GetID() ID
 	GetBaseCost() Resources
 	GetIncreaseFactor() float64
 	GetRequirements() map[ID]int
@@ -171,7 +171,7 @@ type Technology interface {
 
 // Building ...
 type Building interface {
-	GetOGameID() ID
+	GetID() ID
 	GetBaseCost() Resources
 	GetIncreaseFactor() float64
 	GetRequirements() map[ID]int
@@ -183,7 +183,7 @@ type Building interface {
 
 // Ship ...
 type Ship interface {
-	GetOGameID() ID
+	GetID() ID
 	GetRequirements() map[ID]int
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
 	GetPrice(int) Resources
@@ -200,7 +200,7 @@ type Ship interface {
 
 // Defense ...
 type Defense interface {
-	GetOGameID() ID
+	GetID() ID
 	GetPrice(int) Resources
 	GetRequirements() map[ID]int
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
