@@ -1,10 +1,5 @@
 package ogame
 
-// IsAvailable ...
-func IsAvailable() bool {
-	return true
-}
-
 // SeabedDeuteriumDen ...
 type seabedDeuteriumDen struct {
 	BaseBuilding
