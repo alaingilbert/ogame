@@ -2165,7 +2165,6 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 			report.Deuterium = parseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
 			report.Energy = parseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
-			fmt.Println("CALISS1")
 			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
