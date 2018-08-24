@@ -2130,14 +2130,65 @@ func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
 // EspionageReport ...
 type EspionageReport struct {
 	Resources
-	ResourcesBuildings
-	Facilities
-	Researches
-	ShipsInfos
-	Defenses
-	Coordinate Coordinate
-	Type       EspionageReportType
-	Date       time.Time
+	MetalMine                    *int // ResourcesBuildings
+	CrystalMine                  *int
+	DeuteriumSynthesizer         *int
+	SolarPlant                   *int
+	FusionReactor                *int
+	SolarSatellite               *int
+	MetalStorage                 *int
+	CrystalStorage               *int
+	DeuteriumTank                *int
+	RoboticsFactory              *int // Facilities
+	Shipyard                     *int
+	ResearchLab                  *int
+	AllianceDepot                *int
+	MissileSilo                  *int
+	NaniteFactory                *int
+	Terraformer                  *int
+	SpaceDock                    *int
+	EnergyTechnology             *int // Researches
+	LaserTechnology              *int
+	IonTechnology                *int
+	HyperspaceTechnology         *int
+	PlasmaTechnology             *int
+	CombustionDrive              *int
+	ImpulseDrive                 *int
+	HyperspaceDrive              *int
+	EspionageTechnology          *int
+	ComputerTechnology           *int
+	Astrophysics                 *int
+	IntergalacticResearchNetwork *int
+	GravitonTechnology           *int
+	WeaponsTechnology            *int
+	ShieldingTechnology          *int
+	ArmourTechnology             *int
+	RocketLauncher               *int // Defenses
+	LightLaser                   *int
+	HeavyLaser                   *int
+	GaussCannon                  *int
+	IonCannon                    *int
+	PlasmaTurret                 *int
+	SmallShieldDome              *int
+	LargeShieldDome              *int
+	AntiBallisticMissiles        *int
+	InterplanetaryMissiles       *int
+	LightFighter                 *int // Fleets
+	HeavyFighter                 *int
+	Cruiser                      *int
+	Battleship                   *int
+	Battlecruiser                *int
+	Bomber                       *int
+	Destroyer                    *int
+	Deathstar                    *int
+	SmallCargo                   *int
+	LargeCargo                   *int
+	ColonyShip                   *int
+	Recycler                     *int
+	EspionageProbe               *int
+	Coordinate                   Coordinate
+	Type                         EspionageReportType
+	Date                         time.Time
 }
 
 func extractEspionageReport(pageHTML string, location *time.Location) (EspionageReport, error) {
@@ -2169,7 +2220,8 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
-				level, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				l, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				level := &l
 				switch ID(buildingID) {
 				case MetalMine.ID:
 					report.MetalMine = level
@@ -2210,7 +2262,8 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
-				level, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				l, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				level := &l
 				switch ID(researchID) {
 				case EspionageTechnology.ID:
 					report.EspionageTechnology = level
@@ -2251,7 +2304,8 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
-				level, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				l, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				level := &l
 				switch ID(shipID) {
 				case SmallCargo.ID:
 					report.SmallCargo = level
@@ -2288,7 +2342,8 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
-				level, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				l, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				level := &l
 				switch ID(defenceID) {
 				case RocketLauncher.ID:
 					report.RocketLauncher = level
