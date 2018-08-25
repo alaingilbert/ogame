@@ -41,7 +41,7 @@ func TestExtractAttacks1(t *testing.T) {
 
 func TestExtractGalaxyInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes))
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
 	assert.Equal(t, 5, len(infos))
 }
 
@@ -137,7 +137,7 @@ func TestExtractPlanets_fr(t *testing.T) {
 
 func TestExtractGalaxyInfos_honorableTarget(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes))
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
 	assert.False(t, infos[0].HonorableTarget)
 	assert.True(t, infos[1].HonorableTarget)
 	assert.False(t, infos[2].HonorableTarget)
@@ -145,7 +145,7 @@ func TestExtractGalaxyInfos_honorableTarget(t *testing.T) {
 
 func TestExtractGalaxyInfos_inactive(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes))
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
 	assert.True(t, infos[0].Inactive)
 	assert.False(t, infos[1].Inactive)
 	assert.False(t, infos[2].Inactive)
@@ -153,7 +153,7 @@ func TestExtractGalaxyInfos_inactive(t *testing.T) {
 
 func TestExtractGalaxyInfos_strongPlayer(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes))
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
 	assert.False(t, infos[0].StrongPlayer)
 	assert.True(t, infos[1].StrongPlayer)
 	assert.False(t, infos[2].StrongPlayer)
@@ -161,15 +161,24 @@ func TestExtractGalaxyInfos_strongPlayer(t *testing.T) {
 
 func TestExtractGalaxyInfos_debris(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes))
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
 	assert.Equal(t, 0, infos[0].Debris.Metal)
 	assert.Equal(t, 700, infos[0].Debris.Crystal)
 	assert.Equal(t, 1, infos[0].Debris.RecyclersNeeded)
 }
 
+
+func TestExtractGalaxyInfos_debris_es(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_es.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "es")
+	assert.Equal(t, 0, infos[5].Debris.Metal)
+	assert.Equal(t, 128000, infos[5].Debris.Crystal)
+	assert.Equal(t, 7, infos[5].Debris.RecyclersNeeded)
+}
+
 func TestExtractGalaxyInfos_vacation(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes))
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
 	assert.Equal(t, 5, len(infos))
 	assert.False(t, infos[0].Vacation)
 	assert.True(t, infos[1].Vacation)
@@ -180,7 +189,7 @@ func TestExtractGalaxyInfos_vacation(t *testing.T) {
 
 func TestExtractGalaxyInfos_alliance(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes))
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
 	assert.Equal(t, 303, infos[3].Alliance.ID)
 	assert.Equal(t, "Qrvix", infos[3].Alliance.Name)
 	assert.Equal(t, 27, infos[3].Alliance.Rank)

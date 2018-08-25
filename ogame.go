@@ -1372,7 +1372,7 @@ func (b *OGame) getAttacks() []AttackEvent {
 	return extractAttacks(pageHTML)
 }
 
-func extractGalaxyInfos(pageHTML string) ([]PlanetInfos, error) {
+func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
 	var tmp struct {
 		Galaxy string
 	}
@@ -1399,12 +1399,24 @@ func extractGalaxyInfos(pageHTML string) ([]PlanetInfos, error) {
 			planetImg, _ := planetTooltip.Find("img").Attr("src")
 			coordsRaw := planetTooltip.Find("span#pos-planet").Text()
 
+			var metalRgx *regexp.Regexp
+			var crystalRgx *regexp.Regexp
+			var recyclersRgx *regexp.Regexp
+
+			switch lang {
+			case "en":
+				metalRgx = regexp.MustCompile(`Metal: ([\d.]+)`)
+				crystalRgx = regexp.MustCompile(`Crystal: ([\d.]+)`)
+				recyclersRgx = regexp.MustCompile(`Recyclers needed: ([\d.]+)`)
+			case "es":
+				metalRgx = regexp.MustCompile(`Metal: ([\d.]+)`)
+				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
+				recyclersRgx = regexp.MustCompile(`Se necesitan recicladores: ([\d.]+)`)
+			}
+
 			metalTxt := s.Find("div#debris" + position + " ul.ListLinks li").First().Text()
-			metalRgx := regexp.MustCompile(`Metal: ([\d.]+)`)
 			crystalTxt := s.Find("div#debris" + position + " ul.ListLinks li").Eq(1).Text()
-			crystalRgx := regexp.MustCompile(`Crystal: ([\d.]+)`)
 			recyclersTxt := s.Find("div#debris" + position + " ul.ListLinks li").Eq(2).Text()
-			recyclersRgx := regexp.MustCompile(`Recyclers needed: ([\d.]+)`)
 
 			planetInfos := PlanetInfos{}
 
@@ -1478,7 +1490,7 @@ func (b *OGame) galaxyInfos(galaxy, system int) ([]PlanetInfos, error) {
 	defer resp.Body.Close()
 	by, _ := ioutil.ReadAll(resp.Body)
 	pageHTML := string(by)
-	return extractGalaxyInfos(pageHTML)
+	return extractGalaxyInfos(pageHTML, b.language)
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
