@@ -1399,15 +1399,10 @@ func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
 			planetImg, _ := planetTooltip.Find("img").Attr("src")
 			coordsRaw := planetTooltip.Find("span#pos-planet").Text()
 
-			var metalRgx *regexp.Regexp
-			var crystalRgx *regexp.Regexp
-			var recyclersRgx *regexp.Regexp
-
+			metalRgx := regexp.MustCompile(`Metal: ([\d.]+)`)
+			crystalRgx := regexp.MustCompile(`Crystal: ([\d.]+)`)
+			recyclersRgx := regexp.MustCompile(`Recyclers needed: ([\d.]+)`)
 			switch lang {
-			case "en":
-				metalRgx = regexp.MustCompile(`Metal: ([\d.]+)`)
-				crystalRgx = regexp.MustCompile(`Crystal: ([\d.]+)`)
-				recyclersRgx = regexp.MustCompile(`Recyclers needed: ([\d.]+)`)
 			case "es":
 				metalRgx = regexp.MustCompile(`Metal: ([\d.]+)`)
 				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
