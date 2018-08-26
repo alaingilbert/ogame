@@ -9,6 +9,7 @@ type fusionReactor struct {
 
 func newFusionReactor() *fusionReactor {
 	b := new(fusionReactor)
+	b.Name = "fusion reactor"
 	b.ID = FusionReactorID
 	b.IncreaseFactor = 1.8
 	b.BaseCost = Resources{Metal: 900, Crystal: 360, Deuterium: 180}

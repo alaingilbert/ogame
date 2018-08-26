@@ -7,6 +7,7 @@ type shipyard struct {
 
 func newShipyard() *shipyard {
 	b := new(shipyard)
+	b.Name = "shipyard"
 	b.ID = ShipyardID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 400, Crystal: 200, Deuterium: 100}

@@ -9,6 +9,7 @@ type solarPlant struct {
 
 func newSolarPlant() *solarPlant {
 	b := new(solarPlant)
+	b.Name = "solar plant"
 	b.ID = SolarPlantID
 	b.IncreaseFactor = 1.5
 	b.BaseCost = Resources{Metal: 75, Crystal: 30}

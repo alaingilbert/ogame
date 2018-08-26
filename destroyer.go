@@ -7,6 +7,7 @@ type destroyer struct {
 
 func newDestroyer() *destroyer {
 	s := new(destroyer)
+	s.Name = "destroyer"
 	s.ID = DestroyerID
 	s.StructuralIntegrity = 110000
 	s.ShieldPower = 500

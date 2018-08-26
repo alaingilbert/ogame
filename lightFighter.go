@@ -7,6 +7,7 @@ type lightFighter struct {
 
 func newLightFighter() *lightFighter {
 	l := new(lightFighter)
+	l.Name = "light fighter"
 	l.ID = LightFighterID
 	l.StructuralIntegrity = 4000
 	l.ShieldPower = 10

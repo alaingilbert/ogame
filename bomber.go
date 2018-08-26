@@ -7,6 +7,7 @@ type bomber struct {
 
 func newBomber() *bomber {
 	b := new(bomber)
+	b.Name = "bomber"
 	b.ID = BomberID
 	b.StructuralIntegrity = 75000
 	b.ShieldPower = 500

@@ -7,6 +7,7 @@ type naniteFactory struct {
 
 func newNaniteFactory() *naniteFactory {
 	b := new(naniteFactory)
+	b.Name = "nanite factory"
 	b.ID = NaniteFactoryID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 1000000, Crystal: 500000, Deuterium: 100000}

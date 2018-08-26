@@ -7,6 +7,7 @@ type espionageProbe struct {
 
 func newEspionageProbe() *espionageProbe {
 	s := new(espionageProbe)
+	s.Name = "espionage probe"
 	s.ID = EspionageProbeID
 	s.StructuralIntegrity = 1000
 	s.ShieldPower = 0 //0.01

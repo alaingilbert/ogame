@@ -7,6 +7,7 @@ type weaponsTechnology struct {
 
 func newWeaponsTechnology() *weaponsTechnology {
 	b := new(weaponsTechnology)
+	b.Name = "weapons technology"
 	b.ID = WeaponsTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 800, Crystal: 200}

@@ -7,6 +7,7 @@ type antiBallisticMissiles struct {
 
 func newAntiBallisticMissiles() *antiBallisticMissiles {
 	d := new(antiBallisticMissiles)
+	d.Name = "anti ballistic missiles"
 	d.ID = AntiBallisticMissilesID
 	d.Price = Resources{Metal: 8000, Crystal: 2000}
 	d.StructuralIntegrity = 8000

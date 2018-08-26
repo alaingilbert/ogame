@@ -7,6 +7,7 @@ type lightLaser struct {
 
 func newLightLaser() *lightLaser {
 	d := new(lightLaser)
+	d.Name = "light laser"
 	d.ID = LightLaserID
 	d.Price = Resources{Metal: 1500, Crystal: 500}
 	d.StructuralIntegrity = 2000

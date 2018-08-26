@@ -7,6 +7,7 @@ type heavyFighter struct {
 
 func newHeavyFighter() *heavyFighter {
 	s := new(heavyFighter)
+	s.Name = "heavy fighter"
 	s.ID = HeavyFighterID
 	s.StructuralIntegrity = 10000
 	s.ShieldPower = 25

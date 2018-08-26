@@ -7,6 +7,7 @@ type armourTechnology struct {
 
 func newArmourTechnology() *armourTechnology {
 	b := new(armourTechnology)
+	b.Name = "armour technology"
 	b.ID = ArmourTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 1000}

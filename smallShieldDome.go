@@ -7,6 +7,7 @@ type smallShieldDome struct {
 
 func newSmallShieldDome() *smallShieldDome {
 	d := new(smallShieldDome)
+	d.Name = "small shield dome"
 	d.ID = SmallShieldDomeID
 	d.Price = Resources{Metal: 10000, Crystal: 10000}
 	d.StructuralIntegrity = 20000

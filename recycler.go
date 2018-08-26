@@ -7,6 +7,7 @@ type recycler struct {
 
 func newRecycler() *recycler {
 	s := new(recycler)
+	s.Name = "recycler"
 	s.ID = RecyclerID
 	s.StructuralIntegrity = 16000
 	s.ShieldPower = 10

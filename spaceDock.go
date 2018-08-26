@@ -7,6 +7,7 @@ type spaceDock struct {
 
 func newSpaceDock() *spaceDock {
 	b := new(spaceDock)
+	b.Name = "space dock"
 	b.ID = SpaceDockID
 	b.IncreaseFactor = 5
 	b.BaseCost = Resources{Metal: 200, Crystal: 50, Energy: 50}

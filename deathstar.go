@@ -7,6 +7,7 @@ type deathstar struct {
 
 func newDeathstar() *deathstar {
 	s := new(deathstar)
+	s.Name = "deathstar"
 	s.ID = DeathstarID
 	s.StructuralIntegrity = 9000000
 	s.ShieldPower = 50000

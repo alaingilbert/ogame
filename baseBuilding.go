@@ -5,6 +5,7 @@ import "math"
 // BaseBuilding ...
 type BaseBuilding struct {
 	ID             ID
+	Name           string
 	BaseCost       Resources
 	IncreaseFactor float64
 	Requirements   map[ID]int
@@ -13,6 +14,11 @@ type BaseBuilding struct {
 // GetID ...
 func (b BaseBuilding) GetID() ID {
 	return b.ID
+}
+
+// GetName ...
+func (b BaseBuilding) GetName() string {
+	return b.Name
 }
 
 // GetBaseCost ...

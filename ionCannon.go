@@ -7,6 +7,7 @@ type ionCannon struct {
 
 func newIonCannon() *ionCannon {
 	d := new(ionCannon)
+	d.Name = "ion cannon"
 	d.ID = IonCannonID
 	d.Price = Resources{Metal: 2000, Crystal: 6000}
 	d.StructuralIntegrity = 8000

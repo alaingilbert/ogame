@@ -7,6 +7,7 @@ import (
 // BaseTechnology ...
 type BaseTechnology struct {
 	ID             ID
+	Name           string
 	BaseCost       Resources
 	IncreaseFactor float64
 	Requirements   map[ID]int
@@ -15,6 +16,11 @@ type BaseTechnology struct {
 // GetID ...
 func (b BaseTechnology) GetID() ID {
 	return b.ID
+}
+
+// GetName ...
+func (b BaseTechnology) GetName() string {
+	return b.Name
 }
 
 // GetBaseCost ...

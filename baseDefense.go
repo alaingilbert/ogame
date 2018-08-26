@@ -5,6 +5,7 @@ import "math"
 // BaseDefense ...
 type BaseDefense struct {
 	ID                  ID
+	Name                string
 	Price               Resources
 	StructuralIntegrity int
 	ShieldPower         int
@@ -16,6 +17,11 @@ type BaseDefense struct {
 // GetID ...
 func (b BaseDefense) GetID() ID {
 	return b.ID
+}
+
+// GetName ...
+func (b BaseDefense) GetName() string {
+	return b.Name
 }
 
 // GetStructuralIntegrity ...

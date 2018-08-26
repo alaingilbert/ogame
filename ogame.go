@@ -163,6 +163,7 @@ var (
 // Technology ...
 type Technology interface {
 	GetID() ID
+	GetName() string
 	GetBaseCost() Resources
 	GetIncreaseFactor() float64
 	GetRequirements() map[ID]int
@@ -175,6 +176,7 @@ type Technology interface {
 // Building ...
 type Building interface {
 	GetID() ID
+	GetName() string
 	GetBaseCost() Resources
 	GetIncreaseFactor() float64
 	GetRequirements() map[ID]int
@@ -187,6 +189,7 @@ type Building interface {
 // Ship ...
 type Ship interface {
 	GetID() ID
+	GetName() string
 	GetRequirements() map[ID]int
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
 	GetPrice(int) Resources
@@ -204,6 +207,7 @@ type Ship interface {
 // Defense ...
 type Defense interface {
 	GetID() ID
+	GetName() string
 	GetPrice(int) Resources
 	GetRequirements() map[ID]int
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool

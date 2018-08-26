@@ -7,6 +7,7 @@ import (
 // BaseShip ...
 type BaseShip struct {
 	ID                  ID
+	Name                string
 	StructuralIntegrity int
 	ShieldPower         int
 	WeaponPower         int
@@ -22,6 +23,11 @@ type BaseShip struct {
 // GetID ...
 func (b BaseShip) GetID() ID {
 	return b.ID
+}
+
+// GetName ...
+func (b BaseShip) GetName() string {
+	return b.Name
 }
 
 // GetStructuralIntegrity ...

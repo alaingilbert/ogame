@@ -7,6 +7,7 @@ type laserTechnology struct {
 
 func newLaserTechnology() *laserTechnology {
 	b := new(laserTechnology)
+	b.Name = "laser technology"
 	b.ID = LaserTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 200, Crystal: 100}

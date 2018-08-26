@@ -7,6 +7,7 @@ type battleship struct {
 
 func newBattleship() *battleship {
 	b := new(battleship)
+	b.Name = "battleship"
 	b.ID = BattleshipID
 	b.StructuralIntegrity = 60000
 	b.ShieldPower = 200

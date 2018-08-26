@@ -7,6 +7,7 @@ type combustionDrive struct {
 
 func newCombustionDrive() *combustionDrive {
 	b := new(combustionDrive)
+	b.Name = "combustion drive"
 	b.ID = CombustionDriveID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 400, Deuterium: 600}

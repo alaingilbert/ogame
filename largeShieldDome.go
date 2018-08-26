@@ -7,6 +7,7 @@ type largeShieldDome struct {
 
 func newLargeShieldDome() *largeShieldDome {
 	d := new(largeShieldDome)
+	d.Name = "large shield dome"
 	d.ID = LargeShieldDomeID
 	d.Price = Resources{Metal: 50000, Crystal: 50000}
 	d.StructuralIntegrity = 100000

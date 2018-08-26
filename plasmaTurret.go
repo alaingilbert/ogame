@@ -7,6 +7,7 @@ type plasmaTurret struct {
 
 func newPlasmaTurret() *plasmaTurret {
 	d := new(plasmaTurret)
+	d.Name = "plasma turret"
 	d.ID = PlasmaTurretID
 	d.Price = Resources{Metal: 50000, Crystal: 50000, Deuterium: 30000}
 	d.StructuralIntegrity = 100000

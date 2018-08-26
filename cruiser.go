@@ -7,6 +7,7 @@ type cruiser struct {
 
 func newCruiser() *cruiser {
 	s := new(cruiser)
+	s.Name = "cruiser"
 	s.ID = CruiserID
 	s.StructuralIntegrity = 27000
 	s.ShieldPower = 50

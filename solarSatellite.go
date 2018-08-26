@@ -7,6 +7,7 @@ type solarSatellite struct {
 
 func newSolarSatellite() *solarSatellite {
 	s := new(solarSatellite)
+	s.Name = "solar satellite"
 	s.ID = SolarSatelliteID
 	s.StructuralIntegrity = 2000
 	s.ShieldPower = 1

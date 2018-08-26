@@ -7,6 +7,7 @@ type energyTechnology struct {
 
 func newEnergyTechnology() *energyTechnology {
 	b := new(energyTechnology)
+	b.Name = "energy technology"
 	b.ID = EnergyTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Crystal: 800, Deuterium: 400}

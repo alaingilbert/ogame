@@ -7,6 +7,7 @@ type smallCargo struct {
 
 func newSmallCargo() *smallCargo {
 	s := new(smallCargo)
+	s.Name = "small cargo"
 	s.ID = SmallCargoID
 	s.StructuralIntegrity = 4000
 	s.ShieldPower = 10

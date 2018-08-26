@@ -7,6 +7,7 @@ type terraformer struct {
 
 func newTerraformer() *terraformer {
 	b := new(terraformer)
+	b.Name = "terraformer"
 	b.ID = TerraformerID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 0, Crystal: 50000, Deuterium: 100000}

@@ -7,6 +7,7 @@ type gravitonTechnology struct {
 
 func newGravitonTechnology() *gravitonTechnology {
 	b := new(gravitonTechnology)
+	b.Name = "graviton technology"
 	b.ID = GravitonTechnologyID
 	b.IncreaseFactor = 3.0
 	b.BaseCost = Resources{Energy: 300000}

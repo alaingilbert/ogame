@@ -7,6 +7,7 @@ type colonyShip struct {
 
 func newColonyShip() *colonyShip {
 	s := new(colonyShip)
+	s.Name = "colony ship"
 	s.ID = ColonyShipID
 	s.StructuralIntegrity = 30000
 	s.ShieldPower = 100

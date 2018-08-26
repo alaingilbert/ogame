@@ -7,6 +7,7 @@ type interplanetaryMissiles struct {
 
 func newInterplanetaryMissiles() *interplanetaryMissiles {
 	d := new(interplanetaryMissiles)
+	d.Name = "interplanetary missiles"
 	d.ID = InterplanetaryMissilesID
 	d.Price = Resources{Metal: 12500, Crystal: 2500, Deuterium: 10000}
 	d.StructuralIntegrity = 15000

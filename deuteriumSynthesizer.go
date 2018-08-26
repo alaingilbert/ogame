@@ -9,6 +9,7 @@ type deuteriumSynthesizer struct {
 
 func newDeuteriumSynthesizer() *deuteriumSynthesizer {
 	b := new(deuteriumSynthesizer)
+	b.Name = "deuterium synthesizer"
 	b.ID = DeuteriumSynthesizerID
 	b.IncreaseFactor = 1.5
 	b.BaseCost = Resources{Metal: 225, Crystal: 75}

@@ -7,6 +7,7 @@ type heavyLaser struct {
 
 func newHeavyLaser() *heavyLaser {
 	d := new(heavyLaser)
+	d.Name = "heavy laser"
 	d.ID = HeavyLaserID
 	d.Price = Resources{Metal: 6000, Crystal: 2000}
 	d.StructuralIntegrity = 8000

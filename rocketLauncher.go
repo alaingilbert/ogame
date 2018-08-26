@@ -7,6 +7,7 @@ type rocketLauncher struct {
 
 func newRocketLauncher() *rocketLauncher {
 	d := new(rocketLauncher)
+	d.Name = "rocket launcher"
 	d.ID = RocketLauncherID
 	d.Price = Resources{Metal: 2000}
 	d.StructuralIntegrity = 2000

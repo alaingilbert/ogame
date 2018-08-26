@@ -9,6 +9,7 @@ type metalMine struct {
 
 func newMetalMine() *metalMine {
 	b := new(metalMine)
+	b.Name = "metal mine"
 	b.ID = MetalMineID
 	b.IncreaseFactor = 1.5
 	b.BaseCost = Resources{Metal: 60, Crystal: 15}

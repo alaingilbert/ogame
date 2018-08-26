@@ -7,6 +7,7 @@ type gaussCannon struct {
 
 func newGaussCannon() *gaussCannon {
 	d := new(gaussCannon)
+	d.Name = "gauss cannon"
 	d.ID = GaussCannonID
 	d.Price = Resources{Metal: 20000, Crystal: 15000, Deuterium: 2000}
 	d.StructuralIntegrity = 35000

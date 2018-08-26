@@ -7,6 +7,7 @@ type impulseDrive struct {
 
 func newImpulseDrive() *impulseDrive {
 	b := new(impulseDrive)
+	b.Name = "impulse drive"
 	b.ID = ImpulseDriveID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 2000, Crystal: 4000, Deuterium: 600}

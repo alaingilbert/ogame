@@ -7,6 +7,7 @@ type plasmaTechnology struct {
 
 func newPlasmaTechnology() *plasmaTechnology {
 	b := new(plasmaTechnology)
+	b.Name = "plasma technology"
 	b.ID = PlasmaTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 2000, Crystal: 4000, Deuterium: 1000}
