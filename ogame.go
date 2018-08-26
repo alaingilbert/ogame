@@ -62,7 +62,7 @@ type Wrapper interface {
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
 	GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
-	GetDefense(PlanetID) (Defenses, error)
+	GetDefense(PlanetID) (DefensesInfos, error)
 	GetShips(PlanetID) (ShipsInfos, error)
 	GetFacilities(PlanetID) (Facilities, error)
 	Build(planetID PlanetID, id ID, nbr int) error
@@ -1629,14 +1629,14 @@ func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, er
 	return res, nil
 }
 
-func extractDefense(pageHTML string) (Defenses, error) {
+func extractDefense(pageHTML string) (DefensesInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
-		return Defenses{}, ErrInvalidPlanetID
+		return DefensesInfos{}, ErrInvalidPlanetID
 	}
 	doc.Find("span.textlabel").Remove()
-	res := Defenses{}
+	res := DefensesInfos{}
 	res.RocketLauncher, _ = getNbr(doc, "defense401")
 	res.LightLaser, _ = getNbr(doc, "defense402")
 	res.HeavyLaser, _ = getNbr(doc, "defense403")
@@ -1651,7 +1651,7 @@ func extractDefense(pageHTML string) (Defenses, error) {
 	return res, nil
 }
 
-func (b *OGame) getDefense(planetID PlanetID) (Defenses, error) {
+func (b *OGame) getDefense(planetID PlanetID) (DefensesInfos, error) {
 	planetIDStr := planetID.String()
 	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {planetIDStr}})
 	return extractDefense(pageHTML)
@@ -2698,7 +2698,7 @@ func (b *OGame) GetResourcesBuildings(planetID PlanetID) (ResourcesBuildings, er
 
 // GetDefense ...
 // Fails if planetID is invalid
-func (b *OGame) GetDefense(planetID PlanetID) (Defenses, error) {
+func (b *OGame) GetDefense(planetID PlanetID) (DefensesInfos, error) {
 	b.Lock()
 	defer b.Unlock()
 	return b.getDefense(planetID)

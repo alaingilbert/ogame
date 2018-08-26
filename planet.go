@@ -44,7 +44,7 @@ func (p *Planet) GetResourcesBuildings() (ResourcesBuildings, error) {
 }
 
 // GetDefense ...
-func (p *Planet) GetDefense() (Defenses, error) {
+func (p *Planet) GetDefense() (DefensesInfos, error) {
 	return p.ogame.GetDefense(p.ID)
 }
 

@@ -2,8 +2,8 @@ package ogame
 
 import "strconv"
 
-// Defenses ...
-type Defenses struct {
+// DefensesInfos ...
+type DefensesInfos struct {
 	RocketLauncher         int
 	LightLaser             int
 	HeavyLaser             int
@@ -16,7 +16,7 @@ type Defenses struct {
 	InterplanetaryMissiles int
 }
 
-func (d Defenses) String() string {
+func (d DefensesInfos) String() string {
 	return "\n" +
 		"        Rocket Launcher: " + strconv.Itoa(d.RocketLauncher) + "\n" +
 		"            Light Laser: " + strconv.Itoa(d.LightLaser) + "\n" +
