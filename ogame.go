@@ -1,8 +1,10 @@
 package ogame
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"math"
@@ -30,6 +32,7 @@ type Wrapper interface {
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
 	GetPageContent(url.Values) string
+	PostPageContent(url.Values, url.Values) string
 	Login() error
 	Logout()
 	GetUsername() string
@@ -695,6 +698,42 @@ func isPartialPage(vals url.Values) bool {
 	}
 
 	return false
+}
+
+func (b *OGame) postPageContent(vals, payload url.Values) string {
+	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
+	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	if err != nil {
+		b.error(err)
+		return ""
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+
+	resp, err := b.client.Do(req)
+	if err != nil {
+		b.error(err)
+		return ""
+	}
+	defer resp.Body.Close()
+
+	var reader io.ReadCloser
+	switch resp.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(resp.Body)
+		defer reader.Close()
+	default:
+		reader = resp.Body
+	}
+
+	body, err := ioutil.ReadAll(reader)
+	if err != nil {
+		b.error(err)
+		return ""
+	}
+
+	return string(body)
 }
 
 func (b *OGame) getPageContent(vals url.Values) string {
@@ -2535,6 +2574,13 @@ func (b *OGame) GetPageContent(vals url.Values) string {
 	b.Lock()
 	defer b.Unlock()
 	return b.getPageContent(vals)
+}
+
+// PostPageContent ...
+func (b *OGame) PostPageContent(vals, payload url.Values) string {
+	b.Lock()
+	defer b.Unlock()
+	return b.postPageContent(vals, payload)
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
