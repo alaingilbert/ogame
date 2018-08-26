@@ -217,6 +217,20 @@ type Defense interface {
 	GetRapidfireFrom() map[ID]int
 }
 
+// Defenses ...
+var Defenses = []Defense{
+	AntiBallisticMissiles,
+	GaussCannon,
+	HeavyLaser,
+	InterplanetaryMissiles,
+	IonCannon,
+	LargeShieldDome,
+	LightLaser,
+	PlasmaTurret,
+	RocketLauncher,
+	SmallShieldDome,
+}
+
 // Ships ...
 var Ships = []Ship{
 	Battlecruiser,
