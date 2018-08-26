@@ -1442,6 +1442,10 @@ func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
 			crystalRgx := regexp.MustCompile(`Crystal: ([\d.]+)`)
 			recyclersRgx := regexp.MustCompile(`Recyclers needed: ([\d.]+)`)
 			switch lang {
+			case "de":
+				metalRgx = regexp.MustCompile(`Metall: ([\d.]+)`)
+				crystalRgx = regexp.MustCompile(`Kristall: ([\d.]+)`)
+				recyclersRgx = regexp.MustCompile(`Benötigte Recycler: ([\d.]+)`)
 			case "es":
 				metalRgx = regexp.MustCompile(`Metal: ([\d.]+)`)
 				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
