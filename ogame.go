@@ -1407,6 +1407,10 @@ func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
 				metalRgx = regexp.MustCompile(`Metal: ([\d.]+)`)
 				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
 				recyclersRgx = regexp.MustCompile(`Se necesitan recicladores: ([\d.]+)`)
+			case "fr":
+				metalRgx = regexp.MustCompile(`Métal: ([\d.]+)`)
+				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
+				recyclersRgx = regexp.MustCompile(`Recycleurs nécessaires: ([\d.]+)`)
 			}
 
 			metalTxt := s.Find("div#debris" + position + " ul.ListLinks li").First().Text()

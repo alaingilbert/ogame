@@ -167,13 +167,20 @@ func TestExtractGalaxyInfos_debris(t *testing.T) {
 	assert.Equal(t, 1, infos[0].Debris.RecyclersNeeded)
 }
 
-
 func TestExtractGalaxyInfos_debris_es(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_es.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "es")
 	assert.Equal(t, 0, infos[5].Debris.Metal)
 	assert.Equal(t, 128000, infos[5].Debris.Crystal)
 	assert.Equal(t, 7, infos[5].Debris.RecyclersNeeded)
+}
+
+func TestExtractGalaxyInfos_debris_fr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_fr.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "fr")
+	assert.Equal(t, 100, infos[1].Debris.Metal)
+	assert.Equal(t, 600, infos[1].Debris.Crystal)
+	assert.Equal(t, 1, infos[1].Debris.RecyclersNeeded)
 }
 
 func TestExtractGalaxyInfos_vacation(t *testing.T) {
