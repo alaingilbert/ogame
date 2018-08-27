@@ -2765,8 +2765,6 @@ func (b *OGame) GetPlanets() []Planet {
 
 // GetCachedPlanets return planets from cached value
 func (b *OGame) GetCachedPlanets() []Planet {
-	b.Lock()
-	defer b.Unlock()
 	return b.Planets
 }
 
