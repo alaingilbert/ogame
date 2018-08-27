@@ -927,7 +927,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 	if page == "overview" {
 		b.Player, _ = extractUserInfos(pageHTML, b.language)
 		b.Planets = extractPlanets(pageHTML, b)
-	} else if isAjaxPage(page) {
+	} else if isAjaxPage(page) || isPartialPage(vals) {
 	} else {
 		b.Planets = extractPlanets(pageHTML, b)
 	}
