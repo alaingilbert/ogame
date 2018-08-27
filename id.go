@@ -5,6 +5,11 @@ import "strconv"
 // ID ...
 type ID int
 
+// Int ...
+func (o ID) Int() int {
+	return int(o)
+}
+
 // String ...
 func (o ID) String() string {
 	res := ""
