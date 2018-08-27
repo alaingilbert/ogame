@@ -217,6 +217,7 @@ type Defense interface {
 	GetRapidfireFrom() map[ID]int
 }
 
+// ObjsStruct ...
 type ObjsStruct struct {
 	AllianceDepot                *allianceDepot
 	CrystalMine                  *crystalMine
@@ -279,6 +280,7 @@ type ObjsStruct struct {
 	WeaponsTechnology            *weaponsTechnology
 }
 
+// Objs ...
 var Objs = ObjsStruct{
 	AllianceDepot:                AllianceDepot,
 	CrystalMine:                  CrystalMine,
