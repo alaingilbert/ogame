@@ -52,6 +52,7 @@ type Wrapper interface {
 	GetAttacks() []AttackEvent
 	GalaxyInfos(galaxy, system int) ([]PlanetInfos, error)
 	GetResearch() Researches
+	GetCachedPlanets() []Planet
 	GetPlanets() []Planet
 	GetPlanetByCoord(Coordinate) (Planet, error)
 	GetPlanet(PlanetID) (Planet, error)
@@ -2760,6 +2761,13 @@ func (b *OGame) GetPlanets() []Planet {
 	b.Lock()
 	defer b.Unlock()
 	return b.getPlanets()
+}
+
+// GetCachedPlanets return planets from cached value
+func (b *OGame) GetCachedPlanets() []Planet {
+	b.Lock()
+	defer b.Unlock()
+	return b.Planets
 }
 
 // GetPlanet gets infos for planetID
