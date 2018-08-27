@@ -1,5 +1,10 @@
 package ogame
 
+type MoonInfos struct {
+	ID       int
+	Diameter int
+}
+
 // PlanetInfos ...
 type PlanetInfos struct {
 	Activity        int
@@ -16,6 +21,7 @@ type PlanetInfos struct {
 		Crystal         int
 		RecyclersNeeded int
 	}
+	Moon   *MoonInfos
 	Player struct {
 		ID   int
 		Name string

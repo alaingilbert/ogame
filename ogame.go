@@ -1609,6 +1609,14 @@ func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
 
 			planetInfos := PlanetInfos{}
 
+			moonID, _ := strconv.Atoi(s.Find("td.moon").AttrOr("data-moon-id", ""))
+			moonSize, _ := strconv.Atoi(strings.Split(s.Find("td.moon span#moonsize").Text(), " ")[0])
+			if moonID > 0 {
+				planetInfos.Moon = new(MoonInfos)
+				planetInfos.Moon.ID = moonID
+				planetInfos.Moon.Diameter = moonSize
+			}
+
 			allianceSpan := s.Find("span.allytagwrapper")
 			if allianceSpan.Size() > 0 {
 				longID, _ := allianceSpan.Attr("rel")

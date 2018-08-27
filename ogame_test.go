@@ -159,6 +159,14 @@ func TestExtractGalaxyInfos_strongPlayer(t *testing.T) {
 	assert.False(t, infos[2].StrongPlayer)
 }
 
+func TestExtractGalaxyInfos_moon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
+	assert.NotNil(t, infos[0].Moon)
+	assert.Equal(t, 33701543, infos[0].Moon.ID)
+	assert.Equal(t, 8366, infos[0].Moon.Diameter)
+}
+
 func TestExtractGalaxyInfos_debris(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
