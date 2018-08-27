@@ -113,3 +113,8 @@ func (p *Planet) CancelResearch() error {
 func (p *Planet) GetResourcesProductions() (Resources, error) {
 	return p.ogame.GetResourcesProductions(p.ID)
 }
+
+// FlightTime ...
+func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
+	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships)
+}

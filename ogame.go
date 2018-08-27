@@ -57,6 +57,7 @@ type Wrapper interface {
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
+	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 
 	// Planet specific functions
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
@@ -433,6 +434,7 @@ type OGame struct {
 	ogameSession       string
 	location           *time.Location
 	universeSpeed      int
+	universeSize       int
 	universeSpeedFleet int
 	donutGalaxy        bool
 	donutSystem        bool
@@ -793,6 +795,7 @@ func (b *OGame) login() error {
 
 	serverTime, _ := extractServerTime(pageHTML)
 	b.location = serverTime.Location()
+	b.universeSize = server.Settings.UniverseSize
 	b.universeSpeed, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed]").AttrOr("content", "1"))
 	b.universeSpeedFleet, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed-fleet]").AttrOr("content", "1"))
 	b.donutGalaxy, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-galaxy]").AttrOr("content", "1"))
@@ -2984,4 +2987,11 @@ func (b *OGame) GetResourcesProductions(planetID PlanetID) (Resources, error) {
 	b.Lock()
 	defer b.Unlock()
 	return b.getResourcesProductions(planetID)
+}
+
+// FlightTime ...
+func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
+	b.Lock()
+	defer b.Unlock()
+	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10, b.universeSpeedFleet, ships, Researches{})
 }
