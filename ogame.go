@@ -31,6 +31,7 @@ import (
 type Wrapper interface {
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
+	GetLanguage() string
 	GetPageContent(url.Values) string
 	PostPageContent(url.Values, url.Values) string
 	Login() error
@@ -2676,6 +2677,11 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 // ServerURL ...
 func (b *OGame) ServerURL() string {
 	return b.serverURL
+}
+
+// GetLanguage ...
+func (b *OGame) GetLanguage() string {
+	return b.language
 }
 
 // SetUserAgent change the user-agent used by the http client
