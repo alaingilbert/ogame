@@ -1509,7 +1509,8 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		missionTypeInt, _ := strconv.Atoi(missionTypeStr)
 		arrivalTimeInt, _ := strconv.Atoi(arrivalTimeStr)
 		missionType := MissionID(missionTypeInt)
-		if missionType != Attack && missionType != GroupedAttack && missionType != MissileAttack {
+		if missionType != Attack && missionType != GroupedAttack &&
+			missionType != MissileAttack && missionType != Spy {
 			return
 		}
 		attack := AttackEvent{}
