@@ -33,9 +33,13 @@ func main() {
 ```go
 SetUserAgent(newUserAgent string)
 ServerURL() string
+GetLanguage() string
 GetPageContent(url.Values) string
+PostPageContent(url.Values, url.Values) string
 Login() error
 Logout()
+GetUsername() string
+GetUniverseName() string
 GetUniverseSpeed() int
 GetUniverseSpeedFleet() int
 IsDonutGalaxy() bool
@@ -50,19 +54,21 @@ CancelFleet(FleetID) error
 GetAttacks() []AttackEvent
 GalaxyInfos(galaxy, system int) ([]PlanetInfos, error)
 GetResearch() Researches
+GetCachedPlanets() []Planet
 GetPlanets() []Planet
 GetPlanetByCoord(Coordinate) (Planet, error)
 GetPlanet(PlanetID) (Planet, error)
 GetEspionageReportMessages() ([]EspionageReportSummary, error)
 GetEspionageReport(msgID int) (EspionageReport, error)
 DeleteMessage(msgID int) error
+FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 
 // Planet specific functions
 GetResourceSettings(PlanetID) (ResourceSettings, error)
 SetResourceSettings(PlanetID, ResourceSettings) error
 GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
-GetDefense(PlanetID) (Defense, error)
-GetShips(PlanetID) (Ships, error)
+GetDefense(PlanetID) (DefensesInfos, error)
+GetShips(PlanetID) (ShipsInfos, error)
 GetFacilities(PlanetID) (Facilities, error)
 Build(planetID PlanetID, id ID, nbr int) error
 BuildCancelable(PlanetID, ID) error
@@ -77,6 +83,7 @@ CancelBuilding(PlanetID) error
 CancelResearch(PlanetID) error
 GetResources(PlanetID) (Resources, error)
 SendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, error)
+GetResourcesProductions(PlanetID) (Resources, error)
 ```
 
 ### Full documentation
