@@ -453,13 +453,14 @@ type Params struct {
 	Universe  string
 	Username  string
 	Password  string
+	Lang      string
 	AutoLogin bool
 	Proxy     string
 }
 
 // New creates a new instance of OGame wrapper.
-func New(universe, username, password string) (*OGame, error) {
-	b := NewNoLogin(universe, username, password)
+func New(universe, username, password, lang string) (*OGame, error) {
+	b := NewNoLogin(universe, username, password, lang)
 
 	if err := b.Login(); err != nil {
 		return nil, err
@@ -470,7 +471,7 @@ func New(universe, username, password string) (*OGame, error) {
 
 // NewWithParams ...
 func NewWithParams(params Params) (*OGame, error) {
-	b := NewNoLogin(params.Universe, params.Username, params.Password)
+	b := NewNoLogin(params.Universe, params.Username, params.Password, params.Lang)
 
 	if params.Proxy != "" {
 		proxyURL, err := url.Parse(params.Proxy)
@@ -490,7 +491,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(universe, username, password string) *OGame {
+func NewNoLogin(universe, username, password, lang string) *OGame {
 	b := new(OGame)
 	b.quiet = false
 	b.logger = log.New(os.Stdout, "", 0)
@@ -498,6 +499,7 @@ func NewNoLogin(universe, username, password string) *OGame {
 	b.Universe = universe
 	b.Username = username
 	b.password = password
+	b.language = lang
 
 	jar, _ := cookiejar.New(nil)
 	b.client = &ogameClient{}
@@ -693,15 +695,28 @@ func getServers(client *ogameClient) ([]Server, error) {
 	return servers, nil
 }
 
-func findAccountByName(universe string, accounts []account, servers []server) (account, server, error) {
-	for _, a := range accounts {
-		for _, s := range servers {
-			if universe == s.Name && a.Server.Language == s.Language && a.Server.Number == s.Number {
-				return a, s, nil
-			}
+func findAccountByName(universe, lang string, accounts []account, servers []Server) (account, Server, error) {
+	var server Server
+	var acc account
+	for _, s := range servers {
+		if s.Name == universe && s.Language == lang {
+			server = s
+			break
 		}
 	}
-	return account{}, server{}, fmt.Errorf("server %s not found", universe)
+	for _, a := range accounts {
+		if a.Server.Language == server.Language && a.Server.Number == server.Number {
+			acc = a
+			break
+		}
+	}
+	if server.Number == 0 {
+		return account{}, Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
+	}
+	if acc.ID == 0 {
+		return account{}, Server{}, errors.New("account not found")
+	}
+	return acc, server, nil
 }
 
 func getLoginLink(client *ogameClient, userAccount account, phpSessionID string) (string, error) {
@@ -750,7 +765,7 @@ func (b *OGame) login() error {
 		return err
 	}
 	b.debug("find account & server for universe")
-	userAccount, server, err := findAccountByName(b.Universe, accounts, servers)
+	userAccount, server, err := findAccountByName(b.Universe, b.language, accounts, servers)
 	if err != nil {
 		return err
 	}
