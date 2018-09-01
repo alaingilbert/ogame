@@ -22,7 +22,8 @@ func main() {
 	universe := os.Getenv("UNIVERSE")
 	username := os.Getenv("USERNAME")
 	password := os.Getenv("PASSWORD")
-	bot, _ := ogame.New(universe, username, password)
+	language := os.Getenv("LANGUAGE")
+	bot, _ := ogame.New(universe, username, password, language)
 	attacked := bot.IsUnderAttack()
 	fmt.Println(attacked) // False
 }
