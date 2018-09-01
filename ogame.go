@@ -29,6 +29,7 @@ import (
 
 // Wrapper ...
 type Wrapper interface {
+	GetServer() Server
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
 	GetLanguage() string
@@ -434,6 +435,7 @@ type OGame struct {
 	password           string
 	language           string
 	ogameSession       string
+	server             Server
 	location           *time.Location
 	universeSpeed      int
 	universeSize       int
@@ -563,7 +565,7 @@ func (b *OGame) println(v ...interface{}) {
 	b.log("PRIN", kwht, v...)
 }
 
-type server struct {
+type Server struct {
 	Language      string
 	Number        int
 	Name          string
@@ -670,8 +672,8 @@ func getUserAccounts(client *ogameClient, phpSessionID string) ([]account, error
 	return userAccounts, nil
 }
 
-func getServers(client *ogameClient) ([]server, error) {
-	var servers []server
+func getServers(client *ogameClient) ([]Server, error) {
+	var servers []Server
 	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/servers", nil)
 	if err != nil {
 		return servers, err
@@ -753,6 +755,7 @@ func (b *OGame) login() error {
 		return err
 	}
 	b.debug("Players online: " + strconv.Itoa(server.PlayersOnline) + ", Players: " + strconv.Itoa(server.PlayerCount))
+	b.server = server
 	b.language = userAccount.Server.Language
 	b.debug("get login link")
 	loginLink, err := getLoginLink(b.client, userAccount, phpSessionID)
@@ -2674,6 +2677,11 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	ratio := productionRatio(planet.Temperature.Max, resBuildings, resSettings, researches.EnergyTechnology)
 	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, planet.Temperature.Max, ratio)
 	return productions, nil
+}
+
+// GetServer ...
+func (b *OGame) GetServer() Server {
+	return b.server
 }
 
 // ServerURL ...
