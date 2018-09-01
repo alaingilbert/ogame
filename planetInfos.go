@@ -5,6 +5,13 @@ type MoonInfos struct {
 	Diameter int
 }
 
+type AllianceInfos struct {
+	ID     int
+	Name   string
+	Rank   int
+	Member int
+}
+
 // PlanetInfos ...
 type PlanetInfos struct {
 	ID              int
@@ -28,10 +35,5 @@ type PlanetInfos struct {
 		Name string
 		Rank int
 	}
-	Alliance struct {
-		ID     int
-		Name   string
-		Rank   int
-		Member int
-	}
+	Alliance *AllianceInfos
 }

@@ -1627,6 +1627,7 @@ func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
 			allianceSpan := s.Find("span.allytagwrapper")
 			if allianceSpan.Size() > 0 {
 				longID, _ := allianceSpan.Attr("rel")
+				planetInfos.Alliance = new(AllianceInfos)
 				planetInfos.Alliance.Name = allianceSpan.Find("h1").Text()
 				planetInfos.Alliance.ID, _ = strconv.Atoi(strings.TrimPrefix(longID, "alliance"))
 				planetInfos.Alliance.Rank, _ = strconv.Atoi(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text())
