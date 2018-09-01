@@ -3,10 +3,11 @@ package main
 import (
 	"log"
 	"net/http"
-	"github.com/alaingilbert/ogame"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/alaingilbert/ogame"
 	"github.com/labstack/echo"
 	"gopkg.in/urfave/cli.v2"
 )
@@ -41,6 +42,13 @@ func main() {
 			EnvVars: []string{"OGAMED_PASSWORD"},
 		},
 		&cli.StringFlag{
+			Name:    "language",
+			Usage:   "Language to login on ogame",
+			Value:   "en",
+			Aliases: []string{"l"},
+			EnvVars: []string{"OGAMED_LANGUAGE"},
+		},
+		&cli.StringFlag{
 			Name:    "host",
 			Usage:   "HTTP host",
 			Value:   "127.0.0.1",
@@ -63,10 +71,11 @@ func start(c *cli.Context) error {
 	universe := c.String("universe")
 	username := c.String("username")
 	password := c.String("password")
+	language := c.String("language")
 	host := c.String("host")
 	port := c.Int("port")
 	var err error
-	bot, err = ogame.New(universe, username, password)
+	bot, err = ogame.New(universe, username, password, language)
 	if err != nil {
 		return err
 	}
