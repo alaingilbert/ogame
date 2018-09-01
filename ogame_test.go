@@ -49,6 +49,8 @@ func TestExtractGalaxyInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en")
 	assert.Equal(t, 5, len(infos))
+	assert.Equal(t, 33698600, infos[0].ID)
+	assert.Equal(t, 33698645, infos[1].ID)
 }
 
 func TestExtractUserInfos(t *testing.T) {

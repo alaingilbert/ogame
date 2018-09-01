@@ -1614,6 +1614,7 @@ func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
 			recyclersTxt := s.Find("div#debris" + position + " ul.ListLinks li").Eq(2).Text()
 
 			planetInfos := PlanetInfos{}
+			planetInfos.ID, _ = strconv.Atoi(s.Find("td.colonized").AttrOr("data-planet-id", ""))
 
 			moonID, _ := strconv.Atoi(s.Find("td.moon").AttrOr("data-moon-id", ""))
 			moonSize, _ := strconv.Atoi(strings.Split(s.Find("td.moon span#moonsize").Text(), " ")[0])

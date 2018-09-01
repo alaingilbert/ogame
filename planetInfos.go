@@ -7,6 +7,7 @@ type MoonInfos struct {
 
 // PlanetInfos ...
 type PlanetInfos struct {
+	ID              int
 	Activity        int
 	Name            string
 	Img             string
