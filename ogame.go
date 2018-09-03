@@ -1412,46 +1412,46 @@ func distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool
 	return planetDistance(c1.Position, c2.Position)
 }
 
-func findSlowestSpeed(ships ShipsInfos) int {
+func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
 	minSpeed := math.MaxInt32
-	if ships.LightFighter > 0 && LightFighter.BaseSpeed < minSpeed {
-		minSpeed = LightFighter.BaseSpeed
+	if ships.LightFighter > 0 && LightFighter.GetSpeed(techs) < minSpeed {
+		minSpeed = LightFighter.GetSpeed(techs)
 	}
-	if ships.HeavyFighter > 0 && HeavyFighter.BaseSpeed < minSpeed {
-		minSpeed = HeavyFighter.BaseSpeed
+	if ships.HeavyFighter > 0 && HeavyFighter.GetSpeed(techs) < minSpeed {
+		minSpeed = HeavyFighter.GetSpeed(techs)
 	}
-	if ships.Cruiser > 0 && Cruiser.BaseSpeed < minSpeed {
-		minSpeed = Cruiser.BaseSpeed
+	if ships.Cruiser > 0 && Cruiser.GetSpeed(techs) < minSpeed {
+		minSpeed = Cruiser.GetSpeed(techs)
 	}
-	if ships.Battleship > 0 && Battleship.BaseSpeed < minSpeed {
-		minSpeed = Battleship.BaseSpeed
+	if ships.Battleship > 0 && Battleship.GetSpeed(techs) < minSpeed {
+		minSpeed = Battleship.GetSpeed(techs)
 	}
-	if ships.Battlecruiser > 0 && Battlecruiser.BaseSpeed < minSpeed {
-		minSpeed = Battlecruiser.BaseSpeed
+	if ships.Battlecruiser > 0 && Battlecruiser.GetSpeed(techs) < minSpeed {
+		minSpeed = Battlecruiser.GetSpeed(techs)
 	}
-	if ships.Bomber > 0 && Bomber.BaseSpeed < minSpeed {
-		minSpeed = Bomber.BaseSpeed
+	if ships.Bomber > 0 && Bomber.GetSpeed(techs) < minSpeed {
+		minSpeed = Bomber.GetSpeed(techs)
 	}
-	if ships.Destroyer > 0 && Destroyer.BaseSpeed < minSpeed {
-		minSpeed = Destroyer.BaseSpeed
+	if ships.Destroyer > 0 && Destroyer.GetSpeed(techs) < minSpeed {
+		minSpeed = Destroyer.GetSpeed(techs)
 	}
-	if ships.Deathstar > 0 && Deathstar.BaseSpeed < minSpeed {
-		minSpeed = Deathstar.BaseSpeed
+	if ships.Deathstar > 0 && Deathstar.GetSpeed(techs) < minSpeed {
+		minSpeed = Deathstar.GetSpeed(techs)
 	}
-	if ships.SmallCargo > 0 && SmallCargo.BaseSpeed < minSpeed {
-		minSpeed = SmallCargo.BaseSpeed
+	if ships.SmallCargo > 0 && SmallCargo.GetSpeed(techs) < minSpeed {
+		minSpeed = SmallCargo.GetSpeed(techs)
 	}
-	if ships.LargeCargo > 0 && LargeCargo.BaseSpeed < minSpeed {
-		minSpeed = LargeCargo.BaseSpeed
+	if ships.LargeCargo > 0 && LargeCargo.GetSpeed(techs) < minSpeed {
+		minSpeed = LargeCargo.GetSpeed(techs)
 	}
-	if ships.ColonyShip > 0 && ColonyShip.BaseSpeed < minSpeed {
-		minSpeed = ColonyShip.BaseSpeed
+	if ships.ColonyShip > 0 && ColonyShip.GetSpeed(techs) < minSpeed {
+		minSpeed = ColonyShip.GetSpeed(techs)
 	}
-	if ships.Recycler > 0 && Recycler.BaseSpeed < minSpeed {
-		minSpeed = Recycler.BaseSpeed
+	if ships.Recycler > 0 && Recycler.GetSpeed(techs) < minSpeed {
+		minSpeed = Recycler.GetSpeed(techs)
 	}
-	if ships.EspionageProbe > 0 && EspionageProbe.BaseSpeed < minSpeed {
-		minSpeed = EspionageProbe.BaseSpeed
+	if ships.EspionageProbe > 0 && EspionageProbe.GetSpeed(techs) < minSpeed {
+		minSpeed = EspionageProbe.GetSpeed(techs)
 	}
 	return minSpeed
 }
@@ -1504,7 +1504,7 @@ func calcFuel(ships ShipsInfos, dist int, speed float64) (fuel int) {
 
 func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalaxy, donutSystem bool, speed float64,
 	universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
-	baseSpeed := float64(findSlowestSpeed(ships))
+	baseSpeed := float64(findSlowestSpeed(ships, techs))
 	s := speed
 	v := baseSpeed + (baseSpeed*0.2)*6
 	a := float64(universeSpeedFleet)
