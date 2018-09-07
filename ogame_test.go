@@ -20,6 +20,18 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 117, 9}, msgs[1].Target)
 }
 
+func TestName2id(t *testing.T) {
+	assert.Equal(t, ID(0), name2id("Not valid"))
+	assert.Equal(t, LightFighterID, name2id("Light Fighter"))
+	assert.Equal(t, LightFighterID, name2id("Chasseur léger"))
+	assert.Equal(t, LightFighterID, name2id("Leichter Jäger"))
+	assert.Equal(t, LargeCargoID, name2id("Großer Transporter"))
+	assert.Equal(t, DestroyerID, name2id("Zerstörer"))
+	assert.Equal(t, SmallCargoID, name2id("Nave pequeña de carga"))
+	assert.Equal(t, SolarSatelliteID, name2id("Satélite solar"))
+	assert.Equal(t, ID(0), name2id("人中位"))
+}
+
 func TestExtractResourcesProductions(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_settings.html")
 	prods, _ := extractResourcesProductions(string(pageHTMLBytes))
@@ -30,6 +42,28 @@ func TestExtractAttacks(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks := extractAttacks(string(pageHTMLBytes))
 	assert.Equal(t, 1, len(attacks))
+}
+
+func TestExtractAttacksWithoutShips(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
+	attacks := extractAttacks(string(pageHTMLBytes))
+	assert.Equal(t, 1, len(attacks))
+	assert.Nil(t, attacks[0].Ships)
+}
+
+func TestExtractAttacksWithShips(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventList_attack_ships.html")
+	attacks := extractAttacks(string(pageHTMLBytes))
+	assert.Equal(t, 1, len(attacks))
+	assert.NotNil(t, attacks[0].Ships)
+	assert.Equal(t, 197, attacks[0].Ships.LargeCargo)
+	assert.Equal(t, 3, attacks[0].Ships.LightFighter)
+	assert.Equal(t, 8, attacks[0].Ships.HeavyFighter)
+	assert.Equal(t, 92, attacks[0].Ships.Cruiser)
+	assert.Equal(t, 571, attacks[0].Ships.EspionageProbe)
+	assert.Equal(t, 27, attacks[0].Ships.Bomber)
+	assert.Equal(t, 4, attacks[0].Ships.Destroyer)
+	assert.Equal(t, 11, attacks[0].Ships.Battlecruiser)
 }
 
 func TestExtractAttacks_spy(t *testing.T) {

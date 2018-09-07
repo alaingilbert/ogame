@@ -19,6 +19,10 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode"
+
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Sirupsen/logrus"
@@ -1205,6 +1209,99 @@ func (b *OGame) serverTime() time.Time {
 	return serverTime
 }
 
+func isMn(r rune) bool {
+	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
+}
+
+func name2id(name string) ID {
+	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	name, _, _ = transform.String(t, name)
+	reg, _ := regexp.Compile("[^a-zA-Z]+")
+	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
+	nameMap := map[string]ID{
+		// en
+		"lightfighter":   LightFighterID,
+		"heavyfighter":   HeavyFighterID,
+		"cruiser":        CruiserID,
+		"battleship":     BattleshipID,
+		"battlecruiser":  BattlecruiserID,
+		"bomber":         BomberID,
+		"destroyer":      DestroyerID,
+		"deathstar":      DeathstarID,
+		"smallcargo":     SmallCargoID,
+		"largecargo":     LargeCargoID,
+		"colonyship":     ColonyShipID,
+		"recycler":       RecyclerID,
+		"espionageprobe": EspionageProbeID,
+		"solarsatellite": SolarSatelliteID,
+
+		// de
+		"leichterjager":      LightFighterID,
+		"schwererjager":      HeavyFighterID,
+		"kreuzer":            CruiserID,
+		"schlachtschiff":     BattleshipID,
+		"schlachtkreuzer":    BattlecruiserID,
+		"zerstorer":          DestroyerID,
+		"todesstern":         DeathstarID,
+		"kleinertransporter": SmallCargoID,
+		"groertransporter":   LargeCargoID,
+		"kolonieschiff":      ColonyShipID,
+		"spionagesonde":      EspionageProbeID,
+		"solarsatellit":      SolarSatelliteID,
+		// "bomber":             BomberID,
+		// "recycler":           RecyclerID,
+
+		// es
+		"cazadorligero":      LightFighterID,
+		"cazadorpesado":      HeavyFighterID,
+		"crucero":            CruiserID,
+		"navedebatalla":      BattleshipID,
+		"acorazado":          BattlecruiserID,
+		"bombardero":         BomberID,
+		"destructor":         DestroyerID,
+		"estrelladelamuerte": DeathstarID,
+		"navepequenadecarga": SmallCargoID,
+		"navegrandedecarga":  LargeCargoID,
+		"colonizador":        ColonyShipID,
+		"reciclador":         RecyclerID,
+		"sondadeespionaje":   EspionageProbeID,
+		"satelitesolar":      SolarSatelliteID,
+
+		// fr
+		"chasseurleger":          LightFighterID,
+		"chasseurlourd":          HeavyFighterID,
+		"croiseur":               CruiserID,
+		"vaisseaudebataille":     BattleshipID,
+		"traqueur":               BattlecruiserID,
+		"bombardier":             BomberID,
+		"destructeur":            DestroyerID,
+		"etoiledelamort":         DeathstarID,
+		"petittransporteur":      SmallCargoID,
+		"grandtransporteur":      LargeCargoID,
+		"vaisseaudecolonisation": ColonyShipID,
+		"recycleur":              RecyclerID,
+		"sondedespionnage":       EspionageProbeID,
+		"satellitesolaire":       SolarSatelliteID,
+
+		// jp
+		"軽戦闘機":      LightFighterID,
+		"重戦闘機":      HeavyFighterID,
+		"巡洋艦":       CruiserID,
+		"バトルシップ":    BattleshipID,
+		"大型戦艦":      BattlecruiserID,
+		"爆撃機":       BomberID,
+		"デストロイヤー":   DestroyerID,
+		"デススター":     DeathstarID,
+		"小型輸送機":     SmallCargoID,
+		"大型輸送機":     LargeCargoID,
+		"コロニーシップ":   ColonyShipID,
+		"残骸回収船":     RecyclerID,
+		"偵察機":       EspionageProbeID,
+		"ソーラーサテライト": SolarSatelliteID,
+	}
+	return nameMap[processedString]
+}
+
 func extractUserInfos(pageHTML, lang string) (UserInfos, error) {
 	playerIDRgx := regexp.MustCompile(`playerId="(\w+)"`)
 	playerNameRgx := regexp.MustCompile(`playerName="([^"]+)"`)
@@ -1536,6 +1633,24 @@ func extractAttacks(pageHTML string) []AttackEvent {
 			coordsOrigin := strings.Trim(s.Find("td.coordsOrigin").Text(), " \r\t\n")
 			attack.Origin = extractCoord(coordsOrigin)
 		}
+
+		// Get ships infos if available
+		if movement, exists := s.Find("td.icon_movement span").Attr("title"); exists {
+			root, err := html.Parse(strings.NewReader(movement))
+			if err != nil {
+				logrus.Error(err)
+			}
+			attack.Ships = new(ShipsInfos)
+			q := goquery.NewDocumentFromNode(root)
+			q.Find("tr").Each(func(i int, s *goquery.Selection) {
+				name := s.Find("td").Eq(0).Text()
+				nbr, _ := strconv.Atoi(s.Find("td").Eq(1).Text())
+				if name != "" && nbr > 0 {
+					attack.Ships.Set(name2id(name), nbr)
+				}
+			})
+		}
+
 		destCoords := strings.Trim(s.Find("td.destCoords").Text(), " \r\t\n")
 		attack.Destination = extractCoord(destCoords)
 

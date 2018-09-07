@@ -13,6 +13,7 @@ type AttackEvent struct {
 	ArrivalTime time.Time
 	AttackerID  int
 	Missiles    int
+	Ships       *ShipsInfos
 }
 
 func (a AttackEvent) String() string {
