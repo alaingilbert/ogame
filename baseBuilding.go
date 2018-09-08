@@ -1,6 +1,9 @@
 package ogame
 
-import "math"
+import (
+	"math"
+	"time"
+)
 
 // BaseBuilding ...
 type BaseBuilding struct {
@@ -47,7 +50,7 @@ func (b BaseBuilding) GetPrice(level int) Resources {
 }
 
 // ConstructionTime ...
-func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Facilities) int {
+func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration {
 	price := b.GetPrice(level)
 	metalCost := float64(price.Metal)
 	crystalCost := float64(price.Crystal)
@@ -58,7 +61,7 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Faci
 	if (level - 1) < 5 {
 		secs = secs * (2 / (7 - (float64(level) - 1)))
 	}
-	return int(math.Floor(secs))
+	return time.Duration(int(math.Floor(secs))) * time.Second
 }
 
 // GetLevel ...

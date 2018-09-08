@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -16,6 +17,6 @@ func TestMetalMineProduction(t *testing.T) {
 
 func TestMetalMineConstructionTime(t *testing.T) {
 	mm := newMetalMine()
-	assert.Equal(t, 8550, mm.ConstructionTime(20, 7, Facilities{RoboticsFactory: 3}))
-	assert.Equal(t, 30, mm.ConstructionTime(4, 6, Facilities{}))
+	assert.Equal(t, 8550*time.Second, mm.ConstructionTime(20, 7, Facilities{RoboticsFactory: 3}))
+	assert.Equal(t, 30*time.Second, mm.ConstructionTime(4, 6, Facilities{}))
 }

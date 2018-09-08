@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"math"
+	"time"
 )
 
 // BaseTechnology ...
@@ -49,14 +50,14 @@ func (b BaseTechnology) GetPrice(level int) Resources {
 }
 
 // ConstructionTime ...
-func (b BaseTechnology) ConstructionTime(level, universeSpeed int, facilities Facilities) int {
+func (b BaseTechnology) ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration {
 	price := b.GetPrice(level)
 	metalCost := float64(price.Metal)
 	crystalCost := float64(price.Crystal)
 	researchLabLvl := float64(facilities.ResearchLab)
 	hours := (metalCost + crystalCost) / (1000 * (1 + researchLabLvl) * float64(universeSpeed))
 	secs := hours * 3600
-	return int(math.Floor(secs))
+	return time.Duration(int(math.Floor(secs))) * time.Second
 }
 
 // GetLevel ...

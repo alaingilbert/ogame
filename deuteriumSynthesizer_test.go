@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -30,5 +31,5 @@ func TestDeuteriumSynthesizerPrice(t *testing.T) {
 
 func TestDeuteriumSynthesizerConstructionTime(t *testing.T) {
 	ds := newDeuteriumSynthesizer()
-	assert.Equal(t, 1845, ds.ConstructionTime(9, 6, Facilities{}))
+	assert.Equal(t, 1845*time.Second, ds.ConstructionTime(9, 6, Facilities{}))
 }

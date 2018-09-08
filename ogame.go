@@ -178,7 +178,7 @@ type Technology interface {
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
 	GetLevel(ResourcesBuildings, Facilities, Researches) int
 	GetPrice(level int) Resources
-	ConstructionTime(level, universeSpeed int, facilities Facilities) int
+	ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration
 }
 
 // Building ...
@@ -191,7 +191,7 @@ type Building interface {
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
 	GetLevel(ResourcesBuildings, Facilities, Researches) int
 	GetPrice(level int) Resources
-	ConstructionTime(level, universeSpeed int, facilities Facilities) int
+	ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration
 }
 
 // Ship ...
@@ -210,6 +210,7 @@ type Ship interface {
 	GetFuelConsumption() int
 	GetRapidfireFrom() map[ID]int
 	GetRapidfireAgainst() map[ID]int
+	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 }
 
 // Defense ...
@@ -223,6 +224,7 @@ type Defense interface {
 	GetShieldPower() int
 	GetWeaponPower() int
 	GetRapidfireFrom() map[ID]int
+	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 }
 
 // ObjsStruct ...
