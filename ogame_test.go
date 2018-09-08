@@ -44,6 +44,12 @@ func TestExtractAttacks(t *testing.T) {
 	assert.Equal(t, 1, len(attacks))
 }
 
+func TestExtractAttacksMeAttacking(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_me_attacking.html")
+	attacks := extractAttacks(string(pageHTMLBytes))
+	assert.Equal(t, 0, len(attacks))
+}
+
 func TestExtractAttacksWithoutShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks := extractAttacks(string(pageHTMLBytes))

@@ -1618,6 +1618,10 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		if strings.Contains(classes, "partnerInfo") {
 			return
 		}
+		isHostile := s.Find("td.countDown.hostile").Size() > 0
+		if !isHostile {
+			return
+		}
 		missionTypeStr, _ := s.Attr("data-mission-type")
 		arrivalTimeStr, _ := s.Attr("data-arrival-time")
 		missionTypeInt, _ := strconv.Atoi(missionTypeStr)
