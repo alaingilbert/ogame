@@ -1426,6 +1426,7 @@ func extractCoord(v string) (coord Coordinate) {
 }
 
 func extractFleets(pageHTML string) (res []Fleet) {
+	res = make([]Fleet, 0)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
 		originText := s.Find("span.originCoords a").Text()
