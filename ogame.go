@@ -955,6 +955,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 		pageHTML = string(by)
 
 		if page != "logout" && !isAjaxPage(page) && !isPartialPage(vals) && !isLogged(pageHTML) {
+			b.error("Err not logged on page : ", page)
 			return ErrNotLogged
 		}
 
