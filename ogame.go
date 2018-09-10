@@ -855,7 +855,8 @@ func isAjaxPage(page string) bool {
 		page == "fetchResources" ||
 		page == "galaxyContent" ||
 		page == "eventList" ||
-		page == "ajaxChat"
+		page == "ajaxChat" ||
+		page == "notices"
 }
 
 func isPartialPage(vals url.Values) bool {
@@ -863,6 +864,10 @@ func isPartialPage(vals url.Values) bool {
 	ajax := vals.Get("ajax")
 
 	if page == "techtree" {
+		return true
+	}
+
+	if page == "notices" {
 		return true
 	}
 
