@@ -448,6 +448,7 @@ func TestExtractEspionageReportThousands(t *testing.T) {
 	infos, _ := extractEspionageReport(string(pageHTMLBytes), time.FixedZone("OGT", 3600))
 	assert.Equal(t, 4000, *infos.RocketLauncher)
 	assert.Equal(t, 3882, *infos.LargeCargo)
+	assert.Equal(t, 374, *infos.SolarSatellite)
 }
 
 func TestExtractEspionageReport_defence(t *testing.T) {

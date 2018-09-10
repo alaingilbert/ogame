@@ -2703,8 +2703,8 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 					report.EspionageProbe = level
 				case Bomber.ID:
 					report.Bomber = level
-				//case SolarSatellite:
-				//	report.SolarSatellite = level
+				case SolarSatellite.ID:
+					report.SolarSatellite = level
 				case Destroyer.ID:
 					report.Destroyer = level
 				case Deathstar.ID:
