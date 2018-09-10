@@ -1718,7 +1718,7 @@ func (b *OGame) getAttacks() []AttackEvent {
 	return extractAttacks(pageHTML)
 }
 
-func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
+func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPlayerRank int) ([]PlanetInfos, error) {
 	var tmp struct {
 		Galaxy string
 	}
@@ -1820,6 +1820,12 @@ func extractGalaxyInfos(pageHTML, lang string) ([]PlanetInfos, error) {
 				playerName = strings.Trim(s.Find("td.playername").Find("span").Text(), " \r\t\n")
 			}
 
+			if playerID == 0 {
+				playerID = botPlayerID
+				playerName = botPlayerName
+				playerRank = botPlayerRank
+			}
+
 			planetInfos.Player.ID = playerID
 			planetInfos.Player.Name = playerName
 			planetInfos.Player.Rank = playerRank
@@ -1849,7 +1855,7 @@ func (b *OGame) galaxyInfos(galaxy, system int) ([]PlanetInfos, error) {
 	defer resp.Body.Close()
 	by, _ := ioutil.ReadAll(resp.Body)
 	pageHTML := string(by)
-	return extractGalaxyInfos(pageHTML, b.language)
+	return extractGalaxyInfos(pageHTML, b.language, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
