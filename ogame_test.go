@@ -428,6 +428,13 @@ func TestExtractEspionageReport1(t *testing.T) {
 	assert.Equal(t, 1, *infos.Bomber)
 }
 
+func TestExtractEspionageReportThousands(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_thousand_units.html")
+	infos, _ := extractEspionageReport(string(pageHTMLBytes), time.FixedZone("OGT", 3600))
+	assert.Equal(t, 4000, *infos.RocketLauncher)
+	assert.Equal(t, 3882, *infos.LargeCargo)
+}
+
 func TestExtractEspionageReport_defence(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_fleet_defences.html")
 	infos, _ := extractEspionageReport(string(pageHTMLBytes), time.FixedZone("OGT", 3600))

@@ -2591,7 +2591,7 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
-				l, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				l := parseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
 				case MetalMine.ID:
@@ -2633,7 +2633,7 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
-				l, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				l := parseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
 				case EspionageTechnology.ID:
@@ -2675,7 +2675,7 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
-				l, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				l := parseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
 				case SmallCargo.ID:
@@ -2713,7 +2713,7 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
-				l, _ := strconv.Atoi(s2.Find("span.fright").Text())
+				l := parseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
 				case RocketLauncher.ID:
