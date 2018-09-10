@@ -856,7 +856,8 @@ func isAjaxPage(page string) bool {
 		page == "galaxyContent" ||
 		page == "eventList" ||
 		page == "ajaxChat" ||
-		page == "notices"
+		page == "notices" ||
+		page == "repairlayer"
 }
 
 func isPartialPage(vals url.Values) bool {
@@ -868,6 +869,10 @@ func isPartialPage(vals url.Values) bool {
 	}
 
 	if page == "notices" {
+		return true
+	}
+
+	if page == "repairlayer" {
 		return true
 	}
 
