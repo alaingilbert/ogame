@@ -884,6 +884,14 @@ func (b *OGame) postPageContent(vals, payload url.Values) string {
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 
+	// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
+	b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+	defer func() {
+		b.client.CheckRedirect = nil
+	}()
+
 	resp, err := b.client.Do(req)
 	if err != nil {
 		b.error(err)
