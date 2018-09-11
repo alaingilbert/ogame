@@ -15,5 +15,9 @@ func TestSmallCargoConstructionTime(t *testing.T) {
 
 func TestSmallCargoSpeed(t *testing.T) {
 	sc := newSmallCargo()
+	assert.Equal(t, 12000, sc.GetSpeed(Researches{CombustionDrive: 2}))
+	assert.Equal(t, 16000, sc.GetSpeed(Researches{CombustionDrive: 6}))
+	assert.Equal(t, 16000, sc.GetSpeed(Researches{CombustionDrive: 6, ImpulseDrive: 4}))
+	assert.Equal(t, 20000, sc.GetSpeed(Researches{CombustionDrive: 6, ImpulseDrive: 5}))
 	assert.Equal(t, 22000, sc.GetSpeed(Researches{CombustionDrive: 10, ImpulseDrive: 6}))
 }
