@@ -1464,8 +1464,9 @@ func extractFleets(pageHTML string) (res []Fleet) {
 		fleet.ArriveIn = secs
 
 		for i := 1; i < trs.Size()-5; i++ {
-			name := strings.ToLower(strings.Trim(trs.Eq(i).Find("td").Eq(0).Text(), "\n\t\r :"))
-			qty := parseInt(strings.Trim(trs.Eq(i).Find("td").Eq(1).Text(), "\n\t\r "))
+			tds := trs.Eq(i).Find("td")
+			name := strings.ToLower(strings.Trim(tds.Eq(0).Text(), "\n\t\r :"))
+			qty := parseInt(tds.Eq(1).Text())
 			shipID, _ := parseShip(name)
 			fleet.Ships.Set(shipID, qty)
 		}
