@@ -2048,7 +2048,17 @@ func extractProduction(pageHTML string) ([]Quantifiable, error) {
 	activeNbr, _ := strconv.Atoi(active.Find("div.shipSumCount").Text())
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	doc.Find("div#pqueue ul li").Each(func(i int, s *goquery.Selection) {
-		itemIDstr, _ := s.Find("a").Attr("ref")
+		link := s.Find("a")
+		itemIDstr, exists := link.Attr("ref")
+		if !exists {
+			href := link.AttrOr("href", "")
+			m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
+			if len(m) > 0 {
+				itemIDstr = m[1]
+			} else {
+				logrus.Error("id not found")
+			}
+		}
 		itemID, _ := strconv.Atoi(itemIDstr)
 		itemNbr := parseInt(s.Find("span.number").Text())
 		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})

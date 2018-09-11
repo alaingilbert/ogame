@@ -364,6 +364,19 @@ func TestExtractProduction(t *testing.T) {
 	assert.Equal(t, 4, prods[0].Nbr)
 }
 
+func TestExtractProduction2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_queue2.html")
+	prods, _ := extractProduction(string(pageHTMLBytes))
+	assert.Equal(t, BattlecruiserID, prods[0].ID)
+	assert.Equal(t, 18, prods[0].Nbr)
+	assert.Equal(t, PlasmaTurretID, prods[1].ID)
+	assert.Equal(t, 8, prods[1].Nbr)
+	assert.Equal(t, RocketLauncherID, prods[2].ID)
+	assert.Equal(t, 1000, prods[2].Nbr)
+	assert.Equal(t, LightFighterID, prods[10].ID)
+	assert.Equal(t, 1, prods[10].Nbr)
+}
+
 func TestIsShipID(t *testing.T) {
 	assert.True(t, IsShipID(int(SmallCargoID)))
 	assert.False(t, IsShipID(int(RocketLauncherID)))
