@@ -201,9 +201,9 @@ type Ship interface {
 	GetRequirements() map[ID]int
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
 	GetPrice(int) Resources
-	GetStructuralIntegrity() int
-	GetShieldPower() int
-	GetWeaponPower() int
+	GetStructuralIntegrity(Researches) int
+	GetShieldPower(Researches) int
+	GetWeaponPower(Researches) int
 	GetCargoCapacity() int
 	GetBaseSpeed() int
 	GetSpeed(researches Researches) int
@@ -220,9 +220,9 @@ type Defense interface {
 	GetPrice(int) Resources
 	GetRequirements() map[ID]int
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
-	GetStructuralIntegrity() int
-	GetShieldPower() int
-	GetWeaponPower() int
+	GetStructuralIntegrity(Researches) int
+	GetShieldPower(Researches) int
+	GetWeaponPower(Researches) int
 	GetRapidfireFrom() map[ID]int
 	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 }
