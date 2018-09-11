@@ -1121,9 +1121,7 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 			return
 		}
 
-		planetName := s.Find("span.planet-name").Text()
 		planetKoords := s.Find("span.planet-koords").Text()
-		planetPic, _ := s.Find("img.planetPic").Attr("src")
 
 		txt, _ := s.Find("a.planetlink").Attr("title")
 		p := bluemonday.StrictPolicy()
@@ -1133,13 +1131,11 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 			return
 		}
 
-		planetName = m1[1]
-
 		planet := Planet{}
 		planet.ogame = b
-		planet.Img = planetPic
+		planet.Img = s.Find("img.planetPic").AttrOr("src", "")
 		planet.ID = PlanetID(id)
-		planet.Name = planetName
+		planet.Name = m1[1]
 		planet.Coordinate = extractCoord(planetKoords)
 		planet.Diameter = parseInt(m1[5])
 		planet.Fields.Built, _ = strconv.Atoi(m1[6])
@@ -1183,7 +1179,7 @@ func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
 
 		res := Planet{}
 		res.ogame = b
-		res.Img, _ = s.Find("img").Attr("src")
+		res.Img = s.Find("img").AttrOr("src", "")
 		res.ID = planetID
 		res.Name = m[1]
 		res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
