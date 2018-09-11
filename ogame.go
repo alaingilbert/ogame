@@ -1542,44 +1542,11 @@ func calcFuel(ships ShipsInfos, dist int, speed float64) (fuel int) {
 	tmpFn := func(baseFuel int) int {
 		return int(1 + math.Round(((float64(baseFuel)*float64(dist))/35000)*math.Pow(speed+1, 2)))
 	}
-	if ships.LightFighter > 0 {
-		fuel += tmpFn(LightFighter.FuelConsumption) * ships.LightFighter
-	}
-	if ships.HeavyFighter > 0 {
-		fuel += tmpFn(HeavyFighter.FuelConsumption) * ships.HeavyFighter
-	}
-	if ships.Cruiser > 0 {
-		fuel += tmpFn(Cruiser.FuelConsumption) * ships.Cruiser
-	}
-	if ships.Battleship > 0 {
-		fuel += tmpFn(Battleship.FuelConsumption) * ships.Battleship
-	}
-	if ships.Battlecruiser > 0 {
-		fuel += tmpFn(Battlecruiser.FuelConsumption) * ships.Battlecruiser
-	}
-	if ships.Bomber > 0 {
-		fuel += tmpFn(Bomber.FuelConsumption) * ships.Bomber
-	}
-	if ships.Destroyer > 0 {
-		fuel += tmpFn(Destroyer.FuelConsumption) * ships.Destroyer
-	}
-	if ships.Deathstar > 0 {
-		fuel += tmpFn(Deathstar.FuelConsumption) * ships.Deathstar
-	}
-	if ships.SmallCargo > 0 {
-		fuel += tmpFn(SmallCargo.FuelConsumption) * ships.SmallCargo
-	}
-	if ships.LargeCargo > 0 {
-		fuel += tmpFn(LargeCargo.FuelConsumption) * ships.LargeCargo
-	}
-	if ships.ColonyShip > 0 {
-		fuel += tmpFn(ColonyShip.FuelConsumption) * ships.ColonyShip
-	}
-	if ships.Recycler > 0 {
-		fuel += tmpFn(Recycler.FuelConsumption) * ships.Recycler
-	}
-	if ships.EspionageProbe > 0 {
-		fuel += tmpFn(EspionageProbe.FuelConsumption) * ships.EspionageProbe
+	for _, ship := range Ships {
+		nbr := ships.ByID(ship.GetID())
+		if nbr > 0 {
+			fuel += tmpFn(ship.GetFuelConsumption()) * nbr
+		}
 	}
 	return
 }
