@@ -22,67 +22,70 @@ type ShipsInfos struct {
 
 // ByID ...
 func (s ShipsInfos) ByID(id ID) int {
-	if id == LightFighter.ID {
+	switch id {
+	case LightFighterID:
 		return s.LightFighter
-	} else if id == HeavyFighter.ID {
+	case HeavyFighterID:
 		return s.HeavyFighter
-	} else if id == Cruiser.ID {
+	case CruiserID:
 		return s.Cruiser
-	} else if id == Battleship.ID {
+	case BattleshipID:
 		return s.Battleship
-	} else if id == Battlecruiser.ID {
+	case BattlecruiserID:
 		return s.Battlecruiser
-	} else if id == Bomber.ID {
+	case BomberID:
 		return s.Bomber
-	} else if id == Destroyer.ID {
+	case DestroyerID:
 		return s.Destroyer
-	} else if id == Deathstar.ID {
+	case DeathstarID:
 		return s.Deathstar
-	} else if id == SmallCargo.ID {
+	case SmallCargoID:
 		return s.SmallCargo
-	} else if id == LargeCargo.ID {
+	case LargeCargoID:
 		return s.LargeCargo
-	} else if id == ColonyShip.ID {
+	case ColonyShipID:
 		return s.ColonyShip
-	} else if id == Recycler.ID {
+	case RecyclerID:
 		return s.Recycler
-	} else if id == EspionageProbe.ID {
+	case EspionageProbeID:
 		return s.EspionageProbe
-	} else if id == SolarSatellite.ID {
+	case SolarSatelliteID:
 		return s.SolarSatellite
+	default:
+		return 0
 	}
-	return 0
 }
 
 // Set ...
 func (s *ShipsInfos) Set(id ID, val int) {
-	if id == LightFighter.ID {
+	switch id {
+	case LightFighterID:
 		s.LightFighter = val
-	} else if id == HeavyFighter.ID {
+	case HeavyFighterID:
 		s.HeavyFighter = val
-	} else if id == Cruiser.ID {
+	case CruiserID:
 		s.Cruiser = val
-	} else if id == Battleship.ID {
+	case BattleshipID:
 		s.Battleship = val
-	} else if id == Battlecruiser.ID {
+	case BattlecruiserID:
 		s.Battlecruiser = val
-	} else if id == Bomber.ID {
+	case BomberID:
 		s.Bomber = val
-	} else if id == Destroyer.ID {
+	case DestroyerID:
 		s.Destroyer = val
-	} else if id == Deathstar.ID {
+	case DeathstarID:
 		s.Deathstar = val
-	} else if id == SmallCargo.ID {
+	case SmallCargoID:
 		s.SmallCargo = val
-	} else if id == LargeCargo.ID {
+	case LargeCargoID:
 		s.LargeCargo = val
-	} else if id == ColonyShip.ID {
+	case ColonyShipID:
 		s.ColonyShip = val
-	} else if id == Recycler.ID {
+	case RecyclerID:
 		s.Recycler = val
-	} else if id == EspionageProbe.ID {
+	case EspionageProbeID:
 		s.EspionageProbe = val
-	} else if id == SolarSatellite.ID {
+	case SolarSatelliteID:
 		s.SolarSatellite = val
 	}
 }
