@@ -188,7 +188,7 @@ func TestExtractPlanets_es(t *testing.T) {
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, PlanetID(33630486), planets[0].ID)
 	assert.Equal(t, Coordinate{Galaxy: 2, System: 147, Position: 8}, planets[0].Coordinate)
-	assert.Equal(t, "Planeta Prin...", planets[0].Name)
+	assert.Equal(t, "Planeta Principal", planets[0].Name)
 	assert.Equal(t, "https://gf2.geo.gfsrv.net/cdnd1/83579badf7c16d217b06afda455cfe.png", planets[0].Img)
 	assert.Equal(t, 18, planets[0].Temperature.Min)
 	assert.Equal(t, 58, planets[0].Temperature.Max)

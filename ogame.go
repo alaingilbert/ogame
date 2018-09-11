@@ -1133,6 +1133,8 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 			return
 		}
 
+		planetName = m1[1]
+
 		planet := Planet{}
 		planet.ogame = b
 		planet.Img = planetPic
