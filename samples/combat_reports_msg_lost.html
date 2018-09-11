@@ -1,0 +1,48 @@
+
+<ul class="pagination"><li class="p_li last"><a class="fright txt_link msg_action_link" data-messageid="7976063" data-tabid="21">|&lt;&lt;</a></li><li class="p_li"><a class="fright txt_link msg_action_link" data-messageid="7943823" data-tabid="21">&lt;</a></li><li class="p_li active"><a class="fright txt_link msg_action_link active" data-messageid="7943814" data-tabid="21">7/26</a></li><li class="p_li"><a class="fright txt_link msg_action_link" data-messageid="7943780" data-tabid="21">&gt;</a></li><li class="p_li last"><a class="fright txt_link msg_action_link" data-messageid="7909491" data-tabid="21">&gt;&gt;|</a></li></ul>
+    <div class="detail_msg" data-msg-id="7943814" data-message-type="48">
+        <div class="detail_msg_head">
+            <div class="msg_status"></div>
+            <span class="msg_title new blue_txt">Contact with the attacking fleet has been lost.<br /><a href="https://s152-en.ogame.gameforge.com/game/index.php?page=galaxy&amp;galaxy=4&amp;system=233&amp;position=12" class="txt_link">[4:233:12]</a></span>
+            <span class="msg_date fright">08.09.2018 07:32:02</span>
+            <br/>
+            <span class="msg_sender_label">From: </span>
+            <span class="msg_sender">Fleet Command</span>
+
+            <!-- only if comments are allowed (Only shared reports and broadcasts have comments): -->
+            
+            <div class="msg_actions clearfix">
+                                    <a href="javascript:void(0);" class="icon_nf_link fright">
+                        <span class="icon_nf icon_refuse js_actionKillDetail tooltip js_hideTipOnMobile"
+                              title='delete'></span>
+                    </a>
+                                </div>
+        </div>
+            </div>
+    <script type="text/javascript">
+                        ogame.messages.initDetailMessages(true);
+                ogame.messagecounter.resetCounterByType(ogame.messagecounter.type_message);
+                    var elem, messageId, senderId, receiverId, associationId;
+        function reportMessageConfirmation(_elem, _messageId, _senderId, _receiverId, _question)
+        {
+            elem       = _elem;
+            messageId  = _messageId;
+            senderId   = _senderId;
+            receiverId = _receiverId;
+
+            errorBoxDecision(
+                "Caution",
+                _question,
+                "yes",
+                "No",
+                reportMessageCallback
+            );
+        }
+
+        function reportMessageCallback()
+        {
+            elem.hide();
+            reportMessage(messageId, senderId, receiverId);
+        }
+    </script>
+    
