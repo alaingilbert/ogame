@@ -2858,10 +2858,11 @@ func extractResourcesProductions(pageHTML string) (Resources, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	res := Resources{}
 	selector := "table.listOfResourceSettingsPerPlanet tr.summary td span"
-	res.Metal = parseInt(strings.Trim(doc.Find(selector).Eq(0).AttrOr("title", "0"), "\n\t\r "))
-	res.Crystal = parseInt(strings.Trim(doc.Find(selector).Eq(1).AttrOr("title", "0"), "\n\t\r "))
-	res.Deuterium = parseInt(strings.Trim(doc.Find(selector).Eq(2).AttrOr("title", "0"), "\n\t\r "))
-	res.Energy = parseInt(strings.Trim(doc.Find(selector).Eq(3).AttrOr("title", "0"), "\n\t\r "))
+	el := doc.Find(selector)
+	res.Metal = parseInt(el.Eq(0).AttrOr("title", "0"))
+	res.Crystal = parseInt(el.Eq(1).AttrOr("title", "0"))
+	res.Deuterium = parseInt(el.Eq(2).AttrOr("title", "0"))
+	res.Energy = parseInt(el.Eq(3).AttrOr("title", "0"))
 	return res, nil
 }
 
