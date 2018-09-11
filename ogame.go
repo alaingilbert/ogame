@@ -1450,6 +1450,7 @@ func extractFleets(pageHTML string) (res []Fleet) {
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
+		// TODO: Test with thousands
 		shipment.Metal, _ = strconv.Atoi(strings.Trim(trs.Eq(trs.Size()-3).Find("td").Eq(1).Text(), "\n\t\r "))
 		shipment.Crystal, _ = strconv.Atoi(strings.Trim(trs.Eq(trs.Size()-2).Find("td").Eq(1).Text(), "\n\t\r "))
 		shipment.Deuterium, _ = strconv.Atoi(strings.Trim(trs.Eq(trs.Size()-1).Find("td").Eq(1).Text(), "\n\t\r "))
@@ -1669,7 +1670,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 			q := goquery.NewDocumentFromNode(root)
 			q.Find("tr").Each(func(i int, s *goquery.Selection) {
 				name := s.Find("td").Eq(0).Text()
-				nbr, _ := strconv.Atoi(s.Find("td").Eq(1).Text())
+				nbr, _ := strconv.Atoi(s.Find("td").Eq(1).Text()) // TODO: Test with thousands
 				if name != "" && nbr > 0 {
 					attack.Ships.Set(name2id(name), nbr)
 				}
