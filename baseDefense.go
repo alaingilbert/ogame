@@ -48,8 +48,8 @@ func (b BaseDefense) GetRapidfireFrom() map[ID]int {
 }
 
 // GetPrice ...
-func (b BaseDefense) GetPrice(int) Resources {
-	return b.Price
+func (b BaseDefense) GetPrice(nbr int) Resources {
+	return b.Price.Mul(nbr)
 }
 
 // ConstructionTime ...

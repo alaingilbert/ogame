@@ -100,8 +100,8 @@ func (b BaseShip) GetRapidfireAgainst() map[ID]int {
 }
 
 // GetPrice ...
-func (b BaseShip) GetPrice(int) Resources {
-	return b.Price
+func (b BaseShip) GetPrice(nbr int) Resources {
+	return b.Price.Mul(nbr)
 }
 
 // ConstructionTime ...
