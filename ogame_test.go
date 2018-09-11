@@ -8,6 +8,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestFindSlowestSpeed(t *testing.T) {
+	assert.Equal(t, 12000, findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}))
+}
+
 func TestExtractShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_thousands_ships.html")
 	ships, _ := extractShips(string(pageHTMLBytes))

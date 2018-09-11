@@ -1529,44 +1529,11 @@ func distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool
 
 func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
 	minSpeed := math.MaxInt32
-	if ships.LightFighter > 0 && LightFighter.GetSpeed(techs) < minSpeed {
-		minSpeed = LightFighter.GetSpeed(techs)
-	}
-	if ships.HeavyFighter > 0 && HeavyFighter.GetSpeed(techs) < minSpeed {
-		minSpeed = HeavyFighter.GetSpeed(techs)
-	}
-	if ships.Cruiser > 0 && Cruiser.GetSpeed(techs) < minSpeed {
-		minSpeed = Cruiser.GetSpeed(techs)
-	}
-	if ships.Battleship > 0 && Battleship.GetSpeed(techs) < minSpeed {
-		minSpeed = Battleship.GetSpeed(techs)
-	}
-	if ships.Battlecruiser > 0 && Battlecruiser.GetSpeed(techs) < minSpeed {
-		minSpeed = Battlecruiser.GetSpeed(techs)
-	}
-	if ships.Bomber > 0 && Bomber.GetSpeed(techs) < minSpeed {
-		minSpeed = Bomber.GetSpeed(techs)
-	}
-	if ships.Destroyer > 0 && Destroyer.GetSpeed(techs) < minSpeed {
-		minSpeed = Destroyer.GetSpeed(techs)
-	}
-	if ships.Deathstar > 0 && Deathstar.GetSpeed(techs) < minSpeed {
-		minSpeed = Deathstar.GetSpeed(techs)
-	}
-	if ships.SmallCargo > 0 && SmallCargo.GetSpeed(techs) < minSpeed {
-		minSpeed = SmallCargo.GetSpeed(techs)
-	}
-	if ships.LargeCargo > 0 && LargeCargo.GetSpeed(techs) < minSpeed {
-		minSpeed = LargeCargo.GetSpeed(techs)
-	}
-	if ships.ColonyShip > 0 && ColonyShip.GetSpeed(techs) < minSpeed {
-		minSpeed = ColonyShip.GetSpeed(techs)
-	}
-	if ships.Recycler > 0 && Recycler.GetSpeed(techs) < minSpeed {
-		minSpeed = Recycler.GetSpeed(techs)
-	}
-	if ships.EspionageProbe > 0 && EspionageProbe.GetSpeed(techs) < minSpeed {
-		minSpeed = EspionageProbe.GetSpeed(techs)
+	for _, ship := range Ships {
+		shipSpeed := ship.GetSpeed(techs)
+		if ships.ByID(ship.GetID()) > 0 && shipSpeed < minSpeed {
+			minSpeed = shipSpeed
+		}
 	}
 	return minSpeed
 }
