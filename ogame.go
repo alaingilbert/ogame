@@ -1492,12 +1492,10 @@ func galaxyDistance(galaxy1, galaxy2, universeSize int, donutGalaxy bool) (dista
 	if !donutGalaxy {
 		return int(20000 * math.Abs(float64(galaxy2-galaxy1)))
 	}
-	val := 0.0
-	if galaxy1 < galaxy2 {
-		val = math.Min(float64(galaxy2-galaxy1), float64((galaxy1+universeSize)-galaxy2))
-	} else {
-		val = math.Min(float64(galaxy1-galaxy2), float64((galaxy2+universeSize)-galaxy1))
+	if galaxy1 > galaxy2 {
+		galaxy1, galaxy2 = galaxy2, galaxy1
 	}
+	val := math.Min(float64(galaxy2-galaxy1), float64((galaxy1+universeSize)-galaxy2))
 	return int(20000 * val)
 }
 
@@ -1507,12 +1505,10 @@ func systemDistance(system1, system2 int, donutSystem bool) (distance int) {
 		return int(2700 + 95*math.Abs(float64(system2-system1)))
 	}
 	systemSize := 499
-	val := 0.0
-	if system1 < system2 {
-		val = math.Min(float64(system2-system1), float64((system1+systemSize)-system2))
-	} else {
-		val = math.Min(float64(system1-system2), float64((system2+systemSize)-system1))
+	if system1 > system2 {
+		system1, system2 = system2, system1
 	}
+	val := math.Min(float64(system2-system1), float64((system1+systemSize)-system2))
 	return int(2700 + 95*val)
 }
 
