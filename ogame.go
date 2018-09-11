@@ -2449,12 +2449,33 @@ const Action EspionageReportType = 0
 // Report ...
 const Report EspionageReportType = 1
 
+// CombatReportSummary ...
+type CombatReportSummary struct {
+	ID int
+}
+
 // EspionageReportSummary ...
 type EspionageReportSummary struct {
 	ID     int
 	Type   EspionageReportType
 	From   string
 	Target Coordinate
+}
+
+func extractCombatReportMessageIDs(pageHTML string) ([]CombatReportSummary, int) {
+	msgs := make([]CombatReportSummary, 0)
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
+	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
+		if idStr, exists := s.Attr("data-msg-id"); exists {
+			if id, err := strconv.Atoi(idStr); err == nil {
+				report := CombatReportSummary{ID: id}
+				msgs = append(msgs, report)
+
+			}
+		}
+	})
+	return msgs, nbPage
 }
 
 func extractEspionageReportMessageIDs(pageHTML string) ([]EspionageReportSummary, int) {
@@ -2480,32 +2501,37 @@ func extractEspionageReportMessageIDs(pageHTML string) ([]EspionageReportSummary
 	return msgs, nbPage
 }
 
+func (b *OGame) getPageMessages(page, tabid int) (string, error) {
+	finalURL := b.serverURL + "/game/index.php?page=messages"
+	payload := url.Values{
+		"messageId":  {"-1"},
+		"tabid":      {strconv.Itoa(tabid)},
+		"action":     {"107"},
+		"pagination": {strconv.Itoa(page)},
+		"ajax":       {"1"},
+	}
+	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	resp, err := b.client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	by, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	return string(by), nil
+}
+
 func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
+	tabid := 20
 	page := 1
 	nbPage := 1
 	msgs := make([]EspionageReportSummary, 0)
-	finalURL := b.serverURL + "/game/index.php?page=messages"
 	for page <= nbPage {
-		payload := url.Values{
-			"messageId":  {"-1"},
-			"tabid":      {"20"},
-			"action":     {"107"},
-			"pagination": {strconv.Itoa(page)},
-			"ajax":       {"1"},
-		}
-		req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
-		if err != nil {
-			return []EspionageReportSummary{}, err
-		}
-		req.Header.Add("X-Requested-With", "XMLHttpRequest")
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-		resp, err := b.client.Do(req)
-		if err != nil {
-			return []EspionageReportSummary{}, err
-		}
-		by, _ := ioutil.ReadAll(resp.Body)
-		pageHTML := string(by)
-		resp.Body.Close()
+		pageHTML, _ := b.getPageMessages(page, tabid)
 		newMessages, newNbPage := extractEspionageReportMessageIDs(pageHTML)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage

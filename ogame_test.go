@@ -28,6 +28,12 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 117, 9}, msgs[1].Target)
 }
 
+func TestExtractCombatReportMessageIDs(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
+	msgs, _ := extractCombatReportMessageIDs(string(pageHTMLBytes))
+	assert.Equal(t, 10, len(msgs))
+}
+
 func TestName2id(t *testing.T) {
 	assert.Equal(t, ID(0), name2id("Not valid"))
 	assert.Equal(t, LightFighterID, name2id("Light Fighter"))
