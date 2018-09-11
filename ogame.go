@@ -1921,10 +1921,10 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 	return nil
 }
 
-func getNbr(doc *goquery.Document, name string) (int, error) {
+func getNbr(doc *goquery.Document, name string) int {
 	div := doc.Find("div." + name)
 	level := div.Find("span.level")
-	return strconv.Atoi(strings.Trim(level.Contents().Text(), " \r\t\n"))
+	return parseInt(level.Contents().Text())
 }
 
 func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
@@ -1937,15 +1937,15 @@ func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, er
 		return ResourcesBuildings{}, ErrInvalidPlanetID
 	}
 	res := ResourcesBuildings{}
-	res.MetalMine, _ = getNbr(doc, "supply1")
-	res.CrystalMine, _ = getNbr(doc, "supply2")
-	res.DeuteriumSynthesizer, _ = getNbr(doc, "supply3")
-	res.SolarPlant, _ = getNbr(doc, "supply4")
-	res.FusionReactor, _ = getNbr(doc, "supply12")
-	res.SolarSatellite, _ = getNbr(doc, "supply212")
-	res.MetalStorage, _ = getNbr(doc, "supply22")
-	res.CrystalStorage, _ = getNbr(doc, "supply23")
-	res.DeuteriumTank, _ = getNbr(doc, "supply24")
+	res.MetalMine = getNbr(doc, "supply1")
+	res.CrystalMine = getNbr(doc, "supply2")
+	res.DeuteriumSynthesizer = getNbr(doc, "supply3")
+	res.SolarPlant = getNbr(doc, "supply4")
+	res.FusionReactor = getNbr(doc, "supply12")
+	res.SolarSatellite = getNbr(doc, "supply212")
+	res.MetalStorage = getNbr(doc, "supply22")
+	res.CrystalStorage = getNbr(doc, "supply23")
+	res.DeuteriumTank = getNbr(doc, "supply24")
 	return res, nil
 }
 
@@ -1957,16 +1957,16 @@ func extractDefense(pageHTML string) (DefensesInfos, error) {
 	}
 	doc.Find("span.textlabel").Remove()
 	res := DefensesInfos{}
-	res.RocketLauncher, _ = getNbr(doc, "defense401")
-	res.LightLaser, _ = getNbr(doc, "defense402")
-	res.HeavyLaser, _ = getNbr(doc, "defense403")
-	res.GaussCannon, _ = getNbr(doc, "defense404")
-	res.IonCannon, _ = getNbr(doc, "defense405")
-	res.PlasmaTurret, _ = getNbr(doc, "defense406")
-	res.SmallShieldDome, _ = getNbr(doc, "defense407")
-	res.LargeShieldDome, _ = getNbr(doc, "defense408")
-	res.AntiBallisticMissiles, _ = getNbr(doc, "defense502")
-	res.InterplanetaryMissiles, _ = getNbr(doc, "defense503")
+	res.RocketLauncher = getNbr(doc, "defense401")
+	res.LightLaser = getNbr(doc, "defense402")
+	res.HeavyLaser = getNbr(doc, "defense403")
+	res.GaussCannon = getNbr(doc, "defense404")
+	res.IonCannon = getNbr(doc, "defense405")
+	res.PlasmaTurret = getNbr(doc, "defense406")
+	res.SmallShieldDome = getNbr(doc, "defense407")
+	res.LargeShieldDome = getNbr(doc, "defense408")
+	res.AntiBallisticMissiles = getNbr(doc, "defense502")
+	res.InterplanetaryMissiles = getNbr(doc, "defense503")
 
 	return res, nil
 }
@@ -1985,20 +1985,20 @@ func extractShips(pageHTML string) (ShipsInfos, error) {
 		return ShipsInfos{}, ErrInvalidPlanetID
 	}
 	res := ShipsInfos{}
-	res.LightFighter, _ = getNbr(doc, "military204")
-	res.HeavyFighter, _ = getNbr(doc, "military205")
-	res.Cruiser, _ = getNbr(doc, "military206")
-	res.Battleship, _ = getNbr(doc, "military207")
-	res.Battlecruiser, _ = getNbr(doc, "military215")
-	res.Bomber, _ = getNbr(doc, "military211")
-	res.Destroyer, _ = getNbr(doc, "military213")
-	res.Deathstar, _ = getNbr(doc, "military214")
-	res.SmallCargo, _ = getNbr(doc, "civil202")
-	res.LargeCargo, _ = getNbr(doc, "civil203")
-	res.ColonyShip, _ = getNbr(doc, "civil208")
-	res.Recycler, _ = getNbr(doc, "civil209")
-	res.EspionageProbe, _ = getNbr(doc, "civil210")
-	res.SolarSatellite, _ = getNbr(doc, "civil212")
+	res.LightFighter = getNbr(doc, "military204")
+	res.HeavyFighter = getNbr(doc, "military205")
+	res.Cruiser = getNbr(doc, "military206")
+	res.Battleship = getNbr(doc, "military207")
+	res.Battlecruiser = getNbr(doc, "military215")
+	res.Bomber = getNbr(doc, "military211")
+	res.Destroyer = getNbr(doc, "military213")
+	res.Deathstar = getNbr(doc, "military214")
+	res.SmallCargo = getNbr(doc, "civil202")
+	res.LargeCargo = getNbr(doc, "civil203")
+	res.ColonyShip = getNbr(doc, "civil208")
+	res.Recycler = getNbr(doc, "civil209")
+	res.EspionageProbe = getNbr(doc, "civil210")
+	res.SolarSatellite = getNbr(doc, "civil212")
 
 	return res, nil
 }
@@ -2017,14 +2017,14 @@ func extractFacilities(pageHTML string) (Facilities, error) {
 		return Facilities{}, ErrInvalidPlanetID
 	}
 	res := Facilities{}
-	res.RoboticsFactory, _ = getNbr(doc, "station14")
-	res.Shipyard, _ = getNbr(doc, "station21")
-	res.ResearchLab, _ = getNbr(doc, "station31")
-	res.AllianceDepot, _ = getNbr(doc, "station34")
-	res.MissileSilo, _ = getNbr(doc, "station44")
-	res.NaniteFactory, _ = getNbr(doc, "station15")
-	res.Terraformer, _ = getNbr(doc, "station33")
-	res.SpaceDock, _ = getNbr(doc, "station36")
+	res.RoboticsFactory = getNbr(doc, "station14")
+	res.Shipyard = getNbr(doc, "station21")
+	res.ResearchLab = getNbr(doc, "station31")
+	res.AllianceDepot = getNbr(doc, "station34")
+	res.MissileSilo = getNbr(doc, "station44")
+	res.NaniteFactory = getNbr(doc, "station15")
+	res.Terraformer = getNbr(doc, "station33")
+	res.SpaceDock = getNbr(doc, "station36")
 	return res, nil
 }
 
@@ -2066,22 +2066,22 @@ func extractResearch(pageHTML string) Researches {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	res := Researches{}
-	res.EnergyTechnology, _ = getNbr(doc, "research113")
-	res.LaserTechnology, _ = getNbr(doc, "research120")
-	res.IonTechnology, _ = getNbr(doc, "research121")
-	res.HyperspaceTechnology, _ = getNbr(doc, "research114")
-	res.PlasmaTechnology, _ = getNbr(doc, "research122")
-	res.CombustionDrive, _ = getNbr(doc, "research115")
-	res.ImpulseDrive, _ = getNbr(doc, "research117")
-	res.HyperspaceDrive, _ = getNbr(doc, "research118")
-	res.EspionageTechnology, _ = getNbr(doc, "research106")
-	res.ComputerTechnology, _ = getNbr(doc, "research108")
-	res.Astrophysics, _ = getNbr(doc, "research124")
-	res.IntergalacticResearchNetwork, _ = getNbr(doc, "research123")
-	res.GravitonTechnology, _ = getNbr(doc, "research199")
-	res.WeaponsTechnology, _ = getNbr(doc, "research109")
-	res.ShieldingTechnology, _ = getNbr(doc, "research110")
-	res.ArmourTechnology, _ = getNbr(doc, "research111")
+	res.EnergyTechnology = getNbr(doc, "research113")
+	res.LaserTechnology = getNbr(doc, "research120")
+	res.IonTechnology = getNbr(doc, "research121")
+	res.HyperspaceTechnology = getNbr(doc, "research114")
+	res.PlasmaTechnology = getNbr(doc, "research122")
+	res.CombustionDrive = getNbr(doc, "research115")
+	res.ImpulseDrive = getNbr(doc, "research117")
+	res.HyperspaceDrive = getNbr(doc, "research118")
+	res.EspionageTechnology = getNbr(doc, "research106")
+	res.ComputerTechnology = getNbr(doc, "research108")
+	res.Astrophysics = getNbr(doc, "research124")
+	res.IntergalacticResearchNetwork = getNbr(doc, "research123")
+	res.GravitonTechnology = getNbr(doc, "research199")
+	res.WeaponsTechnology = getNbr(doc, "research109")
+	res.ShieldingTechnology = getNbr(doc, "research110")
+	res.ArmourTechnology = getNbr(doc, "research111")
 
 	return res
 }

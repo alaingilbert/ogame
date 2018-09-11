@@ -8,6 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractShips(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_thousands_ships.html")
+	ships, _ := extractShips(string(pageHTMLBytes))
+	assert.Equal(t, 1000, ships.LargeCargo)
+	assert.Equal(t, 1000, ships.EspionageProbe)
+	assert.Equal(t, 700, ships.Cruiser)
+}
+
 func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages.html")
 	msgs, _ := extractEspionageReportMessageIDs(string(pageHTMLBytes))
