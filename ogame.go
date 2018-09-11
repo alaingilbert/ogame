@@ -194,27 +194,27 @@ type Building interface {
 	Levelable
 }
 
-// Ship ...
-type Ship interface {
+type DefenderObj interface {
 	BaseOgameObj
 	GetStructuralIntegrity(Researches) int
 	GetShieldPower(Researches) int
 	GetWeaponPower(Researches) int
+	GetRapidfireFrom() map[ID]int
+}
+
+// Ship ...
+type Ship interface {
+	DefenderObj
 	GetCargoCapacity() int
 	GetBaseSpeed() int
 	GetSpeed(researches Researches) int
 	GetFuelConsumption() int
-	GetRapidfireFrom() map[ID]int
 	GetRapidfireAgainst() map[ID]int
 }
 
 // Defense ...
 type Defense interface {
-	BaseOgameObj
-	GetStructuralIntegrity(Researches) int
-	GetShieldPower(Researches) int
-	GetWeaponPower(Researches) int
-	GetRapidfireFrom() map[ID]int
+	DefenderObj
 }
 
 // ObjsStruct ...
