@@ -1440,10 +1440,9 @@ func extractFleets(pageHTML string) (res []Fleet) {
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
-		// TODO: Test with thousands
-		shipment.Metal, _ = strconv.Atoi(strings.Trim(trs.Eq(trs.Size()-3).Find("td").Eq(1).Text(), "\n\t\r "))
-		shipment.Crystal, _ = strconv.Atoi(strings.Trim(trs.Eq(trs.Size()-2).Find("td").Eq(1).Text(), "\n\t\r "))
-		shipment.Deuterium, _ = strconv.Atoi(strings.Trim(trs.Eq(trs.Size()-1).Find("td").Eq(1).Text(), "\n\t\r "))
+		shipment.Metal = parseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
+		shipment.Crystal = parseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
+		shipment.Deuterium = parseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
 
 		fleet := Fleet{}
 		fleet.ID = FleetID(id)
