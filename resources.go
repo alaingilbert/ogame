@@ -49,6 +49,15 @@ func (r Resources) Add(v Resources) Resources {
 	}
 }
 
+// Mul multiply resources with scalar.
+func (r Resources) Mul(scalar int) Resources {
+	return Resources{
+		Metal:     r.Metal * scalar,
+		Crystal:   r.Crystal * scalar,
+		Deuterium: r.Deuterium * scalar,
+	}
+}
+
 // CanAfford ...
 func (r Resources) CanAfford(cost Resources) bool {
 	return r.Gte(cost)
