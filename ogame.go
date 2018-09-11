@@ -168,39 +168,35 @@ var (
 	WeaponsTechnology            = newWeaponsTechnology()
 )
 
-// Technology ...
-type Technology interface {
+// BaseOgameObj ...
+type BaseOgameObj interface {
 	GetID() ID
 	GetName() string
-	GetBaseCost() Resources
-	GetIncreaseFactor() float64
+	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 	GetRequirements() map[ID]int
+	GetPrice(int) Resources
 	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
+}
+
+// Levelable ...
+type Levelable interface {
+	BaseOgameObj
 	GetLevel(ResourcesBuildings, Facilities, Researches) int
-	GetPrice(level int) Resources
-	ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration
+}
+
+// Technology ...
+type Technology interface {
+	Levelable
 }
 
 // Building ...
 type Building interface {
-	GetID() ID
-	GetName() string
-	GetBaseCost() Resources
-	GetIncreaseFactor() float64
-	GetRequirements() map[ID]int
-	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
-	GetLevel(ResourcesBuildings, Facilities, Researches) int
-	GetPrice(level int) Resources
-	ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration
+	Levelable
 }
 
 // Ship ...
 type Ship interface {
-	GetID() ID
-	GetName() string
-	GetRequirements() map[ID]int
-	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
-	GetPrice(int) Resources
+	BaseOgameObj
 	GetStructuralIntegrity(Researches) int
 	GetShieldPower(Researches) int
 	GetWeaponPower(Researches) int
@@ -210,21 +206,15 @@ type Ship interface {
 	GetFuelConsumption() int
 	GetRapidfireFrom() map[ID]int
 	GetRapidfireAgainst() map[ID]int
-	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 }
 
 // Defense ...
 type Defense interface {
-	GetID() ID
-	GetName() string
-	GetPrice(int) Resources
-	GetRequirements() map[ID]int
-	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
+	BaseOgameObj
 	GetStructuralIntegrity(Researches) int
 	GetShieldPower(Researches) int
 	GetWeaponPower(Researches) int
 	GetRapidfireFrom() map[ID]int
-	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 }
 
 // ObjsStruct ...

@@ -24,16 +24,6 @@ func (b BaseBuilding) GetName() string {
 	return b.Name
 }
 
-// GetBaseCost ...
-func (b BaseBuilding) GetBaseCost() Resources {
-	return b.BaseCost
-}
-
-// GetIncreaseFactor ...
-func (b BaseBuilding) GetIncreaseFactor() float64 {
-	return b.IncreaseFactor
-}
-
 // GetRequirements ...
 func (b BaseBuilding) GetRequirements() map[ID]int {
 	return b.Requirements

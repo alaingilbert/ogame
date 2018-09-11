@@ -26,16 +26,6 @@ func (s *solarSatellite) Production(temperatureMax, nbr int) int {
 	return int((float64(temperatureMax)+140)/6) * nbr
 }
 
-// GetIncreaseFactor ...
-func (s *solarSatellite) GetIncreaseFactor() float64 {
-	return 0
-}
-
-// GetBaseCost ...
-func (s *solarSatellite) GetBaseCost() Resources {
-	return s.Price
-}
-
 // GetLevel ...
 func (s *solarSatellite) GetLevel(ResourcesBuildings, Facilities, Researches) int {
 	return 0
