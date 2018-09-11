@@ -349,6 +349,14 @@ func TestExtractFleet(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 123, Crystal: 456, Deuterium: 789}, fleets[0].Resources)
 }
 
+func TestExtractFleetThousands(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_thousands.html")
+	fleets := extractFleets(string(pageHTMLBytes))
+	assert.Equal(t, Transport, fleets[0].Mission)
+	assert.Equal(t, 210, fleets[0].Ships.LargeCargo)
+	assert.Equal(t, Resources{Metal: 207862, Crystal: 78903, Deuterium: 42956}, fleets[0].Resources)
+}
+
 func TestExtractFleet_returning(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_2.html")
 	fleets := extractFleets(string(pageHTMLBytes))
