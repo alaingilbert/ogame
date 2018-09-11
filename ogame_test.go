@@ -321,9 +321,9 @@ func TestCancelResearch(t *testing.T) {
 func TestGetConstructions(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_active.html")
 	buildingID, buildingCountdown, researchID, researchCountdown := extractConstructions(string(pageHTMLBytes))
-	assert.Equal(t, ID(2), buildingID)
+	assert.Equal(t, CrystalMineID, buildingID)
 	assert.Equal(t, 731, buildingCountdown)
-	assert.Equal(t, ID(115), researchID)
+	assert.Equal(t, CombustionDriveID, researchID)
 	assert.Equal(t, 927, researchCountdown)
 }
 
@@ -334,7 +334,7 @@ func TestExtractFleet(t *testing.T) {
 	assert.Equal(t, 4134, fleets[0].ArriveIn)
 	assert.Equal(t, Coordinate{4, 116, 12}, fleets[0].Origin)
 	assert.Equal(t, Coordinate{4, 117, 9}, fleets[0].Destination)
-	assert.Equal(t, MissionID(3), fleets[0].Mission)
+	assert.Equal(t, Transport, fleets[0].Mission)
 	assert.Equal(t, false, fleets[0].ReturnFlight)
 	assert.Equal(t, FleetID(4494950), fleets[0].ID)
 	assert.Equal(t, 1, fleets[0].Ships.SmallCargo)
@@ -351,7 +351,7 @@ func TestExtractFleet_returning(t *testing.T) {
 	assert.Equal(t, 1, len(fleets))
 	assert.Equal(t, Coordinate{4, 116, 12}, fleets[0].Origin)
 	assert.Equal(t, Coordinate{4, 117, 9}, fleets[0].Destination)
-	assert.Equal(t, MissionID(3), fleets[0].Mission)
+	assert.Equal(t, Transport, fleets[0].Mission)
 	assert.Equal(t, true, fleets[0].ReturnFlight)
 	assert.Equal(t, FleetID(0), fleets[0].ID)
 	assert.Equal(t, 1, fleets[0].Ships.SmallCargo)
@@ -366,7 +366,7 @@ func TestExtractProduction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_queue.html")
 	prods, _ := extractProduction(string(pageHTMLBytes))
 	assert.Equal(t, 20, len(prods))
-	assert.Equal(t, ID(203), prods[0].ID)
+	assert.Equal(t, LargeCargoID, prods[0].ID)
 	assert.Equal(t, 4, prods[0].Nbr)
 }
 
