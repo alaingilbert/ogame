@@ -2018,7 +2018,6 @@ func extractFacilities(pageHTML string) (Facilities, error) {
 	res.NaniteFactory, _ = getNbr(doc, "station15")
 	res.Terraformer, _ = getNbr(doc, "station33")
 	res.SpaceDock, _ = getNbr(doc, "station36")
-
 	return res, nil
 }
 
