@@ -26,7 +26,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Sirupsen/logrus"
-	"github.com/microcosm-cc/bluemonday"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 )
@@ -1106,34 +1105,11 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 	res := make([]Planet, 0)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
-		el, _ := s.Attr("id")
-		id, err := strconv.Atoi(strings.TrimPrefix(el, "planet-"))
+		planet, err := extractPlanetFromSelection(s, b)
 		if err != nil {
+			b.error(err)
 			return
 		}
-
-		planetKoords := s.Find("span.planet-koords").Text()
-
-		txt, _ := s.Find("a.planetlink").Attr("title")
-		p := bluemonday.StrictPolicy()
-		m1 := planetInfosRgx.FindStringSubmatch(p.Sanitize(txt))
-		if len(m1) < 10 {
-			b.error("failed to parse planet infos: " + txt)
-			return
-		}
-
-		planet := Planet{}
-		planet.ogame = b
-		planet.Img = s.Find("img.planetPic").AttrOr("src", "")
-		planet.ID = PlanetID(id)
-		planet.Name = m1[1]
-		planet.Coordinate = extractCoord(planetKoords)
-		planet.Diameter = parseInt(m1[5])
-		planet.Fields.Built, _ = strconv.Atoi(m1[6])
-		planet.Fields.Total, _ = strconv.Atoi(m1[7])
-		planet.Temperature.Min, _ = strconv.Atoi(m1[8])
-		planet.Temperature.Max, _ = strconv.Atoi(m1[9])
-
 		res = append(res, planet)
 	})
 	return res
