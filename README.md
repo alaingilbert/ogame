@@ -32,6 +32,7 @@ func main() {
 ### Available methods
 
 ```go
+GetServer() Server
 SetUserAgent(newUserAgent string)
 ServerURL() string
 GetLanguage() string
@@ -98,7 +99,7 @@ GetResourcesProductions(PlanetID) (Resources, error)
 Download [ogamed binary here](https://github.com/alaingilbert/ogame/releases)
 
 ```
-./ogamed --universe=Test --username=email@email.com --password=secret
+./ogamed --universe=Zibal --username=email@email.com --password=secret --language=en
 ```
 
 ```
