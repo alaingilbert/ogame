@@ -1577,6 +1577,11 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		if missionType == Attack || missionType == MissileAttack {
 			coordsOrigin := strings.Trim(s.Find("td.coordsOrigin").Text(), " \r\t\n")
 			attack.Origin = extractCoord(coordsOrigin)
+			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
+			attack.AttackerID, _ = strconv.Atoi(attackerIDStr)
+		}
+		if missionType == MissileAttack {
+			attack.Missiles = parseInt(s.Find("td.detailsFleet span").First().Text())
 		}
 
 		// Get ships infos if available
@@ -1600,16 +1605,6 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		attack.Destination = extractCoord(destCoords)
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
-
-		if missionType == Attack || missionType == MissileAttack {
-			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
-			attack.AttackerID, _ = strconv.Atoi(attackerIDStr)
-		}
-
-		if missionType == MissileAttack {
-			missilesStr := s.Find("td.detailsFleet span").First().Text()
-			attack.Missiles, _ = strconv.Atoi(missilesStr)
-		}
 
 		attacks = append(attacks, attack)
 	}

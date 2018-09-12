@@ -72,6 +72,8 @@ func TestExtractAttacksWithoutShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks := extractAttacks(string(pageHTMLBytes))
 	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, 100771, attacks[0].AttackerID)
+	assert.Equal(t, 0, attacks[0].Missiles)
 	assert.Nil(t, attacks[0].Ships)
 }
 
