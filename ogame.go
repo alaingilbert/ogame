@@ -1631,6 +1631,11 @@ func (b *OGame) getAttacks() []AttackEvent {
 }
 
 func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPlayerRank int) ([]PlanetInfos, error) {
+	metalRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+	crystalRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+	recyclersRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+	allianceMembersRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+
 	var tmp struct {
 		Galaxy string
 	}
@@ -1657,24 +1662,6 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 			planetImg, _ := planetTooltip.Find("img").Attr("src")
 			coordsRaw := planetTooltip.Find("span#pos-planet").Text()
 
-			metalRgx := regexp.MustCompile(`Metal: ([\d.]+)`)
-			crystalRgx := regexp.MustCompile(`Crystal: ([\d.]+)`)
-			recyclersRgx := regexp.MustCompile(`Recyclers needed: ([\d.]+)`)
-			switch lang {
-			case "de":
-				metalRgx = regexp.MustCompile(`Metall: ([\d.]+)`)
-				crystalRgx = regexp.MustCompile(`Kristall: ([\d.]+)`)
-				recyclersRgx = regexp.MustCompile(`Benötigte Recycler: ([\d.]+)`)
-			case "es":
-				metalRgx = regexp.MustCompile(`Metal: ([\d.]+)`)
-				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
-				recyclersRgx = regexp.MustCompile(`Se necesitan recicladores: ([\d.]+)`)
-			case "fr":
-				metalRgx = regexp.MustCompile(`Métal: ([\d.]+)`)
-				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
-				recyclersRgx = regexp.MustCompile(`Recycleurs nécessaires: ([\d.]+)`)
-			}
-
 			metalTxt := s.Find("div#debris" + position + " ul.ListLinks li").First().Text()
 			crystalTxt := s.Find("div#debris" + position + " ul.ListLinks li").Eq(1).Text()
 			recyclersTxt := s.Find("div#debris" + position + " ul.ListLinks li").Eq(2).Text()
@@ -1697,7 +1684,7 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 				planetInfos.Alliance.Name = allianceSpan.Find("h1").Text()
 				planetInfos.Alliance.ID, _ = strconv.Atoi(strings.TrimPrefix(longID, "alliance"))
 				planetInfos.Alliance.Rank, _ = strconv.Atoi(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text())
-				planetInfos.Alliance.Member = parseInt(strings.TrimPrefix(allianceSpan.Find("ul.ListLinks li").Eq(1).Text(), "Member: "))
+				planetInfos.Alliance.Member = parseInt(allianceMembersRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
 			}
 
 			if len(metalRgx.FindStringSubmatch(metalTxt)) > 0 {
