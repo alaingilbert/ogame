@@ -18,62 +18,62 @@ func parseShip(name string) (ID, error) {
 	name = strings.ToLower(name)
 	switch name {
 	case "small cargo":
-		return SmallCargo.ID, nil
+		return SmallCargoID, nil
 	case "large cargo":
-		return LargeCargo.ID, nil
+		return LargeCargoID, nil
 	case "light fighter":
-		return LightFighter.ID, nil
+		return LightFighterID, nil
 	case "heavy fighter":
-		return HeavyFighter.ID, nil
+		return HeavyFighterID, nil
 	case "cruiser":
-		return Cruiser.ID, nil
+		return CruiserID, nil
 	case "battleship":
-		return Battleship.ID, nil
+		return BattleshipID, nil
 	case "colony ship":
-		return ColonyShip.ID, nil
+		return ColonyShipID, nil
 	case "recycler":
-		return Recycler.ID, nil
+		return RecyclerID, nil
 	case "espionage probe":
-		return EspionageProbe.ID, nil
+		return EspionageProbeID, nil
 	case "bomber":
-		return Bomber.ID, nil
+		return BomberID, nil
 	case "solar satellite":
-		return SolarSatellite.ID, nil
+		return SolarSatelliteID, nil
 	case "destroyer":
-		return Destroyer.ID, nil
+		return DestroyerID, nil
 	case "deathstar":
-		return Deathstar.ID, nil
+		return DeathstarID, nil
 	case "battlecruiser":
-		return Battlecruiser.ID, nil
+		return BattlecruiserID, nil
 
 	case "petit transporteur":
-		return SmallCargo.ID, nil
+		return SmallCargoID, nil
 	case "grand transporteur":
-		return LargeCargo.ID, nil
+		return LargeCargoID, nil
 	case "chasseur léger":
-		return LightFighter.ID, nil
+		return LightFighterID, nil
 	case "chasseur lourd":
-		return HeavyFighter.ID, nil
+		return HeavyFighterID, nil
 	case "croiseur":
-		return Cruiser.ID, nil
+		return CruiserID, nil
 	case "vaisseau de bataille":
-		return Battleship.ID, nil
+		return BattleshipID, nil
 	case "vaisseau de colonisation":
-		return ColonyShip.ID, nil
+		return ColonyShipID, nil
 	case "recycleur":
-		return Recycler.ID, nil
+		return RecyclerID, nil
 	case "sonde d`espionnage":
-		return EspionageProbe.ID, nil
+		return EspionageProbeID, nil
 	case "bombardier":
-		return Bomber.ID, nil
+		return BomberID, nil
 	case "satellite solaire":
-		return SolarSatellite.ID, nil
+		return SolarSatelliteID, nil
 	case "destructeur":
-		return Destroyer.ID, nil
+		return DestroyerID, nil
 	case "étoile de la mort":
-		return Deathstar.ID, nil
+		return DeathstarID, nil
 	case "traqueur":
-		return Battlecruiser.ID, nil
+		return BattlecruiserID, nil
 	}
 	return 0, errors.New("unable to parse ship " + name)
 }
@@ -81,56 +81,56 @@ func parseShip(name string) (ID, error) {
 // IsDefenseID ...
 func IsDefenseID(id int) bool {
 	ogameID := ID(id)
-	return ogameID == RocketLauncher.ID ||
-		ogameID == LightLaser.ID ||
-		ogameID == HeavyLaser.ID ||
-		ogameID == GaussCannon.ID ||
-		ogameID == IonCannon.ID ||
-		ogameID == PlasmaTurret.ID ||
-		ogameID == SmallShieldDome.ID ||
-		ogameID == LargeShieldDome.ID ||
-		ogameID == AntiBallisticMissiles.ID ||
-		ogameID == InterplanetaryMissiles.ID
+	return ogameID == RocketLauncherID ||
+		ogameID == LightLaserID ||
+		ogameID == HeavyLaserID ||
+		ogameID == GaussCannonID ||
+		ogameID == IonCannonID ||
+		ogameID == PlasmaTurretID ||
+		ogameID == SmallShieldDomeID ||
+		ogameID == LargeShieldDomeID ||
+		ogameID == AntiBallisticMissilesID ||
+		ogameID == InterplanetaryMissilesID
 }
 
 // IsShipID ...
 func IsShipID(id int) bool {
 	ogameID := ID(id)
-	return ogameID == SmallCargo.ID ||
-		ogameID == LargeCargo.ID ||
-		ogameID == LightFighter.ID ||
-		ogameID == HeavyFighter.ID ||
-		ogameID == Cruiser.ID ||
-		ogameID == Battleship.ID ||
-		ogameID == ColonyShip.ID ||
-		ogameID == Recycler.ID ||
-		ogameID == EspionageProbe.ID ||
-		ogameID == Bomber.ID ||
-		ogameID == SolarSatellite.ID ||
-		ogameID == Destroyer.ID ||
-		ogameID == Deathstar.ID ||
-		ogameID == Battlecruiser.ID
+	return ogameID == SmallCargoID ||
+		ogameID == LargeCargoID ||
+		ogameID == LightFighterID ||
+		ogameID == HeavyFighterID ||
+		ogameID == CruiserID ||
+		ogameID == BattleshipID ||
+		ogameID == ColonyShipID ||
+		ogameID == RecyclerID ||
+		ogameID == EspionageProbeID ||
+		ogameID == BomberID ||
+		ogameID == SolarSatelliteID ||
+		ogameID == DestroyerID ||
+		ogameID == DeathstarID ||
+		ogameID == BattlecruiserID
 }
 
 // IsTechID ...
 func IsTechID(id int) bool {
 	ogameID := ID(id)
-	return ogameID == EspionageTechnology.ID ||
-		ogameID == ComputerTechnology.ID ||
-		ogameID == WeaponsTechnology.ID ||
-		ogameID == ShieldingTechnology.ID ||
-		ogameID == ArmourTechnology.ID ||
-		ogameID == EnergyTechnology.ID ||
-		ogameID == HyperspaceTechnology.ID ||
-		ogameID == CombustionDrive.ID ||
-		ogameID == ImpulseDrive.ID ||
-		ogameID == HyperspaceDrive.ID ||
-		ogameID == LaserTechnology.ID ||
-		ogameID == IonTechnology.ID ||
-		ogameID == PlasmaTechnology.ID ||
-		ogameID == IntergalacticResearchNetwork.ID ||
-		ogameID == Astrophysics.ID ||
-		ogameID == GravitonTechnology.ID
+	return ogameID == EspionageTechnologyID ||
+		ogameID == ComputerTechnologyID ||
+		ogameID == WeaponsTechnologyID ||
+		ogameID == ShieldingTechnologyID ||
+		ogameID == ArmourTechnologyID ||
+		ogameID == EnergyTechnologyID ||
+		ogameID == HyperspaceTechnologyID ||
+		ogameID == CombustionDriveID ||
+		ogameID == ImpulseDriveID ||
+		ogameID == HyperspaceDriveID ||
+		ogameID == LaserTechnologyID ||
+		ogameID == IonTechnologyID ||
+		ogameID == PlasmaTechnologyID ||
+		ogameID == IntergalacticResearchNetworkID ||
+		ogameID == AstrophysicsID ||
+		ogameID == GravitonTechnologyID
 }
 
 // IsBuildingID ...
@@ -141,28 +141,28 @@ func IsBuildingID(id int) bool {
 // IsResourceBuildingID ...
 func IsResourceBuildingID(id int) bool {
 	ogameID := ID(id)
-	return ogameID == MetalMine.ID ||
-		ogameID == CrystalMine.ID ||
-		ogameID == DeuteriumSynthesizer.ID ||
-		ogameID == SolarPlant.ID ||
-		ogameID == FusionReactor.ID ||
-		ogameID == MetalStorage.ID ||
-		ogameID == CrystalStorage.ID ||
-		ogameID == DeuteriumTank.ID ||
-		ogameID == ShieldedMetalDen.ID ||
-		ogameID == UndergroundCrystalDen.ID ||
-		ogameID == SeabedDeuteriumDen.ID
+	return ogameID == MetalMineID ||
+		ogameID == CrystalMineID ||
+		ogameID == DeuteriumSynthesizerID ||
+		ogameID == SolarPlantID ||
+		ogameID == FusionReactorID ||
+		ogameID == MetalStorageID ||
+		ogameID == CrystalStorageID ||
+		ogameID == DeuteriumTankID ||
+		ogameID == ShieldedMetalDenID ||
+		ogameID == UndergroundCrystalDenID ||
+		ogameID == SeabedDeuteriumDenID
 }
 
 // IsFacilityID ...
 func IsFacilityID(id int) bool {
 	ogameID := ID(id)
-	return ogameID == AllianceDepot.ID ||
-		ogameID == RoboticsFactory.ID ||
-		ogameID == Shipyard.ID ||
-		ogameID == ResearchLab.ID ||
-		ogameID == MissileSilo.ID ||
-		ogameID == NaniteFactory.ID ||
-		ogameID == Terraformer.ID ||
-		ogameID == SpaceDock.ID
+	return ogameID == AllianceDepotID ||
+		ogameID == RoboticsFactoryID ||
+		ogameID == ShipyardID ||
+		ogameID == ResearchLabID ||
+		ogameID == MissileSiloID ||
+		ogameID == NaniteFactoryID ||
+		ogameID == TerraformerID ||
+		ogameID == SpaceDockID
 }
