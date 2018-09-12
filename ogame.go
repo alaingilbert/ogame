@@ -1696,6 +1696,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 	}
 	doc.Find("tr.eventFleet").Each(tmp)
 	doc.Find("tr.allianceAttack").Each(tmp)
+
 	return attacks
 }
 
