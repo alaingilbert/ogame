@@ -9,7 +9,7 @@ import (
 func parseInt(val string) int {
 	val = strings.Replace(val, ".", "", -1)
 	val = strings.Replace(val, ",", "", -1)
-	val = strings.Trim(val, " \t\r\n")
+	val = strings.TrimSpace(val)
 	res, _ := strconv.Atoi(val)
 	return res
 }

@@ -1451,7 +1451,7 @@ func extractFleets(pageHTML string) (res []Fleet) {
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
-			name := strings.ToLower(strings.Trim(tds.Eq(0).Text(), "\n\t\r :"))
+			name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
 			qty := parseInt(tds.Eq(1).Text())
 			shipID, _ := parseShip(name)
 			fleet.Ships.Set(shipID, qty)
@@ -1571,7 +1571,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		attack := AttackEvent{}
 		attack.MissionType = missionType
 		if missionType == Attack || missionType == MissileAttack {
-			coordsOrigin := strings.Trim(s.Find("td.coordsOrigin").Text(), " \r\t\n")
+			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 			attack.Origin = extractCoord(coordsOrigin)
 			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
 			attack.AttackerID, _ = strconv.Atoi(attackerIDStr)
@@ -1597,7 +1597,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 			})
 		}
 
-		destCoords := strings.Trim(s.Find("td.destCoords").Text(), " \r\t\n")
+		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
 		attack.Destination = extractCoord(destCoords)
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
@@ -1643,7 +1643,7 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 			activity := 0
 			activityDiv := s.Find("div.activity")
 			if activityDiv != nil {
-				activityRaw := strings.Trim(activityDiv.Text(), " \r\t\n")
+				activityRaw := strings.TrimSpace(activityDiv.Text())
 				if activityRaw != "" {
 					activity, _ = strconv.Atoi(activityRaw)
 				}
@@ -1729,7 +1729,7 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 					}
 				})
 			} else {
-				playerName = strings.Trim(s.Find("td.playername").Find("span").Text(), " \r\t\n")
+				playerName = strings.TrimSpace(s.Find("td.playername").Find("span").Text())
 			}
 
 			if playerID == 0 {
