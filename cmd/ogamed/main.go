@@ -220,7 +220,7 @@ func getFleets(c echo.Context) error {
 }
 
 func cancelFleet(c echo.Context) error {
-	fleetID, err := strconv.Atoi(c.Request().PostFormValue("fleetID"))
+	fleetID, err := strconv.Atoi(c.Param("fleetID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, err.Error()))
 	}
