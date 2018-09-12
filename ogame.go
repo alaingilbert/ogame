@@ -1101,20 +1101,6 @@ type resourcesResp struct {
 
 var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de )?([-\d]+).+C\s*(?:bis|to|à|a) ([-\d]+).+C`)
 
-func extractPlanets(pageHTML string, b *OGame) []Planet {
-	res := make([]Planet, 0)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
-	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
-		planet, err := extractPlanetFromSelection(s, b)
-		if err != nil {
-			b.error(err)
-			return
-		}
-		res = append(res, planet)
-	})
-	return res
-}
-
 func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) {
 	el, _ := s.Attr("id")
 	id, err := strconv.Atoi(strings.TrimPrefix(el, "planet-"))
@@ -1148,6 +1134,20 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	res.Temperature.Min, _ = strconv.Atoi(m[8])
 	res.Temperature.Max, _ = strconv.Atoi(m[9])
 	return res, nil
+}
+
+func extractPlanets(pageHTML string, b *OGame) []Planet {
+	res := make([]Planet, 0)
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
+		planet, err := extractPlanetFromSelection(s, b)
+		if err != nil {
+			b.error(err)
+			return
+		}
+		res = append(res, planet)
+	})
+	return res
 }
 
 func extractPlanet(pageHTML string, planetID PlanetID, b *OGame) (Planet, error) {
