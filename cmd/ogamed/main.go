@@ -86,7 +86,7 @@ func start(c *cli.Context) error {
 	e.Debug = false
 	e.GET("/", home)
 	e.POST("/bot/set-user-agent", setUserAgent)
-	e.POST("/bot/server-url", serverURL)
+	e.GET("/bot/server-url", serverURL)
 	e.POST("/bot/page-content", pageContent)
 	e.GET("/bot/login", login)
 	e.GET("/bot/logout", logout)
