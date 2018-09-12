@@ -1631,10 +1631,7 @@ func (b *OGame) getAttacks() []AttackEvent {
 }
 
 func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPlayerRank int) ([]PlanetInfos, error) {
-	metalRgx := regexp.MustCompile(`.*: ([\d.]+)`)
-	crystalRgx := regexp.MustCompile(`.*: ([\d.]+)`)
-	recyclersRgx := regexp.MustCompile(`.*: ([\d.]+)`)
-	allianceMembersRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
 
 	var tmp struct {
 		Galaxy string
@@ -1684,13 +1681,13 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 				planetInfos.Alliance.Name = allianceSpan.Find("h1").Text()
 				planetInfos.Alliance.ID, _ = strconv.Atoi(strings.TrimPrefix(longID, "alliance"))
 				planetInfos.Alliance.Rank, _ = strconv.Atoi(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text())
-				planetInfos.Alliance.Member = parseInt(allianceMembersRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
+				planetInfos.Alliance.Member = parseInt(prefixedNumRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
 			}
 
-			if len(metalRgx.FindStringSubmatch(metalTxt)) > 0 {
-				planetInfos.Debris.Metal = parseInt(metalRgx.FindStringSubmatch(metalTxt)[1])
-				planetInfos.Debris.Crystal = parseInt(crystalRgx.FindStringSubmatch(crystalTxt)[1])
-				planetInfos.Debris.RecyclersNeeded = parseInt(recyclersRgx.FindStringSubmatch(recyclersTxt)[1])
+			if len(prefixedNumRgx.FindStringSubmatch(metalTxt)) > 0 {
+				planetInfos.Debris.Metal = parseInt(prefixedNumRgx.FindStringSubmatch(metalTxt)[1])
+				planetInfos.Debris.Crystal = parseInt(prefixedNumRgx.FindStringSubmatch(crystalTxt)[1])
+				planetInfos.Debris.RecyclersNeeded = parseInt(prefixedNumRgx.FindStringSubmatch(recyclersTxt)[1])
 			}
 
 			planetInfos.Activity = activity
