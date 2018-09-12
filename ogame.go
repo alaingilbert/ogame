@@ -1629,7 +1629,7 @@ func (b *OGame) getAttacks() []AttackEvent {
 	return extractAttacks(pageHTML)
 }
 
-func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPlayerRank int) ([]PlanetInfos, error) {
+func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRank int) ([]PlanetInfos, error) {
 	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
 
 	var tmp struct {
@@ -1750,7 +1750,7 @@ func (b *OGame) galaxyInfos(galaxy, system int) ([]PlanetInfos, error) {
 	defer resp.Body.Close()
 	by, _ := ioutil.ReadAll(resp.Body)
 	pageHTML := string(by)
-	return extractGalaxyInfos(pageHTML, b.language, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	return extractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
