@@ -1146,7 +1146,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 		return Planet{}, err
 	}
 
-	title, _ := s.Find("a").Attr("title")
+	title, _ := s.Find("a.planetlink").Attr("title")
 	root, err := html.Parse(strings.NewReader(title))
 	if err != nil {
 		return Planet{}, err
