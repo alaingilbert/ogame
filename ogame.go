@@ -1139,33 +1139,47 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 	return res
 }
 
+func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) {
+	el, _ := s.Attr("id")
+	id, err := strconv.Atoi(strings.TrimPrefix(el, "planet-"))
+	if err != nil {
+		return Planet{}, err
+	}
+
+	title, _ := s.Find("a").Attr("title")
+	root, err := html.Parse(strings.NewReader(title))
+	if err != nil {
+		return Planet{}, err
+	}
+
+	txt := goquery.NewDocumentFromNode(root).Text()
+	m := planetInfosRgx.FindStringSubmatch(txt)
+	if len(m) < 10 {
+		return Planet{}, errors.New("failed to parse planet infos: " + txt)
+	}
+
+	res := Planet{}
+	res.ogame = b
+	res.Img = s.Find("img.planetPic").AttrOr("src", "")
+	res.ID = PlanetID(id)
+	res.Name = m[1]
+	res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
+	res.Coordinate.System, _ = strconv.Atoi(m[3])
+	res.Coordinate.Position, _ = strconv.Atoi(m[4])
+	res.Diameter = parseInt(m[5])
+	res.Fields.Built, _ = strconv.Atoi(m[6])
+	res.Fields.Total, _ = strconv.Atoi(m[7])
+	res.Temperature.Min, _ = strconv.Atoi(m[8])
+	res.Temperature.Max, _ = strconv.Atoi(m[9])
+	return res, nil
+}
+
 func extractPlanet(pageHTML string, planetID PlanetID, b *OGame) (Planet, error) {
 	planetIDStr := planetID.String()
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	s := doc.Find("div#planet-" + planetIDStr)
 	if len(s.Nodes) > 0 { // planet
-		title, _ := s.Find("a").Attr("title")
-		root, err := html.Parse(strings.NewReader(title))
-		if err != nil {
-			return Planet{}, err
-		}
-		txt := goquery.NewDocumentFromNode(root).Text()
-		m := planetInfosRgx.FindStringSubmatch(txt)
-
-		res := Planet{}
-		res.ogame = b
-		res.Img = s.Find("img").AttrOr("src", "")
-		res.ID = planetID
-		res.Name = m[1]
-		res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
-		res.Coordinate.System, _ = strconv.Atoi(m[3])
-		res.Coordinate.Position, _ = strconv.Atoi(m[4])
-		res.Diameter = parseInt(m[5])
-		res.Fields.Built, _ = strconv.Atoi(m[6])
-		res.Fields.Total, _ = strconv.Atoi(m[7])
-		res.Temperature.Min, _ = strconv.Atoi(m[8])
-		res.Temperature.Max, _ = strconv.Atoi(m[9])
-		return res, nil
+		return extractPlanetFromSelection(s, b)
 	}
 	return Planet{}, errors.New("failed to find planetID")
 }
