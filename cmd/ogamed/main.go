@@ -85,12 +85,17 @@ func start(c *cli.Context) error {
 	e.HidePort = true
 	e.Debug = false
 	e.GET("/", home)
+	e.GET("/bot/server", getServer)
 	e.POST("/bot/set-user-agent", setUserAgent)
 	e.GET("/bot/server-url", serverURL)
+	e.GET("/bot/language", getLanguage)
 	e.POST("/bot/page-content", pageContent)
 	e.GET("/bot/login", login)
 	e.GET("/bot/logout", logout)
+	e.GET("/bot/username", getUsername)
+	e.GET("/bot/universe-name", getUniverseName)
 	e.GET("/bot/server/speed", getUniverseSpeed)
+	e.GET("/bot/server/speed-fleet", getUniverseSpeedFleet)
 	e.GET("/bot/server/version", serverVersion)
 	e.GET("/bot/server/time", serverTime)
 	e.GET("/bot/is-under-attack", isUnderAttack)
@@ -145,6 +150,10 @@ func home(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+func getServer(c echo.Context) error {
+	return c.JSON(http.StatusOK, successResp(bot.GetServer()))
+}
+
 // curl 127.0.0.1:1234/bot/set-user-agent -d 'userAgent="New user agent"'
 func setUserAgent(c echo.Context) error {
 	userAgent := c.Request().PostFormValue("userAgent")
@@ -154,6 +163,10 @@ func setUserAgent(c echo.Context) error {
 
 func serverURL(c echo.Context) error {
 	return c.JSON(http.StatusOK, successResp(bot.ServerURL()))
+}
+
+func getLanguage(c echo.Context) error {
+	return c.JSON(http.StatusOK, successResp(bot.GetLanguage()))
 }
 
 // curl 127.0.0.1:1234/bot/page-content -d 'page=overview&cp=123'
@@ -179,8 +192,20 @@ func logout(c echo.Context) error {
 	return c.JSON(http.StatusOK, successResp(nil))
 }
 
+func getUsername(c echo.Context) error {
+	return c.JSON(http.StatusOK, successResp(bot.GetUsername()))
+}
+
+func getUniverseName(c echo.Context) error {
+	return c.JSON(http.StatusOK, successResp(bot.GetUniverseName()))
+}
+
 func getUniverseSpeed(c echo.Context) error {
 	return c.JSON(http.StatusOK, successResp(bot.GetUniverseSpeed()))
+}
+
+func getUniverseSpeedFleet(c echo.Context) error {
+	return c.JSON(http.StatusOK, successResp(bot.GetUniverseSpeedFleet()))
 }
 
 func serverVersion(c echo.Context) error {
