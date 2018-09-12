@@ -8,6 +8,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractPlanet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
+	planet, _ := extractPlanet(string(pageHTMLBytes), PlanetID(33677371), &OGame{language: "en"})
+	assert.Equal(t, "C1", planet.Name)
+	assert.Equal(t, 14615, planet.Diameter)
+}
+
 func TestFindSlowestSpeed(t *testing.T) {
 	assert.Equal(t, 12000, findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}))
 }
