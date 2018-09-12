@@ -1154,9 +1154,8 @@ func (b *OGame) getPlanetByCoord(coord Coordinate) (Planet, error) {
 	return Planet{}, errors.New("invalid planet coordinate")
 }
 
-func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
+func extractPlanet(pageHTML string, planetID PlanetID, b *OGame) (Planet, error) {
 	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetIDStr}})
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	s := doc.Find("div#planet-" + planetIDStr)
 	if len(s.Nodes) > 0 { // planet
@@ -1184,6 +1183,12 @@ func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
 		return res, nil
 	}
 	return Planet{}, errors.New("failed to find planetID")
+}
+
+func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
+	planetIDStr := planetID.String()
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetIDStr}})
+	return extractPlanet(pageHTML, planetID, b)
 }
 
 func (b *OGame) serverVersion() string {
