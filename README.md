@@ -2,8 +2,8 @@
 
 # OGame automation toolkit
 
-- As a library
-- As a service (ogamed)
+- [As a library](#ogame-library)
+- [As a service (ogamed)](#ogamed-service)
 
 ---
 
@@ -96,7 +96,8 @@ GetResourcesProductions(PlanetID) (Resources, error)
 
 # ogamed service
 
-Download [ogamed binary here](https://github.com/alaingilbert/ogame/releases)
+Download [ogamed binary here](https://github.com/alaingilbert/ogame/releases)  
+Full documentation [here](https://github.com/alaingilbert/ogame/wiki/ogamed-full-documentation)
 
 ```
 ./ogamed --universe=Zibal --username=email@email.com --password=secret --language=en
@@ -115,7 +116,7 @@ $ curl 127.0.0.1:8080/bot/user-infos
 
 ```
 POST /bot/set-user-agent
-POST /bot/server-url
+GET  /bot/server-url
 POST /bot/page-content
 GET  /bot/login
 GET  /bot/logout
