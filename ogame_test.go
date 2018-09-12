@@ -309,6 +309,24 @@ func TestExtractGalaxyInfos_alliance(t *testing.T) {
 	assert.Equal(t, 16, infos[3].Alliance.Member)
 }
 
+func TestExtractGalaxyInfos_alliance_fr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr/galaxy.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "fr", "Commodore Nomade", 123, 456)
+	assert.Equal(t, 635, infos[1].Alliance.ID)
+	assert.Equal(t, "leretour", infos[1].Alliance.Name)
+	assert.Equal(t, 24, infos[1].Alliance.Rank)
+	assert.Equal(t, 11, infos[1].Alliance.Member)
+}
+
+func TestExtractGalaxyInfos_alliance_es(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/galaxy.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "es", "Commodore Nomade", 123, 456)
+	assert.Equal(t, 500053, infos[0].Alliance.ID)
+	assert.Equal(t, "Los Aliens Grises", infos[0].Alliance.Name)
+	assert.Equal(t, 8, infos[0].Alliance.Rank)
+	assert.Equal(t, 70, infos[0].Alliance.Member)
+}
+
 func TestUniverseSpeed(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/techtree_universe_speed.html")
 	universeSpeed := extractUniverseSpeed(string(pageHTMLBytes))
