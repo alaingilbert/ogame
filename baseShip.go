@@ -1,10 +1,5 @@
 package ogame
 
-import (
-	"math"
-	"time"
-)
-
 // BaseShip ...
 type BaseShip struct {
 	BaseDefender
@@ -61,18 +56,4 @@ func (b BaseShip) GetFuelConsumption() int {
 // GetRapidfireAgainst ...
 func (b BaseShip) GetRapidfireAgainst() map[ID]int {
 	return b.RapidfireAgainst
-}
-
-// GetPrice ...
-func (b BaseShip) GetPrice(nbr int) Resources {
-	return b.Price.Mul(nbr)
-}
-
-// ConstructionTime ...
-func (b BaseShip) ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration {
-	shipyardLvl := float64(facilities.Shipyard)
-	naniteLvl := float64(facilities.NaniteFactory)
-	hours := float64(b.StructuralIntegrity) / (2500 * (1 + shipyardLvl) * float64(universeSpeed) * math.Pow(2, naniteLvl))
-	secs := hours * 3600
-	return time.Duration(int(math.Floor(secs))*nbr) * time.Second
 }
