@@ -78,32 +78,32 @@ func parseShip(name string) (ID, error) {
 	return 0, errors.New("unable to parse ship " + name)
 }
 
-// IsDefenseID ...
+// IsDefenseID helper returns if an integer is a defense id
 func IsDefenseID(id int) bool {
 	return ID(id).IsDefense()
 }
 
-// IsShipID ...
+// IsShipID helper returns if an integer is a ship id
 func IsShipID(id int) bool {
 	return ID(id).IsShip()
 }
 
-// IsTechID ...
+// IsTechID helper returns if an integer is a tech id
 func IsTechID(id int) bool {
 	return ID(id).IsTech()
 }
 
-// IsBuildingID ...
+// IsBuildingID helper returns if an integer is a building id
 func IsBuildingID(id int) bool {
 	return IsResourceBuildingID(id) || IsFacilityID(id)
 }
 
-// IsResourceBuildingID ...
+// IsResourceBuildingID helper returns if an integer is a resource defense id
 func IsResourceBuildingID(id int) bool {
 	return ID(id).IsResourceBuilding()
 }
 
-// IsFacilityID ...
+// IsFacilityID helper returns if an integer is a facility id
 func IsFacilityID(id int) bool {
 	return ID(id).IsFacility()
 }
