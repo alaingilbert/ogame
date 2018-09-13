@@ -12,13 +12,6 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func round(val float64) int {
-	if val < 0 {
-		return int(val - 0.5)
-	}
-	return int(val + 0.5)
-}
-
 func isAlive(unit *combatUnit) bool {
 	return getUnitHull(unit) > 0
 }
@@ -68,7 +61,7 @@ type price struct {
 	Deuterium int
 }
 
-func (p *price) Add(n price) {
+func (p *price) add(n price) {
 	p.Metal += n.Metal
 	p.Crystal += n.Crystal
 	p.Deuterium += n.Deuterium
@@ -546,8 +539,8 @@ type entity struct {
 	Losses          price
 }
 
-func (e *entity) Init() {
-	e.Reset()
+func (e *entity) init() {
+	e.reset()
 	idx := 0
 	for i := 0; i < e.SmallCargo; i++ {
 		e.Units[idx] = newUnit(e, SmallCargoID)
@@ -788,7 +781,7 @@ func isShip(unit *combatUnit) bool {
 	return getUnitID(unit).IsShip()
 }
 
-func (simulator *combatSimulator) RemoveDestroyedUnits() {
+func (simulator *combatSimulator) removeDestroyedUnits() {
 	l := simulator.Defender.TotalUnits
 	for i := l - 1; i >= 0; i-- {
 		unit := &simulator.Defender.Units[i]
@@ -798,7 +791,7 @@ func (simulator *combatSimulator) RemoveDestroyedUnits() {
 				simulator.Debris.Metal += int(simulator.FleetToDebris * float64(unitPrice.Metal))
 				simulator.Debris.Crystal += int(simulator.FleetToDebris * float64(unitPrice.Crystal))
 			}
-			simulator.Defender.Losses.Add(unitPrice)
+			simulator.Defender.Losses.add(unitPrice)
 			simulator.Defender.Units[i] = simulator.Defender.Units[simulator.Defender.TotalUnits-1]
 			simulator.Defender.TotalUnits--
 			//simulator.Defender.Units = simulator.Defender.Units[:len(simulator.Defender.Units)-1]
@@ -816,7 +809,7 @@ func (simulator *combatSimulator) RemoveDestroyedUnits() {
 				simulator.Debris.Metal += int(simulator.FleetToDebris * float64(unitPrice.Metal))
 				simulator.Debris.Crystal += int(simulator.FleetToDebris * float64(unitPrice.Crystal))
 			}
-			simulator.Attacker.Losses.Add(unitPrice)
+			simulator.Attacker.Losses.add(unitPrice)
 			simulator.Attacker.Units[i] = simulator.Attacker.Units[simulator.Attacker.TotalUnits-1]
 			simulator.Attacker.TotalUnits--
 			//simulator.Attacker.Units = simulator.Attacker.Units[:len(simulator.Attacker.Units)-1]
@@ -827,7 +820,7 @@ func (simulator *combatSimulator) RemoveDestroyedUnits() {
 	}
 }
 
-func (simulator *combatSimulator) RestoreShields() {
+func (simulator *combatSimulator) restoreShields() {
 	for i := 0; i < simulator.Attacker.TotalUnits; i++ {
 		unit := &simulator.Attacker.Units[i]
 		setUnitShield(unit, getUnitInitialShield(getUnitID(unit), simulator.Attacker.Shield))
@@ -844,16 +837,16 @@ func (simulator *combatSimulator) RestoreShields() {
 	}
 }
 
-func (simulator *combatSimulator) IsCombatDone() bool {
+func (simulator *combatSimulator) isCombatDone() bool {
 	return simulator.Attacker.TotalUnits <= 0 || simulator.Defender.TotalUnits <= 0
 }
 
-func (simulator *combatSimulator) GetMoonchance() int {
+func (simulator *combatSimulator) getMoonchance() int {
 	debris := float64(simulator.Debris.Metal) + float64(simulator.Debris.Crystal)
 	return int(math.Min(debris/100000.0, 20.0))
 }
 
-func (simulator *combatSimulator) PrintWinner() {
+func (simulator *combatSimulator) printWinner() {
 	if simulator.Defender.TotalUnits <= 0 && simulator.Attacker.TotalUnits <= 0 {
 		simulator.Winner = "draw"
 		if simulator.IsLogging {
@@ -878,8 +871,8 @@ func (simulator *combatSimulator) PrintWinner() {
 }
 
 func (simulator *combatSimulator) Simulate() {
-	simulator.Attacker.Init()
-	simulator.Defender.Init()
+	simulator.Attacker.init()
+	simulator.Defender.init()
 	for currentRound := 1; currentRound <= simulator.MaxRounds; currentRound++ {
 		simulator.Rounds = currentRound
 		if simulator.IsLogging {
@@ -889,13 +882,13 @@ func (simulator *combatSimulator) Simulate() {
 		}
 		simulator.attackerFires()
 		simulator.defenderFires()
-		simulator.RemoveDestroyedUnits()
-		simulator.RestoreShields()
-		if simulator.IsCombatDone() {
+		simulator.removeDestroyedUnits()
+		simulator.restoreShields()
+		if simulator.isCombatDone() {
 			break
 		}
 	}
-	simulator.PrintWinner()
+	simulator.printWinner()
 }
 
 func newCombatSimulator(attacker *entity, defender *entity) *combatSimulator {
@@ -949,7 +942,7 @@ func printResult(result SimulatorResult) {
 	table.Render()
 }
 
-func (e *entity) Reset() {
+func (e *entity) reset() {
 	e.Losses = price{Metal: 0, Crystal: 0, Deuterium: 0}
 	e.TotalUnits = 0
 	e.TotalUnits += e.SmallCargo
@@ -1016,7 +1009,7 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	attacker.PlasmaTurret = 0
 	attacker.SmallShieldDome = 0
 	attacker.LargeShieldDome = 0
-	attacker.Reset()
+	attacker.reset()
 	attacker.Units = make([]combatUnit, attacker.TotalUnits+1, attacker.TotalUnits+1)
 
 	defender := newEntity()
@@ -1045,7 +1038,7 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	defender.PlasmaTurret = defenderParam.PlasmaTurret
 	defender.SmallShieldDome = defenderParam.SmallShieldDome
 	defender.LargeShieldDome = defenderParam.LargeShieldDome
-	defender.Reset()
+	defender.reset()
 	defender.Units = make([]combatUnit, defender.TotalUnits+1, defender.TotalUnits+1)
 
 	cs := newCombatSimulator(attacker, defender)
@@ -1063,19 +1056,19 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 		} else {
 			draw++
 		}
-		attackerLosses.Add(cs.Attacker.Losses)
-		defenderLosses.Add(cs.Defender.Losses)
-		debris.Add(cs.Debris)
+		attackerLosses.add(cs.Attacker.Losses)
+		defenderLosses.add(cs.Defender.Losses)
+		debris.add(cs.Debris)
 		rounds += cs.Rounds
-		moonchance += cs.GetMoonchance()
+		moonchance += cs.getMoonchance()
 	}
 
 	result := SimulatorResult{}
 	result.Simulations = nbSimulations
-	result.AttackerWin = round(float64(attackerWin) / float64(nbSimulations) * 100)
-	result.DefenderWin = round(float64(defenderWin) / float64(nbSimulations) * 100)
-	result.Draw = round(float64(draw) / float64(nbSimulations) * 100)
-	result.Rounds = round(float64(rounds) / float64(nbSimulations))
+	result.AttackerWin = int(math.Round(float64(attackerWin) / float64(nbSimulations) * 100))
+	result.DefenderWin = int(math.Round(float64(defenderWin) / float64(nbSimulations) * 100))
+	result.Draw = int(math.Round(float64(draw) / float64(nbSimulations) * 100))
+	result.Rounds = int(math.Round(float64(rounds) / float64(nbSimulations)))
 	result.AttackerLosses = price{}
 	result.AttackerLosses.Metal = int(float64(attackerLosses.Metal) / float64(nbSimulations))
 	result.AttackerLosses.Crystal = int(float64(attackerLosses.Crystal) / float64(nbSimulations))
