@@ -7,8 +7,7 @@ import (
 
 // BaseShip ...
 type BaseShip struct {
-	ID                  ID
-	Name                string
+	Base
 	StructuralIntegrity int
 	ShieldPower         int
 	WeaponPower         int
@@ -17,18 +16,7 @@ type BaseShip struct {
 	FuelConsumption     int
 	RapidfireFrom       map[ID]int
 	RapidfireAgainst    map[ID]int
-	Requirements        map[ID]int
 	Price               Resources
-}
-
-// GetID ...
-func (b BaseShip) GetID() ID {
-	return b.ID
-}
-
-// GetName ...
-func (b BaseShip) GetName() string {
-	return b.Name
 }
 
 // GetStructuralIntegrity ...
@@ -111,25 +99,4 @@ func (b BaseShip) ConstructionTime(nbr, universeSpeed int, facilities Facilities
 	hours := float64(b.StructuralIntegrity) / (2500 * (1 + shipyardLvl) * float64(universeSpeed) * math.Pow(2, naniteLvl))
 	secs := hours * 3600
 	return time.Duration(int(math.Floor(secs))*nbr) * time.Second
-}
-
-// GetRequirements ...
-func (b BaseShip) GetRequirements() map[ID]int {
-	return b.Requirements
-}
-
-// IsAvailable ...
-func (b BaseShip) IsAvailable(_ ResourcesBuildings, facilities Facilities, researches Researches, _ int) bool {
-	for id, levelNeeded := range b.Requirements {
-		if id.IsFacility() {
-			if facilities.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsTech() {
-			if researches.ByID(id) < levelNeeded {
-				return false
-			}
-		}
-	}
-	return true
 }

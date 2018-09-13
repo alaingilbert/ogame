@@ -7,26 +7,9 @@ import (
 
 // BaseBuilding ...
 type BaseBuilding struct {
-	ID             ID
-	Name           string
+	Base
 	BaseCost       Resources
 	IncreaseFactor float64
-	Requirements   map[ID]int
-}
-
-// GetID ...
-func (b BaseBuilding) GetID() ID {
-	return b.ID
-}
-
-// GetName ...
-func (b BaseBuilding) GetName() string {
-	return b.Name
-}
-
-// GetRequirements ...
-func (b BaseBuilding) GetRequirements() map[ID]int {
-	return b.Requirements
 }
 
 // GetPrice ...
@@ -62,26 +45,6 @@ func (b BaseBuilding) GetLevel(resourcesBuildings ResourcesBuildings, facilities
 		return facilities.ByID(b.ID)
 	}
 	return 0
-}
-
-// IsAvailable ...
-func (b BaseBuilding) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, _ int) bool {
-	for id, levelNeeded := range b.Requirements {
-		if id.IsResourceBuilding() {
-			if resourcesBuildings.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsFacility() {
-			if facilities.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsTech() {
-			if researches.ByID(id) < levelNeeded {
-				return false
-			}
-		}
-	}
-	return true
 }
 
 func buildingCost(baseCost int, increaseFactor float64, level int) int {

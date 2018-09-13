@@ -7,26 +7,9 @@ import (
 
 // BaseTechnology ...
 type BaseTechnology struct {
-	ID             ID
-	Name           string
+	Base
 	BaseCost       Resources
 	IncreaseFactor float64
-	Requirements   map[ID]int
-}
-
-// GetID ...
-func (b BaseTechnology) GetID() ID {
-	return b.ID
-}
-
-// GetName ...
-func (b BaseTechnology) GetName() string {
-	return b.Name
-}
-
-// GetRequirements ...
-func (b BaseTechnology) GetRequirements() map[ID]int {
-	return b.Requirements
 }
 
 // GetPrice ...
@@ -53,27 +36,6 @@ func (b BaseTechnology) ConstructionTime(level, universeSpeed int, facilities Fa
 // GetLevel ...
 func (b BaseTechnology) GetLevel(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches) int {
 	return researches.ByID(b.ID)
-}
-
-// IsAvailable ...
-func (b BaseTechnology) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities,
-	researches Researches, _ int) bool {
-	for id, levelNeeded := range b.Requirements {
-		if id.IsResourceBuilding() {
-			if resourcesBuildings.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsFacility() {
-			if facilities.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsTech() {
-			if researches.ByID(id) < levelNeeded {
-				return false
-			}
-		}
-	}
-	return true
 }
 
 func researchCost(baseCost int, increaseFactor float64, level int) int {
