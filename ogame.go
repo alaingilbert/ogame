@@ -223,7 +223,6 @@ type DefenderObj interface {
 type Ship interface {
 	DefenderObj
 	GetCargoCapacity() int
-	GetBaseSpeed() int
 	GetSpeed(researches Researches) int
 	GetFuelConsumption() int
 	GetRapidfireAgainst() map[ID]int

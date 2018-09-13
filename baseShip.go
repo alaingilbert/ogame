@@ -15,11 +15,6 @@ func (b BaseShip) GetCargoCapacity() int {
 	return b.CargoCapacity
 }
 
-// GetBaseSpeed ...
-func (b BaseShip) GetBaseSpeed() int {
-	return b.BaseSpeed
-}
-
 // GetFuelConsumption ...
 func (b BaseShip) GetFuelConsumption() int {
 	return b.FuelConsumption
