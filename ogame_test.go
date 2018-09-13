@@ -153,6 +153,27 @@ func TestExtractGalaxyInfosOwnPlanet(t *testing.T) {
 	assert.Equal(t, "Homeworld", infos[4].Name)
 }
 
+func TestExtractGalaxyInfosPlanetNoActivity(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_planet_activity.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, 8, len(infos))
+	assert.Equal(t, 0, infos[7].Activity)
+}
+
+func TestExtractGalaxyInfosPlanetActivity15(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_planet_activity.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, 8, len(infos))
+	assert.Equal(t, 15, infos[2].Activity)
+}
+
+func TestExtractGalaxyInfosPlanetActivity23(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_planet_activity.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, 8, len(infos))
+	assert.Equal(t, 23, infos[3].Activity)
+}
+
 func TestExtractGalaxyInfosMoonActivity(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_moon_activity.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
