@@ -2206,6 +2206,19 @@ func (b *OGame) getResources(planetID PlanetID) (Resources, error) {
 	}, err
 }
 
+func extractFleet1Ships(pageHTML string) ShipsInfos {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	onclick := doc.Find("a#sendall").AttrOr("onclick", "")
+	m := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)[1]
+	var res map[ID]int
+	json.Unmarshal([]byte(m), &res)
+	s := ShipsInfos{}
+	for k, v := range res {
+		s.Set(k, v)
+	}
+	return s
+}
+
 func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID,
 	resources Resources) (FleetID, error) {
 	getHiddenFields := func(pageHTML string) map[string]string {

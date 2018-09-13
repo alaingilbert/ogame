@@ -8,6 +8,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractFleet1Ships(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1.html")
+	s := extractFleet1Ships(string(pageHTMLBytes))
+	assert.Equal(t, 3, s.LightFighter)
+	assert.Equal(t, 0, s.HeavyFighter)
+	assert.Equal(t, 1012, s.Cruiser)
+	assert.Equal(t, 0, s.Battleship)
+	assert.Equal(t, 0, s.SmallCargo)
+	assert.Equal(t, 1003, s.LargeCargo)
+	assert.Equal(t, 1, s.ColonyShip)
+	assert.Equal(t, 200, s.Battlecruiser)
+	assert.Equal(t, 100, s.Bomber)
+	assert.Equal(t, 200, s.Destroyer)
+	assert.Equal(t, 0, s.Deathstar)
+	assert.Equal(t, 30, s.Recycler)
+	assert.Equal(t, 1001, s.EspionageProbe)
+}
+
 func TestExtractPlanet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
 	planet, _ := extractPlanet(string(pageHTMLBytes), PlanetID(33677371), &OGame{language: "en"})
