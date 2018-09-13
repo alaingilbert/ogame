@@ -2345,7 +2345,6 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	if pageID == "fleet1" {
 		return 0, errors.New("probably not enough space for deuterium")
 	}
-	fmt.Println(pageHTML)
 
 	payload = url.Values{}
 	hidden = getHiddenFields(pageHTML)
