@@ -785,37 +785,7 @@ func (simulator *combatSimulator) defenderFires() {
 }
 
 func isShip(unit *combatUnit) bool {
-	switch getUnitID(unit) {
-	case SmallCargoID:
-		return true
-	case LargeCargoID:
-		return true
-	case LightFighterID:
-		return true
-	case HeavyFighterID:
-		return true
-	case CruiserID:
-		return true
-	case BattleshipID:
-		return true
-	case ColonyShipID:
-		return true
-	case RecyclerID:
-		return true
-	case EspionageProbeID:
-		return true
-	case BomberID:
-		return true
-	case SolarSatelliteID:
-		return true
-	case DestroyerID:
-		return true
-	case DeathstarID:
-		return true
-	case BattlecruiserID:
-		return true
-	}
-	return false
+	return getUnitID(unit).IsShip()
 }
 
 func (simulator *combatSimulator) RemoveDestroyedUnits() {
