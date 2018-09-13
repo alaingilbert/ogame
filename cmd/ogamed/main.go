@@ -688,6 +688,19 @@ func sendFleet(c echo.Context) error {
 	}
 
 	fleetID, err := bot.SendFleet(ogame.PlanetID(planetID), ships, speed, where, mission, payload)
+	if err == ogame.ErrUninhabitedPlanet ||
+		err == ogame.ErrNoDebrisField ||
+		err == ogame.ErrPlayerInVacationMode ||
+		err == ogame.ErrAdminOrGM ||
+		err == ogame.ErrNoAstrophysics ||
+		err == ogame.ErrNoobProtection ||
+		err == ogame.ErrPlayerTooStrong ||
+		err == ogame.ErrNoMoonAvailable ||
+		err == ogame.ErrNoRecyclerAvailable ||
+		err == ogame.ErrNoEventsRunning ||
+		err == ogame.ErrPlanetAlreadyReservecForRelocation {
+		return c.JSON(http.StatusBadRequest, errorResp(400, err.Error()))
+	}
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
