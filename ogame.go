@@ -964,6 +964,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 	} else {
 		b.Planets = extractPlanets(pageHTML, b)
 	}
+
 	return pageHTML
 }
 
