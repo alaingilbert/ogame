@@ -1606,7 +1606,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 			q := goquery.NewDocumentFromNode(root)
 			q.Find("tr").Each(func(i int, s *goquery.Selection) {
 				name := s.Find("td").Eq(0).Text()
-				nbr, _ := strconv.Atoi(s.Find("td").Eq(1).Text()) // TODO: Test with thousands
+				nbr := parseInt(s.Find("td").Eq(1).Text())
 				if name != "" && nbr > 0 {
 					attack.Ships.Set(name2id(name), nbr)
 				}

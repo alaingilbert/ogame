@@ -117,6 +117,14 @@ func TestExtractAttacksWithShips(t *testing.T) {
 	assert.Equal(t, 11, attacks[0].Ships.Battlecruiser)
 }
 
+func TestExtractAttacksWithThousandsShips(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_attack_thousands.html")
+	attacks := extractAttacks(string(pageHTMLBytes))
+	assert.Equal(t, 2, len(attacks))
+	assert.Equal(t, 1012, attacks[1].Ships.Cruiser)
+	assert.Equal(t, 1000, attacks[1].Ships.LargeCargo)
+}
+
 func TestExtractAttacks_spy(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_spy.html")
 	attacks := extractAttacks(string(pageHTMLBytes))
