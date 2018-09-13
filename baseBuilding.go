@@ -5,12 +5,12 @@ import (
 	"time"
 )
 
-// BaseBuilding ...
+// BaseBuilding base struct for buildings
 type BaseBuilding struct {
 	BaseLevelable
 }
 
-// ConstructionTime ...
+// ConstructionTime returns the duration it takes to build given level
 func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration {
 	price := b.GetPrice(level)
 	metalCost := float64(price.Metal)
@@ -25,7 +25,7 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Faci
 	return time.Duration(int(math.Floor(secs))) * time.Second
 }
 
-// GetLevel ...
+// GetLevel returns current level of a building
 func (b BaseBuilding) GetLevel(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches) int {
 	if b.ID.IsResourceBuilding() {
 		return resourcesBuildings.ByID(b.ID)

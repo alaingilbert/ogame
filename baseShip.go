@@ -1,6 +1,6 @@
 package ogame
 
-// BaseShip ...
+// BaseShip base struct for ships
 type BaseShip struct {
 	BaseDefender
 	CargoCapacity    int
@@ -10,22 +10,22 @@ type BaseShip struct {
 	Price            Resources
 }
 
-// GetCargoCapacity ...
+// GetCargoCapacity returns ship cargo capacity
 func (b BaseShip) GetCargoCapacity() int {
 	return b.CargoCapacity
 }
 
-// GetFuelConsumption ...
+// GetFuelConsumption returns ship fuel consumption
 func (b BaseShip) GetFuelConsumption() int {
 	return b.FuelConsumption
 }
 
-// GetRapidfireAgainst ...
+// GetRapidfireAgainst returns which ships/defenses we have rapid fire against
 func (b BaseShip) GetRapidfireAgainst() map[ID]int {
 	return b.RapidfireAgainst
 }
 
-// GetSpeed ...
+// GetSpeed returns speed of the ship
 func (b BaseShip) GetSpeed(techs Researches) int {
 	techDriveLvl := 0
 	if b.ID == SmallCargoID && techs.ImpulseDrive >= 5 {

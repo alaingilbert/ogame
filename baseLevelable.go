@@ -10,7 +10,7 @@ type BaseLevelable struct {
 	IncreaseFactor float64
 }
 
-// GetPrice ...
+// GetPrice returns the price to build the given level
 func (b BaseLevelable) GetPrice(level int) Resources {
 	tmp := func(baseCost int, increaseFactor float64, level int) int {
 		return int(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)))
