@@ -13,123 +13,123 @@ func (o ID) Int() int {
 func (o ID) String() string {
 	res := ""
 	switch o {
-	case AllianceDepot.ID:
+	case AllianceDepotID:
 		res += "AllianceDepot"
-	case RoboticsFactory.ID:
+	case RoboticsFactoryID:
 		res += "RoboticsFactory"
-	case Shipyard.ID:
+	case ShipyardID:
 		res += "Shipyard"
-	case ResearchLab.ID:
+	case ResearchLabID:
 		res += "ResearchLab"
-	case MissileSilo.ID:
+	case MissileSiloID:
 		res += "MissileSilo"
-	case NaniteFactory.ID:
+	case NaniteFactoryID:
 		res += "NaniteFactory"
-	case Terraformer.ID:
+	case TerraformerID:
 		res += "Terraformer"
-	case SpaceDock.ID:
+	case SpaceDockID:
 		res += "SpaceDock"
-	case MetalMine.ID:
+	case MetalMineID:
 		res += "MetalMine"
-	case CrystalMine.ID:
+	case CrystalMineID:
 		res += "CrystalMine"
-	case DeuteriumSynthesizer.ID:
+	case DeuteriumSynthesizerID:
 		res += "DeuteriumSynthesizer"
-	case SolarPlant.ID:
+	case SolarPlantID:
 		res += "SolarPlant"
-	case FusionReactor.ID:
+	case FusionReactorID:
 		res += "FusionReactor"
-	case MetalStorage.ID:
+	case MetalStorageID:
 		res += "MetalStorage"
-	case CrystalStorage.ID:
+	case CrystalStorageID:
 		res += "CrystalStorage"
-	case DeuteriumTank.ID:
+	case DeuteriumTankID:
 		res += "DeuteriumTank"
-	case ShieldedMetalDen.ID:
+	case ShieldedMetalDenID:
 		res += "ShieldedMetalDen"
-	case UndergroundCrystalDen.ID:
+	case UndergroundCrystalDenID:
 		res += "UndergroundCrystalDen"
-	case SeabedDeuteriumDen.ID:
+	case SeabedDeuteriumDenID:
 		res += "SeabedDeuteriumDen"
-	case RocketLauncher.ID:
+	case RocketLauncherID:
 		res += "RocketLauncher"
-	case LightLaser.ID:
+	case LightLaserID:
 		res += "LightLaser"
-	case HeavyLaser.ID:
+	case HeavyLaserID:
 		res += "HeavyLaser"
-	case GaussCannon.ID:
+	case GaussCannonID:
 		res += "GaussCannon"
-	case IonCannon.ID:
+	case IonCannonID:
 		res += "IonCannon"
-	case PlasmaTurret.ID:
+	case PlasmaTurretID:
 		res += "PlasmaTurret"
-	case SmallShieldDome.ID:
+	case SmallShieldDomeID:
 		res += "SmallShieldDome"
-	case LargeShieldDome.ID:
+	case LargeShieldDomeID:
 		res += "LargeShieldDome"
-	case AntiBallisticMissiles.ID:
+	case AntiBallisticMissilesID:
 		res += "AntiBallisticMissiles"
-	case InterplanetaryMissiles.ID:
+	case InterplanetaryMissilesID:
 		res += "InterplanetaryMissiles"
-	case SmallCargo.ID:
+	case SmallCargoID:
 		res += "SmallCargo"
-	case LargeCargo.ID:
+	case LargeCargoID:
 		res += "LargeCargo"
-	case LightFighter.ID:
+	case LightFighterID:
 		res += "LightFighter"
-	case HeavyFighter.ID:
+	case HeavyFighterID:
 		res += "HeavyFighter"
-	case Cruiser.ID:
+	case CruiserID:
 		res += "Cruiser"
-	case Battleship.ID:
+	case BattleshipID:
 		res += "Battleship"
-	case ColonyShip.ID:
+	case ColonyShipID:
 		res += "ColonyShip"
-	case Recycler.ID:
+	case RecyclerID:
 		res += "Recycler"
-	case EspionageProbe.ID:
+	case EspionageProbeID:
 		res += "EspionageProbe"
-	case Bomber.ID:
+	case BomberID:
 		res += "Bomber"
-	case SolarSatellite.ID:
+	case SolarSatelliteID:
 		res += "SolarSatellite"
-	case Destroyer.ID:
+	case DestroyerID:
 		res += "Destroyer"
-	case Deathstar.ID:
+	case DeathstarID:
 		res += "Deathstar"
-	case Battlecruiser.ID:
+	case BattlecruiserID:
 		res += "Battlecruiser"
-	case EspionageTechnology.ID:
+	case EspionageTechnologyID:
 		res += "EspionageTechnology"
-	case ComputerTechnology.ID:
+	case ComputerTechnologyID:
 		res += "ComputerTechnology"
-	case WeaponsTechnology.ID:
+	case WeaponsTechnologyID:
 		res += "WeaponsTechnology"
-	case ShieldingTechnology.ID:
+	case ShieldingTechnologyID:
 		res += "ShieldingTechnology"
-	case ArmourTechnology.ID:
+	case ArmourTechnologyID:
 		res += "ArmourTechnology"
-	case EnergyTechnology.ID:
+	case EnergyTechnologyID:
 		res += "EnergyTechnology"
-	case HyperspaceTechnology.ID:
+	case HyperspaceTechnologyID:
 		res += "HyperspaceTechnology"
-	case CombustionDrive.ID:
+	case CombustionDriveID:
 		res += "CombustionDrive"
-	case ImpulseDrive.ID:
+	case ImpulseDriveID:
 		res += "ImpulseDrive"
-	case HyperspaceDrive.ID:
+	case HyperspaceDriveID:
 		res += "HyperspaceDrive"
-	case LaserTechnology.ID:
+	case LaserTechnologyID:
 		res += "LaserTechnology"
-	case IonTechnology.ID:
+	case IonTechnologyID:
 		res += "IonTechnology"
-	case PlasmaTechnology.ID:
+	case PlasmaTechnologyID:
 		res += "PlasmaTechnology"
-	case IntergalacticResearchNetwork.ID:
+	case IntergalacticResearchNetworkID:
 		res += "IntergalacticResearchNetwork"
-	case Astrophysics.ID:
+	case AstrophysicsID:
 		res += "Astrophysics"
-	case GravitonTechnology.ID:
+	case GravitonTechnologyID:
 		res += "GravitonTechnology"
 	default:
 		res += "Invalid" + "(" + strconv.Itoa(int(o)) + ")"
@@ -139,29 +139,29 @@ func (o ID) String() string {
 
 // IsFacility returns either or not the id is a facility
 func (o ID) IsFacility() bool {
-	return o == AllianceDepot.ID ||
-		o == RoboticsFactory.ID ||
-		o == Shipyard.ID ||
-		o == ResearchLab.ID ||
-		o == MissileSilo.ID ||
-		o == NaniteFactory.ID ||
-		o == Terraformer.ID ||
-		o == SpaceDock.ID
+	return o == AllianceDepotID ||
+		o == RoboticsFactoryID ||
+		o == ShipyardID ||
+		o == ResearchLabID ||
+		o == MissileSiloID ||
+		o == NaniteFactoryID ||
+		o == TerraformerID ||
+		o == SpaceDockID
 }
 
 // IsResourceBuilding returns either or not the id is a resource building
 func (o ID) IsResourceBuilding() bool {
-	return o == MetalMine.ID ||
-		o == CrystalMine.ID ||
-		o == DeuteriumSynthesizer.ID ||
-		o == SolarPlant.ID ||
-		o == FusionReactor.ID ||
-		o == MetalStorage.ID ||
-		o == CrystalStorage.ID ||
-		o == DeuteriumTank.ID ||
-		o == ShieldedMetalDen.ID ||
-		o == UndergroundCrystalDen.ID ||
-		o == SeabedDeuteriumDen.ID
+	return o == MetalMineID ||
+		o == CrystalMineID ||
+		o == DeuteriumSynthesizerID ||
+		o == SolarPlantID ||
+		o == FusionReactorID ||
+		o == MetalStorageID ||
+		o == CrystalStorageID ||
+		o == DeuteriumTankID ||
+		o == ShieldedMetalDenID ||
+		o == UndergroundCrystalDenID ||
+		o == SeabedDeuteriumDenID
 }
 
 // IsBuilding returns either or not the id is a building (facility, resource building)
@@ -171,52 +171,52 @@ func (o ID) IsBuilding() bool {
 
 // IsTech returns either or not the id is a technology
 func (o ID) IsTech() bool {
-	return o == EspionageTechnology.ID ||
-		o == ComputerTechnology.ID ||
-		o == WeaponsTechnology.ID ||
-		o == ShieldingTechnology.ID ||
-		o == ArmourTechnology.ID ||
-		o == EnergyTechnology.ID ||
-		o == HyperspaceTechnology.ID ||
-		o == CombustionDrive.ID ||
-		o == ImpulseDrive.ID ||
-		o == HyperspaceDrive.ID ||
-		o == LaserTechnology.ID ||
-		o == IonTechnology.ID ||
-		o == PlasmaTechnology.ID ||
-		o == IntergalacticResearchNetwork.ID ||
-		o == Astrophysics.ID ||
-		o == GravitonTechnology.ID
+	return o == EspionageTechnologyID ||
+		o == ComputerTechnologyID ||
+		o == WeaponsTechnologyID ||
+		o == ShieldingTechnologyID ||
+		o == ArmourTechnologyID ||
+		o == EnergyTechnologyID ||
+		o == HyperspaceTechnologyID ||
+		o == CombustionDriveID ||
+		o == ImpulseDriveID ||
+		o == HyperspaceDriveID ||
+		o == LaserTechnologyID ||
+		o == IonTechnologyID ||
+		o == PlasmaTechnologyID ||
+		o == IntergalacticResearchNetworkID ||
+		o == AstrophysicsID ||
+		o == GravitonTechnologyID
 }
 
 // IsDefense returns either or not the id is a defense
 func (o ID) IsDefense() bool {
-	return o == RocketLauncher.ID ||
-		o == LightLaser.ID ||
-		o == HeavyLaser.ID ||
-		o == GaussCannon.ID ||
-		o == IonCannon.ID ||
-		o == PlasmaTurret.ID ||
-		o == SmallShieldDome.ID ||
-		o == LargeShieldDome.ID ||
-		o == AntiBallisticMissiles.ID ||
-		o == InterplanetaryMissiles.ID
+	return o == RocketLauncherID ||
+		o == LightLaserID ||
+		o == HeavyLaserID ||
+		o == GaussCannonID ||
+		o == IonCannonID ||
+		o == PlasmaTurretID ||
+		o == SmallShieldDomeID ||
+		o == LargeShieldDomeID ||
+		o == AntiBallisticMissilesID ||
+		o == InterplanetaryMissilesID
 }
 
 // IsShip returns either or not the id is a ship
 func (o ID) IsShip() bool {
-	return o == SmallCargo.ID ||
-		o == LargeCargo.ID ||
-		o == LightFighter.ID ||
-		o == HeavyFighter.ID ||
-		o == Cruiser.ID ||
-		o == Battleship.ID ||
-		o == ColonyShip.ID ||
-		o == Recycler.ID ||
-		o == EspionageProbe.ID ||
-		o == Bomber.ID ||
-		o == SolarSatellite.ID ||
-		o == Destroyer.ID ||
-		o == Deathstar.ID ||
-		o == Battlecruiser.ID
+	return o == SmallCargoID ||
+		o == LargeCargoID ||
+		o == LightFighterID ||
+		o == HeavyFighterID ||
+		o == CruiserID ||
+		o == BattleshipID ||
+		o == ColonyShipID ||
+		o == RecyclerID ||
+		o == EspionageProbeID ||
+		o == BomberID ||
+		o == SolarSatelliteID ||
+		o == DestroyerID ||
+		o == DeathstarID ||
+		o == BattlecruiserID
 }
