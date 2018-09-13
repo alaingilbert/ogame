@@ -1,6 +1,5 @@
 package ogame
 
-// Shipyard ...
 type shipyard struct {
 	BaseBuilding
 }
