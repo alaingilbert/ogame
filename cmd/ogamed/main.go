@@ -14,6 +14,10 @@ import (
 
 var bot *ogame.OGame
 
+var version = "0.0.0"
+var commit = ""
+var date = ""
+
 func main() {
 	app := cli.App{}
 	app.Authors = []*cli.Author{
@@ -21,7 +25,7 @@ func main() {
 	}
 	app.Name = "ogamed"
 	app.Usage = "ogame deamon service"
-	app.Version = "0.0.0"
+	app.Version = version
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
 			Name:    "universe",
@@ -147,7 +151,11 @@ func errorResp(code int, message string) apiResp {
 }
 
 func home(c echo.Context) error {
-	return c.NoContent(http.StatusOK)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"version": version,
+		"commit":  commit,
+		"date":    date,
+	})
 }
 
 func getServer(c echo.Context) error {
