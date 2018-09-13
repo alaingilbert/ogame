@@ -4,6 +4,7 @@ import (
 	"math"
 )
 
+// BaseLevelable base struct for levelable (buildings, technologies)
 type BaseLevelable struct {
 	Base
 	BaseCost       Resources
