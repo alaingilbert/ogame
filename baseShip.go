@@ -20,6 +20,16 @@ func (b BaseShip) GetBaseSpeed() int {
 	return b.BaseSpeed
 }
 
+// GetFuelConsumption ...
+func (b BaseShip) GetFuelConsumption() int {
+	return b.FuelConsumption
+}
+
+// GetRapidfireAgainst ...
+func (b BaseShip) GetRapidfireAgainst() map[ID]int {
+	return b.RapidfireAgainst
+}
+
 // GetSpeed ...
 func (b BaseShip) GetSpeed(techs Researches) int {
 	techDriveLvl := 0
@@ -46,14 +56,4 @@ func (b BaseShip) GetSpeed(techs Researches) int {
 		return int(float64(b.BaseSpeed) + (float64(b.BaseSpeed)*0.3)*float64(techDriveLvl))
 	}
 	return int(float64(b.BaseSpeed) + (float64(b.BaseSpeed)*0.2)*float64(techDriveLvl))
-}
-
-// GetFuelConsumption ...
-func (b BaseShip) GetFuelConsumption() int {
-	return b.FuelConsumption
-}
-
-// GetRapidfireAgainst ...
-func (b BaseShip) GetRapidfireAgainst() map[ID]int {
-	return b.RapidfireAgainst
 }
