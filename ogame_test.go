@@ -153,6 +153,24 @@ func TestExtractGalaxyInfosOwnPlanet(t *testing.T) {
 	assert.Equal(t, "Homeworld", infos[4].Name)
 }
 
+func TestExtractGalaxyInfosMoonActivity(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_moon_activity.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, 3, len(infos))
+	assert.Equal(t, 33732827, infos[0].Moon.ID)
+	assert.Equal(t, 5830, infos[0].Moon.Diameter)
+	assert.Equal(t, 18, infos[0].Moon.Activity)
+}
+
+func TestExtractGalaxyInfosMoonNoActivity(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_moon_no_activity.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, 3, len(infos))
+	assert.Equal(t, 33650476, infos[0].Moon.ID)
+	assert.Equal(t, 7897, infos[0].Moon.Diameter)
+	assert.Equal(t, 0, infos[0].Moon.Activity)
+}
+
 func TestExtractUserInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
 	infos, _ := extractUserInfos(string(pageHTMLBytes), "en")

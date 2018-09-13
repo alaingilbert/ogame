@@ -3,6 +3,7 @@ package ogame
 type MoonInfos struct {
 	ID       int
 	Diameter int
+	Activity int
 }
 
 type AllianceInfos struct {
