@@ -2340,6 +2340,13 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	by, _ = ioutil.ReadAll(fleet3Resp.Body)
 	pageHTML = string(by)
 
+	fleet3Doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	pageID := fleet3Doc.Find("body").AttrOr("id", "")
+	if pageID == "fleet1" {
+		return 0, errors.New("probably not enough space for deuterium")
+	}
+	fmt.Println(pageHTML)
+
 	payload = url.Values{}
 	hidden = getHiddenFields(pageHTML)
 	for k, v := range hidden {
