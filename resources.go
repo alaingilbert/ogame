@@ -30,7 +30,7 @@ func (r Resources) Value() int {
 	return r.Deuterium*3 + r.Crystal*2 + r.Metal
 }
 
-// Sub substract v from r
+// Sub subtract v from r
 func (r Resources) Sub(v Resources) Resources {
 	return Resources{
 		Metal:     r.Metal - v.Metal,
