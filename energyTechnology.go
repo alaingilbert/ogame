@@ -13,8 +13,3 @@ func newEnergyTechnology() *energyTechnology {
 	b.Requirements = map[ID]int{ResearchLabID: 1}
 	return b
 }
-
-// IsAvailable ...
-func (t *energyTechnology) IsAvailable(_ ResourcesBuildings, facilities Facilities, _ Researches, _ int) bool {
-	return facilities.ResearchLab >= 1
-}
