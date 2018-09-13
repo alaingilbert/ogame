@@ -1646,6 +1646,19 @@ func (b *OGame) getAttacks() []AttackEvent {
 func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRank int) ([]PlanetInfos, error) {
 	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
 
+	extractActivity := func(activityDiv *goquery.Selection) int {
+		activity := 0
+		if activityDiv != nil {
+			activityDivClass := activityDiv.AttrOr("class", "")
+			if strings.Contains(activityDivClass, "minute15") {
+				activity = 15
+			} else if strings.Contains(activityDivClass, "showMinutes") {
+				activity, _ = strconv.Atoi(strings.TrimSpace(activityDiv.Text()))
+			}
+		}
+		return activity
+	}
+
 	var tmp struct {
 		Galaxy string
 	}
@@ -1655,17 +1668,6 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 	doc.Find("tr.row").Each(func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")
 		if !strings.Contains(classes, "empty_filter") {
-			activity := 0
-			activityDiv := s.Find("td:not(.moon) div.activity")
-			if activityDiv != nil {
-				activityDivClass := activityDiv.AttrOr("class", "")
-				if strings.Contains(activityDivClass, "minute15") {
-					activity = 15
-				} else if strings.Contains(activityDivClass, "showMinutes") {
-					activity, _ = strconv.Atoi(strings.TrimSpace(activityDiv.Text()))
-				}
-			}
-
 			position := s.Find("td.position").Text()
 
 			tooltips := s.Find("div.htmlTooltip")
@@ -1683,21 +1685,11 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 
 			moonID, _ := strconv.Atoi(s.Find("td.moon").AttrOr("data-moon-id", ""))
 			moonSize, _ := strconv.Atoi(strings.Split(s.Find("td.moon span#moonsize").Text(), " ")[0])
-			moonActivity := 0
-			moonDiv := s.Find("td.moon div.activity")
-			if moonDiv != nil {
-				moonDivClass := moonDiv.AttrOr("class", "")
-				if strings.Contains(moonDivClass, "minute15") {
-					moonActivity = 15
-				} else if strings.Contains(moonDivClass, "showMinutes") {
-					moonActivity, _ = strconv.Atoi(strings.TrimSpace(moonDiv.Text()))
-				}
-			}
 			if moonID > 0 {
 				planetInfos.Moon = new(MoonInfos)
 				planetInfos.Moon.ID = moonID
 				planetInfos.Moon.Diameter = moonSize
-				planetInfos.Moon.Activity = moonActivity
+				planetInfos.Moon.Activity = extractActivity(s.Find("td.moon div.activity"))
 			}
 
 			allianceSpan := s.Find("span.allytagwrapper")
@@ -1716,7 +1708,7 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 				planetInfos.Debris.RecyclersNeeded = parseInt(prefixedNumRgx.FindStringSubmatch(recyclersTxt)[1])
 			}
 
-			planetInfos.Activity = activity
+			planetInfos.Activity = extractActivity(s.Find("td:not(.moon) div.activity"))
 			planetInfos.Name = planetName
 			planetInfos.Img = planetImg
 			planetInfos.Inactive = strings.Contains(classes, "inactive_filter")
