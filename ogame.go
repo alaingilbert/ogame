@@ -3040,7 +3040,7 @@ func (b *OGame) GetDefense(planetID PlanetID) (DefensesInfos, error) {
 	return b.getDefense(planetID)
 }
 
-// GetShips get all ships units information of a planet
+// GetShips gets all ships units information of a planet
 func (b *OGame) GetShips(planetID PlanetID) (ShipsInfos, error) {
 	b.Lock()
 	defer b.Unlock()
