@@ -104,6 +104,21 @@ var ErrBadCredentials = errors.New("bad credentials")
 // ErrInvalidPlanetID ...
 var ErrInvalidPlanetID = errors.New("invalid planet id")
 
+// Send fleet errors
+var (
+	ErrUninhabitedPlanet                  = errors.New("uninhabited planet")
+	ErrNoDebrisField                      = errors.New("no debris field")
+	ErrPlayerInVacationMode               = errors.New("player in vacation mode")
+	ErrAdminOrGM                          = errors.New("admin or GM")
+	ErrNoAstrophysics                     = errors.New("you have to research Astrophysics first")
+	ErrNoobProtection                     = errors.New("noob protection")
+	ErrPlayerTooStrong                    = errors.New("this planet can not be attacked as the player is to strong")
+	ErrNoMoonAvailable                    = errors.New("no moon available")
+	ErrNoRecyclerAvailable                = errors.New("no recycler available")
+	ErrNoEventsRunning                    = errors.New("there are currently no events running")
+	ErrPlanetAlreadyReservecForRelocation = errors.New("this planet has already been reserved for a relocation")
+)
+
 // All ogame objects
 var (
 	AllianceDepot                = newAllianceDepot() // Buildings
@@ -2259,27 +2274,27 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	by1, _ := ioutil.ReadAll(fleetCheckResp.Body)
 	switch string(by1) {
 	case "1":
-		return 0, errors.New("uninhabited planet")
+		return 0, ErrUninhabitedPlanet
 	case "1d":
-		return 0, errors.New("no debris field")
+		return 0, ErrNoDebrisField
 	case "2":
-		return 0, errors.New("player in vacation mode")
+		return 0, ErrPlayerInVacationMode
 	case "3":
-		return 0, errors.New("admin or GM")
+		return 0, ErrAdminOrGM
 	case "4":
-		return 0, errors.New("you have to research Astrophysics first")
+		return 0, ErrNoAstrophysics
 	case "5":
-		return 0, errors.New("noob protection")
+		return 0, ErrNoobProtection
 	case "6":
-		return 0, errors.New("this planet can not be attacked as the player is to strong")
+		return 0, ErrPlayerTooStrong
 	case "10":
-		return 0, errors.New("no moon available")
+		return 0, ErrNoMoonAvailable
 	case "11":
-		return 0, errors.New("no recycler available")
+		return 0, ErrNoRecyclerAvailable
 	case "15":
-		return 0, errors.New("there are currently no events running")
+		return 0, ErrNoEventsRunning
 	case "16":
-		return 0, errors.New("this planet has already been reserved for a relocation")
+		return 0, ErrPlanetAlreadyReservecForRelocation
 	}
 
 	fleet3URL := b.serverURL + "/game/index.php?page=fleet3"
