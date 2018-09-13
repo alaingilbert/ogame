@@ -7,31 +7,12 @@ import (
 
 // BaseShip ...
 type BaseShip struct {
-	Base
-	StructuralIntegrity int
-	ShieldPower         int
-	WeaponPower         int
-	CargoCapacity       int
-	BaseSpeed           int
-	FuelConsumption     int
-	RapidfireFrom       map[ID]int
-	RapidfireAgainst    map[ID]int
-	Price               Resources
-}
-
-// GetStructuralIntegrity ...
-func (b BaseShip) GetStructuralIntegrity(researches Researches) int {
-	return int(float64(b.StructuralIntegrity) * (1 + float64(researches.ArmourTechnology)*0.1))
-}
-
-// GetShieldPower ...
-func (b BaseShip) GetShieldPower(researches Researches) int {
-	return int(float64(b.ShieldPower) * (1 + float64(researches.ShieldingTechnology)*0.1))
-}
-
-// GetWeaponPower ...
-func (b BaseShip) GetWeaponPower(researches Researches) int {
-	return int(float64(b.WeaponPower) * (1 + float64(researches.WeaponsTechnology)*0.1))
+	BaseDefender
+	CargoCapacity    int
+	BaseSpeed        int
+	FuelConsumption  int
+	RapidfireAgainst map[ID]int
+	Price            Resources
 }
 
 // GetCargoCapacity ...
@@ -75,11 +56,6 @@ func (b BaseShip) GetSpeed(techs Researches) int {
 // GetFuelConsumption ...
 func (b BaseShip) GetFuelConsumption() int {
 	return b.FuelConsumption
-}
-
-// GetRapidfireFrom ...
-func (b BaseShip) GetRapidfireFrom() map[ID]int {
-	return b.RapidfireFrom
 }
 
 // GetRapidfireAgainst ...
