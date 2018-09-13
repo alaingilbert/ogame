@@ -26,7 +26,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Sirupsen/logrus"
-	"github.com/microcosm-cc/bluemonday"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
 )
@@ -104,6 +103,23 @@ var ErrBadCredentials = errors.New("bad credentials")
 
 // ErrInvalidPlanetID ...
 var ErrInvalidPlanetID = errors.New("invalid planet id")
+
+// Send fleet errors
+var (
+	ErrNoShipSelected = errors.New("no ships to send")
+
+	ErrUninhabitedPlanet                  = errors.New("uninhabited planet")
+	ErrNoDebrisField                      = errors.New("no debris field")
+	ErrPlayerInVacationMode               = errors.New("player in vacation mode")
+	ErrAdminOrGM                          = errors.New("admin or GM")
+	ErrNoAstrophysics                     = errors.New("you have to research Astrophysics first")
+	ErrNoobProtection                     = errors.New("noob protection")
+	ErrPlayerTooStrong                    = errors.New("this planet can not be attacked as the player is to strong")
+	ErrNoMoonAvailable                    = errors.New("no moon available")
+	ErrNoRecyclerAvailable                = errors.New("no recycler available")
+	ErrNoEventsRunning                    = errors.New("there are currently no events running")
+	ErrPlanetAlreadyReservecForRelocation = errors.New("this planet has already been reserved for a relocation")
+)
 
 // All ogame objects
 var (
@@ -964,6 +980,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 	} else {
 		b.Planets = extractPlanets(pageHTML, b)
 	}
+
 	return pageHTML
 }
 
@@ -1099,43 +1116,64 @@ type resourcesResp struct {
 	HonorScore int
 }
 
-var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de )?([-\d]+).+C\s*(?:bis|to|à|a) ([-\d]+).+C`)
+func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) {
+	el, _ := s.Attr("id")
+	id, err := strconv.Atoi(strings.TrimPrefix(el, "planet-"))
+	if err != nil {
+		return Planet{}, err
+	}
+
+	title, _ := s.Find("a.planetlink").Attr("title")
+	root, err := html.Parse(strings.NewReader(title))
+	if err != nil {
+		return Planet{}, err
+	}
+
+	txt := goquery.NewDocumentFromNode(root).Text()
+	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de )?([-\d]+).+C\s*(?:bis|to|à|a) ([-\d]+).+C`)
+	m := planetInfosRgx.FindStringSubmatch(txt)
+	if len(m) < 10 {
+		return Planet{}, errors.New("failed to parse planet infos: " + txt)
+	}
+
+	res := Planet{}
+	res.ogame = b
+	res.Img = s.Find("img.planetPic").AttrOr("src", "")
+	res.ID = PlanetID(id)
+	res.Name = m[1]
+	res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
+	res.Coordinate.System, _ = strconv.Atoi(m[3])
+	res.Coordinate.Position, _ = strconv.Atoi(m[4])
+	res.Diameter = parseInt(m[5])
+	res.Fields.Built, _ = strconv.Atoi(m[6])
+	res.Fields.Total, _ = strconv.Atoi(m[7])
+	res.Temperature.Min, _ = strconv.Atoi(m[8])
+	res.Temperature.Max, _ = strconv.Atoi(m[9])
+	return res, nil
+}
 
 func extractPlanets(pageHTML string, b *OGame) []Planet {
 	res := make([]Planet, 0)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
-		el, _ := s.Attr("id")
-		id, err := strconv.Atoi(strings.TrimPrefix(el, "planet-"))
+		planet, err := extractPlanetFromSelection(s, b)
 		if err != nil {
+			b.error(err)
 			return
 		}
-
-		planetKoords := s.Find("span.planet-koords").Text()
-
-		txt, _ := s.Find("a.planetlink").Attr("title")
-		p := bluemonday.StrictPolicy()
-		m1 := planetInfosRgx.FindStringSubmatch(p.Sanitize(txt))
-		if len(m1) < 10 {
-			b.error("failed to parse planet infos: " + txt)
-			return
-		}
-
-		planet := Planet{}
-		planet.ogame = b
-		planet.Img = s.Find("img.planetPic").AttrOr("src", "")
-		planet.ID = PlanetID(id)
-		planet.Name = m1[1]
-		planet.Coordinate = extractCoord(planetKoords)
-		planet.Diameter = parseInt(m1[5])
-		planet.Fields.Built, _ = strconv.Atoi(m1[6])
-		planet.Fields.Total, _ = strconv.Atoi(m1[7])
-		planet.Temperature.Min, _ = strconv.Atoi(m1[8])
-		planet.Temperature.Max, _ = strconv.Atoi(m1[9])
-
 		res = append(res, planet)
 	})
 	return res
+}
+
+func extractPlanet(pageHTML string, planetID PlanetID, b *OGame) (Planet, error) {
+	planetIDStr := planetID.String()
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	s := doc.Find("div#planet-" + planetIDStr)
+	if len(s.Nodes) > 0 { // planet
+		return extractPlanetFromSelection(s, b)
+	}
+	return Planet{}, errors.New("failed to find planetID")
 }
 
 func (b *OGame) getPlanets() []Planet {
@@ -1156,33 +1194,7 @@ func (b *OGame) getPlanetByCoord(coord Coordinate) (Planet, error) {
 func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
 	planetIDStr := planetID.String()
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetIDStr}})
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
-	s := doc.Find("div#planet-" + planetIDStr)
-	if len(s.Nodes) > 0 { // planet
-		title, _ := s.Find("a").Attr("title")
-		root, err := html.Parse(strings.NewReader(title))
-		if err != nil {
-			return Planet{}, err
-		}
-		txt := goquery.NewDocumentFromNode(root).Text()
-		m := planetInfosRgx.FindStringSubmatch(txt)
-
-		res := Planet{}
-		res.ogame = b
-		res.Img = s.Find("img").AttrOr("src", "")
-		res.ID = planetID
-		res.Name = m[1]
-		res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
-		res.Coordinate.System, _ = strconv.Atoi(m[3])
-		res.Coordinate.Position, _ = strconv.Atoi(m[4])
-		res.Diameter, _ = strconv.Atoi(m[5])
-		res.Fields.Built, _ = strconv.Atoi(m[6])
-		res.Fields.Total, _ = strconv.Atoi(m[7])
-		res.Temperature.Min, _ = strconv.Atoi(m[8])
-		res.Temperature.Max, _ = strconv.Atoi(m[9])
-		return res, nil
-	}
-	return Planet{}, errors.New("failed to find planetID")
+	return extractPlanet(pageHTML, planetID, b)
 }
 
 func (b *OGame) serverVersion() string {
@@ -1455,7 +1467,7 @@ func extractFleets(pageHTML string) (res []Fleet) {
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
-			name := strings.ToLower(strings.Trim(tds.Eq(0).Text(), "\n\t\r :"))
+			name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
 			qty := parseInt(tds.Eq(1).Text())
 			shipID, _ := parseShip(name)
 			fleet.Ships.Set(shipID, qty)
@@ -1575,7 +1587,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		attack := AttackEvent{}
 		attack.MissionType = missionType
 		if missionType == Attack || missionType == MissileAttack {
-			coordsOrigin := strings.Trim(s.Find("td.coordsOrigin").Text(), " \r\t\n")
+			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 			attack.Origin = extractCoord(coordsOrigin)
 			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
 			attack.AttackerID, _ = strconv.Atoi(attackerIDStr)
@@ -1601,7 +1613,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 			})
 		}
 
-		destCoords := strings.Trim(s.Find("td.destCoords").Text(), " \r\t\n")
+		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
 		attack.Destination = extractCoord(destCoords)
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
@@ -1634,7 +1646,9 @@ func (b *OGame) getAttacks() []AttackEvent {
 	return extractAttacks(pageHTML)
 }
 
-func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPlayerRank int) ([]PlanetInfos, error) {
+func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRank int) ([]PlanetInfos, error) {
+	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+
 	var tmp struct {
 		Galaxy string
 	}
@@ -1647,7 +1661,7 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 			activity := 0
 			activityDiv := s.Find("div.activity")
 			if activityDiv != nil {
-				activityRaw := strings.Trim(activityDiv.Text(), " \r\t\n")
+				activityRaw := strings.TrimSpace(activityDiv.Text())
 				if activityRaw != "" {
 					activity, _ = strconv.Atoi(activityRaw)
 				}
@@ -1660,24 +1674,6 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 			planetName := planetTooltip.Find("h1").Find("span").Text()
 			planetImg, _ := planetTooltip.Find("img").Attr("src")
 			coordsRaw := planetTooltip.Find("span#pos-planet").Text()
-
-			metalRgx := regexp.MustCompile(`Metal: ([\d.]+)`)
-			crystalRgx := regexp.MustCompile(`Crystal: ([\d.]+)`)
-			recyclersRgx := regexp.MustCompile(`Recyclers needed: ([\d.]+)`)
-			switch lang {
-			case "de":
-				metalRgx = regexp.MustCompile(`Metall: ([\d.]+)`)
-				crystalRgx = regexp.MustCompile(`Kristall: ([\d.]+)`)
-				recyclersRgx = regexp.MustCompile(`Benötigte Recycler: ([\d.]+)`)
-			case "es":
-				metalRgx = regexp.MustCompile(`Metal: ([\d.]+)`)
-				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
-				recyclersRgx = regexp.MustCompile(`Se necesitan recicladores: ([\d.]+)`)
-			case "fr":
-				metalRgx = regexp.MustCompile(`Métal: ([\d.]+)`)
-				crystalRgx = regexp.MustCompile(`Cristal: ([\d.]+)`)
-				recyclersRgx = regexp.MustCompile(`Recycleurs nécessaires: ([\d.]+)`)
-			}
 
 			metalTxt := s.Find("div#debris" + position + " ul.ListLinks li").First().Text()
 			crystalTxt := s.Find("div#debris" + position + " ul.ListLinks li").Eq(1).Text()
@@ -1701,13 +1697,13 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 				planetInfos.Alliance.Name = allianceSpan.Find("h1").Text()
 				planetInfos.Alliance.ID, _ = strconv.Atoi(strings.TrimPrefix(longID, "alliance"))
 				planetInfos.Alliance.Rank, _ = strconv.Atoi(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text())
-				planetInfos.Alliance.Member = parseInt(strings.TrimPrefix(allianceSpan.Find("ul.ListLinks li").Eq(1).Text(), "Member: "))
+				planetInfos.Alliance.Member = parseInt(prefixedNumRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
 			}
 
-			if len(metalRgx.FindStringSubmatch(metalTxt)) > 0 {
-				planetInfos.Debris.Metal = parseInt(metalRgx.FindStringSubmatch(metalTxt)[1])
-				planetInfos.Debris.Crystal = parseInt(crystalRgx.FindStringSubmatch(crystalTxt)[1])
-				planetInfos.Debris.RecyclersNeeded = parseInt(recyclersRgx.FindStringSubmatch(recyclersTxt)[1])
+			if len(prefixedNumRgx.FindStringSubmatch(metalTxt)) > 0 {
+				planetInfos.Debris.Metal = parseInt(prefixedNumRgx.FindStringSubmatch(metalTxt)[1])
+				planetInfos.Debris.Crystal = parseInt(prefixedNumRgx.FindStringSubmatch(crystalTxt)[1])
+				planetInfos.Debris.RecyclersNeeded = parseInt(prefixedNumRgx.FindStringSubmatch(recyclersTxt)[1])
 			}
 
 			planetInfos.Activity = activity
@@ -1733,7 +1729,7 @@ func extractGalaxyInfos(pageHTML, lang, botPlayerName string, botPlayerID, botPl
 					}
 				})
 			} else {
-				playerName = strings.Trim(s.Find("td.playername").Find("span").Text(), " \r\t\n")
+				playerName = strings.TrimSpace(s.Find("td.playername").Find("span").Text())
 			}
 
 			if playerID == 0 {
@@ -1771,7 +1767,7 @@ func (b *OGame) galaxyInfos(galaxy, system int) ([]PlanetInfos, error) {
 	defer resp.Body.Close()
 	by, _ := ioutil.ReadAll(resp.Body)
 	pageHTML := string(by)
-	return extractGalaxyInfos(pageHTML, b.language, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	return extractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
@@ -2212,6 +2208,19 @@ func (b *OGame) getResources(planetID PlanetID) (Resources, error) {
 	}, err
 }
 
+func extractFleet1Ships(pageHTML string) ShipsInfos {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	onclick := doc.Find("a#sendall").AttrOr("onclick", "")
+	m := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)[1]
+	var res map[ID]int
+	json.Unmarshal([]byte(m), &res)
+	s := ShipsInfos{}
+	for k, v := range res {
+		s.Set(k, v)
+	}
+	return s
+}
+
 func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID,
 	resources Resources) (FleetID, error) {
 	getHiddenFields := func(pageHTML string) map[string]string {
@@ -2226,6 +2235,25 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	}
 	planetIDStr := planetID.String()
 	pageHTML := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {planetIDStr}})
+
+	fleet1Doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
+	if fleet1BodyID != "fleet1" {
+		return 0, ErrInvalidPlanetID
+	}
+
+	availableShips := extractFleet1Ships(pageHTML)
+
+	atLeastOneShipSelected := false
+	for _, ship := range ships {
+		if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
+			atLeastOneShipSelected = true
+			break
+		}
+	}
+	if !atLeastOneShipSelected {
+		return 0, ErrNoShipSelected
+	}
 
 	payload := url.Values{}
 	hidden := getHiddenFields(pageHTML)
@@ -2280,27 +2308,27 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	by1, _ := ioutil.ReadAll(fleetCheckResp.Body)
 	switch string(by1) {
 	case "1":
-		return 0, errors.New("uninhabited planet")
+		return 0, ErrUninhabitedPlanet
 	case "1d":
-		return 0, errors.New("no debris field")
+		return 0, ErrNoDebrisField
 	case "2":
-		return 0, errors.New("player in vacation mode")
+		return 0, ErrPlayerInVacationMode
 	case "3":
-		return 0, errors.New("admin or GM")
+		return 0, ErrAdminOrGM
 	case "4":
-		return 0, errors.New("you have to research Astrophysics first")
+		return 0, ErrNoAstrophysics
 	case "5":
-		return 0, errors.New("noob protection")
+		return 0, ErrNoobProtection
 	case "6":
-		return 0, errors.New("this planet can not be attacked as the player is to strong")
+		return 0, ErrPlayerTooStrong
 	case "10":
-		return 0, errors.New("no moon available")
+		return 0, ErrNoMoonAvailable
 	case "11":
-		return 0, errors.New("no recycler available")
+		return 0, ErrNoRecyclerAvailable
 	case "15":
-		return 0, errors.New("there are currently no events running")
+		return 0, ErrNoEventsRunning
 	case "16":
-		return 0, errors.New("this planet has already been reserved for a relocation")
+		return 0, ErrPlanetAlreadyReservecForRelocation
 	}
 
 	fleet3URL := b.serverURL + "/game/index.php?page=fleet3"
@@ -2311,6 +2339,12 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	defer fleet3Resp.Body.Close()
 	by, _ = ioutil.ReadAll(fleet3Resp.Body)
 	pageHTML = string(by)
+
+	fleet3Doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	pageID := fleet3Doc.Find("body").AttrOr("id", "")
+	if pageID == "fleet1" {
+		return 0, errors.New("probably not enough space for deuterium")
+	}
 
 	payload = url.Values{}
 	hidden = getHiddenFields(pageHTML)

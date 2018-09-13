@@ -8,6 +8,31 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractFleet1Ships(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1.html")
+	s := extractFleet1Ships(string(pageHTMLBytes))
+	assert.Equal(t, 3, s.LightFighter)
+	assert.Equal(t, 0, s.HeavyFighter)
+	assert.Equal(t, 1012, s.Cruiser)
+	assert.Equal(t, 0, s.Battleship)
+	assert.Equal(t, 0, s.SmallCargo)
+	assert.Equal(t, 1003, s.LargeCargo)
+	assert.Equal(t, 1, s.ColonyShip)
+	assert.Equal(t, 200, s.Battlecruiser)
+	assert.Equal(t, 100, s.Bomber)
+	assert.Equal(t, 200, s.Destroyer)
+	assert.Equal(t, 0, s.Deathstar)
+	assert.Equal(t, 30, s.Recycler)
+	assert.Equal(t, 1001, s.EspionageProbe)
+}
+
+func TestExtractPlanet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
+	planet, _ := extractPlanet(string(pageHTMLBytes), PlanetID(33677371), &OGame{language: "en"})
+	assert.Equal(t, "C1", planet.Name)
+	assert.Equal(t, 14615, planet.Diameter)
+}
+
 func TestFindSlowestSpeed(t *testing.T) {
 	assert.Equal(t, 12000, findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}))
 }
@@ -107,7 +132,7 @@ func TestExtractAttacks1(t *testing.T) {
 
 func TestExtractGalaxyInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.Equal(t, 5, len(infos))
 	assert.Equal(t, 33698600, infos[0].ID)
 	assert.Equal(t, 33698645, infos[1].ID)
@@ -119,7 +144,7 @@ func TestExtractGalaxyInfos(t *testing.T) {
 
 func TestExtractGalaxyInfosOwnPlanet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.Equal(t, 5, len(infos))
 	assert.Equal(t, 33698658, infos[4].ID)
 	assert.Equal(t, "Commodore Nomade", infos[4].Player.Name)
@@ -220,7 +245,7 @@ func TestExtractPlanets_fr(t *testing.T) {
 
 func TestExtractGalaxyInfos_honorableTarget(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.False(t, infos[0].HonorableTarget)
 	assert.True(t, infos[1].HonorableTarget)
 	assert.False(t, infos[2].HonorableTarget)
@@ -228,7 +253,7 @@ func TestExtractGalaxyInfos_honorableTarget(t *testing.T) {
 
 func TestExtractGalaxyInfos_inactive(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.True(t, infos[0].Inactive)
 	assert.False(t, infos[1].Inactive)
 	assert.False(t, infos[2].Inactive)
@@ -236,7 +261,7 @@ func TestExtractGalaxyInfos_inactive(t *testing.T) {
 
 func TestExtractGalaxyInfos_strongPlayer(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.False(t, infos[0].StrongPlayer)
 	assert.True(t, infos[1].StrongPlayer)
 	assert.False(t, infos[2].StrongPlayer)
@@ -244,7 +269,7 @@ func TestExtractGalaxyInfos_strongPlayer(t *testing.T) {
 
 func TestExtractGalaxyInfos_moon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.NotNil(t, infos[0].Moon)
 	assert.Equal(t, 33701543, infos[0].Moon.ID)
 	assert.Equal(t, 8366, infos[0].Moon.Diameter)
@@ -252,7 +277,7 @@ func TestExtractGalaxyInfos_moon(t *testing.T) {
 
 func TestExtractGalaxyInfos_debris(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.Equal(t, 0, infos[0].Debris.Metal)
 	assert.Equal(t, 700, infos[0].Debris.Crystal)
 	assert.Equal(t, 1, infos[0].Debris.RecyclersNeeded)
@@ -260,7 +285,7 @@ func TestExtractGalaxyInfos_debris(t *testing.T) {
 
 func TestExtractGalaxyInfos_debris_es(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_es.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "es", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.Equal(t, 0, infos[5].Debris.Metal)
 	assert.Equal(t, 128000, infos[5].Debris.Crystal)
 	assert.Equal(t, 7, infos[5].Debris.RecyclersNeeded)
@@ -268,7 +293,7 @@ func TestExtractGalaxyInfos_debris_es(t *testing.T) {
 
 func TestExtractGalaxyInfos_debris_fr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_fr.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "fr", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.Equal(t, 100, infos[1].Debris.Metal)
 	assert.Equal(t, 600, infos[1].Debris.Crystal)
 	assert.Equal(t, 1, infos[1].Debris.RecyclersNeeded)
@@ -276,7 +301,7 @@ func TestExtractGalaxyInfos_debris_fr(t *testing.T) {
 
 func TestExtractGalaxyInfos_debris_de(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_de.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "de", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.Equal(t, 100, infos[3].Debris.Metal)
 	assert.Equal(t, 2500, infos[3].Debris.Crystal)
 	assert.Equal(t, 1, infos[3].Debris.RecyclersNeeded)
@@ -284,7 +309,7 @@ func TestExtractGalaxyInfos_debris_de(t *testing.T) {
 
 func TestExtractGalaxyInfos_vacation(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.Equal(t, 5, len(infos))
 	assert.False(t, infos[0].Vacation)
 	assert.True(t, infos[1].Vacation)
@@ -295,11 +320,29 @@ func TestExtractGalaxyInfos_vacation(t *testing.T) {
 
 func TestExtractGalaxyInfos_alliance(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
-	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "en", "Commodore Nomade", 123, 456)
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
 	assert.Equal(t, 303, infos[3].Alliance.ID)
 	assert.Equal(t, "Qrvix", infos[3].Alliance.Name)
 	assert.Equal(t, 27, infos[3].Alliance.Rank)
 	assert.Equal(t, 16, infos[3].Alliance.Member)
+}
+
+func TestExtractGalaxyInfos_alliance_fr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr/galaxy.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, 635, infos[1].Alliance.ID)
+	assert.Equal(t, "leretour", infos[1].Alliance.Name)
+	assert.Equal(t, 24, infos[1].Alliance.Rank)
+	assert.Equal(t, 11, infos[1].Alliance.Member)
+}
+
+func TestExtractGalaxyInfos_alliance_es(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/galaxy.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, 500053, infos[0].Alliance.ID)
+	assert.Equal(t, "Los Aliens Grises", infos[0].Alliance.Name)
+	assert.Equal(t, 8, infos[0].Alliance.Rank)
+	assert.Equal(t, 70, infos[0].Alliance.Member)
 }
 
 func TestUniverseSpeed(t *testing.T) {
