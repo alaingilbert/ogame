@@ -1684,7 +1684,16 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 
 			moonID, _ := strconv.Atoi(s.Find("td.moon").AttrOr("data-moon-id", ""))
 			moonSize, _ := strconv.Atoi(strings.Split(s.Find("td.moon span#moonsize").Text(), " ")[0])
-			moonActivity, _ := strconv.Atoi(strings.TrimSpace(s.Find("td.moon div.activity").Text()))
+			moonActivity := 0
+			moonDiv := s.Find("td.moon div.activity")
+			if moonDiv != nil {
+				moonDivClass := moonDiv.AttrOr("class", "")
+				if strings.Contains(moonDivClass, "minute15") {
+					moonActivity = 15
+				} else if strings.Contains(moonDivClass, "showMinutes") {
+					moonActivity, _ = strconv.Atoi(strings.TrimSpace(moonDiv.Text()))
+				}
+			}
 			if moonID > 0 {
 				planetInfos.Moon = new(MoonInfos)
 				planetInfos.Moon.ID = moonID
