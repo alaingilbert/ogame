@@ -1,6 +1,5 @@
 package ogame
 
-// HyperspaceDrive ...
 type hyperspaceDrive struct {
 	BaseTechnology
 }

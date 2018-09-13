@@ -1,6 +1,5 @@
 package ogame
 
-// RoboticsFactory ...
 type roboticsFactory struct {
 	BaseBuilding
 }

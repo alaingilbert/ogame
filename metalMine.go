@@ -2,7 +2,6 @@ package ogame
 
 import "math"
 
-// MetalMine ...
 type metalMine struct {
 	BaseBuilding
 }

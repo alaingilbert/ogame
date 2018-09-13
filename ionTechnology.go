@@ -1,6 +1,5 @@
 package ogame
 
-// IonTechnology ...
 type ionTechnology struct {
 	BaseTechnology
 }

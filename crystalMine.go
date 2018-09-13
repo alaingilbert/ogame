@@ -2,7 +2,6 @@ package ogame
 
 import "math"
 
-// CrystalMine ...
 type crystalMine struct {
 	BaseBuilding
 }

@@ -1,6 +1,5 @@
 package ogame
 
-// Terraformer ...
 type terraformer struct {
 	BaseBuilding
 }

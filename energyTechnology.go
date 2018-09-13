@@ -1,6 +1,5 @@
 package ogame
 
-// EnergyTechnology ...
 type energyTechnology struct {
 	BaseTechnology
 }

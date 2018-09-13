@@ -2,7 +2,6 @@ package ogame
 
 import "math"
 
-// SolarPlant ...
 type solarPlant struct {
 	BaseBuilding
 }
@@ -16,7 +15,7 @@ func newSolarPlant() *solarPlant {
 	return b
 }
 
-// Production ...
+// Production returns the energy produced by the solar plant at provided level
 func (b *solarPlant) Production(level int) int {
 	return int(math.Floor(20 * float64(level) * math.Pow(1.1, float64(level))))
 }

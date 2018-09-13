@@ -2,7 +2,7 @@ package ogame
 
 // DeuteriumTank ...
 type deuteriumTank struct {
-	StorageBuilding
+	storageBuilding
 }
 
 func newDeuteriumTank() *deuteriumTank {

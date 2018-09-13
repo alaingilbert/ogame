@@ -1,6 +1,5 @@
 package ogame
 
-// ShieldingTechnology ...
 type shieldingTechnology struct {
 	BaseTechnology
 }

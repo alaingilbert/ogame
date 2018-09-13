@@ -1,6 +1,6 @@
 package ogame
 
-// Fleet ...
+// Fleet represent a player fleet information
 type Fleet struct {
 	Mission      MissionID
 	ReturnFlight bool

@@ -1,6 +1,5 @@
 package ogame
 
-// Recycler ...
 type recycler struct {
 	BaseShip
 }
