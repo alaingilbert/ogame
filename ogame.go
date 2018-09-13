@@ -1659,7 +1659,7 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 		classes, _ := s.Attr("class")
 		if !strings.Contains(classes, "empty_filter") {
 			activity := 0
-			activityDiv := s.Find("div.activity")
+			activityDiv := s.Find("td:not(.moon) div.activity")
 			if activityDiv != nil {
 				activityDivClass := activityDiv.AttrOr("class", "")
 				if strings.Contains(activityDivClass, "minute15") {
