@@ -7,19 +7,7 @@ import (
 
 // BaseBuilding ...
 type BaseBuilding struct {
-	Base
-	BaseCost       Resources
-	IncreaseFactor float64
-}
-
-// GetPrice ...
-func (b BaseBuilding) GetPrice(level int) Resources {
-	return Resources{
-		Metal:     buildingCost(b.BaseCost.Metal, b.IncreaseFactor, level),
-		Crystal:   buildingCost(b.BaseCost.Crystal, b.IncreaseFactor, level),
-		Deuterium: buildingCost(b.BaseCost.Deuterium, b.IncreaseFactor, level),
-		Energy:    buildingCost(b.BaseCost.Energy, b.IncreaseFactor, level),
-	}
+	BaseLevelable
 }
 
 // ConstructionTime ...
@@ -45,8 +33,4 @@ func (b BaseBuilding) GetLevel(resourcesBuildings ResourcesBuildings, facilities
 		return facilities.ByID(b.ID)
 	}
 	return 0
-}
-
-func buildingCost(baseCost int, increaseFactor float64, level int) int {
-	return int(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)))
 }
