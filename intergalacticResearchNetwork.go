@@ -1,6 +1,5 @@
 package ogame
 
-// IntergalacticResearchNetwork ...
 type intergalacticResearchNetwork struct {
 	BaseTechnology
 }

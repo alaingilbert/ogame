@@ -1,6 +1,5 @@
 package ogame
 
-// WeaponsTechnology ...
 type weaponsTechnology struct {
 	BaseTechnology
 }

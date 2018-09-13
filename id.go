@@ -2,15 +2,14 @@ package ogame
 
 import "strconv"
 
-// ID ...
+// ID represent an ogame id
 type ID int
 
-// Int ...
+// Int returns an integer value of the id
 func (o ID) Int() int {
 	return int(o)
 }
 
-// String ...
 func (o ID) String() string {
 	res := ""
 	switch o {
@@ -138,7 +137,7 @@ func (o ID) String() string {
 	return res
 }
 
-// IsFacility ...
+// IsFacility returns either or not the id is a facility
 func (o ID) IsFacility() bool {
 	return o == AllianceDepot.ID ||
 		o == RoboticsFactory.ID ||
@@ -150,7 +149,7 @@ func (o ID) IsFacility() bool {
 		o == SpaceDock.ID
 }
 
-// IsResourceBuilding ...
+// IsResourceBuilding returns either or not the id is a resource building
 func (o ID) IsResourceBuilding() bool {
 	return o == MetalMine.ID ||
 		o == CrystalMine.ID ||
@@ -165,12 +164,12 @@ func (o ID) IsResourceBuilding() bool {
 		o == SeabedDeuteriumDen.ID
 }
 
-// IsBuilding ...
+// IsBuilding returns either or not the id is a building (facility, resource building)
 func (o ID) IsBuilding() bool {
 	return o.IsResourceBuilding() || o.IsFacility()
 }
 
-// IsTech ...
+// IsTech returns either or not the id is a technology
 func (o ID) IsTech() bool {
 	return o == EspionageTechnology.ID ||
 		o == ComputerTechnology.ID ||
@@ -190,7 +189,7 @@ func (o ID) IsTech() bool {
 		o == GravitonTechnology.ID
 }
 
-// IsDefense ...
+// IsDefense returns either or not the id is a defense
 func (o ID) IsDefense() bool {
 	return o == RocketLauncher.ID ||
 		o == LightLaser.ID ||
@@ -204,7 +203,7 @@ func (o ID) IsDefense() bool {
 		o == InterplanetaryMissiles.ID
 }
 
-// IsShip ...
+// IsShip returns either or not the id is a ship
 func (o ID) IsShip() bool {
 	return o == SmallCargo.ID ||
 		o == LargeCargo.ID ||

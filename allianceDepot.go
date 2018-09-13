@@ -1,6 +1,5 @@
 package ogame
 
-// AllianceDepot ...
 type allianceDepot struct {
 	BaseBuilding
 }

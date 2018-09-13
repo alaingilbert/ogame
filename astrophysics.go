@@ -1,6 +1,5 @@
 package ogame
 
-// Astrophysics ...
 type astrophysics struct {
 	BaseTechnology
 }

@@ -2,7 +2,6 @@ package ogame
 
 import "math"
 
-// FusionReactor ...
 type fusionReactor struct {
 	BaseBuilding
 }
@@ -17,7 +16,7 @@ func newFusionReactor() *fusionReactor {
 	return b
 }
 
-// Production ...
+// Production returns the energy production of the reactor
 func (b *fusionReactor) Production(energyTechnology, lvl int) int {
 	pct := 1.0
 	lvlf := float64(lvl)

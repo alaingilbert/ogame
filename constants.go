@@ -2,14 +2,14 @@ package ogame
 
 import "strconv"
 
-// MissionID ...
+// MissionID represent a mission id
 type MissionID int
 
 func (m MissionID) String() string {
 	return strconv.Itoa(int(m))
 }
 
-// Speed ...
+// Speed represent a fleet speed
 type Speed int
 
 func (s Speed) String() string {

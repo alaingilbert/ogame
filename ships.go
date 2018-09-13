@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// ShipsInfos ...
+// ShipsInfos represent a planet ships information
 type ShipsInfos struct {
 	LightFighter   int
 	HeavyFighter   int
@@ -20,7 +20,7 @@ type ShipsInfos struct {
 	SolarSatellite int
 }
 
-// ByID ...
+// ByID get number of ships by ship id
 func (s ShipsInfos) ByID(id ID) int {
 	switch id {
 	case LightFighterID:
@@ -56,7 +56,7 @@ func (s ShipsInfos) ByID(id ID) int {
 	}
 }
 
-// Set ...
+// Set sets the ships value using the ship id
 func (s *ShipsInfos) Set(id ID, val int) {
 	switch id {
 	case LightFighterID:

@@ -1,6 +1,5 @@
 package ogame
 
-// DeuteriumTank ...
 type deuteriumTank struct {
 	storageBuilding
 }

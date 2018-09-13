@@ -1,6 +1,5 @@
 package ogame
 
-// SeabedDeuteriumDen ...
 type seabedDeuteriumDen struct {
 	BaseBuilding
 }

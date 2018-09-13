@@ -1,6 +1,5 @@
 package ogame
 
-// CombustionDrive ...
 type combustionDrive struct {
 	BaseTechnology
 }

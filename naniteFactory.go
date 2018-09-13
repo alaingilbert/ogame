@@ -1,6 +1,5 @@
 package ogame
 
-// NaniteFactory ...
 type naniteFactory struct {
 	BaseBuilding
 }

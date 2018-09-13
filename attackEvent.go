@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// AttackEvent ...
+// AttackEvent all information available about an enemy attack
 type AttackEvent struct {
 	MissionType MissionID
 	Origin      Coordinate

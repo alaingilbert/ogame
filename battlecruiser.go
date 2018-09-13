@@ -1,6 +1,5 @@
 package ogame
 
-// Battlecruiser ...
 type battlecruiser struct {
 	BaseShip
 }

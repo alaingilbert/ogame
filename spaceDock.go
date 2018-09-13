@@ -1,6 +1,5 @@
 package ogame
 
-// SpaceDock ...
 type spaceDock struct {
 	BaseBuilding
 }

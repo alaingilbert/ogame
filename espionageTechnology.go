@@ -1,6 +1,5 @@
 package ogame
 
-// EspionageTechnology ...
 type espionageTechnology struct {
 	BaseTechnology
 }

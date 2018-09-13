@@ -1,6 +1,5 @@
 package ogame
 
-// ImpulseDrive ...
 type impulseDrive struct {
 	BaseTechnology
 }

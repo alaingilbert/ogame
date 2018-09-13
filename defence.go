@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// DefensesInfos ...
+// DefensesInfos represent a planet defenses information
 type DefensesInfos struct {
 	RocketLauncher         int
 	LightLaser             int

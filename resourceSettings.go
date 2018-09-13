@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// ResourceSettings ...
+// ResourceSettings represent a planet resource settings
 type ResourceSettings struct {
 	MetalMine            int
 	CrystalMine          int
