@@ -106,6 +106,8 @@ var ErrInvalidPlanetID = errors.New("invalid planet id")
 
 // Send fleet errors
 var (
+	ErrNoShipSelected = errors.New("no ships to send")
+
 	ErrUninhabitedPlanet                  = errors.New("uninhabited planet")
 	ErrNoDebrisField                      = errors.New("no debris field")
 	ErrPlayerInVacationMode               = errors.New("player in vacation mode")
@@ -2238,6 +2240,19 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
 	if fleet1BodyID != "fleet1" {
 		return 0, ErrInvalidPlanetID
+	}
+
+	availableShips := extractFleet1Ships(pageHTML)
+
+	atLeastOneShipSelected := false
+	for _, ship := range ships {
+		if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
+			atLeastOneShipSelected = true
+			break
+		}
+	}
+	if !atLeastOneShipSelected {
+		return 0, ErrNoShipSelected
 	}
 
 	payload := url.Values{}
