@@ -95,7 +95,7 @@ func IsTechID(id int) bool {
 
 // IsBuildingID helper returns if an integer is a building id
 func IsBuildingID(id int) bool {
-	return IsResourceBuildingID(id) || IsFacilityID(id)
+	return ID(id).IsBuilding()
 }
 
 // IsResourceBuildingID helper returns if an integer is a resource defense id
