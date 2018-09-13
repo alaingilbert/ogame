@@ -1661,9 +1661,11 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 			activity := 0
 			activityDiv := s.Find("div.activity")
 			if activityDiv != nil {
-				activityRaw := strings.TrimSpace(activityDiv.Text())
-				if activityRaw != "" {
-					activity, _ = strconv.Atoi(activityRaw)
+				activityDivClass := activityDiv.AttrOr("class", "")
+				if strings.Contains(activityDivClass, "minute15") {
+					activity = 15
+				} else if strings.Contains(activityDivClass, "showMinutes") {
+					activity, _ = strconv.Atoi(strings.TrimSpace(activityDiv.Text()))
 				}
 			}
 
