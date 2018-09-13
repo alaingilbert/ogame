@@ -1,7 +1,6 @@
 package ogame
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 )
@@ -12,70 +11,6 @@ func parseInt(val string) int {
 	val = strings.TrimSpace(val)
 	res, _ := strconv.Atoi(val)
 	return res
-}
-
-func parseShip(name string) (ID, error) {
-	name = strings.ToLower(name)
-	switch name {
-	case "small cargo":
-		return SmallCargoID, nil
-	case "large cargo":
-		return LargeCargoID, nil
-	case "light fighter":
-		return LightFighterID, nil
-	case "heavy fighter":
-		return HeavyFighterID, nil
-	case "cruiser":
-		return CruiserID, nil
-	case "battleship":
-		return BattleshipID, nil
-	case "colony ship":
-		return ColonyShipID, nil
-	case "recycler":
-		return RecyclerID, nil
-	case "espionage probe":
-		return EspionageProbeID, nil
-	case "bomber":
-		return BomberID, nil
-	case "solar satellite":
-		return SolarSatelliteID, nil
-	case "destroyer":
-		return DestroyerID, nil
-	case "deathstar":
-		return DeathstarID, nil
-	case "battlecruiser":
-		return BattlecruiserID, nil
-
-	case "petit transporteur":
-		return SmallCargoID, nil
-	case "grand transporteur":
-		return LargeCargoID, nil
-	case "chasseur léger":
-		return LightFighterID, nil
-	case "chasseur lourd":
-		return HeavyFighterID, nil
-	case "croiseur":
-		return CruiserID, nil
-	case "vaisseau de bataille":
-		return BattleshipID, nil
-	case "vaisseau de colonisation":
-		return ColonyShipID, nil
-	case "recycleur":
-		return RecyclerID, nil
-	case "sonde d`espionnage":
-		return EspionageProbeID, nil
-	case "bombardier":
-		return BomberID, nil
-	case "satellite solaire":
-		return SolarSatelliteID, nil
-	case "destructeur":
-		return DestroyerID, nil
-	case "étoile de la mort":
-		return DeathstarID, nil
-	case "traqueur":
-		return BattlecruiserID, nil
-	}
-	return 0, errors.New("unable to parse ship " + name)
 }
 
 // IsDefenseID helper returns if an integer is a defense id

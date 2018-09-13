@@ -1470,7 +1470,7 @@ func extractFleets(pageHTML string) (res []Fleet) {
 			tds := trs.Eq(i).Find("td")
 			name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
 			qty := parseInt(tds.Eq(1).Text())
-			shipID, _ := parseShip(name)
+			shipID := name2id(name)
 			fleet.Ships.Set(shipID, qty)
 		}
 
