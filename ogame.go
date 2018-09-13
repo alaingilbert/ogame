@@ -21,13 +21,13 @@ import (
 	"time"
 	"unicode"
 
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
-
 	"github.com/PuerkitoBio/goquery"
 	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 // Wrapper all available functions to control ogame bot
@@ -1231,12 +1231,8 @@ func (b *OGame) serverTime() time.Time {
 	return serverTime
 }
 
-func isMn(r rune) bool {
-	return unicode.Is(unicode.Mn, r) // Mn: nonspacing marks
-}
-
 func name2id(name string) ID {
-	t := transform.Chain(norm.NFD, transform.RemoveFunc(isMn), norm.NFC)
+	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	name, _, _ = transform.String(t, name)
 	reg, _ := regexp.Compile("[^a-zA-Z]+")
 	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
