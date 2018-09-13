@@ -80,57 +80,17 @@ func parseShip(name string) (ID, error) {
 
 // IsDefenseID ...
 func IsDefenseID(id int) bool {
-	ogameID := ID(id)
-	return ogameID == RocketLauncherID ||
-		ogameID == LightLaserID ||
-		ogameID == HeavyLaserID ||
-		ogameID == GaussCannonID ||
-		ogameID == IonCannonID ||
-		ogameID == PlasmaTurretID ||
-		ogameID == SmallShieldDomeID ||
-		ogameID == LargeShieldDomeID ||
-		ogameID == AntiBallisticMissilesID ||
-		ogameID == InterplanetaryMissilesID
+	return ID(id).IsDefense()
 }
 
 // IsShipID ...
 func IsShipID(id int) bool {
-	ogameID := ID(id)
-	return ogameID == SmallCargoID ||
-		ogameID == LargeCargoID ||
-		ogameID == LightFighterID ||
-		ogameID == HeavyFighterID ||
-		ogameID == CruiserID ||
-		ogameID == BattleshipID ||
-		ogameID == ColonyShipID ||
-		ogameID == RecyclerID ||
-		ogameID == EspionageProbeID ||
-		ogameID == BomberID ||
-		ogameID == SolarSatelliteID ||
-		ogameID == DestroyerID ||
-		ogameID == DeathstarID ||
-		ogameID == BattlecruiserID
+	return ID(id).IsShip()
 }
 
 // IsTechID ...
 func IsTechID(id int) bool {
-	ogameID := ID(id)
-	return ogameID == EspionageTechnologyID ||
-		ogameID == ComputerTechnologyID ||
-		ogameID == WeaponsTechnologyID ||
-		ogameID == ShieldingTechnologyID ||
-		ogameID == ArmourTechnologyID ||
-		ogameID == EnergyTechnologyID ||
-		ogameID == HyperspaceTechnologyID ||
-		ogameID == CombustionDriveID ||
-		ogameID == ImpulseDriveID ||
-		ogameID == HyperspaceDriveID ||
-		ogameID == LaserTechnologyID ||
-		ogameID == IonTechnologyID ||
-		ogameID == PlasmaTechnologyID ||
-		ogameID == IntergalacticResearchNetworkID ||
-		ogameID == AstrophysicsID ||
-		ogameID == GravitonTechnologyID
+	return ID(id).IsTech()
 }
 
 // IsBuildingID ...
@@ -140,29 +100,10 @@ func IsBuildingID(id int) bool {
 
 // IsResourceBuildingID ...
 func IsResourceBuildingID(id int) bool {
-	ogameID := ID(id)
-	return ogameID == MetalMineID ||
-		ogameID == CrystalMineID ||
-		ogameID == DeuteriumSynthesizerID ||
-		ogameID == SolarPlantID ||
-		ogameID == FusionReactorID ||
-		ogameID == MetalStorageID ||
-		ogameID == CrystalStorageID ||
-		ogameID == DeuteriumTankID ||
-		ogameID == ShieldedMetalDenID ||
-		ogameID == UndergroundCrystalDenID ||
-		ogameID == SeabedDeuteriumDenID
+	return ID(id).IsResourceBuilding()
 }
 
 // IsFacilityID ...
 func IsFacilityID(id int) bool {
-	ogameID := ID(id)
-	return ogameID == AllianceDepotID ||
-		ogameID == RoboticsFactoryID ||
-		ogameID == ShipyardID ||
-		ogameID == ResearchLabID ||
-		ogameID == MissileSiloID ||
-		ogameID == NaniteFactoryID ||
-		ogameID == TerraformerID ||
-		ogameID == SpaceDockID
+	return ID(id).IsFacility()
 }
