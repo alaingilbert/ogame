@@ -2221,6 +2221,12 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	planetIDStr := planetID.String()
 	pageHTML := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {planetIDStr}})
 
+	fleet1Doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
+	if fleet1BodyID != "fleet1" {
+		return 0, ErrInvalidPlanetID
+	}
+
 	payload := url.Values{}
 	hidden := getHiddenFields(pageHTML)
 	for k, v := range hidden {

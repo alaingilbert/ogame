@@ -688,7 +688,8 @@ func sendFleet(c echo.Context) error {
 	}
 
 	fleetID, err := bot.SendFleet(ogame.PlanetID(planetID), ships, speed, where, mission, payload)
-	if err == ogame.ErrUninhabitedPlanet ||
+	if err == ogame.ErrInvalidPlanetID ||
+		err == ogame.ErrUninhabitedPlanet ||
 		err == ogame.ErrNoDebrisField ||
 		err == ogame.ErrPlayerInVacationMode ||
 		err == ogame.ErrAdminOrGM ||
