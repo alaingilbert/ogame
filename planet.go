@@ -18,21 +18,6 @@ type Planet struct {
 	}
 }
 
-// GetInfos ...
-func (p *Planet) GetInfos() error {
-	planet, err := p.ogame.GetPlanet(p.ID)
-	if err != nil {
-		return err
-	}
-	p.Img = planet.Img
-	p.Name = planet.Name
-	p.Coordinate = planet.Coordinate
-	p.Diameter = planet.Diameter
-	p.Fields = planet.Fields
-	p.Temperature = planet.Temperature
-	return nil
-}
-
 // GetResourceSettings gets the resources settings for specified planetID
 func (p *Planet) GetResourceSettings() (ResourceSettings, error) {
 	return p.ogame.GetResourceSettings(p.ID)
