@@ -1,6 +1,5 @@
 package ogame
 
-// LargeShieldDome ...
 type largeShieldDome struct {
 	BaseDefense
 }

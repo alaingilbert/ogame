@@ -1,6 +1,5 @@
 package ogame
 
-// Deathstar ...
 type deathstar struct {
 	BaseShip
 }

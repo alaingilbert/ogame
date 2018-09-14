@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// ResourcesBuildings ...
+// ResourcesBuildings represent a planet resource buildings
 type ResourcesBuildings struct {
 	MetalMine            int
 	CrystalMine          int
@@ -15,7 +15,7 @@ type ResourcesBuildings struct {
 	DeuteriumTank        int
 }
 
-// ByID ...
+// ByID gets the resource building level from a building id
 func (r ResourcesBuildings) ByID(id ID) int {
 	if id == MetalMine.ID {
 		return r.MetalMine

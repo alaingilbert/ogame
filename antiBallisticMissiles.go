@@ -1,6 +1,5 @@
 package ogame
 
-// AntiBallisticMissiles ...
 type antiBallisticMissiles struct {
 	BaseDefense
 }

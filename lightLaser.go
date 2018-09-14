@@ -1,6 +1,5 @@
 package ogame
 
-// LightLaser ...
 type lightLaser struct {
 	BaseDefense
 }

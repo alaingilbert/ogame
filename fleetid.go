@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// FleetID ...
+// FleetID represent a fleet id
 type FleetID int
 
 func (f FleetID) String() string {

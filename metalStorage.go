@@ -1,8 +1,7 @@
 package ogame
 
-// MetalStorage ...
 type metalStorage struct {
-	StorageBuilding
+	storageBuilding
 }
 
 func newMetalStorage() *metalStorage {

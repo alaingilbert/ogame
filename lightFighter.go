@@ -1,6 +1,5 @@
 package ogame
 
-// LightFighter ...
 type lightFighter struct {
 	BaseShip
 }

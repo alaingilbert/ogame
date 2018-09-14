@@ -1,6 +1,5 @@
 package ogame
 
-// ComputerTechnology ...
 type computerTechnology struct {
 	BaseTechnology
 }

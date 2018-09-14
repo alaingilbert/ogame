@@ -1,8 +1,7 @@
 package ogame
 
-// CrystalStorage ...
 type crystalStorage struct {
-	StorageBuilding
+	storageBuilding
 }
 
 func newCrystalStorage() *crystalStorage {

@@ -1,6 +1,5 @@
 package ogame
 
-// LargeCargo ...
 type largeCargo struct {
 	BaseShip
 }

@@ -20,3 +20,9 @@ func TestMetalMineConstructionTime(t *testing.T) {
 	assert.Equal(t, 8550*time.Second, mm.ConstructionTime(20, 7, Facilities{RoboticsFactory: 3}))
 	assert.Equal(t, 30*time.Second, mm.ConstructionTime(4, 6, Facilities{}))
 }
+
+func TestMetalMine_GetLevel(t *testing.T) {
+	mm := newMetalMine()
+	assert.Equal(t, 0, mm.GetLevel(ResourcesBuildings{}, Facilities{}, Researches{}))
+	assert.Equal(t, 3, mm.GetLevel(ResourcesBuildings{MetalMine: 3}, Facilities{}, Researches{}))
+}

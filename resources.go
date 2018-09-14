@@ -6,7 +6,7 @@ import (
 	"github.com/dustin/go-humanize"
 )
 
-// Resources ...
+// Resources represent ogame resources
 type Resources struct {
 	Metal      int
 	Crystal    int
@@ -15,13 +15,12 @@ type Resources struct {
 	Darkmatter int
 }
 
-// String ...
 func (r Resources) String() string {
 	return fmt.Sprintf("[%s|%s|%s]",
 		humanize.Comma(int64(r.Metal)), humanize.Comma(int64(r.Crystal)), humanize.Comma(int64(r.Deuterium)))
 }
 
-// Total ...
+// Total returns the sum of resources
 func (r Resources) Total() int {
 	return r.Deuterium + r.Crystal + r.Metal
 }
@@ -31,7 +30,7 @@ func (r Resources) Value() int {
 	return r.Deuterium*3 + r.Crystal*2 + r.Metal
 }
 
-// Sub ...
+// Sub subtract v from r
 func (r Resources) Sub(v Resources) Resources {
 	return Resources{
 		Metal:     r.Metal - v.Metal,
@@ -40,7 +39,7 @@ func (r Resources) Sub(v Resources) Resources {
 	}
 }
 
-// Add ...
+// Add adds two resources together
 func (r Resources) Add(v Resources) Resources {
 	return Resources{
 		Metal:     r.Metal + v.Metal,
@@ -58,7 +57,7 @@ func (r Resources) Mul(scalar int) Resources {
 	}
 }
 
-// CanAfford ...
+// CanAfford alias to Gte
 func (r Resources) CanAfford(cost Resources) bool {
 	return r.Gte(cost)
 }

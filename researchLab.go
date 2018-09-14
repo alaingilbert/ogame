@@ -1,6 +1,5 @@
 package ogame
 
-// ResearchLab ...
 type researchLab struct {
 	BaseBuilding
 }

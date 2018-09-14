@@ -5,41 +5,12 @@ import (
 	"time"
 )
 
-// BaseTechnology ...
+// BaseTechnology base struct for technologies
 type BaseTechnology struct {
-	ID             ID
-	Name           string
-	BaseCost       Resources
-	IncreaseFactor float64
-	Requirements   map[ID]int
+	BaseLevelable
 }
 
-// GetID ...
-func (b BaseTechnology) GetID() ID {
-	return b.ID
-}
-
-// GetName ...
-func (b BaseTechnology) GetName() string {
-	return b.Name
-}
-
-// GetRequirements ...
-func (b BaseTechnology) GetRequirements() map[ID]int {
-	return b.Requirements
-}
-
-// GetPrice ...
-func (b BaseTechnology) GetPrice(level int) Resources {
-	return Resources{
-		Metal:     researchCost(b.BaseCost.Metal, b.IncreaseFactor, level),
-		Crystal:   researchCost(b.BaseCost.Crystal, b.IncreaseFactor, level),
-		Deuterium: researchCost(b.BaseCost.Deuterium, b.IncreaseFactor, level),
-		Energy:    researchCost(b.BaseCost.Energy, b.IncreaseFactor, level),
-	}
-}
-
-// ConstructionTime ...
+// ConstructionTime returns the duration it takes to build given technology
 func (b BaseTechnology) ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration {
 	price := b.GetPrice(level)
 	metalCost := float64(price.Metal)
@@ -50,32 +21,7 @@ func (b BaseTechnology) ConstructionTime(level, universeSpeed int, facilities Fa
 	return time.Duration(int(math.Floor(secs))) * time.Second
 }
 
-// GetLevel ...
+// GetLevel returns current level of a technology
 func (b BaseTechnology) GetLevel(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches) int {
 	return researches.ByID(b.ID)
-}
-
-// IsAvailable ...
-func (b BaseTechnology) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities,
-	researches Researches, _ int) bool {
-	for id, levelNeeded := range b.Requirements {
-		if id.IsResourceBuilding() {
-			if resourcesBuildings.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsFacility() {
-			if facilities.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsTech() {
-			if researches.ByID(id) < levelNeeded {
-				return false
-			}
-		}
-	}
-	return true
-}
-
-func researchCost(baseCost int, increaseFactor float64, level int) int {
-	return int(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)))
 }

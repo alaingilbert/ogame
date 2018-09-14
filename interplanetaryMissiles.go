@@ -1,6 +1,5 @@
 package ogame
 
-// InterplanetaryMissiles ...
 type interplanetaryMissiles struct {
 	BaseDefense
 }

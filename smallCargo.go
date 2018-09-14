@@ -1,6 +1,5 @@
 package ogame
 
-// SmallCargo ...
 type smallCargo struct {
 	BaseShip
 }

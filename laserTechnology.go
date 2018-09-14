@@ -1,6 +1,5 @@
 package ogame
 
-// LaserTechnology ...
 type laserTechnology struct {
 	BaseTechnology
 }

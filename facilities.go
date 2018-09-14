@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// Facilities ...
+// Facilities represent a planet facilities information
 type Facilities struct {
 	RoboticsFactory int
 	Shipyard        int
@@ -14,7 +14,7 @@ type Facilities struct {
 	SpaceDock       int
 }
 
-// ByID ...
+// ByID gets the facility level by facility id
 func (f Facilities) ByID(id ID) int {
 	if id == RoboticsFactory.ID {
 		return f.RoboticsFactory

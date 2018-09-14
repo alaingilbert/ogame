@@ -1,5 +1,5 @@
 package ogame
 
-// Moon ...
+// Moon ogame moon object
 type Moon struct {
 }

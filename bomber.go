@@ -1,6 +1,5 @@
 package ogame
 
-// Bomber ...
 type bomber struct {
 	BaseShip
 }

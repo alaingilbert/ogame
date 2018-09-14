@@ -1,6 +1,5 @@
 package ogame
 
-// GaussCannon ...
 type gaussCannon struct {
 	BaseDefense
 }

@@ -22,4 +22,14 @@ build: bindata-prod
 build-linux: bindata-prod
 	GOOS=linux GOARCH=amd64 go build -ldflags "-s -w -X main.version=0.0.0" -o bot cmd/scripts/main.go
 
-.PHONY: bindata-dev bindata-prod build build-linux serve test lint
+cover:
+	@mkdir -p ./coverage
+	@for pkg in $(PKGS) ; do \
+		go test \
+			-coverpkg=$$(go list -f '{{ join .Deps "\n" }}' $$pkg | grep '^$(PACKAGE)/' | grep -v '^$(PACKAGE)/vendor/' | tr '\n' ',')$$pkg \
+			-coverprofile="./coverage/`echo $$pkg | tr "/" "-"`.cover" $$pkg ;\
+	done
+	@gocovmerge ./coverage/*.cover > cover.out
+	@go tool cover -html=cover.out
+
+.PHONY: bindata-dev bindata-prod build build-linux serve test lint cover

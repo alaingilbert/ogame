@@ -1,6 +1,5 @@
 package ogame
 
-// EspionageProbe ...
 type espionageProbe struct {
 	BaseShip
 }

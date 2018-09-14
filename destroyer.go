@@ -1,6 +1,5 @@
 package ogame
 
-// Destroyer ...
 type destroyer struct {
 	BaseShip
 }

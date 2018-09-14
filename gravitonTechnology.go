@@ -1,6 +1,5 @@
 package ogame
 
-// GravitonTechnology ...
 type gravitonTechnology struct {
 	BaseTechnology
 }
@@ -15,7 +14,7 @@ func newGravitonTechnology() *gravitonTechnology {
 	return b
 }
 
-// IsAvailable ...
+// IsAvailable returns either or not the object is available to us
 func (b gravitonTechnology) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities,
 	researches Researches, energy int) bool {
 	if energy < 300000 {

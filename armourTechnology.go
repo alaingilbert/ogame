@@ -1,6 +1,5 @@
 package ogame
 
-// ArmourTechnology ...
 type armourTechnology struct {
 	BaseTechnology
 }

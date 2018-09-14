@@ -1,6 +1,5 @@
 package ogame
 
-// PlasmaTechnology ...
 type plasmaTechnology struct {
 	BaseTechnology
 }

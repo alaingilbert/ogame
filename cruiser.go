@@ -1,6 +1,5 @@
 package ogame
 
-// Cruiser ...
 type cruiser struct {
 	BaseShip
 }

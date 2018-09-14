@@ -1,6 +1,5 @@
 package ogame
 
-// IonCannon ...
 type ionCannon struct {
 	BaseDefense
 }

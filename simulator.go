@@ -12,78 +12,46 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func round(val float64) int {
-	if val < 0 {
-		return int(val - 0.5)
-	}
-	return int(val + 0.5)
-}
-
-const (
-	SMALL_CARGO = iota
-	LARGE_CARGO
-	LIGHT_FIGHTER
-	HEAVY_FIGHTER
-	CRUISER
-	BATTLESHIP
-	COLONY_SHIP
-	RECYCLER
-	ESPIONAGE_PROBE
-	BOMBER
-	SOLAR_SATELLITE
-	DESTROYER
-	DEATHSTAR
-	BATTLECRUISER
-	ROCKET_LAUNCHER
-	LIGHT_LASER
-	HEAVY_LASER
-	GAUSS_CANNON
-	ION_CANNON
-	PLASMA_TURRET
-	SMALL_SHIELD_DOME
-	LARGE_SHIELD_DOME
-)
-
-func isAlive(unit *CombatUnit) bool {
+func isAlive(unit *combatUnit) bool {
 	return getUnitHull(unit) > 0
 }
 
-type CombatUnit struct {
+type combatUnit struct {
 	PackedInfos uint64
 }
 
 const (
-	MAX_ARMOUR_LEVEL uint64 = 36
-	MAX_SHIELD_LEVEL uint64 = 42
-	ID_MASK          uint64 = 31
-	SHIELD_MASK      uint64 = 8388576
-	HULL_MASK        uint64 = 35184363700224
+	// MAX_ARMOUR_LEVEL uint64 = 36
+	// MAX_SHIELD_LEVEL uint64 = 42
+	idMask     uint64 = 31
+	shieldMask uint64 = 8388576
+	hullMask   uint64 = 35184363700224
 )
 
-func getUnitId(unit *CombatUnit) uint64 {
-	return (unit.PackedInfos & ID_MASK) >> 0
+func getUnitID(unit *combatUnit) ID {
+	return ID((unit.PackedInfos & idMask) >> 0)
 }
 
-func getUnitShield(unit *CombatUnit) uint64 {
-	return (unit.PackedInfos & SHIELD_MASK) >> 5
+func getUnitShield(unit *combatUnit) uint64 {
+	return (unit.PackedInfos & shieldMask) >> 5
 }
 
-func getUnitHull(unit *CombatUnit) uint64 {
-	return (unit.PackedInfos & HULL_MASK) >> 23
+func getUnitHull(unit *combatUnit) uint64 {
+	return (unit.PackedInfos & hullMask) >> 23
 }
 
-func setUnitId(unit *CombatUnit, id uint64) {
-	unit.PackedInfos &= ^ID_MASK
-	unit.PackedInfos |= id << 0
+func setUnitID(unit *combatUnit, id ID) {
+	unit.PackedInfos &= ^idMask
+	unit.PackedInfos |= uint64(id) << 0
 }
 
-func setUnitShield(unit *CombatUnit, shield uint64) {
-	unit.PackedInfos &= ^SHIELD_MASK
+func setUnitShield(unit *combatUnit, shield uint64) {
+	unit.PackedInfos &= ^shieldMask
 	unit.PackedInfos |= shield << 5
 }
 
-func setUnitHull(unit *CombatUnit, hull uint64) {
-	unit.PackedInfos &= ^HULL_MASK
+func setUnitHull(unit *combatUnit, hull uint64) {
+	unit.PackedInfos &= ^hullMask
 	unit.PackedInfos |= hull << 23
 }
 
@@ -93,371 +61,371 @@ type price struct {
 	Deuterium int
 }
 
-func (p *price) Add(n price) {
+func (p *price) add(n price) {
 	p.Metal += n.Metal
 	p.Crystal += n.Crystal
 	p.Deuterium += n.Deuterium
 }
 
-func getUnitPrice(unitId uint64) price {
-	switch unitId {
-	case SMALL_CARGO:
+func getUnitPrice(unitID ID) price {
+	switch unitID {
+	case SmallCargoID:
 		return price{2000, 2000, 0}
-	case LARGE_CARGO:
+	case LargeCargoID:
 		return price{6000, 6000, 0}
-	case LIGHT_FIGHTER:
+	case LightFighterID:
 		return price{3000, 1000, 0}
-	case HEAVY_FIGHTER:
+	case HeavyFighterID:
 		return price{6000, 4000, 0}
-	case CRUISER:
+	case CruiserID:
 		return price{20000, 7000, 2000}
-	case BATTLESHIP:
+	case BattleshipID:
 		return price{45000, 15000, 0}
-	case COLONY_SHIP:
+	case ColonyShipID:
 		return price{10000, 20000, 10000}
-	case RECYCLER:
+	case RecyclerID:
 		return price{10000, 6000, 2000}
-	case ESPIONAGE_PROBE:
+	case EspionageProbeID:
 		return price{0, 1000, 0}
-	case BOMBER:
+	case BomberID:
 		return price{50000, 25000, 15000}
-	case SOLAR_SATELLITE:
+	case SolarSatelliteID:
 		return price{0, 2000, 500}
-	case DESTROYER:
+	case DestroyerID:
 		return price{60000, 50000, 15000}
-	case DEATHSTAR:
+	case DeathstarID:
 		return price{5000000, 4000000, 1000000}
-	case BATTLECRUISER:
+	case BattlecruiserID:
 		return price{30000, 40000, 15000}
-	case ROCKET_LAUNCHER:
+	case RocketLauncherID:
 		return price{2000, 0, 0}
-	case LIGHT_LASER:
+	case LightLaserID:
 		return price{1500, 500, 0}
-	case HEAVY_LASER:
+	case HeavyLaserID:
 		return price{6000, 2000, 0}
-	case GAUSS_CANNON:
+	case GaussCannonID:
 		return price{20000, 15000, 2000}
-	case ION_CANNON:
+	case IonCannonID:
 		return price{2000, 6000, 0}
-	case PLASMA_TURRET:
+	case PlasmaTurretID:
 		return price{50000, 50000, 30000}
-	case SMALL_SHIELD_DOME:
+	case SmallShieldDomeID:
 		return price{10000, 10000, 0}
-	case LARGE_SHIELD_DOME:
+	case LargeShieldDomeID:
 		return price{50000, 50000, 0}
 	}
 	return price{0, 0, 0}
 }
 
-func getUnitBaseShield(unitId uint64) int {
-	switch unitId {
-	case SMALL_CARGO:
+func getUnitBaseShield(unitID ID) int {
+	switch unitID {
+	case SmallCargoID:
 		return 10
-	case LARGE_CARGO:
+	case LargeCargoID:
 		return 25
-	case LIGHT_FIGHTER:
+	case LightFighterID:
 		return 10
-	case HEAVY_FIGHTER:
+	case HeavyFighterID:
 		return 25
-	case CRUISER:
+	case CruiserID:
 		return 50
-	case BATTLESHIP:
+	case BattleshipID:
 		return 200
-	case COLONY_SHIP:
+	case ColonyShipID:
 		return 100
-	case RECYCLER:
+	case RecyclerID:
 		return 10
-	case ESPIONAGE_PROBE:
+	case EspionageProbeID:
 		return 1 // 0.01
-	case BOMBER:
+	case BomberID:
 		return 500
-	case SOLAR_SATELLITE:
+	case SolarSatelliteID:
 		return 1
-	case DESTROYER:
+	case DestroyerID:
 		return 500
-	case DEATHSTAR:
+	case DeathstarID:
 		return 50000
-	case BATTLECRUISER:
+	case BattlecruiserID:
 		return 400
-	case ROCKET_LAUNCHER:
+	case RocketLauncherID:
 		return 20
-	case LIGHT_LASER:
+	case LightLaserID:
 		return 25
-	case HEAVY_LASER:
+	case HeavyLaserID:
 		return 100
-	case GAUSS_CANNON:
+	case GaussCannonID:
 		return 200
-	case ION_CANNON:
+	case IonCannonID:
 		return 500
-	case PLASMA_TURRET:
+	case PlasmaTurretID:
 		return 300
-	case SMALL_SHIELD_DOME:
+	case SmallShieldDomeID:
 		return 2000
-	case LARGE_SHIELD_DOME:
+	case LargeShieldDomeID:
 		return 10000
 	}
 	return 0
 }
 
-func getUnitBaseWeapon(unitId uint64) uint64 {
-	switch unitId {
-	case SMALL_CARGO:
+func getUnitBaseWeapon(unitID ID) uint64 {
+	switch unitID {
+	case SmallCargoID:
 		return 5
-	case LARGE_CARGO:
+	case LargeCargoID:
 		return 5
-	case LIGHT_FIGHTER:
+	case LightFighterID:
 		return 50
-	case HEAVY_FIGHTER:
+	case HeavyFighterID:
 		return 150
-	case CRUISER:
+	case CruiserID:
 		return 400
-	case BATTLESHIP:
+	case BattleshipID:
 		return 1000
-	case COLONY_SHIP:
+	case ColonyShipID:
 		return 50
-	case RECYCLER:
+	case RecyclerID:
 		return 1
-	case ESPIONAGE_PROBE:
+	case EspionageProbeID:
 		return 1 // 0.01
-	case BOMBER:
+	case BomberID:
 		return 1000
-	case SOLAR_SATELLITE:
+	case SolarSatelliteID:
 		return 1
-	case DESTROYER:
+	case DestroyerID:
 		return 2000
-	case DEATHSTAR:
+	case DeathstarID:
 		return 200000
-	case BATTLECRUISER:
+	case BattlecruiserID:
 		return 700
-	case ROCKET_LAUNCHER:
+	case RocketLauncherID:
 		return 80
-	case LIGHT_LASER:
+	case LightLaserID:
 		return 100
-	case HEAVY_LASER:
+	case HeavyLaserID:
 		return 250
-	case GAUSS_CANNON:
+	case GaussCannonID:
 		return 1100
-	case ION_CANNON:
+	case IonCannonID:
 		return 150
-	case PLASMA_TURRET:
+	case PlasmaTurretID:
 		return 3000
-	case SMALL_SHIELD_DOME:
+	case SmallShieldDomeID:
 		return 1
-	case LARGE_SHIELD_DOME:
+	case LargeShieldDomeID:
 		return 1
 	}
 	return 0
 }
 
-func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
+func getRapidFireAgainst(unit *combatUnit, targetUnit *combatUnit) int {
 	rf := 0
-	switch getUnitId(unit) {
-	case SMALL_CARGO:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	switch getUnitID(unit) {
+	case SmallCargoID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
-			rf = 5
-			break
-		}
-		break
-	case LARGE_CARGO:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
-			rf = 5
-			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
 		}
 		break
-	case LIGHT_FIGHTER:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	case LargeCargoID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
 		}
 		break
-	case HEAVY_FIGHTER:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	case LightFighterID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
-		case SMALL_CARGO:
+		}
+		break
+	case HeavyFighterID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
+			rf = 5
+			break
+		case SolarSatelliteID:
+			rf = 5
+			break
+		case SmallCargoID:
 			rf = 3
 			break
 		}
 		break
-	case CRUISER:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	case CruiserID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
-		case LIGHT_FIGHTER:
+		case LightFighterID:
 			rf = 6
 			break
-		case ROCKET_LAUNCHER:
+		case RocketLauncherID:
 			rf = 10
 			break
 		}
 		break
-	case BATTLESHIP:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	case BattleshipID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
-			rf = 5
-			break
-		}
-		break
-	case COLONY_SHIP:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
-			rf = 5
-			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
 		}
 		break
-	case RECYCLER:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	case ColonyShipID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
 		}
 		break
-	case BOMBER:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	case RecyclerID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
-		case ION_CANNON:
+		}
+		break
+	case BomberID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
+			rf = 5
+			break
+		case SolarSatelliteID:
+			rf = 5
+			break
+		case IonCannonID:
 			rf = 10
 			break
-		case ROCKET_LAUNCHER:
+		case RocketLauncherID:
 			rf = 20
 			break
-		case LIGHT_LASER:
+		case LightLaserID:
 			rf = 20
 			break
-		case HEAVY_LASER:
+		case HeavyLaserID:
 			rf = 10
 			break
 		}
 		break
-	case DESTROYER:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	case DestroyerID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
-		case LIGHT_LASER:
+		case LightLaserID:
 			rf = 10
 			break
-		case BATTLECRUISER:
+		case BattlecruiserID:
 			rf = 2
 			break
 		}
 		break
-	case DEATHSTAR:
-		switch getUnitId(targetUnit) {
-		case SMALL_CARGO:
+	case DeathstarID:
+		switch getUnitID(targetUnit) {
+		case SmallCargoID:
 			rf = 250
 			break
-		case LARGE_CARGO:
+		case LargeCargoID:
 			rf = 250
 			break
-		case LIGHT_FIGHTER:
+		case LightFighterID:
 			rf = 200
 			break
-		case HEAVY_FIGHTER:
+		case HeavyFighterID:
 			rf = 100
 			break
-		case CRUISER:
+		case CruiserID:
 			rf = 33
 			break
-		case BATTLESHIP:
+		case BattleshipID:
 			rf = 30
 			break
-		case COLONY_SHIP:
+		case ColonyShipID:
 			rf = 250
 			break
-		case RECYCLER:
+		case RecyclerID:
 			rf = 250
 			break
-		case ESPIONAGE_PROBE:
+		case EspionageProbeID:
 			rf = 1250
 			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 1250
 			break
-		case BOMBER:
+		case BomberID:
 			rf = 25
 			break
-		case DESTROYER:
+		case DestroyerID:
 			rf = 5
 			break
-		case ROCKET_LAUNCHER:
+		case RocketLauncherID:
 			rf = 200
 			break
-		case LIGHT_LASER:
+		case LightLaserID:
 			rf = 200
 			break
-		case HEAVY_LASER:
+		case HeavyLaserID:
 			rf = 100
 			break
-		case GAUSS_CANNON:
+		case GaussCannonID:
 			rf = 50
 			break
-		case ION_CANNON:
+		case IonCannonID:
 			rf = 100
 			break
-		case BATTLECRUISER:
+		case BattlecruiserID:
 			rf = 15
 			break
 		}
 		break
-	case BATTLECRUISER:
-		switch getUnitId(targetUnit) {
-		case ESPIONAGE_PROBE:
+	case BattlecruiserID:
+		switch getUnitID(targetUnit) {
+		case EspionageProbeID:
 			rf = 5
 			break
-		case SOLAR_SATELLITE:
+		case SolarSatelliteID:
 			rf = 5
 			break
-		case SMALL_CARGO:
+		case SmallCargoID:
 			rf = 3
 			break
-		case LARGE_CARGO:
+		case LargeCargoID:
 			rf = 3
 			break
-		case HEAVY_FIGHTER:
+		case HeavyFighterID:
 			rf = 4
 			break
-		case CRUISER:
+		case CruiserID:
 			rf = 4
 			break
-		case BATTLESHIP:
+		case BattleshipID:
 			rf = 7
 			break
 		}
@@ -466,74 +434,74 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 	return rf
 }
 
-func getUnitName(unitId uint64) string {
-	switch unitId {
-	case SMALL_CARGO:
+func getUnitName(unitID ID) string {
+	switch unitID {
+	case SmallCargoID:
 		return "Small cargo"
-	case LARGE_CARGO:
+	case LargeCargoID:
 		return "Large cargo"
-	case LIGHT_FIGHTER:
+	case LightFighterID:
 		return "Light fighter"
-	case HEAVY_FIGHTER:
+	case HeavyFighterID:
 		return "Heavy fighter"
-	case CRUISER:
+	case CruiserID:
 		return "Cruiser"
-	case BATTLESHIP:
+	case BattleshipID:
 		return "Battleship"
-	case COLONY_SHIP:
+	case ColonyShipID:
 		return "Colony ship"
-	case RECYCLER:
+	case RecyclerID:
 		return "Recycler"
-	case ESPIONAGE_PROBE:
+	case EspionageProbeID:
 		return "Expionage probe"
-	case BOMBER:
+	case BomberID:
 		return "Bomber"
-	case SOLAR_SATELLITE:
+	case SolarSatelliteID:
 		return "Solar satellite"
-	case DESTROYER:
+	case DestroyerID:
 		return "Destroyer"
-	case DEATHSTAR:
+	case DeathstarID:
 		return "Deathstar"
-	case BATTLECRUISER:
+	case BattlecruiserID:
 		return "Battlecruiser"
-	case ROCKET_LAUNCHER:
+	case RocketLauncherID:
 		return "Rocket launcher"
-	case LIGHT_LASER:
+	case LightLaserID:
 		return "Light laser"
-	case HEAVY_LASER:
+	case HeavyLaserID:
 		return "Heavy laser"
-	case GAUSS_CANNON:
+	case GaussCannonID:
 		return "Gauss cannon"
-	case ION_CANNON:
+	case IonCannonID:
 		return "Ion cannon"
-	case PLASMA_TURRET:
+	case PlasmaTurretID:
 		return "Plasma turret"
-	case SMALL_SHIELD_DOME:
+	case SmallShieldDomeID:
 		return "Small shield dome"
-	case LARGE_SHIELD_DOME:
+	case LargeShieldDomeID:
 		return "Large shield dome"
 	}
 	return ""
 }
 
-func getUnitWeaponPower(unitId uint64, weaponTechno int) uint64 {
-	return uint64(float64(getUnitBaseWeapon(unitId)) * (1 + 0.1*float64(weaponTechno)))
+func getUnitWeaponPower(unitID ID, weaponTechno int) uint64 {
+	return uint64(float64(getUnitBaseWeapon(unitID)) * (1 + 0.1*float64(weaponTechno)))
 }
 
-func getUnitInitialShield(unitId uint64, shieldTechno int) uint64 {
-	return uint64(float64(getUnitBaseShield(unitId)) * (1 + 0.1*float64(shieldTechno)))
+func getUnitInitialShield(unitID ID, shieldTechno int) uint64 {
+	return uint64(float64(getUnitBaseShield(unitID)) * (1 + 0.1*float64(shieldTechno)))
 }
 
 func getUnitInitialHullPlating(armourTechno, metalPrice, crystalPrice int) uint64 {
 	return uint64((1 + (float64(armourTechno) / 10)) * (float64(metalPrice+crystalPrice) / 10))
 }
 
-func newUnit(entity *entity, unitId uint64) CombatUnit {
-	var unit CombatUnit
-	setUnitId(&unit, unitId)
-	unitPrice := getUnitPrice(unitId)
+func newUnit(entity *entity, unitID ID) combatUnit {
+	var unit combatUnit
+	setUnitID(&unit, unitID)
+	unitPrice := getUnitPrice(unitID)
 	setUnitHull(&unit, getUnitInitialHullPlating(entity.Armour, unitPrice.Metal, unitPrice.Crystal))
-	setUnitShield(&unit, getUnitInitialShield(unitId, entity.Shield))
+	setUnitShield(&unit, getUnitInitialShield(unitID, entity.Shield))
 	return unit
 }
 
@@ -567,99 +535,99 @@ type entity struct {
 	SmallShieldDome int
 	LargeShieldDome int
 	TotalUnits      int
-	Units           []CombatUnit
+	Units           []combatUnit
 	Losses          price
 }
 
-func (e *entity) Init() {
-	e.Reset()
+func (e *entity) init() {
+	e.reset()
 	idx := 0
 	for i := 0; i < e.SmallCargo; i++ {
-		e.Units[idx] = newUnit(e, SMALL_CARGO)
+		e.Units[idx] = newUnit(e, SmallCargoID)
 		idx++
 	}
 	for i := 0; i < e.LargeCargo; i++ {
-		e.Units[idx] = newUnit(e, LARGE_CARGO)
+		e.Units[idx] = newUnit(e, LargeCargoID)
 		idx++
 	}
 	for i := 0; i < e.LightFighter; i++ {
-		e.Units[idx] = newUnit(e, LIGHT_FIGHTER)
+		e.Units[idx] = newUnit(e, LightFighterID)
 		idx++
 	}
 	for i := 0; i < e.HeavyFighter; i++ {
-		e.Units[idx] = newUnit(e, HEAVY_FIGHTER)
+		e.Units[idx] = newUnit(e, HeavyFighterID)
 		idx++
 	}
 	for i := 0; i < e.Cruiser; i++ {
-		e.Units[idx] = newUnit(e, CRUISER)
+		e.Units[idx] = newUnit(e, CruiserID)
 		idx++
 	}
 	for i := 0; i < e.Battleship; i++ {
-		e.Units[idx] = newUnit(e, BATTLESHIP)
+		e.Units[idx] = newUnit(e, BattleshipID)
 		idx++
 	}
 	for i := 0; i < e.ColonyShip; i++ {
-		e.Units[idx] = newUnit(e, COLONY_SHIP)
+		e.Units[idx] = newUnit(e, ColonyShipID)
 		idx++
 	}
 	for i := 0; i < e.Recycler; i++ {
-		e.Units[idx] = newUnit(e, RECYCLER)
+		e.Units[idx] = newUnit(e, RecyclerID)
 		idx++
 	}
 	for i := 0; i < e.EspionageProbe; i++ {
-		e.Units[idx] = newUnit(e, ESPIONAGE_PROBE)
+		e.Units[idx] = newUnit(e, EspionageProbeID)
 		idx++
 	}
 	for i := 0; i < e.Bomber; i++ {
-		e.Units[idx] = newUnit(e, BOMBER)
+		e.Units[idx] = newUnit(e, BomberID)
 		idx++
 	}
 	for i := 0; i < e.SolarSatellite; i++ {
-		e.Units[idx] = newUnit(e, SOLAR_SATELLITE)
+		e.Units[idx] = newUnit(e, SolarSatelliteID)
 		idx++
 	}
 	for i := 0; i < e.Destroyer; i++ {
-		e.Units[idx] = newUnit(e, DESTROYER)
+		e.Units[idx] = newUnit(e, DestroyerID)
 		idx++
 	}
 	for i := 0; i < e.Deathstar; i++ {
-		e.Units[idx] = newUnit(e, DEATHSTAR)
+		e.Units[idx] = newUnit(e, DeathstarID)
 		idx++
 	}
 	for i := 0; i < e.Battlecruiser; i++ {
-		e.Units[idx] = newUnit(e, BATTLECRUISER)
+		e.Units[idx] = newUnit(e, BattlecruiserID)
 		idx++
 	}
 	for i := 0; i < e.RocketLauncher; i++ {
-		e.Units[idx] = newUnit(e, ROCKET_LAUNCHER)
+		e.Units[idx] = newUnit(e, RocketLauncherID)
 		idx++
 	}
 	for i := 0; i < e.LightLaser; i++ {
-		e.Units[idx] = newUnit(e, LIGHT_LASER)
+		e.Units[idx] = newUnit(e, LightLaserID)
 		idx++
 	}
 	for i := 0; i < e.HeavyLaser; i++ {
-		e.Units[idx] = newUnit(e, HEAVY_LASER)
+		e.Units[idx] = newUnit(e, HeavyLaserID)
 		idx++
 	}
 	for i := 0; i < e.GaussCannon; i++ {
-		e.Units[idx] = newUnit(e, GAUSS_CANNON)
+		e.Units[idx] = newUnit(e, GaussCannonID)
 		idx++
 	}
 	for i := 0; i < e.IonCannon; i++ {
-		e.Units[idx] = newUnit(e, ION_CANNON)
+		e.Units[idx] = newUnit(e, IonCannonID)
 		idx++
 	}
 	for i := 0; i < e.PlasmaTurret; i++ {
-		e.Units[idx] = newUnit(e, PLASMA_TURRET)
+		e.Units[idx] = newUnit(e, PlasmaTurretID)
 		idx++
 	}
 	for i := 0; i < e.SmallShieldDome; i++ {
-		e.Units[idx] = newUnit(e, SMALL_SHIELD_DOME)
+		e.Units[idx] = newUnit(e, SmallShieldDomeID)
 		idx++
 	}
 	for i := 0; i < e.LargeShieldDome; i++ {
-		e.Units[idx] = newUnit(e, LARGE_SHIELD_DOME)
+		e.Units[idx] = newUnit(e, LargeShieldDomeID)
 		idx++
 	}
 }
@@ -680,9 +648,9 @@ type combatSimulator struct {
 	Debris        price
 }
 
-func (simulator *combatSimulator) hasExploded(entity *entity, defendingUnit *CombatUnit) bool {
+func (simulator *combatSimulator) hasExploded(entity *entity, defendingUnit *combatUnit) bool {
 	exploded := false
-	unitPrice := getUnitPrice(getUnitId(defendingUnit))
+	unitPrice := getUnitPrice(getUnitID(defendingUnit))
 	hullPercentage := float64(getUnitHull(defendingUnit)) / float64(getUnitInitialHullPlating(entity.Armour, unitPrice.Metal, unitPrice.Crystal))
 	if hullPercentage <= 0.7 {
 		probabilityOfExploding := 1.0 - hullPercentage
@@ -708,7 +676,7 @@ func (simulator *combatSimulator) hasExploded(entity *entity, defendingUnit *Com
 	return exploded
 }
 
-func (simulator *combatSimulator) getAnotherShot(unit, targetUnit *CombatUnit) bool {
+func (simulator *combatSimulator) getAnotherShot(unit, targetUnit *combatUnit) bool {
 	rapidFire := true
 	rf := getRapidFireAgainst(unit, targetUnit)
 	msg := ""
@@ -720,17 +688,17 @@ func (simulator *combatSimulator) getAnotherShot(unit, targetUnit *CombatUnit) b
 		}
 		if dice <= chance {
 			if simulator.IsLogging {
-				msg += fmt.Sprintf("%s gets another shot.", getUnitName(getUnitId(unit)))
+				msg += fmt.Sprintf("%s gets another shot.", getUnitName(getUnitID(unit)))
 			}
 		} else {
 			if simulator.IsLogging {
-				msg += fmt.Sprintf("%s does not get another shot.", getUnitName(getUnitId(unit)))
+				msg += fmt.Sprintf("%s does not get another shot.", getUnitName(getUnitID(unit)))
 			}
 			rapidFire = false
 		}
 	} else {
 		if simulator.IsLogging {
-			msg += fmt.Sprintf("%s doesn't have rapid fire against %s.", getUnitName(getUnitId(unit)), getUnitName(getUnitId(targetUnit)))
+			msg += fmt.Sprintf("%s doesn't have rapid fire against %s.", getUnitName(getUnitID(unit)), getUnitName(getUnitID(targetUnit)))
 		}
 		rapidFire = false
 	}
@@ -740,12 +708,12 @@ func (simulator *combatSimulator) getAnotherShot(unit, targetUnit *CombatUnit) b
 	return rapidFire
 }
 
-func (simulator *combatSimulator) attack(attacker *entity, attackingUnit *CombatUnit, defender *entity, defendingUnit *CombatUnit) {
+func (simulator *combatSimulator) attack(attacker *entity, attackingUnit *combatUnit, defender *entity, defendingUnit *combatUnit) {
 	if simulator.IsLogging {
-		simulator.Logs += fmt.Sprintf("%s fires at %s; ", getUnitName(getUnitId(attackingUnit)), getUnitName(getUnitId(defendingUnit)))
+		simulator.Logs += fmt.Sprintf("%s fires at %s; ", getUnitName(getUnitID(attackingUnit)), getUnitName(getUnitID(defendingUnit)))
 	}
 
-	weapon := getUnitWeaponPower(getUnitId(attackingUnit), attacker.Weapon)
+	weapon := getUnitWeaponPower(getUnitID(attackingUnit), attacker.Weapon)
 	// Check for shot bounce
 	if float64(weapon) < 0.01*float64(getUnitShield(defendingUnit)) {
 		if simulator.IsLogging {
@@ -769,7 +737,7 @@ func (simulator *combatSimulator) attack(attacker *entity, attackingUnit *Combat
 		setUnitShield(defendingUnit, currentShield-weapon)
 	}
 	if simulator.IsLogging {
-		simulator.Logs += fmt.Sprintf("result is %s %d %d\n", getUnitName(getUnitId(defendingUnit)), getUnitHull(defendingUnit), getUnitShield(defendingUnit))
+		simulator.Logs += fmt.Sprintf("result is %s %d %d\n", getUnitName(getUnitID(defendingUnit)), getUnitHull(defendingUnit), getUnitShield(defendingUnit))
 	}
 
 	// Check for explosion
@@ -809,56 +777,26 @@ func (simulator *combatSimulator) defenderFires() {
 	simulator.unitsFires(&simulator.Defender, &simulator.Attacker)
 }
 
-func isShip(unit *CombatUnit) bool {
-	switch getUnitId(unit) {
-	case SMALL_CARGO:
-		return true
-	case LARGE_CARGO:
-		return true
-	case LIGHT_FIGHTER:
-		return true
-	case HEAVY_FIGHTER:
-		return true
-	case CRUISER:
-		return true
-	case BATTLESHIP:
-		return true
-	case COLONY_SHIP:
-		return true
-	case RECYCLER:
-		return true
-	case ESPIONAGE_PROBE:
-		return true
-	case BOMBER:
-		return true
-	case SOLAR_SATELLITE:
-		return true
-	case DESTROYER:
-		return true
-	case DEATHSTAR:
-		return true
-	case BATTLECRUISER:
-		return true
-	}
-	return false
+func isShip(unit *combatUnit) bool {
+	return getUnitID(unit).IsShip()
 }
 
-func (simulator *combatSimulator) RemoveDestroyedUnits() {
+func (simulator *combatSimulator) removeDestroyedUnits() {
 	l := simulator.Defender.TotalUnits
 	for i := l - 1; i >= 0; i-- {
 		unit := &simulator.Defender.Units[i]
 		if getUnitHull(unit) <= 0 {
-			unitPrice := getUnitPrice(getUnitId(unit))
+			unitPrice := getUnitPrice(getUnitID(unit))
 			if isShip(unit) {
 				simulator.Debris.Metal += int(simulator.FleetToDebris * float64(unitPrice.Metal))
 				simulator.Debris.Crystal += int(simulator.FleetToDebris * float64(unitPrice.Crystal))
 			}
-			simulator.Defender.Losses.Add(unitPrice)
+			simulator.Defender.Losses.add(unitPrice)
 			simulator.Defender.Units[i] = simulator.Defender.Units[simulator.Defender.TotalUnits-1]
 			simulator.Defender.TotalUnits--
 			//simulator.Defender.Units = simulator.Defender.Units[:len(simulator.Defender.Units)-1]
 			if simulator.IsLogging {
-				simulator.Logs += fmt.Sprintf("%s lost all its integrity, remove from battle\n", getUnitName(getUnitId(unit)))
+				simulator.Logs += fmt.Sprintf("%s lost all its integrity, remove from battle\n", getUnitName(getUnitID(unit)))
 			}
 		}
 	}
@@ -866,49 +804,49 @@ func (simulator *combatSimulator) RemoveDestroyedUnits() {
 	for i := l - 1; i >= 0; i-- {
 		unit := &simulator.Attacker.Units[i]
 		if getUnitHull(unit) <= 0 {
-			unitPrice := getUnitPrice(getUnitId(unit))
+			unitPrice := getUnitPrice(getUnitID(unit))
 			if isShip(unit) {
 				simulator.Debris.Metal += int(simulator.FleetToDebris * float64(unitPrice.Metal))
 				simulator.Debris.Crystal += int(simulator.FleetToDebris * float64(unitPrice.Crystal))
 			}
-			simulator.Attacker.Losses.Add(unitPrice)
+			simulator.Attacker.Losses.add(unitPrice)
 			simulator.Attacker.Units[i] = simulator.Attacker.Units[simulator.Attacker.TotalUnits-1]
 			simulator.Attacker.TotalUnits--
 			//simulator.Attacker.Units = simulator.Attacker.Units[:len(simulator.Attacker.Units)-1]
 			if simulator.IsLogging {
-				simulator.Logs += fmt.Sprintf("%s lost all its integrity, remove from battle\n", getUnitName(getUnitId(unit)))
+				simulator.Logs += fmt.Sprintf("%s lost all its integrity, remove from battle\n", getUnitName(getUnitID(unit)))
 			}
 		}
 	}
 }
 
-func (simulator *combatSimulator) RestoreShields() {
+func (simulator *combatSimulator) restoreShields() {
 	for i := 0; i < simulator.Attacker.TotalUnits; i++ {
 		unit := &simulator.Attacker.Units[i]
-		setUnitShield(unit, getUnitInitialShield(getUnitId(unit), simulator.Attacker.Shield))
+		setUnitShield(unit, getUnitInitialShield(getUnitID(unit), simulator.Attacker.Shield))
 		if simulator.IsLogging {
-			simulator.Logs += fmt.Sprintf("%s still has integrity, restore its shield\n", getUnitName(getUnitId(unit)))
+			simulator.Logs += fmt.Sprintf("%s still has integrity, restore its shield\n", getUnitName(getUnitID(unit)))
 		}
 	}
 	for i := 0; i < simulator.Defender.TotalUnits; i++ {
 		unit := &simulator.Defender.Units[i]
-		setUnitShield(unit, getUnitInitialShield(getUnitId(unit), simulator.Defender.Shield))
+		setUnitShield(unit, getUnitInitialShield(getUnitID(unit), simulator.Defender.Shield))
 		if simulator.IsLogging {
-			simulator.Logs += fmt.Sprintf("%s still has integrity, restore its shield\n", getUnitName(getUnitId(unit)))
+			simulator.Logs += fmt.Sprintf("%s still has integrity, restore its shield\n", getUnitName(getUnitID(unit)))
 		}
 	}
 }
 
-func (simulator *combatSimulator) IsCombatDone() bool {
+func (simulator *combatSimulator) isCombatDone() bool {
 	return simulator.Attacker.TotalUnits <= 0 || simulator.Defender.TotalUnits <= 0
 }
 
-func (simulator *combatSimulator) GetMoonchance() int {
+func (simulator *combatSimulator) getMoonchance() int {
 	debris := float64(simulator.Debris.Metal) + float64(simulator.Debris.Crystal)
 	return int(math.Min(debris/100000.0, 20.0))
 }
 
-func (simulator *combatSimulator) PrintWinner() {
+func (simulator *combatSimulator) printWinner() {
 	if simulator.Defender.TotalUnits <= 0 && simulator.Attacker.TotalUnits <= 0 {
 		simulator.Winner = "draw"
 		if simulator.IsLogging {
@@ -933,8 +871,8 @@ func (simulator *combatSimulator) PrintWinner() {
 }
 
 func (simulator *combatSimulator) Simulate() {
-	simulator.Attacker.Init()
-	simulator.Defender.Init()
+	simulator.Attacker.init()
+	simulator.Defender.init()
 	for currentRound := 1; currentRound <= simulator.MaxRounds; currentRound++ {
 		simulator.Rounds = currentRound
 		if simulator.IsLogging {
@@ -944,13 +882,13 @@ func (simulator *combatSimulator) Simulate() {
 		}
 		simulator.attackerFires()
 		simulator.defenderFires()
-		simulator.RemoveDestroyedUnits()
-		simulator.RestoreShields()
-		if simulator.IsCombatDone() {
+		simulator.removeDestroyedUnits()
+		simulator.restoreShields()
+		if simulator.isCombatDone() {
 			break
 		}
 	}
-	simulator.PrintWinner()
+	simulator.printWinner()
 }
 
 func newCombatSimulator(attacker *entity, defender *entity) *combatSimulator {
@@ -961,61 +899,6 @@ func newCombatSimulator(attacker *entity, defender *entity) *combatSimulator {
 	cs.MaxRounds = 6
 	cs.FleetToDebris = 0.3
 	return cs
-}
-
-type Config struct {
-	IsLogging   bool
-	Simulations int
-	Workers     int
-	Attacker    attackerInfo
-	Defender    defenderInfo
-}
-
-type attackerInfo struct {
-	Weapon         int
-	Shield         int
-	Armour         int
-	SmallCargo     int
-	LargeCargo     int
-	LightFighter   int
-	HeavyFighter   int
-	Cruiser        int
-	Battleship     int
-	ColonyShip     int
-	Recycler       int
-	EspionageProbe int
-	Bomber         int
-	Destroyer      int
-	Deathstar      int
-	Battlecruiser  int
-}
-
-type defenderInfo struct {
-	Weapon          int
-	Shield          int
-	Armour          int
-	SmallCargo      int
-	LargeCargo      int
-	LightFighter    int
-	HeavyFighter    int
-	Cruiser         int
-	Battleship      int
-	ColonyShip      int
-	Recycler        int
-	EspionageProbe  int
-	Bomber          int
-	SolarSatellite  int
-	Destroyer       int
-	Deathstar       int
-	Battlecruiser   int
-	RocketLauncher  int
-	LightLaser      int
-	HeavyLaser      int
-	GaussCannon     int
-	IonCannon       int
-	PlasmaTurret    int
-	SmallShieldDome int
-	LargeShieldDome int
 }
 
 func printResult(result SimulatorResult) {
@@ -1059,7 +942,7 @@ func printResult(result SimulatorResult) {
 	table.Render()
 }
 
-func (e *entity) Reset() {
+func (e *entity) reset() {
 	e.Losses = price{Metal: 0, Crystal: 0, Deuterium: 0}
 	e.TotalUnits = 0
 	e.TotalUnits += e.SmallCargo
@@ -1087,6 +970,7 @@ func (e *entity) Reset() {
 	e.TotalUnits += e.LargeShieldDome
 }
 
+// Simulate ...
 func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorParams) SimulatorResult {
 	nbSimulations := params.Simulations
 
@@ -1125,8 +1009,8 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	attacker.PlasmaTurret = 0
 	attacker.SmallShieldDome = 0
 	attacker.LargeShieldDome = 0
-	attacker.Reset()
-	attacker.Units = make([]CombatUnit, attacker.TotalUnits+1, attacker.TotalUnits+1)
+	attacker.reset()
+	attacker.Units = make([]combatUnit, attacker.TotalUnits+1, attacker.TotalUnits+1)
 
 	defender := newEntity()
 	defender.Weapon = defenderParam.Weapon
@@ -1154,8 +1038,8 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	defender.PlasmaTurret = defenderParam.PlasmaTurret
 	defender.SmallShieldDome = defenderParam.SmallShieldDome
 	defender.LargeShieldDome = defenderParam.LargeShieldDome
-	defender.Reset()
-	defender.Units = make([]CombatUnit, defender.TotalUnits+1, defender.TotalUnits+1)
+	defender.reset()
+	defender.Units = make([]combatUnit, defender.TotalUnits+1, defender.TotalUnits+1)
 
 	cs := newCombatSimulator(attacker, defender)
 	cs.IsLogging = true
@@ -1172,19 +1056,19 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 		} else {
 			draw++
 		}
-		attackerLosses.Add(cs.Attacker.Losses)
-		defenderLosses.Add(cs.Defender.Losses)
-		debris.Add(cs.Debris)
+		attackerLosses.add(cs.Attacker.Losses)
+		defenderLosses.add(cs.Defender.Losses)
+		debris.add(cs.Debris)
 		rounds += cs.Rounds
-		moonchance += cs.GetMoonchance()
+		moonchance += cs.getMoonchance()
 	}
 
 	result := SimulatorResult{}
 	result.Simulations = nbSimulations
-	result.AttackerWin = round(float64(attackerWin) / float64(nbSimulations) * 100)
-	result.DefenderWin = round(float64(defenderWin) / float64(nbSimulations) * 100)
-	result.Draw = round(float64(draw) / float64(nbSimulations) * 100)
-	result.Rounds = round(float64(rounds) / float64(nbSimulations))
+	result.AttackerWin = int(math.Round(float64(attackerWin) / float64(nbSimulations) * 100))
+	result.DefenderWin = int(math.Round(float64(defenderWin) / float64(nbSimulations) * 100))
+	result.Draw = int(math.Round(float64(draw) / float64(nbSimulations) * 100))
+	result.Rounds = int(math.Round(float64(rounds) / float64(nbSimulations)))
 	result.AttackerLosses = price{}
 	result.AttackerLosses.Metal = int(float64(attackerLosses.Metal) / float64(nbSimulations))
 	result.AttackerLosses.Crystal = int(float64(attackerLosses.Crystal) / float64(nbSimulations))
@@ -1204,6 +1088,7 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	return result
 }
 
+// Attacker ...
 type Attacker struct {
 	Weapon int
 	Shield int
@@ -1211,6 +1096,7 @@ type Attacker struct {
 	ShipsInfos
 }
 
+// Defender ...
 type Defender struct {
 	Weapon int
 	Shield int
@@ -1219,10 +1105,12 @@ type Defender struct {
 	DefensesInfos
 }
 
+// SimulatorParams ...
 type SimulatorParams struct {
 	Simulations int
 }
 
+// SimulatorResult ...
 type SimulatorResult struct {
 	Simulations    int
 	AttackerWin    int

@@ -1,6 +1,6 @@
 package ogame
 
-// Planet ...
+// Planet ogame planet object
 type Planet struct {
 	ogame      *OGame
 	Img        string
@@ -18,21 +18,6 @@ type Planet struct {
 	}
 }
 
-// GetInfos ...
-func (p *Planet) GetInfos() error {
-	planet, err := p.ogame.GetPlanet(p.ID)
-	if err != nil {
-		return err
-	}
-	p.Img = planet.Img
-	p.Name = planet.Name
-	p.Coordinate = planet.Coordinate
-	p.Diameter = planet.Diameter
-	p.Fields = planet.Fields
-	p.Temperature = planet.Temperature
-	return nil
-}
-
 // GetResourceSettings gets the resources settings for specified planetID
 func (p *Planet) GetResourceSettings() (ResourceSettings, error) {
 	return p.ogame.GetResourceSettings(p.ID)
@@ -43,27 +28,27 @@ func (p *Planet) GetResourcesBuildings() (ResourcesBuildings, error) {
 	return p.ogame.GetResourcesBuildings(p.ID)
 }
 
-// GetDefense ...
+// GetDefense gets all the defenses units information
 func (p *Planet) GetDefense() (DefensesInfos, error) {
 	return p.ogame.GetDefense(p.ID)
 }
 
-// GetShips ...
+// GetShips gets all ships units information
 func (p *Planet) GetShips() (ShipsInfos, error) {
 	return p.ogame.GetShips(p.ID)
 }
 
-// GetFacilities ...
+// GetFacilities  gets all facilities information
 func (p *Planet) GetFacilities() (Facilities, error) {
 	return p.ogame.GetFacilities(p.ID)
 }
 
-// BuildCancelable ...
+// BuildCancelable builds any cancelable ogame objects (building, technology)
 func (p *Planet) BuildCancelable(id ID) error {
 	return p.ogame.BuildCancelable(p.ID, id)
 }
 
-// BuildBuilding ...
+// BuildBuilding ensure what is being built is a building
 func (p *Planet) BuildBuilding(buildingID ID) error {
 	return p.ogame.BuildBuilding(p.ID, buildingID)
 }
@@ -78,7 +63,7 @@ func (p *Planet) BuildShips(shipID ID, nbr int) error {
 	return p.ogame.BuildShips(p.ID, shipID, nbr)
 }
 
-// BuildTechnology ...
+// BuildTechnology ensure that we're trying to build a technology
 func (p *Planet) BuildTechnology(technologyID ID) error {
 	return p.ogame.BuildTechnology(p.ID, technologyID)
 }
@@ -88,33 +73,33 @@ func (p *Planet) GetResources() (Resources, error) {
 	return p.ogame.GetResources(p.ID)
 }
 
-// SendFleet ...
+// SendFleet sends a fleet
 func (p *Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, mission MissionID,
 	resources Resources) (FleetID, error) {
 	return p.ogame.SendFleet(p.ID, ships, speed, where, mission, resources)
 }
 
-// ConstructionsBeingBuilt ...
+// ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
 func (p *Planet) ConstructionsBeingBuilt() (ID, int, ID, int) {
 	return p.ogame.ConstructionsBeingBuilt(p.ID)
 }
 
-// CancelBuilding ...
+// CancelBuilding cancel the construction of a building
 func (p *Planet) CancelBuilding() error {
 	return p.ogame.CancelBuilding(p.ID)
 }
 
-// CancelResearch ...
+// CancelResearch cancel the research
 func (p *Planet) CancelResearch() error {
 	return p.ogame.CancelResearch(p.ID)
 }
 
-// GetResourcesProductions ...
+// GetResourcesProductions gets the resources production
 func (p *Planet) GetResourcesProductions() (Resources, error) {
 	return p.ogame.GetResourcesProductions(p.ID)
 }
 
-// FlightTime ...
+// FlightTime calculate flight time and fuel needed
 func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
 	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships)
 }

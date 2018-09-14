@@ -1,6 +1,5 @@
 package ogame
 
-// PlasmaTurret ...
 type plasmaTurret struct {
 	BaseDefense
 }

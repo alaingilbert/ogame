@@ -1,6 +1,5 @@
 package ogame
 
-// MissileSilo ...
 type missileSilo struct {
 	BaseBuilding
 }

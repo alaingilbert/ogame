@@ -1,6 +1,5 @@
 package ogame
 
-// HyperspaceTechnology ...
 type hyperspaceTechnology struct {
 	BaseTechnology
 }

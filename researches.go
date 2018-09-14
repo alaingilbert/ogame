@@ -2,7 +2,7 @@ package ogame
 
 import "strconv"
 
-// Researches ...
+// Researches represent player's researches
 type Researches struct {
 	EnergyTechnology             int
 	LaserTechnology              int
@@ -22,7 +22,7 @@ type Researches struct {
 	ArmourTechnology             int
 }
 
-// ByID ...
+// ByID gets the player research level by research id
 func (s Researches) ByID(id ID) int {
 	if id == EnergyTechnology.ID {
 		return s.EnergyTechnology

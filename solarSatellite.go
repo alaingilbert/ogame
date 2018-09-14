@@ -1,6 +1,5 @@
 package ogame
 
-// SolarSatellite ...
 type solarSatellite struct {
 	BaseShip
 }
@@ -21,12 +20,12 @@ func newSolarSatellite() *solarSatellite {
 	return s
 }
 
-// Production ...
+// Production gets the energy production of nbr solar satellite
 func (s *solarSatellite) Production(temperatureMax, nbr int) int {
 	return int((float64(temperatureMax)+140)/6) * nbr
 }
 
-// GetLevel ...
+// GetLevel only useful so the solar satellite can implement Building interface
 func (s *solarSatellite) GetLevel(ResourcesBuildings, Facilities, Researches) int {
 	return 0
 }

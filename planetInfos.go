@@ -1,11 +1,13 @@
 package ogame
 
+// MoonInfos public information of a moon in the galaxy page
 type MoonInfos struct {
 	ID       int
 	Diameter int
 	Activity int
 }
 
+// AllianceInfos public information of an alliance in the galaxy page
 type AllianceInfos struct {
 	ID     int
 	Name   string
@@ -13,7 +15,7 @@ type AllianceInfos struct {
 	Member int
 }
 
-// PlanetInfos ...
+// PlanetInfos public information of a planet in the galaxy page
 type PlanetInfos struct {
 	ID              int
 	Activity        int

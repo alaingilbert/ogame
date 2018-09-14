@@ -1,6 +1,5 @@
 package ogame
 
-// ShieldedMetalDen ...
 type shieldedMetalDen struct {
 	BaseBuilding
 }

@@ -2,7 +2,6 @@ package ogame
 
 import "math"
 
-// CrystalMine ...
 type crystalMine struct {
 	BaseBuilding
 }
@@ -16,12 +15,12 @@ func newCrystalMine() *crystalMine {
 	return b
 }
 
-// EnergyConsumption ...
+// EnergyConsumption returns the building energy consumption
 func (b *crystalMine) EnergyConsumption(level int) int {
 	return int(math.Ceil(10 * float64(level) * math.Pow(1.1, float64(level))))
 }
 
-// Production ...
+// Production returns the crystal production of the mine
 func (b *crystalMine) Production(universeSpeed int, productionRatio float64, level int) int {
 	basicIncome := 15.0
 	levelProduction := 20 * float64(level) * math.Pow(1.1, float64(level)) * float64(universeSpeed)

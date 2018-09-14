@@ -1,6 +1,5 @@
 package ogame
 
-// RocketLauncher ...
 type rocketLauncher struct {
 	BaseDefense
 }

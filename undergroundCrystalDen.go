@@ -1,6 +1,5 @@
 package ogame
 
-// UndergroundCrystalDen ...
 type undergroundCrystalDen struct {
 	BaseBuilding
 }

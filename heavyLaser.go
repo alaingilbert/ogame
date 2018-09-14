@@ -1,6 +1,5 @@
 package ogame
 
-// HeavyLaser ...
 type heavyLaser struct {
 	BaseDefense
 }

@@ -1,6 +1,5 @@
 package ogame
 
-// ColonyShip ...
 type colonyShip struct {
 	BaseShip
 }
