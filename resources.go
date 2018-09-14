@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/dustin/go-humanize"
+	"github.com/google/gxui/math"
 )
 
 // Resources represent ogame resources
@@ -33,9 +34,9 @@ func (r Resources) Value() int {
 // Sub subtract v from r
 func (r Resources) Sub(v Resources) Resources {
 	return Resources{
-		Metal:     r.Metal - v.Metal,
-		Crystal:   r.Crystal - v.Crystal,
-		Deuterium: r.Deuterium - v.Deuterium,
+		Metal:     math.Max(r.Metal-v.Metal, 0),
+		Crystal:   math.Max(r.Crystal-v.Crystal, 0),
+		Deuterium: math.Max(r.Deuterium-v.Deuterium, 0),
 	}
 }
 
