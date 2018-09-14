@@ -2770,10 +2770,10 @@ func (b *OGame) deleteMessage(msgID int) error {
 	return nil
 }
 
-func energyProduced(maxTemp int, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology, solarSatellite int) int {
+func energyProduced(minTemp, maxTemp int, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology, solarSatellite int) int {
 	energyProduced := int(float64(SolarPlant.Production(resourcesBuildings.SolarPlant)) * (float64(resSettings.SolarPlant) / 100))
 	energyProduced += int(float64(FusionReactor.Production(energyTechnology, resourcesBuildings.FusionReactor)) * (float64(resSettings.FusionReactor) / 100))
-	energyProduced += int(float64(SolarSatellite.Production(maxTemp, solarSatellite)) * (float64(resSettings.SolarSatellite) / 100))
+	energyProduced += int(float64(SolarSatellite.Production(minTemp, maxTemp, solarSatellite)) * (float64(resSettings.SolarSatellite) / 100))
 	return energyProduced
 }
 
@@ -2784,8 +2784,8 @@ func energyNeeded(resourcesBuildings ResourcesBuildings, resSettings ResourceSet
 	return energyNeeded
 }
 
-func productionRatio(maxTemp int, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology int) float64 {
-	energyProduced := energyProduced(maxTemp, resourcesBuildings, resSettings, energyTechnology, resourcesBuildings.SolarSatellite)
+func productionRatio(minTemp, maxTemp int, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology int) float64 {
+	energyProduced := energyProduced(minTemp, maxTemp, resourcesBuildings, resSettings, energyTechnology, resourcesBuildings.SolarSatellite)
 	energyNeeded := energyNeeded(resourcesBuildings, resSettings)
 	ratio := 1.0
 	if energyNeeded > energyProduced {
@@ -2795,8 +2795,8 @@ func productionRatio(maxTemp int, resourcesBuildings ResourcesBuildings, resSett
 }
 
 func getProductions(resBuildings ResourcesBuildings, resSettings ResourceSettings, researches Researches, universeSpeed,
-	maxTemp int, productionRatio float64) Resources {
-	energyProduced := energyProduced(maxTemp, resBuildings, resSettings, researches.EnergyTechnology, resBuildings.SolarSatellite)
+	minTemp, maxTemp int, productionRatio float64) Resources {
+	energyProduced := energyProduced(minTemp, maxTemp, resBuildings, resSettings, researches.EnergyTechnology, resBuildings.SolarSatellite)
 	energyNeeded := energyNeeded(resBuildings, resSettings)
 	return Resources{
 		Metal:     MetalMine.Production(universeSpeed, productionRatio, resBuildings.MetalMine),
@@ -2824,8 +2824,8 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	researches := b.getResearch()
 	universeSpeed := b.getUniverseSpeed()
 	resSettings, _ := b.getResourceSettings(planetID)
-	ratio := productionRatio(planet.Temperature.Max, resBuildings, resSettings, researches.EnergyTechnology)
-	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, planet.Temperature.Max, ratio)
+	ratio := productionRatio(planet.Temperature.Min, planet.Temperature.Max, resBuildings, resSettings, researches.EnergyTechnology)
+	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, planet.Temperature.Min, planet.Temperature.Max, ratio)
 	return productions, nil
 }
 
