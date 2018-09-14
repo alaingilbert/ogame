@@ -1,21 +1,39 @@
 package ogame
 
+import "math"
+
+// Fields planet fields stats
+type Fields struct {
+	Built int
+	Total int
+}
+
+// HasFieldAvailable returns either or not we can still build on this planet
+func (f *Fields) HasFieldAvailable() bool {
+	return f.Built < f.Total
+}
+
+// Temperature planet temperature values
+type Temperature struct {
+	Min int
+	Max int
+}
+
+// Mean returns the mean temperature of the planet
+func (t *Temperature) Mean() int {
+	return int(math.Round(float64(t.Min+t.Max) / 2))
+}
+
 // Planet ogame planet object
 type Planet struct {
-	ogame      *OGame
-	Img        string
-	ID         PlanetID
-	Name       string
-	Diameter   int
-	Coordinate Coordinate
-	Fields     struct {
-		Built int
-		Total int
-	}
-	Temperature struct {
-		Min int
-		Max int
-	}
+	ogame       *OGame
+	Img         string
+	ID          PlanetID
+	Name        string
+	Diameter    int
+	Coordinate  Coordinate
+	Fields      Fields
+	Temperature Temperature
 }
 
 // GetResourceSettings gets the resources settings for specified planetID

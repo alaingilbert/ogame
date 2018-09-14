@@ -21,8 +21,8 @@ func newSolarSatellite() *solarSatellite {
 }
 
 // Production gets the energy production of nbr solar satellite
-func (s *solarSatellite) Production(temperatureMin, temperatureMax, nbr int) int {
-	return int((float64(temperatureMin+temperatureMax)/2+160)/6) * nbr
+func (s *solarSatellite) Production(temp Temperature, nbr int) int {
+	return int(float64(temp.Mean()+160)/6) * nbr
 }
 
 // GetLevel only useful so the solar satellite can implement Building interface
