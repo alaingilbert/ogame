@@ -5,6 +5,11 @@ import "strconv"
 // ID represent an ogame id
 type ID int
 
+// IsSet returns either or not the id is set to a value different than 0
+func (o ID) IsSet() bool {
+	return o.Int() != 0
+}
+
 // Int returns an integer value of the id
 func (o ID) Int() int {
 	return int(o)
