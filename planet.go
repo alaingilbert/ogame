@@ -43,6 +43,11 @@ func (p *Planet) GetFacilities() (Facilities, error) {
 	return p.ogame.GetFacilities(p.ID)
 }
 
+// Build builds any ogame objects (building, technology, ship, defence)
+func (p *Planet) Build(id ID, nbr int) error {
+	return p.ogame.Build(p.ID, id, nbr)
+}
+
 // BuildCancelable builds any cancelable ogame objects (building, technology)
 func (p *Planet) BuildCancelable(id ID) error {
 	return p.ogame.BuildCancelable(p.ID, id)
