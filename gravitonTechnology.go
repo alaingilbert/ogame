@@ -13,27 +13,3 @@ func newGravitonTechnology() *gravitonTechnology {
 	b.Requirements = map[ID]int{ResearchLabID: 12}
 	return b
 }
-
-// IsAvailable returns either or not the object is available to us
-func (b gravitonTechnology) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities,
-	researches Researches, energy int) bool {
-	if energy < 300000 {
-		return false
-	}
-	for id, levelNeeded := range b.Requirements {
-		if id.IsResourceBuilding() {
-			if resourcesBuildings.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsFacility() {
-			if facilities.ByID(id) < levelNeeded {
-				return false
-			}
-		} else if id.IsTech() {
-			if researches.ByID(id) < levelNeeded {
-				return false
-			}
-		}
-	}
-	return true
-}

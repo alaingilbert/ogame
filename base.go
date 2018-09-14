@@ -23,7 +23,10 @@ func (b Base) GetRequirements() map[ID]int {
 }
 
 // IsAvailable returns either or not the object is available to us
-func (b Base) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, _ int) bool {
+func (b Base) IsAvailable(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, energy int) bool {
+	if b.ID == GravitonTechnologyID && energy < 300000 {
+		return false
+	}
 	for id, levelNeeded := range b.Requirements {
 		if id.IsResourceBuilding() {
 			if resourcesBuildings.ByID(id) < levelNeeded {
