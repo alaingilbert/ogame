@@ -24,6 +24,8 @@ func TestSub(t *testing.T) {
 	first := Resources{Metal: 2, Crystal: 3, Deuterium: 4}
 	second := Resources{Metal: 1, Crystal: 1, Deuterium: 1}
 	assert.Equal(t, Resources{Metal: 1, Crystal: 2, Deuterium: 3}, first.Sub(second))
+
+	assert.Equal(t, Resources{Metal: 75, Crystal: 0, Deuterium: 0}, Resources{Metal: 100, Crystal: 10, Deuterium: 0}.Sub(Resources{Metal: 25, Crystal: 40, Deuterium: 30}))
 }
 
 func TestAdd(t *testing.T) {
