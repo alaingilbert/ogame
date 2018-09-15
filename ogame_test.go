@@ -129,6 +129,8 @@ func TestExtractAttacks_spy(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_spy.html")
 	attacks := extractAttacks(string(pageHTMLBytes))
 	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, Coordinate{4, 212, 8}, attacks[0].Origin)
+	assert.Equal(t, 107009, attacks[0].AttackerID)
 }
 
 func TestExtractAttacks1(t *testing.T) {

@@ -1584,7 +1584,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		}
 		attack := AttackEvent{}
 		attack.MissionType = missionType
-		if missionType == Attack || missionType == MissileAttack {
+		if missionType == Attack || missionType == MissileAttack || missionType == Spy {
 			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 			attack.Origin = extractCoord(coordsOrigin)
 			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
