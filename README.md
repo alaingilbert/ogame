@@ -32,6 +32,7 @@ func main() {
 ### Available methods
 
 ```go
+GetSession() string
 GetServer() Server
 SetUserAgent(newUserAgent string)
 ServerURL() string

@@ -32,6 +32,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	GetSession() string
 	GetServer() Server
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
@@ -1583,7 +1584,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		}
 		attack := AttackEvent{}
 		attack.MissionType = missionType
-		if missionType == Attack || missionType == MissileAttack {
+		if missionType == Attack || missionType == MissileAttack || missionType == Spy {
 			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 			attack.Origin = extractCoord(coordsOrigin)
 			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
@@ -2827,6 +2828,11 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	ratio := productionRatio(planet.Temperature, resBuildings, resSettings, researches.EnergyTechnology)
 	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, planet.Temperature, ratio)
 	return productions, nil
+}
+
+// GetSession get ogame session
+func (b *OGame) GetSession() string {
+	return b.ogameSession
 }
 
 // GetServer get ogame server information that the bot is connected to
