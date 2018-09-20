@@ -23,7 +23,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
@@ -937,7 +936,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) string {
 
 func (b *OGame) getPageContent(vals url.Values) string {
 	if b.serverURL == "" {
-		logrus.Error("serverURL is empty")
+		b.error("serverURL is empty")
 		return ""
 	}
 
@@ -1598,7 +1597,7 @@ func extractAttacks(pageHTML string) []AttackEvent {
 		if movement, exists := s.Find("td.icon_movement span").Attr("title"); exists {
 			root, err := html.Parse(strings.NewReader(movement))
 			if err != nil {
-				logrus.Error(err)
+				return
 			}
 			attack.Ships = new(ShipsInfos)
 			q := goquery.NewDocumentFromNode(root)
@@ -1969,8 +1968,6 @@ func extractProduction(pageHTML string) ([]Quantifiable, error) {
 			m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 			if len(m) > 0 {
 				itemIDstr = m[1]
-			} else {
-				logrus.Error("id not found")
 			}
 		}
 		itemID, _ := strconv.Atoi(itemIDstr)
