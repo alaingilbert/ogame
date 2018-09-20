@@ -22,8 +22,8 @@ import (
 	"unicode"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
