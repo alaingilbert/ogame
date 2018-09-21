@@ -20,3 +20,8 @@ func TestFusionReactor_IsAvailable(t *testing.T) {
 	assert.True(t, fr.IsAvailable(ResourcesBuildings{DeuteriumSynthesizer: 5}, Facilities{}, Researches{EnergyTechnology: 3}, 0))
 	assert.True(t, fr.IsAvailable(ResourcesBuildings{DeuteriumSynthesizer: 6}, Facilities{}, Researches{EnergyTechnology: 4}, 0))
 }
+
+func TestFusionReactor_Production(t *testing.T) {
+	fr := newFusionReactor()
+	assert.Equal(t, 3002, fr.Production(12, 13))
+}
