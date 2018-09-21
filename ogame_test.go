@@ -96,6 +96,8 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, LightFighterID, name2id("Light Fighter"))
 	assert.Equal(t, LightFighterID, name2id("Chasseur léger"))
 	assert.Equal(t, LightFighterID, name2id("Leichter Jäger"))
+	assert.Equal(t, LightFighterID, name2id("Caça Ligeiro"))
+	assert.Equal(t, HeavyFighterID, name2id("Caça Pesado"))
 	assert.Equal(t, LargeCargoID, name2id("Großer Transporter"))
 	assert.Equal(t, DestroyerID, name2id("Zerstörer"))
 	assert.Equal(t, SmallCargoID, name2id("Nave pequeña de carga"))
@@ -270,6 +272,14 @@ func TestExtractUserInfos_fr(t *testing.T) {
 	assert.Equal(t, 3348, infos.Total)
 }
 
+func TestExtractUserInfos_br(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
+	infos, _ := extractUserInfos(string(pageHTMLBytes), "br")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 1026, infos.Rank)
+	assert.Equal(t, 1268, infos.Total)
+}
+
 func TestExtractPlanets_fieldsFilled(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_fields_filled.html")
 	planets := extractPlanets(string(pageHTMLBytes), nil)
@@ -327,6 +337,21 @@ func TestExtractPlanets_fr(t *testing.T) {
 	assert.Equal(t, 88, planets[0].Temperature.Max)
 	assert.Equal(t, 0, planets[0].Fields.Built)
 	assert.Equal(t, 188, planets[0].Fields.Total)
+	assert.Equal(t, 12800, planets[0].Diameter)
+}
+
+func TestExtractPlanets_br(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
+	planets := extractPlanets(string(pageHTMLBytes), &OGame{language: "br"})
+	assert.Equal(t, 1, len(planets))
+	assert.Equal(t, PlanetID(33633767), planets[0].ID)
+	assert.Equal(t, Coordinate{Galaxy: 1, System: 449, Position: 12}, planets[0].Coordinate)
+	assert.Equal(t, "Planeta Principal", planets[0].Name)
+	assert.Equal(t, "https://gf3.geo.gfsrv.net/cdne8/41d05740ce1a534f5ec77feb11f100.png", planets[0].Img)
+	assert.Equal(t, -13, planets[0].Temperature.Min)
+	assert.Equal(t, 27, planets[0].Temperature.Max)
+	assert.Equal(t, 5, planets[0].Fields.Built)
+	assert.Equal(t, 193, planets[0].Fields.Total)
 	assert.Equal(t, 12800, planets[0].Diameter)
 }
 

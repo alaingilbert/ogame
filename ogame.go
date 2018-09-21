@@ -32,6 +32,7 @@ import (
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	GetSession() string
+	AddAccount(number int, lang string) (NewAccount, error)
 	GetServer() Server
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
@@ -1131,7 +1132,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	}
 
 	txt := goquery.NewDocumentFromNode(root).Text()
-	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de )?([-\d]+).+C\s*(?:bis|to|à|a) ([-\d]+).+C`)
+	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de )?([-\d]+).+C\s*(?:bis|para|to|à|a) ([-\d]+).+C`)
 	m := planetInfosRgx.FindStringSubmatch(txt)
 	if len(m) < 10 {
 		return Planet{}, errors.New("failed to parse planet infos: " + txt)
@@ -1301,6 +1302,22 @@ func name2id(name string) ID {
 		"sondedespionnage":       EspionageProbeID,
 		"satellitesolaire":       SolarSatelliteID,
 
+		// br
+		"cacaligeiro":       LightFighterID,
+		"cacapesado":        HeavyFighterID,
+		"cruzador":          CruiserID,
+		"navedebatalha":     BattleshipID,
+		"interceptador":     BattlecruiserID,
+		"bombardeiro":       BomberID,
+		"destruidor":        DestroyerID,
+		"estreladamorte":    DeathstarID,
+		"cargueiropequeno":  SmallCargoID,
+		"cargueirogrande":   LargeCargoID,
+		"navecolonizadora":  ColonyShipID,
+		"sondadeespionagem": EspionageProbeID,
+		//"reciclador":        RecyclerID,
+		//"satelitesolar":     SolarSatelliteID,
+
 		// jp
 		"軽戦闘機":      LightFighterID,
 		"重戦闘機":      HeavyFighterID,
@@ -1350,6 +1367,8 @@ func extractUserInfos(pageHTML, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Platz ([\d.]+) von ([\d.]+)\)`)
 	case "es":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Lugar ([\d.]+) de ([\d.]+)\)`)
+	case "br":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posi\\u00e7\\u00e3o ([\d.]+) de ([\d.]+)\)`)
 	case "jp":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+)\\u4eba\\u4e2d([\d.]+)\\u4f4d\)`)
 	}
@@ -2830,6 +2849,47 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 // GetSession get ogame session
 func (b *OGame) GetSession() string {
 	return b.ogameSession
+}
+
+type NewAccount struct {
+	ID     int
+	Server struct {
+		Language string
+		Number   int
+	}
+}
+
+// AddAccount add a new account (server) to your list of accounts
+func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
+	var payload struct {
+		Language string `json:"language"`
+		Number   int    `json:"number"`
+	}
+	payload.Language = lang
+	payload.Number = number
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return NewAccount{}, err
+	}
+	req, err := http.NewRequest("PUT", "https://lobby-api.ogame.gameforge.com/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return NewAccount{}, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := b.client.Do(req)
+	if err != nil {
+		return NewAccount{}, err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return NewAccount{}, err
+	}
+	var newAccount NewAccount
+	if err := json.Unmarshal(by, &newAccount); err != nil {
+		return NewAccount{}, err
+	}
+	return newAccount, nil
 }
 
 // GetServer get ogame server information that the bot is connected to
