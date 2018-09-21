@@ -2768,10 +2768,10 @@ func (b *OGame) deleteMessage(msgID int) error {
 	return nil
 }
 
-func energyProduced(temp Temperature, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology, solarSatellite int) int {
+func energyProduced(temp Temperature, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology int) int {
 	energyProduced := int(float64(SolarPlant.Production(resourcesBuildings.SolarPlant)) * (float64(resSettings.SolarPlant) / 100))
 	energyProduced += int(float64(FusionReactor.Production(energyTechnology, resourcesBuildings.FusionReactor)) * (float64(resSettings.FusionReactor) / 100))
-	energyProduced += int(float64(SolarSatellite.Production(temp, solarSatellite)) * (float64(resSettings.SolarSatellite) / 100))
+	energyProduced += int(float64(SolarSatellite.Production(temp, resourcesBuildings.SolarSatellite)) * (float64(resSettings.SolarSatellite) / 100))
 	return energyProduced
 }
 
@@ -2783,7 +2783,7 @@ func energyNeeded(resourcesBuildings ResourcesBuildings, resSettings ResourceSet
 }
 
 func productionRatio(temp Temperature, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology int) float64 {
-	energyProduced := energyProduced(temp, resourcesBuildings, resSettings, energyTechnology, resourcesBuildings.SolarSatellite)
+	energyProduced := energyProduced(temp, resourcesBuildings, resSettings, energyTechnology)
 	energyNeeded := energyNeeded(resourcesBuildings, resSettings)
 	ratio := 1.0
 	if energyNeeded > energyProduced {
@@ -2794,12 +2794,12 @@ func productionRatio(temp Temperature, resourcesBuildings ResourcesBuildings, re
 
 func getProductions(resBuildings ResourcesBuildings, resSettings ResourceSettings, researches Researches, universeSpeed int,
 	temp Temperature, productionRatio float64) Resources {
-	energyProduced := energyProduced(temp, resBuildings, resSettings, researches.EnergyTechnology, resBuildings.SolarSatellite)
+	energyProduced := energyProduced(temp, resBuildings, resSettings, researches.EnergyTechnology)
 	energyNeeded := energyNeeded(resBuildings, resSettings)
 	return Resources{
-		Metal:     MetalMine.Production(universeSpeed, productionRatio, resBuildings.MetalMine),
-		Crystal:   CrystalMine.Production(universeSpeed, productionRatio, resBuildings.CrystalMine),
-		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Max, productionRatio, resBuildings.DeuteriumSynthesizer),
+		Metal:     MetalMine.Production(universeSpeed, productionRatio, researches.PlasmaTechnology, resBuildings.MetalMine),
+		Crystal:   CrystalMine.Production(universeSpeed, productionRatio, researches.PlasmaTechnology, resBuildings.CrystalMine),
+		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), productionRatio, resBuildings.DeuteriumSynthesizer),
 		Energy:    energyProduced - energyNeeded,
 	}
 }

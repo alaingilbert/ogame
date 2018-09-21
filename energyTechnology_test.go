@@ -12,3 +12,9 @@ func TestEnergyTechnologyConstructionTime(t *testing.T) {
 	ct := mm.ConstructionTime(5, 7, Facilities{ResearchLab: 3})
 	assert.Equal(t, 1645*time.Second, ct)
 }
+
+func TestEnergyTechnology_GetLevel(t *testing.T) {
+	et := newEnergyTechnology()
+	l := et.GetLevel(ResourcesBuildings{}, Facilities{}, Researches{EnergyTechnology: 4})
+	assert.Equal(t, 4, l)
+}

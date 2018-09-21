@@ -19,10 +19,10 @@ import "os"
 import "github.com/alaingilbert/ogame"
 
 func main() {
-	universe := os.Getenv("UNIVERSE")
-	username := os.Getenv("USERNAME")
-	password := os.Getenv("PASSWORD")
-	language := os.Getenv("LANGUAGE")
+	universe := os.Getenv("UNIVERSE") // eg: Bellatrix
+	username := os.Getenv("USERNAME") // eg: email@gmail.com
+	password := os.Getenv("PASSWORD") // eg: *****
+	language := os.Getenv("LANGUAGE") // eg: en
 	bot, _ := ogame.New(universe, username, password, language)
 	attacked := bot.IsUnderAttack()
 	fmt.Println(attacked) // False

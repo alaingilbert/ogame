@@ -19,3 +19,38 @@ func TestSet(t *testing.T) {
 	assert.Equal(t, 2, s.ByID(DeathstarID))
 	assert.Equal(t, 4, s.ByID(SolarSatelliteID))
 }
+
+func TestShipsInfos_String(t *testing.T) {
+	s := ShipsInfos{
+		LightFighter:   1,
+		HeavyFighter:   2,
+		Cruiser:        3,
+		Battleship:     4,
+		Battlecruiser:  5,
+		Bomber:         6,
+		Destroyer:      7,
+		Deathstar:      8,
+		SmallCargo:     9,
+		LargeCargo:     10,
+		ColonyShip:     11,
+		Recycler:       12,
+		EspionageProbe: 13,
+		SolarSatellite: 14,
+	}
+	expected := "\n" +
+		"  Light Fighter: 1\n" +
+		"  Heavy Fighter: 2\n" +
+		"        Cruiser: 3\n" +
+		"     Battleship: 4\n" +
+		"  Battlecruiser: 5\n" +
+		"         Bomber: 6\n" +
+		"      Destroyer: 7\n" +
+		"      Deathstar: 8\n" +
+		"    Small Cargo: 9\n" +
+		"    Large Cargo: 10\n" +
+		"    Colony Ship: 11\n" +
+		"       Recycler: 12\n" +
+		"Espionage Probe: 13\n" +
+		"Solar Satellite: 14"
+	assert.Equal(t, expected, s.String())
+}

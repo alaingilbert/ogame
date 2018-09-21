@@ -6,6 +6,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestID_IsSet(t *testing.T) {
+	assert.True(t, AllianceDepotID.IsSet())
+	assert.False(t, ID(0).IsSet())
+}
+
 func TestID_Int(t *testing.T) {
 	assert.Equal(t, 34, AllianceDepotID.Int())
 }

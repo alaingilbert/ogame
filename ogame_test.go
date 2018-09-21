@@ -8,6 +8,34 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestProductionRatio(t *testing.T) {
+	ratio := productionRatio(
+		Temperature{-23, 17},
+		ResourcesBuildings{MetalMine: 29, CrystalMine: 16, DeuteriumSynthesizer: 26, SolarPlant: 29, FusionReactor: 13, SolarSatellite: 51},
+		ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100},
+		12,
+	)
+	assert.Equal(t, 1.0, ratio)
+}
+
+func TestEnergyNeeded(t *testing.T) {
+	needed := energyNeeded(
+		ResourcesBuildings{MetalMine: 29, CrystalMine: 16, DeuteriumSynthesizer: 26},
+		ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100},
+	)
+	assert.Equal(t, 4601+736+6198, needed)
+}
+
+func TestEnergyProduced(t *testing.T) {
+	produced := energyProduced(
+		Temperature{-23, 17},
+		ResourcesBuildings{SolarPlant: 29, FusionReactor: 13, SolarSatellite: 51},
+		ResourceSettings{SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100},
+		12,
+	)
+	assert.Equal(t, 9200+3002+1326, produced)
+}
+
 func TestExtractFleet1Ships(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1.html")
 	s := extractFleet1Ships(string(pageHTMLBytes))
@@ -616,6 +644,7 @@ func TestGalaxyDistance(t *testing.T) {
 	assert.Equal(t, 60000, galaxyDistance(1, 4, 6, true))
 	assert.Equal(t, 40000, galaxyDistance(1, 5, 6, true))
 	assert.Equal(t, 20000, galaxyDistance(1, 6, 6, true))
+	assert.Equal(t, 20000, galaxyDistance(6, 1, 6, true))
 }
 
 func TestSystemDistance(t *testing.T) {
@@ -625,10 +654,17 @@ func TestSystemDistance(t *testing.T) {
 	assert.Equal(t, 2795, systemDistance(1, 499, true))
 	assert.Equal(t, 2890, systemDistance(1, 3, true))
 	assert.Equal(t, 2890, systemDistance(1, 498, true))
+	assert.Equal(t, 2890, systemDistance(498, 1, true))
 }
 
 func TestPlanetDistance(t *testing.T) {
 	assert.Equal(t, 1015, planetDistance(6, 3))
+}
+
+func TestDistance(t *testing.T) {
+	assert.Equal(t, 1015, distance(Coordinate{1, 1, 3}, Coordinate{1, 1, 6}, 6, true, true))
+	assert.Equal(t, 2890, distance(Coordinate{1, 1, 3}, Coordinate{1, 498, 6}, 6, true, true))
+	assert.Equal(t, 20000, distance(Coordinate{6, 1, 3}, Coordinate{1, 498, 6}, 6, true, true))
 }
 
 func TestCalcFlightTime(t *testing.T) {
