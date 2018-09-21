@@ -32,6 +32,7 @@ import (
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	GetSession() string
+	AddAccount(number int, lang string) (NewAccount, error)
 	GetServer() Server
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
@@ -2830,6 +2831,47 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 // GetSession get ogame session
 func (b *OGame) GetSession() string {
 	return b.ogameSession
+}
+
+type NewAccount struct {
+	ID     int
+	Server struct {
+		Language string
+		Number   int
+	}
+}
+
+// AddAccount add a new account (server) to your list of accounts
+func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
+	var payload struct {
+		Language string `json:"language"`
+		Number   int    `json:"number"`
+	}
+	payload.Language = lang
+	payload.Number = number
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return NewAccount{}, err
+	}
+	req, err := http.NewRequest("PUT", "https://lobby-api.ogame.gameforge.com/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return NewAccount{}, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := b.client.Do(req)
+	if err != nil {
+		return NewAccount{}, err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return NewAccount{}, err
+	}
+	var newAccount NewAccount
+	if err := json.Unmarshal(by, &newAccount); err != nil {
+		return NewAccount{}, err
+	}
+	return newAccount, nil
 }
 
 // GetServer get ogame server information that the bot is connected to
