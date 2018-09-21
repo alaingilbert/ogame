@@ -8,6 +8,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestProductionRatio(t *testing.T) {
+	ratio := productionRatio(
+		Temperature{-23, 17},
+		ResourcesBuildings{MetalMine: 29, CrystalMine: 16, DeuteriumSynthesizer: 26, SolarPlant: 29, FusionReactor: 13, SolarSatellite: 51},
+		ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100},
+		12,
+	)
+	assert.Equal(t, 1.0, ratio)
+}
+
 func TestEnergyNeeded(t *testing.T) {
 	needed := energyNeeded(
 		ResourcesBuildings{MetalMine: 29, CrystalMine: 16, DeuteriumSynthesizer: 26},
