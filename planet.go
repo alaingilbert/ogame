@@ -19,7 +19,7 @@ type Temperature struct {
 	Max int
 }
 
-// Mean returns the mean temperature of the planet
+// Mean returns the planet mean temperature
 func (t *Temperature) Mean() int {
 	return int(math.Round(float64(t.Min+t.Max) / 2))
 }
