@@ -8,6 +8,25 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestEnergyNeeded(t *testing.T) {
+	needed := energyNeeded(
+		ResourcesBuildings{MetalMine: 29, CrystalMine: 16, DeuteriumSynthesizer: 26},
+		ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100},
+	)
+	assert.Equal(t, 4601+736+6198, needed)
+}
+
+func TestEnergyProduced(t *testing.T) {
+	produced := energyProduced(
+		Temperature{-23, 17},
+		ResourcesBuildings{SolarPlant: 29, FusionReactor: 13 /*, SolarSatellite: 51*/},
+		ResourceSettings{SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100},
+		12,
+		51,
+	)
+	assert.Equal(t, 9200+3002+1326, produced)
+}
+
 func TestExtractFleet1Ships(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1.html")
 	s := extractFleet1Ships(string(pageHTMLBytes))
