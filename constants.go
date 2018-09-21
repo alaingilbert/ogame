@@ -6,14 +6,62 @@ import "strconv"
 type MissionID int
 
 func (m MissionID) String() string {
-	return strconv.Itoa(int(m))
+	switch m {
+	case Attack:
+		return "Attack"
+	case GroupedAttack:
+		return "GroupedAttack"
+	case Transport:
+		return "Transport"
+	case Park:
+		return "Park"
+	case ParkInThatAlly:
+		return "ParkInThatAlly"
+	case Spy:
+		return "Spy"
+	case Colonize:
+		return "Colonize"
+	case RecycleDebrisField:
+		return "RecycleDebrisField"
+	case Destroy:
+		return "Destroy"
+	case MissileAttack:
+		return "MissileAttack"
+	case Expedition:
+		return "Expedition"
+	default:
+		return strconv.Itoa(int(m))
+	}
 }
 
 // Speed represent a fleet speed
 type Speed int
 
 func (s Speed) String() string {
-	return strconv.Itoa(int(s))
+	switch s {
+	case TenPercent:
+		return "10%"
+	case TwentyPercent:
+		return "20%"
+	case ThirtyPercent:
+		return "30%"
+	case FourtyPercent:
+		return "40%"
+	case FiftyPercent:
+		return "50%"
+	case SixtyPercent:
+		return "60%"
+	case SeventyPercent:
+		return "70%"
+	case EightyPercent:
+		return "80%"
+	case NinetyPercent:
+		return "90%"
+	case HundredPercent:
+		return "100%"
+	default:
+		return strconv.Itoa(int(s))
+	}
 }
 
 // OGame constants
