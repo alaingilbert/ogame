@@ -1132,7 +1132,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	}
 
 	txt := goquery.NewDocumentFromNode(root).Text()
-	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de )?([-\d]+).+C\s*(?:bis|to|à|a) ([-\d]+).+C`)
+	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de )?([-\d]+).+C\s*(?:bis|para|to|à|a) ([-\d]+).+C`)
 	m := planetInfosRgx.FindStringSubmatch(txt)
 	if len(m) < 10 {
 		return Planet{}, errors.New("failed to parse planet infos: " + txt)
@@ -1302,6 +1302,22 @@ func name2id(name string) ID {
 		"sondedespionnage":       EspionageProbeID,
 		"satellitesolaire":       SolarSatelliteID,
 
+		// br
+		"cacaligeiro":       LightFighterID,
+		"cacapesado":        HeavyFighterID,
+		"cruzador":          CruiserID,
+		"navedebatalha":     BattleshipID,
+		"interceptador":     BattlecruiserID,
+		"bombardeiro":       BomberID,
+		"destruidor":        DestroyerID,
+		"estreladamorte":    DeathstarID,
+		"cargueiropequeno":  SmallCargoID,
+		"cargueirogrande":   LargeCargoID,
+		"navecolonizadora":  ColonyShipID,
+		"sondadeespionagem": EspionageProbeID,
+		//"reciclador":        RecyclerID,
+		//"satelitesolar":     SolarSatelliteID,
+
 		// jp
 		"軽戦闘機":      LightFighterID,
 		"重戦闘機":      HeavyFighterID,
@@ -1351,6 +1367,8 @@ func extractUserInfos(pageHTML, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Platz ([\d.]+) von ([\d.]+)\)`)
 	case "es":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Lugar ([\d.]+) de ([\d.]+)\)`)
+	case "br":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posi\\u00e7\\u00e3o ([\d.]+) de ([\d.]+)\)`)
 	case "jp":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+)\\u4eba\\u4e2d([\d.]+)\\u4f4d\)`)
 	}
