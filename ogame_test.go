@@ -19,10 +19,9 @@ func TestEnergyNeeded(t *testing.T) {
 func TestEnergyProduced(t *testing.T) {
 	produced := energyProduced(
 		Temperature{-23, 17},
-		ResourcesBuildings{SolarPlant: 29, FusionReactor: 13 /*, SolarSatellite: 51*/},
+		ResourcesBuildings{SolarPlant: 29, FusionReactor: 13, SolarSatellite: 51},
 		ResourceSettings{SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100},
 		12,
-		51,
 	)
 	assert.Equal(t, 9200+3002+1326, produced)
 }
