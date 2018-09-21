@@ -9,7 +9,7 @@ type Fields struct {
 }
 
 // HasFieldAvailable returns either or not we can still build on this planet
-func (f *Fields) HasFieldAvailable() bool {
+func (f Fields) HasFieldAvailable() bool {
 	return f.Built < f.Total
 }
 
@@ -20,7 +20,7 @@ type Temperature struct {
 }
 
 // Mean returns the planet mean temperature
-func (t *Temperature) Mean() int {
+func (t Temperature) Mean() int {
 	return int(math.Round(float64(t.Min+t.Max) / 2))
 }
 
