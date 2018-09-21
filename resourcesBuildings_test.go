@@ -27,6 +27,7 @@ func TestResourcesBuildings_ByID(t *testing.T) {
 	assert.Equal(t, 7, r.ByID(MetalStorageID))
 	assert.Equal(t, 8, r.ByID(CrystalStorageID))
 	assert.Equal(t, 9, r.ByID(DeuteriumTankID))
+	assert.Equal(t, 0, r.ByID(ID(12345)))
 }
 
 func TestResourcesBuildings_String(t *testing.T) {
