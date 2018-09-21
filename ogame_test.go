@@ -644,6 +644,7 @@ func TestGalaxyDistance(t *testing.T) {
 	assert.Equal(t, 60000, galaxyDistance(1, 4, 6, true))
 	assert.Equal(t, 40000, galaxyDistance(1, 5, 6, true))
 	assert.Equal(t, 20000, galaxyDistance(1, 6, 6, true))
+	assert.Equal(t, 20000, galaxyDistance(6, 1, 6, true))
 }
 
 func TestSystemDistance(t *testing.T) {
@@ -653,10 +654,17 @@ func TestSystemDistance(t *testing.T) {
 	assert.Equal(t, 2795, systemDistance(1, 499, true))
 	assert.Equal(t, 2890, systemDistance(1, 3, true))
 	assert.Equal(t, 2890, systemDistance(1, 498, true))
+	assert.Equal(t, 2890, systemDistance(498, 1, true))
 }
 
 func TestPlanetDistance(t *testing.T) {
 	assert.Equal(t, 1015, planetDistance(6, 3))
+}
+
+func TestDistance(t *testing.T) {
+	assert.Equal(t, 1015, distance(Coordinate{1, 1, 3}, Coordinate{1, 1, 6}, 6, true, true))
+	assert.Equal(t, 2890, distance(Coordinate{1, 1, 3}, Coordinate{1, 498, 6}, 6, true, true))
+	assert.Equal(t, 20000, distance(Coordinate{6, 1, 3}, Coordinate{1, 498, 6}, 6, true, true))
 }
 
 func TestCalcFlightTime(t *testing.T) {
