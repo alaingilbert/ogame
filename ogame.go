@@ -1169,9 +1169,8 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 }
 
 func extractPlanet(pageHTML string, planetID PlanetID, b *OGame) (Planet, error) {
-	planetIDStr := planetID.String()
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
-	s := doc.Find("div#planet-" + planetIDStr)
+	s := doc.Find("div#planet-" + planetID.String())
 	if len(s.Nodes) > 0 { // planet
 		return extractPlanetFromSelection(s, b)
 	}
@@ -1194,8 +1193,7 @@ func (b *OGame) getPlanetByCoord(coord Coordinate) (Planet, error) {
 }
 
 func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetIDStr}})
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetID.String()}})
 	return extractPlanet(pageHTML, planetID, b)
 }
 
@@ -1792,8 +1790,7 @@ func (b *OGame) galaxyInfos(galaxy, system int) ([]PlanetInfos, error) {
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"resourceSettings"}, "cp": {planetIDStr}})
+	pageHTML := b.getPageContent(url.Values{"page": {"resourceSettings"}, "cp": {planetID.String()}})
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
@@ -1859,9 +1856,7 @@ func getNbr(doc *goquery.Document, name string) int {
 	return parseInt(level.Contents().Text())
 }
 
-func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {planetIDStr}})
+func extractResourcesBuildings(pageHTML string) (ResourcesBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -1903,12 +1898,6 @@ func extractDefense(pageHTML string) (DefensesInfos, error) {
 	return res, nil
 }
 
-func (b *OGame) getDefense(planetID PlanetID) (DefensesInfos, error) {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {planetIDStr}})
-	return extractDefense(pageHTML)
-}
-
 func extractShips(pageHTML string) (ShipsInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
@@ -1935,12 +1924,6 @@ func extractShips(pageHTML string) (ShipsInfos, error) {
 	return res, nil
 }
 
-func (b *OGame) getShips(planetID PlanetID) (ShipsInfos, error) {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetIDStr}})
-	return extractShips(pageHTML)
-}
-
 func extractFacilities(pageHTML string) (Facilities, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
@@ -1960,9 +1943,52 @@ func extractFacilities(pageHTML string) (Facilities, error) {
 	return res, nil
 }
 
+func extractResearch(pageHTML string) Researches {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc.Find("span.textlabel").Remove()
+	res := Researches{}
+	res.EnergyTechnology = getNbr(doc, "research113")
+	res.LaserTechnology = getNbr(doc, "research120")
+	res.IonTechnology = getNbr(doc, "research121")
+	res.HyperspaceTechnology = getNbr(doc, "research114")
+	res.PlasmaTechnology = getNbr(doc, "research122")
+	res.CombustionDrive = getNbr(doc, "research115")
+	res.ImpulseDrive = getNbr(doc, "research117")
+	res.HyperspaceDrive = getNbr(doc, "research118")
+	res.EspionageTechnology = getNbr(doc, "research106")
+	res.ComputerTechnology = getNbr(doc, "research108")
+	res.Astrophysics = getNbr(doc, "research124")
+	res.IntergalacticResearchNetwork = getNbr(doc, "research123")
+	res.GravitonTechnology = getNbr(doc, "research199")
+	res.WeaponsTechnology = getNbr(doc, "research109")
+	res.ShieldingTechnology = getNbr(doc, "research110")
+	res.ArmourTechnology = getNbr(doc, "research111")
+
+	return res
+}
+
+func (b *OGame) getResearch() Researches {
+	pageHTML := b.getPageContent(url.Values{"page": {"research"}})
+	return extractResearch(pageHTML)
+}
+
+func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {planetID.String()}})
+	return extractResourcesBuildings(pageHTML)
+}
+
+func (b *OGame) getDefense(planetID PlanetID) (DefensesInfos, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {planetID.String()}})
+	return extractDefense(pageHTML)
+}
+
+func (b *OGame) getShips(planetID PlanetID) (ShipsInfos, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetID.String()}})
+	return extractShips(pageHTML)
+}
+
 func (b *OGame) getFacilities(planetID PlanetID) (Facilities, error) {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {planetIDStr}})
+	pageHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {planetID.String()}})
 	return extractFacilities(pageHTML)
 }
 
@@ -1997,38 +2023,8 @@ func extractProduction(pageHTML string) ([]Quantifiable, error) {
 }
 
 func (b *OGame) getProduction(planetID PlanetID) ([]Quantifiable, error) {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetIDStr}})
+	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetID.String()}})
 	return extractProduction(pageHTML)
-}
-
-func extractResearch(pageHTML string) Researches {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
-	doc.Find("span.textlabel").Remove()
-	res := Researches{}
-	res.EnergyTechnology = getNbr(doc, "research113")
-	res.LaserTechnology = getNbr(doc, "research120")
-	res.IonTechnology = getNbr(doc, "research121")
-	res.HyperspaceTechnology = getNbr(doc, "research114")
-	res.PlasmaTechnology = getNbr(doc, "research122")
-	res.CombustionDrive = getNbr(doc, "research115")
-	res.ImpulseDrive = getNbr(doc, "research117")
-	res.HyperspaceDrive = getNbr(doc, "research118")
-	res.EspionageTechnology = getNbr(doc, "research106")
-	res.ComputerTechnology = getNbr(doc, "research108")
-	res.Astrophysics = getNbr(doc, "research124")
-	res.IntergalacticResearchNetwork = getNbr(doc, "research123")
-	res.GravitonTechnology = getNbr(doc, "research199")
-	res.WeaponsTechnology = getNbr(doc, "research109")
-	res.ShieldingTechnology = getNbr(doc, "research110")
-	res.ArmourTechnology = getNbr(doc, "research111")
-
-	return res
-}
-
-func (b *OGame) getResearch() Researches {
-	pageHTML := b.getPageContent(url.Values{"page": {"research"}})
-	return extractResearch(pageHTML)
 }
 
 func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
@@ -2044,7 +2040,6 @@ func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
 	} else {
 		return errors.New("invalid id " + id.String())
 	}
-	planetIDStr := planetID.String()
 	payload := url.Values{
 		"modus": {"1"},
 		"type":  {strconv.Itoa(int(id))},
@@ -2052,7 +2047,7 @@ func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
 
 	// Techs don't have a token
 	if !id.IsTech() {
-		pageHTML := b.getPageContent(url.Values{"page": {page}, "cp": {planetIDStr}})
+		pageHTML := b.getPageContent(url.Values{"page": {page}, "cp": {planetID.String()}})
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 		if err != nil {
 			return err
@@ -2068,7 +2063,7 @@ func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
 		payload.Add("menge", strconv.Itoa(nbr))
 	}
 
-	url2 := b.serverURL + "/game/index.php?page=" + page + "&cp=" + planetIDStr
+	url2 := b.serverURL + "/game/index.php?page=" + page + "&cp=" + planetID.String()
 	resp, err := b.client.PostForm(url2, payload)
 	if err != nil {
 		return err
@@ -2136,8 +2131,7 @@ func extractConstructions(pageHTML string) (buildingID ID, buildingCountdown int
 }
 
 func (b *OGame) constructionsBeingBuilt(planetID PlanetID) (ID, int, ID, int) {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetIDStr}})
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetID.String()}})
 	return extractConstructions(pageHTML)
 }
 
@@ -2190,22 +2184,19 @@ func (b *OGame) cancel(planetID PlanetID, token string, techID, listID int) erro
 }
 
 func (b *OGame) cancelBuilding(planetID PlanetID) error {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetIDStr}})
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetID.String()}})
 	token, techID, listID, _ := extractCancelBuildingInfos(pageHTML)
 	return b.cancel(planetID, token, techID, listID)
 }
 
 func (b *OGame) cancelResearch(planetID PlanetID) error {
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetIDStr}})
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetID.String()}})
 	token, techID, listID, _ := extractCancelResearchInfos(pageHTML)
 	return b.cancel(planetID, token, techID, listID)
 }
 
 func (b *OGame) fetchResources(planetID PlanetID) (resourcesResp, error) {
-	planetIDStr := planetID.String()
-	pageJSON := b.getPageContent(url.Values{"page": {"fetchResources"}, "cp": {planetIDStr}})
+	pageJSON := b.getPageContent(url.Values{"page": {"fetchResources"}, "cp": {planetID.String()}})
 	var res resourcesResp
 	if err := json.Unmarshal([]byte(pageJSON), &res); err != nil {
 		if isLogged(pageJSON) {
@@ -2252,8 +2243,7 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 		})
 		return fields
 	}
-	planetIDStr := planetID.String()
-	pageHTML := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {planetIDStr}})
+	pageHTML := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {planetID.String()}})
 
 	fleet1Doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
