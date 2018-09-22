@@ -1943,6 +1943,35 @@ func extractFacilities(pageHTML string) (Facilities, error) {
 	return res, nil
 }
 
+func extractResearch(pageHTML string) Researches {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc.Find("span.textlabel").Remove()
+	res := Researches{}
+	res.EnergyTechnology = getNbr(doc, "research113")
+	res.LaserTechnology = getNbr(doc, "research120")
+	res.IonTechnology = getNbr(doc, "research121")
+	res.HyperspaceTechnology = getNbr(doc, "research114")
+	res.PlasmaTechnology = getNbr(doc, "research122")
+	res.CombustionDrive = getNbr(doc, "research115")
+	res.ImpulseDrive = getNbr(doc, "research117")
+	res.HyperspaceDrive = getNbr(doc, "research118")
+	res.EspionageTechnology = getNbr(doc, "research106")
+	res.ComputerTechnology = getNbr(doc, "research108")
+	res.Astrophysics = getNbr(doc, "research124")
+	res.IntergalacticResearchNetwork = getNbr(doc, "research123")
+	res.GravitonTechnology = getNbr(doc, "research199")
+	res.WeaponsTechnology = getNbr(doc, "research109")
+	res.ShieldingTechnology = getNbr(doc, "research110")
+	res.ArmourTechnology = getNbr(doc, "research111")
+
+	return res
+}
+
+func (b *OGame) getResearch() Researches {
+	pageHTML := b.getPageContent(url.Values{"page": {"research"}})
+	return extractResearch(pageHTML)
+}
+
 func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {planetID.String()}})
 	return extractResourcesBuildings(pageHTML)
@@ -1996,35 +2025,6 @@ func extractProduction(pageHTML string) ([]Quantifiable, error) {
 func (b *OGame) getProduction(planetID PlanetID) ([]Quantifiable, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetID.String()}})
 	return extractProduction(pageHTML)
-}
-
-func extractResearch(pageHTML string) Researches {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
-	doc.Find("span.textlabel").Remove()
-	res := Researches{}
-	res.EnergyTechnology = getNbr(doc, "research113")
-	res.LaserTechnology = getNbr(doc, "research120")
-	res.IonTechnology = getNbr(doc, "research121")
-	res.HyperspaceTechnology = getNbr(doc, "research114")
-	res.PlasmaTechnology = getNbr(doc, "research122")
-	res.CombustionDrive = getNbr(doc, "research115")
-	res.ImpulseDrive = getNbr(doc, "research117")
-	res.HyperspaceDrive = getNbr(doc, "research118")
-	res.EspionageTechnology = getNbr(doc, "research106")
-	res.ComputerTechnology = getNbr(doc, "research108")
-	res.Astrophysics = getNbr(doc, "research124")
-	res.IntergalacticResearchNetwork = getNbr(doc, "research123")
-	res.GravitonTechnology = getNbr(doc, "research199")
-	res.WeaponsTechnology = getNbr(doc, "research109")
-	res.ShieldingTechnology = getNbr(doc, "research110")
-	res.ArmourTechnology = getNbr(doc, "research111")
-
-	return res
-}
-
-func (b *OGame) getResearch() Researches {
-	pageHTML := b.getPageContent(url.Values{"page": {"research"}})
-	return extractResearch(pageHTML)
 }
 
 func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
