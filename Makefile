@@ -1,6 +1,9 @@
 PKGS = $(shell go list ./... | grep -v /vendor/ | grep -v /bindata | grep -v /cmd/c)
 VERSION  = $(shell git describe)
 
+all:
+	@echo "done"
+
 lint:
 	@golint $(PKGS)
 

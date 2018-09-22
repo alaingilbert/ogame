@@ -2,15 +2,16 @@ package main
 
 import (
 	"C"
+
 	"github.com/alaingilbert/ogame"
 )
 
 var bot *ogame.OGame
 
 //export OGame
-func OGame(universe, username, password *C.char) (errorMsg *C.char) {
+func OGame(universe, username, password, language *C.char) (errorMsg *C.char) {
 	var err error
-	bot, err = ogame.New(C.GoString(universe), C.GoString(username), C.GoString(password))
+	bot, err = ogame.New(C.GoString(universe), C.GoString(username), C.GoString(password), C.GoString(language))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -131,45 +132,45 @@ func GetPlanet(planetID C.int) (id C.int, name *C.char, diameter, galaxy, system
 // TODO: GetEspionageReportMessageIDs
 
 //export GetEspionageReport
-func GetEspionageReport(msgID C.int) (metal, crystal, deuterium, metalMine, crystalMine, deuteriumSynthesizer,
-	solarPlant, fusionReactor, metalStorage, crystalStorage, deuteriumTank, roboticsFactory, shipyard,
-	researchLab, allianceDepot, missileSilo, naniteFactory, terraformer, spaceDock, energyTechnology, laserTechnology,
-	ionTechnology, hyperspaceTechnology, plasmaTechnology, combustionDrive, impulseDrive, hyperspaceDrive,
-	espionageTechnology, computerTechnology, astrophysics, intergalacticResearchNetwork, gravitonTechnology,
-	weaponsTechnology, shieldingTechnology, armourTechnology, lightFighter, heavyFighter, cruiser, battleship,
-	battlecruiser, bomber, destroyer, deathstar, smallCargo, largeCargo, colonyShip, recycler, espionageProbe,
-	solarSatellite, rocketLauncher, lightLaser, heavyLaser, gaussCannon, ionCannon, plasmaTurret,
-	smallShieldDome, largeShieldDome, antiBallisticMissiles, interplanetaryMissiles,
-	galaxy, system, position C.int, errorMsg *C.char) {
-	r, err := bot.GetEspionageReport(int(msgID))
-	if err != nil {
-		errorMsg = C.CString(err.Error())
-		return
-	}
-	return C.int(r.Resources.Metal), C.int(r.Resources.Crystal), C.int(r.Resources.Deuterium),
-		C.int(r.ResourcesBuildings.MetalMine), C.int(r.ResourcesBuildings.CrystalMine),
-		C.int(r.ResourcesBuildings.DeuteriumSynthesizer), C.int(r.ResourcesBuildings.SolarPlant),
-		C.int(r.ResourcesBuildings.FusionReactor), C.int(r.ResourcesBuildings.MetalStorage),
-		C.int(r.ResourcesBuildings.CrystalStorage), C.int(r.ResourcesBuildings.DeuteriumTank),
-		C.int(r.Facilities.RoboticsFactory), C.int(r.Facilities.Shipyard), C.int(r.Facilities.ResearchLab),
-		C.int(r.Facilities.AllianceDepot), C.int(r.Facilities.MissileSilo), C.int(r.Facilities.NaniteFactory),
-		C.int(r.Facilities.Terraformer), C.int(r.Facilities.SpaceDock), C.int(r.Researches.EnergyTechnology),
-		C.int(r.Researches.LaserTechnology), C.int(r.Researches.IonTechnology),
-		C.int(r.Researches.HyperspaceTechnology), C.int(r.Researches.PlasmaTechnology),
-		C.int(r.Researches.CombustionDrive), C.int(r.Researches.ImpulseDrive), C.int(r.Researches.HyperspaceDrive),
-		C.int(r.Researches.EspionageTechnology), C.int(r.Researches.ComputerTechnology),
-		C.int(r.Researches.Astrophysics), C.int(r.Researches.IntergalacticResearchNetwork),
-		C.int(r.Researches.GravitonTechnology), C.int(r.Researches.WeaponsTechnology),
-		C.int(r.Researches.ShieldingTechnology), C.int(r.Researches.ArmourTechnology), C.int(r.Ships.LightFighter),
-		C.int(r.Ships.HeavyFighter), C.int(r.Ships.Cruiser), C.int(r.Ships.Battleship), C.int(r.Ships.Battlecruiser),
-		C.int(r.Ships.Bomber), C.int(r.Ships.Destroyer), C.int(r.Ships.Deathstar), C.int(r.Ships.SmallCargo),
-		C.int(r.Ships.LargeCargo), C.int(r.Ships.ColonyShip), C.int(r.Ships.Recycler), C.int(r.Ships.EspionageProbe),
-		C.int(r.Ships.SolarSatellite), C.int(r.Defense.RocketLauncher), C.int(r.Defense.LightLaser),
-		C.int(r.Defense.HeavyLaser), C.int(r.Defense.GaussCannon), C.int(r.Defense.IonCannon),
-		C.int(r.Defense.PlasmaTurret), C.int(r.Defense.SmallShieldDome), C.int(r.Defense.LargeShieldDome),
-		C.int(r.Defense.AntiBallisticMissiles), C.int(r.Defense.InterplanetaryMissiles), C.int(r.Coordinate.Galaxy),
-		C.int(r.Coordinate.System), C.int(r.Coordinate.Position), errorMsg
-}
+//func GetEspionageReport(msgID C.int) (metal, crystal, deuterium, metalMine, crystalMine, deuteriumSynthesizer,
+//	solarPlant, fusionReactor, metalStorage, crystalStorage, deuteriumTank, roboticsFactory, shipyard,
+//	researchLab, allianceDepot, missileSilo, naniteFactory, terraformer, spaceDock, energyTechnology, laserTechnology,
+//	ionTechnology, hyperspaceTechnology, plasmaTechnology, combustionDrive, impulseDrive, hyperspaceDrive,
+//	espionageTechnology, computerTechnology, astrophysics, intergalacticResearchNetwork, gravitonTechnology,
+//	weaponsTechnology, shieldingTechnology, armourTechnology, lightFighter, heavyFighter, cruiser, battleship,
+//	battlecruiser, bomber, destroyer, deathstar, smallCargo, largeCargo, colonyShip, recycler, espionageProbe,
+//	solarSatellite, rocketLauncher, lightLaser, heavyLaser, gaussCannon, ionCannon, plasmaTurret,
+//	smallShieldDome, largeShieldDome, antiBallisticMissiles, interplanetaryMissiles,
+//	galaxy, system, position C.int, errorMsg *C.char) {
+//	r, err := bot.GetEspionageReport(int(msgID))
+//	if err != nil {
+//		errorMsg = C.CString(err.Error())
+//		return
+//	}
+//	return C.int(r.Resources.Metal), C.int(r.Resources.Crystal), C.int(r.Resources.Deuterium),
+//		C.int(r.MetalMine), C.int(r.CrystalMine),
+//		C.int(r.DeuteriumSynthesizer), C.int(r.SolarPlant),
+//		C.int(r.FusionReactor), C.int(r.MetalStorage),
+//		C.int(r.CrystalStorage), C.int(r.DeuteriumTank),
+//		C.int(r.RoboticsFactory), C.int(r.Shipyard), C.int(r.ResearchLab),
+//		C.int(r.AllianceDepot), C.int(r.MissileSilo), C.int(r.NaniteFactory),
+//		C.int(r.Terraformer), C.int(r.SpaceDock), C.int(r.EnergyTechnology),
+//		C.int(r.LaserTechnology), C.int(r.IonTechnology),
+//		C.int(r.HyperspaceTechnology), C.int(r.PlasmaTechnology),
+//		C.int(r.CombustionDrive), C.int(r.ImpulseDrive), C.int(r.HyperspaceDrive),
+//		C.int(r.EspionageTechnology), C.int(r.ComputerTechnology),
+//		C.int(r.Astrophysics), C.int(r.IntergalacticResearchNetwork),
+//		C.int(r.GravitonTechnology), C.int(r.WeaponsTechnology),
+//		C.int(r.ShieldingTechnology), C.int(r.ArmourTechnology), C.int(r.LightFighter),
+//		C.int(r.HeavyFighter), C.int(r.Cruiser), C.int(r.Battleship), C.int(r.Battlecruiser),
+//		C.int(r.Bomber), C.int(r.Destroyer), C.int(r.Deathstar), C.int(r.SmallCargo),
+//		C.int(r.LargeCargo), C.int(r.ColonyShip), C.int(r.Recycler), C.int(r.EspionageProbe),
+//		C.int(r.SolarSatellite), C.int(r.RocketLauncher), C.int(r.LightLaser),
+//		C.int(r.HeavyLaser), C.int(r.GaussCannon), C.int(r.IonCannon),
+//		C.int(r.PlasmaTurret), C.int(r.SmallShieldDome), C.int(r.LargeShieldDome),
+//		C.int(r.AntiBallisticMissiles), C.int(r.InterplanetaryMissiles), C.int(r.Coordinate.Galaxy),
+//		C.int(r.Coordinate.System), C.int(r.Coordinate.Position), errorMsg
+//}
 
 //export DeleteMessage
 func DeleteMessage(msgID C.int) (errorMsg *C.char) {
@@ -365,43 +366,43 @@ func SendFleet(planetID, lightFighter, heavyFighter, cruiser, battleship, battle
 	metal, crystal, deuterium C.int) (fleetID C.int, errorMsg *C.char) {
 	ships := make([]ogame.Quantifiable, 0)
 	if int(lightFighter) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(lightFighter)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(lightFighter)})
 	}
 	if int(heavyFighter) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(heavyFighter)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(heavyFighter)})
 	}
 	if int(cruiser) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(cruiser)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(cruiser)})
 	}
 	if int(battleship) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(battleship)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(battleship)})
 	}
 	if int(battlecruiser) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(battlecruiser)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(battlecruiser)})
 	}
 	if int(bomber) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(bomber)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(bomber)})
 	}
 	if int(destroyer) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(destroyer)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(destroyer)})
 	}
 	if int(deathstar) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(deathstar)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(deathstar)})
 	}
 	if int(smallCargo) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(smallCargo)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(smallCargo)})
 	}
 	if int(largeCargo) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(largeCargo)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(largeCargo)})
 	}
 	if int(colonyShip) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(colonyShip)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(colonyShip)})
 	}
 	if int(recycler) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(recycler)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(recycler)})
 	}
 	if int(espionageProbe) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighter, Nbr: int(espionageProbe)})
+		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(espionageProbe)})
 	}
 	fleetIDInt, err := bot.SendFleet(
 		ogame.PlanetID(planetID),
