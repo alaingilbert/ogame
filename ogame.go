@@ -1876,11 +1876,6 @@ func extractResourcesBuildings(pageHTML string) (ResourcesBuildings, error) {
 	return res, nil
 }
 
-func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {planetID.String()}})
-	return extractResourcesBuildings(pageHTML)
-}
-
 func extractDefense(pageHTML string) (DefensesInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -1901,11 +1896,6 @@ func extractDefense(pageHTML string) (DefensesInfos, error) {
 	res.InterplanetaryMissiles = getNbr(doc, "defense503")
 
 	return res, nil
-}
-
-func (b *OGame) getDefense(planetID PlanetID) (DefensesInfos, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {planetID.String()}})
-	return extractDefense(pageHTML)
 }
 
 func extractShips(pageHTML string) (ShipsInfos, error) {
@@ -1934,11 +1924,6 @@ func extractShips(pageHTML string) (ShipsInfos, error) {
 	return res, nil
 }
 
-func (b *OGame) getShips(planetID PlanetID) (ShipsInfos, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetID.String()}})
-	return extractShips(pageHTML)
-}
-
 func extractFacilities(pageHTML string) (Facilities, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
@@ -1956,6 +1941,21 @@ func extractFacilities(pageHTML string) (Facilities, error) {
 	res.Terraformer = getNbr(doc, "station33")
 	res.SpaceDock = getNbr(doc, "station36")
 	return res, nil
+}
+
+func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {planetID.String()}})
+	return extractResourcesBuildings(pageHTML)
+}
+
+func (b *OGame) getDefense(planetID PlanetID) (DefensesInfos, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {planetID.String()}})
+	return extractDefense(pageHTML)
+}
+
+func (b *OGame) getShips(planetID PlanetID) (ShipsInfos, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetID.String()}})
+	return extractShips(pageHTML)
 }
 
 func (b *OGame) getFacilities(planetID PlanetID) (Facilities, error) {
