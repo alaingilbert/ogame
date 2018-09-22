@@ -8,6 +8,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractResourcesBuildings(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_inconstruction.html")
+	res, _ := extractResourcesBuildings(string(pageHTMLBytes))
+	assert.Equal(t, 19, res.MetalMine)
+	assert.Equal(t, 17, res.CrystalMine)
+	assert.Equal(t, 13, res.DeuteriumSynthesizer)
+	assert.Equal(t, 20, res.SolarPlant)
+	assert.Equal(t, 3, res.FusionReactor)
+	assert.Equal(t, 0, res.SolarSatellite)
+	assert.Equal(t, 5, res.MetalStorage)
+	assert.Equal(t, 4, res.CrystalStorage)
+	assert.Equal(t, 3, res.DeuteriumTank)
+}
+
 func TestExtractDefense(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/defence.html")
 	defense, _ := extractDefense(string(pageHTMLBytes))

@@ -1856,8 +1856,7 @@ func getNbr(doc *goquery.Document, name string) int {
 	return parseInt(level.Contents().Text())
 }
 
-func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {planetID.String()}})
+func extractResourcesBuildings(pageHTML string) (ResourcesBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -1875,6 +1874,11 @@ func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, er
 	res.CrystalStorage = getNbr(doc, "supply23")
 	res.DeuteriumTank = getNbr(doc, "supply24")
 	return res, nil
+}
+
+func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {planetID.String()}})
+	return extractResourcesBuildings(pageHTML)
 }
 
 func extractDefense(pageHTML string) (DefensesInfos, error) {
