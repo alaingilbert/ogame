@@ -96,6 +96,24 @@ func TestExtractFleet1Ships(t *testing.T) {
 	assert.Equal(t, 1001, s.EspionageProbe)
 }
 
+func TestExtractFleet1Ships_NoShips(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1_no_ships.html")
+	s := extractFleet1Ships(string(pageHTMLBytes))
+	assert.Equal(t, 0, s.LightFighter)
+	assert.Equal(t, 0, s.HeavyFighter)
+	assert.Equal(t, 0, s.Cruiser)
+	assert.Equal(t, 0, s.Battleship)
+	assert.Equal(t, 0, s.SmallCargo)
+	assert.Equal(t, 0, s.LargeCargo)
+	assert.Equal(t, 0, s.ColonyShip)
+	assert.Equal(t, 0, s.Battlecruiser)
+	assert.Equal(t, 0, s.Bomber)
+	assert.Equal(t, 0, s.Destroyer)
+	assert.Equal(t, 0, s.Deathstar)
+	assert.Equal(t, 0, s.Recycler)
+	assert.Equal(t, 0, s.EspionageProbe)
+}
+
 func TestExtractPlanet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
 	planet, _ := extractPlanet(string(pageHTMLBytes), PlanetID(33677371), &OGame{language: "en"})
