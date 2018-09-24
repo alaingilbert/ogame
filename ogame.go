@@ -2221,7 +2221,11 @@ func (b *OGame) getResources(planetID PlanetID) (Resources, error) {
 func extractFleet1Ships(pageHTML string) ShipsInfos {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	onclick := doc.Find("a#sendall").AttrOr("onclick", "")
-	m := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)[1]
+	matches := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)
+	if len(matches) == 0 {
+		return ShipsInfos{}
+	}
+	m := matches[1]
 	var res map[ID]int
 	json.Unmarshal([]byte(m), &res)
 	s := ShipsInfos{}
