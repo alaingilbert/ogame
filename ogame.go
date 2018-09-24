@@ -2243,6 +2243,8 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 		})
 		return fields
 	}
+
+	// Page 1 : get to fleet page
 	pageHTML := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {planetID.String()}})
 
 	fleet1Doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
@@ -2274,6 +2276,8 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 			payload.Add("am"+strconv.Itoa(int(s.ID)), strconv.Itoa(s.Nbr))
 		}
 	}
+
+	// Page 2 : select ships
 	fleet2URL := b.serverURL + "/game/index.php?page=fleet2"
 	fleet2Resp, err := b.client.PostForm(fleet2URL, payload)
 	if err != nil {
@@ -2340,6 +2344,7 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 		return 0, ErrPlanetAlreadyReservecForRelocation
 	}
 
+	// Page 3 : select coord, mission, speed
 	fleet3URL := b.serverURL + "/game/index.php?page=fleet3"
 	fleet3Resp, err := b.client.PostForm(fleet3URL, payload)
 	if err != nil {
@@ -2364,10 +2369,13 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
 	payload.Add("metal", strconv.Itoa(resources.Metal))
 	payload.Add("mission", mission.String())
+
+	// Page 4 : send the fleet
 	movementURL := b.serverURL + "/game/index.php?page=movement"
 	movementResp, _ := b.client.PostForm(movementURL, payload)
 	defer movementResp.Body.Close()
 
+	// Page 5
 	movementHTML := b.getPageContent(url.Values{"page": {"movement"}})
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(movementHTML))
 	matches := make([]int, 0)
