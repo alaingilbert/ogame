@@ -2368,7 +2368,7 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	payload.Add("crystal", strconv.Itoa(resources.Crystal))
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
 	payload.Add("metal", strconv.Itoa(resources.Metal))
-	payload.Add("mission", mission.String())
+	payload.Add("mission", strconv.Itoa(int(mission)))
 
 	// Page 4 : send the fleet
 	movementURL := b.serverURL + "/game/index.php?page=movement"
