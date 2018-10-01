@@ -2296,7 +2296,7 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	for k, v := range hidden {
 		payload.Add(k, v)
 	}
-	payload.Add("speed", speed.String())
+	payload.Add("speed", strconv.Itoa(int(speed)))
 	payload.Add("galaxy", strconv.Itoa(where.Galaxy))
 	payload.Add("system", strconv.Itoa(where.System))
 	payload.Add("position", strconv.Itoa(where.Position))
