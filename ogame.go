@@ -1854,7 +1854,8 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 func getNbr(doc *goquery.Document, name string) int {
 	div := doc.Find("div." + name)
 	level := div.Find("span.level")
-	return parseInt(level.Contents().Text())
+	level.Children().Remove()
+	return parseInt(level.Text())
 }
 
 func extractResourcesBuildings(pageHTML string) (ResourcesBuildings, error) {
