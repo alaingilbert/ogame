@@ -26,6 +26,7 @@ type PlanetInfos struct {
 	Inactive        bool
 	Vacation        bool
 	StrongPlayer    bool
+	Newbie          bool
 	HonorableTarget bool
 	Debris          struct {
 		Metal           int

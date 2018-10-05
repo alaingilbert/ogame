@@ -439,6 +439,12 @@ func TestExtractGalaxyInfos_strongPlayer(t *testing.T) {
 	assert.False(t, infos[2].StrongPlayer)
 }
 
+func TestExtractGalaxyInfos_newbie(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_newbie.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.True(t, infos[0].Newbie)
+}
+
 func TestExtractGalaxyInfos_moon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
