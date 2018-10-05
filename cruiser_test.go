@@ -20,3 +20,9 @@ func TestCruiser_GetFuelConsumption(t *testing.T) {
 	c := newCruiser()
 	assert.Equal(t, 300, c.GetFuelConsumption())
 }
+
+func TestCruiser_GetPrice(t *testing.T) {
+	c := newCruiser()
+	assert.Equal(t, Resources{Metal: 20000, Crystal: 7000, Deuterium: 2000}, c.GetPrice(1))
+	assert.Equal(t, Resources{Metal: 60000, Crystal: 21000, Deuterium: 6000}, c.GetPrice(3))
+}
