@@ -1730,6 +1730,7 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 			planetInfos.Img = planetImg
 			planetInfos.Inactive = strings.Contains(classes, "inactive_filter")
 			planetInfos.StrongPlayer = strings.Contains(classes, "strong_filter")
+			planetInfos.Newbie = strings.Contains(classes, "newbie_filter")
 			planetInfos.Vacation = strings.Contains(classes, "vacation_filter")
 			planetInfos.HonorableTarget = s.Find("span.status_abbr_honorableTarget").Size() > 0
 			planetInfos.Administrator = s.Find("span.status_abbr_admin").Size() > 0
