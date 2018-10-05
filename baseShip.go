@@ -7,7 +7,6 @@ type BaseShip struct {
 	BaseSpeed        int
 	FuelConsumption  int
 	RapidfireAgainst map[ID]int
-	Price            Resources
 }
 
 // GetCargoCapacity returns ship cargo capacity
