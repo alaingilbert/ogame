@@ -141,6 +141,7 @@ var (
 	Shipyard                     = newShipyard()
 	SolarPlant                   = newSolarPlant()
 	SpaceDock                    = newSpaceDock()
+	LunarBase                    = newLunarBase()
 	Terraformer                  = newTerraformer()
 	UndergroundCrystalDen        = newUndergroundCrystalDen()
 	SolarSatellite               = newSolarSatellite()
@@ -253,6 +254,7 @@ type ObjsStruct struct {
 	Shipyard                     *shipyard
 	SolarPlant                   *solarPlant
 	SpaceDock                    *spaceDock
+	LunarBase                    *lunarBase
 	Terraformer                  *terraformer
 	UndergroundCrystalDen        *undergroundCrystalDen
 	SolarSatellite               *solarSatellite
@@ -316,6 +318,7 @@ var Objs = ObjsStruct{
 	Shipyard:                     Shipyard,
 	SolarPlant:                   SolarPlant,
 	SpaceDock:                    SpaceDock,
+	LunarBase:                    LunarBase,
 	Terraformer:                  Terraformer,
 	UndergroundCrystalDen:        UndergroundCrystalDen,
 	SolarSatellite:               SolarSatellite,
