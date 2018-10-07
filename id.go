@@ -34,6 +34,12 @@ func (o ID) String() string {
 		res += "Terraformer"
 	case SpaceDockID:
 		res += "SpaceDock"
+	case LunarBaseID:
+		res += "LunarBase"
+	case SensorPhalanxID:
+		res += "SensorPhalanx"
+	case JumpGateID:
+		res += "JumpGate"
 	case MetalMineID:
 		res += "MetalMine"
 	case CrystalMineID:
