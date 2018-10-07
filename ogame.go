@@ -2366,7 +2366,7 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 		"galaxy": {strconv.Itoa(where.Galaxy)},
 		"system": {strconv.Itoa(where.System)},
 		"planet": {strconv.Itoa(where.Position)},
-		"type":   {t},
+		"type":   {strconv.Itoa(int(t))},
 	}
 	fleetCheckResp, err := b.client.PostForm(fleetCheckURL, fleetCheckPayload)
 	if err != nil {
