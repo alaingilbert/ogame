@@ -361,6 +361,19 @@ func TestExtractUserInfos_br(t *testing.T) {
 	assert.Equal(t, 1268, infos.Total)
 }
 
+func TestExtractPlanetsMoon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	planets := extractPlanets(string(pageHTMLBytes), nil)
+	assert.Equal(t, MoonID(33741598), planets[0].Moon.ID)
+	assert.Equal(t, "Moon", planets[0].Moon.Name)
+	assert.Equal(t, "https://gf1.geo.gfsrv.net/cdn9d/8e0e6034049bd64e18a1804b42f179.gif", planets[0].Moon.Img)
+	assert.Equal(t, 8774, planets[0].Moon.Diameter)
+	assert.Equal(t, Coordinate{4, 116, 12}, planets[0].Moon.Coordinate)
+	assert.Equal(t, 0, planets[0].Moon.Fields.Built)
+	assert.Equal(t, 1, planets[0].Moon.Fields.Total)
+	assert.Nil(t, planets[1].Moon)
+}
+
 func TestExtractPlanets_fieldsFilled(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_fields_filled.html")
 	planets := extractPlanets(string(pageHTMLBytes), nil)
