@@ -10,7 +10,7 @@ type AttackEvent struct {
 	MissionType     MissionID
 	Origin          Coordinate
 	Destination     Coordinate
-	DestinationType int
+	DestinationType DestinationType
 	ArrivalTime     time.Time
 	AttackerID      int
 	Missiles        int

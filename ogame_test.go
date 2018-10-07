@@ -218,7 +218,7 @@ func TestExtractAttacksWithShips(t *testing.T) {
 	attacks := extractAttacks(string(pageHTMLBytes))
 	assert.Equal(t, 1, len(attacks))
 	assert.NotNil(t, attacks[0].Ships)
-	assert.Equal(t, 1, attacks[0].DestinationType)
+	assert.Equal(t, PlanetDest, attacks[0].DestinationType)
 	assert.Equal(t, 197, attacks[0].Ships.LargeCargo)
 	assert.Equal(t, 3, attacks[0].Ships.LightFighter)
 	assert.Equal(t, 8, attacks[0].Ships.HeavyFighter)
@@ -237,7 +237,7 @@ func TestExtractAttacksMoon(t *testing.T) {
 	assert.Equal(t, 107009, attacks[0].AttackerID)
 	assert.Equal(t, Coordinate{4, 212, 8}, attacks[0].Origin)
 	assert.Equal(t, Coordinate{4, 116, 12}, attacks[0].Destination)
-	assert.Equal(t, 3, attacks[0].DestinationType)
+	assert.Equal(t, MoonDest, attacks[0].DestinationType)
 	assert.Equal(t, 1, attacks[0].Ships.SmallCargo)
 }
 
