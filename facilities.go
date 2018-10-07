@@ -2,6 +2,40 @@ package ogame
 
 import "strconv"
 
+// MoonFacilities represent a moon facilities information
+type MoonFacilities struct {
+	RoboticsFactory int
+	Shipyard        int
+	LunarBase       int
+	SensorPhalanx   int
+	JumpGate        int
+}
+
+// ByID gets the facility level by facility id
+func (f MoonFacilities) ByID(id ID) int {
+	if id == RoboticsFactoryID {
+		return f.RoboticsFactory
+	} else if id == ShipyardID {
+		return f.Shipyard
+	} else if id == LunarBaseID {
+		return f.LunarBase
+	} else if id == SensorPhalanxID {
+		return f.SensorPhalanx
+	} else if id == JumpGateID {
+		return f.JumpGate
+	}
+	return 0
+}
+
+func (f MoonFacilities) String() string {
+	return "\n" +
+		"RoboticsFactory: " + strconv.Itoa(f.RoboticsFactory) + "\n" +
+		"       Shipyard: " + strconv.Itoa(f.Shipyard) + "\n" +
+		"     Lunar Base: " + strconv.Itoa(f.LunarBase) + "\n" +
+		" Sensor Phalanx: " + strconv.Itoa(f.SensorPhalanx) + "\n" +
+		"      Jump Gate: " + strconv.Itoa(f.JumpGate)
+}
+
 // Facilities represent a planet facilities information
 type Facilities struct {
 	RoboticsFactory int
