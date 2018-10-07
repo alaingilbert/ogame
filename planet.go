@@ -34,6 +34,7 @@ type Planet struct {
 	Coordinate  Coordinate
 	Fields      Fields
 	Temperature Temperature
+	Moon        *Moon
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
