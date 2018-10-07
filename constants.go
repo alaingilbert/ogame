@@ -64,8 +64,14 @@ func (s Speed) String() string {
 	}
 }
 
+type DestinationType int
+
 // OGame constants
 const (
+	PlanetDest DestinationType = 1
+	DebrisDest DestinationType = 2
+	MoonDest   DestinationType = 3
+
 	//Buildings
 	MetalMineID                    ID = 1
 	CrystalMineID                  ID = 2

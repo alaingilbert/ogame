@@ -2351,14 +2351,14 @@ func (b *OGame) sendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, 
 	payload.Add("galaxy", strconv.Itoa(where.Galaxy))
 	payload.Add("system", strconv.Itoa(where.System))
 	payload.Add("position", strconv.Itoa(where.Position))
-	t := "1"
+	t := PlanetDest
 	if mission == RecycleDebrisField {
 		// planet type: 1
 		// debris type: 2
 		// moon type: 3
-		t = "2" // Send to debris field
+		t = DebrisDest // Send to debris field
 	}
-	payload.Add("type", t)
+	payload.Add("type", strconv.Itoa(int(t)))
 
 	// Check
 	fleetCheckURL := b.serverURL + "/game/index.php?page=fleetcheck&ajax=1&espionage=0"
