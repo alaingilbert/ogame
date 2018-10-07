@@ -1154,6 +1154,38 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	return res, nil
 }
 
+func extractMoonFromSelection(s *goquery.Selection) (*Moon, error) {
+	moonLink := s.Find("a.moonlink")
+	href, found := moonLink.Attr("href")
+	if !found {
+		return nil, errors.New("no moon found")
+	}
+	m := regexp.MustCompile(`&cp=(\d+)`).FindStringSubmatch(href)
+	id, _ := strconv.Atoi(m[1])
+	title, _ := moonLink.Attr("title")
+	root, err := html.Parse(strings.NewReader(title))
+	if err != nil {
+		return nil, err
+	}
+	txt := goquery.NewDocumentFromNode(root).Text()
+	moonInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)`)
+	mm := moonInfosRgx.FindStringSubmatch(txt)
+	if len(mm) < 8 {
+		return nil, errors.New("failed to parse moon infos: " + txt)
+	}
+	moon := new(Moon)
+	moon.ID = MoonID(id)
+	moon.Name = mm[1]
+	moon.Coordinate.Galaxy, _ = strconv.Atoi(mm[2])
+	moon.Coordinate.System, _ = strconv.Atoi(mm[3])
+	moon.Coordinate.Position, _ = strconv.Atoi(mm[4])
+	moon.Diameter = parseInt(mm[5])
+	moon.Fields.Built, _ = strconv.Atoi(mm[6])
+	moon.Fields.Total, _ = strconv.Atoi(mm[7])
+	moon.Img = moonLink.Find("img.icon-moon").AttrOr("src", "")
+	return moon, nil
+}
+
 func extractPlanets(pageHTML string, b *OGame) []Planet {
 	res := make([]Planet, 0)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
@@ -1163,6 +1195,7 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 			b.error(err)
 			return
 		}
+		planet.Moon, _ = extractMoonFromSelection(s)
 		res = append(res, planet)
 	})
 	return res
