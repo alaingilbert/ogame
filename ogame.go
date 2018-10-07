@@ -143,6 +143,7 @@ var (
 	SpaceDock                    = newSpaceDock()
 	LunarBase                    = newLunarBase()
 	SensorPhalanx                = newSensorPhalanx()
+	JumpGate                     = newJumpGate()
 	Terraformer                  = newTerraformer()
 	UndergroundCrystalDen        = newUndergroundCrystalDen()
 	SolarSatellite               = newSolarSatellite()
@@ -257,6 +258,7 @@ type ObjsStruct struct {
 	SpaceDock                    *spaceDock
 	LunarBase                    *lunarBase
 	SensorPhalanx                *sensorPhalanx
+	JumpGate                     *jumpGate
 	Terraformer                  *terraformer
 	UndergroundCrystalDen        *undergroundCrystalDen
 	SolarSatellite               *solarSatellite
@@ -322,6 +324,7 @@ var Objs = ObjsStruct{
 	SpaceDock:                    SpaceDock,
 	LunarBase:                    LunarBase,
 	SensorPhalanx:                SensorPhalanx,
+	JumpGate:                     JumpGate,
 	Terraformer:                  Terraformer,
 	UndergroundCrystalDen:        UndergroundCrystalDen,
 	SolarSatellite:               SolarSatellite,
