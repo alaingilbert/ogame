@@ -56,6 +56,16 @@ func TestExtractFacilities(t *testing.T) {
 	assert.Equal(t, 3, res.SpaceDock)
 }
 
+func TestExtractMoonFacilities(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res, _ := extractMoonFacilities(string(pageHTMLBytes))
+	assert.Equal(t, 1, res.RoboticsFactory)
+	assert.Equal(t, 2, res.Shipyard)
+	assert.Equal(t, 3, res.LunarBase)
+	assert.Equal(t, 4, res.SensorPhalanx)
+	assert.Equal(t, 5, res.JumpGate)
+}
+
 func TestExtractDefense(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/defence.html")
 	defense, _ := extractDefense(string(pageHTMLBytes))
@@ -140,6 +150,25 @@ func TestExtractPlanet(t *testing.T) {
 	planet, _ := extractPlanet(string(pageHTMLBytes), PlanetID(33677371), &OGame{language: "en"})
 	assert.Equal(t, "C1", planet.Name)
 	assert.Equal(t, 14615, planet.Diameter)
+}
+
+func TestExtractPlanet_notExists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
+	_, err := extractPlanet(string(pageHTMLBytes), PlanetID(12345), &OGame{language: "en"})
+	assert.NotNil(t, err)
+}
+
+func TestExtractPlanetByCoord(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
+	planet, _ := extractPlanetByCoord(string(pageHTMLBytes), &OGame{language: "en"}, Coordinate{1, 301, 8})
+	assert.Equal(t, "C1", planet.Name)
+	assert.Equal(t, 14615, planet.Diameter)
+}
+
+func TestExtractPlanetByCoord_notExists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
+	_, err := extractPlanetByCoord(string(pageHTMLBytes), &OGame{language: "en"}, Coordinate{1, 2, 3})
+	assert.NotNil(t, err)
 }
 
 func TestFindSlowestSpeed(t *testing.T) {
@@ -372,6 +401,36 @@ func TestExtractUserInfos_br(t *testing.T) {
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 1026, infos.Rank)
 	assert.Equal(t, 1268, infos.Total)
+}
+
+func TestExtractMoons(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	moons := extractMoons(string(pageHTMLBytes), &OGame{language: "en"})
+	assert.Equal(t, 1, len(moons))
+}
+
+func TestExtractMoon_exists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	_, err := extractMoon(string(pageHTMLBytes), &OGame{language: "en"}, MoonID(33741598))
+	assert.Nil(t, err)
+}
+
+func TestExtractMoon_notExists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	_, err := extractMoon(string(pageHTMLBytes), &OGame{language: "en"}, MoonID(12345))
+	assert.NotNil(t, err)
+}
+
+func TestExtractMoonByCoord_exists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	_, err := extractMoonByCoord(string(pageHTMLBytes), &OGame{language: "en"}, Coordinate{4, 116, 12})
+	assert.Nil(t, err)
+}
+
+func TestExtractMoonByCoord_notExists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	_, err := extractMoonByCoord(string(pageHTMLBytes), &OGame{language: "en"}, Coordinate{1, 2, 3})
+	assert.NotNil(t, err)
 }
 
 func TestExtractPlanetsMoon(t *testing.T) {

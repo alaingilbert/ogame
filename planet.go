@@ -94,13 +94,13 @@ func (p *Planet) BuildTechnology(technologyID ID) error {
 
 // GetResources gets user resources
 func (p *Planet) GetResources() (Resources, error) {
-	return p.ogame.GetResources(p.ID)
+	return p.ogame.GetResources(CelestialID(p.ID))
 }
 
 // SendFleet sends a fleet
-func (p *Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, mission MissionID,
-	resources Resources) (FleetID, error) {
-	return p.ogame.SendFleet(p.ID, ships, speed, where, mission, resources)
+func (p *Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType,
+	mission MissionID, resources Resources) (FleetID, error) {
+	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, destType, mission, resources)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
