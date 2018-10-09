@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"fmt"
@@ -24,6 +25,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
 	"golang.org/x/net/html"
+	"golang.org/x/net/websocket"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
@@ -69,6 +71,7 @@ type Wrapper interface {
 	DeleteMessage(msgID int) error
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 
+	RegisterChatCallback(func(ChatMsg))
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
@@ -479,6 +482,7 @@ type OGame struct {
 	serverURL          string
 	client             *ogameClient
 	logger             *log.Logger
+	chatCallbacks      []func(msg ChatMsg)
 }
 
 // Params parameters for more fine-grained initialization
@@ -862,7 +866,86 @@ func (b *OGame) login() error {
 	b.Player, _ = extractUserInfos(pageHTML, b.language)
 	b.Planets = extractPlanets(pageHTML, b)
 
+	go func(pageHTML string, b *OGame) {
+		m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindStringSubmatch(pageHTML)
+		resp, err := http.Get("https://" + m[1] + ":" + m[2] + "/socket.io/1/?t=" + strconv.FormatInt(time.Now().Unix(), 10))
+		if err != nil {
+			fmt.Println("failed to get socket.io token:", err)
+		}
+		defer resp.Body.Close()
+		by, _ := ioutil.ReadAll(resp.Body)
+		token := strings.Split(string(by), ":")[0]
+
+		origin := "https://" + m[1] + ":" + m[2] + "/"
+		url := "wss://" + m[1] + ":" + m[2] + "/socket.io/1/websocket/" + token
+		ws, err := websocket.Dial(url, "", origin)
+		if err != nil {
+			fmt.Println("failed to dial websocket:", err)
+		}
+		ws.Write([]byte("1::/chat"))
+
+		// Recv msgs
+		for {
+			var buf = make([]byte, 1024*1024)
+			if _, err = ws.Read(buf); err != nil {
+				if err == io.EOF {
+					fmt.Println("chat eof:", err)
+					break
+				} else {
+					fmt.Println("chat unexpected error", err)
+				}
+			}
+			msg := string(bytes.Trim(buf, "\x00"))
+			if msg == "1::/chat" {
+				authMsg := `5:1+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
+				ws.Write([]byte(authMsg))
+			} else if msg == "2::" {
+				ws.Write([]byte("2::"))
+			} else if msg == "6::/chat:1+[true]" {
+				b.debug("chat connected")
+			} else if msg == "6::/chat:1+[false]" {
+				fmt.Println("Failed to connect to chat")
+			} else if strings.HasPrefix(msg, "5::/chat:") {
+				payload := strings.TrimPrefix(msg, "5::/chat:")
+				var chatPayload ChatPayload
+				if err := json.Unmarshal([]byte(payload), &chatPayload); err != nil {
+					fmt.Println("Unable to unmarshal chat payload", err, payload)
+					continue
+				}
+				for _, chatMsg := range chatPayload.Args {
+					for _, clb := range b.chatCallbacks {
+						clb(chatMsg)
+					}
+				}
+			}
+		}
+	}(pageHTML, b)
+
 	return nil
+}
+
+type ChatPayload struct {
+	Name string    `json:"name"`
+	Args []ChatMsg `json:"args"`
+}
+
+type ChatMsg struct {
+	SenderId      int    `json:"senderId"`
+	SenderName    string `json:"senderName"`
+	AssociationId int    `json:"associationId"`
+	Text          string `json:"text"`
+	ID            int    `json:"id"`
+	Date          int    `json:"date"`
+}
+
+func (m ChatMsg) String() string {
+	return "\n" +
+		"     Sender ID: " + strconv.Itoa(m.SenderId) + "\n" +
+		"   Sender name: " + m.SenderName + "\n" +
+		"Association ID: " + strconv.Itoa(m.AssociationId) + "\n" +
+		"          Text: " + m.Text + "\n" +
+		"            ID: " + strconv.Itoa(m.ID) + "\n" +
+		"          Date: " + strconv.Itoa(m.Date)
 }
 
 func (b *OGame) logout() {
@@ -3414,4 +3497,8 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 	b.Lock()
 	defer b.Unlock()
 	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10, b.universeSpeedFleet, ships, Researches{})
+}
+
+func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
+	b.chatCallbacks = append(b.chatCallbacks, fn)
 }
