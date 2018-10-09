@@ -75,24 +75,24 @@ type Wrapper interface {
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
 	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType, mission MissionID, resources Resources) (FleetID, error)
+	Build(celestialID CelestialID, id ID, nbr int) error
+	BuildCancelable(CelestialID, ID) error
+	BuildProduction(celestialID CelestialID, id ID, nbr int) error
+	BuildBuilding(celestialID CelestialID, buildingID ID) error
+	BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error
+	BuildShips(celestialID CelestialID, shipID ID, nbr int) error
+	CancelBuilding(CelestialID) error
+	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
+	GetProduction(CelestialID) ([]Quantifiable, error)
+	GetDefense(CelestialID) (DefensesInfos, error)
+	GetShips(CelestialID) (ShipsInfos, error)
 
 	// Planet specific functions
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
 	GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
-	GetDefense(PlanetID) (DefensesInfos, error)
-	GetShips(PlanetID) (ShipsInfos, error)
 	GetFacilities(PlanetID) (Facilities, error)
-	Build(celestialID CelestialID, id ID, nbr int) error
-	BuildCancelable(CelestialID, ID) error
-	BuildProduction(celestialID CelestialID, id ID, nbr int) error
-	BuildBuilding(celestialID CelestialID, buildingID ID) error
 	BuildTechnology(planetID PlanetID, technologyID ID) error
-	BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error
-	BuildShips(celestialID CelestialID, shipID ID, nbr int) error
-	GetProduction(PlanetID) ([]Quantifiable, error)
-	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
-	CancelBuilding(CelestialID) error
 	CancelResearch(PlanetID) error
 	//GetResourcesProductionRatio(PlanetID) (float64, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
@@ -2210,13 +2210,13 @@ func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, er
 	return extractResourcesBuildings(pageHTML)
 }
 
-func (b *OGame) getDefense(planetID PlanetID) (DefensesInfos, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {planetID.String()}})
+func (b *OGame) getDefense(celestialID CelestialID) (DefensesInfos, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {strconv.Itoa(int(celestialID))}})
 	return extractDefense(pageHTML)
 }
 
-func (b *OGame) getShips(planetID PlanetID) (ShipsInfos, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetID.String()}})
+func (b *OGame) getShips(celestialID CelestialID) (ShipsInfos, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {strconv.Itoa(int(celestialID))}})
 	return extractShips(pageHTML)
 }
 
@@ -3342,17 +3342,17 @@ func (b *OGame) GetResourcesBuildings(planetID PlanetID) (ResourcesBuildings, er
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
-func (b *OGame) GetDefense(planetID PlanetID) (DefensesInfos, error) {
+func (b *OGame) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.getDefense(planetID)
+	return b.getDefense(celestialID)
 }
 
 // GetShips gets all ships units information of a planet
-func (b *OGame) GetShips(planetID PlanetID) (ShipsInfos, error) {
+func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.getShips(planetID)
+	return b.getShips(celestialID)
 }
 
 // GetFacilities gets all facilities information of a planet
