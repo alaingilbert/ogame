@@ -70,7 +70,6 @@ type Wrapper interface {
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
-
 	RegisterChatCallback(func(ChatMsg))
 
 	// Planet or Moon functions
@@ -84,16 +83,16 @@ type Wrapper interface {
 	GetDefense(PlanetID) (DefensesInfos, error)
 	GetShips(PlanetID) (ShipsInfos, error)
 	GetFacilities(PlanetID) (Facilities, error)
-	Build(planetID PlanetID, id ID, nbr int) error
-	BuildCancelable(PlanetID, ID) error
-	BuildProduction(planetID PlanetID, id ID, nbr int) error
-	BuildBuilding(planetID PlanetID, buildingID ID) error
+	Build(celestialID CelestialID, id ID, nbr int) error
+	BuildCancelable(CelestialID, ID) error
+	BuildProduction(celestialID CelestialID, id ID, nbr int) error
+	BuildBuilding(celestialID CelestialID, buildingID ID) error
 	BuildTechnology(planetID PlanetID, technologyID ID) error
-	BuildDefense(planetID PlanetID, defenseID ID, nbr int) error
-	BuildShips(planetID PlanetID, shipID ID, nbr int) error
+	BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error
+	BuildShips(celestialID CelestialID, shipID ID, nbr int) error
 	GetProduction(PlanetID) ([]Quantifiable, error)
-	ConstructionsBeingBuilt(PlanetID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
-	CancelBuilding(PlanetID) error
+	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
+	CancelBuilding(CelestialID) error
 	CancelResearch(PlanetID) error
 	//GetResourcesProductionRatio(PlanetID) (float64, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
@@ -2255,12 +2254,12 @@ func extractProduction(pageHTML string) ([]Quantifiable, error) {
 	return res, nil
 }
 
-func (b *OGame) getProduction(planetID PlanetID) ([]Quantifiable, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {planetID.String()}})
+func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {strconv.Itoa(int(celestialID))}})
 	return extractProduction(pageHTML)
 }
 
-func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
+func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
 	var page string
 	if id.IsDefense() {
 		page = "defense"
@@ -2280,7 +2279,7 @@ func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
 
 	// Techs don't have a token
 	if !id.IsTech() {
-		pageHTML := b.getPageContent(url.Values{"page": {page}, "cp": {planetID.String()}})
+		pageHTML := b.getPageContent(url.Values{"page": {page}, "cp": {strconv.Itoa(int(celestialID))}})
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 		if err != nil {
 			return err
@@ -2296,7 +2295,7 @@ func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
 		payload.Add("menge", strconv.Itoa(nbr))
 	}
 
-	url2 := b.serverURL + "/game/index.php?page=" + page + "&cp=" + planetID.String()
+	url2 := b.serverURL + "/game/index.php?page=" + page + "&cp=" + strconv.Itoa(int(celestialID))
 	resp, err := b.client.PostForm(url2, payload)
 	if err != nil {
 		return err
@@ -2305,46 +2304,46 @@ func (b *OGame) build(planetID PlanetID, id ID, nbr int) error {
 	return nil
 }
 
-func (b *OGame) buildCancelable(planetID PlanetID, id ID) error {
+func (b *OGame) buildCancelable(celestialID CelestialID, id ID) error {
 	if !id.IsBuilding() && !id.IsTech() {
 		return errors.New("invalid id " + id.String())
 	}
-	return b.build(planetID, id, 0)
+	return b.build(celestialID, id, 0)
 }
 
-func (b *OGame) buildProduction(planetID PlanetID, id ID, nbr int) error {
+func (b *OGame) buildProduction(celestialID CelestialID, id ID, nbr int) error {
 	if !id.IsDefense() && !id.IsShip() {
 		return errors.New("invalid id " + id.String())
 	}
-	return b.build(planetID, id, nbr)
+	return b.build(celestialID, id, nbr)
 }
 
-func (b *OGame) buildBuilding(planetID PlanetID, buildingID ID) error {
+func (b *OGame) buildBuilding(celestialID CelestialID, buildingID ID) error {
 	if !buildingID.IsBuilding() {
 		return errors.New("invalid building id " + buildingID.String())
 	}
-	return b.buildCancelable(planetID, buildingID)
+	return b.buildCancelable(celestialID, buildingID)
 }
 
 func (b *OGame) buildTechnology(planetID PlanetID, technologyID ID) error {
 	if technologyID.IsTech() {
 		return errors.New("invalid technology id " + technologyID.String())
 	}
-	return b.buildCancelable(planetID, technologyID)
+	return b.buildCancelable(CelestialID(planetID), technologyID)
 }
 
-func (b *OGame) buildDefense(planetID PlanetID, defenseID ID, nbr int) error {
+func (b *OGame) buildDefense(celestialID CelestialID, defenseID ID, nbr int) error {
 	if !defenseID.IsDefense() {
 		return errors.New("invalid defense id " + defenseID.String())
 	}
-	return b.buildProduction(planetID, ID(defenseID), nbr)
+	return b.buildProduction(celestialID, ID(defenseID), nbr)
 }
 
-func (b *OGame) buildShips(planetID PlanetID, shipID ID, nbr int) error {
+func (b *OGame) buildShips(celestialID CelestialID, shipID ID, nbr int) error {
 	if !shipID.IsShip() {
 		return errors.New("invalid ship id " + shipID.String())
 	}
-	return b.buildProduction(planetID, ID(shipID), nbr)
+	return b.buildProduction(celestialID, ID(shipID), nbr)
 }
 
 func extractConstructions(pageHTML string) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
@@ -2363,8 +2362,8 @@ func extractConstructions(pageHTML string) (buildingID ID, buildingCountdown int
 	return
 }
 
-func (b *OGame) constructionsBeingBuilt(planetID PlanetID) (ID, int, ID, int) {
-	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetID.String()}})
+func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {strconv.Itoa(int(celestialID))}})
 	return extractConstructions(pageHTML)
 }
 
@@ -2408,7 +2407,7 @@ func extractCancelResearchInfos(pageHTML string) (token string, techID, listID i
 	return
 }
 
-func (b *OGame) cancel(planetID PlanetID, token string, techID, listID int) error {
+func (b *OGame) cancel(token string, techID, listID int) error {
 	finalURL := b.serverURL + "/game/index.php?page=overview&modus=2&token=" + token + "&techid=" + strconv.Itoa(techID) + "&listid=" + strconv.Itoa(listID)
 	req, _ := http.NewRequest("GET", finalURL, nil)
 	resp, _ := b.client.Do(req)
@@ -2416,16 +2415,16 @@ func (b *OGame) cancel(planetID PlanetID, token string, techID, listID int) erro
 	return nil
 }
 
-func (b *OGame) cancelBuilding(planetID PlanetID) error {
-	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetID.String()}})
+func (b *OGame) cancelBuilding(celestialID CelestialID) error {
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {strconv.Itoa(int(celestialID))}})
 	token, techID, listID, _ := extractCancelBuildingInfos(pageHTML)
-	return b.cancel(planetID, token, techID, listID)
+	return b.cancel(token, techID, listID)
 }
 
 func (b *OGame) cancelResearch(planetID PlanetID) error {
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetID.String()}})
 	token, techID, listID, _ := extractCancelResearchInfos(pageHTML)
-	return b.cancel(planetID, token, techID, listID)
+	return b.cancel(token, techID, listID)
 }
 
 func (b *OGame) fetchResources(celestialID CelestialID) (resourcesResp, error) {
@@ -3366,10 +3365,10 @@ func (b *OGame) GetMoonFacilities(moonID MoonID) (MoonFacilities, error) {
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (b *OGame) GetProduction(planetID PlanetID) ([]Quantifiable, error) {
+func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.getProduction(planetID)
+	return b.getProduction(celestialID)
 }
 
 // GetResearch gets the player researches information
@@ -3380,59 +3379,59 @@ func (b *OGame) GetResearch() Researches {
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
-func (b *OGame) Build(planetID PlanetID, id ID, nbr int) error {
+func (b *OGame) Build(celestialID CelestialID, id ID, nbr int) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.build(planetID, id, nbr)
+	return b.build(celestialID, id, nbr)
 }
 
 // BuildCancelable builds any cancelable ogame objects (building, technology)
-func (b *OGame) BuildCancelable(planetID PlanetID, id ID) error {
+func (b *OGame) BuildCancelable(celestialID CelestialID, id ID) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.buildCancelable(planetID, id)
+	return b.buildCancelable(celestialID, id)
 }
 
 // BuildProduction builds any line production ogame objects (ship, defence)
-func (b *OGame) BuildProduction(planetID PlanetID, id ID, nbr int) error {
+func (b *OGame) BuildProduction(celestialID CelestialID, id ID, nbr int) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.buildProduction(planetID, id, nbr)
+	return b.buildProduction(celestialID, id, nbr)
 }
 
 // BuildBuilding ensure what is being built is a building
-func (b *OGame) BuildBuilding(planetID PlanetID, buildingID ID) error {
+func (b *OGame) BuildBuilding(celestialID CelestialID, buildingID ID) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.buildBuilding(planetID, buildingID)
+	return b.buildBuilding(celestialID, buildingID)
 }
 
 // BuildDefense builds a defense unit
-func (b *OGame) BuildDefense(planetID PlanetID, defenseID ID, nbr int) error {
+func (b *OGame) BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.buildDefense(planetID, defenseID, nbr)
+	return b.buildDefense(celestialID, defenseID, nbr)
 }
 
 // BuildShips builds a ship unit
-func (b *OGame) BuildShips(planetID PlanetID, shipID ID, nbr int) error {
+func (b *OGame) BuildShips(celestialID CelestialID, shipID ID, nbr int) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.buildShips(planetID, shipID, nbr)
+	return b.buildShips(celestialID, shipID, nbr)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *OGame) ConstructionsBeingBuilt(planetID PlanetID) (ID, int, ID, int) {
+func (b *OGame) ConstructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
 	b.Lock()
 	defer b.Unlock()
-	return b.constructionsBeingBuilt(planetID)
+	return b.constructionsBeingBuilt(celestialID)
 }
 
 // CancelBuilding cancel the construction of a building on a specified planet
-func (b *OGame) CancelBuilding(planetID PlanetID) error {
+func (b *OGame) CancelBuilding(celestialID CelestialID) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.cancelBuilding(planetID)
+	return b.cancelBuilding(celestialID)
 }
 
 // CancelResearch cancel the research

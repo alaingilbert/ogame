@@ -64,27 +64,27 @@ func (p *Planet) GetFacilities() (Facilities, error) {
 
 // Build builds any ogame objects (building, technology, ship, defence)
 func (p *Planet) Build(id ID, nbr int) error {
-	return p.ogame.Build(p.ID, id, nbr)
+	return p.ogame.Build(CelestialID(p.ID), id, nbr)
 }
 
 // BuildCancelable builds any cancelable ogame objects (building, technology)
 func (p *Planet) BuildCancelable(id ID) error {
-	return p.ogame.BuildCancelable(p.ID, id)
+	return p.ogame.BuildCancelable(CelestialID(p.ID), id)
 }
 
 // BuildBuilding ensure what is being built is a building
 func (p *Planet) BuildBuilding(buildingID ID) error {
-	return p.ogame.BuildBuilding(p.ID, buildingID)
+	return p.ogame.BuildBuilding(CelestialID(p.ID), buildingID)
 }
 
 // BuildDefense builds a defense unit
 func (p *Planet) BuildDefense(defenseID ID, nbr int) error {
-	return p.ogame.BuildDefense(p.ID, defenseID, nbr)
+	return p.ogame.BuildDefense(CelestialID(p.ID), defenseID, nbr)
 }
 
 // BuildShips builds a ship unit
 func (p *Planet) BuildShips(shipID ID, nbr int) error {
-	return p.ogame.BuildShips(p.ID, shipID, nbr)
+	return p.ogame.BuildShips(CelestialID(p.ID), shipID, nbr)
 }
 
 // BuildTechnology ensure that we're trying to build a technology
@@ -105,12 +105,12 @@ func (p *Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, 
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
 func (p *Planet) ConstructionsBeingBuilt() (ID, int, ID, int) {
-	return p.ogame.ConstructionsBeingBuilt(p.ID)
+	return p.ogame.ConstructionsBeingBuilt(CelestialID(p.ID))
 }
 
 // CancelBuilding cancel the construction of a building
 func (p *Planet) CancelBuilding() error {
-	return p.ogame.CancelBuilding(p.ID)
+	return p.ogame.CancelBuilding(CelestialID(p.ID))
 }
 
 // CancelResearch cancel the research

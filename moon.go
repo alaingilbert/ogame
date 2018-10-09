@@ -3,6 +3,11 @@ package ogame
 // MoonID ...
 type MoonID CelestialID
 
+// Celestial convert a MoonID to a CelestialID
+func (m MoonID) Celestial() CelestialID {
+	return CelestialID(m)
+}
+
 // Moon ogame moon object
 type Moon struct {
 	ogame      *OGame
@@ -30,23 +35,23 @@ func (m *Moon) GetFacilities() (MoonFacilities, error) {
 	return m.ogame.GetMoonFacilities(m.ID)
 }
 
-// BuildFacility build a facility
-func (m *Moon) BuildFacility(ID) error {
-	return nil
-}
-
-func (m *Moon) Downgrade(ID) error {
-	return nil
-}
-
-func (m *Moon) Phalanx() []Fleet {
-	return []Fleet{}
-}
-
-func (m *Moon) IsJumpGateReady() bool {
-	return false
-}
-
-func (m *Moon) UseJumpGate() error {
-	return nil
-}
+//// BuildFacility build a facility
+//func (m *Moon) BuildFacility(ID) error {
+//	return nil
+//}
+//
+//func (m *Moon) Downgrade(ID) error {
+//	return nil
+//}
+//
+//func (m *Moon) Phalanx() []Fleet {
+//	return []Fleet{}
+//}
+//
+//func (m *Moon) IsJumpGateReady() bool {
+//	return false
+//}
+//
+//func (m *Moon) UseJumpGate() error {
+//	return nil
+//}
