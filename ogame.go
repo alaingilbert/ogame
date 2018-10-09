@@ -866,57 +866,63 @@ func (b *OGame) login() error {
 	b.Planets = extractPlanets(pageHTML, b)
 
 	go func(pageHTML string, b *OGame) {
-		m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindStringSubmatch(pageHTML)
-		resp, err := http.Get("https://" + m[1] + ":" + m[2] + "/socket.io/1/?t=" + strconv.FormatInt(time.Now().Unix(), 10))
-		if err != nil {
-			fmt.Println("failed to get socket.io token:", err)
-		}
-		defer resp.Body.Close()
-		by, _ := ioutil.ReadAll(resp.Body)
-		token := strings.Split(string(by), ":")[0]
-
-		origin := "https://" + m[1] + ":" + m[2] + "/"
-		url := "wss://" + m[1] + ":" + m[2] + "/socket.io/1/websocket/" + token
-		ws, err := websocket.Dial(url, "", origin)
-		if err != nil {
-			fmt.Println("failed to dial websocket:", err)
-		}
-		ws.Write([]byte("1::/chat"))
-
-		// Recv msgs
 		for {
-			var buf = make([]byte, 1024*1024)
-			if _, err = ws.Read(buf); err != nil {
-				if err == io.EOF {
-					fmt.Println("chat eof:", err)
-					break
-				} else {
-					fmt.Println("chat unexpected error", err)
-				}
+			m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindStringSubmatch(pageHTML)
+			resp, err := http.Get("https://" + m[1] + ":" + m[2] + "/socket.io/1/?t=" + strconv.FormatInt(time.Now().Unix(), 10))
+			if err != nil {
+				fmt.Println("failed to get socket.io token:", err)
+				time.Sleep(time.Second)
+				continue
 			}
-			msg := string(bytes.Trim(buf, "\x00"))
-			if msg == "1::/chat" {
-				authMsg := `5:1+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
-				ws.Write([]byte(authMsg))
-			} else if msg == "2::" {
-				ws.Write([]byte("2::"))
-			} else if msg == "6::/chat:1+[true]" {
-				b.debug("chat connected")
-			} else if msg == "6::/chat:1+[false]" {
-				fmt.Println("Failed to connect to chat")
-			} else if strings.HasPrefix(msg, "5::/chat:") {
-				payload := strings.TrimPrefix(msg, "5::/chat:")
-				var chatPayload ChatPayload
-				if err := json.Unmarshal([]byte(payload), &chatPayload); err != nil {
-					fmt.Println("Unable to unmarshal chat payload", err, payload)
-					continue
+			by, _ := ioutil.ReadAll(resp.Body)
+			resp.Body.Close()
+			token := strings.Split(string(by), ":")[0]
+
+			origin := "https://" + m[1] + ":" + m[2] + "/"
+			url := "wss://" + m[1] + ":" + m[2] + "/socket.io/1/websocket/" + token
+			ws, err := websocket.Dial(url, "", origin)
+			if err != nil {
+				fmt.Println("failed to dial websocket:", err)
+			}
+			ws.Write([]byte("1::/chat"))
+
+			// Recv msgs
+			for {
+				var buf = make([]byte, 1024*1024)
+				if _, err = ws.Read(buf); err != nil {
+					if err == io.EOF {
+						fmt.Println("chat eof:", err)
+						ws.Close()
+						break
+					} else {
+						fmt.Println("chat unexpected error", err)
+					}
 				}
-				for _, chatMsg := range chatPayload.Args {
-					for _, clb := range b.chatCallbacks {
-						clb(chatMsg)
+				msg := string(bytes.Trim(buf, "\x00"))
+				if msg == "1::/chat" {
+					authMsg := `5:1+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
+					ws.Write([]byte(authMsg))
+				} else if msg == "2::" {
+					ws.Write([]byte("2::"))
+				} else if msg == "6::/chat:1+[true]" {
+					b.debug("chat connected")
+				} else if msg == "6::/chat:1+[false]" {
+					fmt.Println("Failed to connect to chat")
+				} else if strings.HasPrefix(msg, "5::/chat:") {
+					payload := strings.TrimPrefix(msg, "5::/chat:")
+					var chatPayload ChatPayload
+					if err := json.Unmarshal([]byte(payload), &chatPayload); err != nil {
+						fmt.Println("Unable to unmarshal chat payload", err, payload)
+						continue
+					}
+					for _, chatMsg := range chatPayload.Args {
+						for _, clb := range b.chatCallbacks {
+							clb(chatMsg)
+						}
 					}
 				}
 			}
+			time.Sleep(time.Second)
 		}
 	}(pageHTML, b)
 
