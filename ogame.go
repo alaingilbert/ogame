@@ -629,6 +629,9 @@ type Server struct {
 	}
 }
 
+// ogame cookie name for php session id
+const phpSessionIDCookieName = "PHPSESSID"
+
 func getPhpSessionID(client *ogameClient, username, password string) (string, error) {
 	payload := url.Values{
 		"kid":                   {""},
@@ -657,12 +660,12 @@ func getPhpSessionID(client *ogameClient, username, password string) (string, er
 	}
 
 	for _, cookie := range resp.Cookies() {
-		if cookie.Name == "PHPSESSID" {
+		if cookie.Name == phpSessionIDCookieName {
 			return cookie.Value, nil
 		}
 	}
 
-	return "", errors.New("PHPSESSID not found")
+	return "", errors.New(phpSessionIDCookieName + " not found")
 }
 
 type account struct {
@@ -692,7 +695,7 @@ func getUserAccounts(client *ogameClient, phpSessionID string) ([]account, error
 	if err != nil {
 		return userAccounts, err
 	}
-	req.AddCookie(&http.Cookie{Name: "PHPSESSID", Value: phpSessionID})
+	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
 	resp, err := client.Do(req)
 	if err != nil {
 		return userAccounts, err
@@ -760,7 +763,7 @@ func getLoginLink(client *ogameClient, userAccount account, phpSessionID string)
 	if err != nil {
 		return "", err
 	}
-	req.AddCookie(&http.Cookie{Name: "PHPSESSID", Value: phpSessionID})
+	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
