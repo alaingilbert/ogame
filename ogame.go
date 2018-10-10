@@ -98,6 +98,7 @@ type Wrapper interface {
 	GetResourcesProductions(PlanetID) (Resources, error)
 
 	// Moon specific functions
+	Phalanx(MoonID, coordinate Coordinate) ([]Fleet, error)
 }
 
 const defaultUserAgent = "" +
@@ -1801,6 +1802,82 @@ func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalax
 	secs = int(math.Round(((10 + (3500 / s)) * math.Sqrt((10*d)/v)) / a))
 	fuel = calcFuel(ships, int(d), speed)
 	return
+}
+
+func extractPhalanx(pageHTML string) ([]Fleet, error) {
+	res := make([]Fleet, 0)
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	eventFleet := doc.Find("div.eventFleet")
+	if eventFleet.Size() == 0 {
+		txt := doc.Find("div#phalanxEventContent").Text()
+		// TODO: 'fleet' and 'deuterium' won't work in other languages
+		if strings.Contains(txt, "fleet") {
+			return res, nil
+		} else if strings.Contains(txt, "deuterium") {
+			return res, errors.New(strings.TrimSpace(txt))
+		}
+		return res, errors.New(txt)
+	}
+	eventFleet.Each(func(i int, s *goquery.Selection) {
+		mission, _ := strconv.Atoi(s.AttrOr("data-mission-type", "0"))
+		returning, _ := strconv.ParseBool(s.AttrOr("data-return-flight", "false"))
+		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", "0"))
+		arriveIn := int(time.Now().Unix()) - arrivalTime
+		if arriveIn < 0 {
+			arriveIn = 0
+		}
+		originTxt := s.Find("li.coordsOrigin a").Text()
+		destTxt := s.Find("li.destCoords a").Text()
+
+		fleet := Fleet{}
+
+		if movement, exists := s.Find("li.detailsFleet span").Attr("title"); exists {
+			root, err := html.Parse(strings.NewReader(movement))
+			if err != nil {
+				return
+			}
+			doc2 := goquery.NewDocumentFromNode(root)
+			doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
+				if i == 0 {
+					return
+				}
+				name := s.Find("td").Eq(0).Text()
+				nbr := parseInt(s.Find("td").Eq(1).Text())
+				if name != "" && nbr > 0 {
+					fleet.Ships.Set(name2id(name), nbr)
+				}
+			})
+		}
+
+		fleet.Mission = MissionID(mission)
+		fleet.ReturnFlight = returning
+		fleet.ArriveIn = arriveIn
+		fleet.Origin = extractCoord(originTxt)
+		fleet.Destination = extractCoord(destTxt)
+		res = append(res, fleet)
+	})
+	return res, nil
+}
+
+func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1&cp=%d",
+		coord.Galaxy, coord.System, coord.Position, moonID)
+	req, err := http.NewRequest("GET", finalURL, nil)
+	if err != nil {
+		b.error(err.Error())
+		return []Fleet{}, err
+	}
+	req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	resp, err := b.client.Do(req)
+	if err != nil {
+		b.error(err.Error())
+		return []Fleet{}, err
+	}
+	defer resp.Body.Close()
+	by, _ := ioutil.ReadAll(resp.Body)
+	pageHTML := string(by)
+
+	return extractPhalanx(pageHTML)
 }
 
 func extractAttacks(pageHTML string) []AttackEvent {
@@ -3525,4 +3602,11 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 // RegisterChatCallback register a callback that is called when chat messages are received
 func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 	b.chatCallbacks = append(b.chatCallbacks, fn)
+}
+
+// Phalanx scan a coordinate from a moon to get fleets information
+func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	b.Lock()
+	defer b.Unlock()
+	return b.getPhalanx(moonID, coord)
 }

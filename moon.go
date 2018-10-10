@@ -44,9 +44,12 @@ func (m *Moon) GetFacilities() (MoonFacilities, error) {
 //	return nil
 //}
 //
-//func (m *Moon) Phalanx() []Fleet {
-//	return []Fleet{}
-//}
+
+// Phalanx uses 5000 deuterium to scan a coordinate
+func (m *Moon) Phalanx(coord Coordinate) ([]Fleet, error) {
+	return m.ogame.Phalanx(m.ID, coord)
+}
+
 //
 //func (m *Moon) IsJumpGateReady() bool {
 //	return false
