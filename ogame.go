@@ -882,7 +882,6 @@ func (b *OGame) login() error {
 	chatHost := m[1]
 	chatPort := m[2]
 
-	// TODO: should not be in login fn, cancel chat before
 	if atomic.CompareAndSwapInt32(&b.chatConnected, 0, 1) {
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
