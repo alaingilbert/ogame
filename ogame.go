@@ -98,7 +98,7 @@ type Wrapper interface {
 	GetResourcesProductions(PlanetID) (Resources, error)
 
 	// Moon specific functions
-	Phalanx(MoonID, coordinate Coordinate) ([]Fleet, error)
+	Phalanx(MoonID, Coordinate) ([]Fleet, error)
 }
 
 const defaultUserAgent = "" +
