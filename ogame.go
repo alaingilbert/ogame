@@ -1918,14 +1918,20 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	// Get galaxy planets information, verify coordinate is valid planet (second call to ogame server)
 	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
 	found := false
+	var target PlanetInfos
 	for _, p := range planetInfos {
 		if p.Coordinate.Position == coord.Position {
 			found = true
+			target = p
 			break
 		}
 	}
 	if !found {
 		return make([]Fleet, 0), errors.New("invalid planet coordinate")
+	}
+	// Ensure you are not scanning your own planet
+	if target.Player.ID == b.Player.PlayerID {
+		return make([]Fleet, 0), errors.New("cannot scan own planet")
 	}
 
 	// Run the phalanx scan (third call to ogame server)
