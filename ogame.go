@@ -57,7 +57,7 @@ type Wrapper interface {
 	GetFleets() []Fleet
 	CancelFleet(FleetID) error
 	GetAttacks() []AttackEvent
-	GalaxyInfos(galaxy, system int) ([]PlanetInfos, error)
+	GalaxyInfos(galaxy, system int) (SystemInfos, error)
 	GetResearch() Researches
 	GetCachedPlanets() []Planet
 	GetPlanets() []Planet
@@ -1896,7 +1896,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 
 	// Get galaxy planets information, verify coordinate is valid planet (second call to ogame server)
 	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
-	target := planetInfos[coord.Position-1]
+	target := planetInfos.Position(coord.Position)
 	if target == nil {
 		return make([]Fleet, 0), errors.New("invalid planet coordinate")
 	}
@@ -2016,7 +2016,7 @@ func (b *OGame) getAttacks() []AttackEvent {
 	return extractAttacks(pageHTML)
 }
 
-func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRank int) ([15]*PlanetInfos, error) {
+func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
 	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
 
 	extractActivity := func(activityDiv *goquery.Selection) int {
@@ -2037,7 +2037,9 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 	}
 	json.Unmarshal([]byte(pageHTML), &tmp)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
-	var res [15]*PlanetInfos
+	var res SystemInfos
+	res.galaxy = parseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
+	res.system = parseInt(doc.Find("table").AttrOr("data-system", "0"))
 	doc.Find("tr.row").Each(func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")
 		if !strings.Contains(classes, "empty_filter") {
@@ -2119,13 +2121,13 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 			planetInfos.Player.Name = playerName
 			planetInfos.Player.Rank = playerRank
 
-			res[i] = planetInfos
+			res.planets[i] = planetInfos
 		}
 	})
 	return res, nil
 }
 
-func (b *OGame) galaxyInfos(galaxy, system int) ([15]*PlanetInfos, error) {
+func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 	finalURL := b.serverURL + "/game/index.php?page=galaxyContent&ajax=1"
 	payload := url.Values{
 		"galaxy": {strconv.Itoa(galaxy)},
@@ -2133,13 +2135,13 @@ func (b *OGame) galaxyInfos(galaxy, system int) ([15]*PlanetInfos, error) {
 	}
 	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
 	if err != nil {
-		return [15]*PlanetInfos{}, err
+		return SystemInfos{}, err
 	}
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
 	resp, err := b.client.Do(req)
 	if err != nil {
-		return [15]*PlanetInfos{}, err
+		return SystemInfos{}, err
 	}
 	defer resp.Body.Close()
 	by, _ := ioutil.ReadAll(resp.Body)
@@ -3455,7 +3457,7 @@ func (b *OGame) GetAttacks() []AttackEvent {
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
-func (b *OGame) GalaxyInfos(galaxy, system int) ([15]*PlanetInfos, error) {
+func (b *OGame) GalaxyInfos(galaxy, system int) (SystemInfos, error) {
 	b.Lock()
 	defer b.Unlock()
 	return b.galaxyInfos(galaxy, system)
