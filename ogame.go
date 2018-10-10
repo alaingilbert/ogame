@@ -908,8 +908,8 @@ func (b *OGame) connectChat(host, port string) {
 	ws, err := websocket.Dial(url, "", origin)
 	if err != nil {
 		fmt.Println("failed to dial websocket:", err)
+		return
 	}
-	ws.Write([]byte("1::/chat"))
 
 	// Recv msgs
 	for {
@@ -924,7 +924,9 @@ func (b *OGame) connectChat(host, port string) {
 			}
 		}
 		msg := string(bytes.Trim(buf, "\x00"))
-		if msg == "1::/chat" {
+		if msg == "1::" {
+			ws.Write([]byte("1::/chat"))
+		} else if msg == "1::/chat" {
 			authMsg := `5:` + strconv.Itoa(b.sessionChatCounter) + `+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
 			fmt.Println("auth: ", authMsg)
 			ws.Write([]byte(authMsg))
