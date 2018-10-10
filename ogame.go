@@ -1019,6 +1019,10 @@ func isPartialPage(vals url.Values) bool {
 		return true
 	}
 
+	if page == "phalanx" {
+		return true
+	}
+
 	if ajax == "1" {
 		return true
 	}
