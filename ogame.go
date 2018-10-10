@@ -3605,6 +3605,8 @@ func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
+// IMPORTANT: My account was banned instantly when I scanned an invalid coordinate.
+// TODO: Maybe we should ensure the coordinate is valid. (within range, planet available, not your planet...)
 func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	b.Lock()
 	defer b.Unlock()
