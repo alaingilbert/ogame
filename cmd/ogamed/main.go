@@ -396,7 +396,7 @@ func getDefense(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
-	res, err := bot.GetDefense(ogame.PlanetID(planetID))
+	res, err := bot.GetDefense(ogame.CelestialID(planetID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
@@ -408,7 +408,7 @@ func getShips(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
-	res, err := bot.GetShips(ogame.PlanetID(planetID))
+	res, err := bot.GetShips(ogame.CelestialID(planetID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
@@ -440,7 +440,7 @@ func build(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid nbr"))
 	}
-	if err := bot.Build(ogame.PlanetID(planetID), ogame.ID(ogameID), nbr); err != nil {
+	if err := bot.Build(ogame.CelestialID(planetID), ogame.ID(ogameID), nbr); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
@@ -455,7 +455,7 @@ func buildCancelable(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid ogame id"))
 	}
-	if err := bot.BuildCancelable(ogame.PlanetID(planetID), ogame.ID(ogameID)); err != nil {
+	if err := bot.BuildCancelable(ogame.CelestialID(planetID), ogame.ID(ogameID)); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
@@ -474,7 +474,7 @@ func buildProduction(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid nbr"))
 	}
-	if err := bot.BuildProduction(ogame.PlanetID(planetID), ogame.ID(ogameID), nbr); err != nil {
+	if err := bot.BuildProduction(ogame.CelestialID(planetID), ogame.ID(ogameID), nbr); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
@@ -489,7 +489,7 @@ func buildBuilding(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid ogame id"))
 	}
-	if err := bot.BuildBuilding(ogame.PlanetID(planetID), ogame.ID(ogameID)); err != nil {
+	if err := bot.BuildBuilding(ogame.CelestialID(planetID), ogame.ID(ogameID)); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
@@ -523,7 +523,7 @@ func buildDefense(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid nbr"))
 	}
-	if err := bot.BuildDefense(ogame.PlanetID(planetID), ogame.ID(ogameID), nbr); err != nil {
+	if err := bot.BuildDefense(ogame.CelestialID(planetID), ogame.ID(ogameID), nbr); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
@@ -542,7 +542,7 @@ func buildShips(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid nbr"))
 	}
-	if err := bot.BuildShips(ogame.PlanetID(planetID), ogame.ID(ogameID), nbr); err != nil {
+	if err := bot.BuildShips(ogame.CelestialID(planetID), ogame.ID(ogameID), nbr); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
@@ -553,7 +553,7 @@ func getProduction(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
-	res, err := bot.GetProduction(ogame.PlanetID(planetID))
+	res, err := bot.GetProduction(ogame.CelestialID(planetID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
@@ -565,7 +565,7 @@ func constructionsBeingBuilt(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
-	buildingID, buildingCountdown, researchID, researchCountdown := bot.ConstructionsBeingBuilt(ogame.PlanetID(planetID))
+	buildingID, buildingCountdown, researchID, researchCountdown := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
 	return c.JSON(http.StatusOK, successResp(
 		struct {
 			BuildingID        int
@@ -586,7 +586,7 @@ func cancelBuilding(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
-	if err := bot.CancelBuilding(ogame.PlanetID(planetID)); err != nil {
+	if err := bot.CancelBuilding(ogame.CelestialID(planetID)); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
