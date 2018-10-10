@@ -409,6 +409,12 @@ func TestExtractMoons(t *testing.T) {
 	assert.Equal(t, 1, len(moons))
 }
 
+func TestExtractMoons2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_many_moon.html")
+	moons := extractMoons(string(pageHTMLBytes), &OGame{language: "en"})
+	assert.Equal(t, 2, len(moons))
+}
+
 func TestExtractMoon_exists(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
 	_, err := extractMoon(string(pageHTMLBytes), &OGame{language: "en"}, MoonID(33741598))
