@@ -487,6 +487,7 @@ type OGame struct {
 	chatCallbacks      []func(msg ChatMsg)
 	closeChatCh        chan struct{}
 	chatConnected      int32
+	chatRetry          int
 	ws                 *websocket.Conn
 }
 
@@ -886,14 +887,22 @@ func (b *OGame) login() error {
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
 			defer atomic.StoreInt32(&b.chatConnected, 0)
+			b.chatRetry = 0
 		LOOP:
 			for {
 				select {
 				case <-b.closeChatCh:
 					break LOOP
 				default:
-					time.Sleep(time.Second)
+					time.Sleep(time.Duration(b.chatRetry) * time.Second)
 					b.connectChat(chatHost, chatPort)
+					if b.chatRetry == 0 {
+						b.chatRetry = 1
+					}
+					b.chatRetry *= 2
+					if b.chatRetry > 60 {
+						b.chatRetry = 60
+					}
 				}
 			}
 		}(b)
@@ -915,6 +924,7 @@ func (b *OGame) connectChat(host, port string) {
 		return
 	}
 	defer resp.Body.Close()
+	b.chatRetry = 0
 	by, _ := ioutil.ReadAll(resp.Body)
 	token := strings.Split(string(by), ":")[0]
 
