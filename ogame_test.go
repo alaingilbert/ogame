@@ -8,6 +8,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractResources(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res := extractResources(string(pageHTMLBytes))
+	assert.Equal(t, 280000, res.Metal)
+	assert.Equal(t, 260000, res.Crystal)
+	assert.Equal(t, 280000, res.Deuterium)
+	assert.Equal(t, 0, res.Energy)
+	assert.Equal(t, 25000, res.Darkmatter)
+}
+
 func TestExtractPhalanx(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
 	res, err := extractPhalanx(string(pageHTMLBytes))

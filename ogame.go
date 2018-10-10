@@ -1807,6 +1807,17 @@ func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalax
 	return
 }
 
+func extractResources(pageHTML string) Resources {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	res := Resources{}
+	res.Metal = parseInt(doc.Find("span#resources_metal").Text())
+	res.Crystal = parseInt(doc.Find("span#resources_crystal").Text())
+	res.Deuterium = parseInt(doc.Find("span#resources_deuterium").Text())
+	res.Energy = parseInt(doc.Find("span#resources_energy").Text())
+	res.Darkmatter = parseInt(doc.Find("span#resources_darkmatter").Text())
+	return res
+}
+
 func extractPhalanx(pageHTML string) ([]Fleet, error) {
 	res := make([]Fleet, 0)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
