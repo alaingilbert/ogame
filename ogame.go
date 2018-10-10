@@ -811,6 +811,9 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
+	if userAccount.Blocked {
+		return errors.New("your account is banned")
+	}
 	b.debug("Players online: " + strconv.Itoa(server.PlayersOnline) + ", Players: " + strconv.Itoa(server.PlayerCount))
 	b.server = server
 	b.language = userAccount.Server.Language
