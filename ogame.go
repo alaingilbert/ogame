@@ -3504,6 +3504,7 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10, b.universeSpeedFleet, ships, Researches{})
 }
 
+// RegisterChatCallback register a callback that is called when chat messages are received
 func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 	b.chatCallbacks = append(b.chatCallbacks, fn)
 }
