@@ -1883,7 +1883,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	phalanxLvl := moonFacilities.SensorPhalanx
 
 	// Ensure we have the resources to scan the planet
-	if resources.Deuterium < 5000 {
+	if resources.Deuterium < SensorPhalanx.ScanConsumption() {
 		return make([]Fleet, 0), errors.New("not enough deuterium")
 	}
 
