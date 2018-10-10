@@ -2128,6 +2128,12 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
+	if galaxy < 0 || galaxy > b.server.Settings.UniverseSize {
+		return SystemInfos{}, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
+	}
+	if system < 0 || system > 499 {
+		return SystemInfos{}, errors.New("system must be within [0, 499]")
+	}
 	finalURL := b.serverURL + "/game/index.php?page=galaxyContent&ajax=1"
 	payload := url.Values{
 		"galaxy": {strconv.Itoa(galaxy)},
