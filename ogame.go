@@ -1020,11 +1020,8 @@ func isLogged(pageHTML string) bool {
 	if err != nil {
 		return false
 	}
-	ogameSession, _ := doc.Find("meta[name=ogame-session]").Attr("content")
-	if ogameSession == "" {
-		return false
-	}
-	return true
+	ogameSession := doc.Find("meta[name=ogame-session]").AttrOr("content", "")
+	return ogameSession != ""
 }
 
 func isAjaxPage(vals url.Values) bool {
