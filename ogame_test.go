@@ -8,6 +8,33 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractPhalanx(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
+	res, err := extractPhalanx(string(pageHTMLBytes))
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(res))
+	assert.Equal(t, MissionID(3), res[0].Mission)
+	assert.Equal(t, true, res[0].ReturnFlight)
+	assert.NotNil(t, res[0].ArriveIn)
+	assert.Equal(t, Coordinate{4, 116, 9}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 212, 8}, res[0].Destination)
+	assert.Equal(t, 100, res[0].Ships.LargeCargo)
+}
+
+func TestExtractPhalanx_noFleet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_fleet.html")
+	res, err := extractPhalanx(string(pageHTMLBytes))
+	assert.Equal(t, 0, len(res))
+	assert.Nil(t, err)
+}
+
+func TestExtractPhalanx_noDeut(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_deut.html")
+	res, err := extractPhalanx(string(pageHTMLBytes))
+	assert.Equal(t, 0, len(res))
+	assert.NotNil(t, err)
+}
+
 func TestExtractResearch(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/research_bonus.html")
 	res := extractResearch(string(pageHTMLBytes))
