@@ -995,40 +995,17 @@ func isLogged(pageHTML string) bool {
 
 func isAjaxPage(vals url.Values) bool {
 	page := vals.Get("page")
+	ajax := vals.Get("ajax")
 	return page == "fetchEventbox" ||
 		page == "fetchResources" ||
 		page == "galaxyContent" ||
 		page == "eventList" ||
 		page == "ajaxChat" ||
 		page == "notices" ||
-		page == "repairlayer"
-}
-
-func isPartialPage(vals url.Values) bool {
-	page := vals.Get("page")
-	ajax := vals.Get("ajax")
-
-	if page == "techtree" {
-		return true
-	}
-
-	if page == "notices" {
-		return true
-	}
-
-	if page == "repairlayer" {
-		return true
-	}
-
-	if page == "phalanx" {
-		return true
-	}
-
-	if ajax == "1" {
-		return true
-	}
-
-	return false
+		page == "repairlayer" ||
+		page == "techtree" ||
+		page == "phalanx" ||
+		ajax == "1"
 }
 
 func (b *OGame) postPageContent(vals, payload url.Values) string {
@@ -1107,7 +1084,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 		}
 		pageHTML = string(by)
 
-		if page != "logout" && !isAjaxPage(vals) && !isPartialPage(vals) && !isLogged(pageHTML) {
+		if page != "logout" && !isAjaxPage(vals) && !isLogged(pageHTML) {
 			b.error("Err not logged on page : ", page)
 			return ErrNotLogged
 		}
@@ -1118,7 +1095,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 	if page == "overview" {
 		b.Player, _ = extractUserInfos(pageHTML, b.language)
 		b.Planets = extractPlanets(pageHTML, b)
-	} else if isAjaxPage(vals) || isPartialPage(vals) {
+	} else if isAjaxPage(vals) {
 	} else {
 		b.Planets = extractPlanets(pageHTML, b)
 	}
