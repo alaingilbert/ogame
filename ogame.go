@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 	"unicode"
 
@@ -484,6 +485,9 @@ type OGame struct {
 	client             *ogameClient
 	logger             *log.Logger
 	chatCallbacks      []func(msg ChatMsg)
+	closeChatCh        chan struct{}
+	chatConnected      int32
+	ws                 *websocket.Conn
 }
 
 // Params parameters for more fine-grained initialization
@@ -878,12 +882,22 @@ func (b *OGame) login() error {
 	chatPort := m[2]
 
 	// TODO: should not be in login fn, cancel chat before
-	go func(b *OGame) {
-		for {
-			b.connectChat(chatHost, chatPort)
-			time.Sleep(time.Second)
-		}
-	}(b)
+	if atomic.CompareAndSwapInt32(&b.chatConnected, 0, 1) {
+		b.closeChatCh = make(chan struct{})
+		go func(b *OGame) {
+			defer atomic.StoreInt32(&b.chatConnected, 0)
+		LOOP:
+			for {
+				select {
+				case <-b.closeChatCh:
+					break LOOP
+				default:
+					time.Sleep(time.Second)
+					b.connectChat(chatHost, chatPort)
+				}
+			}
+		}(b)
+	}
 
 	return nil
 }
@@ -906,34 +920,45 @@ func (b *OGame) connectChat(host, port string) {
 
 	origin := "https://" + host + ":" + port + "/"
 	url := "wss://" + host + ":" + port + "/socket.io/1/websocket/" + token
-	ws, err := websocket.Dial(url, "", origin)
+	b.ws, err = websocket.Dial(url, "", origin)
 	if err != nil {
 		fmt.Println("failed to dial websocket:", err)
 		return
 	}
 
 	// Recv msgs
+LOOP:
 	for {
+		select {
+		case <-b.closeChatCh:
+			break LOOP
+		default:
+		}
+
 		var buf = make([]byte, 1024*1024)
-		if _, err = ws.Read(buf); err != nil {
+		b.ws.SetReadDeadline(time.Now().Add(time.Second))
+		if _, err = b.ws.Read(buf); err != nil {
 			if err == io.EOF {
 				fmt.Println("chat eof:", err)
-				ws.Close()
 				break
+			} else if strings.HasSuffix(err.Error(), "use of closed network connection") {
+				break
+			} else if strings.HasSuffix(err.Error(), "i/o timeout") {
+				continue
 			} else {
 				fmt.Println("chat unexpected error", err)
 			}
 		}
 		msg := string(bytes.Trim(buf, "\x00"))
 		if msg == "1::" {
-			ws.Write([]byte("1::/chat"))
+			b.ws.Write([]byte("1::/chat"))
 		} else if msg == "1::/chat" {
 			authMsg := `5:` + strconv.Itoa(b.sessionChatCounter) + `+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
 			fmt.Println("auth: ", authMsg)
-			ws.Write([]byte(authMsg))
+			b.ws.Write([]byte(authMsg))
 			b.sessionChatCounter++
 		} else if msg == "2::" {
-			ws.Write([]byte("2::"))
+			b.ws.Write([]byte("2::"))
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).MatchString(msg) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[false]`).MatchString(msg) {
@@ -980,6 +1005,12 @@ func (m ChatMsg) String() string {
 
 func (b *OGame) logout() {
 	b.getPageContent(url.Values{"page": {"logout"}})
+	select {
+	case <-b.closeChatCh:
+	default:
+		close(b.closeChatCh)
+		b.ws.Close()
+	}
 }
 
 func isLogged(pageHTML string) bool {
