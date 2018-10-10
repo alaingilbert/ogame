@@ -993,7 +993,8 @@ func isLogged(pageHTML string) bool {
 	return true
 }
 
-func isAjaxPage(page string) bool {
+func isAjaxPage(vals url.Values) bool {
+	page := vals.Get("page")
 	return page == "fetchEventbox" ||
 		page == "fetchResources" ||
 		page == "galaxyContent" ||
@@ -1106,7 +1107,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 		}
 		pageHTML = string(by)
 
-		if page != "logout" && !isAjaxPage(page) && !isPartialPage(vals) && !isLogged(pageHTML) {
+		if page != "logout" && !isAjaxPage(vals) && !isPartialPage(vals) && !isLogged(pageHTML) {
 			b.error("Err not logged on page : ", page)
 			return ErrNotLogged
 		}
@@ -1117,7 +1118,7 @@ func (b *OGame) getPageContent(vals url.Values) string {
 	if page == "overview" {
 		b.Player, _ = extractUserInfos(pageHTML, b.language)
 		b.Planets = extractPlanets(pageHTML, b)
-	} else if isAjaxPage(page) || isPartialPage(vals) {
+	} else if isAjaxPage(vals) || isPartialPage(vals) {
 	} else {
 		b.Planets = extractPlanets(pageHTML, b)
 	}
