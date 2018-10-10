@@ -26,7 +26,7 @@ func TestExtractResources(t *testing.T) {
 
 func TestExtractPhalanx(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
-	res, err := extractPhalanx(string(pageHTMLBytes))
+	res, err := extractPhalanx(string(pageHTMLBytes), 0)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(res))
 	assert.Equal(t, MissionID(3), res[0].Mission)
@@ -39,14 +39,14 @@ func TestExtractPhalanx(t *testing.T) {
 
 func TestExtractPhalanx_noFleet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_fleet.html")
-	res, err := extractPhalanx(string(pageHTMLBytes))
+	res, err := extractPhalanx(string(pageHTMLBytes), 0)
 	assert.Equal(t, 0, len(res))
 	assert.Nil(t, err)
 }
 
 func TestExtractPhalanx_noDeut(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_deut.html")
-	res, err := extractPhalanx(string(pageHTMLBytes))
+	res, err := extractPhalanx(string(pageHTMLBytes), 0)
 	assert.Equal(t, 0, len(res))
 	assert.NotNil(t, err)
 }
@@ -901,13 +901,13 @@ func TestGalaxyDistance(t *testing.T) {
 }
 
 func TestSystemDistance(t *testing.T) {
-	assert.Equal(t, 3175, systemDistance(35, 30, false))
+	assert.Equal(t, 3175, flightSystemDistance(35, 30, false))
 
-	assert.Equal(t, 2795, systemDistance(1, 2, true))
-	assert.Equal(t, 2795, systemDistance(1, 499, true))
-	assert.Equal(t, 2890, systemDistance(1, 3, true))
-	assert.Equal(t, 2890, systemDistance(1, 498, true))
-	assert.Equal(t, 2890, systemDistance(498, 1, true))
+	assert.Equal(t, 2795, flightSystemDistance(1, 2, true))
+	assert.Equal(t, 2795, flightSystemDistance(1, 499, true))
+	assert.Equal(t, 2890, flightSystemDistance(1, 3, true))
+	assert.Equal(t, 2890, flightSystemDistance(1, 498, true))
+	assert.Equal(t, 2890, flightSystemDistance(498, 1, true))
 }
 
 func TestPlanetDistance(t *testing.T) {

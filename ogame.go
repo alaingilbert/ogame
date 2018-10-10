@@ -1744,17 +1744,20 @@ func galaxyDistance(galaxy1, galaxy2, universeSize int, donutGalaxy bool) (dista
 	return int(20000 * val)
 }
 
-// Returns the distance between two systems
 func systemDistance(system1, system2 int, donutSystem bool) (distance int) {
 	if !donutSystem {
-		return int(2700 + 95*math.Abs(float64(system2-system1)))
+		return int(math.Abs(float64(system2 - system1)))
 	}
 	systemSize := 499
 	if system1 > system2 {
 		system1, system2 = system2, system1
 	}
-	val := math.Min(float64(system2-system1), float64((system1+systemSize)-system2))
-	return int(2700 + 95*val)
+	return int(math.Min(float64(system2-system1), float64((system1+systemSize)-system2)))
+}
+
+// Returns the distance between two systems
+func flightSystemDistance(system1, system2 int, donutSystem bool) (distance int) {
+	return 2700 + 95*systemDistance(system1, system2, donutSystem)
 }
 
 // Returns the distance between two planets
@@ -1767,7 +1770,7 @@ func distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool
 		return galaxyDistance(c1.Galaxy, c2.Galaxy, universeSize, donutGalaxy)
 	}
 	if c1.System != c2.System {
-		return systemDistance(c1.System, c2.System, donutSystem)
+		return flightSystemDistance(c1.System, c2.System, donutSystem)
 	}
 	return planetDistance(c1.Position, c2.Position)
 }
@@ -1824,7 +1827,7 @@ func extractResources(pageHTML string) Resources {
 	return res
 }
 
-func extractPhalanx(pageHTML string) ([]Fleet, error) {
+func extractPhalanx(pageHTML string, ogameTimestamp int) ([]Fleet, error) {
 	res := make([]Fleet, 0)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
@@ -1842,7 +1845,7 @@ func extractPhalanx(pageHTML string) ([]Fleet, error) {
 		mission, _ := strconv.Atoi(s.AttrOr("data-mission-type", "0"))
 		returning, _ := strconv.ParseBool(s.AttrOr("data-return-flight", "false"))
 		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", "0"))
-		arriveIn := int(time.Now().Unix()) - arrivalTime
+		arriveIn := arrivalTime - ogameTimestamp
 		if arriveIn < 0 {
 			arriveIn = 0
 		}
@@ -1880,8 +1883,54 @@ func extractPhalanx(pageHTML string) ([]Fleet, error) {
 }
 
 func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
-	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1&cp=%d",
-		coord.Galaxy, coord.System, coord.Position, moonID)
+	// Get moon facilities html page (first call to ogame server)
+	moonFacilitiesHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {strconv.Itoa(int(moonID))}})
+
+	// Extract bunch of infos from the html
+	moon, err := extractMoon(moonFacilitiesHTML, b, moonID)
+	if err != nil {
+		return make([]Fleet, 0), errors.New("moon not found")
+	}
+	resources := extractResources(moonFacilitiesHTML)
+	moonFacilities, _ := extractMoonFacilities(moonFacilitiesHTML)
+	ogameTimestamp := extractOgameTimestamp(moonFacilitiesHTML)
+	phalanxLvl := moonFacilities.SensorPhalanx
+
+	// Ensure we have the resources to scan the planet
+	if resources.Deuterium < 5000 {
+		return make([]Fleet, 0), errors.New("not enough deuterium")
+	}
+
+	// Verify that coordinate is in phalanx range
+	phalanxRange := 0
+	if phalanxLvl == 0 {
+		phalanxRange = 0
+	} else if phalanxLvl == 1 {
+		phalanxRange = 1
+	} else {
+		phalanxRange = int(math.Pow(float64(phalanxLvl), 2)) - 1
+	}
+	if moon.Coordinate.Galaxy != coord.Galaxy ||
+		systemDistance(moon.Coordinate.System, coord.System, b.donutSystem) > phalanxRange {
+		return make([]Fleet, 0), errors.New("coordinate not in phalanx range")
+	}
+
+	// Get galaxy planets information, verify coordinate is valid planet (second call to ogame server)
+	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
+	found := false
+	for _, p := range planetInfos {
+		if p.Coordinate.Position == coord.Position {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return make([]Fleet, 0), errors.New("invalid planet coordinate")
+	}
+
+	// Run the phalanx scan (third call to ogame server)
+	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1",
+		coord.Galaxy, coord.System, coord.Position)
 	req, err := http.NewRequest("GET", finalURL, nil)
 	if err != nil {
 		b.error(err.Error())
@@ -1897,7 +1946,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	by, _ := ioutil.ReadAll(resp.Body)
 	pageHTML := string(by)
 
-	return extractPhalanx(pageHTML)
+	return extractPhalanx(pageHTML, ogameTimestamp)
 }
 
 func extractAttacks(pageHTML string) []AttackEvent {
@@ -3626,8 +3675,9 @@ func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
-// IMPORTANT: My account was banned instantly when I scanned an invalid coordinate.
-// TODO: Maybe we should ensure the coordinate is valid. (within range, planet available, not your planet...)
+// IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
+// IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
+// 			  and that you have enough deuterium.
 func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	b.Lock()
 	defer b.Unlock()
