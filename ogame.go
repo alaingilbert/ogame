@@ -1882,6 +1882,7 @@ func extractPhalanx(pageHTML string, ogameTimestamp int) ([]Fleet, error) {
 	return res, nil
 }
 
+// getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
 func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	// Get moon facilities html page (first call to ogame server)
 	moonFacilitiesHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {strconv.Itoa(int(moonID))}})
