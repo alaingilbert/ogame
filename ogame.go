@@ -2047,6 +2047,7 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 			planetInfos.Vacation = strings.Contains(classes, "vacation_filter")
 			planetInfos.HonorableTarget = s.Find("span.status_abbr_honorableTarget").Size() > 0
 			planetInfos.Administrator = s.Find("span.status_abbr_admin").Size() > 0
+			planetInfos.Banned = s.Find("td.playername a span.status_abbr_banned").Size() > 0
 			planetInfos.Coordinate = extractCoord(coordsRaw)
 
 			var playerID int

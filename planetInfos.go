@@ -28,6 +28,7 @@ type PlanetInfos struct {
 	StrongPlayer    bool
 	Newbie          bool
 	HonorableTarget bool
+	Banned          bool
 	Debris          struct {
 		Metal           int
 		Crystal         int

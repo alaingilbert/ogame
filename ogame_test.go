@@ -320,6 +320,13 @@ func TestExtractAttacks1(t *testing.T) {
 	assert.Equal(t, 1, attacks[0].Missiles)
 }
 
+func TestExtractGalaxyInfos_banned(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_banned.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, true, infos[0].Banned)
+	assert.Equal(t, false, infos[2].Banned)
+}
+
 func TestExtractGalaxyInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
