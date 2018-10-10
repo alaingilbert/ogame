@@ -49,12 +49,12 @@ func (p *Planet) GetResourcesBuildings() (ResourcesBuildings, error) {
 
 // GetDefense gets all the defenses units information
 func (p *Planet) GetDefense() (DefensesInfos, error) {
-	return p.ogame.GetDefense(p.ID)
+	return p.ogame.GetDefense(p.ID.Celestial())
 }
 
 // GetShips gets all ships units information
 func (p *Planet) GetShips() (ShipsInfos, error) {
-	return p.ogame.GetShips(p.ID)
+	return p.ogame.GetShips(p.ID.Celestial())
 }
 
 // GetFacilities  gets all facilities information
