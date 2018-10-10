@@ -1,6 +1,6 @@
 package ogame
 
-// MoonID ...
+// MoonID represent a moon id
 type MoonID CelestialID
 
 // Celestial convert a MoonID to a CelestialID
