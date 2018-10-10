@@ -8,6 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractOgameTimestamp(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res := extractOgameTimestamp(string(pageHTMLBytes))
+	assert.Equal(t, 1538912592, res)
+}
+
 func TestExtractResources(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
 	res := extractResources(string(pageHTMLBytes))

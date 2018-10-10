@@ -1807,6 +1807,12 @@ func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalax
 	return
 }
 
+func extractOgameTimestamp(pageHTML string) int {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
+	return ogameTimestamp
+}
+
 func extractResources(pageHTML string) Resources {
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
 	res := Resources{}
