@@ -1,5 +1,7 @@
 package ogame
 
+import "math"
+
 type sensorPhalanx struct {
 	BaseBuilding
 }
@@ -12,4 +14,17 @@ func newSensorPhalanx() *sensorPhalanx {
 	b.BaseCost = Resources{Metal: 20000, Crystal: 40000, Deuterium: 20000}
 	b.Requirements = map[ID]int{LunarBaseID: 1}
 	return b
+}
+
+// GetRange gets sensor range
+func (p sensorPhalanx) GetRange(lvl int) int {
+	phalanxRange := 0
+	if lvl == 0 {
+		phalanxRange = 0
+	} else if lvl == 1 {
+		phalanxRange = 1
+	} else {
+		phalanxRange = int(math.Pow(float64(lvl), 2)) - 1
+	}
+	return phalanxRange
 }
