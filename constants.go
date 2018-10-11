@@ -64,8 +64,14 @@ func (s Speed) String() string {
 	}
 }
 
+type DestinationType int
+
 // OGame constants
 const (
+	PlanetDest DestinationType = 1
+	DebrisDest DestinationType = 2
+	MoonDest   DestinationType = 3
+
 	//Buildings
 	MetalMineID                    ID = 1
 	CrystalMineID                  ID = 2
@@ -86,6 +92,9 @@ const (
 	NaniteFactoryID                ID = 15
 	TerraformerID                  ID = 33
 	SpaceDockID                    ID = 36
+	LunarBaseID                    ID = 41 // Moon facilities
+	SensorPhalanxID                ID = 42
+	JumpGateID                     ID = 43
 	RocketLauncherID               ID = 401 // Defense
 	LightLaserID                   ID = 402
 	HeavyLaserID                   ID = 403

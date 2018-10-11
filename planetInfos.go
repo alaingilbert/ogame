@@ -1,5 +1,30 @@
 package ogame
 
+// SystemInfos planets information for a specific system
+type SystemInfos struct {
+	galaxy  int
+	system  int
+	planets [15]*PlanetInfos
+}
+
+// Galaxy returns galaxy info
+func (s *SystemInfos) Galaxy() int {
+	return s.galaxy
+}
+
+// System returns system info
+func (s *SystemInfos) System() int {
+	return s.system
+}
+
+// Position returns planet at position idx in the SystemInfos
+func (s *SystemInfos) Position(idx int) *PlanetInfos {
+	if idx < 1 || idx > 15 {
+		return nil
+	}
+	return s.planets[idx-1]
+}
+
 // MoonInfos public information of a moon in the galaxy page
 type MoonInfos struct {
 	ID       int
@@ -28,6 +53,7 @@ type PlanetInfos struct {
 	StrongPlayer    bool
 	Newbie          bool
 	HonorableTarget bool
+	Banned          bool
 	Debris          struct {
 		Metal           int
 		Crystal         int

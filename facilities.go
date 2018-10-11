@@ -12,6 +12,9 @@ type Facilities struct {
 	NaniteFactory   int
 	Terraformer     int
 	SpaceDock       int
+	LunarBase       int
+	SensorPhalanx   int
+	JumpGate        int
 }
 
 // ByID gets the facility level by facility id
@@ -32,6 +35,12 @@ func (f Facilities) ByID(id ID) int {
 		return f.Terraformer
 	} else if id == SpaceDock.ID {
 		return f.SpaceDock
+	} else if id == LunarBase.ID {
+		return f.LunarBase
+	} else if id == SensorPhalanx.ID {
+		return f.SensorPhalanx
+	} else if id == JumpGate.ID {
+		return f.JumpGate
 	}
 	return 0
 }
@@ -45,5 +54,8 @@ func (f Facilities) String() string {
 		"   Missile Silo: " + strconv.Itoa(f.MissileSilo) + "\n" +
 		" Nanite Factory: " + strconv.Itoa(f.NaniteFactory) + "\n" +
 		"    Terraformer: " + strconv.Itoa(f.Terraformer) + "\n" +
-		"     Space Dock: " + strconv.Itoa(f.SpaceDock)
+		"     Space Dock: " + strconv.Itoa(f.SpaceDock) + "\n" +
+		"     Lunar Base: " + strconv.Itoa(f.LunarBase) + "\n" +
+		" Sensor Phalanx: " + strconv.Itoa(f.SensorPhalanx) + "\n" +
+		"      Jump Gate: " + strconv.Itoa(f.JumpGate)
 }

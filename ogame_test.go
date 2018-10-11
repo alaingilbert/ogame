@@ -8,6 +8,49 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestExtractOgameTimestamp(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res := extractOgameTimestamp(string(pageHTMLBytes))
+	assert.Equal(t, 1538912592, res)
+}
+
+func TestExtractResources(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res := extractResources(string(pageHTMLBytes))
+	assert.Equal(t, 280000, res.Metal)
+	assert.Equal(t, 260000, res.Crystal)
+	assert.Equal(t, 280000, res.Deuterium)
+	assert.Equal(t, 0, res.Energy)
+	assert.Equal(t, 25000, res.Darkmatter)
+}
+
+func TestExtractPhalanx(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
+	res, err := extractPhalanx(string(pageHTMLBytes), 0)
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(res))
+	assert.Equal(t, MissionID(3), res[0].Mission)
+	assert.Equal(t, true, res[0].ReturnFlight)
+	assert.NotNil(t, res[0].ArriveIn)
+	assert.Equal(t, Coordinate{4, 116, 9}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 212, 8}, res[0].Destination)
+	assert.Equal(t, 100, res[0].Ships.LargeCargo)
+}
+
+func TestExtractPhalanx_noFleet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_fleet.html")
+	res, err := extractPhalanx(string(pageHTMLBytes), 0)
+	assert.Equal(t, 0, len(res))
+	assert.Nil(t, err)
+}
+
+func TestExtractPhalanx_noDeut(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_deut.html")
+	res, err := extractPhalanx(string(pageHTMLBytes), 0)
+	assert.Equal(t, 0, len(res))
+	assert.NotNil(t, err)
+}
+
 func TestExtractResearch(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/research_bonus.html")
 	res := extractResearch(string(pageHTMLBytes))
@@ -54,6 +97,16 @@ func TestExtractFacilities(t *testing.T) {
 	assert.Equal(t, 0, res.NaniteFactory)
 	assert.Equal(t, 0, res.Terraformer)
 	assert.Equal(t, 3, res.SpaceDock)
+}
+
+func TestExtractMoonFacilities(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res, _ := extractFacilities(string(pageHTMLBytes))
+	assert.Equal(t, 1, res.RoboticsFactory)
+	assert.Equal(t, 2, res.Shipyard)
+	assert.Equal(t, 3, res.LunarBase)
+	assert.Equal(t, 4, res.SensorPhalanx)
+	assert.Equal(t, 5, res.JumpGate)
 }
 
 func TestExtractDefense(t *testing.T) {
@@ -142,6 +195,25 @@ func TestExtractPlanet(t *testing.T) {
 	assert.Equal(t, 14615, planet.Diameter)
 }
 
+func TestExtractPlanet_notExists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
+	_, err := extractPlanet(string(pageHTMLBytes), PlanetID(12345), &OGame{language: "en"})
+	assert.NotNil(t, err)
+}
+
+func TestExtractPlanetByCoord(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
+	planet, _ := extractPlanetByCoord(string(pageHTMLBytes), &OGame{language: "en"}, Coordinate{1, 301, 8})
+	assert.Equal(t, "C1", planet.Name)
+	assert.Equal(t, 14615, planet.Diameter)
+}
+
+func TestExtractPlanetByCoord_notExists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
+	_, err := extractPlanetByCoord(string(pageHTMLBytes), &OGame{language: "en"}, Coordinate{1, 2, 3})
+	assert.NotNil(t, err)
+}
+
 func TestFindSlowestSpeed(t *testing.T) {
 	assert.Equal(t, 12000, findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}))
 }
@@ -218,6 +290,7 @@ func TestExtractAttacksWithShips(t *testing.T) {
 	attacks := extractAttacks(string(pageHTMLBytes))
 	assert.Equal(t, 1, len(attacks))
 	assert.NotNil(t, attacks[0].Ships)
+	assert.Equal(t, PlanetDest, attacks[0].DestinationType)
 	assert.Equal(t, 197, attacks[0].Ships.LargeCargo)
 	assert.Equal(t, 3, attacks[0].Ships.LightFighter)
 	assert.Equal(t, 8, attacks[0].Ships.HeavyFighter)
@@ -226,6 +299,18 @@ func TestExtractAttacksWithShips(t *testing.T) {
 	assert.Equal(t, 27, attacks[0].Ships.Bomber)
 	assert.Equal(t, 4, attacks[0].Ships.Destroyer)
 	assert.Equal(t, 11, attacks[0].Ships.Battlecruiser)
+}
+
+func TestExtractAttacksMoon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_moon_attacked.html")
+	attacks := extractAttacks(string(pageHTMLBytes))
+	assert.Equal(t, 1, len(attacks))
+	assert.NotNil(t, attacks[0].Ships)
+	assert.Equal(t, 107009, attacks[0].AttackerID)
+	assert.Equal(t, Coordinate{4, 212, 8}, attacks[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 12}, attacks[0].Destination)
+	assert.Equal(t, MoonDest, attacks[0].DestinationType)
+	assert.Equal(t, 1, attacks[0].Ships.SmallCargo)
 }
 
 func TestExtractAttacksWithThousandsShips(t *testing.T) {
@@ -251,76 +336,77 @@ func TestExtractAttacks1(t *testing.T) {
 	assert.Equal(t, 1, attacks[0].Missiles)
 }
 
+func TestExtractGalaxyInfos_banned(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_banned.html")
+	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
+	assert.Equal(t, true, infos.Position(1).Banned)
+	assert.Equal(t, false, infos.Position(9).Banned)
+}
+
 func TestExtractGalaxyInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 5, len(infos))
-	assert.Equal(t, 33698600, infos[0].ID)
-	assert.Equal(t, 33698645, infos[1].ID)
-	assert.Equal(t, 106733, infos[1].Player.ID)
-	assert.Equal(t, "Origin", infos[1].Player.Name)
-	assert.Equal(t, 1671, infos[1].Player.Rank)
-	assert.Equal(t, "Ra", infos[1].Name)
+	assert.Equal(t, 4, infos.Galaxy())
+	assert.Equal(t, 116, infos.System())
+	assert.Equal(t, 33698600, infos.Position(4).ID)
+	assert.Equal(t, 33698645, infos.Position(6).ID)
+	assert.Equal(t, 106733, infos.Position(6).Player.ID)
+	assert.Equal(t, "Origin", infos.Position(6).Player.Name)
+	assert.Equal(t, 1671, infos.Position(6).Player.Rank)
+	assert.Equal(t, "Ra", infos.Position(6).Name)
 }
 
 func TestExtractGalaxyInfosOwnPlanet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 5, len(infos))
-	assert.Equal(t, 33698658, infos[4].ID)
-	assert.Equal(t, "Commodore Nomade", infos[4].Player.Name)
-	assert.Equal(t, 123, infos[4].Player.ID)
-	assert.Equal(t, 456, infos[4].Player.Rank)
-	assert.Equal(t, "Homeworld", infos[4].Name)
+	assert.Equal(t, 33698658, infos.Position(12).ID)
+	assert.Equal(t, "Commodore Nomade", infos.Position(12).Player.Name)
+	assert.Equal(t, 123, infos.Position(12).Player.ID)
+	assert.Equal(t, 456, infos.Position(12).Player.Rank)
+	assert.Equal(t, "Homeworld", infos.Position(12).Name)
 }
 
 func TestExtractGalaxyInfosPlanetNoActivity(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_planet_activity.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 8, len(infos))
-	assert.Equal(t, 0, infos[7].Activity)
+	assert.Equal(t, 0, infos.Position(15).Activity)
 }
 
 func TestExtractGalaxyInfosPlanetActivity15(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_planet_activity.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 8, len(infos))
-	assert.Equal(t, 15, infos[2].Activity)
+	assert.Equal(t, 15, infos.Position(8).Activity)
 }
 
 func TestExtractGalaxyInfosPlanetActivity23(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_planet_activity.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 8, len(infos))
-	assert.Equal(t, 23, infos[3].Activity)
+	assert.Equal(t, 23, infos.Position(9).Activity)
 }
 
 func TestExtractGalaxyInfosMoonActivity(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_moon_activity.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 3, len(infos))
-	assert.Equal(t, 33732827, infos[0].Moon.ID)
-	assert.Equal(t, 5830, infos[0].Moon.Diameter)
-	assert.Equal(t, 18, infos[0].Moon.Activity)
+	assert.Equal(t, 33732827, infos.Position(3).Moon.ID)
+	assert.Equal(t, 5830, infos.Position(3).Moon.Diameter)
+	assert.Equal(t, 18, infos.Position(3).Moon.Activity)
 }
 
 func TestExtractGalaxyInfosMoonNoActivity(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_moon_no_activity.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 3, len(infos))
-	assert.Equal(t, 33650476, infos[0].Moon.ID)
-	assert.Equal(t, 7897, infos[0].Moon.Diameter)
-	assert.Equal(t, 0, infos[0].Moon.Activity)
+	assert.Equal(t, 33650476, infos.Position(2).Moon.ID)
+	assert.Equal(t, 7897, infos.Position(2).Moon.Diameter)
+	assert.Equal(t, 0, infos.Position(2).Moon.Activity)
 }
 
 func TestExtractGalaxyInfosMoonActivity15(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_moon_activity_unprecise.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 8, len(infos))
-	assert.Equal(t, 0, infos[5].Activity)
-	assert.Equal(t, 33730993, infos[5].Moon.ID)
-	assert.Equal(t, 8944, infos[5].Moon.Diameter)
-	assert.Equal(t, 15, infos[5].Moon.Activity)
+	assert.Equal(t, 0, infos.Position(11).Activity)
+	assert.Equal(t, 33730993, infos.Position(11).Moon.ID)
+	assert.Equal(t, 8944, infos.Position(11).Moon.Diameter)
+	assert.Equal(t, 15, infos.Position(11).Moon.Activity)
 }
 
 func TestExtractUserInfos(t *testing.T) {
@@ -359,6 +445,55 @@ func TestExtractUserInfos_br(t *testing.T) {
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 1026, infos.Rank)
 	assert.Equal(t, 1268, infos.Total)
+}
+
+func TestExtractMoons(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	moons := extractMoons(string(pageHTMLBytes), &OGame{language: "en"})
+	assert.Equal(t, 1, len(moons))
+}
+
+func TestExtractMoons2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_many_moon.html")
+	moons := extractMoons(string(pageHTMLBytes), &OGame{language: "en"})
+	assert.Equal(t, 2, len(moons))
+}
+
+func TestExtractMoon_exists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	_, err := extractMoon(string(pageHTMLBytes), &OGame{language: "en"}, MoonID(33741598))
+	assert.Nil(t, err)
+}
+
+func TestExtractMoon_notExists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	_, err := extractMoon(string(pageHTMLBytes), &OGame{language: "en"}, MoonID(12345))
+	assert.NotNil(t, err)
+}
+
+func TestExtractMoonByCoord_exists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	_, err := extractMoonByCoord(string(pageHTMLBytes), &OGame{language: "en"}, Coordinate{4, 116, 12})
+	assert.Nil(t, err)
+}
+
+func TestExtractMoonByCoord_notExists(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	_, err := extractMoonByCoord(string(pageHTMLBytes), &OGame{language: "en"}, Coordinate{1, 2, 3})
+	assert.NotNil(t, err)
+}
+
+func TestExtractPlanetsMoon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	planets := extractPlanets(string(pageHTMLBytes), nil)
+	assert.Equal(t, MoonID(33741598), planets[0].Moon.ID)
+	assert.Equal(t, "Moon", planets[0].Moon.Name)
+	assert.Equal(t, "https://gf1.geo.gfsrv.net/cdn9d/8e0e6034049bd64e18a1804b42f179.gif", planets[0].Moon.Img)
+	assert.Equal(t, 8774, planets[0].Moon.Diameter)
+	assert.Equal(t, Coordinate{4, 116, 12}, planets[0].Moon.Coordinate)
+	assert.Equal(t, 0, planets[0].Moon.Fields.Built)
+	assert.Equal(t, 1, planets[0].Moon.Fields.Total)
+	assert.Nil(t, planets[1].Moon)
 }
 
 func TestExtractPlanets_fieldsFilled(t *testing.T) {
@@ -439,109 +574,108 @@ func TestExtractPlanets_br(t *testing.T) {
 func TestExtractGalaxyInfos_honorableTarget(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.False(t, infos[0].HonorableTarget)
-	assert.True(t, infos[1].HonorableTarget)
-	assert.False(t, infos[2].HonorableTarget)
+	assert.False(t, infos.Position(6).HonorableTarget)
+	assert.True(t, infos.Position(8).HonorableTarget)
+	assert.False(t, infos.Position(9).HonorableTarget)
 }
 
 func TestExtractGalaxyInfos_inactive(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.True(t, infos[0].Inactive)
-	assert.False(t, infos[1].Inactive)
-	assert.False(t, infos[2].Inactive)
+	assert.True(t, infos.Position(6).Inactive)
+	assert.False(t, infos.Position(8).Inactive)
+	assert.False(t, infos.Position(9).Inactive)
 }
 
 func TestExtractGalaxyInfos_strongPlayer(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.False(t, infos[0].StrongPlayer)
-	assert.True(t, infos[1].StrongPlayer)
-	assert.False(t, infos[2].StrongPlayer)
+	assert.False(t, infos.Position(6).StrongPlayer)
+	assert.True(t, infos.Position(8).StrongPlayer)
+	assert.False(t, infos.Position(9).StrongPlayer)
 }
 
 func TestExtractGalaxyInfos_newbie(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_newbie.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.True(t, infos[0].Newbie)
+	assert.True(t, infos.Position(4).Newbie)
 }
 
 func TestExtractGalaxyInfos_moon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.NotNil(t, infos[0].Moon)
-	assert.Equal(t, 33701543, infos[0].Moon.ID)
-	assert.Equal(t, 8366, infos[0].Moon.Diameter)
+	assert.NotNil(t, infos.Position(6).Moon)
+	assert.Equal(t, 33701543, infos.Position(6).Moon.ID)
+	assert.Equal(t, 8366, infos.Position(6).Moon.Diameter)
 }
 
 func TestExtractGalaxyInfos_debris(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 0, infos[0].Debris.Metal)
-	assert.Equal(t, 700, infos[0].Debris.Crystal)
-	assert.Equal(t, 1, infos[0].Debris.RecyclersNeeded)
+	assert.Equal(t, 0, infos.Position(6).Debris.Metal)
+	assert.Equal(t, 700, infos.Position(6).Debris.Crystal)
+	assert.Equal(t, 1, infos.Position(6).Debris.RecyclersNeeded)
 }
 
 func TestExtractGalaxyInfos_debris_es(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_es.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 0, infos[5].Debris.Metal)
-	assert.Equal(t, 128000, infos[5].Debris.Crystal)
-	assert.Equal(t, 7, infos[5].Debris.RecyclersNeeded)
+	assert.Equal(t, 0, infos.Position(12).Debris.Metal)
+	assert.Equal(t, 128000, infos.Position(12).Debris.Crystal)
+	assert.Equal(t, 7, infos.Position(12).Debris.RecyclersNeeded)
 }
 
 func TestExtractGalaxyInfos_debris_fr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_fr.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 100, infos[1].Debris.Metal)
-	assert.Equal(t, 600, infos[1].Debris.Crystal)
-	assert.Equal(t, 1, infos[1].Debris.RecyclersNeeded)
+	assert.Equal(t, 100, infos.Position(7).Debris.Metal)
+	assert.Equal(t, 600, infos.Position(7).Debris.Crystal)
+	assert.Equal(t, 1, infos.Position(7).Debris.RecyclersNeeded)
 }
 
 func TestExtractGalaxyInfos_debris_de(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_debris_de.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 100, infos[3].Debris.Metal)
-	assert.Equal(t, 2500, infos[3].Debris.Crystal)
-	assert.Equal(t, 1, infos[3].Debris.RecyclersNeeded)
+	assert.Equal(t, 100, infos.Position(9).Debris.Metal)
+	assert.Equal(t, 2500, infos.Position(9).Debris.Crystal)
+	assert.Equal(t, 1, infos.Position(9).Debris.RecyclersNeeded)
 }
 
 func TestExtractGalaxyInfos_vacation(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 5, len(infos))
-	assert.False(t, infos[0].Vacation)
-	assert.True(t, infos[1].Vacation)
-	assert.True(t, infos[2].Vacation)
-	assert.False(t, infos[3].Vacation)
-	assert.False(t, infos[4].Vacation)
+	assert.False(t, infos.Position(4).Vacation)
+	assert.True(t, infos.Position(6).Vacation)
+	assert.True(t, infos.Position(8).Vacation)
+	assert.False(t, infos.Position(10).Vacation)
+	assert.False(t, infos.Position(12).Vacation)
 }
 
 func TestExtractGalaxyInfos_alliance(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 303, infos[3].Alliance.ID)
-	assert.Equal(t, "Qrvix", infos[3].Alliance.Name)
-	assert.Equal(t, 27, infos[3].Alliance.Rank)
-	assert.Equal(t, 16, infos[3].Alliance.Member)
+	assert.Equal(t, 303, infos.Position(10).Alliance.ID)
+	assert.Equal(t, "Qrvix", infos.Position(10).Alliance.Name)
+	assert.Equal(t, 27, infos.Position(10).Alliance.Rank)
+	assert.Equal(t, 16, infos.Position(10).Alliance.Member)
 }
 
 func TestExtractGalaxyInfos_alliance_fr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr/galaxy.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 635, infos[1].Alliance.ID)
-	assert.Equal(t, "leretour", infos[1].Alliance.Name)
-	assert.Equal(t, 24, infos[1].Alliance.Rank)
-	assert.Equal(t, 11, infos[1].Alliance.Member)
+	assert.Equal(t, 635, infos.Position(5).Alliance.ID)
+	assert.Equal(t, "leretour", infos.Position(5).Alliance.Name)
+	assert.Equal(t, 24, infos.Position(5).Alliance.Rank)
+	assert.Equal(t, 11, infos.Position(5).Alliance.Member)
 }
 
 func TestExtractGalaxyInfos_alliance_es(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/galaxy.html")
 	infos, _ := extractGalaxyInfos(string(pageHTMLBytes), "Commodore Nomade", 123, 456)
-	assert.Equal(t, 500053, infos[0].Alliance.ID)
-	assert.Equal(t, "Los Aliens Grises", infos[0].Alliance.Name)
-	assert.Equal(t, 8, infos[0].Alliance.Rank)
-	assert.Equal(t, 70, infos[0].Alliance.Member)
+	assert.Equal(t, 500053, infos.Position(4).Alliance.ID)
+	assert.Equal(t, "Los Aliens Grises", infos.Position(4).Alliance.Name)
+	assert.Equal(t, 8, infos.Position(4).Alliance.Rank)
+	assert.Equal(t, 70, infos.Position(4).Alliance.Member)
 }
 
 func TestUniverseSpeed(t *testing.T) {
@@ -719,6 +853,14 @@ func TestExtractEspionageReport(t *testing.T) {
 	assert.Nil(t, infos.SolarSatellite)
 }
 
+func TestExtractEspionageReportMoon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_moon.html")
+	infos, _ := extractEspionageReport(string(pageHTMLBytes), time.FixedZone("OGT", 3600))
+	assert.Equal(t, 6, *infos.LunarBase)
+	assert.Equal(t, 4, *infos.SensorPhalanx)
+	assert.Nil(t, infos.JumpGate)
+}
+
 func TestExtractEspionageReport1(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_buildings_researches_fleet.html")
 	infos, _ := extractEspionageReport(string(pageHTMLBytes), time.FixedZone("OGT", 3600))
@@ -760,13 +902,13 @@ func TestGalaxyDistance(t *testing.T) {
 }
 
 func TestSystemDistance(t *testing.T) {
-	assert.Equal(t, 3175, systemDistance(35, 30, false))
+	assert.Equal(t, 3175, flightSystemDistance(35, 30, false))
 
-	assert.Equal(t, 2795, systemDistance(1, 2, true))
-	assert.Equal(t, 2795, systemDistance(1, 499, true))
-	assert.Equal(t, 2890, systemDistance(1, 3, true))
-	assert.Equal(t, 2890, systemDistance(1, 498, true))
-	assert.Equal(t, 2890, systemDistance(498, 1, true))
+	assert.Equal(t, 2795, flightSystemDistance(1, 2, true))
+	assert.Equal(t, 2795, flightSystemDistance(1, 499, true))
+	assert.Equal(t, 2890, flightSystemDistance(1, 3, true))
+	assert.Equal(t, 2890, flightSystemDistance(1, 498, true))
+	assert.Equal(t, 2890, flightSystemDistance(498, 1, true))
 }
 
 func TestPlanetDistance(t *testing.T) {

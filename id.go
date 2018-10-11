@@ -34,6 +34,12 @@ func (o ID) String() string {
 		res += "Terraformer"
 	case SpaceDockID:
 		res += "SpaceDock"
+	case LunarBaseID:
+		res += "LunarBase"
+	case SensorPhalanxID:
+		res += "SensorPhalanx"
+	case JumpGateID:
+		res += "JumpGate"
 	case MetalMineID:
 		res += "MetalMine"
 	case CrystalMineID:
@@ -151,7 +157,10 @@ func (o ID) IsFacility() bool {
 		o == MissileSiloID ||
 		o == NaniteFactoryID ||
 		o == TerraformerID ||
-		o == SpaceDockID
+		o == SpaceDockID ||
+		o == LunarBaseID ||
+		o == SensorPhalanxID ||
+		o == JumpGateID
 }
 
 // IsResourceBuilding returns either or not the id is a resource building

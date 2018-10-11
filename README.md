@@ -35,6 +35,7 @@ func main() {
 
 ```go
 GetSession() string
+AddAccount(number int, lang string) (NewAccount, error)
 GetServer() Server
 SetUserAgent(newUserAgent string)
 ServerURL() string
@@ -61,33 +62,39 @@ GalaxyInfos(galaxy, system int) ([]PlanetInfos, error)
 GetResearch() Researches
 GetCachedPlanets() []Planet
 GetPlanets() []Planet
-GetPlanetByCoord(Coordinate) (Planet, error)
 GetPlanet(PlanetID) (Planet, error)
+GetPlanetByCoord(Coordinate) (Planet, error)
+GetMoons(MoonID) []Moon
+GetMoon(MoonID) (Moon, error)
+GetMoonByCoord(Coordinate) (Moon, error)
 GetEspionageReportMessages() ([]EspionageReportSummary, error)
 GetEspionageReport(msgID int) (EspionageReport, error)
 DeleteMessage(msgID int) error
 FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
+RegisterChatCallback(func(ChatMsg))
+
+// Planet or Moon functions
+GetResources(CelestialID) (Resources, error)
+SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType, mission MissionID, resources Resources) (FleetID, error)
+Build(celestialID CelestialID, id ID, nbr int) error
+BuildCancelable(CelestialID, ID) error
+BuildProduction(celestialID CelestialID, id ID, nbr int) error
+BuildBuilding(celestialID CelestialID, buildingID ID) error
+BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error
+BuildShips(celestialID CelestialID, shipID ID, nbr int) error
+CancelBuilding(CelestialID) error
+ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
+GetProduction(CelestialID) ([]Quantifiable, error)
+GetDefense(CelestialID) (DefensesInfos, error)
+GetShips(CelestialID) (ShipsInfos, error)
 
 // Planet specific functions
 GetResourceSettings(PlanetID) (ResourceSettings, error)
 SetResourceSettings(PlanetID, ResourceSettings) error
 GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
-GetDefense(PlanetID) (DefensesInfos, error)
-GetShips(PlanetID) (ShipsInfos, error)
 GetFacilities(PlanetID) (Facilities, error)
-Build(planetID PlanetID, id ID, nbr int) error
-BuildCancelable(PlanetID, ID) error
-BuildProduction(planetID PlanetID, id ID, nbr int) error
-BuildBuilding(planetID PlanetID, buildingID ID) error
 BuildTechnology(planetID PlanetID, technologyID ID) error
-BuildDefense(planetID PlanetID, defenseID ID, nbr int) error
-BuildShips(planetID PlanetID, shipID ID, nbr int) error
-GetProduction(PlanetID) ([]Quantifiable, error)
-ConstructionsBeingBuilt(PlanetID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
-CancelBuilding(PlanetID) error
 CancelResearch(PlanetID) error
-GetResources(PlanetID) (Resources, error)
-SendFleet(planetID PlanetID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, error)
 GetResourcesProductions(PlanetID) (Resources, error)
 ```
 
