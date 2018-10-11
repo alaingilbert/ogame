@@ -85,6 +85,7 @@ type Wrapper interface {
 	CancelBuilding(CelestialID) error
 	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
 	GetProduction(CelestialID) ([]Quantifiable, error)
+	GetFacilities(CelestialID) (Facilities, error)
 	GetDefense(CelestialID) (DefensesInfos, error)
 	GetShips(CelestialID) (ShipsInfos, error)
 
@@ -92,7 +93,6 @@ type Wrapper interface {
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
 	GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
-	GetFacilities(PlanetID) (Facilities, error)
 	BuildTechnology(planetID PlanetID, technologyID ID) error
 	CancelResearch(PlanetID) error
 	//GetResourcesProductionRatio(PlanetID) (float64, error)
