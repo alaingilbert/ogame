@@ -2945,6 +2945,9 @@ type EspionageReport struct {
 	NaniteFactory                *int
 	Terraformer                  *int
 	SpaceDock                    *int
+	LunarBase                    *int
+	SensorPhalanx                *int
+	JumpGate                     *int
 	EnergyTechnology             *int // Researches
 	LaserTechnology              *int
 	IonTechnology                *int
@@ -3053,6 +3056,12 @@ func extractEspionageReport(pageHTML string, location *time.Location) (Espionage
 					report.Terraformer = level
 				case SpaceDock.ID:
 					report.SpaceDock = level
+				case LunarBase.ID:
+					report.LunarBase = level
+				case SensorPhalanx.ID:
+					report.SensorPhalanx = level
+				case JumpGate.ID:
+					report.JumpGate = level
 				}
 			})
 		} else if dataType == "research" {

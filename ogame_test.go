@@ -853,6 +853,14 @@ func TestExtractEspionageReport(t *testing.T) {
 	assert.Nil(t, infos.SolarSatellite)
 }
 
+func TestExtractEspionageReportMoon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_moon.html")
+	infos, _ := extractEspionageReport(string(pageHTMLBytes), time.FixedZone("OGT", 3600))
+	assert.Equal(t, 6, *infos.LunarBase)
+	assert.Equal(t, 4, *infos.SensorPhalanx)
+	assert.Nil(t, infos.JumpGate)
+}
+
 func TestExtractEspionageReport1(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_buildings_researches_fleet.html")
 	infos, _ := extractEspionageReport(string(pageHTMLBytes), time.FixedZone("OGT", 3600))
