@@ -649,6 +649,7 @@ func getPhpSessionID(client *ogameClient, username, password string) (string, er
 	if err != nil {
 		return "", err
 	}
+
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	resp, err := client.Do(req)
 	if err != nil {
