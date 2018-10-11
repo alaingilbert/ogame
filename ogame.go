@@ -1908,7 +1908,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		return make([]Fleet, 0), errors.New("moon not found")
 	}
 	resources := extractResources(moonFacilitiesHTML)
-	moonFacilities, _ := extractMoonFacilities(moonFacilitiesHTML)
+	moonFacilities, _ := extractFacilities(moonFacilitiesHTML)
 	ogameTimestamp := extractOgameTimestamp(moonFacilitiesHTML)
 	phalanxLvl := moonFacilities.SensorPhalanx
 
@@ -2337,19 +2337,6 @@ func extractFacilities(pageHTML string) (Facilities, error) {
 	res.NaniteFactory = getNbr(doc, "station15")
 	res.Terraformer = getNbr(doc, "station33")
 	res.SpaceDock = getNbr(doc, "station36")
-	return res, nil
-}
-
-func extractMoonFacilities(pageHTML string) (MoonFacilities, error) {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
-	doc.Find("span.textlabel").Remove()
-	bodyID, _ := doc.Find("body").Attr("id")
-	if bodyID == "overview" {
-		return MoonFacilities{}, ErrInvalidPlanetID
-	}
-	res := MoonFacilities{}
-	res.RoboticsFactory = getNbr(doc, "station14")
-	res.Shipyard = getNbr(doc, "station21")
 	res.LunarBase = getNbr(doc, "station41")
 	res.SensorPhalanx = getNbr(doc, "station42")
 	res.JumpGate = getNbr(doc, "station43")
@@ -2400,14 +2387,9 @@ func (b *OGame) getShips(celestialID CelestialID) (ShipsInfos, error) {
 	return extractShips(pageHTML)
 }
 
-func (b *OGame) getFacilities(planetID PlanetID) (Facilities, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {planetID.String()}})
+func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {strconv.Itoa(int(celestialID))}})
 	return extractFacilities(pageHTML)
-}
-
-func (b *OGame) getMoonFacilities(moonID MoonID) (MoonFacilities, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {strconv.Itoa(int(moonID))}})
-	return extractMoonFacilities(pageHTML)
 }
 
 func extractProduction(pageHTML string) ([]Quantifiable, error) {
@@ -3545,17 +3527,10 @@ func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
 }
 
 // GetFacilities gets all facilities information of a planet
-func (b *OGame) GetFacilities(planetID PlanetID) (Facilities, error) {
+func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.getFacilities(planetID)
-}
-
-// GetFacilities gets all facilities information of a planet
-func (b *OGame) GetMoonFacilities(moonID MoonID) (MoonFacilities, error) {
-	b.Lock()
-	defer b.Unlock()
-	return b.getMoonFacilities(moonID)
+	return b.getFacilities(celestialID)
 }
 
 // GetProduction get what is in the production queue.

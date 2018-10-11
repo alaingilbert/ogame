@@ -420,7 +420,7 @@ func getFacilities(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
-	res, err := bot.GetFacilities(ogame.PlanetID(planetID))
+	res, err := bot.GetFacilities(ogame.CelestialID(planetID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}

@@ -31,8 +31,8 @@ func (m *Moon) GetResources() (Resources, error) {
 }
 
 // GetFacilities gets the moon facilities
-func (m *Moon) GetFacilities() (MoonFacilities, error) {
-	return m.ogame.GetMoonFacilities(m.ID)
+func (m *Moon) GetFacilities() (Facilities, error) {
+	return m.ogame.GetFacilities(m.ID.Celestial())
 }
 
 //// BuildFacility build a facility

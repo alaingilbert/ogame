@@ -59,7 +59,7 @@ func (p *Planet) GetShips() (ShipsInfos, error) {
 
 // GetFacilities  gets all facilities information
 func (p *Planet) GetFacilities() (Facilities, error) {
-	return p.ogame.GetFacilities(p.ID)
+	return p.ogame.GetFacilities(p.ID.Celestial())
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)

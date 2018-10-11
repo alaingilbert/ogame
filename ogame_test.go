@@ -101,7 +101,7 @@ func TestExtractFacilities(t *testing.T) {
 
 func TestExtractMoonFacilities(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
-	res, _ := extractMoonFacilities(string(pageHTMLBytes))
+	res, _ := extractFacilities(string(pageHTMLBytes))
 	assert.Equal(t, 1, res.RoboticsFactory)
 	assert.Equal(t, 2, res.Shipyard)
 	assert.Equal(t, 3, res.LunarBase)
