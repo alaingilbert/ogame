@@ -906,13 +906,13 @@ func (b *OGame) login() error {
 func (b *OGame) connectChat(host, port string) {
 	req, err := http.NewRequest("GET", "https://"+host+":"+port+"/socket.io/1/?t="+strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10), nil)
 	if err != nil {
-		fmt.Println("failed to create request:", err)
+		b.error("failed to create request:", err)
 		return
 	}
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("failed to get socket.io token:", err)
+		b.error("failed to get socket.io token:", err)
 		return
 	}
 	defer resp.Body.Close()
@@ -924,7 +924,7 @@ func (b *OGame) connectChat(host, port string) {
 	url := "wss://" + host + ":" + port + "/socket.io/1/websocket/" + token
 	b.ws, err = websocket.Dial(url, "", origin)
 	if err != nil {
-		fmt.Println("failed to dial websocket:", err)
+		b.error("failed to dial websocket:", err)
 		return
 	}
 
@@ -941,14 +941,14 @@ LOOP:
 		b.ws.SetReadDeadline(time.Now().Add(time.Second))
 		if _, err = b.ws.Read(buf); err != nil {
 			if err == io.EOF {
-				fmt.Println("chat eof:", err)
+				b.error("chat eof:", err)
 				break
 			} else if strings.HasSuffix(err.Error(), "use of closed network connection") {
 				break
 			} else if strings.HasSuffix(err.Error(), "i/o timeout") {
 				continue
 			} else {
-				fmt.Println("chat unexpected error", err)
+				b.error("chat unexpected error", err)
 			}
 		}
 		msg := string(bytes.Trim(buf, "\x00"))
@@ -956,7 +956,6 @@ LOOP:
 			b.ws.Write([]byte("1::/chat"))
 		} else if msg == "1::/chat" {
 			authMsg := `5:` + strconv.Itoa(b.sessionChatCounter) + `+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
-			fmt.Println("auth: ", authMsg)
 			b.ws.Write([]byte(authMsg))
 			b.sessionChatCounter++
 		} else if msg == "2::" {
@@ -964,12 +963,12 @@ LOOP:
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).MatchString(msg) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[false]`).MatchString(msg) {
-			b.debug("Failed to connect to chat")
+			b.error("Failed to connect to chat")
 		} else if strings.HasPrefix(msg, "5::/chat:") {
 			payload := strings.TrimPrefix(msg, "5::/chat:")
 			var chatPayload ChatPayload
 			if err := json.Unmarshal([]byte(payload), &chatPayload); err != nil {
-				fmt.Println("Unable to unmarshal chat payload", err, payload)
+				b.error("Unable to unmarshal chat payload", err, payload)
 				continue
 			}
 			for _, chatMsg := range chatPayload.Args {
