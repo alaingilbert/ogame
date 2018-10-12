@@ -980,11 +980,13 @@ LOOP:
 	}
 }
 
+// ChatPayload ...
 type ChatPayload struct {
 	Name string    `json:"name"`
 	Args []ChatMsg `json:"args"`
 }
 
+// ChatMsg ...
 type ChatMsg struct {
 	SenderId      int    `json:"senderId"`
 	SenderName    string `json:"senderName"`
@@ -3258,6 +3260,7 @@ func (b *OGame) GetSession() string {
 	return b.ogameSession
 }
 
+// NewAccount response from creating a new account
 type NewAccount struct {
 	ID     int
 	Server struct {

@@ -2,11 +2,13 @@ package ogame
 
 import "time"
 
+// ExponentialBackoff ...
 type ExponentialBackoff struct {
 	val int
 	max int
 }
 
+// NewExponentialBackoff ...
 func NewExponentialBackoff(max int) *ExponentialBackoff {
 	if max < 0 {
 		max = 0
@@ -16,6 +18,7 @@ func NewExponentialBackoff(max int) *ExponentialBackoff {
 	return e
 }
 
+// Wait ...
 func (e *ExponentialBackoff) Wait() {
 	if e.val == 0 {
 		e.val = 1
@@ -30,6 +33,7 @@ func (e *ExponentialBackoff) Wait() {
 	}
 }
 
+// Reset ...
 func (e *ExponentialBackoff) Reset() {
 	e.val = 0
 }
