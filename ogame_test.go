@@ -3,11 +3,38 @@ package ogame
 import (
 	"bytes"
 	"io/ioutil"
+	"regexp"
 	"testing"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/assert"
 )
+
+func BenchmarkUserInfoRegex(b *testing.B) {
+	extractUserRegex := func(pageHTML []byte) (int, string) {
+		playerID := toInt(regexp.MustCompile(`playerId="(\d+)"`).FindSubmatch(pageHTML)[1])
+		playerName := string(regexp.MustCompile(`playerName="([^"]+)"`).FindSubmatch(pageHTML)[1])
+		return playerID, playerName
+	}
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
+	for n := 0; n < b.N; n++ {
+		extractUserRegex(pageHTMLBytes)
+	}
+}
+
+func BenchmarkUserInfoGoquery(b *testing.B) {
+	extractUserGoquery := func(pageHTML []byte) (int, string) {
+		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+		playerID := parseInt(doc.Find("meta[name=ogame-player-id]").AttrOr("content", "0"))
+		playerName := doc.Find("meta[name=ogame-player-name]").AttrOr("content", "")
+		return playerID, playerName
+	}
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
+	for n := 0; n < b.N; n++ {
+		extractUserGoquery(pageHTMLBytes)
+	}
+}
 
 func TestExtractOgameTimestamp(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
