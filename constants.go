@@ -64,6 +64,7 @@ func (s Speed) String() string {
 	}
 }
 
+// DestinationType destination type might be planet/moon/debris
 type DestinationType int
 
 // OGame constants

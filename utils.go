@@ -13,6 +13,13 @@ func parseInt(val string) int {
 	return res
 }
 
+func toInt(buf []byte) (n int) {
+	for _, v := range buf {
+		n = n*10 + int(v-'0')
+	}
+	return
+}
+
 // IsDefenseID helper returns if an integer is a defense id
 func IsDefenseID(id int) bool {
 	return ID(id).IsDefense()
