@@ -3278,26 +3278,26 @@ func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
 	payload.Language = lang
 	payload.Number = number
 	jsonPayloadBytes, err := json.Marshal(&payload)
+	var newAccount NewAccount
 	if err != nil {
-		return NewAccount{}, err
+		return newAccount, err
 	}
 	req, err := http.NewRequest("PUT", "https://lobby-api.ogame.gameforge.com/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
-		return NewAccount{}, err
+		return newAccount, err
 	}
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := b.client.Do(req)
 	if err != nil {
-		return NewAccount{}, err
+		return newAccount, err
 	}
 	defer resp.Body.Close()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return NewAccount{}, err
+		return newAccount, err
 	}
-	var newAccount NewAccount
 	if err := json.Unmarshal(by, &newAccount); err != nil {
-		return NewAccount{}, err
+		return newAccount, err
 	}
 	return newAccount, nil
 }
