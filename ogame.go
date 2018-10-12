@@ -40,8 +40,8 @@ type Wrapper interface {
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
 	GetLanguage() string
-	GetPageContent(url.Values) string
-	PostPageContent(url.Values, url.Values) string
+	GetPageContent(url.Values) []byte
+	PostPageContent(url.Values, url.Values) []byte
 	Login() error
 	Logout()
 	GetUsername() string
@@ -847,15 +847,13 @@ func (b *OGame) login() error {
 	}
 	defer resp.Body.Close()
 
-	by, err := ioutil.ReadAll(resp.Body)
+	pageHTML, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
-	pageHTML := string(by)
-
 	b.debug("extract information from html")
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
 		return err
 	}
@@ -878,9 +876,9 @@ func (b *OGame) login() error {
 	b.Planets = extractPlanets(pageHTML, b)
 
 	// Extract chat host and port
-	m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindStringSubmatch(pageHTML)
-	chatHost := m[1]
-	chatPort := m[2]
+	m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindSubmatch(pageHTML)
+	chatHost := string(m[1])
+	chatPort := string(m[2])
 
 	if atomic.CompareAndSwapInt32(&b.chatConnected, 0, 1) {
 		b.closeChatCh = make(chan struct{})
@@ -951,21 +949,21 @@ LOOP:
 				b.error("chat unexpected error", err)
 			}
 		}
-		msg := string(bytes.Trim(buf, "\x00"))
-		if msg == "1::" {
+		msg := bytes.Trim(buf, "\x00")
+		if bytes.Equal(msg, []byte("1::")) {
 			b.ws.Write([]byte("1::/chat"))
-		} else if msg == "1::/chat" {
+		} else if bytes.Equal(msg, []byte("1::/chat")) {
 			authMsg := `5:` + strconv.Itoa(b.sessionChatCounter) + `+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
 			b.ws.Write([]byte(authMsg))
 			b.sessionChatCounter++
-		} else if msg == "2::" {
+		} else if bytes.Equal(msg, []byte("2::")) {
 			b.ws.Write([]byte("2::"))
-		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).MatchString(msg) {
+		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).Match(msg) {
 			b.debug("chat connected")
-		} else if regexp.MustCompile(`6::/chat:\d+\+\[false]`).MatchString(msg) {
+		} else if regexp.MustCompile(`6::/chat:\d+\+\[false]`).Match(msg) {
 			b.error("Failed to connect to chat")
-		} else if strings.HasPrefix(msg, "5::/chat:") {
-			payload := strings.TrimPrefix(msg, "5::/chat:")
+		} else if bytes.HasPrefix(msg, []byte("5::/chat:")) {
+			payload := bytes.TrimPrefix(msg, []byte("5::/chat:"))
 			var chatPayload ChatPayload
 			if err := json.Unmarshal([]byte(payload), &chatPayload); err != nil {
 				b.error("Unable to unmarshal chat payload", err, payload)
@@ -988,9 +986,9 @@ type ChatPayload struct {
 
 // ChatMsg ...
 type ChatMsg struct {
-	SenderId      int    `json:"senderId"`
+	SenderID      int    `json:"senderId"`
 	SenderName    string `json:"senderName"`
-	AssociationId int    `json:"associationId"`
+	AssociationID int    `json:"associationId"`
 	Text          string `json:"text"`
 	ID            int    `json:"id"`
 	Date          int    `json:"date"`
@@ -998,9 +996,9 @@ type ChatMsg struct {
 
 func (m ChatMsg) String() string {
 	return "\n" +
-		"     Sender ID: " + strconv.Itoa(m.SenderId) + "\n" +
+		"     Sender ID: " + strconv.Itoa(m.SenderID) + "\n" +
 		"   Sender name: " + m.SenderName + "\n" +
-		"Association ID: " + strconv.Itoa(m.AssociationId) + "\n" +
+		"Association ID: " + strconv.Itoa(m.AssociationID) + "\n" +
 		"          Text: " + m.Text + "\n" +
 		"            ID: " + strconv.Itoa(m.ID) + "\n" +
 		"          Date: " + strconv.Itoa(m.Date)
@@ -1016,8 +1014,8 @@ func (b *OGame) logout() {
 	}
 }
 
-func isLogged(pageHTML string) bool {
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func isLogged(pageHTML []byte) bool {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
 		return false
 	}
@@ -1025,7 +1023,8 @@ func isLogged(pageHTML string) bool {
 	return ogameSession != ""
 }
 
-func isAjaxPage(vals url.Values) bool {
+// IsAjaxPage either the requested page is a partial/ajax page
+func IsAjaxPage(vals url.Values) bool {
 	page := vals.Get("page")
 	ajax := vals.Get("ajax")
 	return page == "fetchEventbox" ||
@@ -1040,12 +1039,12 @@ func isAjaxPage(vals url.Values) bool {
 		ajax == "1"
 }
 
-func (b *OGame) postPageContent(vals, payload url.Values) string {
+func (b *OGame) postPageContent(vals, payload url.Values) []byte {
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
 	if err != nil {
 		b.error(err)
-		return ""
+		return []byte{}
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
@@ -1062,7 +1061,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) string {
 	resp, err := b.client.Do(req)
 	if err != nil {
 		b.error(err)
-		return ""
+		return []byte{}
 	}
 	defer resp.Body.Close()
 
@@ -1078,21 +1077,21 @@ func (b *OGame) postPageContent(vals, payload url.Values) string {
 	body, err := ioutil.ReadAll(reader)
 	if err != nil {
 		b.error(err)
-		return ""
+		return []byte{}
 	}
 
-	return string(body)
+	return body
 }
 
-func (b *OGame) getPageContent(vals url.Values) string {
+func (b *OGame) getPageContent(vals url.Values) []byte {
 	if b.serverURL == "" {
 		b.error("serverURL is empty")
-		return ""
+		return []byte{}
 	}
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	page := vals.Get("page")
-	var pageHTML string
+	var pageHTMLBytes []byte
 
 	b.withRetry(func() error {
 		req, err := http.NewRequest("GET", finalURL, nil)
@@ -1114,9 +1113,9 @@ func (b *OGame) getPageContent(vals url.Values) string {
 		if err != nil {
 			return err
 		}
-		pageHTML = string(by)
+		pageHTMLBytes = by
 
-		if page != "logout" && !isAjaxPage(vals) && !isLogged(pageHTML) {
+		if page != "logout" && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
 			return ErrNotLogged
 		}
@@ -1125,14 +1124,14 @@ func (b *OGame) getPageContent(vals url.Values) string {
 	})
 
 	if page == "overview" {
-		b.Player, _ = extractUserInfos(pageHTML, b.language)
-		b.Planets = extractPlanets(pageHTML, b)
-	} else if isAjaxPage(vals) {
+		b.Player, _ = extractUserInfos(pageHTMLBytes, b.language)
+		b.Planets = extractPlanets(pageHTMLBytes, b)
+	} else if IsAjaxPage(vals) {
 	} else {
-		b.Planets = extractPlanets(pageHTML, b)
+		b.Planets = extractPlanets(pageHTMLBytes, b)
 	}
 
-	return pageHTML
+	return pageHTMLBytes
 }
 
 type eventboxResp struct {
@@ -1173,7 +1172,7 @@ func (b *OGame) withRetry(fn func() error) {
 func (b *OGame) getPageJSON(vals url.Values, v interface{}) {
 	b.withRetry(func() error {
 		pageJSON := b.getPageContent(vals)
-		if err := json.Unmarshal([]byte(pageJSON), v); err != nil {
+		if err := json.Unmarshal(pageJSON, v); err != nil {
 			return ErrNotLogged
 		}
 		return nil
@@ -1182,8 +1181,8 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) {
 
 // extract universe speed from html calculation
 // pageHTML := b.getPageContent(url.Values{"page": {"techtree"}, "tab": {"2"}, "techID": {"1"}})
-func extractUniverseSpeed(pageHTML string) int {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractUniverseSpeed(pageHTML []byte) int {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	spans := doc.Find("span.undermark")
 	level := parseInt(spans.Eq(0).Text())
 	val := parseInt(spans.Eq(1).Text())
@@ -1347,9 +1346,9 @@ func extractMoonFromSelection(moonLink *goquery.Selection, b *OGame) (Moon, erro
 	return moon, nil
 }
 
-func extractPlanets(pageHTML string, b *OGame) []Planet {
+func extractPlanets(pageHTML []byte, b *OGame) []Planet {
 	res := make([]Planet, 0)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
 		planet, err := extractPlanetFromSelection(s, b)
 		if err != nil {
@@ -1361,8 +1360,8 @@ func extractPlanets(pageHTML string, b *OGame) []Planet {
 	return res
 }
 
-func extractPlanet(pageHTML string, planetID PlanetID, b *OGame) (Planet, error) {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractPlanet(pageHTML []byte, planetID PlanetID, b *OGame) (Planet, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	s := doc.Find("div#planet-" + planetID.String())
 	if len(s.Nodes) > 0 { // planet
 		return extractPlanetFromSelection(s, b)
@@ -1370,7 +1369,7 @@ func extractPlanet(pageHTML string, planetID PlanetID, b *OGame) (Planet, error)
 	return Planet{}, errors.New("failed to find planetID")
 }
 
-func extractPlanetByCoord(pageHTML string, b *OGame, coord Coordinate) (Planet, error) {
+func extractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error) {
 	planets := extractPlanets(pageHTML, b)
 	for _, planet := range planets {
 		if planet.Coordinate.Equal(coord) {
@@ -1380,9 +1379,9 @@ func extractPlanetByCoord(pageHTML string, b *OGame, coord Coordinate) (Planet, 
 	return Planet{}, errors.New("invalid planet coordinate")
 }
 
-func extractMoons(pageHTML string, b *OGame) []Moon {
+func extractMoons(pageHTML []byte, b *OGame) []Moon {
 	res := make([]Moon, 0)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("a.moonlink").Each(func(i int, s *goquery.Selection) {
 		moon, err := extractMoonFromSelection(s, b)
 		if err != nil {
@@ -1393,7 +1392,7 @@ func extractMoons(pageHTML string, b *OGame) []Moon {
 	return res
 }
 
-func extractMoon(pageHTML string, b *OGame, moonID MoonID) (Moon, error) {
+func extractMoon(pageHTML []byte, b *OGame, moonID MoonID) (Moon, error) {
 	moons := extractMoons(pageHTML, b)
 	for _, moon := range moons {
 		if moon.ID == moonID {
@@ -1403,7 +1402,7 @@ func extractMoon(pageHTML string, b *OGame, moonID MoonID) (Moon, error) {
 	return Moon{}, errors.New("moon not found")
 }
 
-func extractMoonByCoord(pageHTML string, b *OGame, coord Coordinate) (Moon, error) {
+func extractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error) {
 	moons := extractMoons(pageHTML, b)
 	for _, moon := range moons {
 		if moon.Coordinate.Equal(coord) {
@@ -1447,8 +1446,8 @@ func (b *OGame) serverVersion() string {
 	return b.ogameVersion
 }
 
-func extractServerTime(pageHTML string) (time.Time, error) {
-	doc, err := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractServerTime(pageHTML []byte) (time.Time, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
 		return time.Time{}, err
 	}
@@ -1581,13 +1580,13 @@ func name2id(name string) ID {
 	return nameMap[processedString]
 }
 
-func extractUserInfos(pageHTML, lang string) (UserInfos, error) {
-	playerIDRgx := regexp.MustCompile(`playerId="(\w+)"`)
+func extractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
+	playerIDRgx := regexp.MustCompile(`playerId="(\d+)"`)
 	playerNameRgx := regexp.MustCompile(`playerName="([^"]+)"`)
 	txtContent := regexp.MustCompile(`textContent\[7]="([^"]+)"`)
-	playerIDGroups := playerIDRgx.FindStringSubmatch(pageHTML)
-	playerNameGroups := playerNameRgx.FindStringSubmatch(pageHTML)
-	subHTMLGroups := txtContent.FindStringSubmatch(pageHTML)
+	playerIDGroups := playerIDRgx.FindSubmatch(pageHTML)
+	playerNameGroups := playerNameRgx.FindSubmatch(pageHTML)
+	subHTMLGroups := txtContent.FindSubmatch(pageHTML)
 	if len(playerIDGroups) < 2 {
 		return UserInfos{}, errors.New("cannot find player id")
 	}
@@ -1598,10 +1597,10 @@ func extractUserInfos(pageHTML, lang string) (UserInfos, error) {
 		return UserInfos{}, errors.New("cannot find sub html")
 	}
 	res := UserInfos{}
-	res.PlayerID, _ = strconv.Atoi(playerIDGroups[1])
-	res.PlayerName = playerNameGroups[1]
+	res.PlayerID = toInt(playerIDGroups[1])
+	res.PlayerName = string(playerNameGroups[1])
 	html2 := subHTMLGroups[1]
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(html2))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(html2))
 
 	infosRgx := regexp.MustCompile(`([\d\\.]+) \(Place ([\d.]+) of ([\d.]+)\)`)
 	switch lang {
@@ -1627,11 +1626,11 @@ func extractUserInfos(pageHTML, lang string) (UserInfos, error) {
 	res.Rank = parseInt(infos[2])
 	res.Total = parseInt(infos[3])
 	honourPointsRgx := regexp.MustCompile(`textContent\[9]="([^"]+)"`)
-	honourPointsGroups := honourPointsRgx.FindStringSubmatch(pageHTML)
+	honourPointsGroups := honourPointsRgx.FindSubmatch(pageHTML)
 	if len(honourPointsGroups) < 2 {
 		return UserInfos{}, errors.New("cannot find honour points")
 	}
-	res.HonourPoints = parseInt(honourPointsGroups[1])
+	res.HonourPoints = parseInt(string(honourPointsGroups[1]))
 	return res, nil
 }
 
@@ -1685,9 +1684,9 @@ func extractCoord(v string) (coord Coordinate) {
 	return
 }
 
-func extractFleets(pageHTML string) (res []Fleet) {
+func extractFleets(pageHTML []byte) (res []Fleet) {
 	res = make([]Fleet, 0)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
 		originText := s.Find("span.originCoords a").Text()
 		origin := extractCoord(originText)
@@ -1826,14 +1825,14 @@ func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalax
 	return
 }
 
-func extractOgameTimestamp(pageHTML string) int {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractOgameTimestamp(pageHTML []byte) int {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
 	return ogameTimestamp
 }
 
-func extractResources(pageHTML string) Resources {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractResources(pageHTML []byte) Resources {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	res := Resources{}
 	res.Metal = parseInt(doc.Find("span#resources_metal").Text())
 	res.Crystal = parseInt(doc.Find("span#resources_crystal").Text())
@@ -1843,9 +1842,9 @@ func extractResources(pageHTML string) Resources {
 	return res
 }
 
-func extractPhalanx(pageHTML string, ogameTimestamp int) ([]Fleet, error) {
+func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 	res := make([]Fleet, 0)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
 	if eventFleet.Size() == 0 {
 		txt := doc.Find("div#phalanxEventContent").Text()
@@ -1951,14 +1950,13 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		return []Fleet{}, err
 	}
 	defer resp.Body.Close()
-	by, _ := ioutil.ReadAll(resp.Body)
-	pageHTML := string(by)
+	pageHTML, _ := ioutil.ReadAll(resp.Body)
 
 	return extractPhalanx(pageHTML, ogameTimestamp)
 }
 
-func extractAttacks(pageHTML string) []AttackEvent {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractAttacks(pageHTML []byte) []AttackEvent {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	attacks := make([]AttackEvent, 0)
 	tmp := func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")
@@ -2041,13 +2039,12 @@ func (b *OGame) getAttacks() []AttackEvent {
 		return []AttackEvent{}
 	}
 	defer resp.Body.Close()
-	by, _ := ioutil.ReadAll(resp.Body)
-	pageHTML := string(by)
+	pageHTML, _ := ioutil.ReadAll(resp.Body)
 
 	return extractAttacks(pageHTML)
 }
 
-func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
+func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
 	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
 
 	extractActivity := func(activityDiv *goquery.Selection) int {
@@ -2066,7 +2063,7 @@ func extractGalaxyInfos(pageHTML, botPlayerName string, botPlayerID, botPlayerRa
 	var tmp struct {
 		Galaxy string
 	}
-	json.Unmarshal([]byte(pageHTML), &tmp)
+	json.Unmarshal(pageHTML, &tmp)
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
 	var res SystemInfos
 	res.galaxy = parseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
@@ -2181,14 +2178,13 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 		return SystemInfos{}, err
 	}
 	defer resp.Body.Close()
-	by, _ := ioutil.ReadAll(resp.Body)
-	pageHTML := string(by)
+	pageHTML, _ := ioutil.ReadAll(resp.Body)
 	return extractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"resourceSettings"}, "cp": {planetID.String()}})
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
 		return ResourceSettings{}, ErrInvalidPlanetID
@@ -2219,7 +2215,7 @@ func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error)
 
 func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings) error {
 	pageHTML := b.getPageContent(url.Values{"page": {"resourceSettings"}, "cp": {planetID.String()}})
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
 		return ErrInvalidPlanetID
@@ -2254,8 +2250,8 @@ func getNbr(doc *goquery.Document, name string) int {
 	return parseInt(level.Text())
 }
 
-func extractResourcesBuildings(pageHTML string) (ResourcesBuildings, error) {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
@@ -2274,8 +2270,8 @@ func extractResourcesBuildings(pageHTML string) (ResourcesBuildings, error) {
 	return res, nil
 }
 
-func extractDefense(pageHTML string) (DefensesInfos, error) {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractDefense(pageHTML []byte) (DefensesInfos, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
 		return DefensesInfos{}, ErrInvalidPlanetID
@@ -2296,8 +2292,8 @@ func extractDefense(pageHTML string) (DefensesInfos, error) {
 	return res, nil
 }
 
-func extractShips(pageHTML string) (ShipsInfos, error) {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractShips(pageHTML []byte) (ShipsInfos, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
@@ -2322,8 +2318,8 @@ func extractShips(pageHTML string) (ShipsInfos, error) {
 	return res, nil
 }
 
-func extractFacilities(pageHTML string) (Facilities, error) {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractFacilities(pageHTML []byte) (Facilities, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
@@ -2344,8 +2340,8 @@ func extractFacilities(pageHTML string) (Facilities, error) {
 	return res, nil
 }
 
-func extractResearch(pageHTML string) Researches {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractResearch(pageHTML []byte) Researches {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	res := Researches{}
 	res.EnergyTechnology = getNbr(doc, "research113")
@@ -2393,9 +2389,9 @@ func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
 	return extractFacilities(pageHTML)
 }
 
-func extractProduction(pageHTML string) ([]Quantifiable, error) {
+func extractProduction(pageHTML []byte) ([]Quantifiable, error) {
 	res := make([]Quantifiable, 0)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	active := doc.Find("table.construction")
 	href, _ := active.Find("td a").Attr("href")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
@@ -2449,7 +2445,7 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
 	// Techs don't have a token
 	if !id.IsTech() {
 		pageHTML := b.getPageContent(url.Values{"page": {page}, "cp": {strconv.Itoa(int(celestialID))}})
-		doc, err := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		if err != nil {
 			return err
 		}
@@ -2515,17 +2511,17 @@ func (b *OGame) buildShips(celestialID CelestialID, shipID ID, nbr int) error {
 	return b.buildProduction(celestialID, ID(shipID), nbr)
 }
 
-func extractConstructions(pageHTML string) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
-	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindStringSubmatch(pageHTML)
+func extractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
+	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		buildingCountdown, _ = strconv.Atoi(buildingCountdownMatch[1])
-		buildingIDInt, _ := strconv.Atoi(regexp.MustCompile(`onclick="cancelProduction\((\d+),`).FindStringSubmatch(pageHTML)[1])
+		buildingCountdown = toInt(buildingCountdownMatch[1])
+		buildingIDInt := toInt(regexp.MustCompile(`onclick="cancelProduction\((\d+),`).FindSubmatch(pageHTML)[1])
 		buildingID = ID(buildingIDInt)
 	}
-	researchCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("researchCountdown"\),(\d+),`).FindStringSubmatch(pageHTML)
+	researchCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("researchCountdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(researchCountdownMatch) > 0 {
-		researchCountdown, _ = strconv.Atoi(researchCountdownMatch[1])
-		researchIDInt, _ := strconv.Atoi(regexp.MustCompile(`onclick="cancelResearch\((\d+),`).FindStringSubmatch(pageHTML)[1])
+		researchCountdown = toInt(researchCountdownMatch[1])
+		researchIDInt := toInt(regexp.MustCompile(`onclick="cancelResearch\((\d+),`).FindSubmatch(pageHTML)[1])
 		researchID = ID(researchIDInt)
 	}
 	return
@@ -2536,14 +2532,14 @@ func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, i
 	return extractConstructions(pageHTML)
 }
 
-func extractCancelBuildingInfos(pageHTML string) (token string, techID, listID int, err error) {
+func extractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int, err error) {
 	r1 := regexp.MustCompile(`page=overview&modus=2&token=(\w+)&techid="\+cancelProduction_id\+"&listid="\+production_listid`)
-	m1 := r1.FindStringSubmatch(pageHTML)
+	m1 := r1.FindSubmatch(pageHTML)
 	if len(m1) < 2 {
 		return "", 0, 0, errors.New("unable to find token")
 	}
-	token = m1[1]
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	token = string(m1[1])
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	t := doc.Find("table.construction").Eq(0)
 	a, _ := t.Find("a.abortNow").Attr("onclick")
 	r := regexp.MustCompile(`cancelProduction\((\d+),\s?(\d+),`)
@@ -2556,14 +2552,14 @@ func extractCancelBuildingInfos(pageHTML string) (token string, techID, listID i
 	return
 }
 
-func extractCancelResearchInfos(pageHTML string) (token string, techID, listID int, err error) {
+func extractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int, err error) {
 	r1 := regexp.MustCompile(`page=overview&modus=2&token=(\w+)"\+"&techid="\+id\+"&listid="\+listId`)
-	m1 := r1.FindStringSubmatch(pageHTML)
+	m1 := r1.FindSubmatch(pageHTML)
 	if len(m1) < 2 {
 		return "", 0, 0, errors.New("unable to find token")
 	}
-	token = m1[1]
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	token = string(m1[1])
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	t := doc.Find("table.construction").Eq(1)
 	a, _ := t.Find("a.abortNow").Attr("onclick")
 	r := regexp.MustCompile(`cancelResearch\((\d+),\s?(\d+),`)
@@ -2599,7 +2595,7 @@ func (b *OGame) cancelResearch(planetID PlanetID) error {
 func (b *OGame) fetchResources(celestialID CelestialID) (resourcesResp, error) {
 	pageJSON := b.getPageContent(url.Values{"page": {"fetchResources"}, "cp": {strconv.Itoa(int(celestialID))}})
 	var res resourcesResp
-	if err := json.Unmarshal([]byte(pageJSON), &res); err != nil {
+	if err := json.Unmarshal(pageJSON, &res); err != nil {
 		if isLogged(pageJSON) {
 			return resourcesResp{}, ErrInvalidPlanetID
 		}
@@ -2619,8 +2615,8 @@ func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 	}, err
 }
 
-func extractFleet1Ships(pageHTML string) ShipsInfos {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractFleet1Ships(pageHTML []byte) ShipsInfos {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	onclick := doc.Find("a#sendall").AttrOr("onclick", "")
 	matches := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)
 	if len(matches) == 0 {
@@ -2638,8 +2634,8 @@ func extractFleet1Ships(pageHTML string) ShipsInfos {
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	destType DestinationType, mission MissionID, resources Resources) (FleetID, error) {
-	getHiddenFields := func(pageHTML string) map[string]string {
-		doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	getHiddenFields := func(pageHTML []byte) map[string]string {
+		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		fields := make(map[string]string)
 		doc.Find("input[type=hidden]").Each(func(i int, s *goquery.Selection) {
 			name, _ := s.Attr("name")
@@ -2652,7 +2648,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	// Page 1 : get to fleet page
 	pageHTML := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {strconv.Itoa(int(celestialID))}})
 
-	fleet1Doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
 	if fleet1BodyID != "fleet1" {
 		return 0, ErrInvalidPlanetID
@@ -2689,8 +2685,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return 0, err
 	}
 	defer fleet2Resp.Body.Close()
-	by, _ := ioutil.ReadAll(fleet2Resp.Body)
-	pageHTML = string(by)
+	pageHTML, _ = ioutil.ReadAll(fleet2Resp.Body)
 
 	payload = url.Values{}
 	hidden = getHiddenFields(pageHTML)
@@ -2753,10 +2748,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return 0, err
 	}
 	defer fleet3Resp.Body.Close()
-	by, _ = ioutil.ReadAll(fleet3Resp.Body)
-	pageHTML = string(by)
+	pageHTML, _ = ioutil.ReadAll(fleet3Resp.Body)
 
-	fleet3Doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	pageID := fleet3Doc.Find("body").AttrOr("id", "")
 	if pageID == "fleet1" {
 		return 0, errors.New("probably not enough space for deuterium")
@@ -2779,7 +2773,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Page 5
 	movementHTML := b.getPageContent(url.Values{"page": {"movement"}})
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(movementHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
 	matches := make([]int, 0)
 	originCoords, _ := doc.Find("meta[name=ogame-planet-coordinates]").Attr("content")
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -2830,9 +2824,9 @@ type EspionageReportSummary struct {
 	Target Coordinate
 }
 
-func extractCombatReportMessageIDs(pageHTML string) ([]CombatReportSummary, int) {
+func extractCombatReportMessageIDs(pageHTML []byte) ([]CombatReportSummary, int) {
 	msgs := make([]CombatReportSummary, 0)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
@@ -2846,9 +2840,9 @@ func extractCombatReportMessageIDs(pageHTML string) ([]CombatReportSummary, int)
 	return msgs, nbPage
 }
 
-func extractEspionageReportMessageIDs(pageHTML string) ([]EspionageReportSummary, int) {
+func extractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int) {
 	msgs := make([]EspionageReportSummary, 0)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
@@ -2869,7 +2863,7 @@ func extractEspionageReportMessageIDs(pageHTML string) ([]EspionageReportSummary
 	return msgs, nbPage
 }
 
-func (b *OGame) getPageMessages(page, tabid int) (string, error) {
+func (b *OGame) getPageMessages(page, tabid int) ([]byte, error) {
 	finalURL := b.serverURL + "/game/index.php?page=messages"
 	payload := url.Values{
 		"messageId":  {"-1"},
@@ -2880,17 +2874,17 @@ func (b *OGame) getPageMessages(page, tabid int) (string, error) {
 	}
 	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
 	resp, err := b.client.Do(req)
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 	by, _ := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	return string(by), nil
+	return by, nil
 }
 
 func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
@@ -2975,9 +2969,9 @@ type EspionageReport struct {
 	Date                         time.Time
 }
 
-func extractEspionageReport(pageHTML string, location *time.Location) (EspionageReport, error) {
+func extractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	txt := doc.Find("span.msg_title a").First().Text()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
@@ -3232,8 +3226,8 @@ func getProductions(resBuildings ResourcesBuildings, resSettings ResourceSetting
 	}
 }
 
-func extractResourcesProductions(pageHTML string) (Resources, error) {
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(pageHTML))
+func extractResourcesProductions(pageHTML []byte) (Resources, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	res := Resources{}
 	selector := "table.listOfResourceSettingsPerPlanet tr.summary td span"
 	el := doc.Find(selector)
@@ -3368,7 +3362,7 @@ func (b *OGame) IsDonutSystem() bool {
 }
 
 // GetPageContent gets the html for a specific ogame page
-func (b *OGame) GetPageContent(vals url.Values) string {
+func (b *OGame) GetPageContent(vals url.Values) []byte {
 	b.Lock()
 	defer b.Unlock()
 	return b.getPageContent(vals)
@@ -3376,7 +3370,7 @@ func (b *OGame) GetPageContent(vals url.Values) string {
 
 // PostPageContent make a post request to ogame server
 // This is useful when simulating a web browser
-func (b *OGame) PostPageContent(vals, payload url.Values) string {
+func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
 	b.Lock()
 	defer b.Unlock()
 	return b.postPageContent(vals, payload)
