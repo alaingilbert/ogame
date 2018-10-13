@@ -65,6 +65,28 @@ func TestExtractPhalanx(t *testing.T) {
 	assert.Equal(t, 100, res[0].Ships.LargeCargo)
 }
 
+func TestExtractPhalanx_manyFleets(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_fleets.html")
+	res, err := extractPhalanx(pageHTMLBytes, 0)
+	assert.Nil(t, err)
+	assert.Equal(t, 12, len(res))
+	assert.Equal(t, Expedition, res[0].Mission)
+	assert.False(t, res[0].ReturnFlight)
+	assert.Equal(t, Coordinate{4, 124, 9}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 125, 16}, res[0].Destination)
+	assert.Equal(t, 250, res[0].Ships.LargeCargo)
+	assert.Equal(t, 1, res[0].Ships.EspionageProbe)
+	assert.Equal(t, 1, res[0].Ships.Destroyer)
+
+	assert.Equal(t, Expedition, res[8].Mission)
+	assert.True(t, res[8].ReturnFlight)
+	assert.Equal(t, Coordinate{4, 124, 9}, res[8].Origin)
+	assert.Equal(t, Coordinate{4, 125, 16}, res[8].Destination)
+	assert.Equal(t, 250, res[8].Ships.LargeCargo)
+	assert.Equal(t, 1, res[8].Ships.EspionageProbe)
+	assert.Equal(t, 1, res[8].Ships.Destroyer)
+}
+
 func TestExtractPhalanx_noFleet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_fleet.html")
 	res, err := extractPhalanx(pageHTMLBytes, 0)
