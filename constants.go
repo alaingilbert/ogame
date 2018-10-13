@@ -67,6 +67,19 @@ func (s Speed) String() string {
 // DestinationType destination type might be planet/moon/debris
 type DestinationType int
 
+func (d DestinationType) String() string {
+	switch d {
+	case PlanetDest:
+		return "planet"
+	case MoonDest:
+		return "moon"
+	case DebrisDest:
+		return "debris"
+	default:
+		return strconv.Itoa(int(d))
+	}
+}
+
 // OGame constants
 const (
 	PlanetDest DestinationType = 1
