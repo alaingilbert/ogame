@@ -1037,6 +1037,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == "techtree" ||
 		page == "phalanx" ||
 		page == "shareReportOverlay" ||
+		page == "jumpgatelayer" ||
 		ajax == "1"
 }
 
