@@ -1101,6 +1101,10 @@ func (b *OGame) getPageContent(vals url.Values) []byte {
 			return err
 		}
 
+		if IsAjaxPage(vals) {
+			req.Header.Add("X-Requested-With", "XMLHttpRequest")
+		}
+
 		resp, err := b.client.Do(req)
 		if err != nil {
 			return err
