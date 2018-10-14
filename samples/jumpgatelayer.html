@@ -1,0 +1,332 @@
+<div id='content'><div id="jumpgate">
+	<form id="jumpgateForm" name="jumpgateForm">
+        <input type='hidden' name='token' value='7787b530670bc89623b5d65a827e557a' />
+	<div id="selecttarget">
+		<h4>Select jump target</h4>
+	    <div class="fleft">
+	        <span class="textBeefy">
+            	Starting coordinates
+	        </span>	
+	        <a class="dark_highlight_tablet" target="_parent" href="https://www.ogame.ninja/bots/1/browser/html?page=galaxy&galaxy=4&system=116">
+                [4:116:12]
+	        </a>
+	    </div>
+                    <div class="homeIcon openStandardMoonMenu js_openStandardMoonMenu tooltip js_hideTipOnMobile" title="Standard Jump Gate Target"></div>
+    	    <div class="fright">
+    	        <span class="textBeefy">
+    	        	Destination coordinates:
+    	        </span>
+    	        <select name="zm">
+                	                                                                                                    				<option value="33743183" >
+                                Moon [4:126:8]
+                            </option>
+                                                                                                	        </select>
+    	    </div>        
+        	    <br class="clearfloat" />
+	</div>    
+
+    	
+        <h4>Select ships</h4>
+		<table cellspacing="0" cellpadding="0" class="list ship_selection_table">
+                            			    <tr class="">
+            
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech202" width="28" height="28" alt="Small Cargo" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Small Cargo
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="202"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="202"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                                
+                    <td class="ship_txt_row">
+                <a class="dark_highlight_tablet" href="javascript:void(0);"
+                   onclick="toggleMaxShips('#jumpgateForm', 203, 101)">
+                   <div class="shipImage"> 
+                        <img class="tech203" width="28" height="28" alt="Large Cargo" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                    </div>
+                </a>
+                <p>
+                    Large Cargo
+                    <span class="quantity" style='cursor: pointer; cursor: hand;' onclick="toggleMaxShips('#jumpgateForm', 203, 101)" >(101)</span>
+                </p>
+
+            </td>
+            <td class="ship_input_row">
+                <input name="ship_203"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="ship_203"
+                    autocomplete="off"
+                    rel="101"
+                    class="textRight textinput" />
+        	</td>
+        
+                        </tr>
+                                			    <tr class="">
+            
+                    <td class="ship_txt_row">
+                <a class="dark_highlight_tablet" href="javascript:void(0);"
+                   onclick="toggleMaxShips('#jumpgateForm', 204, 1)">
+                   <div class="shipImage"> 
+                        <img class="tech204" width="28" height="28" alt="Light Fighter" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                    </div>
+                </a>
+                <p>
+                    Light Fighter
+                    <span class="quantity" style='cursor: pointer; cursor: hand;' onclick="toggleMaxShips('#jumpgateForm', 204, 1)" >(1)</span>
+                </p>
+
+            </td>
+            <td class="ship_input_row">
+                <input name="ship_204"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="ship_204"
+                    autocomplete="off"
+                    rel="1"
+                    class="textRight textinput" />
+        	</td>
+        
+                                
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech205" width="28" height="28" alt="Heavy Fighter" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Heavy Fighter
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="205"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="205"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                        </tr>
+                                			    <tr class="">
+            
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech206" width="28" height="28" alt="Cruiser" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Cruiser
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="206"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="206"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                                
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech207" width="28" height="28" alt="Battleship" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Battleship
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="207"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="207"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                        </tr>
+                                			    <tr class="">
+            
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech208" width="28" height="28" alt="Colony Ship" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Colony Ship
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="208"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="208"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                                
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech209" width="28" height="28" alt="Recycler" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Recycler
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="209"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="209"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                        </tr>
+                                			    <tr class="">
+            
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech210" width="28" height="28" alt="Espionage Probe" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Espionage Probe
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="210"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="210"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                                
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech211" width="28" height="28" alt="Bomber" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Bomber
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="211"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="211"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                        </tr>
+                                			    <tr class="">
+            
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech213" width="28" height="28" alt="Destroyer" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Destroyer
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="213"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="213"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                                
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech214" width="28" height="28" alt="Deathstar" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Deathstar
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="214"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="214"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                        </tr>
+                                			    <tr class="">
+            
+                    <td class="ship_txt_row tdInactive">
+                <div class="shipImage">
+                    <img class="off tech215" width="28" height="28" alt="Battlecruiser" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </div>
+                <p>
+                    Battlecruiser
+                    <span class="quantity">(0)</span>
+                </p>
+            </td>
+            <td class="ship_input_row">
+                <input name="215"
+                    type="text" type="text" pattern="[0-9,.]*"
+                    id="215"
+                    class="textRight disabled"
+                    disabled />
+            </td>
+        
+                        <td colspan="2"></td>
+	</tr>
+	</table>
+        <div class="secondcol">
+            <span class="float_left send_all">
+                <a	id="sendall"
+                    href="javascript:void(0);"
+                    class="tooltip js_hideTipOnMobile"
+                    title="Select all available ships"
+                    onClick='setMaxIntInput("#jumpgateForm", {"203":101,"204":1})'>
+                        <img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </a>
+            </span>
+            <span class="float_left send_none">
+                <a 	href="javascript:void(0);"
+                    class="tooltip js_hideTipOnMobile"
+                    title="Reset choice"
+                    onClick="document.jumpgateForm.reset();">
+                        <img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"/>
+                </a>
+            </span>
+
+            <input type="button"
+                class="btn_blue float_right js_executeJumpButton"
+                value="Jump"
+                data-url="https://www.ogame.ninja/bots/1/browser/html?page=jumpgate_execute">
+            </input>
+        </div>
+    </form>
+            </div>
+
+<script type="text/javascript">
+var planet;
+
+var translation = {"validTargetNeeded":"You have to select a valid target.","noShipsWereSelected":"No ships selected!","changeSettingOnlyWithCommander":"You need a commander to change these settings."};
+
+function jumpToTarget() {
+    location.href = 'https://www.ogame.ninja/bots/1/browser/html?page=fleet1&cp=' + planet;
+}
+
+$(document).ready(function() {
+    initJumpgate();
+});
+</script>
+</div>

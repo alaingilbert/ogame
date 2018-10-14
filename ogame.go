@@ -1961,6 +1961,82 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	return extractPhalanx(pageHTML, ogameTimestamp)
 }
 
+func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
+	m := regexp.MustCompile(`\$\("#cooldown"\), (\d+),`).FindSubmatch(pageHTML)
+	ships := ShipsInfos{}
+	var destinations []MoonID
+	if len(m) > 0 {
+		waitTime := toInt(m[1])
+		return ships, "", destinations, waitTime
+	}
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	for _, s := range Ships {
+		ships.Set(s.GetID(), parseInt(doc.Find("input#ship_"+strconv.Itoa(int(s.GetID()))).AttrOr("rel", "0")))
+	}
+	token := doc.Find("input[name=token]").AttrOr("value", "")
+
+	doc.Find("select[name=zm] option").Each(func(i int, s *goquery.Selection) {
+		moonID := parseInt(s.AttrOr("value", "0"))
+		if moonID > 0 {
+			destinations = append(destinations, MoonID(moonID))
+		}
+	})
+
+	return ships, token, destinations, 0
+}
+
+func moonIDInSlice(needle MoonID, haystack []MoonID) bool {
+	for _, element := range haystack {
+		if needle == element {
+			return true
+		}
+	}
+	return false
+}
+
+func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfos) error {
+	pageHTML := b.getPageContent(url.Values{"page": {"jumpgatelayer"}, "cp": {strconv.Itoa(int(originMoonID))}})
+	availShips, token, dests, wait := extractJumpGate(pageHTML)
+	if wait > 0 {
+		return fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
+	}
+
+	// Validate destination moon id
+	if !moonIDInSlice(destMoonID, dests) {
+		return errors.New("destination moon id invalid")
+	}
+
+	finalURL := b.serverURL + "/game/index.php?page=jumpgate_execute"
+	payload := url.Values{
+		"token": {token},
+		"zm":    {strconv.Itoa(int(destMoonID))},
+	}
+
+	// Add ships to payload
+	for _, s := range Ships {
+		// Get the min between what is available and what we want
+		nbr := int(math.Min(float64(ships.ByID(s.GetID())), float64(availShips.ByID(s.GetID()))))
+		if nbr > 0 {
+			payload.Add("ship_"+strconv.Itoa(int(s.GetID())), strconv.Itoa(nbr))
+		}
+	}
+
+	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	resp, err := b.client.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("failed to execute jump gate : %s", resp.Status)
+	}
+	return nil
+}
+
 func extractAttacks(pageHTML []byte) []AttackEvent {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	attacks := make([]AttackEvent, 0)
