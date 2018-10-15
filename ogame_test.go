@@ -36,6 +36,24 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 	}
 }
 
+func TestExtractJumpGate_cooldown(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/jumpgatelayer_charge.html")
+	_, _, _, wait := extractJumpGate(pageHTMLBytes)
+	assert.Equal(t, 1730, wait)
+}
+
+func TestExtractJumpGate(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/jumpgatelayer.html")
+	ships, token, dests, wait := extractJumpGate(pageHTMLBytes)
+	assert.Equal(t, 1, len(dests))
+	assert.Equal(t, MoonID(33743183), dests[0])
+	assert.Equal(t, 0, wait)
+	assert.Equal(t, "7787b530670bc89623b5d65a827e557a", token)
+	assert.Equal(t, 0, ships.SmallCargo)
+	assert.Equal(t, 101, ships.LargeCargo)
+	assert.Equal(t, 1, ships.LightFighter)
+}
+
 func TestExtractOgameTimestamp(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
 	res := extractOgameTimestamp(pageHTMLBytes)
