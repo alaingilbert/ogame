@@ -1,5 +1,7 @@
 package ogame
 
+import "github.com/go-errors/errors"
+
 // MoonID represent a moon id
 type MoonID CelestialID
 
@@ -19,19 +21,79 @@ type Moon struct {
 	Fields     Fields
 }
 
+func (m Moon) GetName() string {
+	return m.Name
+}
+
+func (m Moon) GetID() CelestialID {
+	return m.ID.Celestial()
+}
+
+func (m Moon) GetType() DestinationType {
+	return MoonDest
+}
+
+func (m Moon) GetCoordinate() Coordinate {
+	return m.Coordinate
+}
+
+func (m Moon) GetFields() Fields {
+	return m.Fields
+}
+
+// ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
+func (m Moon) ConstructionsBeingBuilt() (ID, int, ID, int) {
+	return m.ogame.ConstructionsBeingBuilt(CelestialID(m.ID))
+}
+
+// GetResourcesBuildings gets the resources buildings levels
+func (m Moon) GetResourcesBuildings() (ResourcesBuildings, error) {
+	return m.ogame.GetResourcesBuildings(m.ID.Celestial())
+}
+
+// GetShips gets all ships units information
+func (m Moon) GetShips() (ShipsInfos, error) {
+	return m.ogame.GetShips(m.ID.Celestial())
+}
+
+// BuildTechnology ensure that we're trying to build a technology
+func (m Moon) BuildTechnology(technologyID ID) error {
+	return errors.New("cannot build technology on a moon")
+}
+
+// BuildDefense builds a defense unit
+func (m Moon) BuildDefense(defenseID ID, nbr int) error {
+	return m.ogame.BuildDefense(CelestialID(m.ID), defenseID, nbr)
+}
+
+// BuildBuilding ensure what is being built is a building
+func (m Moon) BuildBuilding(buildingID ID) error {
+	return m.ogame.BuildBuilding(CelestialID(m.ID), buildingID)
+}
+
+// CancelBuilding cancel the construction of a building
+func (m Moon) CancelBuilding() error {
+	return m.ogame.CancelBuilding(CelestialID(m.ID))
+}
+
+// CancelResearch cancel the research
+func (m Moon) CancelResearch() error {
+	return m.ogame.CancelResearch(m.ID.Celestial())
+}
+
 // SendFleet sends a fleet
-func (m *Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType,
+func (m Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType,
 	mission MissionID, resources Resources) (FleetID, error) {
 	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, destType, mission, resources)
 }
 
 // GetResources gets moon resources
-func (m *Moon) GetResources() (Resources, error) {
+func (m Moon) GetResources() (Resources, error) {
 	return m.ogame.GetResources(CelestialID(m.ID))
 }
 
 // GetFacilities gets the moon facilities
-func (m *Moon) GetFacilities() (Facilities, error) {
+func (m Moon) GetFacilities() (Facilities, error) {
 	return m.ogame.GetFacilities(m.ID.Celestial())
 }
 

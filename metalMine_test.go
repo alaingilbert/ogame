@@ -32,3 +32,10 @@ func TestMetalMine_EnergyConsumption(t *testing.T) {
 	mm := newMetalMine()
 	assert.Equal(t, 4601, mm.EnergyConsumption(29))
 }
+
+func TestMetalMine_IsAvailable(t *testing.T) {
+	mm := newMetalMine()
+	assert.True(t, mm.IsAvailable(PlanetDest, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
+	assert.False(t, mm.IsAvailable(DebrisDest, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
+	assert.False(t, mm.IsAvailable(MoonDest, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
+}

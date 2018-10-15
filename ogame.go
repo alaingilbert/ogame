@@ -67,6 +67,7 @@ type Wrapper interface {
 	GetMoons(MoonID) []Moon
 	GetMoon(MoonID) (Moon, error)
 	GetMoonByCoord(Coordinate) (Moon, error)
+	GetCelestial(Coordinate, DestinationType) (Celestial, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
@@ -88,13 +89,13 @@ type Wrapper interface {
 	GetFacilities(CelestialID) (Facilities, error)
 	GetDefense(CelestialID) (DefensesInfos, error)
 	GetShips(CelestialID) (ShipsInfos, error)
+	GetResourcesBuildings(CelestialID) (ResourcesBuildings, error)
+	CancelResearch(CelestialID) error
+	BuildTechnology(celestialID CelestialID, technologyID ID) error
 
 	// Planet specific functions
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
-	GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
-	BuildTechnology(planetID PlanetID, technologyID ID) error
-	CancelResearch(PlanetID) error
 	//GetResourcesProductionRatio(PlanetID) (float64, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
 
@@ -210,7 +211,7 @@ type BaseOgameObj interface {
 	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 	GetRequirements() map[ID]int
 	GetPrice(int) Resources
-	IsAvailable(ResourcesBuildings, Facilities, Researches, int) bool
+	IsAvailable(DestinationType, ResourcesBuildings, Facilities, Researches, int) bool
 }
 
 // Levelable base interface for all levelable ogame objects (buildings, technologies)
@@ -438,6 +439,9 @@ var Buildings = []Building{
 	Terraformer,
 	UndergroundCrystalDen,
 	SolarSatellite,
+	LunarBase,
+	SensorPhalanx,
+	JumpGate,
 }
 
 // Technologies array of all technologies objects
@@ -1418,6 +1422,34 @@ func extractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, erro
 	return Moon{}, errors.New("invalid moon coordinate")
 }
 
+type Celestial interface {
+	GetID() CelestialID
+	GetType() DestinationType
+	GetName() string
+	GetCoordinate() Coordinate
+	GetFields() Fields
+	GetResources() (Resources, error)
+	GetFacilities() (Facilities, error)
+	SendFleet([]Quantifiable, Speed, Coordinate, DestinationType, MissionID, Resources) (FleetID, error)
+	GetShips() (ShipsInfos, error)
+	BuildDefense(defenseID ID, nbr int) error
+	ConstructionsBeingBuilt() (ID, int, ID, int)
+	GetResourcesBuildings() (ResourcesBuildings, error)
+	BuildBuilding(buildingID ID) error
+	BuildTechnology(technologyID ID) error
+	CancelResearch() error
+	CancelBuilding() error
+}
+
+func extractCelestial(pageHTML []byte, b *OGame, coord Coordinate, t DestinationType) (Celestial, error) {
+	if t == PlanetDest {
+		return extractPlanetByCoord(pageHTML, b, coord)
+	} else if t == MoonDest {
+		return extractMoonByCoord(pageHTML, b, coord)
+	}
+	return nil, errors.New("celestial not found")
+}
+
 func (b *OGame) getPlanets() []Planet {
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}})
 	return extractPlanets(pageHTML, b)
@@ -1446,6 +1478,11 @@ func (b *OGame) getMoon(moonID MoonID) (Moon, error) {
 func (b *OGame) getMoonByCoord(coord Coordinate) (Moon, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}})
 	return extractMoonByCoord(pageHTML, b, coord)
+}
+
+func (b *OGame) getCelestial(coord Coordinate, t DestinationType) (Celestial, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}})
+	return extractCelestial(pageHTML, b, coord, t)
 }
 
 func (b *OGame) serverVersion() string {
@@ -2451,8 +2488,8 @@ func (b *OGame) getResearch() Researches {
 	return extractResearch(pageHTML)
 }
 
-func (b *OGame) getResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
-	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {planetID.String()}})
+func (b *OGame) getResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
+	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {strconv.Itoa(int(celestialID))}})
 	return extractResourcesBuildings(pageHTML)
 }
 
@@ -2572,11 +2609,11 @@ func (b *OGame) buildBuilding(celestialID CelestialID, buildingID ID) error {
 	return b.buildCancelable(celestialID, buildingID)
 }
 
-func (b *OGame) buildTechnology(planetID PlanetID, technologyID ID) error {
-	if technologyID.IsTech() {
+func (b *OGame) buildTechnology(celestialID CelestialID, technologyID ID) error {
+	if !technologyID.IsTech() {
 		return errors.New("invalid technology id " + technologyID.String())
 	}
-	return b.buildCancelable(CelestialID(planetID), technologyID)
+	return b.buildCancelable(celestialID, technologyID)
 }
 
 func (b *OGame) buildDefense(celestialID CelestialID, defenseID ID, nbr int) error {
@@ -2668,8 +2705,8 @@ func (b *OGame) cancelBuilding(celestialID CelestialID) error {
 	return b.cancel(token, techID, listID)
 }
 
-func (b *OGame) cancelResearch(planetID PlanetID) error {
-	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {planetID.String()}})
+func (b *OGame) cancelResearch(celestialID CelestialID) error {
+	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {strconv.Itoa(int(celestialID))}})
 	token, techID, listID, _ := extractCancelResearchInfos(pageHTML)
 	return b.cancel(token, techID, listID)
 }
@@ -3322,7 +3359,7 @@ func extractResourcesProductions(pageHTML []byte) (Resources, error) {
 
 func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	planet, _ := b.getPlanet(planetID)
-	resBuildings, _ := b.getResourcesBuildings(planetID)
+	resBuildings, _ := b.getResourcesBuildings(planetID.Celestial())
 	researches := b.getResearch()
 	universeSpeed := b.getUniverseSpeed()
 	resSettings, _ := b.getResourceSettings(planetID)
@@ -3513,6 +3550,13 @@ func (b *OGame) GetMoonByCoord(coord Coordinate) (Moon, error) {
 	return b.getMoonByCoord(coord)
 }
 
+// GetCelestial get the player's planet/moon using the coordinate
+func (b *OGame) GetCelestial(coord Coordinate, t DestinationType) (Celestial, error) {
+	b.Lock()
+	defer b.Unlock()
+	return b.getCelestial(coord, t)
+}
+
 // ServerVersion returns OGame version
 func (b *OGame) ServerVersion() string {
 	return b.serverVersion()
@@ -3583,10 +3627,10 @@ func (b *OGame) SetResourceSettings(planetID PlanetID, settings ResourceSettings
 }
 
 // GetResourcesBuildings gets the resources buildings levels
-func (b *OGame) GetResourcesBuildings(planetID PlanetID) (ResourcesBuildings, error) {
+func (b *OGame) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.getResourcesBuildings(planetID)
+	return b.getResourcesBuildings(celestialID)
 }
 
 // GetDefense gets all the defenses units information of a planet
@@ -3683,17 +3727,17 @@ func (b *OGame) CancelBuilding(celestialID CelestialID) error {
 }
 
 // CancelResearch cancel the research
-func (b *OGame) CancelResearch(planetID PlanetID) error {
+func (b *OGame) CancelResearch(celestialID CelestialID) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.cancelResearch(planetID)
+	return b.cancelResearch(celestialID)
 }
 
 // BuildTechnology ensure that we're trying to build a technology
-func (b *OGame) BuildTechnology(planetID PlanetID, technologyID ID) error {
+func (b *OGame) BuildTechnology(celestialID CelestialID, technologyID ID) error {
 	b.Lock()
 	defer b.Unlock()
-	return b.buildTechnology(planetID, technologyID)
+	return b.buildTechnology(celestialID, technologyID)
 }
 
 // GetResources gets user resources

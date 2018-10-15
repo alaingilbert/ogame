@@ -37,14 +37,34 @@ type Planet struct {
 	Moon        *Moon
 }
 
+func (p Planet) GetName() string {
+	return p.Name
+}
+
+func (p Planet) GetID() CelestialID {
+	return p.ID.Celestial()
+}
+
+func (p Planet) GetType() DestinationType {
+	return PlanetDest
+}
+
+func (p Planet) GetCoordinate() Coordinate {
+	return p.Coordinate
+}
+
+func (p Planet) GetFields() Fields {
+	return p.Fields
+}
+
 // GetResourceSettings gets the resources settings for specified planetID
 func (p *Planet) GetResourceSettings() (ResourceSettings, error) {
 	return p.ogame.GetResourceSettings(p.ID)
 }
 
 // GetResourcesBuildings gets the resources buildings levels
-func (p *Planet) GetResourcesBuildings() (ResourcesBuildings, error) {
-	return p.ogame.GetResourcesBuildings(p.ID)
+func (p Planet) GetResourcesBuildings() (ResourcesBuildings, error) {
+	return p.ogame.GetResourcesBuildings(p.ID.Celestial())
 }
 
 // GetDefense gets all the defenses units information
@@ -53,12 +73,12 @@ func (p *Planet) GetDefense() (DefensesInfos, error) {
 }
 
 // GetShips gets all ships units information
-func (p *Planet) GetShips() (ShipsInfos, error) {
+func (p Planet) GetShips() (ShipsInfos, error) {
 	return p.ogame.GetShips(p.ID.Celestial())
 }
 
 // GetFacilities  gets all facilities information
-func (p *Planet) GetFacilities() (Facilities, error) {
+func (p Planet) GetFacilities() (Facilities, error) {
 	return p.ogame.GetFacilities(p.ID.Celestial())
 }
 
@@ -73,12 +93,12 @@ func (p *Planet) BuildCancelable(id ID) error {
 }
 
 // BuildBuilding ensure what is being built is a building
-func (p *Planet) BuildBuilding(buildingID ID) error {
+func (p Planet) BuildBuilding(buildingID ID) error {
 	return p.ogame.BuildBuilding(CelestialID(p.ID), buildingID)
 }
 
 // BuildDefense builds a defense unit
-func (p *Planet) BuildDefense(defenseID ID, nbr int) error {
+func (p Planet) BuildDefense(defenseID ID, nbr int) error {
 	return p.ogame.BuildDefense(CelestialID(p.ID), defenseID, nbr)
 }
 
@@ -88,34 +108,34 @@ func (p *Planet) BuildShips(shipID ID, nbr int) error {
 }
 
 // BuildTechnology ensure that we're trying to build a technology
-func (p *Planet) BuildTechnology(technologyID ID) error {
-	return p.ogame.BuildTechnology(p.ID, technologyID)
+func (p Planet) BuildTechnology(technologyID ID) error {
+	return p.ogame.BuildTechnology(p.ID.Celestial(), technologyID)
 }
 
 // GetResources gets user resources
-func (p *Planet) GetResources() (Resources, error) {
+func (p Planet) GetResources() (Resources, error) {
 	return p.ogame.GetResources(CelestialID(p.ID))
 }
 
 // SendFleet sends a fleet
-func (p *Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType,
+func (p Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType,
 	mission MissionID, resources Resources) (FleetID, error) {
 	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, destType, mission, resources)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (p *Planet) ConstructionsBeingBuilt() (ID, int, ID, int) {
+func (p Planet) ConstructionsBeingBuilt() (ID, int, ID, int) {
 	return p.ogame.ConstructionsBeingBuilt(CelestialID(p.ID))
 }
 
 // CancelBuilding cancel the construction of a building
-func (p *Planet) CancelBuilding() error {
+func (p Planet) CancelBuilding() error {
 	return p.ogame.CancelBuilding(CelestialID(p.ID))
 }
 
 // CancelResearch cancel the research
-func (p *Planet) CancelResearch() error {
-	return p.ogame.CancelResearch(p.ID)
+func (p Planet) CancelResearch() error {
+	return p.ogame.CancelResearch(p.ID.Celestial())
 }
 
 // GetResourcesProductions gets the resources production

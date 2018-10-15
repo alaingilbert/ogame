@@ -384,7 +384,7 @@ func getResourcesBuildings(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
-	res, err := bot.GetResourcesBuildings(ogame.PlanetID(planetID))
+	res, err := bot.GetResourcesBuildings(ogame.CelestialID(planetID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
@@ -504,7 +504,7 @@ func buildTechnology(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid ogame id"))
 	}
-	if err := bot.BuildTechnology(ogame.PlanetID(planetID), ogame.ID(ogameID)); err != nil {
+	if err := bot.BuildTechnology(ogame.CelestialID(planetID), ogame.ID(ogameID)); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
@@ -597,7 +597,7 @@ func cancelResearch(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
-	if err := bot.CancelResearch(ogame.PlanetID(planetID)); err != nil {
+	if err := bot.CancelResearch(ogame.CelestialID(planetID)); err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, successResp(nil))
