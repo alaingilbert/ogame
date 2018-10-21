@@ -1912,6 +1912,7 @@ func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 		if arriveIn < 0 {
 			arriveIn = 0
 		}
+		originFleetFigure := s.Find("li.originFleet figure")
 		originTxt := s.Find("li.coordsOrigin a").Text()
 		destTxt := s.Find("li.destCoords a").Text()
 
@@ -1939,7 +1940,12 @@ func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 		fleet.ReturnFlight = returning
 		fleet.ArriveIn = arriveIn
 		fleet.Origin = extractCoord(originTxt)
+		fleet.Origin.Type = PlanetDest
+		if originFleetFigure.HasClass("moon") {
+			fleet.Origin.Type = MoonDest
+		}
 		fleet.Destination = extractCoord(destTxt)
+		fleet.Destination.Type = PlanetDest
 		res = append(res, fleet)
 	})
 	return res, nil

@@ -78,9 +78,16 @@ func TestExtractPhalanx(t *testing.T) {
 	assert.Equal(t, MissionID(3), res[0].Mission)
 	assert.Equal(t, true, res[0].ReturnFlight)
 	assert.NotNil(t, res[0].ArriveIn)
-	assert.Equal(t, Coordinate{4, 116, 9}, res[0].Origin)
-	assert.Equal(t, Coordinate{4, 212, 8}, res[0].Destination)
+	assert.Equal(t, Coordinate{4, 116, 9, PlanetDest}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 212, 8, PlanetDest}, res[0].Destination)
 	assert.Equal(t, 100, res[0].Ships.LargeCargo)
+}
+
+func TestExtractPhalanx_fromMoon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_from_moon.html")
+	res, _ := extractPhalanx(pageHTMLBytes, 0)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonDest}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 9, PlanetDest}, res[0].Destination)
 }
 
 func TestExtractPhalanx_manyFleets(t *testing.T) {
