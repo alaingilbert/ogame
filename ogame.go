@@ -1736,9 +1736,17 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
 		originText := s.Find("span.originCoords a").Text()
 		origin := extractCoord(originText)
+		origin.Type = PlanetDest
+		if s.Find("span.originPlanet figure").HasClass("moon") {
+			origin.Type = MoonDest
+		}
 
 		destText := s.Find("span.destinationCoords a").Text()
 		dest := extractCoord(destText)
+		dest.Type = PlanetDest
+		if s.Find("span.destinationPlanet figure").HasClass("moon") {
+			dest.Type = MoonDest
+		}
 
 		idStr, _ := s.Find("span.reversal").Attr("ref")
 		id, _ := strconv.Atoi(idStr)
