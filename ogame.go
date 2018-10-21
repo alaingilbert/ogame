@@ -71,6 +71,7 @@ type Wrapper interface {
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
+	Distance(origin, destination Coordinate) int
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 	RegisterChatCallback(func(ChatMsg))
 
@@ -1942,13 +1943,15 @@ func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
 func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	res := make([]Fleet, 0)
+
 	// Get moon facilities html page (first call to ogame server)
 	moonFacilitiesHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {strconv.Itoa(int(moonID))}})
 
 	// Extract bunch of infos from the html
 	moon, err := extractMoon(moonFacilitiesHTML, b, moonID)
 	if err != nil {
-		return make([]Fleet, 0), errors.New("moon not found")
+		return res, errors.New("moon not found")
 	}
 	resources := extractResources(moonFacilitiesHTML)
 	moonFacilities, _ := extractFacilities(moonFacilitiesHTML)
@@ -1957,25 +1960,25 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 
 	// Ensure we have the resources to scan the planet
 	if resources.Deuterium < SensorPhalanx.ScanConsumption() {
-		return make([]Fleet, 0), errors.New("not enough deuterium")
+		return res, errors.New("not enough deuterium")
 	}
 
 	// Verify that coordinate is in phalanx range
 	phalanxRange := SensorPhalanx.GetRange(phalanxLvl)
 	if moon.Coordinate.Galaxy != coord.Galaxy ||
 		systemDistance(moon.Coordinate.System, coord.System, b.donutSystem) > phalanxRange {
-		return make([]Fleet, 0), errors.New("coordinate not in phalanx range")
+		return res, errors.New("coordinate not in phalanx range")
 	}
 
 	// Get galaxy planets information, verify coordinate is valid planet (second call to ogame server)
 	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
 	target := planetInfos.Position(coord.Position)
 	if target == nil {
-		return make([]Fleet, 0), errors.New("invalid planet coordinate")
+		return res, errors.New("invalid planet coordinate")
 	}
 	// Ensure you are not scanning your own planet
 	if target.Player.ID == b.Player.PlayerID {
-		return make([]Fleet, 0), errors.New("cannot scan own planet")
+		return res, errors.New("cannot scan own planet")
 	}
 
 	// Run the phalanx scan (third call to ogame server)
@@ -1984,13 +1987,13 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	req, err := http.NewRequest("GET", finalURL, nil)
 	if err != nil {
 		b.error(err.Error())
-		return []Fleet{}, err
+		return res, err
 	}
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	resp, err := b.client.Do(req)
 	if err != nil {
 		b.error(err.Error())
-		return []Fleet{}, err
+		return res, err
 	}
 	defer resp.Body.Close()
 	pageHTML, _ := ioutil.ReadAll(resp.Body)
@@ -3788,6 +3791,11 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 	b.Lock()
 	defer b.Unlock()
 	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10, b.universeSpeedFleet, ships, Researches{})
+}
+
+// Distance return distance between two coordinates
+func (b *OGame) Distance(origin, destination Coordinate) int {
+	return distance(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem)
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received
