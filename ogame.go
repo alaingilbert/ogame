@@ -71,6 +71,7 @@ type Wrapper interface {
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
+	Distance(origin, destination Coordinate) int
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 	RegisterChatCallback(func(ChatMsg))
 
@@ -3790,6 +3791,11 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 	b.Lock()
 	defer b.Unlock()
 	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10, b.universeSpeedFleet, ships, Researches{})
+}
+
+// Distance return distance between two coordinates
+func (b *OGame) Distance(origin, destination Coordinate) int {
+	return distance(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem)
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received
