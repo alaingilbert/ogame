@@ -15,7 +15,7 @@ func TestLunarBasePrice(t *testing.T) {
 
 func TestLunarBase_IsAvailable(t *testing.T) {
 	lb := newLunarBase()
-	assert.False(t, lb.IsAvailable(PlanetDest, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
-	assert.False(t, lb.IsAvailable(DebrisDest, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
-	assert.True(t, lb.IsAvailable(MoonDest, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
+	assert.False(t, lb.IsAvailable(PlanetType, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
+	assert.False(t, lb.IsAvailable(DebrisType, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
+	assert.True(t, lb.IsAvailable(MoonType, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
 }

@@ -11,7 +11,7 @@ func TestTerraformerIsAvailable(t *testing.T) {
 	facilities := Facilities{NaniteFactory: 1}
 	researches := Researches{EnergyTechnology: 12}
 	b := newTerraformer()
-	avail := b.IsAvailable(PlanetDest, resourcesBuildings, facilities, researches, 0)
+	avail := b.IsAvailable(PlanetType, resourcesBuildings, facilities, researches, 0)
 	assert.True(t, avail)
 }
 
@@ -20,6 +20,6 @@ func TestTerraformerIsAvailable_NoTech(t *testing.T) {
 	facilities := Facilities{NaniteFactory: 1}
 	researches := Researches{EnergyTechnology: 11}
 	b := newTerraformer()
-	avail := b.IsAvailable(PlanetDest, resourcesBuildings, facilities, researches, 0)
+	avail := b.IsAvailable(PlanetType, resourcesBuildings, facilities, researches, 0)
 	assert.False(t, avail)
 }

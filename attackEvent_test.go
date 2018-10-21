@@ -10,8 +10,8 @@ import (
 func TestAttackEvent_String(t *testing.T) {
 	a := AttackEvent{
 		MissionType: 3,
-		Origin:      Coordinate{1, 2, 3},
-		Destination: Coordinate{4, 5, 6},
+		Origin:      Coordinate{1, 2, 3, PlanetType},
+		Destination: Coordinate{4, 5, 6, PlanetType},
 		ArrivalTime: time.Date(2018, 9, 11, 1, 2, 3, 4, time.UTC),
 		AttackerID:  456,
 		Missiles:    0,

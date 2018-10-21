@@ -45,8 +45,8 @@ func (p Planet) GetID() CelestialID {
 	return p.ID.Celestial()
 }
 
-func (p Planet) GetType() DestinationType {
-	return PlanetDest
+func (p Planet) GetType() CelestialType {
+	return PlanetType
 }
 
 func (p Planet) GetCoordinate() Coordinate {
@@ -118,9 +118,9 @@ func (p Planet) GetResources() (Resources, error) {
 }
 
 // SendFleet sends a fleet
-func (p Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType,
+func (p Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources) (FleetID, error) {
-	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, destType, mission, resources)
+	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, mission, resources)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)

@@ -78,9 +78,16 @@ func TestExtractPhalanx(t *testing.T) {
 	assert.Equal(t, MissionID(3), res[0].Mission)
 	assert.Equal(t, true, res[0].ReturnFlight)
 	assert.NotNil(t, res[0].ArriveIn)
-	assert.Equal(t, Coordinate{4, 116, 9}, res[0].Origin)
-	assert.Equal(t, Coordinate{4, 212, 8}, res[0].Destination)
+	assert.Equal(t, Coordinate{4, 116, 9, PlanetType}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 212, 8, PlanetType}, res[0].Destination)
 	assert.Equal(t, 100, res[0].Ships.LargeCargo)
+}
+
+func TestExtractPhalanx_fromMoon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_from_moon.html")
+	res, _ := extractPhalanx(pageHTMLBytes, 0)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 9, PlanetType}, res[0].Destination)
 }
 
 func TestExtractPhalanx_manyFleets(t *testing.T) {
@@ -90,16 +97,16 @@ func TestExtractPhalanx_manyFleets(t *testing.T) {
 	assert.Equal(t, 12, len(res))
 	assert.Equal(t, Expedition, res[0].Mission)
 	assert.False(t, res[0].ReturnFlight)
-	assert.Equal(t, Coordinate{4, 124, 9}, res[0].Origin)
-	assert.Equal(t, Coordinate{4, 125, 16}, res[0].Destination)
+	assert.Equal(t, Coordinate{4, 124, 9, PlanetType}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 125, 16, PlanetType}, res[0].Destination)
 	assert.Equal(t, 250, res[0].Ships.LargeCargo)
 	assert.Equal(t, 1, res[0].Ships.EspionageProbe)
 	assert.Equal(t, 1, res[0].Ships.Destroyer)
 
 	assert.Equal(t, Expedition, res[8].Mission)
 	assert.True(t, res[8].ReturnFlight)
-	assert.Equal(t, Coordinate{4, 124, 9}, res[8].Origin)
-	assert.Equal(t, Coordinate{4, 125, 16}, res[8].Destination)
+	assert.Equal(t, Coordinate{4, 124, 9, PlanetType}, res[8].Origin)
+	assert.Equal(t, Coordinate{4, 125, 16, PlanetType}, res[8].Destination)
 	assert.Equal(t, 250, res[8].Ships.LargeCargo)
 	assert.Equal(t, 1, res[8].Ships.EspionageProbe)
 	assert.Equal(t, 1, res[8].Ships.Destroyer)
@@ -271,14 +278,14 @@ func TestExtractPlanet_notExists(t *testing.T) {
 
 func TestExtractPlanetByCoord(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
-	planet, _ := extractPlanetByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 301, 8})
+	planet, _ := extractPlanetByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 301, 8, PlanetType})
 	assert.Equal(t, "C1", planet.Name)
 	assert.Equal(t, 14615, planet.Diameter)
 }
 
 func TestExtractPlanetByCoord_notExists(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
-	_, err := extractPlanetByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 2, 3})
+	_, err := extractPlanetByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 2, 3, PlanetType})
 	assert.NotNil(t, err)
 }
 
@@ -299,11 +306,11 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	msgs, _ := extractEspionageReportMessageIDs(pageHTMLBytes)
 	assert.Equal(t, 2, len(msgs))
 	assert.Equal(t, Report, msgs[0].Type)
-	assert.Equal(t, Coordinate{4, 117, 6}, msgs[0].Target)
+	assert.Equal(t, Coordinate{4, 117, 6, PlanetType}, msgs[0].Target)
 	assert.Equal(t, "Fleet Command", msgs[0].From)
 	assert.Equal(t, Action, msgs[1].Type)
 	assert.Equal(t, "Space Monitoring", msgs[1].From)
-	assert.Equal(t, Coordinate{4, 117, 9}, msgs[1].Target)
+	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, msgs[1].Target)
 }
 
 func TestExtractCombatReportMessageIDs(t *testing.T) {
@@ -358,7 +365,7 @@ func TestExtractAttacksWithShips(t *testing.T) {
 	attacks := extractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
 	assert.NotNil(t, attacks[0].Ships)
-	assert.Equal(t, PlanetDest, attacks[0].DestinationType)
+	assert.Equal(t, PlanetType, attacks[0].Destination.Type)
 	assert.Equal(t, 197, attacks[0].Ships.LargeCargo)
 	assert.Equal(t, 3, attacks[0].Ships.LightFighter)
 	assert.Equal(t, 8, attacks[0].Ships.HeavyFighter)
@@ -375,9 +382,9 @@ func TestExtractAttacksMoon(t *testing.T) {
 	assert.Equal(t, 1, len(attacks))
 	assert.NotNil(t, attacks[0].Ships)
 	assert.Equal(t, 107009, attacks[0].AttackerID)
-	assert.Equal(t, Coordinate{4, 212, 8}, attacks[0].Origin)
-	assert.Equal(t, Coordinate{4, 116, 12}, attacks[0].Destination)
-	assert.Equal(t, MoonDest, attacks[0].DestinationType)
+	assert.Equal(t, Coordinate{4, 212, 8, PlanetType}, attacks[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, attacks[0].Destination)
+	assert.Equal(t, MoonType, attacks[0].Destination.Type)
 	assert.Equal(t, 1, attacks[0].Ships.SmallCargo)
 }
 
@@ -393,7 +400,7 @@ func TestExtractAttacks_spy(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_spy.html")
 	attacks := extractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
-	assert.Equal(t, Coordinate{4, 212, 8}, attacks[0].Origin)
+	assert.Equal(t, Coordinate{4, 212, 8, PlanetType}, attacks[0].Origin)
 	assert.Equal(t, 107009, attacks[0].AttackerID)
 }
 
@@ -542,13 +549,13 @@ func TestExtractMoon_notExists(t *testing.T) {
 
 func TestExtractMoonByCoord_exists(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
-	_, err := extractMoonByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{4, 116, 12})
+	_, err := extractMoonByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{4, 116, 12, MoonType})
 	assert.Nil(t, err)
 }
 
 func TestExtractMoonByCoord_notExists(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
-	_, err := extractMoonByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 2, 3})
+	_, err := extractMoonByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 2, 3, PlanetType})
 	assert.NotNil(t, err)
 }
 
@@ -559,7 +566,7 @@ func TestExtractPlanetsMoon(t *testing.T) {
 	assert.Equal(t, "Moon", planets[0].Moon.Name)
 	assert.Equal(t, "https://gf1.geo.gfsrv.net/cdn9d/8e0e6034049bd64e18a1804b42f179.gif", planets[0].Moon.Img)
 	assert.Equal(t, 8774, planets[0].Moon.Diameter)
-	assert.Equal(t, Coordinate{4, 116, 12}, planets[0].Moon.Coordinate)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, planets[0].Moon.Coordinate)
 	assert.Equal(t, 0, planets[0].Moon.Fields.Built)
 	assert.Equal(t, 1, planets[0].Moon.Fields.Total)
 	assert.Nil(t, planets[1].Moon)
@@ -570,7 +577,7 @@ func TestExtractPlanets_fieldsFilled(t *testing.T) {
 	planets := extractPlanets(pageHTMLBytes, nil)
 	assert.Equal(t, 5, len(planets))
 	assert.Equal(t, PlanetID(33698658), planets[0].ID)
-	assert.Equal(t, Coordinate{Galaxy: 4, System: 116, Position: 12}, planets[0].Coordinate)
+	assert.Equal(t, Coordinate{Galaxy: 4, System: 116, Position: 12, Type: PlanetType}, planets[0].Coordinate)
 	assert.Equal(t, "Homeworld", planets[0].Name)
 	assert.Equal(t, "https://gf3.geo.gfsrv.net/cdnea/7d7ba402d90247ef7d89aa1035e525.png", planets[0].Img)
 	assert.Equal(t, -23, planets[0].Temperature.Min)
@@ -585,7 +592,7 @@ func TestExtractPlanets(t *testing.T) {
 	planets := extractPlanets(pageHTMLBytes, nil)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, PlanetID(33672410), planets[0].ID)
-	assert.Equal(t, Coordinate{Galaxy: 1, System: 301, Position: 5}, planets[0].Coordinate)
+	assert.Equal(t, Coordinate{Galaxy: 1, System: 301, Position: 5, Type: PlanetType}, planets[0].Coordinate)
 	assert.Equal(t, "Homeworld", planets[0].Name)
 	assert.Equal(t, "https://gf2.geo.gfsrv.net/cdn46/9f84a481c0c9a83d3b000d801d9d9d.png", planets[0].Img)
 	assert.Equal(t, 31, planets[0].Temperature.Min)
@@ -600,7 +607,7 @@ func TestExtractPlanets_es(t *testing.T) {
 	planets := extractPlanets(pageHTMLBytes, &OGame{language: "es"})
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, PlanetID(33630486), planets[0].ID)
-	assert.Equal(t, Coordinate{Galaxy: 2, System: 147, Position: 8}, planets[0].Coordinate)
+	assert.Equal(t, Coordinate{Galaxy: 2, System: 147, Position: 8, Type: PlanetType}, planets[0].Coordinate)
 	assert.Equal(t, "Planeta Principal", planets[0].Name)
 	assert.Equal(t, "https://gf2.geo.gfsrv.net/cdnd1/83579badf7c16d217b06afda455cfe.png", planets[0].Img)
 	assert.Equal(t, 18, planets[0].Temperature.Min)
@@ -615,7 +622,7 @@ func TestExtractPlanets_fr(t *testing.T) {
 	planets := extractPlanets(pageHTMLBytes, &OGame{language: "fr"})
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, PlanetID(33629512), planets[0].ID)
-	assert.Equal(t, Coordinate{Galaxy: 2, System: 180, Position: 4}, planets[0].Coordinate)
+	assert.Equal(t, Coordinate{Galaxy: 2, System: 180, Position: 4, Type: PlanetType}, planets[0].Coordinate)
 	assert.Equal(t, "planète mère", planets[0].Name)
 	assert.Equal(t, "https://gf1.geo.gfsrv.net/cdn35/9545f984bcd53c816a1a8452356d00.png", planets[0].Img)
 	assert.Equal(t, 48, planets[0].Temperature.Min)
@@ -630,7 +637,7 @@ func TestExtractPlanets_br(t *testing.T) {
 	planets := extractPlanets(pageHTMLBytes, &OGame{language: "br"})
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, PlanetID(33633767), planets[0].ID)
-	assert.Equal(t, Coordinate{Galaxy: 1, System: 449, Position: 12}, planets[0].Coordinate)
+	assert.Equal(t, Coordinate{Galaxy: 1, System: 449, Position: 12, Type: PlanetType}, planets[0].Coordinate)
 	assert.Equal(t, "Planeta Principal", planets[0].Name)
 	assert.Equal(t, "https://gf3.geo.gfsrv.net/cdne8/41d05740ce1a534f5ec77feb11f100.png", planets[0].Img)
 	assert.Equal(t, -13, planets[0].Temperature.Min)
@@ -783,8 +790,8 @@ func TestExtractFleet(t *testing.T) {
 	fleets := extractFleets(pageHTMLBytes)
 	assert.Equal(t, 1, len(fleets))
 	assert.Equal(t, 4134, fleets[0].ArriveIn)
-	assert.Equal(t, Coordinate{4, 116, 12}, fleets[0].Origin)
-	assert.Equal(t, Coordinate{4, 117, 9}, fleets[0].Destination)
+	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[0].Origin)
+	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, fleets[0].Destination)
 	assert.Equal(t, Transport, fleets[0].Mission)
 	assert.Equal(t, false, fleets[0].ReturnFlight)
 	assert.Equal(t, FleetID(4494950), fleets[0].ID)
@@ -808,8 +815,8 @@ func TestExtractFleet_returning(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_2.html")
 	fleets := extractFleets(pageHTMLBytes)
 	assert.Equal(t, 1, len(fleets))
-	assert.Equal(t, Coordinate{4, 116, 12}, fleets[0].Origin)
-	assert.Equal(t, Coordinate{4, 117, 9}, fleets[0].Destination)
+	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[0].Origin)
+	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, fleets[0].Destination)
 	assert.Equal(t, Transport, fleets[0].Mission)
 	assert.Equal(t, true, fleets[0].ReturnFlight)
 	assert.Equal(t, FleetID(0), fleets[0].ID)
@@ -884,7 +891,7 @@ func TestExtractEspionageReport_action(t *testing.T) {
 func TestExtractEspionageReport(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_buildings_researches.html")
 	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
-	assert.Equal(t, Coordinate{4, 212, 6}, infos.Coordinate)
+	assert.Equal(t, Coordinate{4, 212, 6, PlanetType}, infos.Coordinate)
 	assert.Equal(t, Report, infos.Type)
 	assert.Equal(t, 227034, infos.Metal)
 	assert.Equal(t, 146970, infos.Crystal)
@@ -925,6 +932,7 @@ func TestExtractEspionageReport(t *testing.T) {
 func TestExtractEspionageReportMoon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_moon.html")
 	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, infos.Coordinate)
 	assert.Equal(t, 6, *infos.LunarBase)
 	assert.Equal(t, 4, *infos.SensorPhalanx)
 	assert.Nil(t, infos.JumpGate)
@@ -985,9 +993,10 @@ func TestPlanetDistance(t *testing.T) {
 }
 
 func TestDistance(t *testing.T) {
-	assert.Equal(t, 1015, distance(Coordinate{1, 1, 3}, Coordinate{1, 1, 6}, 6, true, true))
-	assert.Equal(t, 2890, distance(Coordinate{1, 1, 3}, Coordinate{1, 498, 6}, 6, true, true))
-	assert.Equal(t, 20000, distance(Coordinate{6, 1, 3}, Coordinate{1, 498, 6}, 6, true, true))
+	assert.Equal(t, 1015, distance(Coordinate{1, 1, 3, PlanetType}, Coordinate{1, 1, 6, PlanetType}, 6, true, true))
+	assert.Equal(t, 2890, distance(Coordinate{1, 1, 3, PlanetType}, Coordinate{1, 498, 6, PlanetType}, 6, true, true))
+	assert.Equal(t, 20000, distance(Coordinate{6, 1, 3, PlanetType}, Coordinate{1, 498, 6, PlanetType}, 6, true, true))
+	assert.Equal(t, 5, distance(Coordinate{6, 1, 3, PlanetType}, Coordinate{6, 1, 3, MoonType}, 6, true, true))
 }
 
 func TestCalcFlightTime(t *testing.T) {

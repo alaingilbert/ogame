@@ -625,8 +625,7 @@ func sendFleet(c echo.Context) error {
 	c.Request().ParseForm()
 
 	var ships []ogame.Quantifiable
-	where := ogame.Coordinate{}
-	destType := ogame.PlanetDest
+	where := ogame.Coordinate{Type: ogame.PlanetType}
 	mission := ogame.Transport
 	payload := ogame.Resources{}
 	speed := ogame.HundredPercent
@@ -674,7 +673,7 @@ func sendFleet(c echo.Context) error {
 			if err != nil {
 				return c.JSON(http.StatusBadRequest, errorResp(400, "invalid type"))
 			}
-			destType = ogame.DestinationType(t)
+			where.Type = ogame.CelestialType(t)
 		case "mission":
 			missionInt, err := strconv.Atoi(values[0])
 			if err != nil {
@@ -702,7 +701,7 @@ func sendFleet(c echo.Context) error {
 		}
 	}
 
-	fleetID, err := bot.SendFleet(ogame.CelestialID(planetID), ships, speed, where, destType, mission, payload)
+	fleetID, err := bot.SendFleet(ogame.CelestialID(planetID), ships, speed, where, mission, payload)
 	if err == ogame.ErrInvalidPlanetID ||
 		err == ogame.ErrNoShipSelected ||
 		err == ogame.ErrUninhabitedPlanet ||

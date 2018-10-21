@@ -29,8 +29,8 @@ func (m Moon) GetID() CelestialID {
 	return m.ID.Celestial()
 }
 
-func (m Moon) GetType() DestinationType {
-	return MoonDest
+func (m Moon) GetType() CelestialType {
+	return MoonType
 }
 
 func (m Moon) GetCoordinate() Coordinate {
@@ -82,9 +82,9 @@ func (m Moon) CancelResearch() error {
 }
 
 // SendFleet sends a fleet
-func (m Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType,
+func (m Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources) (FleetID, error) {
-	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, destType, mission, resources)
+	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, mission, resources)
 }
 
 // GetResources gets moon resources
