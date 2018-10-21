@@ -7,7 +7,9 @@ import (
 )
 
 func TestCoordinate_String(t *testing.T) {
-	assert.Equal(t, "[1:2:3]", Coordinate{1, 2, 3, PlanetType}.String())
+	assert.Equal(t, "[P:1:2:3]", Coordinate{1, 2, 3, PlanetType}.String())
+	assert.Equal(t, "[M:1:2:3]", Coordinate{1, 2, 3, MoonType}.String())
+	assert.Equal(t, "[D:1:2:3]", Coordinate{1, 2, 3, DebrisType}.String())
 }
 
 func TestCoordinate_Equal(t *testing.T) {

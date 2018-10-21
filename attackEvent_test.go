@@ -19,8 +19,8 @@ func TestAttackEvent_String(t *testing.T) {
 	}
 	expected := "" +
 		"Mission Type: 3\n" +
-		"      Origin: [1:2:3]\n" +
-		" Destination: [4:5:6]\n" +
+		"      Origin: [P:1:2:3]\n" +
+		" Destination: [P:4:5:6]\n" +
 		" ArrivalTime: 2018-09-11 01:02:03.000000004 +0000 UTC\n" +
 		"  AttackerID: 456\n" +
 		"    Missiles: 0"
