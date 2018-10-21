@@ -2122,6 +2122,10 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 		if missionType == Attack || missionType == MissileAttack || missionType == Spy {
 			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 			attack.Origin = extractCoord(coordsOrigin)
+			attack.Origin.Type = PlanetDest
+			if s.Find("td.originFleet figure").HasClass("moon") {
+				attack.Origin.Type = MoonDest
+			}
 			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
 			attack.AttackerID, _ = strconv.Atoi(attackerIDStr)
 		}
@@ -2155,6 +2159,10 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 
 		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
 		attack.Destination = extractCoord(destCoords)
+		attack.Destination.Type = PlanetDest
+		if s.Find("td.destFleet figure").HasClass("moon") {
+			attack.Destination.Type = MoonDest
+		}
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
 
