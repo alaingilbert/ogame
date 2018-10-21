@@ -3002,8 +3002,13 @@ func extractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary
 				}
 				report := EspionageReportSummary{ID: id, Type: messageType}
 				report.From = s.Find("span.msg_sender").Text()
-				targetStr := s.Find("span.msg_title a").Text()
+				spanLink := s.Find("span.msg_title a")
+				targetStr := spanLink.Text()
 				report.Target = extractCoord(targetStr)
+				report.Target.Type = PlanetDest
+				if spanLink.Find("figure").HasClass("moon") {
+					report.Target.Type = MoonDest
+				}
 				msgs = append(msgs, report)
 
 			}
