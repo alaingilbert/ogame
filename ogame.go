@@ -1351,6 +1351,7 @@ func extractMoonFromSelection(moonLink *goquery.Selection, b *OGame) (Moon, erro
 	moon.Coordinate.Galaxy, _ = strconv.Atoi(mm[2])
 	moon.Coordinate.System, _ = strconv.Atoi(mm[3])
 	moon.Coordinate.Position, _ = strconv.Atoi(mm[4])
+	moon.Coordinate.Type = MoonDest
 	moon.Diameter = parseInt(mm[5])
 	moon.Fields.Built, _ = strconv.Atoi(mm[6])
 	moon.Fields.Total, _ = strconv.Atoi(mm[7])
