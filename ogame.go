@@ -67,7 +67,7 @@ type Wrapper interface {
 	GetMoons(MoonID) []Moon
 	GetMoon(MoonID) (Moon, error)
 	GetMoonByCoord(Coordinate) (Moon, error)
-	GetCelestial(Coordinate, DestinationType) (Celestial, error)
+	GetCelestial(Coordinate) (Celestial, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
@@ -1442,10 +1442,10 @@ type Celestial interface {
 	CancelBuilding() error
 }
 
-func extractCelestial(pageHTML []byte, b *OGame, coord Coordinate, t DestinationType) (Celestial, error) {
-	if t == PlanetDest {
+func extractCelestial(pageHTML []byte, b *OGame, coord Coordinate) (Celestial, error) {
+	if coord.Type == PlanetDest {
 		return extractPlanetByCoord(pageHTML, b, coord)
-	} else if t == MoonDest {
+	} else if coord.Type == MoonDest {
 		return extractMoonByCoord(pageHTML, b, coord)
 	}
 	return nil, errors.New("celestial not found")
@@ -1481,9 +1481,9 @@ func (b *OGame) getMoonByCoord(coord Coordinate) (Moon, error) {
 	return extractMoonByCoord(pageHTML, b, coord)
 }
 
-func (b *OGame) getCelestial(coord Coordinate, t DestinationType) (Celestial, error) {
+func (b *OGame) getCelestial(coord Coordinate) (Celestial, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractCelestial(pageHTML, b, coord, t)
+	return extractCelestial(pageHTML, b, coord)
 }
 
 func (b *OGame) serverVersion() string {
@@ -3554,10 +3554,10 @@ func (b *OGame) GetMoonByCoord(coord Coordinate) (Moon, error) {
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *OGame) GetCelestial(coord Coordinate, t DestinationType) (Celestial, error) {
+func (b *OGame) GetCelestial(coord Coordinate) (Celestial, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.getCelestial(coord, t)
+	return b.getCelestial(coord)
 }
 
 // ServerVersion returns OGame version
