@@ -1305,6 +1305,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
 	res.Coordinate.System, _ = strconv.Atoi(m[3])
 	res.Coordinate.Position, _ = strconv.Atoi(m[4])
+	res.Coordinate.Type = PlanetDest
 	res.Diameter = parseInt(m[5])
 	res.Fields.Built, _ = strconv.Atoi(m[6])
 	res.Fields.Total, _ = strconv.Atoi(m[7])
