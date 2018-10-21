@@ -3126,12 +3126,19 @@ type EspionageReport struct {
 func extractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	txt := doc.Find("span.msg_title a").First().Text()
+	spanLink := doc.Find("span.msg_title a").First()
+	txt := spanLink.Text()
+	figure := spanLink.Find("figure").First()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
 	report.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
 	report.Coordinate.System, _ = strconv.Atoi(m[3])
 	report.Coordinate.Position, _ = strconv.Atoi(m[4])
+	if figure.HasClass("planet") {
+		report.Coordinate.Type = PlanetDest
+	} else if figure.HasClass("moon") {
+		report.Coordinate.Type = MoonDest
+	}
 	messageType := Report
 	if doc.Find("span.espionageDefText").Size() > 0 {
 		messageType = Action
