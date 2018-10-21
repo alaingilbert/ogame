@@ -77,7 +77,7 @@ type Wrapper interface {
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
-	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType, mission MissionID, resources Resources) (FleetID, error)
+	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, error)
 	Build(celestialID CelestialID, id ID, nbr int) error
 	BuildCancelable(CelestialID, ID) error
 	BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -1431,7 +1431,7 @@ type Celestial interface {
 	GetFields() Fields
 	GetResources() (Resources, error)
 	GetFacilities() (Facilities, error)
-	SendFleet([]Quantifiable, Speed, Coordinate, DestinationType, MissionID, Resources) (FleetID, error)
+	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources) (FleetID, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
 	ConstructionsBeingBuilt() (ID, int, ID, int)
@@ -2755,7 +2755,7 @@ func extractFleet1Ships(pageHTML []byte) ShipsInfos {
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	destType DestinationType, mission MissionID, resources Resources) (FleetID, error) {
+	mission MissionID, resources Resources) (FleetID, error) {
 	getHiddenFields := func(pageHTML []byte) map[string]string {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		fields := make(map[string]string)
@@ -2818,7 +2818,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Add("galaxy", strconv.Itoa(where.Galaxy))
 	payload.Add("system", strconv.Itoa(where.System))
 	payload.Add("position", strconv.Itoa(where.Position))
-	t := destType
+	t := where.Type
 	if mission == RecycleDebrisField {
 		t = DebrisDest // Send to debris field
 	}
@@ -3752,10 +3752,10 @@ func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	destType DestinationType, mission MissionID, resources Resources) (FleetID, error) {
+	mission MissionID, resources Resources) (FleetID, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.sendFleet(celestialID, ships, speed, where, destType, mission, resources)
+	return b.sendFleet(celestialID, ships, speed, where, mission, resources)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
