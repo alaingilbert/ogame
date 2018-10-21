@@ -45,7 +45,7 @@ func (p Planet) GetID() CelestialID {
 	return p.ID.Celestial()
 }
 
-func (p Planet) GetType() DestinationType {
+func (p Planet) GetType() CelestialType {
 	return PlanetDest
 }
 

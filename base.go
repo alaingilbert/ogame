@@ -23,7 +23,7 @@ func (b Base) GetRequirements() map[ID]int {
 }
 
 // IsAvailable returns either or not the object is available to us
-func (b Base) IsAvailable(t DestinationType, resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, energy int) bool {
+func (b Base) IsAvailable(t CelestialType, resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, energy int) bool {
 	if t != PlanetDest && t != MoonDest {
 		return false
 	}

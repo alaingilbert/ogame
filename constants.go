@@ -64,10 +64,10 @@ func (s Speed) String() string {
 	}
 }
 
-// DestinationType destination type might be planet/moon/debris
-type DestinationType int
+// CelestialType destination type might be planet/moon/debris
+type CelestialType int
 
-func (d DestinationType) String() string {
+func (d CelestialType) String() string {
 	switch d {
 	case PlanetDest:
 		return "planet"
@@ -82,9 +82,9 @@ func (d DestinationType) String() string {
 
 // OGame constants
 const (
-	PlanetDest DestinationType = 1
-	DebrisDest DestinationType = 2
-	MoonDest   DestinationType = 3
+	PlanetDest CelestialType = 1
+	DebrisDest CelestialType = 2
+	MoonDest   CelestialType = 3
 
 	//Buildings
 	MetalMineID                    ID = 1

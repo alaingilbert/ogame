@@ -673,7 +673,7 @@ func sendFleet(c echo.Context) error {
 			if err != nil {
 				return c.JSON(http.StatusBadRequest, errorResp(400, "invalid type"))
 			}
-			where.Type = ogame.DestinationType(t)
+			where.Type = ogame.CelestialType(t)
 		case "mission":
 			missionInt, err := strconv.Atoi(values[0])
 			if err != nil {

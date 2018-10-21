@@ -212,7 +212,7 @@ type BaseOgameObj interface {
 	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 	GetRequirements() map[ID]int
 	GetPrice(int) Resources
-	IsAvailable(DestinationType, ResourcesBuildings, Facilities, Researches, int) bool
+	IsAvailable(CelestialType, ResourcesBuildings, Facilities, Researches, int) bool
 }
 
 // Levelable base interface for all levelable ogame objects (buildings, technologies)
@@ -1427,7 +1427,7 @@ func extractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, erro
 
 type Celestial interface {
 	GetID() CelestialID
-	GetType() DestinationType
+	GetType() CelestialType
 	GetName() string
 	GetCoordinate() Coordinate
 	GetFields() Fields

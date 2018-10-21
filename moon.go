@@ -29,7 +29,7 @@ func (m Moon) GetID() CelestialID {
 	return m.ID.Celestial()
 }
 
-func (m Moon) GetType() DestinationType {
+func (m Moon) GetType() CelestialType {
 	return MoonDest
 }
 

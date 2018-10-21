@@ -10,7 +10,7 @@ func TestConstants_DestinationType_String(t *testing.T) {
 	assert.Equal(t, "planet", PlanetDest.String())
 	assert.Equal(t, "moon", MoonDest.String())
 	assert.Equal(t, "debris", DebrisDest.String())
-	assert.Equal(t, "123", DestinationType(123).String())
+	assert.Equal(t, "123", CelestialType(123).String())
 }
 
 func TestConstants_Speed_String(t *testing.T) {

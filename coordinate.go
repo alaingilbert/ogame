@@ -7,7 +7,7 @@ type Coordinate struct {
 	Galaxy   int
 	System   int
 	Position int
-	Type     DestinationType
+	Type     CelestialType
 }
 
 func (c Coordinate) String() string {
