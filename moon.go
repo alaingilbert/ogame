@@ -30,7 +30,7 @@ func (m Moon) GetID() CelestialID {
 }
 
 func (m Moon) GetType() CelestialType {
-	return MoonDest
+	return MoonType
 }
 
 func (m Moon) GetCoordinate() Coordinate {

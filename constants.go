@@ -69,11 +69,11 @@ type CelestialType int
 
 func (d CelestialType) String() string {
 	switch d {
-	case PlanetDest:
+	case PlanetType:
 		return "planet"
-	case MoonDest:
+	case MoonType:
 		return "moon"
-	case DebrisDest:
+	case DebrisType:
 		return "debris"
 	default:
 		return strconv.Itoa(int(d))
@@ -82,9 +82,9 @@ func (d CelestialType) String() string {
 
 // OGame constants
 const (
-	PlanetDest CelestialType = 1
-	DebrisDest CelestialType = 2
-	MoonDest   CelestialType = 3
+	PlanetType CelestialType = 1
+	DebrisType CelestialType = 2
+	MoonType   CelestialType = 3
 
 	//Buildings
 	MetalMineID                    ID = 1

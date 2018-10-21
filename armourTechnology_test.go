@@ -11,7 +11,7 @@ func TestArmourTechnologyIsAvailable(t *testing.T) {
 	facilities := Facilities{ResearchLab: 2}
 	researches := Researches{}
 	b := newArmourTechnology()
-	avail := b.IsAvailable(PlanetDest, resourcesBuildings, facilities, researches, 0)
+	avail := b.IsAvailable(PlanetType, resourcesBuildings, facilities, researches, 0)
 	assert.True(t, avail)
 }
 
@@ -20,6 +20,6 @@ func TestArmourTechnologyIsAvailable_NoBuilding(t *testing.T) {
 	facilities := Facilities{ResearchLab: 1}
 	researches := Researches{}
 	b := newArmourTechnology()
-	avail := b.IsAvailable(PlanetDest, resourcesBuildings, facilities, researches, 0)
+	avail := b.IsAvailable(PlanetType, resourcesBuildings, facilities, researches, 0)
 	assert.False(t, avail)
 }

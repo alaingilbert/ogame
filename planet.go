@@ -46,7 +46,7 @@ func (p Planet) GetID() CelestialID {
 }
 
 func (p Planet) GetType() CelestialType {
-	return PlanetDest
+	return PlanetType
 }
 
 func (p Planet) GetCoordinate() Coordinate {

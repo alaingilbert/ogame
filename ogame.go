@@ -1305,7 +1305,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
 	res.Coordinate.System, _ = strconv.Atoi(m[3])
 	res.Coordinate.Position, _ = strconv.Atoi(m[4])
-	res.Coordinate.Type = PlanetDest
+	res.Coordinate.Type = PlanetType
 	res.Diameter = parseInt(m[5])
 	res.Fields.Built, _ = strconv.Atoi(m[6])
 	res.Fields.Total, _ = strconv.Atoi(m[7])
@@ -1351,7 +1351,7 @@ func extractMoonFromSelection(moonLink *goquery.Selection, b *OGame) (Moon, erro
 	moon.Coordinate.Galaxy, _ = strconv.Atoi(mm[2])
 	moon.Coordinate.System, _ = strconv.Atoi(mm[3])
 	moon.Coordinate.Position, _ = strconv.Atoi(mm[4])
-	moon.Coordinate.Type = MoonDest
+	moon.Coordinate.Type = MoonType
 	moon.Diameter = parseInt(mm[5])
 	moon.Fields.Built, _ = strconv.Atoi(mm[6])
 	moon.Fields.Total, _ = strconv.Atoi(mm[7])
@@ -1445,9 +1445,9 @@ type Celestial interface {
 }
 
 func extractCelestial(pageHTML []byte, b *OGame, coord Coordinate) (Celestial, error) {
-	if coord.Type == PlanetDest {
+	if coord.Type == PlanetType {
 		return extractPlanetByCoord(pageHTML, b, coord)
-	} else if coord.Type == MoonDest {
+	} else if coord.Type == MoonType {
 		return extractMoonByCoord(pageHTML, b, coord)
 	}
 	return nil, errors.New("celestial not found")
@@ -1736,16 +1736,16 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
 		originText := s.Find("span.originCoords a").Text()
 		origin := extractCoord(originText)
-		origin.Type = PlanetDest
+		origin.Type = PlanetType
 		if s.Find("span.originPlanet figure").HasClass("moon") {
-			origin.Type = MoonDest
+			origin.Type = MoonType
 		}
 
 		destText := s.Find("span.destinationCoords a").Text()
 		dest := extractCoord(destText)
-		dest.Type = PlanetDest
+		dest.Type = PlanetType
 		if s.Find("span.destinationPlanet figure").HasClass("moon") {
-			dest.Type = MoonDest
+			dest.Type = MoonType
 		}
 
 		idStr, _ := s.Find("span.reversal").Attr("ref")
@@ -1949,12 +1949,12 @@ func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 		fleet.ReturnFlight = returning
 		fleet.ArriveIn = arriveIn
 		fleet.Origin = extractCoord(originTxt)
-		fleet.Origin.Type = PlanetDest
+		fleet.Origin.Type = PlanetType
 		if originFleetFigure.HasClass("moon") {
-			fleet.Origin.Type = MoonDest
+			fleet.Origin.Type = MoonType
 		}
 		fleet.Destination = extractCoord(destTxt)
-		fleet.Destination.Type = PlanetDest
+		fleet.Destination.Type = PlanetType
 		res = append(res, fleet)
 	})
 	return res, nil
@@ -2122,9 +2122,9 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 		if missionType == Attack || missionType == MissileAttack || missionType == Spy {
 			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 			attack.Origin = extractCoord(coordsOrigin)
-			attack.Origin.Type = PlanetDest
+			attack.Origin.Type = PlanetType
 			if s.Find("td.originFleet figure").HasClass("moon") {
-				attack.Origin.Type = MoonDest
+				attack.Origin.Type = MoonType
 			}
 			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
 			attack.AttackerID, _ = strconv.Atoi(attackerIDStr)
@@ -2152,9 +2152,9 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 
 		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
 		attack.Destination = extractCoord(destCoords)
-		attack.Destination.Type = PlanetDest
+		attack.Destination.Type = PlanetType
 		if s.Find("td.destFleet figure").HasClass("moon") {
-			attack.Destination.Type = MoonDest
+			attack.Destination.Type = MoonType
 		}
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
@@ -2840,7 +2840,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Add("position", strconv.Itoa(where.Position))
 	t := where.Type
 	if mission == RecycleDebrisField {
-		t = DebrisDest // Send to debris field
+		t = DebrisType // Send to debris field
 	}
 	payload.Add("type", strconv.Itoa(int(t)))
 
@@ -2998,9 +2998,9 @@ func extractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary
 				spanLink := s.Find("span.msg_title a")
 				targetStr := spanLink.Text()
 				report.Target = extractCoord(targetStr)
-				report.Target.Type = PlanetDest
+				report.Target.Type = PlanetType
 				if spanLink.Find("figure").HasClass("moon") {
-					report.Target.Type = MoonDest
+					report.Target.Type = MoonType
 				}
 				msgs = append(msgs, report)
 
@@ -3128,9 +3128,9 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 	report.Coordinate.System, _ = strconv.Atoi(m[3])
 	report.Coordinate.Position, _ = strconv.Atoi(m[4])
 	if figure.HasClass("planet") {
-		report.Coordinate.Type = PlanetDest
+		report.Coordinate.Type = PlanetType
 	} else if figure.HasClass("moon") {
-		report.Coordinate.Type = MoonDest
+		report.Coordinate.Type = MoonType
 	}
 	messageType := Report
 	if doc.Find("span.espionageDefText").Size() > 0 {

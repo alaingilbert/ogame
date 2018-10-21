@@ -625,7 +625,7 @@ func sendFleet(c echo.Context) error {
 	c.Request().ParseForm()
 
 	var ships []ogame.Quantifiable
-	where := ogame.Coordinate{Type: ogame.PlanetDest}
+	where := ogame.Coordinate{Type: ogame.PlanetType}
 	mission := ogame.Transport
 	payload := ogame.Resources{}
 	speed := ogame.HundredPercent
