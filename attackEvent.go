@@ -7,14 +7,13 @@ import (
 
 // AttackEvent all information available about an enemy attack
 type AttackEvent struct {
-	MissionType     MissionID
-	Origin          Coordinate
-	Destination     Coordinate
-	DestinationType DestinationType
-	ArrivalTime     time.Time
-	AttackerID      int
-	Missiles        int
-	Ships           *ShipsInfos
+	MissionType MissionID
+	Origin      Coordinate
+	Destination Coordinate
+	ArrivalTime time.Time
+	AttackerID  int
+	Missiles    int
+	Ships       *ShipsInfos
 }
 
 func (a AttackEvent) String() string {

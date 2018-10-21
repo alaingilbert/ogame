@@ -64,16 +64,16 @@ func (s Speed) String() string {
 	}
 }
 
-// DestinationType destination type might be planet/moon/debris
-type DestinationType int
+// CelestialType destination type might be planet/moon/debris
+type CelestialType int
 
-func (d DestinationType) String() string {
+func (d CelestialType) String() string {
 	switch d {
-	case PlanetDest:
+	case PlanetType:
 		return "planet"
-	case MoonDest:
+	case MoonType:
 		return "moon"
-	case DebrisDest:
+	case DebrisType:
 		return "debris"
 	default:
 		return strconv.Itoa(int(d))
@@ -82,9 +82,9 @@ func (d DestinationType) String() string {
 
 // OGame constants
 const (
-	PlanetDest DestinationType = 1
-	DebrisDest DestinationType = 2
-	MoonDest   DestinationType = 3
+	PlanetType CelestialType = 1
+	DebrisType CelestialType = 2
+	MoonType   CelestialType = 3
 
 	//Buildings
 	MetalMineID                    ID = 1

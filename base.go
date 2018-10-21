@@ -23,17 +23,17 @@ func (b Base) GetRequirements() map[ID]int {
 }
 
 // IsAvailable returns either or not the object is available to us
-func (b Base) IsAvailable(t DestinationType, resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, energy int) bool {
-	if t != PlanetDest && t != MoonDest {
+func (b Base) IsAvailable(t CelestialType, resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, energy int) bool {
+	if t != PlanetType && t != MoonType {
 		return false
 	}
-	if t == PlanetDest {
+	if t == PlanetType {
 		if b.ID == LunarBaseID ||
 			b.ID == SensorPhalanxID ||
 			b.ID == JumpGateID {
 			return false
 		}
-	} else if t == MoonDest {
+	} else if t == MoonType {
 		if b.ID == MetalMineID ||
 			b.ID == CrystalMineID ||
 			b.ID == DeuteriumSynthesizerID ||

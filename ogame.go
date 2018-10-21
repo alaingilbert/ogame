@@ -67,7 +67,7 @@ type Wrapper interface {
 	GetMoons(MoonID) []Moon
 	GetMoon(MoonID) (Moon, error)
 	GetMoonByCoord(Coordinate) (Moon, error)
-	GetCelestial(Coordinate, DestinationType) (Celestial, error)
+	GetCelestial(Coordinate) (Celestial, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
@@ -77,7 +77,7 @@ type Wrapper interface {
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
-	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType, mission MissionID, resources Resources) (FleetID, error)
+	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, error)
 	Build(celestialID CelestialID, id ID, nbr int) error
 	BuildCancelable(CelestialID, ID) error
 	BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -212,7 +212,7 @@ type BaseOgameObj interface {
 	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 	GetRequirements() map[ID]int
 	GetPrice(int) Resources
-	IsAvailable(DestinationType, ResourcesBuildings, Facilities, Researches, int) bool
+	IsAvailable(CelestialType, ResourcesBuildings, Facilities, Researches, int) bool
 }
 
 // Levelable base interface for all levelable ogame objects (buildings, technologies)
@@ -1305,6 +1305,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
 	res.Coordinate.System, _ = strconv.Atoi(m[3])
 	res.Coordinate.Position, _ = strconv.Atoi(m[4])
+	res.Coordinate.Type = PlanetType
 	res.Diameter = parseInt(m[5])
 	res.Fields.Built, _ = strconv.Atoi(m[6])
 	res.Fields.Total, _ = strconv.Atoi(m[7])
@@ -1350,6 +1351,7 @@ func extractMoonFromSelection(moonLink *goquery.Selection, b *OGame) (Moon, erro
 	moon.Coordinate.Galaxy, _ = strconv.Atoi(mm[2])
 	moon.Coordinate.System, _ = strconv.Atoi(mm[3])
 	moon.Coordinate.Position, _ = strconv.Atoi(mm[4])
+	moon.Coordinate.Type = MoonType
 	moon.Diameter = parseInt(mm[5])
 	moon.Fields.Built, _ = strconv.Atoi(mm[6])
 	moon.Fields.Total, _ = strconv.Atoi(mm[7])
@@ -1425,13 +1427,13 @@ func extractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, erro
 
 type Celestial interface {
 	GetID() CelestialID
-	GetType() DestinationType
+	GetType() CelestialType
 	GetName() string
 	GetCoordinate() Coordinate
 	GetFields() Fields
 	GetResources() (Resources, error)
 	GetFacilities() (Facilities, error)
-	SendFleet([]Quantifiable, Speed, Coordinate, DestinationType, MissionID, Resources) (FleetID, error)
+	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources) (FleetID, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
 	ConstructionsBeingBuilt() (ID, int, ID, int)
@@ -1442,10 +1444,10 @@ type Celestial interface {
 	CancelBuilding() error
 }
 
-func extractCelestial(pageHTML []byte, b *OGame, coord Coordinate, t DestinationType) (Celestial, error) {
-	if t == PlanetDest {
+func extractCelestial(pageHTML []byte, b *OGame, coord Coordinate) (Celestial, error) {
+	if coord.Type == PlanetType {
 		return extractPlanetByCoord(pageHTML, b, coord)
-	} else if t == MoonDest {
+	} else if coord.Type == MoonType {
 		return extractMoonByCoord(pageHTML, b, coord)
 	}
 	return nil, errors.New("celestial not found")
@@ -1481,9 +1483,9 @@ func (b *OGame) getMoonByCoord(coord Coordinate) (Moon, error) {
 	return extractMoonByCoord(pageHTML, b, coord)
 }
 
-func (b *OGame) getCelestial(coord Coordinate, t DestinationType) (Celestial, error) {
+func (b *OGame) getCelestial(coord Coordinate) (Celestial, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractCelestial(pageHTML, b, coord, t)
+	return extractCelestial(pageHTML, b, coord)
 }
 
 func (b *OGame) serverVersion() string {
@@ -1734,9 +1736,17 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
 		originText := s.Find("span.originCoords a").Text()
 		origin := extractCoord(originText)
+		origin.Type = PlanetType
+		if s.Find("span.originPlanet figure").HasClass("moon") {
+			origin.Type = MoonType
+		}
 
 		destText := s.Find("span.destinationCoords a").Text()
 		dest := extractCoord(destText)
+		dest.Type = PlanetType
+		if s.Find("span.destinationPlanet figure").HasClass("moon") {
+			dest.Type = MoonType
+		}
 
 		idStr, _ := s.Find("span.reversal").Attr("ref")
 		id, _ := strconv.Atoi(idStr)
@@ -1831,7 +1841,10 @@ func distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool
 	if c1.System != c2.System {
 		return flightSystemDistance(c1.System, c2.System, donutSystem)
 	}
-	return planetDistance(c1.Position, c2.Position)
+	if c1.Position != c2.Position {
+		return planetDistance(c1.Position, c2.Position)
+	}
+	return 5
 }
 
 func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
@@ -1908,6 +1921,7 @@ func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 		if arriveIn < 0 {
 			arriveIn = 0
 		}
+		originFleetFigure := s.Find("li.originFleet figure")
 		originTxt := s.Find("li.coordsOrigin a").Text()
 		destTxt := s.Find("li.destCoords a").Text()
 
@@ -1935,7 +1949,12 @@ func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 		fleet.ReturnFlight = returning
 		fleet.ArriveIn = arriveIn
 		fleet.Origin = extractCoord(originTxt)
+		fleet.Origin.Type = PlanetType
+		if originFleetFigure.HasClass("moon") {
+			fleet.Origin.Type = MoonType
+		}
 		fleet.Destination = extractCoord(destTxt)
+		fleet.Destination.Type = PlanetType
 		res = append(res, fleet)
 	})
 	return res, nil
@@ -2103,6 +2122,10 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 		if missionType == Attack || missionType == MissileAttack || missionType == Spy {
 			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 			attack.Origin = extractCoord(coordsOrigin)
+			attack.Origin.Type = PlanetType
+			if s.Find("td.originFleet figure").HasClass("moon") {
+				attack.Origin.Type = MoonType
+			}
 			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
 			attack.AttackerID, _ = strconv.Atoi(attackerIDStr)
 		}
@@ -2127,15 +2150,12 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 			})
 		}
 
-		if s.Find("td.destFleet figure.planet").Size() == 1 {
-			attack.DestinationType = PlanetDest
-		}
-		if s.Find("td.destFleet figure.moon").Size() == 1 {
-			attack.DestinationType = MoonDest
-		}
-
 		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
 		attack.Destination = extractCoord(destCoords)
+		attack.Destination.Type = PlanetType
+		if s.Find("td.destFleet figure").HasClass("moon") {
+			attack.Destination.Type = MoonType
+		}
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
 
@@ -2755,7 +2775,7 @@ func extractFleet1Ships(pageHTML []byte) ShipsInfos {
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	destType DestinationType, mission MissionID, resources Resources) (FleetID, error) {
+	mission MissionID, resources Resources) (FleetID, error) {
 	getHiddenFields := func(pageHTML []byte) map[string]string {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		fields := make(map[string]string)
@@ -2818,9 +2838,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Add("galaxy", strconv.Itoa(where.Galaxy))
 	payload.Add("system", strconv.Itoa(where.System))
 	payload.Add("position", strconv.Itoa(where.Position))
-	t := destType
+	t := where.Type
 	if mission == RecycleDebrisField {
-		t = DebrisDest // Send to debris field
+		t = DebrisType // Send to debris field
 	}
 	payload.Add("type", strconv.Itoa(int(t)))
 
@@ -2975,8 +2995,13 @@ func extractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary
 				}
 				report := EspionageReportSummary{ID: id, Type: messageType}
 				report.From = s.Find("span.msg_sender").Text()
-				targetStr := s.Find("span.msg_title a").Text()
+				spanLink := s.Find("span.msg_title a")
+				targetStr := spanLink.Text()
 				report.Target = extractCoord(targetStr)
+				report.Target.Type = PlanetType
+				if spanLink.Find("figure").HasClass("moon") {
+					report.Target.Type = MoonType
+				}
 				msgs = append(msgs, report)
 
 			}
@@ -3094,12 +3119,19 @@ type EspionageReport struct {
 func extractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	txt := doc.Find("span.msg_title a").First().Text()
+	spanLink := doc.Find("span.msg_title a").First()
+	txt := spanLink.Text()
+	figure := spanLink.Find("figure").First()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
 	report.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
 	report.Coordinate.System, _ = strconv.Atoi(m[3])
 	report.Coordinate.Position, _ = strconv.Atoi(m[4])
+	if figure.HasClass("planet") {
+		report.Coordinate.Type = PlanetType
+	} else if figure.HasClass("moon") {
+		report.Coordinate.Type = MoonType
+	}
 	messageType := Report
 	if doc.Find("span.espionageDefText").Size() > 0 {
 		messageType = Action
@@ -3554,10 +3586,10 @@ func (b *OGame) GetMoonByCoord(coord Coordinate) (Moon, error) {
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *OGame) GetCelestial(coord Coordinate, t DestinationType) (Celestial, error) {
+func (b *OGame) GetCelestial(coord Coordinate) (Celestial, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.getCelestial(coord, t)
+	return b.getCelestial(coord)
 }
 
 // ServerVersion returns OGame version
@@ -3752,10 +3784,10 @@ func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	destType DestinationType, mission MissionID, resources Resources) (FleetID, error) {
+	mission MissionID, resources Resources) (FleetID, error) {
 	b.Lock()
 	defer b.Unlock()
-	return b.sendFleet(celestialID, ships, speed, where, destType, mission, resources)
+	return b.sendFleet(celestialID, ships, speed, where, mission, resources)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
