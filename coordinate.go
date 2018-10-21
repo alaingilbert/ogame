@@ -1,6 +1,9 @@
 package ogame
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 // Coordinate represent an ogame coordinate
 type Coordinate struct {
@@ -11,7 +14,7 @@ type Coordinate struct {
 }
 
 func (c Coordinate) String() string {
-	return fmt.Sprintf("[%d:%d:%d]", c.Galaxy, c.System, c.Position)
+	return fmt.Sprintf("[%c:%d:%d:%d]", strings.ToUpper(c.Type.String())[0], c.Galaxy, c.System, c.Position)
 }
 
 // Equal returns either two coordinates are equal or not
