@@ -985,9 +985,10 @@ func TestPlanetDistance(t *testing.T) {
 }
 
 func TestDistance(t *testing.T) {
-	assert.Equal(t, 1015, distance(Coordinate{1, 1, 3}, Coordinate{1, 1, 6}, 6, true, true))
-	assert.Equal(t, 2890, distance(Coordinate{1, 1, 3}, Coordinate{1, 498, 6}, 6, true, true))
-	assert.Equal(t, 20000, distance(Coordinate{6, 1, 3}, Coordinate{1, 498, 6}, 6, true, true))
+	assert.Equal(t, 1015, distance(Coordinate{1, 1, 3, PlanetDest}, Coordinate{1, 1, 6, PlanetDest}, 6, true, true))
+	assert.Equal(t, 2890, distance(Coordinate{1, 1, 3, PlanetDest}, Coordinate{1, 498, 6, PlanetDest}, 6, true, true))
+	assert.Equal(t, 20000, distance(Coordinate{6, 1, 3, PlanetDest}, Coordinate{1, 498, 6, PlanetDest}, 6, true, true))
+	assert.Equal(t, 5, distance(Coordinate{6, 1, 3, PlanetDest}, Coordinate{6, 1, 3, MoonDest}, 6, true, true))
 }
 
 func TestCalcFlightTime(t *testing.T) {

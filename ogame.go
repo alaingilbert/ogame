@@ -1831,7 +1831,10 @@ func distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool
 	if c1.System != c2.System {
 		return flightSystemDistance(c1.System, c2.System, donutSystem)
 	}
-	return planetDistance(c1.Position, c2.Position)
+	if c1.Position != c2.Position {
+		return planetDistance(c1.Position, c2.Position)
+	}
+	return 5
 }
 
 func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
