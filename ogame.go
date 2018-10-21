@@ -2150,13 +2150,6 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 			})
 		}
 
-		if s.Find("td.destFleet figure.planet").Size() == 1 {
-			attack.DestinationType = PlanetDest
-		}
-		if s.Find("td.destFleet figure.moon").Size() == 1 {
-			attack.DestinationType = MoonDest
-		}
-
 		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
 		attack.Destination = extractCoord(destCoords)
 		attack.Destination.Type = PlanetDest
