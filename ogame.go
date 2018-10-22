@@ -61,6 +61,8 @@ type Wrapper interface {
 	GalaxyInfos(galaxy, system int) (SystemInfos, error)
 	GetResearch() Researches
 	GetCachedPlanets() []Planet
+	GetCachedMoons() []Moon
+	GetCachedCelestial(CelestialID) Celestial
 	GetPlanets() []Planet
 	GetPlanet(PlanetID) (Planet, error)
 	GetPlanetByCoord(Coordinate) (Planet, error)
@@ -3547,6 +3549,30 @@ func (b *OGame) GetPlanets() []Planet {
 // GetCachedPlanets return planets from cached value
 func (b *OGame) GetCachedPlanets() []Planet {
 	return b.Planets
+}
+
+// GetCachedMoons return moons from cached value
+func (b *OGame) GetCachedMoons() []Moon {
+	var moons []Moon
+	for _, p := range b.Planets {
+		if p.Moon != nil {
+			moons = append(moons, *p.Moon)
+		}
+	}
+	return moons
+}
+
+// GetCachedCelestial return celestial from cached value
+func (b *OGame) GetCachedCelestial(celestialID CelestialID) Celestial {
+	for _, p := range b.Planets {
+		if p.ID.Celestial() == celestialID {
+			return p
+		}
+		if p.Moon != nil && p.Moon.ID.Celestial() == celestialID {
+			return p.Moon
+		}
+	}
+	return nil
 }
 
 // GetPlanet gets infos for planetID
