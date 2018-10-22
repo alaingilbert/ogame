@@ -1861,15 +1861,17 @@ func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
 }
 
 func calcFuel(ships ShipsInfos, dist int, speed float64) (fuel int) {
-	tmpFn := func(baseFuel int) int {
-		return int(1 + math.Round(((float64(baseFuel)*float64(dist))/35000)*math.Pow(speed+1, 2)))
+	tmpFn := func(baseFuel int) float64 {
+		return float64(baseFuel*dist)/35000*math.Pow(speed+1, 2)
 	}
+	tmpFuel := 0.0
 	for _, ship := range Ships {
 		nbr := ships.ByID(ship.GetID())
 		if nbr > 0 {
-			fuel += tmpFn(ship.GetFuelConsumption()) * nbr
+			tmpFuel += tmpFn(ship.GetFuelConsumption()) * float64(nbr)
 		}
 	}
+	fuel = int(1 + math.Round(tmpFuel))
 	return
 }
 
@@ -1880,7 +1882,7 @@ func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalax
 	a := float64(universeSpeedFleet)
 	d := float64(distance(origin, destination, universeSize, donutGalaxy, donutSystem))
 	secs = int(math.Round(((10 + (3500 / s)) * math.Sqrt((10*d)/v)) / a))
-	fuel = calcFuel(ships, int(d), speed)
+	fuel = calcFuel(ships, int(d), s)
 	return
 }
 
