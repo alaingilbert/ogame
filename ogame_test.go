@@ -1006,3 +1006,10 @@ func TestCalcFlightTime(t *testing.T) {
 	//assert.Equal(t, 2121, secs)
 	//assert.Equal(t, 3, fuel)
 }
+
+func TestExtractFleetSlot(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_1.html")
+	s := extractSlots(pageHTMLBytes)
+	assert.Equal(t, 1, s.SlotsInUse)
+	assert.Equal(t, 11, s.TotalSlotNumber)
+}

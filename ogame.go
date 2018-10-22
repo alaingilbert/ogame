@@ -3872,3 +3872,21 @@ func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	defer b.Unlock()
 	return b.getPhalanx(moonID, coord)
 }
+
+type Slots struct {
+	SlotsInUse      int
+	TotalSlotNumber int
+}
+
+func extractSlots(pageHTML []byte) Slots {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	slots := Slots{}
+	slots.SlotsInUse = parseInt(doc.Find("span.fleetSlots > span.current").Text())
+	slots.TotalSlotNumber = parseInt(doc.Find("span.fleetSlots > span.all").Text())
+	return slots
+}
+
+func (b *OGame) getSlots() Slots {
+	pageHTML := b.getPageContent(url.Values{"page": {"movement"}})
+	return extractSlots(pageHTML)
+}
