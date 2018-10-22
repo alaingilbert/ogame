@@ -1805,8 +1805,8 @@ func (b *OGame) cancelFleet(fleetID FleetID) error {
 }
 
 type Slots struct {
-	SlotsInUse      int
-	TotalSlotNumber int
+	InUse int
+	Total int
 }
 
 func extractSlots(pageHTML []byte) Slots {
