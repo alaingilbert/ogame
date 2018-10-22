@@ -1812,8 +1812,8 @@ type Slots struct {
 func extractSlots(pageHTML []byte) Slots {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	slots := Slots{}
-	slots.SlotsInUse = parseInt(doc.Find("span.fleetSlots > span.current").Text())
-	slots.TotalSlotNumber = parseInt(doc.Find("span.fleetSlots > span.all").Text())
+	slots.InUse = parseInt(doc.Find("span.fleetSlots > span.current").Text())
+	slots.Total = parseInt(doc.Find("span.fleetSlots > span.all").Text())
 	return slots
 }
 
