@@ -76,6 +76,7 @@ type Wrapper interface {
 	Distance(origin, destination Coordinate) int
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 	RegisterChatCallback(func(ChatMsg))
+	GetSlots() Slots
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
@@ -1803,6 +1804,24 @@ func (b *OGame) cancelFleet(fleetID FleetID) error {
 	return nil
 }
 
+type Slots struct {
+	InUse int
+	Total int
+}
+
+func extractSlots(pageHTML []byte) Slots {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	slots := Slots{}
+	slots.SlotsInUse = parseInt(doc.Find("span.fleetSlots > span.current").Text())
+	slots.TotalSlotNumber = parseInt(doc.Find("span.fleetSlots > span.all").Text())
+	return slots
+}
+
+func (b *OGame) getSlots() Slots {
+	pageHTML := b.getPageContent(url.Values{"page": {"movement"}})
+	return extractSlots(pageHTML)
+}
+
 // Returns the distance between two galaxy
 func galaxyDistance(galaxy1, galaxy2, universeSize int, donutGalaxy bool) (distance int) {
 	if !donutGalaxy {
@@ -1862,7 +1881,7 @@ func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
 
 func calcFuel(ships ShipsInfos, dist int, speed float64) (fuel int) {
 	tmpFn := func(baseFuel int) float64 {
-		return float64(baseFuel*dist)/35000*math.Pow(speed+1, 2)
+		return float64(baseFuel*dist) / 35000 * math.Pow(speed+1, 2)
 	}
 	tmpFuel := 0.0
 	for _, ship := range Ships {
@@ -3731,6 +3750,13 @@ func (b *OGame) GetResearch() Researches {
 	b.Lock()
 	defer b.Unlock()
 	return b.getResearch()
+}
+
+// GetSlots gets the player current and total slots information
+func (b *OGame) GetSlots() Slots {
+	b.Lock()
+	defer b.Unlock()
+	return b.getSlots()
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
