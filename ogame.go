@@ -1491,6 +1491,30 @@ func (b *OGame) getCelestial(coord Coordinate) (Celestial, error) {
 	return extractCelestial(pageHTML, b, coord)
 }
 
+// ExtractPlanetID extracts planet id from html page
+func ExtractPlanetID(pageHTML []byte) (CelestialID, error) {
+	m := regexp.MustCompile(`<meta name="ogame-planet-id" content="(\d+)"/>`).FindSubmatch(pageHTML)
+	if len(m) == 0 {
+		return 0, errors.New("planet id not found")
+	}
+	planetID, _ := strconv.Atoi(string(m[1]))
+	return CelestialID(planetID), nil
+}
+
+// ExtractPlanetType extracts planet type from html page
+func ExtractPlanetType(pageHTML []byte) (CelestialType, error) {
+	m := regexp.MustCompile(`<meta name="ogame-planet-type" content="(\w+)"/>`).FindSubmatch(pageHTML)
+	if len(m) == 0 {
+		return 0, errors.New("planet type not found")
+	}
+	if bytes.Equal(m[1], []byte("planet")) {
+		return PlanetType, nil
+	} else if bytes.Equal(m[1], []byte("moon")) {
+		return MoonType, nil
+	}
+	return 0, errors.New("invalid planet type : " + string(m[1]))
+}
+
 func (b *OGame) serverVersion() string {
 	return b.ogameVersion
 }

@@ -36,6 +36,30 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 	}
 }
 
+func TestExtractPlanetID_planet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/station.html")
+	res, _ := ExtractPlanetID(pageHTMLBytes)
+	assert.Equal(t, CelestialID(33672410), res)
+}
+
+func TestExtractPlanetID_moon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res, _ := ExtractPlanetID(pageHTMLBytes)
+	assert.Equal(t, CelestialID(33741598), res)
+}
+
+func TestExtractPlanetType_planet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/station.html")
+	res, _ := ExtractPlanetType(pageHTMLBytes)
+	assert.Equal(t, PlanetType, res)
+}
+
+func TestExtractPlanetType_moon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res, _ := ExtractPlanetType(pageHTMLBytes)
+	assert.Equal(t, MoonType, res)
+}
+
 func TestExtractJumpGate_cooldown(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/jumpgatelayer_charge.html")
 	_, _, _, wait := extractJumpGate(pageHTMLBytes)
