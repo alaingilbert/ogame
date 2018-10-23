@@ -36,6 +36,30 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 	}
 }
 
+func TestExtractPlanetID_planet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/station.html")
+	res, _ := ExtractPlanetID(pageHTMLBytes)
+	assert.Equal(t, CelestialID(33672410), res)
+}
+
+func TestExtractPlanetID_moon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res, _ := ExtractPlanetID(pageHTMLBytes)
+	assert.Equal(t, CelestialID(33741598), res)
+}
+
+func TestExtractPlanetType_planet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/station.html")
+	res, _ := ExtractPlanetType(pageHTMLBytes)
+	assert.Equal(t, PlanetType, res)
+}
+
+func TestExtractPlanetType_moon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res, _ := ExtractPlanetType(pageHTMLBytes)
+	assert.Equal(t, MoonType, res)
+}
+
 func TestExtractJumpGate_cooldown(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/jumpgatelayer_charge.html")
 	_, _, _, wait := extractJumpGate(pageHTMLBytes)
@@ -128,7 +152,7 @@ func TestExtractPhalanx_noDeut(t *testing.T) {
 
 func TestExtractResearch(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/research_bonus.html")
-	res := extractResearch(pageHTMLBytes)
+	res := ExtractResearch(pageHTMLBytes)
 	assert.Equal(t, 12, res.EnergyTechnology)
 	assert.Equal(t, 12, res.LaserTechnology)
 	assert.Equal(t, 7, res.IonTechnology)
@@ -149,7 +173,7 @@ func TestExtractResearch(t *testing.T) {
 
 func TestExtractResourcesBuildings(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_inconstruction.html")
-	res, _ := extractResourcesBuildings(pageHTMLBytes)
+	res, _ := ExtractResourcesBuildings(pageHTMLBytes)
 	assert.Equal(t, 19, res.MetalMine)
 	assert.Equal(t, 17, res.CrystalMine)
 	assert.Equal(t, 13, res.DeuteriumSynthesizer)
@@ -163,7 +187,7 @@ func TestExtractResourcesBuildings(t *testing.T) {
 
 func TestExtractFacilities(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/facility_inconstruction.html")
-	res, _ := extractFacilities(pageHTMLBytes)
+	res, _ := ExtractFacilities(pageHTMLBytes)
 	assert.Equal(t, 7, res.RoboticsFactory)
 	assert.Equal(t, 7, res.Shipyard)
 	assert.Equal(t, 7, res.ResearchLab)
@@ -176,7 +200,7 @@ func TestExtractFacilities(t *testing.T) {
 
 func TestExtractMoonFacilities(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
-	res, _ := extractFacilities(pageHTMLBytes)
+	res, _ := ExtractFacilities(pageHTMLBytes)
 	assert.Equal(t, 1, res.RoboticsFactory)
 	assert.Equal(t, 2, res.Shipyard)
 	assert.Equal(t, 3, res.LunarBase)
@@ -186,7 +210,7 @@ func TestExtractMoonFacilities(t *testing.T) {
 
 func TestExtractDefense(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/defence.html")
-	defense, _ := extractDefense(pageHTMLBytes)
+	defense, _ := ExtractDefense(pageHTMLBytes)
 	assert.Equal(t, 1, defense.RocketLauncher)
 	assert.Equal(t, 2, defense.LightLaser)
 	assert.Equal(t, 3, defense.HeavyLaser)
@@ -295,7 +319,7 @@ func TestFindSlowestSpeed(t *testing.T) {
 
 func TestExtractShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_thousands_ships.html")
-	ships, _ := extractShips(pageHTMLBytes)
+	ships, _ := ExtractShips(pageHTMLBytes)
 	assert.Equal(t, 1000, ships.LargeCargo)
 	assert.Equal(t, 1000, ships.EspionageProbe)
 	assert.Equal(t, 700, ships.Cruiser)
@@ -486,13 +510,13 @@ func TestExtractGalaxyInfosMoonActivity15(t *testing.T) {
 
 func TestExtractUserInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
-	infos, _ := extractUserInfos(pageHTMLBytes, "en")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "en")
 	assert.Equal(t, 1295, infos.Points)
 }
 
 func TestExtractUserInfos_de(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/de_overview.html")
-	infos, _ := extractUserInfos(pageHTMLBytes, "de")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "de")
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 2980, infos.Rank)
 	assert.Equal(t, 2980, infos.Total)
@@ -500,7 +524,7 @@ func TestExtractUserInfos_de(t *testing.T) {
 
 func TestExtractUserInfos_jp(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/jp_overview.html")
-	infos, _ := extractUserInfos(pageHTMLBytes, "jp")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "jp")
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 73, infos.Rank)
 	assert.Equal(t, 73, infos.Total)
@@ -508,7 +532,7 @@ func TestExtractUserInfos_jp(t *testing.T) {
 
 func TestExtractUserInfos_fr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr_overview.html")
-	infos, _ := extractUserInfos(pageHTMLBytes, "fr")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "fr")
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 3197, infos.Rank)
 	assert.Equal(t, 3348, infos.Total)
@@ -517,7 +541,7 @@ func TestExtractUserInfos_fr(t *testing.T) {
 
 func TestExtractUserInfos_br(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
-	infos, _ := extractUserInfos(pageHTMLBytes, "br")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "br")
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 1026, infos.Rank)
 	assert.Equal(t, 1268, infos.Total)
@@ -1005,4 +1029,11 @@ func TestCalcFlightTime(t *testing.T) {
 	//	ShipsInfos{LightFighter: 1}, Researches{})
 	//assert.Equal(t, 2121, secs)
 	//assert.Equal(t, 3, fuel)
+}
+
+func TestExtractFleetSlot(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_1.html")
+	s := extractSlots(pageHTMLBytes)
+	assert.Equal(t, 1, s.InUse)
+	assert.Equal(t, 11, s.Total)
 }
