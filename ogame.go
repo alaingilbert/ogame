@@ -880,7 +880,7 @@ func (b *OGame) login() error {
 	b.donutSystem, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-system]").AttrOr("content", "1"))
 	b.ogameVersion = doc.Find("meta[name=ogame-version]").AttrOr("content", "")
 
-	b.Player, _ = extractUserInfos(pageHTML, b.language)
+	b.Player, _ = ExtractUserInfos(pageHTML, b.language)
 	b.Planets = extractPlanets(pageHTML, b)
 
 	// Extract chat host and port
@@ -1138,7 +1138,7 @@ func (b *OGame) getPageContent(vals url.Values) []byte {
 	})
 
 	if page == "overview" {
-		b.Player, _ = extractUserInfos(pageHTMLBytes, b.language)
+		b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
 		b.Planets = extractPlanets(pageHTMLBytes, b)
 	} else if IsAjaxPage(vals) {
 	} else {
@@ -1653,7 +1653,7 @@ func name2id(name string) ID {
 	return nameMap[processedString]
 }
 
-func extractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
+func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 	playerIDRgx := regexp.MustCompile(`playerId="(\d+)"`)
 	playerNameRgx := regexp.MustCompile(`playerName="([^"]+)"`)
 	txtContent := regexp.MustCompile(`textContent\[7]="([^"]+)"`)
@@ -1709,7 +1709,7 @@ func extractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 
 func (b *OGame) getUserInfos() UserInfos {
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}})
-	userInfos, err := extractUserInfos(pageHTML, b.language)
+	userInfos, err := ExtractUserInfos(pageHTML, b.language)
 	if err != nil {
 		b.error(err)
 	}
@@ -2020,7 +2020,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		return res, errors.New("moon not found")
 	}
 	resources := extractResources(moonFacilitiesHTML)
-	moonFacilities, _ := extractFacilities(moonFacilitiesHTML)
+	moonFacilities, _ := ExtractFacilities(moonFacilitiesHTML)
 	ogameTimestamp := extractOgameTimestamp(moonFacilitiesHTML)
 	phalanxLvl := moonFacilities.SensorPhalanx
 
@@ -2439,7 +2439,7 @@ func getNbr(doc *goquery.Document, name string) int {
 	return parseInt(level.Text())
 }
 
-func extractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
+func ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -2459,7 +2459,7 @@ func extractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
 	return res, nil
 }
 
-func extractDefense(pageHTML []byte) (DefensesInfos, error) {
+func ExtractDefense(pageHTML []byte) (DefensesInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
@@ -2481,7 +2481,7 @@ func extractDefense(pageHTML []byte) (DefensesInfos, error) {
 	return res, nil
 }
 
-func extractShips(pageHTML []byte) (ShipsInfos, error) {
+func ExtractShips(pageHTML []byte) (ShipsInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -2507,7 +2507,7 @@ func extractShips(pageHTML []byte) (ShipsInfos, error) {
 	return res, nil
 }
 
-func extractFacilities(pageHTML []byte) (Facilities, error) {
+func ExtractFacilities(pageHTML []byte) (Facilities, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -2529,7 +2529,7 @@ func extractFacilities(pageHTML []byte) (Facilities, error) {
 	return res, nil
 }
 
-func extractResearch(pageHTML []byte) Researches {
+func ExtractResearch(pageHTML []byte) Researches {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("span.textlabel").Remove()
 	res := Researches{}
@@ -2555,27 +2555,27 @@ func extractResearch(pageHTML []byte) Researches {
 
 func (b *OGame) getResearch() Researches {
 	pageHTML := b.getPageContent(url.Values{"page": {"research"}})
-	return extractResearch(pageHTML)
+	return ExtractResearch(pageHTML)
 }
 
 func (b *OGame) getResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {strconv.Itoa(int(celestialID))}})
-	return extractResourcesBuildings(pageHTML)
+	return ExtractResourcesBuildings(pageHTML)
 }
 
 func (b *OGame) getDefense(celestialID CelestialID) (DefensesInfos, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"defense"}, "cp": {strconv.Itoa(int(celestialID))}})
-	return extractDefense(pageHTML)
+	return ExtractDefense(pageHTML)
 }
 
 func (b *OGame) getShips(celestialID CelestialID) (ShipsInfos, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {strconv.Itoa(int(celestialID))}})
-	return extractShips(pageHTML)
+	return ExtractShips(pageHTML)
 }
 
 func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"station"}, "cp": {strconv.Itoa(int(celestialID))}})
-	return extractFacilities(pageHTML)
+	return ExtractFacilities(pageHTML)
 }
 
 func extractProduction(pageHTML []byte) ([]Quantifiable, error) {
