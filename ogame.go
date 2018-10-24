@@ -480,6 +480,7 @@ type OGame struct {
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
 	Player               UserInfos
+	researches           *Researches
 	Planets              []Planet
 	Universe             string
 	Username             string
@@ -2561,7 +2562,16 @@ func ExtractResearch(pageHTML []byte) Researches {
 
 func (b *OGame) getResearch() Researches {
 	pageHTML := b.getPageContent(url.Values{"page": {"research"}})
-	return ExtractResearch(pageHTML)
+	researches := ExtractResearch(pageHTML)
+	b.researches = &researches
+	return researches
+}
+
+func (b *OGame) getCachedResearch() Researches {
+	if b.researches == nil {
+		b.getResearch()
+	}
+	return *b.researches
 }
 
 func (b *OGame) getResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
@@ -3943,7 +3953,8 @@ func (b *OGame) GetResourcesProductions(planetID PlanetID) (Resources, error) {
 func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
 	b.botLock("FlightTime")
 	defer b.botUnlock("FlightTime")
-	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10, b.universeSpeedFleet, ships, Researches{})
+	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10,
+		b.universeSpeedFleet, ships, b.getCachedResearch())
 }
 
 // Distance return distance between two coordinates
