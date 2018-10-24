@@ -34,6 +34,9 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	OnStateChange(clb func(locked bool, actor string))
+	GetState() (bool, string)
+	IsLocked() bool
 	GetSession() string
 	AddAccount(number int, lang string) (NewAccount, error)
 	GetServer() Server
@@ -472,31 +475,34 @@ var Technologies = []Technology{
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	quiet              bool
-	Player             UserInfos
-	Planets            []Planet
-	Universe           string
-	Username           string
-	password           string
-	language           string
-	ogameSession       string
-	sessionChatCounter int
-	server             Server
-	location           *time.Location
-	universeSpeed      int
-	universeSize       int
-	universeSpeedFleet int
-	donutGalaxy        bool
-	donutSystem        bool
-	ogameVersion       string
-	serverURL          string
-	client             *ogameClient
-	logger             *log.Logger
-	chatCallbacks      []func(msg ChatMsg)
-	closeChatCh        chan struct{}
-	chatConnected      int32
-	chatRetry          *ExponentialBackoff
-	ws                 *websocket.Conn
+	locked               int32
+	state                string
+	stateChangeCallbacks []func(locked bool, actor string)
+	quiet                bool
+	Player               UserInfos
+	Planets              []Planet
+	Universe             string
+	Username             string
+	password             string
+	language             string
+	ogameSession         string
+	sessionChatCounter   int
+	server               Server
+	location             *time.Location
+	universeSpeed        int
+	universeSize         int
+	universeSpeedFleet   int
+	donutGalaxy          bool
+	donutSystem          bool
+	ogameVersion         string
+	serverURL            string
+	client               *ogameClient
+	logger               *log.Logger
+	chatCallbacks        []func(msg ChatMsg)
+	closeChatCh          chan struct{}
+	chatConnected        int32
+	chatRetry            *ExponentialBackoff
+	ws                   *websocket.Conn
 }
 
 // Params parameters for more fine-grained initialization
@@ -3450,6 +3456,43 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	return productions, nil
 }
 
+// OnStateChange register a callback that is notified when the bot state changes
+func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
+	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
+}
+
+func (b *OGame) stateChanged(locked bool, actor string) {
+	for _, clb := range b.stateChangeCallbacks {
+		clb(locked, actor)
+	}
+}
+
+// GetState returns the current bot state
+func (b *OGame) GetState() (bool, string) {
+	return atomic.LoadInt32(&b.locked) == 1, b.state
+}
+
+// IsLocked returns either or not the bot is currently locked
+func (b *OGame) IsLocked() bool {
+	return atomic.LoadInt32(&b.locked) == 1
+}
+
+func (b *OGame) botLock(lockedBy string) {
+	b.Lock()
+	if atomic.CompareAndSwapInt32(&b.locked, 0, 1) {
+		b.state = lockedBy
+		b.stateChanged(true, lockedBy)
+	}
+}
+
+func (b *OGame) botUnlock(unlockedBy string) {
+	b.Unlock()
+	if atomic.CompareAndSwapInt32(&b.locked, 1, 0) {
+		b.state = unlockedBy
+		b.stateChanged(false, unlockedBy)
+	}
+}
+
 // GetSession get ogame session
 func (b *OGame) GetSession() string {
 	return b.ogameSession
@@ -3520,15 +3563,15 @@ func (b *OGame) SetUserAgent(newUserAgent string) {
 // Login to ogame server
 // Can fails with BadCredentialsError
 func (b *OGame) Login() error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("Login")
+	defer b.botUnlock("Login")
 	return b.login()
 }
 
 // Logout the bot from ogame server
 func (b *OGame) Logout() {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("Logout")
+	defer b.botUnlock("Logout")
 	b.logout()
 }
 
@@ -3564,30 +3607,30 @@ func (b *OGame) IsDonutSystem() bool {
 
 // GetPageContent gets the html for a specific ogame page
 func (b *OGame) GetPageContent(vals url.Values) []byte {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetPageContent")
+	defer b.botUnlock("GetPageContent")
 	return b.getPageContent(vals)
 }
 
 // PostPageContent make a post request to ogame server
 // This is useful when simulating a web browser
 func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("PostPageContent")
+	defer b.botUnlock("PostPageContent")
 	return b.postPageContent(vals, payload)
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
 func (b *OGame) IsUnderAttack() bool {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("IsUnderAttack")
+	defer b.botUnlock("IsUnderAttack")
 	return b.isUnderAttack()
 }
 
 // GetPlanets returns the user planets
 func (b *OGame) GetPlanets() []Planet {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetPlanets")
+	defer b.botUnlock("GetPlanets")
 	return b.getPlanets()
 }
 
@@ -3623,43 +3666,43 @@ func (b *OGame) GetCachedCelestial(celestialID CelestialID) Celestial {
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
 func (b *OGame) GetPlanet(planetID PlanetID) (Planet, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetPlanet")
+	defer b.botUnlock("GetPlanet")
 	return b.getPlanet(planetID)
 }
 
 // GetPlanetByCoord get the player's planet using the coordinate
 func (b *OGame) GetPlanetByCoord(coord Coordinate) (Planet, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetPlanetByCoord")
+	defer b.botUnlock("GetPlanetByCoord")
 	return b.getPlanetByCoord(coord)
 }
 
 // GetMoons returns the user moons
 func (b *OGame) GetMoons(moonID MoonID) []Moon {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetMoons")
+	defer b.botUnlock("GetMoons")
 	return b.getMoons()
 }
 
 // GetMoon gets infos for moonID
 func (b *OGame) GetMoon(moonID MoonID) (Moon, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetMoon")
+	defer b.botUnlock("GetMoon")
 	return b.getMoon(moonID)
 }
 
 // GetMoonByCoord get the player's moon using the coordinate
 func (b *OGame) GetMoonByCoord(coord Coordinate) (Moon, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetMoonByCoord")
+	defer b.botUnlock("GetMoonByCoord")
 	return b.getMoonByCoord(coord)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
 func (b *OGame) GetCelestial(coord Coordinate) (Celestial, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetCelestial")
+	defer b.botUnlock("GetCelestial")
 	return b.getCelestial(coord)
 }
 
@@ -3671,235 +3714,235 @@ func (b *OGame) ServerVersion() string {
 // ServerTime returns server time
 // Timezone is OGT (OGame Time zone)
 func (b *OGame) ServerTime() time.Time {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("ServerTime")
+	defer b.botUnlock("ServerTime")
 	return b.serverTime()
 }
 
 // GetUserInfos gets the user information
 func (b *OGame) GetUserInfos() UserInfos {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetUserInfos")
+	defer b.botUnlock("GetUserInfos")
 	return b.getUserInfos()
 }
 
 // SendMessage sends a message to playerID
 func (b *OGame) SendMessage(playerID int, message string) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("SendMessage")
+	defer b.botUnlock("SendMessage")
 	return b.sendMessage(playerID, message)
 }
 
 // GetFleets get the player's own fleets activities
 func (b *OGame) GetFleets() []Fleet {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetFleets")
+	defer b.botUnlock("GetFleets")
 	return b.getFleets()
 }
 
 // CancelFleet cancel a fleet
 func (b *OGame) CancelFleet(fleetID FleetID) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("CancelFleet")
+	defer b.botUnlock("CancelFleet")
 	return b.cancelFleet(fleetID)
 }
 
 // GetAttacks get enemy fleets attacking you
 func (b *OGame) GetAttacks() []AttackEvent {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetAttacks")
+	defer b.botUnlock("GetAttacks")
 	return b.getAttacks()
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
 func (b *OGame) GalaxyInfos(galaxy, system int) (SystemInfos, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GalaxyInfos")
+	defer b.botUnlock("GalaxyInfos")
 	return b.galaxyInfos(galaxy, system)
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
 func (b *OGame) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetResourceSettings")
+	defer b.botUnlock("GetResourceSettings")
 	return b.getResourceSettings(planetID)
 }
 
 // SetResourceSettings set the resources settings on a planet
 func (b *OGame) SetResourceSettings(planetID PlanetID, settings ResourceSettings) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("SetResourceSettings")
+	defer b.botUnlock("SetResourceSettings")
 	return b.setResourceSettings(planetID, settings)
 }
 
 // GetResourcesBuildings gets the resources buildings levels
 func (b *OGame) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetResourcesBuildings")
+	defer b.botUnlock("GetResourcesBuildings")
 	return b.getResourcesBuildings(celestialID)
 }
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
 func (b *OGame) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetDefense")
+	defer b.botUnlock("GetDefense")
 	return b.getDefense(celestialID)
 }
 
 // GetShips gets all ships units information of a planet
 func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetShips")
+	defer b.botUnlock("GetShips")
 	return b.getShips(celestialID)
 }
 
 // GetFacilities gets all facilities information of a planet
 func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetFacilities")
+	defer b.botUnlock("GetFacilities")
 	return b.getFacilities(celestialID)
 }
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
 func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetProduction")
+	defer b.botUnlock("GetProduction")
 	return b.getProduction(celestialID)
 }
 
 // GetResearch gets the player researches information
 func (b *OGame) GetResearch() Researches {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetResearch")
+	defer b.botUnlock("GetResearch")
 	return b.getResearch()
 }
 
 // GetSlots gets the player current and total slots information
 func (b *OGame) GetSlots() Slots {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetSlots")
+	defer b.botUnlock("GetSlots")
 	return b.getSlots()
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
 func (b *OGame) Build(celestialID CelestialID, id ID, nbr int) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("Build")
+	defer b.botUnlock("Build")
 	return b.build(celestialID, id, nbr)
 }
 
 // BuildCancelable builds any cancelable ogame objects (building, technology)
 func (b *OGame) BuildCancelable(celestialID CelestialID, id ID) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("BuildCancelable")
+	defer b.botUnlock("BuildCancelable")
 	return b.buildCancelable(celestialID, id)
 }
 
 // BuildProduction builds any line production ogame objects (ship, defence)
 func (b *OGame) BuildProduction(celestialID CelestialID, id ID, nbr int) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("BuildProduction")
+	defer b.botUnlock("BuildProduction")
 	return b.buildProduction(celestialID, id, nbr)
 }
 
 // BuildBuilding ensure what is being built is a building
 func (b *OGame) BuildBuilding(celestialID CelestialID, buildingID ID) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("BuildBuilding")
+	defer b.botUnlock("BuildBuilding")
 	return b.buildBuilding(celestialID, buildingID)
 }
 
 // BuildDefense builds a defense unit
 func (b *OGame) BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("BuildDefense")
+	defer b.botUnlock("BuildDefense")
 	return b.buildDefense(celestialID, defenseID, nbr)
 }
 
 // BuildShips builds a ship unit
 func (b *OGame) BuildShips(celestialID CelestialID, shipID ID, nbr int) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("BuildShips")
+	defer b.botUnlock("BuildShips")
 	return b.buildShips(celestialID, shipID, nbr)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
 func (b *OGame) ConstructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("ConstructionsBeingBuilt")
+	defer b.botUnlock("ConstructionsBeingBuilt")
 	return b.constructionsBeingBuilt(celestialID)
 }
 
 // CancelBuilding cancel the construction of a building on a specified planet
 func (b *OGame) CancelBuilding(celestialID CelestialID) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("CancelBuilding")
+	defer b.botUnlock("CancelBuilding")
 	return b.cancelBuilding(celestialID)
 }
 
 // CancelResearch cancel the research
 func (b *OGame) CancelResearch(celestialID CelestialID) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("CancelResearch")
+	defer b.botUnlock("CancelResearch")
 	return b.cancelResearch(celestialID)
 }
 
 // BuildTechnology ensure that we're trying to build a technology
 func (b *OGame) BuildTechnology(celestialID CelestialID, technologyID ID) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("BuildTechnology")
+	defer b.botUnlock("BuildTechnology")
 	return b.buildTechnology(celestialID, technologyID)
 }
 
 // GetResources gets user resources
 func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetResources")
+	defer b.botUnlock("GetResources")
 	return b.getResources(celestialID)
 }
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources) (FleetID, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("SendFleet")
+	defer b.botUnlock("SendFleet")
 	return b.sendFleet(celestialID, ships, speed, where, mission, resources)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
 func (b *OGame) GetEspionageReportMessages() ([]EspionageReportSummary, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetEspionageReportMessages")
+	defer b.botUnlock("GetEspionageReportMessages")
 	return b.getEspionageReportMessages()
 }
 
 // GetEspionageReport gets a detailed espionage report
 func (b *OGame) GetEspionageReport(msgID int) (EspionageReport, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetEspionageReport")
+	defer b.botUnlock("GetEspionageReport")
 	return b.getEspionageReport(msgID)
 }
 
 // DeleteMessage deletes a message from the mail box
 func (b *OGame) DeleteMessage(msgID int) error {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("DeleteMessage")
+	defer b.botUnlock("DeleteMessage")
 	return b.deleteMessage(msgID)
 }
 
 // GetResourcesProductions gets the planet resources production
 func (b *OGame) GetResourcesProductions(planetID PlanetID) (Resources, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("GetResourcesProductions")
+	defer b.botUnlock("GetResourcesProductions")
 	return b.getResourcesProductions(planetID)
 }
 
 // FlightTime calculate flight time and fuel needed
 func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("FlightTime")
+	defer b.botUnlock("FlightTime")
 	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10, b.universeSpeedFleet, ships, Researches{})
 }
 
@@ -3918,7 +3961,7 @@ func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
 // 			  and that you have enough deuterium.
 func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
-	b.Lock()
-	defer b.Unlock()
+	b.botLock("Phalanx")
+	defer b.botUnlock("Phalanx")
 	return b.getPhalanx(moonID, coord)
 }
