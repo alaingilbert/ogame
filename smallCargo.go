@@ -12,7 +12,7 @@ func newSmallCargo() *smallCargo {
 	s.ShieldPower = 10
 	s.WeaponPower = 5
 	s.CargoCapacity = 5000
-	s.BaseSpeed = 10000
+	s.BaseSpeed = 5000
 	s.FuelConsumption = 10
 	s.RapidfireFrom = map[ID]int{BattlecruiserID: 3, HeavyFighterID: 3, DeathstarID: 250}
 	s.RapidfireAgainst = map[ID]int{EspionageProbeID: 5, SolarSatelliteID: 5}
