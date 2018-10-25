@@ -68,7 +68,7 @@ func (p Planet) GetResourcesBuildings() (ResourcesBuildings, error) {
 }
 
 // GetDefense gets all the defenses units information
-func (p *Planet) GetDefense() (DefensesInfos, error) {
+func (p Planet) GetDefense() (DefensesInfos, error) {
 	return p.ogame.GetDefense(p.ID.Celestial())
 }
 

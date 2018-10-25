@@ -51,6 +51,11 @@ func (m Moon) GetResourcesBuildings() (ResourcesBuildings, error) {
 	return m.ogame.GetResourcesBuildings(m.ID.Celestial())
 }
 
+// GetDefense gets all the defenses units information
+func (m Moon) GetDefense() (DefensesInfos, error) {
+	return m.ogame.GetDefense(m.ID.Celestial())
+}
+
 // GetShips gets all ships units information
 func (m Moon) GetShips() (ShipsInfos, error) {
 	return m.ogame.GetShips(m.ID.Celestial())

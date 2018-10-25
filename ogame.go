@@ -1444,6 +1444,7 @@ type Celestial interface {
 	GetResources() (Resources, error)
 	GetFacilities() (Facilities, error)
 	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources) (FleetID, error)
+	GetDefense() (DefensesInfos, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
 	ConstructionsBeingBuilt() (ID, int, ID, int)
