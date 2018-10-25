@@ -30,6 +30,10 @@ func (b BaseShip) GetSpeed(techs Researches) int {
 	if b.ID == SmallCargoID && techs.ImpulseDrive >= 5 {
 		return int(float64(b.BaseSpeed) + (float64(b.BaseSpeed)*0.2)*float64(techs.ImpulseDrive))
 	}
+	if b.ID == BomberID && techs.HyperspaceDrive >= 8 {
+		return int(float64(b.BaseSpeed) + (float64(b.BaseSpeed)*0.3)*float64(techs.HyperspaceDrive))
+	}
+
 	if minLvl, ok := b.Requirements[CombustionDrive.ID]; ok {
 		techDriveLvl = techs.CombustionDrive
 		if techDriveLvl < minLvl {
