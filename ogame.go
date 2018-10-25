@@ -451,6 +451,43 @@ var Buildings = []Building{
 	JumpGate,
 }
 
+// PlanetBuildings arrays of planet specific buildings
+var PlanetBuildings = []Building{
+	MetalMine,
+	CrystalMine,
+	DeuteriumSynthesizer,
+	SolarPlant,
+	FusionReactor,
+	SolarSatellite,
+	MetalStorage,
+	CrystalStorage,
+	DeuteriumTank,
+	ShieldedMetalDen,
+	UndergroundCrystalDen,
+	SeabedDeuteriumDen,
+	RoboticsFactory,
+	Shipyard,
+	ResearchLab,
+	AllianceDepot,
+	MissileSilo,
+	NaniteFactory,
+	Terraformer,
+	SpaceDock,
+}
+
+// MoonBuildings arrays of moon specific buildings
+var MoonBuildings = []Building{
+	SolarSatellite,
+	MetalStorage,
+	CrystalStorage,
+	DeuteriumTank,
+	RoboticsFactory,
+	Shipyard,
+	LunarBase,
+	SensorPhalanx,
+	JumpGate,
+}
+
 // Technologies array of all technologies objects
 var Technologies = []Technology{
 	EnergyTechnology,
@@ -1444,6 +1481,7 @@ type Celestial interface {
 	GetResources() (Resources, error)
 	GetFacilities() (Facilities, error)
 	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources) (FleetID, error)
+	GetDefense() (DefensesInfos, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
 	ConstructionsBeingBuilt() (ID, int, ID, int)
