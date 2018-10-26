@@ -314,7 +314,7 @@ func TestExtractPlanetByCoord_notExists(t *testing.T) {
 }
 
 func TestFindSlowestSpeed(t *testing.T) {
-	assert.Equal(t, 12000, findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}))
+	assert.Equal(t, 8000, findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}))
 }
 
 func TestExtractShips(t *testing.T) {
