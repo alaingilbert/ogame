@@ -3,6 +3,7 @@ package ogame
 import (
 	"testing"
 
+	"github.com/google/gxui/math"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -37,6 +38,18 @@ func TestAdd(t *testing.T) {
 func TestMul(t *testing.T) {
 	first := Resources{Metal: 1, Crystal: 2, Deuterium: 4}
 	assert.Equal(t, Resources{Metal: 2, Crystal: 4, Deuterium: 8}, first.Mul(2))
+}
+
+func TestDiv(t *testing.T) {
+	first := Resources{Metal: 100, Crystal: 200, Deuterium: 400}
+	assert.Equal(t, 1, first.Div(Resources{Metal: 100, Crystal: 2, Deuterium: 4}))
+	assert.Equal(t, 1, first.Div(Resources{Metal: 1, Crystal: 200, Deuterium: 4}))
+	assert.Equal(t, 1, first.Div(Resources{Metal: 1, Crystal: 2, Deuterium: 400}))
+	assert.Equal(t, 100, first.Div(Resources{Metal: 1, Crystal: 2, Deuterium: 4}))
+	assert.Equal(t, 100, first.Div(Resources{Metal: 0, Crystal: 2, Deuterium: 4}))
+	assert.Equal(t, 100, first.Div(Resources{Metal: 1, Crystal: 0, Deuterium: 4}))
+	assert.Equal(t, 100, first.Div(Resources{Metal: 1, Crystal: 2, Deuterium: 0}))
+	assert.Equal(t, math.MaxInt, first.Div(Resources{Metal: 0, Crystal: 0, Deuterium: 0}))
 }
 
 func TestGte(t *testing.T) {
