@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func parseInt(val string) int {
+func ParseInt(val string) int {
 	val = strings.Replace(val, ".", "", -1)
 	val = strings.Replace(val, ",", "", -1)
 	val = strings.TrimSpace(val)

@@ -20,6 +20,24 @@ type ShipsInfos struct {
 	SolarSatellite int
 }
 
+// Add adds two ShipsInfos together
+func (s *ShipsInfos) Add(v ShipsInfos) {
+	s.LightFighter += v.LightFighter
+	s.HeavyFighter += v.HeavyFighter
+	s.Cruiser += v.Cruiser
+	s.Battleship += v.Battleship
+	s.Battlecruiser += v.Battlecruiser
+	s.Bomber += v.Bomber
+	s.Destroyer += v.Destroyer
+	s.Deathstar += v.Deathstar
+	s.SmallCargo += v.SmallCargo
+	s.LargeCargo += v.LargeCargo
+	s.ColonyShip += v.ColonyShip
+	s.Recycler += v.Recycler
+	s.EspionageProbe += v.EspionageProbe
+	s.SolarSatellite += v.SolarSatellite
+}
+
 // ByID get number of ships by ship id
 func (s ShipsInfos) ByID(id ID) int {
 	switch id {

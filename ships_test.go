@@ -10,6 +10,43 @@ func TestByID(t *testing.T) {
 	assert.Equal(t, 0, ShipsInfos{}.ByID(123456))
 }
 
+func TestShipsInfos_Add(t *testing.T) {
+	s1 := ShipsInfos{
+		LightFighter:   1,
+		HeavyFighter:   2,
+		Cruiser:        3,
+		Battleship:     4,
+		Battlecruiser:  5,
+		Bomber:         6,
+		Destroyer:      7,
+		Deathstar:      8,
+		SmallCargo:     9,
+		LargeCargo:     10,
+		ColonyShip:     11,
+		Recycler:       12,
+		EspionageProbe: 13,
+		SolarSatellite: 14,
+	}
+	s1.Add(ShipsInfos{
+		LightFighter:   1,
+		HeavyFighter:   2,
+		Cruiser:        3,
+		Battleship:     4,
+		Battlecruiser:  5,
+		Bomber:         6,
+		Destroyer:      7,
+		Deathstar:      8,
+		SmallCargo:     9,
+		LargeCargo:     10,
+		ColonyShip:     11,
+		Recycler:       12,
+		EspionageProbe: 13,
+		SolarSatellite: 14,
+	})
+	assert.Equal(t, 2, s1.LightFighter)
+	assert.Equal(t, 4, s1.HeavyFighter)
+}
+
 func TestSet(t *testing.T) {
 	s := ShipsInfos{}
 	s.Set(BattleshipID, 1)
