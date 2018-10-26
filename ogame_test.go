@@ -26,7 +26,7 @@ func BenchmarkUserInfoRegex(b *testing.B) {
 func BenchmarkUserInfoGoquery(b *testing.B) {
 	extractUserGoquery := func(pageHTML []byte) (int, string) {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-		playerID := parseInt(doc.Find("meta[name=ogame-player-id]").AttrOr("content", "0"))
+		playerID := ParseInt(doc.Find("meta[name=ogame-player-id]").AttrOr("content", "0"))
 		playerName := doc.Find("meta[name=ogame-player-name]").AttrOr("content", "")
 		return playerID, playerName
 	}
