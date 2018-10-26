@@ -2871,7 +2871,7 @@ func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 	}, err
 }
 
-func extractFleet1Ships(pageHTML []byte) ShipsInfos {
+func ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	onclick := doc.Find("a#sendall").AttrOr("onclick", "")
 	matches := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)
@@ -2910,7 +2910,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return 0, ErrInvalidPlanetID
 	}
 
-	availableShips := extractFleet1Ships(pageHTML)
+	availableShips := ExtractFleet1Ships(pageHTML)
 
 	atLeastOneShipSelected := false
 	for _, ship := range ships {

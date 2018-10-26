@@ -265,7 +265,7 @@ func TestEnergyProduced(t *testing.T) {
 
 func TestExtractFleet1Ships(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1.html")
-	s := extractFleet1Ships(pageHTMLBytes)
+	s := ExtractFleet1Ships(pageHTMLBytes)
 	assert.Equal(t, 3, s.LightFighter)
 	assert.Equal(t, 0, s.HeavyFighter)
 	assert.Equal(t, 1012, s.Cruiser)
@@ -283,7 +283,7 @@ func TestExtractFleet1Ships(t *testing.T) {
 
 func TestExtractFleet1Ships_NoShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1_no_ships.html")
-	s := extractFleet1Ships(pageHTMLBytes)
+	s := ExtractFleet1Ships(pageHTMLBytes)
 	assert.Equal(t, 0, s.LightFighter)
 	assert.Equal(t, 0, s.HeavyFighter)
 	assert.Equal(t, 0, s.Cruiser)
