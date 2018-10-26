@@ -58,6 +58,21 @@ func (r Resources) Mul(scalar int) Resources {
 	}
 }
 
+// Div finds how many price a res can afford
+func (r Resources) Div(price Resources) int {
+	nb := math.MaxInt
+	if price.Metal > 0 {
+		nb = r.Metal / price.Metal
+	}
+	if price.Crystal > 0 {
+		nb = math.Min(r.Crystal/price.Crystal, nb)
+	}
+	if price.Deuterium > 0 {
+		nb = math.Min(r.Deuterium/price.Deuterium, nb)
+	}
+	return int(nb)
+}
+
 // CanAfford alias to Gte
 func (r Resources) CanAfford(cost Resources) bool {
 	return r.Gte(cost)
