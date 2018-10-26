@@ -98,7 +98,7 @@ func TestExtractOgameTimestamp(t *testing.T) {
 
 func TestExtractResources(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
-	res := extractResources(pageHTMLBytes)
+	res := ExtractResources(pageHTMLBytes)
 	assert.Equal(t, 280000, res.Metal)
 	assert.Equal(t, 260000, res.Crystal)
 	assert.Equal(t, 280000, res.Deuterium)

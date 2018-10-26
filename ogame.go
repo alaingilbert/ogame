@@ -1993,7 +1993,7 @@ func extractOgameTimestamp(pageHTML []byte) int {
 	return ogameTimestamp
 }
 
-func extractResources(pageHTML []byte) Resources {
+func ExtractResources(pageHTML []byte) Resources {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	res := Resources{}
 	res.Metal = ParseInt(doc.Find("span#resources_metal").Text())
@@ -2077,7 +2077,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	if err != nil {
 		return res, errors.New("moon not found")
 	}
-	resources := extractResources(moonFacilitiesHTML)
+	resources := ExtractResources(moonFacilitiesHTML)
 	moonFacilities, _ := ExtractFacilities(moonFacilitiesHTML)
 	ogameTimestamp := extractOgameTimestamp(moonFacilitiesHTML)
 	phalanxLvl := moonFacilities.SensorPhalanx
