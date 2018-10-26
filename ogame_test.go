@@ -36,6 +36,18 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 	}
 }
 
+func TestExtractPlanetCoordinate(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/station.html")
+	res, _ := ExtractPlanetCoordinate(pageHTMLBytes)
+	assert.Equal(t, Coordinate{1, 301, 5, PlanetType}, res)
+}
+
+func TestExtractPlanetCoordinate_moon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res, _ := ExtractPlanetCoordinate(pageHTMLBytes)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, res)
+}
+
 func TestExtractPlanetID_planet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/station.html")
 	res, _ := ExtractPlanetID(pageHTMLBytes)

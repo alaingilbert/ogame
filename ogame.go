@@ -1536,6 +1536,19 @@ func (b *OGame) getCelestial(coord Coordinate) (Celestial, error) {
 	return extractCelestial(pageHTML, b, coord)
 }
 
+// ExtractPlanetCoordinates extracts planet coordinate from html page
+func ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error) {
+	m := regexp.MustCompile(`<meta name="ogame-planet-coordinates" content="(\d+):(\d+):(\d+)"/>`).FindSubmatch(pageHTML)
+	if len(m) == 0 {
+		return Coordinate{}, errors.New("planet coordinate not found")
+	}
+	galaxy, _ := strconv.Atoi(string(m[1]))
+	system, _ := strconv.Atoi(string(m[2]))
+	position, _ := strconv.Atoi(string(m[3]))
+	planetType, _ := ExtractPlanetType(pageHTML)
+	return Coordinate{galaxy, system, position, planetType}, nil
+}
+
 // ExtractPlanetID extracts planet id from html page
 func ExtractPlanetID(pageHTML []byte) (CelestialID, error) {
 	m := regexp.MustCompile(`<meta name="ogame-planet-id" content="(\d+)"/>`).FindSubmatch(pageHTML)
