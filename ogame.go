@@ -59,6 +59,7 @@ type Wrapper interface {
 	GetUserInfos() UserInfos
 	SendMessage(playerID int, message string) error
 	GetFleets() []Fleet
+	GetFleetsFromEventList() []Fleet
 	CancelFleet(FleetID) error
 	GetAttacks() []AttackEvent
 	GalaxyInfos(galaxy, system int) (SystemInfos, error)
@@ -1813,6 +1814,59 @@ func extractCoord(v string) (coord Coordinate) {
 		coord.Position, _ = strconv.Atoi(m[3])
 	}
 	return
+}
+
+func ExtractFleetsFromEventList(pageHTML []byte) []Fleet {
+	type Tmp struct {
+		fleet Fleet
+		res   Resources
+	}
+	tmp := make([]Tmp, 0)
+	res := make([]Fleet, 0)
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc.Find("tr.eventFleet").Each(func(i int, s *goquery.Selection) {
+		fleet := Fleet{}
+
+		movement := s.Find("td span.tooltip").AttrOr("title", "")
+		if movement == "" {
+			return
+		}
+
+		root, _ := html.Parse(strings.NewReader(movement))
+		doc2 := goquery.NewDocumentFromNode(root)
+		doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
+			if i == 0 {
+				return
+			}
+			name := s.Find("td").Eq(0).Text()
+			nbr := ParseInt(s.Find("td").Eq(1).Text())
+			if name != "" && nbr > 0 {
+				fleet.Ships.Set(name2id(name), nbr)
+			}
+		})
+		fleet.Origin = extractCoord(doc.Find("td.coordsOrigin").Text())
+		fleet.Destination = extractCoord(doc.Find("td.destCoords").Text())
+
+		res := Resources{}
+		trs := doc2.Find("tr")
+		res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
+		res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
+		res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+		fmt.Println(fleet.Origin, fleet.Destination, res)
+
+		tmp = append(tmp, Tmp{fleet: fleet, res: res})
+	})
+
+	for _, t := range tmp {
+		res = append(res, t.fleet)
+	}
+
+	return res
+}
+
+func (b *OGame) getFleetsFromEventList() []Fleet {
+	pageHTML := b.getPageContent(url.Values{"eventList": {"movement"}, "ajax": {"1"}})
+	return ExtractFleetsFromEventList(pageHTML)
 }
 
 func extractFleets(pageHTML []byte) (res []Fleet) {
@@ -3802,6 +3856,13 @@ func (b *OGame) GetFleets() []Fleet {
 	b.botLock("GetFleets")
 	defer b.botUnlock("GetFleets")
 	return b.getFleets()
+}
+
+// GetFleets get the player's own fleets activities
+func (b *OGame) GetFleetsFromEventList() []Fleet {
+	b.botLock("GetFleets")
+	defer b.botUnlock("GetFleets")
+	return b.getFleetsFromEventList()
 }
 
 // CancelFleet cancel a fleet

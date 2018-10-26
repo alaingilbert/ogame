@@ -827,6 +827,12 @@ func TestGetConstructions(t *testing.T) {
 	assert.Equal(t, 927, researchCountdown)
 }
 
+func TestExtractFleetsFromEventList(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_test.html")
+	fleets := ExtractFleetsFromEventList(pageHTMLBytes)
+	assert.Equal(t, 4, len(fleets))
+}
+
 func TestExtractFleet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_1.html")
 	fleets := extractFleets(pageHTMLBytes)
