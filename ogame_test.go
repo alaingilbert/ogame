@@ -447,6 +447,12 @@ func TestExtractAttacks1(t *testing.T) {
 	assert.Equal(t, 1, attacks[0].Missiles)
 }
 
+func TestExtractGalaxyInfos_destroyedPlanet(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_destroyed_planet.html")
+	infos, _ := extractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.Nil(t, infos.Position(8))
+}
+
 func TestExtractGalaxyInfos_banned(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_banned.html")
 	infos, _ := extractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)

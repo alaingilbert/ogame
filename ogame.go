@@ -2384,6 +2384,9 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 				})
 			} else {
 				playerName = strings.TrimSpace(s.Find("td.playername").Find("span").Text())
+				if playerName == "" {
+					return
+				}
 			}
 
 			if playerID == 0 {
