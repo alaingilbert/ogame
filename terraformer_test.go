@@ -23,3 +23,10 @@ func TestTerraformerIsAvailable_NoTech(t *testing.T) {
 	avail := b.IsAvailable(PlanetType, resourcesBuildings, facilities, researches, 0)
 	assert.False(t, avail)
 }
+
+func TestTerraformerGetPrice(t *testing.T) {
+	b := newTerraformer()
+	assert.Equal(t, Resources{Crystal: 50000, Deuterium: 100000, Energy: 1000}, b.GetPrice(1))
+	assert.Equal(t, Resources{Crystal: 100000, Deuterium: 200000, Energy: 2000}, b.GetPrice(2))
+	assert.Equal(t, Resources{Crystal: 200000, Deuterium: 400000, Energy: 4000}, b.GetPrice(3))
+}
