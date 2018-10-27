@@ -1063,7 +1063,9 @@ func (b *OGame) logout() {
 	case <-b.closeChatCh:
 	default:
 		close(b.closeChatCh)
-		b.ws.Close()
+		if b.ws != nil {
+			b.ws.Close()
+		}
 	}
 }
 
