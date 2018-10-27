@@ -6,7 +6,7 @@ type hyperspaceTechnology struct {
 
 func newHyperspaceTechnology() *hyperspaceTechnology {
 	b := new(hyperspaceTechnology)
-	b.Name = "graviton technology"
+	b.Name = "hyperspace technology"
 	b.ID = HyperspaceTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Crystal: 4000, Deuterium: 2000}
