@@ -34,6 +34,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	GetPublicIP() (string, error)
 	OnStateChange(clb func(locked bool, actor string))
 	GetState() (bool, string)
 	IsLocked() bool
@@ -3576,6 +3577,26 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	ratio := productionRatio(planet.Temperature, resBuildings, resSettings, researches.EnergyTechnology)
 	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, planet.Temperature, ratio)
 	return productions, nil
+}
+
+// GetPublicIP get the public IP used by the bot
+func (b *OGame) GetPublicIP() (string, error) {
+	var res struct {
+		IP string `json:"ip"`
+	}
+	resp, err := b.client.Get("https://jsonip.com/")
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return "", err
+	}
+	return res.IP, nil
 }
 
 // OnStateChange register a callback that is notified when the bot state changes
