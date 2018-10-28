@@ -1230,12 +1230,12 @@ func IsAjaxPage(vals url.Values) bool {
 		ajax == "1"
 }
 
-func (b *OGame) postPageContent(vals, payload url.Values) []byte {
+func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
 	if err != nil {
 		b.error(err)
-		return []byte{}
+		return []byte{}, err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
@@ -1252,7 +1252,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) []byte {
 	resp, err := b.client.Do(req)
 	if err != nil {
 		b.error(err)
-		return []byte{}
+		return []byte{}, err
 	}
 	defer resp.Body.Close()
 
@@ -1268,10 +1268,10 @@ func (b *OGame) postPageContent(vals, payload url.Values) []byte {
 	body, err := ioutil.ReadAll(reader)
 	if err != nil {
 		b.error(err)
-		return []byte{}
+		return []byte{}, err
 	}
 
-	return body
+	return body, nil
 }
 
 func (b *OGame) getPageContent(vals url.Values) []byte {
@@ -3247,7 +3247,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Page 4 : send the fleet
 	movementURL := b.serverURL + "/game/index.php?page=movement"
-	movementResp, _ := b.client.PostForm(movementURL, payload)
+	movementResp, err := b.client.PostForm(movementURL, payload)
 	defer movementResp.Body.Close()
 
 	// Page 5
@@ -3921,7 +3921,8 @@ func (b *OGame) GetPageContent(vals url.Values) []byte {
 func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
 	b.botLock("PostPageContent")
 	defer b.botUnlock("PostPageContent")
-	return b.postPageContent(vals, payload)
+	by, _ := b.postPageContent(vals, payload)
+	return by
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
