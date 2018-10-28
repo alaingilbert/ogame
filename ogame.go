@@ -1912,25 +1912,16 @@ func (b *OGame) getUserInfos() UserInfos {
 }
 
 func (b *OGame) sendMessage(playerID int, message string) error {
-	finalURL := b.serverURL + "/game/index.php?page=ajaxChat"
 	payload := url.Values{
 		"playerId": {strconv.Itoa(playerID)},
 		"text":     {message + "\n"},
 		"mode":     {"1"},
 		"ajax":     {"1"},
 	}
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	bobyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
 	if err != nil {
 		return err
 	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	bobyBytes, _ := ioutil.ReadAll(resp.Body)
 	if strings.Contains(string(bobyBytes), "INVALID_PARAMETERS") {
 		return errors.New("invalid parameters")
 	}
@@ -2463,21 +2454,7 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 }
 
 func (b *OGame) getAttacks() []AttackEvent {
-	finalURL := b.serverURL + "/game/index.php?page=eventList&ajax=1"
-	req, err := http.NewRequest("GET", finalURL, nil)
-	if err != nil {
-		b.error(err.Error())
-		return []AttackEvent{}
-	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.client.Do(req)
-	if err != nil {
-		b.error(err.Error())
-		return []AttackEvent{}
-	}
-	defer resp.Body.Close()
-	pageHTML, _ := ioutil.ReadAll(resp.Body)
-
+	pageHTML := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
 	return extractAttacks(pageHTML)
 }
 
@@ -2602,23 +2579,14 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 	if system < 0 || system > 499 {
 		return SystemInfos{}, errors.New("system must be within [0, 499]")
 	}
-	finalURL := b.serverURL + "/game/index.php?page=galaxyContent&ajax=1"
 	payload := url.Values{
 		"galaxy": {strconv.Itoa(galaxy)},
 		"system": {strconv.Itoa(system)},
 	}
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	pageHTML, err := b.postPageContent(url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}, payload)
 	if err != nil {
 		return SystemInfos{}, err
 	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return SystemInfos{}, err
-	}
-	defer resp.Body.Close()
-	pageHTML, _ := ioutil.ReadAll(resp.Body)
 	return extractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 }
 
