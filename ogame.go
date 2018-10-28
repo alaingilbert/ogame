@@ -2838,6 +2838,7 @@ func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
 	return ExtractFacilities(pageHTML)
 }
 
+// ExtractProduction extracts ships/defenses production from the shipyard page
 func ExtractProduction(pageHTML []byte) ([]Quantifiable, error) {
 	res := make([]Quantifiable, 0)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -2864,6 +2865,34 @@ func ExtractProduction(pageHTML []byte) ([]Quantifiable, error) {
 		itemID, _ := strconv.Atoi(itemIDstr)
 		itemNbr := ParseInt(s.Find("span.number").Text())
 		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
+	})
+	return res, nil
+}
+
+// ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
+func ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, error) {
+	res := make([]Quantifiable, 0)
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	active := doc.Find("table.construction").Eq(2)
+	href, _ := active.Find("td a").Attr("href")
+	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
+	if len(m) == 0 {
+		return []Quantifiable{}, nil
+	}
+	idInt, _ := strconv.Atoi(m[1])
+	activeID := ID(idInt)
+	activeNbr, _ := strconv.Atoi(active.Find("div.shipSumCount").Text())
+	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
+	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
+		href := s.Find("a").AttrOr("href", "")
+		m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
+		if len(m) == 0 {
+			return
+		}
+		idInt, _ := strconv.Atoi(m[1])
+		activeID := ID(idInt)
+		activeNbr, _ := strconv.Atoi(active.Find("div.shipSumCount").Text())
+		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	})
 	return res, nil
 }
