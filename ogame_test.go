@@ -883,15 +883,15 @@ func TestExtractOverviewProduction(t *testing.T) {
 	assert.Equal(t, HeavyFighterID, prods[0].ID)
 	assert.Equal(t, 1, prods[0].Nbr)
 	assert.Equal(t, HeavyFighterID, prods[1].ID)
-	assert.Equal(t, 1, prods[1].Nbr)
+	assert.Equal(t, 2, prods[1].Nbr)
 	assert.Equal(t, HeavyFighterID, prods[2].ID)
-	assert.Equal(t, 1, prods[2].Nbr)
+	assert.Equal(t, 3, prods[2].Nbr)
 	assert.Equal(t, HeavyFighterID, prods[3].ID)
-	assert.Equal(t, 1, prods[3].Nbr)
+	assert.Equal(t, 4, prods[3].Nbr)
 	assert.Equal(t, HeavyFighterID, prods[4].ID)
-	assert.Equal(t, 1, prods[4].Nbr)
+	assert.Equal(t, 5, prods[4].Nbr)
 	assert.Equal(t, HeavyFighterID, prods[5].ID)
-	assert.Equal(t, 1, prods[5].Nbr)
+	assert.Equal(t, 6, prods[5].Nbr)
 }
 
 func TestExtractProduction(t *testing.T) {

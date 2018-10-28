@@ -2884,14 +2884,15 @@ func ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, error) {
 	activeNbr, _ := strconv.Atoi(active.Find("div.shipSumCount").Text())
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
-		href := s.Find("a").AttrOr("href", "")
+		link := s.Find("a")
+		href := link.AttrOr("href", "")
 		m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 		if len(m) == 0 {
 			return
 		}
 		idInt, _ := strconv.Atoi(m[1])
 		activeID := ID(idInt)
-		activeNbr, _ := strconv.Atoi(active.Find("div.shipSumCount").Text())
+		activeNbr := ParseInt(link.Text())
 		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	})
 	return res, nil
