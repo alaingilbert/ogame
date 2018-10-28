@@ -2707,7 +2707,7 @@ func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
 	return ExtractFacilities(pageHTML)
 }
 
-func extractProduction(pageHTML []byte) ([]Quantifiable, error) {
+func ExtractProduction(pageHTML []byte) ([]Quantifiable, error) {
 	res := make([]Quantifiable, 0)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	active := doc.Find("table.construction")
@@ -2739,7 +2739,7 @@ func extractProduction(pageHTML []byte) ([]Quantifiable, error) {
 
 func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"shipyard"}, "cp": {strconv.Itoa(int(celestialID))}})
-	return extractProduction(pageHTML)
+	return ExtractProduction(pageHTML)
 }
 
 func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
@@ -2829,7 +2829,7 @@ func (b *OGame) buildShips(celestialID CelestialID, shipID ID, nbr int) error {
 	return b.buildProduction(celestialID, ID(shipID), nbr)
 }
 
-func extractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
+func ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
 	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
 		buildingCountdown = toInt(buildingCountdownMatch[1])
@@ -2847,7 +2847,7 @@ func extractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int
 
 func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
 	pageHTML := b.getPageContent(url.Values{"page": {"overview"}, "cp": {strconv.Itoa(int(celestialID))}})
-	return extractConstructions(pageHTML)
+	return ExtractConstructions(pageHTML)
 }
 
 func extractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int, err error) {
