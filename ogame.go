@@ -328,6 +328,137 @@ type ObjsStruct struct {
 	WeaponsTechnology            *weaponsTechnology
 }
 
+// ByID gets an object by id
+func (o *ObjsStruct) ByID(id ID) BaseOgameObj {
+	switch id {
+	case AllianceDepotID:
+		return o.AllianceDepot
+	case CrystalMineID:
+		return o.CrystalMine
+	case CrystalStorageID:
+		return o.CrystalStorage
+	case DeuteriumSynthesizerID:
+		return o.DeuteriumSynthesizer
+	case DeuteriumTankID:
+		return o.DeuteriumTank
+	case FusionReactorID:
+		return o.FusionReactor
+	case MetalMineID:
+		return o.MetalMine
+	case MetalStorageID:
+		return o.MetalStorage
+	case MissileSiloID:
+		return o.MissileSilo
+	case NaniteFactoryID:
+		return o.NaniteFactory
+	case ResearchLabID:
+		return o.ResearchLab
+	case RoboticsFactoryID:
+		return o.RoboticsFactory
+	case SeabedDeuteriumDenID:
+		return o.SeabedDeuteriumDen
+	case ShieldedMetalDenID:
+		return o.ShieldedMetalDen
+	case ShipyardID:
+		return o.Shipyard
+	case SolarPlantID:
+		return o.SolarPlant
+	case SpaceDockID:
+		return o.SpaceDock
+	case LunarBaseID:
+		return o.LunarBase
+	case SensorPhalanxID:
+		return o.SensorPhalanx
+	case JumpGateID:
+		return o.JumpGate
+	case TerraformerID:
+		return o.Terraformer
+	case UndergroundCrystalDenID:
+		return o.UndergroundCrystalDen
+	case SolarSatelliteID:
+		return o.SolarSatellite
+	case AntiBallisticMissilesID:
+		return o.AntiBallisticMissiles
+	case GaussCannonID:
+		return o.GaussCannon
+	case HeavyLaserID:
+		return o.HeavyLaser
+	case InterplanetaryMissilesID:
+		return o.InterplanetaryMissiles
+	case IonCannonID:
+		return o.IonCannon
+	case LargeShieldDomeID:
+		return o.LargeShieldDome
+	case LightLaserID:
+		return o.LightLaser
+	case PlasmaTurretID:
+		return o.PlasmaTurret
+	case RocketLauncherID:
+		return o.RocketLauncher
+	case SmallShieldDomeID:
+		return o.SmallShieldDome
+	case BattlecruiserID:
+		return o.Battlecruiser
+	case BattleshipID:
+		return o.Battleship
+	case BomberID:
+		return o.Bomber
+	case ColonyShipID:
+		return o.ColonyShip
+	case CruiserID:
+		return o.Cruiser
+	case DeathstarID:
+		return o.Deathstar
+	case DestroyerID:
+		return o.Destroyer
+	case EspionageProbeID:
+		return o.EspionageProbe
+	case HeavyFighterID:
+		return o.HeavyFighter
+	case LargeCargoID:
+		return o.LargeCargo
+	case LightFighterID:
+		return o.LightFighter
+	case RecyclerID:
+		return o.Recycler
+	case SmallCargoID:
+		return o.SmallCargo
+	case ArmourTechnologyID:
+		return o.ArmourTechnology
+	case AstrophysicsID:
+		return o.Astrophysics
+	case CombustionDriveID:
+		return o.CombustionDrive
+	case ComputerTechnologyID:
+		return o.ComputerTechnology
+	case EnergyTechnologyID:
+		return o.EnergyTechnology
+	case EspionageTechnologyID:
+		return o.EspionageTechnology
+	case GravitonTechnologyID:
+		return o.GravitonTechnology
+	case HyperspaceDriveID:
+		return o.HyperspaceDrive
+	case HyperspaceTechnologyID:
+		return o.HyperspaceTechnology
+	case ImpulseDriveID:
+		return o.ImpulseDrive
+	case IntergalacticResearchNetworkID:
+		return o.IntergalacticResearchNetwork
+	case IonTechnologyID:
+		return o.IonTechnology
+	case LaserTechnologyID:
+		return o.LaserTechnology
+	case PlasmaTechnologyID:
+		return o.PlasmaTechnology
+	case ShieldingTechnologyID:
+		return o.ShieldingTechnology
+	case WeaponsTechnologyID:
+		return o.WeaponsTechnology
+	}
+	return nil
+}
+
 // Objs all ogame objects
 var Objs = ObjsStruct{
 	AllianceDepot:                AllianceDepot,
