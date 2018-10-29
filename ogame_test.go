@@ -389,19 +389,19 @@ func TestExtractResourcesProductions(t *testing.T) {
 
 func TestExtractAttacks(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
-	attacks := extractAttacks(pageHTMLBytes)
+	attacks := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
 }
 
 func TestExtractAttacksMeAttacking(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_me_attacking.html")
-	attacks := extractAttacks(pageHTMLBytes)
+	attacks := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 0, len(attacks))
 }
 
 func TestExtractAttacksWithoutShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
-	attacks := extractAttacks(pageHTMLBytes)
+	attacks := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, 100771, attacks[0].AttackerID)
 	assert.Equal(t, 0, attacks[0].Missiles)
@@ -410,7 +410,7 @@ func TestExtractAttacksWithoutShips(t *testing.T) {
 
 func TestExtractAttacksWithShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventList_attack_ships.html")
-	attacks := extractAttacks(pageHTMLBytes)
+	attacks := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
 	assert.NotNil(t, attacks[0].Ships)
 	assert.Equal(t, PlanetType, attacks[0].Destination.Type)
@@ -426,7 +426,7 @@ func TestExtractAttacksWithShips(t *testing.T) {
 
 func TestExtractAttacksMoon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_moon_attacked.html")
-	attacks := extractAttacks(pageHTMLBytes)
+	attacks := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
 	assert.NotNil(t, attacks[0].Ships)
 	assert.Equal(t, 107009, attacks[0].AttackerID)
@@ -438,7 +438,7 @@ func TestExtractAttacksMoon(t *testing.T) {
 
 func TestExtractAttacksWithThousandsShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_attack_thousands.html")
-	attacks := extractAttacks(pageHTMLBytes)
+	attacks := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 2, len(attacks))
 	assert.Equal(t, 1012, attacks[1].Ships.Cruiser)
 	assert.Equal(t, 1000, attacks[1].Ships.LargeCargo)
@@ -446,7 +446,7 @@ func TestExtractAttacksWithThousandsShips(t *testing.T) {
 
 func TestExtractAttacks_spy(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_spy.html")
-	attacks := extractAttacks(pageHTMLBytes)
+	attacks := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, Coordinate{4, 212, 8, PlanetType}, attacks[0].Origin)
 	assert.Equal(t, 107009, attacks[0].AttackerID)
@@ -454,7 +454,7 @@ func TestExtractAttacks_spy(t *testing.T) {
 
 func TestExtractAttacks1(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_missile.html")
-	attacks := extractAttacks(pageHTMLBytes)
+	attacks := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, 1, attacks[0].Missiles)
 }
