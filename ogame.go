@@ -81,6 +81,7 @@ type Wrapper interface {
 	Distance(origin, destination Coordinate) int
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 	RegisterChatCallback(func(ChatMsg))
+	RegisterHTMLInterceptor(func(method string, vals url.Values, pageHTML []byte))
 	GetSlots() Slots
 
 	// Planet or Moon functions
@@ -670,6 +671,7 @@ type OGame struct {
 	client               *ogameClient
 	logger               *log.Logger
 	chatCallbacks        []func(msg ChatMsg)
+	interceptorCallbacks []func(method string, vals url.Values, pageHTML []byte)
 	closeChatCh          chan struct{}
 	chatConnected        int32
 	chatRetry            *ExponentialBackoff
@@ -1271,6 +1273,12 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 		return []byte{}, err
 	}
 
+	go func() {
+		for _, fn := range b.interceptorCallbacks {
+			fn("POST", vals, body)
+		}
+	}()
+
 	return body, nil
 }
 
@@ -1325,6 +1333,12 @@ func (b *OGame) getPageContent(vals url.Values) []byte {
 	} else {
 		b.Planets = extractPlanets(pageHTMLBytes, b)
 	}
+
+	go func() {
+		for _, fn := range b.interceptorCallbacks {
+			fn("GET", vals, pageHTMLBytes)
+		}
+	}()
 
 	return pageHTMLBytes
 }
@@ -4235,6 +4249,10 @@ func (b *OGame) Distance(origin, destination Coordinate) int {
 // RegisterChatCallback register a callback that is called when chat messages are received
 func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 	b.chatCallbacks = append(b.chatCallbacks, fn)
+}
+
+func (b *OGame) RegisterHTMLInterceptor(fn func(method string, vals url.Values, pageHTML []byte)) {
+	b.interceptorCallbacks = append(b.interceptorCallbacks, fn)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
