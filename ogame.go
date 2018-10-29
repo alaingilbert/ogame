@@ -81,6 +81,7 @@ type Wrapper interface {
 	Distance(origin, destination Coordinate) int
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 	RegisterChatCallback(func(ChatMsg))
+	RegisterHTMLInterceptor(func(method string, vals url.Values, pageHTML []byte))
 	GetSlots() Slots
 
 	// Planet or Moon functions
@@ -670,6 +671,7 @@ type OGame struct {
 	client               *ogameClient
 	logger               *log.Logger
 	chatCallbacks        []func(msg ChatMsg)
+	interceptorCallbacks []func(method string, vals url.Values, pageHTML []byte)
 	closeChatCh          chan struct{}
 	chatConnected        int32
 	chatRetry            *ExponentialBackoff
@@ -1230,12 +1232,12 @@ func IsAjaxPage(vals url.Values) bool {
 		ajax == "1"
 }
 
-func (b *OGame) postPageContent(vals, payload url.Values) []byte {
+func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
 	if err != nil {
 		b.error(err)
-		return []byte{}
+		return []byte{}, err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
@@ -1252,7 +1254,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) []byte {
 	resp, err := b.client.Do(req)
 	if err != nil {
 		b.error(err)
-		return []byte{}
+		return []byte{}, err
 	}
 	defer resp.Body.Close()
 
@@ -1268,10 +1270,16 @@ func (b *OGame) postPageContent(vals, payload url.Values) []byte {
 	body, err := ioutil.ReadAll(reader)
 	if err != nil {
 		b.error(err)
-		return []byte{}
+		return []byte{}, err
 	}
 
-	return body
+	go func() {
+		for _, fn := range b.interceptorCallbacks {
+			fn("POST", vals, body)
+		}
+	}()
+
+	return body, nil
 }
 
 func (b *OGame) getPageContent(vals url.Values) []byte {
@@ -1325,6 +1333,12 @@ func (b *OGame) getPageContent(vals url.Values) []byte {
 	} else {
 		b.Planets = extractPlanets(pageHTMLBytes, b)
 	}
+
+	go func() {
+		for _, fn := range b.interceptorCallbacks {
+			fn("GET", vals, pageHTMLBytes)
+		}
+	}()
 
 	return pageHTMLBytes
 }
@@ -1912,25 +1926,16 @@ func (b *OGame) getUserInfos() UserInfos {
 }
 
 func (b *OGame) sendMessage(playerID int, message string) error {
-	finalURL := b.serverURL + "/game/index.php?page=ajaxChat"
 	payload := url.Values{
 		"playerId": {strconv.Itoa(playerID)},
 		"text":     {message + "\n"},
 		"mode":     {"1"},
 		"ajax":     {"1"},
 	}
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	bobyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
 	if err != nil {
 		return err
 	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	bobyBytes, _ := ioutil.ReadAll(resp.Body)
 	if strings.Contains(string(bobyBytes), "INVALID_PARAMETERS") {
 		return errors.New("invalid parameters")
 	}
@@ -2463,21 +2468,7 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 }
 
 func (b *OGame) getAttacks() []AttackEvent {
-	finalURL := b.serverURL + "/game/index.php?page=eventList&ajax=1"
-	req, err := http.NewRequest("GET", finalURL, nil)
-	if err != nil {
-		b.error(err.Error())
-		return []AttackEvent{}
-	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.client.Do(req)
-	if err != nil {
-		b.error(err.Error())
-		return []AttackEvent{}
-	}
-	defer resp.Body.Close()
-	pageHTML, _ := ioutil.ReadAll(resp.Body)
-
+	pageHTML := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
 	return extractAttacks(pageHTML)
 }
 
@@ -2602,23 +2593,14 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 	if system < 0 || system > 499 {
 		return SystemInfos{}, errors.New("system must be within [0, 499]")
 	}
-	finalURL := b.serverURL + "/game/index.php?page=galaxyContent&ajax=1"
 	payload := url.Values{
 		"galaxy": {strconv.Itoa(galaxy)},
 		"system": {strconv.Itoa(system)},
 	}
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	pageHTML, err := b.postPageContent(url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}, payload)
 	if err != nil {
 		return SystemInfos{}, err
 	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return SystemInfos{}, err
-	}
-	defer resp.Body.Close()
-	pageHTML, _ := ioutil.ReadAll(resp.Body)
 	return extractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 }
 
@@ -3247,7 +3229,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Page 4 : send the fleet
 	movementURL := b.serverURL + "/game/index.php?page=movement"
-	movementResp, _ := b.client.PostForm(movementURL, payload)
+	movementResp, err := b.client.PostForm(movementURL, payload)
 	defer movementResp.Body.Close()
 
 	// Page 5
@@ -3921,7 +3903,8 @@ func (b *OGame) GetPageContent(vals url.Values) []byte {
 func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
 	b.botLock("PostPageContent")
 	defer b.botUnlock("PostPageContent")
-	return b.postPageContent(vals, payload)
+	by, _ := b.postPageContent(vals, payload)
+	return by
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
@@ -4266,6 +4249,10 @@ func (b *OGame) Distance(origin, destination Coordinate) int {
 // RegisterChatCallback register a callback that is called when chat messages are received
 func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 	b.chatCallbacks = append(b.chatCallbacks, fn)
+}
+
+func (b *OGame) RegisterHTMLInterceptor(fn func(method string, vals url.Values, pageHTML []byte)) {
+	b.interceptorCallbacks = append(b.interceptorCallbacks, fn)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
