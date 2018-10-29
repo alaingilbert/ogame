@@ -54,6 +54,7 @@ type Wrapper interface {
 	GetUniverseSpeedFleet() int
 	IsDonutGalaxy() bool
 	IsDonutSystem() bool
+	FleetDeutSaveFactor() float64
 	ServerVersion() string
 	ServerTime() time.Time
 	IsUnderAttack() bool
@@ -666,6 +667,7 @@ type OGame struct {
 	universeSpeedFleet   int
 	donutGalaxy          bool
 	donutSystem          bool
+	fleetDeutSaveFactor  float64
 	ogameVersion         string
 	serverURL            string
 	client               *ogameClient
@@ -1062,6 +1064,8 @@ func (b *OGame) login() error {
 	b.Player, _ = ExtractUserInfos(pageHTML, b.language)
 	b.Planets = extractPlanets(pageHTML, b)
 
+	b.fleetDeutSaveFactor = ExtractFleetDeutSaveFactor(pageHTML)
+
 	// Extract chat host and port
 	m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindSubmatch(pageHTML)
 	chatHost := string(m[1])
@@ -1386,6 +1390,16 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) {
 		}
 		return nil
 	})
+}
+
+// ExtractFleetDeutSaveFactor extract fleet deut save factor
+func ExtractFleetDeutSaveFactor(pageHTML []byte) float64 {
+	factor := 1.0
+	m := regexp.MustCompile(`var fleetDeutSaveFactor=([+-]?([0-9]*[.])?[0-9]+);`).FindSubmatch(pageHTML)
+	if len(m) > 0 {
+		factor, _ = strconv.ParseFloat(string(m[1]), 64)
+	}
+	return factor
 }
 
 // extract universe speed from html calculation
@@ -3889,6 +3903,11 @@ func (b *OGame) IsDonutGalaxy() bool {
 // IsDonutSystem shortcut to get ogame system donut config
 func (b *OGame) IsDonutSystem() bool {
 	return b.isDonutSystem()
+}
+
+// FleetDeutSaveFactor returns the fleet deut save factor
+func (b *OGame) FleetDeutSaveFactor() float64 {
+	return b.fleetDeutSaveFactor
 }
 
 // GetPageContent gets the html for a specific ogame page

@@ -36,6 +36,18 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 	}
 }
 
+func TestExtractFleetDeutSaveFactor_V6_2_2_1(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_active.html")
+	res := ExtractFleetDeutSaveFactor(pageHTMLBytes)
+	assert.Equal(t, 1.0, res)
+}
+
+func TestExtractFleetDeutSaveFactor_V6_7_4(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
+	res := ExtractFleetDeutSaveFactor(pageHTMLBytes)
+	assert.Equal(t, 0.5, res)
+}
+
 func TestExtractPlanetCoordinate(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/station.html")
 	res, _ := ExtractPlanetCoordinate(pageHTMLBytes)
