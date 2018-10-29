@@ -2170,7 +2170,7 @@ func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
 	return minSpeed
 }
 
-func calcFuel(ships ShipsInfos, dist int, speed float64) (fuel int) {
+func calcFuel(ships ShipsInfos, dist int, speed, fleetDeutSaveFactor float64) (fuel int) {
 	tmpFn := func(baseFuel int) float64 {
 		return float64(baseFuel*dist) / 35000 * math.Pow(speed+1, 2)
 	}
@@ -2181,18 +2181,18 @@ func calcFuel(ships ShipsInfos, dist int, speed float64) (fuel int) {
 			tmpFuel += tmpFn(ship.GetFuelConsumption()) * float64(nbr)
 		}
 	}
-	fuel = int(1 + math.Round(tmpFuel))
+	fuel = int(1 + math.Round(tmpFuel*fleetDeutSaveFactor))
 	return
 }
 
-func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalaxy, donutSystem bool, speed float64,
-	universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
+func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalaxy, donutSystem bool,
+	fleetDeutSaveFactor, speed float64, universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
 	s := speed
 	v := float64(findSlowestSpeed(ships, techs))
 	a := float64(universeSpeedFleet)
 	d := float64(distance(origin, destination, universeSize, donutGalaxy, donutSystem))
 	secs = int(math.Round(((10 + (3500 / s)) * math.Sqrt((10*d)/v)) / a))
-	fuel = calcFuel(ships, int(d), s)
+	fuel = calcFuel(ships, int(d), s, fleetDeutSaveFactor)
 	return
 }
 
@@ -4256,8 +4256,8 @@ func (b *OGame) GetResourcesProductions(planetID PlanetID) (Resources, error) {
 func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
 	b.botLock("FlightTime")
 	defer b.botUnlock("FlightTime")
-	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, float64(speed)/10,
-		b.universeSpeedFleet, ships, b.getCachedResearch())
+	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, b.fleetDeutSaveFactor,
+		float64(speed)/10, b.universeSpeedFleet, ships, b.getCachedResearch())
 }
 
 // Distance return distance between two coordinates
