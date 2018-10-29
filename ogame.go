@@ -2410,7 +2410,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	return nil
 }
 
-func extractAttacks(pageHTML []byte) []AttackEvent {
+func ExtractAttacks(pageHTML []byte) []AttackEvent {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	attacks := make([]AttackEvent, 0)
 	tmp := func(i int, s *goquery.Selection) {
@@ -2483,7 +2483,7 @@ func extractAttacks(pageHTML []byte) []AttackEvent {
 
 func (b *OGame) getAttacks() []AttackEvent {
 	pageHTML := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
-	return extractAttacks(pageHTML)
+	return ExtractAttacks(pageHTML)
 }
 
 func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
