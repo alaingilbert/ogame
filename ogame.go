@@ -69,6 +69,7 @@ type Wrapper interface {
 	GetCachedPlanets() []Planet
 	GetCachedMoons() []Moon
 	GetCachedCelestial(CelestialID) Celestial
+	GetCachedPlayer() UserInfos
 	GetPlanets() []Planet
 	GetPlanet(PlanetID) (Planet, error)
 	GetPlanetByCoord(Coordinate) (Planet, error)
@@ -3935,6 +3936,11 @@ func (b *OGame) IsUnderAttack() bool {
 	b.botLock("IsUnderAttack")
 	defer b.botUnlock("IsUnderAttack")
 	return b.isUnderAttack()
+}
+
+// GetCachedPlayer returns cached player infos
+func (b *OGame) GetCachedPlayer() UserInfos {
+	return b.Player
 }
 
 // GetPlanets returns the user planets
