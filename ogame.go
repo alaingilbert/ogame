@@ -1052,6 +1052,10 @@ func (b *OGame) login() error {
 	}
 	b.sessionChatCounter = 1
 
+	for _, fn := range b.interceptorCallbacks {
+		fn("GET", nil, nil, pageHTML)
+	}
+
 	serverTime, _ := extractServerTime(pageHTML)
 	b.location = serverTime.Location()
 	b.universeSize = server.Settings.UniverseSize
