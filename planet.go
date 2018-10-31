@@ -119,7 +119,7 @@ func (p Planet) GetResources() (Resources, error) {
 
 // SendFleet sends a fleet
 func (p Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources) (FleetID, int, error) {
+	mission MissionID, resources Resources) (FleetID, int, int, error) {
 	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, mission, resources)
 }
 
