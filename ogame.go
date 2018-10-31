@@ -88,6 +88,7 @@ type Wrapper interface {
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
+	QuickSendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, int, int, error)
 	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, int, int, error)
 	Build(celestialID CelestialID, id ID, nbr int) error
 	BuildCancelable(CelestialID, ID) error
@@ -1249,8 +1250,10 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 		return []byte{}, err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	if vals.Get("page") != "fleet3" && vals.Get("page") != "fleet2" {
+		req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	}
 
 	// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
 	b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
@@ -3112,6 +3115,125 @@ func ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 	return s
 }
 
+func (b *OGame) quickSendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, res Resources) (FleetID, int, int, error) {
+
+	// Page 1 : get to fleet page
+	b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {strconv.Itoa(int(celestialID))}})
+	// Page 2 : select ships
+	b.postPageContent(url.Values{"page": {"fleet2"}}, url.Values{})
+
+	// post fleet3
+	payload := url.Values{
+		"type":      {"1"},
+		"mission":   {"0"},
+		"union":     {"0"},
+		"galaxy":    {strconv.Itoa(where.Galaxy)},
+		"system":    {strconv.Itoa(where.System)},
+		"position":  {strconv.Itoa(where.Position)},
+		"acsValues": {"-"},
+		"speed":     {strconv.Itoa(int(speed))},
+	}
+	for _, s := range ships {
+		if s.Nbr > 0 {
+			payload.Add("am"+strconv.Itoa(int(s.ID)), strconv.Itoa(s.Nbr))
+		}
+	}
+	pageHTML, err := b.postPageContent(url.Values{"page": {"fleet3"}}, payload)
+	fmt.Println("CALISS", string(pageHTML), err, payload, ships)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	m := regexp.MustCompile(`<input type='hidden' name='token' value='([a-zA-Z0-9_]+)' />`).FindSubmatch(pageHTML)
+	if len(m) == 0 {
+		return 0, 0, 0, errors.New("token not found")
+	}
+	token := string(m[1])
+
+	// post movement
+	params := url.Values{
+		"page":             {"movement"},
+		"holdingtime":      {"1"},
+		"expeditiontime":   {"1"},
+		"token":            {token},
+		"galaxy":           {strconv.Itoa(where.Galaxy)},
+		"system":           {strconv.Itoa(where.System)},
+		"position":         {strconv.Itoa(where.Position)},
+		"type":             {"1"},
+		"mission":          {strconv.Itoa(int(mission))},
+		"union2":           {"0"},
+		"holdingOrExpTime": {"0"},
+		"speed":            {strconv.Itoa(int(speed))},
+		"acsValues":        {"-"},
+		"prioMetal":        {strconv.Itoa(res.Metal)},
+		"prioCrystal":      {strconv.Itoa(res.Crystal)},
+		"prioDeuterium":    {strconv.Itoa(res.Deuterium)},
+		"metal":            {strconv.Itoa(res.Metal)},
+		"crystal":          {strconv.Itoa(res.Crystal)},
+		"deuterium":        {strconv.Itoa(res.Deuterium)},
+		"ajax":             {"1"},
+	}
+	for _, s := range ships {
+		if s.Nbr > 0 {
+			params.Add("am"+strconv.Itoa(int(s.ID)), strconv.Itoa(s.Nbr))
+		}
+	}
+	payload = url.Values{"token": {token}}
+	if _, err := b.postPageContent(params, payload); err != nil {
+		return 0, 0, 0, err
+	}
+
+	// Page 5
+	movementHTML := b.getPageContent(url.Values{"page": {"movement"}})
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
+	type tmp struct {
+		fleetID  int
+		arriveIn int
+		backIn   int
+	}
+	matches := make([]tmp, 0)
+	originCoords, _ := doc.Find("meta[name=ogame-planet-coordinates]").Attr("content")
+	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
+		origin := s.Find("span.originCoords").Text()
+		dest := s.Find("span.destinationCoords").Text()
+		reversalSpan := s.Find("span.reversal")
+		if reversalSpan == nil {
+			return
+		}
+
+		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", "0"))
+		ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
+		arriveIn := arrivalTime - ogameTimestamp
+		if arriveIn < 0 {
+			arriveIn = 0
+		}
+
+		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
+		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindSubmatch(movementHTML)
+		if len(m) == 0 {
+			return
+		}
+		backIn, _ := strconv.Atoi(string(m[1]))
+
+		fleetIDStr, _ := reversalSpan.Attr("ref")
+		fleetID, _ := strconv.Atoi(fleetIDStr)
+		if dest == fmt.Sprintf("[%d:%d:%d]", where.Galaxy, where.System, where.Position) &&
+			origin == fmt.Sprintf("[%s]", originCoords) {
+			matches = append(matches, tmp{fleetID, arriveIn, backIn})
+		}
+	})
+	if len(matches) > 0 {
+		max := tmp{0, 0, 0}
+		for _, v := range matches {
+			if v.fleetID > max.fleetID {
+				max = v
+			}
+		}
+		return FleetID(max.fleetID), max.arriveIn, max.backIn, nil
+	}
+	return 0, 0, 0, errors.New("could not find new fleet ID")
+}
+
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources) (FleetID, int, int, error) {
 	getHiddenFields := func(pageHTML []byte) map[string]string {
@@ -4260,6 +4382,14 @@ func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
 	b.botLock("GetResources")
 	defer b.botUnlock("GetResources")
 	return b.getResources(celestialID)
+}
+
+// QuickSendFleet sends a fleet skiping validations
+func (b *OGame) QuickSendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources) (FleetID, int, int, error) {
+	b.botLock("QuickSendFleet")
+	defer b.botUnlock("QuickSendFleet")
+	return b.quickSendFleet(celestialID, ships, speed, where, mission, resources)
 }
 
 // SendFleet sends a fleet
