@@ -88,7 +88,7 @@ type Wrapper interface {
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
-	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, error)
+	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, int, error)
 	Build(celestialID CelestialID, id ID, nbr int) error
 	BuildCancelable(CelestialID, ID) error
 	BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -1650,7 +1650,7 @@ type Celestial interface {
 	GetFields() Fields
 	GetResources() (Resources, error)
 	GetFacilities() (Facilities, error)
-	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources) (FleetID, error)
+	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources) (FleetID, int, error)
 	GetDefense() (DefensesInfos, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
@@ -3113,7 +3113,7 @@ func ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources) (FleetID, error) {
+	mission MissionID, resources Resources) (FleetID, int, error) {
 	getHiddenFields := func(pageHTML []byte) map[string]string {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		fields := make(map[string]string)
@@ -3131,7 +3131,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
 	if fleet1BodyID != "fleet1" {
-		return 0, ErrInvalidPlanetID
+		return 0, 0, ErrInvalidPlanetID
 	}
 
 	availableShips := ExtractFleet1Ships(pageHTML)
@@ -3144,7 +3144,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 	}
 	if !atLeastOneShipSelected {
-		return 0, ErrNoShipSelected
+		return 0, 0, ErrNoShipSelected
 	}
 
 	payload := url.Values{}
@@ -3162,7 +3162,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet2URL := b.serverURL + "/game/index.php?page=fleet2"
 	fleet2Resp, err := b.client.PostForm(fleet2URL, payload)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	defer fleet2Resp.Body.Close()
 	pageHTML, _ = ioutil.ReadAll(fleet2Resp.Body)
@@ -3192,40 +3192,40 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 	fleetCheckResp, err := b.client.PostForm(fleetCheckURL, fleetCheckPayload)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	defer fleetCheckResp.Body.Close()
 	by1, _ := ioutil.ReadAll(fleetCheckResp.Body)
 	switch string(by1) {
 	case "1":
-		return 0, ErrUninhabitedPlanet
+		return 0, 0, ErrUninhabitedPlanet
 	case "1d":
-		return 0, ErrNoDebrisField
+		return 0, 0, ErrNoDebrisField
 	case "2":
-		return 0, ErrPlayerInVacationMode
+		return 0, 0, ErrPlayerInVacationMode
 	case "3":
-		return 0, ErrAdminOrGM
+		return 0, 0, ErrAdminOrGM
 	case "4":
-		return 0, ErrNoAstrophysics
+		return 0, 0, ErrNoAstrophysics
 	case "5":
-		return 0, ErrNoobProtection
+		return 0, 0, ErrNoobProtection
 	case "6":
-		return 0, ErrPlayerTooStrong
+		return 0, 0, ErrPlayerTooStrong
 	case "10":
-		return 0, ErrNoMoonAvailable
+		return 0, 0, ErrNoMoonAvailable
 	case "11":
-		return 0, ErrNoRecyclerAvailable
+		return 0, 0, ErrNoRecyclerAvailable
 	case "15":
-		return 0, ErrNoEventsRunning
+		return 0, 0, ErrNoEventsRunning
 	case "16":
-		return 0, ErrPlanetAlreadyReservecForRelocation
+		return 0, 0, ErrPlanetAlreadyReservecForRelocation
 	}
 
 	// Page 3 : select coord, mission, speed
 	fleet3URL := b.serverURL + "/game/index.php?page=fleet3"
 	fleet3Resp, err := b.client.PostForm(fleet3URL, payload)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	defer fleet3Resp.Body.Close()
 	pageHTML, _ = ioutil.ReadAll(fleet3Resp.Body)
@@ -3233,7 +3233,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	pageID := fleet3Doc.Find("body").AttrOr("id", "")
 	if pageID == "fleet1" {
-		return 0, errors.New("probably not enough space for deuterium")
+		return 0, 0, errors.New("probably not enough space for deuterium")
 	}
 
 	payload = url.Values{}
@@ -3254,7 +3254,11 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	// Page 5
 	movementHTML := b.getPageContent(url.Values{"page": {"movement"}})
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
-	matches := make([]int, 0)
+	type tmp struct {
+		fleetID int
+		secs    int
+	}
+	matches := make([]tmp, 0)
 	originCoords, _ := doc.Find("meta[name=ogame-planet-coordinates]").Attr("content")
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
 		origin := s.Find("span.originCoords").Text()
@@ -3263,23 +3267,31 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		if reversalSpan == nil {
 			return
 		}
+
+		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", "0"))
+		ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
+		secs := arrivalTime - ogameTimestamp
+		if secs < 0 {
+			secs = 0
+		}
+
 		fleetIDStr, _ := reversalSpan.Attr("ref")
 		fleetID, _ := strconv.Atoi(fleetIDStr)
 		if dest == fmt.Sprintf("[%d:%d:%d]", where.Galaxy, where.System, where.Position) &&
 			origin == fmt.Sprintf("[%s]", originCoords) {
-			matches = append(matches, fleetID)
+			matches = append(matches, tmp{fleetID, secs})
 		}
 	})
 	if len(matches) > 0 {
-		max := 0
+		max := tmp{0, 0}
 		for _, v := range matches {
-			if v > max {
+			if v.fleetID > max.fleetID {
 				max = v
 			}
 		}
-		return FleetID(max), nil
+		return FleetID(max.fleetID), max.secs, nil
 	}
-	return 0, errors.New("could not find new fleet ID")
+	return 0, 0, errors.New("could not find new fleet ID")
 }
 
 // EspionageReportType type of espionage report (action or report)
@@ -4244,7 +4256,7 @@ func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources) (FleetID, error) {
+	mission MissionID, resources Resources) (FleetID, int, error) {
 	b.botLock("SendFleet")
 	defer b.botUnlock("SendFleet")
 	return b.sendFleet(celestialID, ships, speed, where, mission, resources)
