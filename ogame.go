@@ -3390,6 +3390,11 @@ func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
 // EspionageReport detailed espionage report
 type EspionageReport struct {
 	Resources
+	CounterEspionage             int
+	HasFleet                     bool
+	HasDefenses                  bool
+	HasBuildings                 bool
+	HasResearches                bool
 	MetalMine                    *int // ResourcesBuildings
 	CrystalMine                  *int
 	DeuteriumSynthesizer         *int
@@ -3478,6 +3483,13 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 	msgDateRaw := doc.Find("span.msg_date").Text()
 	msgDate, _ := time.ParseInLocation("02.01.2006 15:04:05", msgDateRaw, location)
 	report.Date = msgDate.In(location)
+
+	ceTxt := doc.Find("div.detail_txt").Eq(1).Text()
+	m1 := regexp.MustCompile(`(\d+)\%`).FindStringSubmatch(ceTxt)
+	if len(m1) == 2 {
+		report.CounterEspionage, _ = strconv.Atoi(m1[1])
+	}
+
 	doc.Find("ul.detail_list").Each(func(i int, s *goquery.Selection) {
 		dataType := s.AttrOr("data-type", "")
 		if dataType == "resources" {
@@ -3486,6 +3498,7 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 			report.Deuterium = ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
 			report.Energy = ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
+			report.HasBuildings = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
@@ -3534,6 +3547,7 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 				}
 			})
 		} else if dataType == "research" {
+			report.HasResearches = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
@@ -3576,6 +3590,7 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 				}
 			})
 		} else if dataType == "ships" {
+			report.HasFleet = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
@@ -3614,6 +3629,7 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 				}
 			})
 		} else if dataType == "defense" {
+			report.HasDefenses = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
 				imgClass := s2.Find("img").AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
