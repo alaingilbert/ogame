@@ -3277,7 +3277,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
-		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindSubmatch(pageHTML)
+		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindSubmatch(movementHTML)
 		if len(m) == 0 {
 			return
 		}
