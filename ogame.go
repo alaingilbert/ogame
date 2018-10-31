@@ -1719,6 +1719,15 @@ func ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error) {
 	return Coordinate{galaxy, system, position, planetType}, nil
 }
 
+// ExtractMinifleetToken extracts minifleet token from html page
+func ExtractMinifleetToken(pageHTML []byte) (string, error) {
+	m := regexp.MustCompile(`var miniFleetToken="([a-zA-Z0-9_]+)";`).FindSubmatch(pageHTML)
+	if len(m) == 0 {
+		return "", errors.New("minifleet token not found")
+	}
+	return string(m[1]), nil
+}
+
 // ExtractPlanetID extracts planet id from html page
 func ExtractPlanetID(pageHTML []byte) (CelestialID, error) {
 	m := regexp.MustCompile(`<meta name="ogame-planet-id" content="(\d+)"/>`).FindSubmatch(pageHTML)
@@ -3965,6 +3974,78 @@ func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
 	defer b.botUnlock("PostPageContent")
 	by, _ := b.postPageContent(vals, payload)
 	return by
+}
+
+type MinifleetResponse struct {
+	Response struct {
+		Message    string `json:"message"`
+		Success    bool   `success`
+		Type       int    `json:"type"`
+		Slots      int    `json:"slots"`
+		Probes     int    `json:"probes"`
+		Recyclers  int    `json:"recyclers"`
+		Missiles   int    `json:"missiles"`
+		ShipsSent  int    `json:"shipsSent"`
+		PlanetType int    `json:"planetType"`
+		Coordinate struct {
+			Galaxy   int `json:"galaxy"`
+			System   int `json:"system"`
+			Position int `json:"position"`
+		} `json:"coordinates"`
+	} `json:"response"`
+	NewToken string `json:"newToken"`
+}
+
+// Tx transaction locks the bot
+type Tx struct {
+	ogame          *OGame
+	minifleetToken string
+}
+
+// End unlock the bot once the transaction is done
+func (tx *Tx) End() {
+	tx.ogame.botUnlock("Tx")
+}
+
+// QuickSpy sends a spy mission from the current planet in a single call
+func (tx *Tx) QuickSpy(coord Coordinate, nbr int) (MinifleetResponse, error) {
+	var dec MinifleetResponse
+
+	payload := url.Values{
+		"mission":   {strconv.Itoa(int(Spy))},
+		"galaxy":    {strconv.Itoa(coord.Galaxy)},
+		"system":    {strconv.Itoa(coord.System)},
+		"position":  {strconv.Itoa(coord.Position)},
+		"type":      {strconv.Itoa(int(coord.Type))},
+		"shipCount": {strconv.Itoa(nbr)},
+		"token":     {tx.minifleetToken},
+	}
+	res, err := tx.ogame.postPageContent(url.Values{"page": {"minifleet"}, "ajax": {"1"}}, payload)
+	if err != nil {
+		return dec, err
+	}
+
+	// {"response":{"message":"Send espionage probe to:","type":1,"slots":1,"probes":599,"recyclers":0,"missiles":0,"shipsSent":99,"coordinates":{"galaxy":4,"system":188,"position":8},"planetType":1,"success":true},"newToken":"690f7184eaedfe684e5f1358c194de50"}
+	// {"response":{"message":"Send espionage probe to:","type":1,"slots":8,"probes":0,"recyclers":0,"missiles":0,"shipsSent":5,"coordinates":{"galaxy":4,"system":188,"position":8},"planetType":1,"success":true},"newToken":"e8de6cbfe7591e66e6f5a6379af3f33a"}
+	// {"response":{"message":"Error, no ships available","coordinates":{"galaxy":4,"system":188,"position":8},"success":false},"newToken":"40900a76fdf57b0e30cdb17cbdeb79ce"}
+
+	if err := json.Unmarshal(res, &dec); err != nil {
+		return dec, err
+	}
+
+	tx.minifleetToken = dec.NewToken
+	return dec, nil
+}
+
+func (b *OGame) Begin(id CelestialID) *Tx {
+	b.botLock("Tx")
+	tx := new(Tx)
+	tx.ogame = b
+
+	pageHTML := tx.ogame.getPageContent(url.Values{"page": {"overview"}, "cp": {strconv.Itoa(int(id))}})
+	tx.minifleetToken, _ = ExtractMinifleetToken(pageHTML)
+
+	return tx
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
