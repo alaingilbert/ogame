@@ -78,6 +78,7 @@ type Wrapper interface {
 	GetMoonByCoord(Coordinate) (Moon, error)
 	GetCelestial(Coordinate) (Celestial, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
+	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
 	Distance(origin, destination Coordinate) int
@@ -3114,6 +3115,7 @@ func ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources) (FleetID, int, int, error) {
+	start := time.Now()
 	getHiddenFields := func(pageHTML []byte) map[string]string {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		fields := make(map[string]string)
@@ -3283,6 +3285,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 		backIn, _ := strconv.Atoi(string(m[1]))
 
+		if time.Duration(backIn-arriveIn*2)*time.Second > time.Since(start) {
+			return
+		}
+
 		fleetIDStr, _ := reversalSpan.Attr("ref")
 		fleetID, _ := strconv.Atoi(fleetIDStr)
 		if dest == fmt.Sprintf("[%d:%d:%d]", where.Galaxy, where.System, where.Position) &&
@@ -3299,6 +3305,12 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 		return FleetID(max.fleetID), max.arriveIn, max.backIn, nil
 	}
+
+	slots := extractSlots(movementHTML)
+	if slots.InUse == slots.Total {
+		return 0, 0, 0, errors.New("all slots are in use")
+	}
+
 	return 0, 0, 0, errors.New("could not find new fleet ID")
 }
 
@@ -3410,6 +3422,7 @@ func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
 // EspionageReport detailed espionage report
 type EspionageReport struct {
 	Resources
+	ID                           int
 	CounterEspionage             int
 	HasFleet                     bool
 	HasDefenses                  bool
@@ -3482,6 +3495,7 @@ type EspionageReport struct {
 func extractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	report.ID, _ = strconv.Atoi(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()
 	txt := spanLink.Text()
 	figure := spanLink.Find("figure").First()
@@ -3687,6 +3701,24 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 func (b *OGame) getEspionageReport(msgID int) (EspionageReport, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"messages"}, "messageId": {strconv.Itoa(msgID)}, "tabid": {"20"}, "ajax": {"1"}})
 	return extractEspionageReport(pageHTML, b.location)
+}
+
+func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error) {
+	tabid := 20
+	page := 1
+	nbPage := 1
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage := extractEspionageReportMessageIDs(pageHTML)
+		for _, m := range newMessages {
+			if m.Target.Equal(coord) {
+				return b.getEspionageReport(m.ID)
+			}
+		}
+		nbPage = newNbPage
+		page++
+	}
+	return EspionageReport{}, errors.New("espionage report not found for " + coord.String())
 }
 
 func (b *OGame) deleteMessage(msgID int) error {
@@ -4268,6 +4300,13 @@ func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	b.botLock("SendFleet")
 	defer b.botUnlock("SendFleet")
 	return b.sendFleet(celestialID, ships, speed, where, mission, resources)
+}
+
+// GetEspionageReportFor gets the latest espionage report for a given coordinate
+func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error) {
+	b.botLock("GetEspionageReportFor")
+	defer b.botUnlock("GetEspionageReportFor")
+	return b.getEspionageReportFor(coord)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
