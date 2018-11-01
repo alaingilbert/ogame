@@ -78,6 +78,7 @@ type Wrapper interface {
 	GetMoonByCoord(Coordinate) (Moon, error)
 	GetCelestial(Coordinate) (Celestial, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
+	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
 	DeleteMessage(msgID int) error
 	Distance(origin, destination Coordinate) int
@@ -3691,6 +3692,24 @@ func (b *OGame) getEspionageReport(msgID int) (EspionageReport, error) {
 	return extractEspionageReport(pageHTML, b.location)
 }
 
+func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error) {
+	tabid := 20
+	page := 1
+	nbPage := 1
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage := extractEspionageReportMessageIDs(pageHTML)
+		for _, m := range newMessages {
+			if m.Target.Equal(coord) {
+				return b.getEspionageReport(m.ID)
+			}
+		}
+		nbPage = newNbPage
+		page++
+	}
+	return EspionageReport{}, errors.New("espionage report not found for " + coord.String())
+}
+
 func (b *OGame) deleteMessage(msgID int) error {
 	finalURL := b.serverURL + "/game/index.php?page=messages"
 	payload := url.Values{
@@ -4270,6 +4289,13 @@ func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	b.botLock("SendFleet")
 	defer b.botUnlock("SendFleet")
 	return b.sendFleet(celestialID, ships, speed, where, mission, resources)
+}
+
+// GetEspionageReportFor gets the latest espionage report for a given coordinate
+func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error) {
+	b.botLock("GetEspionageReportFor")
+	defer b.botUnlock("GetEspionageReportFor")
+	return b.getEspionageReportFor(coord)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
