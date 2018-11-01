@@ -964,6 +964,7 @@ func TestExtractEspionageReport_action(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/message_foreign_fleet_sighted.html")
 	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, Action, infos.Type)
+	assert.Equal(t, 6970988, infos.ID)
 }
 
 func TestExtractEspionageReport(t *testing.T) {
@@ -975,6 +976,7 @@ func TestExtractEspionageReport(t *testing.T) {
 	assert.True(t, infos.HasDefenses)
 	assert.True(t, infos.HasBuildings)
 	assert.True(t, infos.HasResearches)
+	assert.Equal(t, 6862893, infos.ID)
 	assert.Equal(t, 0, infos.CounterEspionage)
 	assert.Equal(t, 227034, infos.Metal)
 	assert.Equal(t, 146970, infos.Crystal)

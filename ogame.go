@@ -3410,6 +3410,7 @@ func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
 // EspionageReport detailed espionage report
 type EspionageReport struct {
 	Resources
+	ID                           int
 	CounterEspionage             int
 	HasFleet                     bool
 	HasDefenses                  bool
@@ -3482,6 +3483,7 @@ type EspionageReport struct {
 func extractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	report.ID, _ = strconv.Atoi(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()
 	txt := spanLink.Text()
 	figure := spanLink.Find("figure").First()
