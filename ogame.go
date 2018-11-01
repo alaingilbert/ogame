@@ -3115,6 +3115,7 @@ func ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources) (FleetID, int, int, error) {
+	start := time.Now()
 	getHiddenFields := func(pageHTML []byte) map[string]string {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		fields := make(map[string]string)
@@ -3284,6 +3285,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 		backIn, _ := strconv.Atoi(string(m[1]))
 
+		if time.Duration(backIn-arriveIn*2)*time.Second > time.Since(start) {
+			return
+		}
+
 		fleetIDStr, _ := reversalSpan.Attr("ref")
 		fleetID, _ := strconv.Atoi(fleetIDStr)
 		if dest == fmt.Sprintf("[%d:%d:%d]", where.Galaxy, where.System, where.Position) &&
@@ -3300,6 +3305,12 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 		return FleetID(max.fleetID), max.arriveIn, max.backIn, nil
 	}
+
+	slots := extractSlots(movementHTML)
+	if slots.InUse == slots.Total {
+		return 0, 0, 0, errors.New("all slots are in use")
+	}
+
 	return 0, 0, 0, errors.New("could not find new fleet ID")
 }
 
