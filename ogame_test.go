@@ -1098,8 +1098,8 @@ func TestCalcFlightTime(t *testing.T) {
 }
 
 func TestExtractFleetSlot(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_1.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1.html")
 	s := extractSlots(pageHTMLBytes)
-	assert.Equal(t, 1, s.InUse)
-	assert.Equal(t, 11, s.Total)
+	assert.Equal(t, 2, s.InUse)
+	assert.Equal(t, 14, s.Total)
 }

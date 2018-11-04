@@ -1218,7 +1218,7 @@ type Slots struct {
 }
 
 func (b *OGame) getSlots() Slots {
-	pageHTML := b.getPageContent(url.Values{"page": {"movement"}})
+	pageHTML := b.getPageContent(url.Values{"page": {"fleet1"}})
 	return extractSlots(pageHTML)
 }
 
