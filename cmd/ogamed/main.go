@@ -249,7 +249,8 @@ func sendMessage(c echo.Context) error {
 }
 
 func getFleets(c echo.Context) error {
-	return c.JSON(http.StatusOK, successResp(bot.GetFleets()))
+	fleets, _ := bot.GetFleets()
+	return c.JSON(http.StatusOK, successResp(fleets))
 }
 
 func cancelFleet(c echo.Context) error {
