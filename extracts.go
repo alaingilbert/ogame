@@ -429,13 +429,19 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 // extract fleet slots from page "fleet1"
 // page "movement" redirect to "fleet1" when there is no fleet
 func extractSlots(pageHTML []byte) Slots {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	slots := Slots{}
-	txt := doc.Find("div#slots div span").First().Text()
-	m := regexp.MustCompile(`(\d+)/(\d+)`).FindStringSubmatch(txt)
-	if len(m) == 3 {
-		slots.InUse, _ = strconv.Atoi(m[1])
-		slots.Total, _ = strconv.Atoi(m[2])
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	page := doc.Find("body").AttrOr("id", "")
+	if page == "movement" {
+		slots.InUse = ParseInt(doc.Find("span.fleetSlots > span.current").Text())
+		slots.Total = ParseInt(doc.Find("span.fleetSlots > span.all").Text())
+	} else if page == "fleet1" {
+		txt := doc.Find("div#slots div span").First().Text()
+		m := regexp.MustCompile(`(\d+)/(\d+)`).FindStringSubmatch(txt)
+		if len(m) == 3 {
+			slots.InUse, _ = strconv.Atoi(m[1])
+			slots.Total, _ = strconv.Atoi(m[2])
+		}
 	}
 	return slots
 }
