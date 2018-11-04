@@ -3,6 +3,7 @@ package ogame
 import (
 	"bytes"
 	"compress/gzip"
+	"container/heap"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,6 +32,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	WithPriority(priority int) *Prioritize
 	GetPublicIP() (string, error)
 	OnStateChange(clb func(locked bool, actor string))
 	GetState() (bool, string)
@@ -171,6 +173,45 @@ type Defense interface {
 	DefenderObj
 }
 
+type Item struct {
+	canBeProcessedCh chan struct{}
+	isDoneCh         chan struct{}
+	priority         int
+	index            int // The index of the item in the heap.
+}
+
+// A PriorityQueue implements heap.Interface and holds Items.
+type PriorityQueue []*Item
+
+func (pq PriorityQueue) Len() int { return len(pq) }
+
+func (pq PriorityQueue) Less(i, j int) bool {
+	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
+	return pq[i].priority > pq[j].priority
+}
+
+func (pq PriorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+func (pq *PriorityQueue) Push(x interface{}) {
+	n := len(*pq)
+	item := x.(*Item)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+func (pq *PriorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	item.index = -1 // for safety
+	*pq = old[0 : n-1]
+	return item
+}
+
 // OGame is a client for ogame.org. It is safe for concurrent use by
 // multiple goroutines (thread-safe)
 type OGame struct {
@@ -206,6 +247,10 @@ type OGame struct {
 	chatConnected        int32
 	chatRetry            *ExponentialBackoff
 	ws                   *websocket.Conn
+	tasks                PriorityQueue
+	tasksLock            sync.Mutex
+	tasksPushCh          chan *Item
+	tasksPopCh           chan struct{}
 }
 
 // Params parameters for more fine-grained initialization
@@ -265,6 +310,12 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.client = &ogameClient{}
 	b.client.Jar = jar
 	b.client.UserAgent = defaultUserAgent
+
+	b.tasks = make(PriorityQueue, 0)
+	heap.Init(&b.tasks)
+	b.tasksPushCh = make(chan *Item, 100)
+	b.tasksPopCh = make(chan struct{}, 100)
+	b.taskRunner()
 
 	return b
 }
@@ -1464,13 +1515,6 @@ func (b *OGame) getResearch() Researches {
 	return researches
 }
 
-func (b *OGame) getCachedResearch() Researches {
-	if b.researches == nil {
-		b.getResearch()
-	}
-	return *b.researches
-}
-
 func (b *OGame) getResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
 	pageHTML := b.getPageContent(url.Values{"page": {"resources"}, "cp": {strconv.Itoa(int(celestialID))}})
 	return ExtractResourcesBuildings(pageHTML)
@@ -2169,6 +2213,50 @@ func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
 	return newAccount, nil
 }
 
+func (b *OGame) taskRunner() {
+	go func() {
+		for t := range b.tasksPushCh {
+			b.tasksLock.Lock()
+			heap.Push(&b.tasks, t)
+			b.tasksLock.Unlock()
+			b.tasksPopCh <- struct{}{}
+		}
+	}()
+	go func() {
+		for range b.tasksPopCh {
+			b.tasksLock.Lock()
+			task := heap.Pop(&b.tasks).(*Item)
+			b.tasksLock.Unlock()
+			close(task.canBeProcessedCh)
+			<-task.isDoneCh
+		}
+	}()
+}
+
+func (b *OGame) WithPriority(priority int) *Prioritize {
+	canBeProcessedCh := make(chan struct{})
+	taskIsDoneCh := make(chan struct{})
+	task := new(Item)
+	task.priority = priority
+	task.canBeProcessedCh = canBeProcessedCh
+	task.isDoneCh = taskIsDoneCh
+	b.tasksPushCh <- task
+	<-canBeProcessedCh
+	return &Prioritize{bot: b, taskIsDoneCh: taskIsDoneCh}
+}
+
+const (
+	Low       = 1
+	Normal    = 2
+	Important = 3
+	Critical  = 4
+)
+
+type Prioritize struct {
+	taskIsDoneCh chan struct{}
+	bot          *OGame
+}
+
 // GetServer get ogame server information that the bot is connected to
 func (b *OGame) GetServer() Server {
 	return b.server
@@ -2191,18 +2279,27 @@ func (b *OGame) SetUserAgent(newUserAgent string) {
 
 // Login to ogame server
 // Can fails with BadCredentialsError
-func (b *OGame) Login() error {
-	b.botLock("Login")
-	defer b.botUnlock("Login")
-	return b.login()
+func (b *Prioritize) Login() error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("Login")
+	defer b.bot.botUnlock("Login")
+	return b.bot.login()
+}
+
+// Login to ogame server
+// Can fails with BadCredentialsError
+func (b *OGame) Login() error { return b.WithPriority(Normal).Login() }
+
+// Logout the bot from ogame server
+func (b *Prioritize) Logout() {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("Logout")
+	defer b.bot.botUnlock("Logout")
+	b.bot.logout()
 }
 
 // Logout the bot from ogame server
-func (b *OGame) Logout() {
-	b.botLock("Logout")
-	defer b.botUnlock("Logout")
-	b.logout()
-}
+func (b *OGame) Logout() { b.WithPriority(Normal).Logout() }
 
 // GetUniverseName get the name of the universe the bot is playing into
 func (b *OGame) GetUniverseName() string {
@@ -2240,26 +2337,45 @@ func (b *OGame) FleetDeutSaveFactor() float64 {
 }
 
 // GetPageContent gets the html for a specific ogame page
+func (b *Prioritize) GetPageContent(vals url.Values) []byte {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetPageContent")
+	defer b.bot.botUnlock("GetPageContent")
+	return b.bot.getPageContent(vals)
+}
+
+// GetPageContent gets the html for a specific ogame page
 func (b *OGame) GetPageContent(vals url.Values) []byte {
-	b.botLock("GetPageContent")
-	defer b.botUnlock("GetPageContent")
-	return b.getPageContent(vals)
+	return b.WithPriority(Normal).GetPageContent(vals)
+}
+
+// PostPageContent make a post request to ogame server
+// This is useful when simulating a web browser
+func (b *Prioritize) PostPageContent(vals, payload url.Values) []byte {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("PostPageContent")
+	defer b.bot.botUnlock("PostPageContent")
+	by, _ := b.bot.postPageContent(vals, payload)
+	return by
 }
 
 // PostPageContent make a post request to ogame server
 // This is useful when simulating a web browser
 func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
-	b.botLock("PostPageContent")
-	defer b.botUnlock("PostPageContent")
-	by, _ := b.postPageContent(vals, payload)
-	return by
+	return b.WithPriority(Normal).PostPageContent(vals, payload)
+}
+
+// IsUnderAttack returns true if the user is under attack, false otherwise
+func (b *Prioritize) IsUnderAttack() bool {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("IsUnderAttack")
+	defer b.bot.botUnlock("IsUnderAttack")
+	return b.bot.isUnderAttack()
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
 func (b *OGame) IsUnderAttack() bool {
-	b.botLock("IsUnderAttack")
-	defer b.botUnlock("IsUnderAttack")
-	return b.isUnderAttack()
+	return b.WithPriority(Normal).IsUnderAttack()
 }
 
 // GetCachedPlayer returns cached player infos
@@ -2268,10 +2384,16 @@ func (b *OGame) GetCachedPlayer() UserInfos {
 }
 
 // GetPlanets returns the user planets
+func (b *Prioritize) GetPlanets() []Planet {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetPlanets")
+	defer b.bot.botUnlock("GetPlanets")
+	return b.bot.getPlanets()
+}
+
+// GetPlanets returns the user planets
 func (b *OGame) GetPlanets() []Planet {
-	b.botLock("GetPlanets")
-	defer b.botUnlock("GetPlanets")
-	return b.getPlanets()
+	return b.WithPriority(Normal).GetPlanets()
 }
 
 // GetCachedPlanets return planets from cached value
@@ -2305,45 +2427,82 @@ func (b *OGame) GetCachedCelestial(celestialID CelestialID) Celestial {
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
+func (b *Prioritize) GetPlanet(planetID PlanetID) (Planet, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetPlanet")
+	defer b.bot.botUnlock("GetPlanet")
+	return b.bot.getPlanet(planetID)
+}
+
+// GetPlanet gets infos for planetID
+// Fails if planetID is invalid
 func (b *OGame) GetPlanet(planetID PlanetID) (Planet, error) {
-	b.botLock("GetPlanet")
-	defer b.botUnlock("GetPlanet")
-	return b.getPlanet(planetID)
+	return b.WithPriority(Normal).GetPlanet(planetID)
+}
+
+// GetPlanetByCoord get the player's planet using the coordinate
+func (b *Prioritize) GetPlanetByCoord(coord Coordinate) (Planet, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetPlanetByCoord")
+	defer b.bot.botUnlock("GetPlanetByCoord")
+	return b.bot.getPlanetByCoord(coord)
 }
 
 // GetPlanetByCoord get the player's planet using the coordinate
 func (b *OGame) GetPlanetByCoord(coord Coordinate) (Planet, error) {
-	b.botLock("GetPlanetByCoord")
-	defer b.botUnlock("GetPlanetByCoord")
-	return b.getPlanetByCoord(coord)
+	return b.WithPriority(Normal).GetPlanetByCoord(coord)
+}
+
+// GetMoons returns the user moons
+func (b *Prioritize) GetMoons(moonID MoonID) []Moon {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetMoons")
+	defer b.bot.botUnlock("GetMoons")
+	return b.bot.getMoons()
 }
 
 // GetMoons returns the user moons
 func (b *OGame) GetMoons(moonID MoonID) []Moon {
-	b.botLock("GetMoons")
-	defer b.botUnlock("GetMoons")
-	return b.getMoons()
+	return b.WithPriority(Normal).GetMoons(moonID)
+}
+
+// GetMoon gets infos for moonID
+func (b *Prioritize) GetMoon(moonID MoonID) (Moon, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetMoon")
+	defer b.bot.botUnlock("GetMoon")
+	return b.bot.getMoon(moonID)
 }
 
 // GetMoon gets infos for moonID
 func (b *OGame) GetMoon(moonID MoonID) (Moon, error) {
-	b.botLock("GetMoon")
-	defer b.botUnlock("GetMoon")
-	return b.getMoon(moonID)
+	return b.WithPriority(Normal).GetMoon(moonID)
+}
+
+// GetMoonByCoord get the player's moon using the coordinate
+func (b *Prioritize) GetMoonByCoord(coord Coordinate) (Moon, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetMoonByCoord")
+	defer b.bot.botUnlock("GetMoonByCoord")
+	return b.bot.getMoonByCoord(coord)
 }
 
 // GetMoonByCoord get the player's moon using the coordinate
 func (b *OGame) GetMoonByCoord(coord Coordinate) (Moon, error) {
-	b.botLock("GetMoonByCoord")
-	defer b.botUnlock("GetMoonByCoord")
-	return b.getMoonByCoord(coord)
+	return b.WithPriority(Normal).GetMoonByCoord(coord)
+}
+
+// GetCelestial get the player's planet/moon using the coordinate
+func (b *Prioritize) GetCelestial(coord Coordinate) (Celestial, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetCelestial")
+	defer b.bot.botUnlock("GetCelestial")
+	return b.bot.getCelestial(coord)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
 func (b *OGame) GetCelestial(coord Coordinate) (Celestial, error) {
-	b.botLock("GetCelestial")
-	defer b.botUnlock("GetCelestial")
-	return b.getCelestial(coord)
+	return b.WithPriority(Normal).GetCelestial(coord)
 }
 
 // ServerVersion returns OGame version
@@ -2353,252 +2512,469 @@ func (b *OGame) ServerVersion() string {
 
 // ServerTime returns server time
 // Timezone is OGT (OGame Time zone)
+func (b *Prioritize) ServerTime() time.Time {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("ServerTime")
+	defer b.bot.botUnlock("ServerTime")
+	return b.bot.serverTime()
+}
+
+// ServerTime returns server time
+// Timezone is OGT (OGame Time zone)
 func (b *OGame) ServerTime() time.Time {
-	b.botLock("ServerTime")
-	defer b.botUnlock("ServerTime")
-	return b.serverTime()
+	return b.WithPriority(Normal).ServerTime()
+}
+
+// GetUserInfos gets the user information
+func (b *Prioritize) GetUserInfos() UserInfos {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetUserInfos")
+	defer b.bot.botUnlock("GetUserInfos")
+	return b.bot.getUserInfos()
 }
 
 // GetUserInfos gets the user information
 func (b *OGame) GetUserInfos() UserInfos {
-	b.botLock("GetUserInfos")
-	defer b.botUnlock("GetUserInfos")
-	return b.getUserInfos()
+	return b.WithPriority(Normal).GetUserInfos()
+}
+
+// SendMessage sends a message to playerID
+func (b *Prioritize) SendMessage(playerID int, message string) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("SendMessage")
+	defer b.bot.botUnlock("SendMessage")
+	return b.bot.sendMessage(playerID, message)
 }
 
 // SendMessage sends a message to playerID
 func (b *OGame) SendMessage(playerID int, message string) error {
-	b.botLock("SendMessage")
-	defer b.botUnlock("SendMessage")
-	return b.sendMessage(playerID, message)
+	return b.WithPriority(Normal).SendMessage(playerID, message)
+}
+
+// GetFleets get the player's own fleets activities
+func (b *Prioritize) GetFleets() ([]Fleet, Slots) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetFleets")
+	defer b.bot.botUnlock("GetFleets")
+	return b.bot.getFleets()
 }
 
 // GetFleets get the player's own fleets activities
 func (b *OGame) GetFleets() ([]Fleet, Slots) {
-	b.botLock("GetFleets")
-	defer b.botUnlock("GetFleets")
-	return b.getFleets()
+	return b.WithPriority(Normal).GetFleets()
+}
+
+// GetFleets get the player's own fleets activities
+func (b *Prioritize) GetFleetsFromEventList() []Fleet {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetFleets")
+	defer b.bot.botUnlock("GetFleets")
+	return b.bot.getFleetsFromEventList()
 }
 
 // GetFleets get the player's own fleets activities
 func (b *OGame) GetFleetsFromEventList() []Fleet {
-	b.botLock("GetFleets")
-	defer b.botUnlock("GetFleets")
-	return b.getFleetsFromEventList()
+	return b.WithPriority(Normal).GetFleetsFromEventList()
+}
+
+// CancelFleet cancel a fleet
+func (b *Prioritize) CancelFleet(fleetID FleetID) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("CancelFleet")
+	defer b.bot.botUnlock("CancelFleet")
+	return b.bot.cancelFleet(fleetID)
 }
 
 // CancelFleet cancel a fleet
 func (b *OGame) CancelFleet(fleetID FleetID) error {
-	b.botLock("CancelFleet")
-	defer b.botUnlock("CancelFleet")
-	return b.cancelFleet(fleetID)
+	return b.WithPriority(Normal).CancelFleet(fleetID)
+}
+
+// GetAttacks get enemy fleets attacking you
+func (b *Prioritize) GetAttacks() []AttackEvent {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetAttacks")
+	defer b.bot.botUnlock("GetAttacks")
+	return b.bot.getAttacks()
 }
 
 // GetAttacks get enemy fleets attacking you
 func (b *OGame) GetAttacks() []AttackEvent {
-	b.botLock("GetAttacks")
-	defer b.botUnlock("GetAttacks")
-	return b.getAttacks()
+	return b.WithPriority(Normal).GetAttacks()
+}
+
+// GalaxyInfos get information of all planets and moons of a solar system
+func (b *Prioritize) GalaxyInfos(galaxy, system int) (SystemInfos, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GalaxyInfos")
+	defer b.bot.botUnlock("GalaxyInfos")
+	return b.bot.galaxyInfos(galaxy, system)
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
 func (b *OGame) GalaxyInfos(galaxy, system int) (SystemInfos, error) {
-	b.botLock("GalaxyInfos")
-	defer b.botUnlock("GalaxyInfos")
-	return b.galaxyInfos(galaxy, system)
+	return b.WithPriority(Normal).GalaxyInfos(galaxy, system)
+}
+
+// GetResourceSettings gets the resources settings for specified planetID
+func (b *Prioritize) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetResourceSettings")
+	defer b.bot.botUnlock("GetResourceSettings")
+	return b.bot.getResourceSettings(planetID)
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
 func (b *OGame) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
-	b.botLock("GetResourceSettings")
-	defer b.botUnlock("GetResourceSettings")
-	return b.getResourceSettings(planetID)
+	return b.WithPriority(Normal).GetResourceSettings(planetID)
+}
+
+// SetResourceSettings set the resources settings on a planet
+func (b *Prioritize) SetResourceSettings(planetID PlanetID, settings ResourceSettings) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("SetResourceSettings")
+	defer b.bot.botUnlock("SetResourceSettings")
+	return b.bot.setResourceSettings(planetID, settings)
 }
 
 // SetResourceSettings set the resources settings on a planet
 func (b *OGame) SetResourceSettings(planetID PlanetID, settings ResourceSettings) error {
-	b.botLock("SetResourceSettings")
-	defer b.botUnlock("SetResourceSettings")
-	return b.setResourceSettings(planetID, settings)
+	return b.WithPriority(Normal).SetResourceSettings(planetID, settings)
+}
+
+// GetResourcesBuildings gets the resources buildings levels
+func (b *Prioritize) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetResourcesBuildings")
+	defer b.bot.botUnlock("GetResourcesBuildings")
+	return b.bot.getResourcesBuildings(celestialID)
 }
 
 // GetResourcesBuildings gets the resources buildings levels
 func (b *OGame) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	b.botLock("GetResourcesBuildings")
-	defer b.botUnlock("GetResourcesBuildings")
-	return b.getResourcesBuildings(celestialID)
+	return b.WithPriority(Normal).GetResourcesBuildings(celestialID)
+}
+
+// GetDefense gets all the defenses units information of a planet
+// Fails if planetID is invalid
+func (b *Prioritize) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetDefense")
+	defer b.bot.botUnlock("GetDefense")
+	return b.bot.getDefense(celestialID)
 }
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
 func (b *OGame) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
-	b.botLock("GetDefense")
-	defer b.botUnlock("GetDefense")
-	return b.getDefense(celestialID)
+	return b.WithPriority(Normal).GetDefense(celestialID)
+}
+
+// GetShips gets all ships units information of a planet
+func (b *Prioritize) GetShips(celestialID CelestialID) (ShipsInfos, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetShips")
+	defer b.bot.botUnlock("GetShips")
+	return b.bot.getShips(celestialID)
 }
 
 // GetShips gets all ships units information of a planet
 func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
-	b.botLock("GetShips")
-	defer b.botUnlock("GetShips")
-	return b.getShips(celestialID)
+	return b.WithPriority(Normal).GetShips(celestialID)
+}
+
+// GetFacilities gets all facilities information of a planet
+func (b *Prioritize) GetFacilities(celestialID CelestialID) (Facilities, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetFacilities")
+	defer b.bot.botUnlock("GetFacilities")
+	return b.bot.getFacilities(celestialID)
 }
 
 // GetFacilities gets all facilities information of a planet
 func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
-	b.botLock("GetFacilities")
-	defer b.botUnlock("GetFacilities")
-	return b.getFacilities(celestialID)
+	return b.WithPriority(Normal).GetFacilities(celestialID)
+}
+
+// GetProduction get what is in the production queue.
+// (ships & defense being built)
+func (b *Prioritize) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetProduction")
+	defer b.bot.botUnlock("GetProduction")
+	return b.bot.getProduction(celestialID)
 }
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
 func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
-	b.botLock("GetProduction")
-	defer b.botUnlock("GetProduction")
-	return b.getProduction(celestialID)
+	return b.WithPriority(Normal).GetProduction(celestialID)
+}
+
+// GetResearch gets the player researches information
+func (b *Prioritize) GetResearch() Researches {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetResearch")
+	defer b.bot.botUnlock("GetResearch")
+	return b.bot.getResearch()
 }
 
 // GetResearch gets the player researches information
 func (b *OGame) GetResearch() Researches {
-	b.botLock("GetResearch")
-	defer b.botUnlock("GetResearch")
-	return b.getResearch()
+	return b.WithPriority(Normal).GetResearch()
+}
+
+// GetSlots gets the player current and total slots information
+func (b *Prioritize) GetSlots() Slots {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetSlots")
+	defer b.bot.botUnlock("GetSlots")
+	return b.bot.getSlots()
 }
 
 // GetSlots gets the player current and total slots information
 func (b *OGame) GetSlots() Slots {
-	b.botLock("GetSlots")
-	defer b.botUnlock("GetSlots")
-	return b.getSlots()
+	return b.WithPriority(Normal).GetSlots()
+}
+
+// Build builds any ogame objects (building, technology, ship, defence)
+func (b *Prioritize) Build(celestialID CelestialID, id ID, nbr int) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("Build")
+	defer b.bot.botUnlock("Build")
+	return b.bot.build(celestialID, id, nbr)
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
 func (b *OGame) Build(celestialID CelestialID, id ID, nbr int) error {
-	b.botLock("Build")
-	defer b.botUnlock("Build")
-	return b.build(celestialID, id, nbr)
+	return b.WithPriority(Normal).Build(celestialID, id, nbr)
+}
+
+// BuildCancelable builds any cancelable ogame objects (building, technology)
+func (b *Prioritize) BuildCancelable(celestialID CelestialID, id ID) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("BuildCancelable")
+	defer b.bot.botUnlock("BuildCancelable")
+	return b.bot.buildCancelable(celestialID, id)
 }
 
 // BuildCancelable builds any cancelable ogame objects (building, technology)
 func (b *OGame) BuildCancelable(celestialID CelestialID, id ID) error {
-	b.botLock("BuildCancelable")
-	defer b.botUnlock("BuildCancelable")
-	return b.buildCancelable(celestialID, id)
+	return b.WithPriority(Normal).BuildCancelable(celestialID, id)
+}
+
+// BuildProduction builds any line production ogame objects (ship, defence)
+func (b *Prioritize) BuildProduction(celestialID CelestialID, id ID, nbr int) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("BuildProduction")
+	defer b.bot.botUnlock("BuildProduction")
+	return b.bot.buildProduction(celestialID, id, nbr)
 }
 
 // BuildProduction builds any line production ogame objects (ship, defence)
 func (b *OGame) BuildProduction(celestialID CelestialID, id ID, nbr int) error {
-	b.botLock("BuildProduction")
-	defer b.botUnlock("BuildProduction")
-	return b.buildProduction(celestialID, id, nbr)
+	return b.WithPriority(Normal).BuildProduction(celestialID, id, nbr)
+}
+
+// BuildBuilding ensure what is being built is a building
+func (b *Prioritize) BuildBuilding(celestialID CelestialID, buildingID ID) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("BuildBuilding")
+	defer b.bot.botUnlock("BuildBuilding")
+	return b.bot.buildBuilding(celestialID, buildingID)
 }
 
 // BuildBuilding ensure what is being built is a building
 func (b *OGame) BuildBuilding(celestialID CelestialID, buildingID ID) error {
-	b.botLock("BuildBuilding")
-	defer b.botUnlock("BuildBuilding")
-	return b.buildBuilding(celestialID, buildingID)
+	return b.WithPriority(Normal).BuildBuilding(celestialID, buildingID)
+}
+
+// BuildDefense builds a defense unit
+func (b *Prioritize) BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("BuildDefense")
+	defer b.bot.botUnlock("BuildDefense")
+	return b.bot.buildDefense(celestialID, defenseID, nbr)
 }
 
 // BuildDefense builds a defense unit
 func (b *OGame) BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error {
-	b.botLock("BuildDefense")
-	defer b.botUnlock("BuildDefense")
-	return b.buildDefense(celestialID, defenseID, nbr)
+	return b.WithPriority(Normal).BuildDefense(celestialID, defenseID, nbr)
+}
+
+// BuildShips builds a ship unit
+func (b *Prioritize) BuildShips(celestialID CelestialID, shipID ID, nbr int) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("BuildShips")
+	defer b.bot.botUnlock("BuildShips")
+	return b.bot.buildShips(celestialID, shipID, nbr)
 }
 
 // BuildShips builds a ship unit
 func (b *OGame) BuildShips(celestialID CelestialID, shipID ID, nbr int) error {
-	b.botLock("BuildShips")
-	defer b.botUnlock("BuildShips")
-	return b.buildShips(celestialID, shipID, nbr)
+	return b.WithPriority(Normal).BuildShips(celestialID, shipID, nbr)
+}
+
+// ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
+func (b *Prioritize) ConstructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("ConstructionsBeingBuilt")
+	defer b.bot.botUnlock("ConstructionsBeingBuilt")
+	return b.bot.constructionsBeingBuilt(celestialID)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
 func (b *OGame) ConstructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
-	b.botLock("ConstructionsBeingBuilt")
-	defer b.botUnlock("ConstructionsBeingBuilt")
-	return b.constructionsBeingBuilt(celestialID)
+	return b.WithPriority(Normal).ConstructionsBeingBuilt(celestialID)
+}
+
+// CancelBuilding cancel the construction of a building on a specified planet
+func (b *Prioritize) CancelBuilding(celestialID CelestialID) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("CancelBuilding")
+	defer b.bot.botUnlock("CancelBuilding")
+	return b.bot.cancelBuilding(celestialID)
 }
 
 // CancelBuilding cancel the construction of a building on a specified planet
 func (b *OGame) CancelBuilding(celestialID CelestialID) error {
-	b.botLock("CancelBuilding")
-	defer b.botUnlock("CancelBuilding")
-	return b.cancelBuilding(celestialID)
+	return b.WithPriority(Normal).CancelBuilding(celestialID)
+}
+
+// CancelResearch cancel the research
+func (b *Prioritize) CancelResearch(celestialID CelestialID) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("CancelResearch")
+	defer b.bot.botUnlock("CancelResearch")
+	return b.bot.cancelResearch(celestialID)
 }
 
 // CancelResearch cancel the research
 func (b *OGame) CancelResearch(celestialID CelestialID) error {
-	b.botLock("CancelResearch")
-	defer b.botUnlock("CancelResearch")
-	return b.cancelResearch(celestialID)
+	return b.WithPriority(Normal).CancelResearch(celestialID)
+}
+
+// BuildTechnology ensure that we're trying to build a technology
+func (b *Prioritize) BuildTechnology(celestialID CelestialID, technologyID ID) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("BuildTechnology")
+	defer b.bot.botUnlock("BuildTechnology")
+	return b.bot.buildTechnology(celestialID, technologyID)
 }
 
 // BuildTechnology ensure that we're trying to build a technology
 func (b *OGame) BuildTechnology(celestialID CelestialID, technologyID ID) error {
-	b.botLock("BuildTechnology")
-	defer b.botUnlock("BuildTechnology")
-	return b.buildTechnology(celestialID, technologyID)
+	return b.WithPriority(Normal).BuildTechnology(celestialID, technologyID)
+}
+
+// GetResources gets user resources
+func (b *Prioritize) GetResources(celestialID CelestialID) (Resources, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetResources")
+	defer b.bot.botUnlock("GetResources")
+	return b.bot.getResources(celestialID)
 }
 
 // GetResources gets user resources
 func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
-	b.botLock("GetResources")
-	defer b.botUnlock("GetResources")
-	return b.getResources(celestialID)
+	return b.WithPriority(Normal).GetResources(celestialID)
+}
+
+// SendFleet sends a fleet
+func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources) (FleetID, int, int, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("SendFleet")
+	defer b.bot.botUnlock("SendFleet")
+	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources)
 }
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources) (FleetID, int, int, error) {
-	b.botLock("SendFleet")
-	defer b.botUnlock("SendFleet")
-	return b.sendFleet(celestialID, ships, speed, where, mission, resources)
+	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources)
+}
+
+// GetEspionageReportFor gets the latest espionage report for a given coordinate
+func (b *Prioritize) GetEspionageReportFor(coord Coordinate) (EspionageReport, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetEspionageReportFor")
+	defer b.bot.botUnlock("GetEspionageReportFor")
+	return b.bot.getEspionageReportFor(coord)
 }
 
 // GetEspionageReportFor gets the latest espionage report for a given coordinate
 func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error) {
-	b.botLock("GetEspionageReportFor")
-	defer b.botUnlock("GetEspionageReportFor")
-	return b.getEspionageReportFor(coord)
+	return b.WithPriority(Normal).GetEspionageReportFor(coord)
+}
+
+// GetEspionageReportMessages gets the summary of each espionage reports
+func (b *Prioritize) GetEspionageReportMessages() ([]EspionageReportSummary, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetEspionageReportMessages")
+	defer b.bot.botUnlock("GetEspionageReportMessages")
+	return b.bot.getEspionageReportMessages()
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
 func (b *OGame) GetEspionageReportMessages() ([]EspionageReportSummary, error) {
-	b.botLock("GetEspionageReportMessages")
-	defer b.botUnlock("GetEspionageReportMessages")
-	return b.getEspionageReportMessages()
+	return b.WithPriority(Normal).GetEspionageReportMessages()
+}
+
+// GetEspionageReport gets a detailed espionage report
+func (b *Prioritize) GetEspionageReport(msgID int) (EspionageReport, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetEspionageReport")
+	defer b.bot.botUnlock("GetEspionageReport")
+	return b.bot.getEspionageReport(msgID)
 }
 
 // GetEspionageReport gets a detailed espionage report
 func (b *OGame) GetEspionageReport(msgID int) (EspionageReport, error) {
-	b.botLock("GetEspionageReport")
-	defer b.botUnlock("GetEspionageReport")
-	return b.getEspionageReport(msgID)
+	return b.WithPriority(Normal).GetEspionageReport(msgID)
+}
+
+// DeleteMessage deletes a message from the mail box
+func (b *Prioritize) DeleteMessage(msgID int) error {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("DeleteMessage")
+	defer b.bot.botUnlock("DeleteMessage")
+	return b.bot.deleteMessage(msgID)
 }
 
 // DeleteMessage deletes a message from the mail box
 func (b *OGame) DeleteMessage(msgID int) error {
-	b.botLock("DeleteMessage")
-	defer b.botUnlock("DeleteMessage")
-	return b.deleteMessage(msgID)
+	return b.WithPriority(Normal).DeleteMessage(msgID)
+}
+
+// GetResourcesProductions gets the planet resources production
+func (b *Prioritize) GetResourcesProductions(planetID PlanetID) (Resources, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("GetResourcesProductions")
+	defer b.bot.botUnlock("GetResourcesProductions")
+	return b.bot.getResourcesProductions(planetID)
 }
 
 // GetResourcesProductions gets the planet resources production
 func (b *OGame) GetResourcesProductions(planetID PlanetID) (Resources, error) {
-	b.botLock("GetResourcesProductions")
-	defer b.botUnlock("GetResourcesProductions")
-	return b.getResourcesProductions(planetID)
+	return b.WithPriority(Normal).GetResourcesProductions(planetID)
+}
+
+// FlightTime calculate flight time and fuel needed
+func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
+	defer close(b.taskIsDoneCh)
+	if b.bot.researches == nil {
+		b.bot.botLock("FlightTime")
+		b.bot.getResearch()
+		b.bot.botUnlock("FlightTime")
+	}
+	return calcFlightTime(origin, destination, b.bot.universeSize, b.bot.donutGalaxy, b.bot.donutSystem, b.bot.fleetDeutSaveFactor,
+		float64(speed)/10, b.bot.universeSpeedFleet, ships, *b.bot.researches)
 }
 
 // FlightTime calculate flight time and fuel needed
 func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
-	b.botLock("FlightTime")
-	defer b.botUnlock("FlightTime")
-	return calcFlightTime(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem, b.fleetDeutSaveFactor,
-		float64(speed)/10, b.universeSpeedFleet, ships, b.getCachedResearch())
+	return b.WithPriority(Normal).FlightTime(origin, destination, speed, ships)
 }
 
 // Distance return distance between two coordinates
@@ -2619,8 +2995,17 @@ func (b *OGame) RegisterHTMLInterceptor(fn func(method string, params, payload u
 // IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
 // 			  and that you have enough deuterium.
+func (b *Prioritize) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	defer close(b.taskIsDoneCh)
+	b.bot.botLock("Phalanx")
+	defer b.bot.botUnlock("Phalanx")
+	return b.bot.getPhalanx(moonID, coord)
+}
+
+// Phalanx scan a coordinate from a moon to get fleets information
+// IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
+// IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
+// 			  and that you have enough deuterium.
 func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
-	b.botLock("Phalanx")
-	defer b.botUnlock("Phalanx")
-	return b.getPhalanx(moonID, coord)
+	return b.WithPriority(Normal).Phalanx(moonID, coord)
 }
