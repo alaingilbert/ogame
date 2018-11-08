@@ -696,6 +696,9 @@ func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 			planetInfos.HonorableTarget = s.Find("span.status_abbr_honorableTarget").Size() > 0
 			planetInfos.Administrator = s.Find("span.status_abbr_admin").Size() > 0
 			planetInfos.Banned = s.Find("td.playername a span.status_abbr_banned").Size() > 0
+			tdPlayername := s.Find("td.playername span")
+			planetInfos.Player.IsBandit = tdPlayername.HasClass("rank_bandit1") || tdPlayername.HasClass("rank_bandit2") || tdPlayername.HasClass("rank_bandit3")
+			planetInfos.Player.IsStarlord = tdPlayername.HasClass("rank_starlord1") || tdPlayername.HasClass("rank_starlord2") || tdPlayername.HasClass("rank_starlord3")
 			planetInfos.Coordinate = extractCoord(coordsRaw)
 
 			var playerID int

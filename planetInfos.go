@@ -61,9 +61,11 @@ type PlanetInfos struct {
 	}
 	Moon   *MoonInfos
 	Player struct {
-		ID   int
-		Name string
-		Rank int
+		ID         int
+		Name       string
+		Rank       int
+		IsBandit   bool
+		IsStarlord bool
 	}
 	Alliance *AllianceInfos
 }
