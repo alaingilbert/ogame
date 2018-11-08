@@ -25,7 +25,11 @@ func main() {
 	username := os.Getenv("USERNAME") // eg: email@gmail.com
 	password := os.Getenv("PASSWORD") // eg: *****
 	language := os.Getenv("LANGUAGE") // eg: en
-	bot, _ := ogame.New(universe, username, password, language)
+	bot, err := ogame.New(universe, username, password, language)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	attacked := bot.IsUnderAttack()
 	fmt.Println(attacked) // False
 }
