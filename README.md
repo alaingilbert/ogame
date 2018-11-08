@@ -34,14 +34,19 @@ func main() {
 ### Available methods
 
 ```go
+WithPriority(priority int) *Prioritize
+GetPublicIP() (string, error)
+OnStateChange(clb func(locked bool, actor string))
+GetState() (bool, string)
+IsLocked() bool
 GetSession() string
 AddAccount(number int, lang string) (NewAccount, error)
 GetServer() Server
 SetUserAgent(newUserAgent string)
 ServerURL() string
 GetLanguage() string
-GetPageContent(url.Values) string
-PostPageContent(url.Values, url.Values) string
+GetPageContent(url.Values) []byte
+PostPageContent(url.Values, url.Values) []byte
 Login() error
 Logout()
 GetUsername() string
@@ -50,32 +55,42 @@ GetUniverseSpeed() int
 GetUniverseSpeedFleet() int
 IsDonutGalaxy() bool
 IsDonutSystem() bool
+FleetDeutSaveFactor() float64
 ServerVersion() string
 ServerTime() time.Time
 IsUnderAttack() bool
 GetUserInfos() UserInfos
 SendMessage(playerID int, message string) error
-GetFleets() []Fleet
+GetFleets() ([]Fleet, Slots)
+GetFleetsFromEventList() []Fleet
 CancelFleet(FleetID) error
 GetAttacks() []AttackEvent
-GalaxyInfos(galaxy, system int) ([]PlanetInfos, error)
+GalaxyInfos(galaxy, system int) (SystemInfos, error)
 GetResearch() Researches
 GetCachedPlanets() []Planet
+GetCachedMoons() []Moon
+GetCachedCelestial(CelestialID) Celestial
+GetCachedPlayer() UserInfos
 GetPlanets() []Planet
 GetPlanet(PlanetID) (Planet, error)
 GetPlanetByCoord(Coordinate) (Planet, error)
 GetMoons(MoonID) []Moon
 GetMoon(MoonID) (Moon, error)
 GetMoonByCoord(Coordinate) (Moon, error)
+GetCelestial(Coordinate) (Celestial, error)
 GetEspionageReportMessages() ([]EspionageReportSummary, error)
+GetEspionageReportFor(Coordinate) (EspionageReport, error)
 GetEspionageReport(msgID int) (EspionageReport, error)
 DeleteMessage(msgID int) error
+Distance(origin, destination Coordinate) int
 FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 RegisterChatCallback(func(ChatMsg))
+RegisterHTMLInterceptor(func(method string, params, payload url.Values, pageHTML []byte))
+GetSlots() Slots
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
-SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, destType DestinationType, mission MissionID, resources Resources) (FleetID, error)
+SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, int, int, error)
 Build(celestialID CelestialID, id ID, nbr int) error
 BuildCancelable(CelestialID, ID) error
 BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -85,17 +100,20 @@ BuildShips(celestialID CelestialID, shipID ID, nbr int) error
 CancelBuilding(CelestialID) error
 ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
 GetProduction(CelestialID) ([]Quantifiable, error)
+GetFacilities(CelestialID) (Facilities, error)
 GetDefense(CelestialID) (DefensesInfos, error)
 GetShips(CelestialID) (ShipsInfos, error)
+GetResourcesBuildings(CelestialID) (ResourcesBuildings, error)
+CancelResearch(CelestialID) error
+BuildTechnology(celestialID CelestialID, technologyID ID) error
 
 // Planet specific functions
 GetResourceSettings(PlanetID) (ResourceSettings, error)
 SetResourceSettings(PlanetID, ResourceSettings) error
-GetResourcesBuildings(PlanetID) (ResourcesBuildings, error)
-GetFacilities(PlanetID) (Facilities, error)
-BuildTechnology(planetID PlanetID, technologyID ID) error
-CancelResearch(PlanetID) error
 GetResourcesProductions(PlanetID) (Resources, error)
+
+// Moon specific functions
+Phalanx(MoonID, Coordinate) ([]Fleet, error)
 ```
 
 ### Full documentation
