@@ -459,6 +459,20 @@ func TestExtractAttacks1(t *testing.T) {
 	assert.Equal(t, 1, attacks[0].Missiles)
 }
 
+func TestExtractGalaxyInfos_bandit(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_inactive_bandit_lord.html")
+	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.True(t, infos.Position(6).Player.IsBandit)
+	assert.False(t, infos.Position(6).Player.IsStarlord)
+}
+
+func TestExtractGalaxyInfos_starlord(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_inactive_emperor.html")
+	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.True(t, infos.Position(7).Player.IsStarlord)
+	assert.False(t, infos.Position(7).Player.IsBandit)
+}
+
 func TestExtractGalaxyInfos_destroyedPlanet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_destroyed_planet.html")
 	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
