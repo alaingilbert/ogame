@@ -27,8 +27,7 @@ func main() {
 	language := os.Getenv("LANGUAGE") // eg: en
 	bot, err := ogame.New(universe, username, password, language)
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 	attacked := bot.IsUnderAttack()
 	fmt.Println(attacked) // False
