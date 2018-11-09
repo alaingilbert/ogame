@@ -1887,7 +1887,9 @@ const Report EspionageReportType = 1
 
 // CombatReportSummary summary of combat report
 type CombatReportSummary struct {
-	ID int
+	ID          int
+	Origin      *Coordinate
+	Destination Coordinate
 }
 
 // EspionageReportSummary summary of espionage report
@@ -1930,6 +1932,21 @@ func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
 	for page <= nbPage {
 		pageHTML, _ := b.getPageMessages(page, tabid)
 		newMessages, newNbPage := extractEspionageReportMessageIDs(pageHTML)
+		msgs = append(msgs, newMessages...)
+		nbPage = newNbPage
+		page++
+	}
+	return msgs, nil
+}
+
+func (b *OGame) getCombatReportMessages() ([]CombatReportSummary, error) {
+	tabid := 21
+	page := 1
+	nbPage := 1
+	msgs := make([]CombatReportSummary, 0)
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage := extractCombatReportMessagesSummary(pageHTML)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
 		page++

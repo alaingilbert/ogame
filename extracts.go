@@ -1027,6 +1027,42 @@ func extractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary
 	return msgs, nbPage
 }
 
+func extractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int) {
+	msgs := make([]CombatReportSummary, 0)
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
+	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
+		if idStr, exists := s.Attr("data-msg-id"); exists {
+			if id, err := strconv.Atoi(idStr); err == nil {
+				report := CombatReportSummary{ID: id}
+				spanLink := s.Find("span.msg_title")
+				targetStr := spanLink.Find("a").Text()
+				report.Destination = extractCoord(targetStr)
+				report.Destination.Type = PlanetType
+				if spanLink.Find("figure").HasClass("moon") {
+					report.Destination.Type = MoonType
+				}
+
+				link := s.Find("div.msg_actions a span.icon_attack").Parent().AttrOr("href", "")
+				m := regexp.MustCompile(`page=fleet1&galaxy=(\d+)&system=(\d+)&position=(\d+)&type=(\d+)&`).FindStringSubmatch(link)
+				if len(m) != 5 {
+					return
+				}
+				galaxy, _ := strconv.Atoi(m[1])
+				system, _ := strconv.Atoi(m[2])
+				position, _ := strconv.Atoi(m[3])
+				planetType, _ := strconv.Atoi(m[4])
+				report.Origin = &Coordinate{galaxy, system, position, CelestialType(planetType)}
+				if report.Origin.Equal(report.Destination) {
+					report.Origin = nil
+				}
+				msgs = append(msgs, report)
+			}
+		}
+	})
+	return msgs, nbPage
+}
+
 func extractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))

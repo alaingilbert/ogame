@@ -361,6 +361,15 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, msgs[1].Target)
 }
 
+func TestExtractCombatReportMessagesSummary(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs_2.html")
+	msgs, nbPages := extractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 10, len(msgs))
+	assert.Equal(t, 44, nbPages)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, msgs[1].Destination)
+	assert.Equal(t, Coordinate{4, 127, 9, MoonType}, *msgs[1].Origin)
+}
+
 func TestExtractCombatReportMessageIDs(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
 	msgs, _ := extractCombatReportMessageIDs(pageHTMLBytes)
