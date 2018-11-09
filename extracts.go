@@ -253,8 +253,8 @@ func extractServerTime(pageHTML []byte) (time.Time, error) {
 }
 
 func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
-	playerIDRgx := regexp.MustCompile(`playerId="(\d+)"`)
-	playerNameRgx := regexp.MustCompile(`playerName="([^"]+)"`)
+	playerIDRgx := regexp.MustCompile(`<meta name="ogame-player-id" content="(\d+)"/>`)
+	playerNameRgx := regexp.MustCompile(`<meta name="ogame-player-name" content="([^"]+)"/>`)
 	txtContent := regexp.MustCompile(`textContent\[7]="([^"]+)"`)
 	playerIDGroups := playerIDRgx.FindSubmatch(pageHTML)
 	playerNameGroups := playerNameRgx.FindSubmatch(pageHTML)
