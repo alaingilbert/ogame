@@ -1835,95 +1835,25 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Page 5
 	movementHTML := b.getPageContent(url.Values{"page": {"movement"}})
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
-	type tmp struct {
-		fleetID  int
-		arriveIn int
-		backIn   int
-	}
-	matches := make([]Fleet, 0)
 	originCoords, _ := ExtractPlanetCoordinate(movementHTML)
-	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
-		originTxt := s.Find("span.originCoords").Text()
-		origin := extractCoord(originTxt)
-		origin.Type = PlanetType
-		if s.Find("span.originPlanet figure").HasClass("moon") {
-			origin.Type = MoonType
-		}
-		destTxt := s.Find("span.destinationCoords").Text()
-		dest := extractCoord(destTxt)
-		dest.Type = PlanetType
-		if s.Find("span.destinationPlanet figure").HasClass("moon") {
-			dest.Type = MoonType
-		}
-		reversalSpan := s.Find("span.reversal")
-		if reversalSpan == nil {
-			return
-		}
-
-		missionType, _ := strconv.Atoi(s.AttrOr("data-mission-type", ""))
-		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
-		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", "0"))
-		ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
-		arriveIn := arrivalTime - ogameTimestamp
-		if arriveIn < 0 {
-			arriveIn = 0
-		}
-
-		trs := s.Find("table.fleetinfo tr")
-		shipment := Resources{}
-		shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
-		shipment.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
-		shipment.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
-
-		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
-		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindSubmatch(movementHTML)
-		if len(m) == 0 {
-			return
-		}
-		backIn, _ := strconv.Atoi(string(m[1]))
-
-		if time.Duration(backIn-arriveIn*2)*time.Second > time.Since(start) {
-			return
-		}
-
-		fleetIDStr, _ := reversalSpan.Attr("ref")
-		fleetID, _ := strconv.Atoi(fleetIDStr)
-		if dest.Equal(where) && origin.Equal(originCoords) {
-			fleet := Fleet{}
-			fleet.ID = FleetID(fleetID)
-			fleet.Origin = origin
-			fleet.Destination = dest
-			fleet.Mission = MissionID(missionType)
-			fleet.ReturnFlight = returnFlight
-			fleet.Resources = shipment
-			if !returnFlight {
-				fleet.ArriveIn = arriveIn
-				fleet.BackIn = backIn
-			} else {
-				fleet.ArriveIn = -1
-				fleet.BackIn = arriveIn
-			}
-
-			for i := 1; i < trs.Size()-5; i++ {
-				tds := trs.Eq(i).Find("td")
-				name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
-				qty := ParseInt(tds.Eq(1).Text())
-				shipID := name2id(name)
-				fleet.Ships.Set(shipID, qty)
-			}
-
-			matches = append(matches, fleet)
-		}
-	})
-	if len(matches) > 0 {
-		max := Fleet{}
-		for _, v := range matches {
-			if v.ID > max.ID {
-				max = v
+	fleets := extractFleets(movementHTML)
+	if len(fleets) > 0 {
+		max := &Fleet{}
+		for _, fleet := range fleets {
+			if fleet.ID > max.ID &&
+				fleet.Origin.Equal(originCoords) &&
+				fleet.Destination.Equal(where) &&
+				fleet.Mission == mission &&
+				!fleet.ReturnFlight {
+				if time.Duration(fleet.BackIn-fleet.ArriveIn*2)*time.Second > time.Since(start) {
+					continue
+				}
+				max = &fleet
 			}
 		}
-		return max, nil
+		if max != nil {
+			return *max, nil
+		}
 	}
 
 	slots := extractSlots(movementHTML)
