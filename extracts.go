@@ -386,6 +386,13 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 		idStr, _ := s.Find("span.reversal").Attr("ref")
 		id, _ := strconv.Atoi(idStr)
 
+		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
+		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindSubmatch(pageHTML)
+		var backIn int
+		if len(m) == 2 {
+			backIn, _ = strconv.Atoi(string(m[1]))
+		}
+
 		missionTypeRaw, _ := s.Attr("data-mission-type")
 		returnFlightRaw, _ := s.Attr("data-return-flight")
 		arrivalTimeRaw, _ := s.Attr("data-arrival-time")
@@ -411,7 +418,13 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 		fleet.Mission = MissionID(missionType)
 		fleet.ReturnFlight = returnFlight
 		fleet.Resources = shipment
-		fleet.ArriveIn = secs
+		if !returnFlight {
+			fleet.ArriveIn = secs
+			fleet.BackIn = backIn
+		} else {
+			fleet.ArriveIn = -1
+			fleet.BackIn = secs
+		}
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
