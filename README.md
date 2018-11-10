@@ -39,7 +39,6 @@ func main() {
 ```go
 Tx(clb func(tx *Prioritize))
 Begin() *Prioritize
-Done()
 WithPriority(priority int) *Prioritize
 GetPublicIP() (string, error)
 OnStateChange(clb func(locked bool, actor string))
@@ -116,7 +115,6 @@ BuildTechnology(celestialID CelestialID, technologyID ID) error
 // Planet specific functions
 GetResourceSettings(PlanetID) (ResourceSettings, error)
 SetResourceSettings(PlanetID, ResourceSettings) error
-//GetResourcesProductionRatio(PlanetID) (float64, error)
 GetResourcesProductions(PlanetID) (Resources, error)
 
 // Moon specific functions

@@ -34,7 +34,6 @@ import (
 type Wrapper interface {
 	Tx(clb func(tx *Prioritize))
 	Begin() *Prioritize
-	Done()
 	WithPriority(priority int) *Prioritize
 	GetPublicIP() (string, error)
 	OnStateChange(clb func(locked bool, actor string))
