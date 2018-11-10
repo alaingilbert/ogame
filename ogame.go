@@ -1698,6 +1698,24 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return 0, 0, 0, ErrInvalidPlanetID
 	}
 
+	// Ensure we're not trying to attack/spy ourself
+	destinationIsMyOwnPlanet := false
+	myPlanets := extractPlanets(pageHTML, b)
+	for _, p := range myPlanets {
+		if p.Coordinate.Equal(where) || (p.Moon != nil && p.Moon.Coordinate.Equal(where)) {
+			destinationIsMyOwnPlanet = true
+			break
+		}
+	}
+	if destinationIsMyOwnPlanet {
+		switch mission {
+		case Spy:
+			return 0, 0, 0, errors.New("you cannot spy yourself")
+		case Attack:
+			return 0, 0, 0, errors.New("you cannot attack yourself")
+		}
+	}
+
 	availableShips := ExtractFleet1Ships(pageHTML)
 
 	atLeastOneShipSelected := false
