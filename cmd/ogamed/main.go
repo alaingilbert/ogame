@@ -702,7 +702,7 @@ func sendFleet(c echo.Context) error {
 		}
 	}
 
-	fleetID, _, _, err := bot.SendFleet(ogame.CelestialID(planetID), ships, speed, where, mission, payload)
+	fleet, err := bot.SendFleet(ogame.CelestialID(planetID), ships, speed, where, mission, payload)
 	if err == ogame.ErrInvalidPlanetID ||
 		err == ogame.ErrNoShipSelected ||
 		err == ogame.ErrUninhabitedPlanet ||
@@ -721,5 +721,5 @@ func sendFleet(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
-	return c.JSON(http.StatusOK, successResp(fleetID))
+	return c.JSON(http.StatusOK, successResp(fleet))
 }
