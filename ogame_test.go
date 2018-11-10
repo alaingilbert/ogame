@@ -873,6 +873,7 @@ func TestExtractFleet(t *testing.T) {
 	fleets := extractFleets(pageHTMLBytes)
 	assert.Equal(t, 1, len(fleets))
 	assert.Equal(t, 4134, fleets[0].ArriveIn)
+	assert.Equal(t, 8277, fleets[0].BackIn)
 	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[0].Origin)
 	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, fleets[0].Destination)
 	assert.Equal(t, Transport, fleets[0].Mission)
@@ -884,6 +885,21 @@ func TestExtractFleet(t *testing.T) {
 	assert.Equal(t, 1, fleets[0].Ships.ColonyShip)
 	assert.Equal(t, 1, fleets[0].Ships.EspionageProbe)
 	assert.Equal(t, Resources{Metal: 123, Crystal: 456, Deuterium: 789}, fleets[0].Resources)
+}
+
+func TestExtractFleet_returningTransport(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_2.html")
+	fleets := extractFleets(pageHTMLBytes)
+	assert.Equal(t, 1, len(fleets))
+	assert.Equal(t, -1, fleets[0].ArriveIn)
+	assert.Equal(t, 36, fleets[0].BackIn)
+}
+
+func TestExtractFleet_deployment(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_moon_to_moon.html")
+	fleets := extractFleets(pageHTMLBytes)
+	assert.Equal(t, 210, fleets[0].ArriveIn)
+	assert.Equal(t, 426, fleets[0].BackIn)
 }
 
 func TestExtractFleetThousands(t *testing.T) {

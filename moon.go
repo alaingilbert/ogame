@@ -88,7 +88,7 @@ func (m Moon) CancelResearch() error {
 
 // SendFleet sends a fleet
 func (m Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources) (FleetID, int, int, error) {
+	mission MissionID, resources Resources) (Fleet, error) {
 	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, mission, resources)
 }
 

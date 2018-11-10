@@ -10,4 +10,5 @@ type Fleet struct {
 	Destination  Coordinate
 	Ships        ShipsInfos
 	ArriveIn     int
+	BackIn       int
 }

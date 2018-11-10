@@ -386,12 +386,16 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 		idStr, _ := s.Find("span.reversal").Attr("ref")
 		id, _ := strconv.Atoi(idStr)
 
-		missionTypeRaw, _ := s.Attr("data-mission-type")
-		returnFlightRaw, _ := s.Attr("data-return-flight")
-		arrivalTimeRaw, _ := s.Attr("data-arrival-time")
-		missionType, _ := strconv.Atoi(missionTypeRaw)
-		returnFlight, _ := strconv.ParseBool(returnFlightRaw)
-		arrivalTime, _ := strconv.Atoi(arrivalTimeRaw)
+		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
+		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindSubmatch(pageHTML)
+		var backIn int
+		if len(m) == 2 {
+			backIn, _ = strconv.Atoi(string(m[1]))
+		}
+
+		missionType, _ := strconv.Atoi(s.AttrOr("data-mission-type", ""))
+		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
+		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", ""))
 		ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
 		secs := arrivalTime - ogameTimestamp
 		if secs < 0 {
@@ -411,7 +415,13 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 		fleet.Mission = MissionID(missionType)
 		fleet.ReturnFlight = returnFlight
 		fleet.Resources = shipment
-		fleet.ArriveIn = secs
+		if !returnFlight {
+			fleet.ArriveIn = secs
+			fleet.BackIn = backIn
+		} else {
+			fleet.ArriveIn = -1
+			fleet.BackIn = secs
+		}
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
@@ -548,9 +558,12 @@ func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
 	return ships, token, destinations, 0
 }
 
-func ExtractAttacks(pageHTML []byte) []AttackEvent {
+func ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	attacks := make([]AttackEvent, 0)
+	if doc.Find("div#eventListWrap").Size() == 0 {
+		return attacks, ErrNotLogged
+	}
 	tmp := func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")
 		if strings.Contains(classes, "partnerInfo") {
@@ -616,7 +629,7 @@ func ExtractAttacks(pageHTML []byte) []AttackEvent {
 	doc.Find("tr.eventFleet").Each(tmp)
 	doc.Find("tr.allianceAttack").Each(tmp)
 
-	return attacks
+	return attacks, nil
 }
 
 func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
@@ -638,9 +651,11 @@ func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 	var tmp struct {
 		Galaxy string
 	}
-	json.Unmarshal(pageHTML, &tmp)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
 	var res SystemInfos
+	if err := json.Unmarshal(pageHTML, &tmp); err != nil {
+		return res, ErrNotLogged
+	}
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
 	res.galaxy = ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
 	res.system = ParseInt(doc.Find("table").AttrOr("data-system", "0"))
 	doc.Find("tr.row").Each(func(i int, s *goquery.Selection) {
