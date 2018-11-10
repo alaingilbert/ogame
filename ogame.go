@@ -1855,8 +1855,8 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	originCoords, _ := ExtractPlanetCoordinate(movementHTML)
 	fleets := extractFleets(movementHTML)
 	if len(fleets) > 0 {
-		max := &Fleet{}
-		for _, fleet := range fleets {
+		max := Fleet{}
+		for i, fleet := range fleets {
 			if fleet.ID > max.ID &&
 				fleet.Origin.Equal(originCoords) &&
 				fleet.Destination.Equal(where) &&
@@ -1865,11 +1865,11 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 				if time.Duration(fleet.BackIn-fleet.ArriveIn*2)*time.Second > time.Since(start) {
 					continue
 				}
-				max = &fleet
+				max = fleets[i]
 			}
 		}
-		if max != nil {
-			return *max, nil
+		if max.ID > 0 {
+			return max, nil
 		}
 	}
 
