@@ -1418,8 +1418,14 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 }
 
 func (b *OGame) getAttacks() []AttackEvent {
-	pageHTML := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
-	return ExtractAttacks(pageHTML)
+	var attacks []AttackEvent
+	b.withRetry(func() error {
+		pageHTML := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
+		var err error
+		attacks, err = ExtractAttacks(pageHTML)
+		return err
+	})
+	return attacks
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {

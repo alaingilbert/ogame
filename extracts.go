@@ -558,9 +558,12 @@ func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
 	return ships, token, destinations, 0
 }
 
-func ExtractAttacks(pageHTML []byte) []AttackEvent {
+func ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	attacks := make([]AttackEvent, 0)
+	if doc.Find("div#eventListWrap").Size() == 0 {
+		return attacks, ErrNotLogged
+	}
 	tmp := func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")
 		if strings.Contains(classes, "partnerInfo") {
@@ -626,7 +629,7 @@ func ExtractAttacks(pageHTML []byte) []AttackEvent {
 	doc.Find("tr.eventFleet").Each(tmp)
 	doc.Find("tr.allianceAttack").Each(tmp)
 
-	return attacks
+	return attacks, nil
 }
 
 func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
