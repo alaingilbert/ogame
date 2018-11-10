@@ -648,9 +648,11 @@ func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 	var tmp struct {
 		Galaxy string
 	}
-	json.Unmarshal(pageHTML, &tmp)
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
 	var res SystemInfos
+	if err := json.Unmarshal(pageHTML, &tmp); err != nil {
+		return res, ErrNotLogged
+	}
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
 	res.galaxy = ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
 	res.system = ParseInt(doc.Find("table").AttrOr("data-system", "0"))
 	doc.Find("tr.row").Each(func(i int, s *goquery.Selection) {
