@@ -1677,7 +1677,11 @@ func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources) (Fleet, error) {
+
+	// Keep track of start time. We use this value to find a fleet that was created after that time.
 	start := time.Now()
+
+	// Utils function to extract hidden input from a page
 	getHiddenFields := func(pageHTML []byte) map[string]string {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		fields := make(map[string]string)
