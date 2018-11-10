@@ -37,7 +37,7 @@ func main() {
 ### Available methods
 
 ```go
-Tx(clb func(tx *Prioritize))
+Tx(clb func(tx *Prioritize) error) error
 Begin() *Prioritize
 WithPriority(priority int) *Prioritize
 GetPublicIP() (string, error)

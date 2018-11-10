@@ -32,7 +32,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
-	Tx(clb func(tx *Prioritize))
+	Tx(clb func(tx *Prioritize) error) error
 	Begin() *Prioritize
 	WithPriority(priority int) *Prioritize
 	GetPublicIP() (string, error)
@@ -2316,15 +2316,16 @@ func (b *OGame) Begin() *Prioritize {
 }
 
 // Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *Prioritize) Tx(clb func(*Prioritize)) {
+func (b *Prioritize) Tx(clb func(*Prioritize) error) error {
 	tx := b.Begin()
-	clb(tx)
-	tx.Done()
+	defer tx.Done()
+	err := clb(tx)
+	return err
 }
 
 // Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *OGame) Tx(clb func(tx *Prioritize)) {
-	b.WithPriority(Normal).Tx(clb)
+func (b *OGame) Tx(clb func(tx *Prioritize) error) error {
+	return b.WithPriority(Normal).Tx(clb)
 }
 
 // FakeCall used for debugging
