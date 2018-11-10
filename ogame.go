@@ -2308,7 +2308,7 @@ func (b *Prioritize) done() {
 	}
 }
 
-// Start a transaction. Once this function is called, "done" must be called to release the lock.
+// Start a transaction. Once this function is called, "Done" must be called to release the lock.
 func (b *OGame) Begin() *Prioritize {
 	return b.WithPriority(Normal).Begin()
 }
