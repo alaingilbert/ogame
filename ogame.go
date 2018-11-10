@@ -894,7 +894,7 @@ func (b *OGame) withRetry(fn func() error) {
 			if err == ErrNotLogged {
 				retry(err)
 				if loginErr := b.login(); loginErr != nil {
-					b.error(loginErr.Error())
+					b.error(loginErr.Error()) // log error
 					continue
 				}
 				continue
