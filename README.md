@@ -37,6 +37,9 @@ func main() {
 ### Available methods
 
 ```go
+Tx(clb func(tx *Prioritize))
+Begin() *Prioritize
+Done()
 WithPriority(priority int) *Prioritize
 GetPublicIP() (string, error)
 OnStateChange(clb func(locked bool, actor string))
@@ -93,7 +96,7 @@ GetSlots() Slots
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
-SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (FleetID, int, int, error)
+SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (Fleet, error)
 Build(celestialID CelestialID, id ID, nbr int) error
 BuildCancelable(CelestialID, ID) error
 BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -113,6 +116,7 @@ BuildTechnology(celestialID CelestialID, technologyID ID) error
 // Planet specific functions
 GetResourceSettings(PlanetID) (ResourceSettings, error)
 SetResourceSettings(PlanetID, ResourceSettings) error
+//GetResourcesProductionRatio(PlanetID) (float64, error)
 GetResourcesProductions(PlanetID) (Resources, error)
 
 // Moon specific functions
