@@ -1433,11 +1433,16 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 		"galaxy": {strconv.Itoa(galaxy)},
 		"system": {strconv.Itoa(system)},
 	}
-	pageHTML, err := b.postPageContent(url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}, payload)
-	if err != nil {
-		return SystemInfos{}, err
-	}
-	return ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	var res SystemInfos
+	b.withRetry(func() error {
+		pageHTML, err := b.postPageContent(url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}, payload)
+		if err != nil {
+			return err
+		}
+		res, err = ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+		return err
+	})
+	return res, nil
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
