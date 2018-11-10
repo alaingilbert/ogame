@@ -393,12 +393,9 @@ func extractFleets(pageHTML []byte) (res []Fleet) {
 			backIn, _ = strconv.Atoi(string(m[1]))
 		}
 
-		missionTypeRaw, _ := s.Attr("data-mission-type")
-		returnFlightRaw, _ := s.Attr("data-return-flight")
-		arrivalTimeRaw, _ := s.Attr("data-arrival-time")
-		missionType, _ := strconv.Atoi(missionTypeRaw)
-		returnFlight, _ := strconv.ParseBool(returnFlightRaw)
-		arrivalTime, _ := strconv.Atoi(arrivalTimeRaw)
+		missionType, _ := strconv.Atoi(s.AttrOr("data-mission-type", ""))
+		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
+		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", ""))
 		ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
 		secs := arrivalTime - ogameTimestamp
 		if secs < 0 {
