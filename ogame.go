@@ -2313,6 +2313,18 @@ func (b *OGame) Begin() *Prioritize {
 	return b.WithPriority(Normal).Begin()
 }
 
+// Tx locks the bot during the transaction and ensure the lock is released afterward
+func (b *Prioritize) Tx(clb func(*Prioritize)) {
+	tx := b.Begin()
+	clb(tx)
+	tx.Done()
+}
+
+// Tx locks the bot during the transaction and ensure the lock is released afterward
+func (b *OGame) Tx(clb func(tx *Prioritize)) {
+	b.WithPriority(Normal).Tx(clb)
+}
+
 // FakeCall used for debugging
 func (b *Prioritize) FakeCall(name string, delay int) {
 	b.begin("FakeCall")
