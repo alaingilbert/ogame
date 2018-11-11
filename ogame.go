@@ -827,7 +827,7 @@ func (b *OGame) getPageContent(vals url.Values) []byte {
 	page := vals.Get("page")
 	var pageHTMLBytes []byte
 
-	b.withRetry(func() error {
+	if err := b.withRetry(func() error {
 		req, err := http.NewRequest("GET", finalURL, nil)
 		if err != nil {
 			return err
@@ -859,7 +859,10 @@ func (b *OGame) getPageContent(vals url.Values) []byte {
 		}
 
 		return nil
-	})
+	}); err != nil {
+		b.error(err)
+		return []byte{}
+	}
 
 	if page == "overview" {
 		b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
@@ -884,7 +887,7 @@ type eventboxResp struct {
 	Friendly int
 }
 
-func (b *OGame) withRetry(fn func() error) {
+func (b *OGame) withRetry(fn func() error) error {
 	retryInterval := 1
 	retry := func(err error) {
 		b.error(err.Error())
@@ -900,7 +903,7 @@ func (b *OGame) withRetry(fn func() error) {
 			if err == ErrNotLogged {
 				// If we manually logged out, do not try to auto re login.
 				if atomic.LoadInt32(&b.isActive) == 0 {
-					break
+					return ErrBotInactive
 				}
 				retry(err)
 				if loginErr := b.login(); loginErr != nil {
@@ -915,16 +918,19 @@ func (b *OGame) withRetry(fn func() error) {
 		}
 		break
 	}
+	return nil
 }
 
 func (b *OGame) getPageJSON(vals url.Values, v interface{}) {
-	b.withRetry(func() error {
+	if err := b.withRetry(func() error {
 		pageJSON := b.getPageContent(vals)
 		if err := json.Unmarshal(pageJSON, v); err != nil {
 			return ErrNotLogged
 		}
 		return nil
-	})
+	}); err != nil {
+		b.error(err)
+	}
 }
 
 func (b *OGame) getUniverseSpeed() int {
@@ -1429,12 +1435,15 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 
 func (b *OGame) getAttacks() []AttackEvent {
 	var attacks []AttackEvent
-	b.withRetry(func() error {
+	if err := b.withRetry(func() error {
 		pageHTML := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
 		var err error
 		attacks, err = ExtractAttacks(pageHTML)
 		return err
-	})
+	}); err != nil {
+		b.error(err)
+		return []AttackEvent{}
+	}
 	return attacks
 }
 
@@ -1450,14 +1459,16 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 		"system": {strconv.Itoa(system)},
 	}
 	var res SystemInfos
-	b.withRetry(func() error {
+	if err := b.withRetry(func() error {
 		pageHTML, err := b.postPageContent(url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}, payload)
 		if err != nil {
 			return err
 		}
 		res, err = ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 		return err
-	})
+	}); err != nil {
+		return res, err
+	}
 	return res, nil
 }
 
