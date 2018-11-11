@@ -218,9 +218,9 @@ func (pq *PriorityQueue) Pop() interface{} {
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	locked               int32
-	state                string
 	isActive             int32  // atomic, prevent auto re login if we manually logged out
+	locked               int32  // atomic, bot state locked/unlocked
+	state                string // keep name of the function that currently lock the bot
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
 	Player               UserInfos
