@@ -220,6 +220,7 @@ type OGame struct {
 	sync.Mutex
 	locked               int32
 	state                string
+	isActive             int32  // atomic, prevent auto re login if we manually logged out
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
 	Player               UserInfos
@@ -573,6 +574,8 @@ func (b *OGame) login() error {
 	if b.ogameSession == "" {
 		return errors.New("bad credentials")
 	}
+
+	atomic.StoreInt32(&b.isActive, 1) // At this point, we are logged in
 	b.sessionChatCounter = 1
 
 	for _, fn := range b.interceptorCallbacks {
@@ -724,6 +727,7 @@ func (m ChatMsg) String() string {
 
 func (b *OGame) logout() {
 	b.getPageContent(url.Values{"page": {"logout"}})
+	atomic.StoreInt32(&b.isActive, 0)
 	select {
 	case <-b.closeChatCh:
 	default:
@@ -894,6 +898,10 @@ func (b *OGame) withRetry(fn func() error) {
 	for {
 		if err := fn(); err != nil {
 			if err == ErrNotLogged {
+				// If we manually logged out, do not try to auto re login.
+				if atomic.LoadInt32(&b.isActive) == 0 {
+					break
+				}
 				retry(err)
 				if loginErr := b.login(); loginErr != nil {
 					b.error(loginErr.Error()) // log error
