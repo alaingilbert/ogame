@@ -921,16 +921,15 @@ func (b *OGame) withRetry(fn func() error) error {
 	return nil
 }
 
-func (b *OGame) getPageJSON(vals url.Values, v interface{}) {
-	if err := b.withRetry(func() error {
+func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
+	err := b.withRetry(func() error {
 		pageJSON := b.getPageContent(vals)
 		if err := json.Unmarshal(pageJSON, v); err != nil {
 			return ErrNotLogged
 		}
 		return nil
-	}); err != nil {
-		b.error(err)
-	}
+	})
+	return err
 }
 
 func (b *OGame) getUniverseSpeed() int {
@@ -950,7 +949,9 @@ func (b *OGame) isDonutSystem() bool {
 }
 
 func (b *OGame) fetchEventbox() (res eventboxResp) {
-	b.getPageJSON(url.Values{"page": {"fetchEventbox"}}, &res)
+	if err := b.getPageJSON(url.Values{"page": {"fetchEventbox"}}, &res); err != nil {
+		b.error(err)
+	}
 	return
 }
 
