@@ -2283,20 +2283,17 @@ type Prioritize struct {
 
 // Begin a new transaction. "Done" must be called to release the lock.
 func (b *Prioritize) Begin() *Prioritize {
-	b.name = "Tx"
-	atomic.StoreInt32(&b.isTx, 1)
-	b.bot.botLock(b.name)
-	return b
+	return b.begin("Tx")
 }
 
 // Done terminate the transaction, release the lock.
 func (b *Prioritize) Done() {
-	defer close(b.taskIsDoneCh)
-	b.bot.botUnlock(b.name)
+	b.done()
 }
 
 func (b *Prioritize) begin(name string) *Prioritize {
-	if atomic.LoadInt32(&b.isTx) == 0 {
+	atomic.AddInt32(&b.isTx, 1)
+	if atomic.LoadInt32(&b.isTx) == 1 {
 		b.name = name
 		b.bot.botLock(name)
 	}
@@ -2304,6 +2301,7 @@ func (b *Prioritize) begin(name string) *Prioritize {
 }
 
 func (b *Prioritize) done() {
+	atomic.AddInt32(&b.isTx, -1)
 	if atomic.LoadInt32(&b.isTx) == 0 {
 		defer close(b.taskIsDoneCh)
 		b.bot.botUnlock(b.name)
