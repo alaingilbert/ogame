@@ -11,6 +11,9 @@ var ErrBadCredentials = errors.New("bad credentials")
 // ErrInvalidPlanetID returned when a planet id is invalid
 var ErrInvalidPlanetID = errors.New("invalid planet id")
 
+// ErrAllSlotsInUse returned when all slots are in use
+var ErrAllSlotsInUse = errors.New("all slots are in use")
+
 // Send fleet errors
 var (
 	ErrNoShipSelected = errors.New("no ships to send")
