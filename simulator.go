@@ -1098,9 +1098,12 @@ type Attacker struct {
 
 // Defender ...
 type Defender struct {
-	Weapon int
-	Shield int
-	Armour int
+	Metal     int
+	Crystal   int
+	Deuterium int
+	Weapon    int
+	Shield    int
+	Armour    int
 	ShipsInfos
 	DefensesInfos
 }
