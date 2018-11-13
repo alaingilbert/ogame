@@ -775,8 +775,10 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 		return []byte{}, err
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	if IsAjaxPage(vals) {
+		req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	}
 
 	// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
 	b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
@@ -1785,13 +1787,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	// Page 2 : select ships
-	fleet2URL := b.serverURL + "/game/index.php?page=fleet2"
-	fleet2Resp, err := b.client.PostForm(fleet2URL, payload)
+	pageHTML, err := b.postPageContent(url.Values{"page": {"fleet2"}}, payload)
 	if err != nil {
 		return Fleet{}, err
 	}
-	defer fleet2Resp.Body.Close()
-	pageHTML, _ = ioutil.ReadAll(fleet2Resp.Body)
 	fleet2Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	fleet2BodyID := fleet2Doc.Find("body").AttrOr("id", "")
 	if fleet2BodyID != "fleet2" {
@@ -1817,19 +1816,16 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Add("type", strconv.Itoa(int(t)))
 
 	// Check
-	fleetCheckURL := b.serverURL + "/game/index.php?page=fleetcheck&ajax=1&espionage=0"
 	fleetCheckPayload := url.Values{
 		"galaxy": {strconv.Itoa(where.Galaxy)},
 		"system": {strconv.Itoa(where.System)},
 		"planet": {strconv.Itoa(where.Position)},
 		"type":   {strconv.Itoa(int(t))},
 	}
-	fleetCheckResp, err := b.client.PostForm(fleetCheckURL, fleetCheckPayload)
+	by1, err := b.postPageContent(url.Values{"page": {"fleetcheck"}, "ajax": {"1"}, "espionage": {"0"}}, fleetCheckPayload)
 	if err != nil {
 		return Fleet{}, err
 	}
-	defer fleetCheckResp.Body.Close()
-	by1, _ := ioutil.ReadAll(fleetCheckResp.Body)
 	switch string(by1) {
 	case "1":
 		return Fleet{}, ErrUninhabitedPlanet
@@ -1856,13 +1852,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	// Page 3 : select coord, mission, speed
-	fleet3URL := b.serverURL + "/game/index.php?page=fleet3"
-	fleet3Resp, err := b.client.PostForm(fleet3URL, payload)
+	pageHTML, err = b.postPageContent(url.Values{"page": {"fleet3"}}, payload)
 	if err != nil {
 		return Fleet{}, err
 	}
-	defer fleet3Resp.Body.Close()
-	pageHTML, _ = ioutil.ReadAll(fleet3Resp.Body)
 
 	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	fleet3BodyID := fleet3Doc.Find("body").AttrOr("id", "")
@@ -1884,10 +1877,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Add("mission", strconv.Itoa(int(mission)))
 
 	// Page 4 : send the fleet
-	movementURL := b.serverURL + "/game/index.php?page=movement"
-	movementResp, err := b.client.PostForm(movementURL, payload)
-	defer movementResp.Body.Close()
-	pageHTML, _ = ioutil.ReadAll(movementResp.Body)
+	pageHTML, err = b.postPageContent(url.Values{"page": {"movement"}}, payload)
 
 	// Page 5
 	movementHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
