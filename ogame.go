@@ -1736,6 +1736,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
 	if fleet1BodyID != "fleet1" {
+		now := time.Now().Unix()
+		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet1", pageHTML, 0644)
+		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, ErrInvalidPlanetID
 	}
 
@@ -1789,6 +1792,14 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 	defer fleet2Resp.Body.Close()
 	pageHTML, _ = ioutil.ReadAll(fleet2Resp.Body)
+	fleet2Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	fleet2BodyID := fleet2Doc.Find("body").AttrOr("id", "")
+	if fleet2BodyID != "fleet2" {
+		now := time.Now().Unix()
+		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet2.html", pageHTML, 0644)
+		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
+		return Fleet{}, errors.New("unknown error")
+	}
 
 	payload = url.Values{}
 	hidden = getHiddenFields(pageHTML)
@@ -1854,9 +1865,12 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	pageHTML, _ = ioutil.ReadAll(fleet3Resp.Body)
 
 	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	pageID := fleet3Doc.Find("body").AttrOr("id", "")
-	if pageID == "fleet1" {
-		return Fleet{}, errors.New("probably not enough space for deuterium")
+	fleet3BodyID := fleet3Doc.Find("body").AttrOr("id", "")
+	if fleet3BodyID != "fleet3" {
+		now := time.Now().Unix()
+		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet3", pageHTML, 0644)
+		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
+		return Fleet{}, errors.New("unknown error")
 	}
 
 	payload = url.Values{}
@@ -1873,6 +1887,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	movementURL := b.serverURL + "/game/index.php?page=movement"
 	movementResp, err := b.client.PostForm(movementURL, payload)
 	defer movementResp.Body.Close()
+	pageHTML, _ = ioutil.ReadAll(movementResp.Body)
 
 	// Page 5
 	movementHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
@@ -1902,6 +1917,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, ErrAllSlotsInUse
 	}
 
+	now := time.Now().Unix()
+	ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_movement.html", pageHTML, 0644)
+	ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_get_movement.html", movementHTML, 0644)
+	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID, ", ts: ", now)
 	return Fleet{}, errors.New("could not find new fleet ID")
 }
 
