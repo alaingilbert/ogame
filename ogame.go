@@ -764,6 +764,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == "jumpgatelayer" ||
 		page == "changenick" ||
 		page == "planetlayer" ||
+		page == "traderlayer" ||
 		ajax == "1"
 }
 
