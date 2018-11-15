@@ -286,7 +286,10 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posi\\u00e7\\u00e3o ([\d.]+) de ([\d.]+)\)`)
 	case "jp":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+)\\u4eba\\u4e2d([\d.]+)\\u4f4d\)`)
+	case "pl":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Miejsce ([\d.]+) z ([\d.]+)\)`)
 	}
+	// pl: 0 (Miejsce 5.872 z 5.875)
 	// fr: 0 (Place 3.197 sur 3.348)
 	// de: 0 (Platz 2.979 von 2.980)
 	// jp: 0 (73人中72位)
