@@ -1195,7 +1195,7 @@ func name2id(name string) ID {
 		"bombowiec":           BomberID,
 		"niszczyciel":         DestroyerID,
 		"gwiazdasmierci":      DeathstarID,
-		"maytransporterl":     SmallCargoID,
+		"maytransporter":      SmallCargoID,
 		"duzytransporter":     LargeCargoID,
 		"statekkolonizacyjny": ColonyShipID,
 		"recykler":            RecyclerID,

@@ -394,6 +394,7 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, BattleshipID, name2id("Okręt wojenny"))
 	assert.Equal(t, BattlecruiserID, name2id("Pancernik"))
 	assert.Equal(t, BomberID, name2id("Bombowiec"))
+	assert.Equal(t, DestroyerID, name2id("Niszczyciel"))
 	assert.Equal(t, DeathstarID, name2id("Gwiazda Śmierci"))
 	assert.Equal(t, SmallCargoID, name2id("Mały transporter"))
 	assert.Equal(t, LargeCargoID, name2id("Duży transporter"))
@@ -401,7 +402,6 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recykler"))
 	assert.Equal(t, EspionageProbeID, name2id("Sonda szpiegowska"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satelita słoneczny"))
-
 }
 
 func TestExtractResourcesProductions(t *testing.T) {
