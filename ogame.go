@@ -1237,6 +1237,22 @@ func name2id(name string) ID {
 		// pt
 		"interceptor":       BattlecruiserID,
 		"navedecolonizacao": ColonyShipID,
+
+		// nl
+		"lichtgevechtsschip": LightFighterID,
+		"zwaargevechtsschip": HeavyFighterID,
+		"kruiser":            CruiserID,
+		"slagschip":          BattleshipID,
+		//"interceptor":          BattlecruiserID,
+		"bommenwerper":     BomberID,
+		"vernietiger":      DestroyerID,
+		"sterdesdoods":     DeathstarID,
+		"kleinvrachtschip": SmallCargoID,
+		"grootvrachtschip": LargeCargoID,
+		"kolonisatieschip": ColonyShipID,
+		//"recycler":      RecyclerID,
+		//"spionagesonde":       EspionageProbeID,
+		"zonneenergiesatelliet": SolarSatelliteID,
 	}
 	return nameMap[processedString]
 }
