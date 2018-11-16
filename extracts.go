@@ -11,9 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/net/html"
-
 	"github.com/PuerkitoBio/goquery"
+	"golang.org/x/net/html"
 )
 
 // ExtractFleetDeutSaveFactor extract fleet deut save factor
@@ -288,6 +287,8 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+)\\u4eba\\u4e2d([\d.]+)\\u4f4d\)`)
 	case "pl":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Miejsce ([\d.]+) z ([\d.]+)\)`)
+	case "tr":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) oyuncu i\\u00e7inde ([\d.]+)\. s\\u0131rada\)`)
 	}
 	// pl: 0 (Miejsce 5.872 z 5.875)
 	// fr: 0 (Place 3.197 sur 3.348)
@@ -300,6 +301,10 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 	res.Points = ParseInt(infos[1])
 	res.Rank = ParseInt(infos[2])
 	res.Total = ParseInt(infos[3])
+	if lang == "tr" {
+		res.Rank = ParseInt(infos[3])
+		res.Total = ParseInt(infos[2])
+	}
 	honourPointsRgx := regexp.MustCompile(`textContent\[9]="([^"]+)"`)
 	honourPointsGroups := honourPointsRgx.FindSubmatch(pageHTML)
 	if len(honourPointsGroups) < 2 {

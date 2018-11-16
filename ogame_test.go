@@ -402,6 +402,20 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recykler"))
 	assert.Equal(t, EspionageProbeID, name2id("Sonda szpiegowska"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satelita słoneczny"))
+	assert.Equal(t, LightFighterID, name2id("Hafif Avcı"))
+	assert.Equal(t, HeavyFighterID, name2id("Ağır Avcı"))
+	assert.Equal(t, CruiserID, name2id("Kruvazör Adet"))
+	assert.Equal(t, BattleshipID, name2id("Komuta Gemisi"))
+	assert.Equal(t, BattlecruiserID, name2id("Firkateyn"))
+	assert.Equal(t, BomberID, name2id("Bombardıman Gemisi"))
+	assert.Equal(t, DestroyerID, name2id("Muhrip"))
+	assert.Equal(t, DeathstarID, name2id("Ölüm Yildizi"))
+	assert.Equal(t, SmallCargoID, name2id("Küçük Nakliye Gemisi"))
+	assert.Equal(t, LargeCargoID, name2id("Büyük Nakliye Gemisi"))
+	assert.Equal(t, ColonyShipID, name2id("Koloni Gemisi"))
+	assert.Equal(t, RecyclerID, name2id("Geri Dönüsümcü"))
+	assert.Equal(t, EspionageProbeID, name2id("Casus Sondasi"))
+	assert.Equal(t, SolarSatelliteID, name2id("Solar Uydu"))
 }
 
 func TestExtractResourcesProductions(t *testing.T) {
@@ -621,6 +635,15 @@ func TestExtractUserInfos_br(t *testing.T) {
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 1026, infos.Rank)
 	assert.Equal(t, 1268, infos.Total)
+}
+
+func TestExtractUserInfos_tr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/tr_overview.html")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "tr")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 3655, infos.Rank)
+	assert.Equal(t, 3656, infos.Total)
+	assert.Equal(t, "Chief Apus", infos.PlayerName)
 }
 
 func TestExtractMoons(t *testing.T) {
