@@ -1217,6 +1217,10 @@ func name2id(name string) ID {
 		"geridonusumcu":      RecyclerID,
 		"casussondasi":       EspionageProbeID,
 		"solaruydu":          SolarSatelliteID,
+
+		// pt
+		"interceptor":       BattlecruiserID,
+		"navedecolonizacao": ColonyShipID,
 	}
 	return nameMap[processedString]
 }
