@@ -1201,6 +1201,22 @@ func name2id(name string) ID {
 		"recykler":            RecyclerID,
 		"sondaszpiegowska":    EspionageProbeID,
 		"satelitasoneczny":    SolarSatelliteID,
+
+		// tr
+		"hafifavc":           LightFighterID,
+		"agravc":             HeavyFighterID,
+		"kruvazoradet":       CruiserID,
+		"komutagemisi":       BattleshipID,
+		"firkateyn":          BattlecruiserID,
+		"bombardmangemisi":   BomberID,
+		"muhrip":             DestroyerID,
+		"olumyildizi":        DeathstarID,
+		"kucuknakliyegemisi": SmallCargoID,
+		"buyuknakliyegemisi": LargeCargoID,
+		"kolonigemisi":       ColonyShipID,
+		"geridonusumcu":      RecyclerID,
+		"casussondasi":       EspionageProbeID,
+		"solaruydu":          SolarSatelliteID,
 	}
 	return nameMap[processedString]
 }
