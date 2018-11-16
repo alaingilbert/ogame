@@ -1106,6 +1106,22 @@ func name2id(name string) ID {
 		"espionageprobe": EspionageProbeID,
 		"solarsatellite": SolarSatelliteID,
 
+		// it
+		"caccialeggero":           LightFighterID,
+		"cacciapesante":           HeavyFighterID,
+		"incrociatore":            CruiserID,
+		"navedabattaglia":         BattleshipID,
+		"incrociatoredabattaglia": BattlecruiserID,
+		"bombardiere":             BomberID,
+		"corazzata":               DestroyerID,
+		"mortenera":               DeathstarID,
+		"cargoleggero":            SmallCargoID,
+		"cargopesante":            LargeCargoID,
+		"colonizzatrice":          ColonyShipID,
+		"riciclatrici":            RecyclerID,
+		"sondaspia":               EspionageProbeID,
+		"satellitesolare":         SolarSatelliteID,
+
 		// de
 		"leichterjager":      LightFighterID,
 		"schwererjager":      HeavyFighterID,
