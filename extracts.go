@@ -295,6 +295,8 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) oyuncu i\\u00e7inde ([\d.]+)\. s\\u0131rada\)`)
 	case "pt":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posi\\u00e7\\u00e3o ([\d.]+) de ([\d.]+)\)`)
+	case "nl":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Plaats ([\d.]+) van ([\d.]+)\)`)
 	}
 	// pl: 0 (Miejsce 5.872 z 5.875)
 	// fr: 0 (Place 3.197 sur 3.348)
