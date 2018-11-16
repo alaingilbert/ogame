@@ -35,4 +35,12 @@ cover:
 	@gocovmerge ./coverage/*.cover > cover.out
 	@go tool cover -html=cover.out
 
-.PHONY: bindata-dev bindata-prod build build-linux serve test lint cover
+count:
+	@find \
+		./*.go \
+		./cmd \
+		-name '*.go' \
+		| xargs wc -l \
+		| sort
+
+.PHONY: bindata-dev bindata-prod build build-linux serve test lint cover count
