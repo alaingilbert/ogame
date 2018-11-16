@@ -388,6 +388,54 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, SmallCargoID, name2id("Nave pequeña de carga"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satélite solar"))
 	assert.Equal(t, ID(0), name2id("人中位"))
+
+	// pl
+	assert.Equal(t, LightFighterID, name2id("Lekki myśliwiec"))
+	assert.Equal(t, HeavyFighterID, name2id("Ciężki myśliwiec"))
+	assert.Equal(t, CruiserID, name2id("Krążownik"))
+	assert.Equal(t, BattleshipID, name2id("Okręt wojenny"))
+	assert.Equal(t, BattlecruiserID, name2id("Pancernik"))
+	assert.Equal(t, BomberID, name2id("Bombowiec"))
+	assert.Equal(t, DestroyerID, name2id("Niszczyciel"))
+	assert.Equal(t, DeathstarID, name2id("Gwiazda Śmierci"))
+	assert.Equal(t, SmallCargoID, name2id("Mały transporter"))
+	assert.Equal(t, LargeCargoID, name2id("Duży transporter"))
+	assert.Equal(t, ColonyShipID, name2id("Statek kolonizacyjny"))
+	assert.Equal(t, RecyclerID, name2id("Recykler"))
+	assert.Equal(t, EspionageProbeID, name2id("Sonda szpiegowska"))
+	assert.Equal(t, SolarSatelliteID, name2id("Satelita słoneczny"))
+
+	// tr
+	assert.Equal(t, LightFighterID, name2id("Hafif Avcı"))
+	assert.Equal(t, HeavyFighterID, name2id("Ağır Avcı"))
+	assert.Equal(t, CruiserID, name2id("Kruvazör Adet"))
+	assert.Equal(t, BattleshipID, name2id("Komuta Gemisi"))
+	assert.Equal(t, BattlecruiserID, name2id("Firkateyn"))
+	assert.Equal(t, BomberID, name2id("Bombardıman Gemisi"))
+	assert.Equal(t, DestroyerID, name2id("Muhrip"))
+	assert.Equal(t, DeathstarID, name2id("Ölüm Yildizi"))
+	assert.Equal(t, SmallCargoID, name2id("Küçük Nakliye Gemisi"))
+	assert.Equal(t, LargeCargoID, name2id("Büyük Nakliye Gemisi"))
+	assert.Equal(t, ColonyShipID, name2id("Koloni Gemisi"))
+	assert.Equal(t, RecyclerID, name2id("Geri Dönüsümcü"))
+	assert.Equal(t, EspionageProbeID, name2id("Casus Sondasi"))
+	assert.Equal(t, SolarSatelliteID, name2id("Solar Uydu"))
+
+	//pt
+	assert.Equal(t, LightFighterID, name2id("Caça Ligeiro"))
+	assert.Equal(t, HeavyFighterID, name2id("Caça Pesado"))
+	assert.Equal(t, CruiserID, name2id("Cruzador"))
+	assert.Equal(t, BattleshipID, name2id("Nave de Batalha"))
+	assert.Equal(t, BattlecruiserID, name2id("Interceptor"))
+	assert.Equal(t, BomberID, name2id("Bombardeiro"))
+	assert.Equal(t, DestroyerID, name2id("Destruidor"))
+	assert.Equal(t, DeathstarID, name2id("Estrela da Morte"))
+	assert.Equal(t, SmallCargoID, name2id("Cargueiro Pequeno"))
+	assert.Equal(t, LargeCargoID, name2id("Cargueiro Grande"))
+	assert.Equal(t, ColonyShipID, name2id("Nave de Colonização"))
+	assert.Equal(t, RecyclerID, name2id("Reciclador"))
+	assert.Equal(t, EspionageProbeID, name2id("Sonda de Espionagem"))
+	assert.Equal(t, SolarSatelliteID, name2id("Satélite Solar"))
 }
 
 func TestExtractResourcesProductions(t *testing.T) {
@@ -592,12 +640,39 @@ func TestExtractUserInfos_fr(t *testing.T) {
 	assert.Equal(t, "Bandit Pégasus", infos.PlayerName)
 }
 
+func TestExtractUserInfos_pl(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/pl_overview.html")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "pl")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 5873, infos.Rank)
+	assert.Equal(t, 5876, infos.Total)
+	assert.Equal(t, "Constable Leonis", infos.PlayerName)
+}
+
 func TestExtractUserInfos_br(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
 	infos, _ := ExtractUserInfos(pageHTMLBytes, "br")
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 1026, infos.Rank)
 	assert.Equal(t, 1268, infos.Total)
+}
+
+func TestExtractUserInfos_tr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/tr_overview.html")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "tr")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 3655, infos.Rank)
+	assert.Equal(t, 3656, infos.Total)
+	assert.Equal(t, "Chief Apus", infos.PlayerName)
+}
+
+func TestExtractUserInfos_pt(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/pt_overview.html")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "pt")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 1762, infos.Rank)
+	assert.Equal(t, 1862, infos.Total)
+	assert.Equal(t, "Director Europa", infos.PlayerName)
 }
 
 func TestExtractMoons(t *testing.T) {

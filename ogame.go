@@ -1185,6 +1185,42 @@ func name2id(name string) ID {
 		"残骸回収船":     RecyclerID,
 		"偵察機":       EspionageProbeID,
 		"ソーラーサテライト": SolarSatelliteID,
+
+		// pl
+		"lekkimysliwiec":      LightFighterID,
+		"ciezkimysliwiec":     HeavyFighterID,
+		"krazownik":           CruiserID,
+		"okretwojenny":        BattleshipID,
+		"pancernik":           BattlecruiserID,
+		"bombowiec":           BomberID,
+		"niszczyciel":         DestroyerID,
+		"gwiazdasmierci":      DeathstarID,
+		"maytransporter":      SmallCargoID,
+		"duzytransporter":     LargeCargoID,
+		"statekkolonizacyjny": ColonyShipID,
+		"recykler":            RecyclerID,
+		"sondaszpiegowska":    EspionageProbeID,
+		"satelitasoneczny":    SolarSatelliteID,
+
+		// tr
+		"hafifavc":           LightFighterID,
+		"agravc":             HeavyFighterID,
+		"kruvazoradet":       CruiserID,
+		"komutagemisi":       BattleshipID,
+		"firkateyn":          BattlecruiserID,
+		"bombardmangemisi":   BomberID,
+		"muhrip":             DestroyerID,
+		"olumyildizi":        DeathstarID,
+		"kucuknakliyegemisi": SmallCargoID,
+		"buyuknakliyegemisi": LargeCargoID,
+		"kolonigemisi":       ColonyShipID,
+		"geridonusumcu":      RecyclerID,
+		"casussondasi":       EspionageProbeID,
+		"solaruydu":          SolarSatelliteID,
+
+		// pt
+		"interceptor":       BattlecruiserID,
+		"navedecolonizacao": ColonyShipID,
 	}
 	return nameMap[processedString]
 }
