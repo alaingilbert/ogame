@@ -327,11 +327,172 @@ func TestExtractFleet1Ships_NoShips(t *testing.T) {
 	assert.Equal(t, 0, s.EspionageProbe)
 }
 
-func TestExtractPlanet(t *testing.T) {
+func TestExtractPlanet_en(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
 	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33677371), &OGame{language: "en"})
 	assert.Equal(t, "C1", planet.Name)
 	assert.Equal(t, 14615, planet.Diameter)
+	assert.Equal(t, -2, planet.Temperature.Min)
+	assert.Equal(t, 38, planet.Temperature.Max)
+	assert.Equal(t, 35, planet.Fields.Built)
+	assert.Equal(t, 238, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33677371), planet.ID)
+	assert.Equal(t, Coordinate{1, 301, 8, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_fr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr_overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33629512), &OGame{language: "fr"})
+	assert.Equal(t, "planète mère", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 48, planet.Temperature.Min)
+	assert.Equal(t, 88, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33629512), planet.ID)
+	assert.Equal(t, Coordinate{2, 180, 4, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_de(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/de_overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33630447), &OGame{language: "de"})
+	assert.Equal(t, "Heimatplanet", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 21, planet.Temperature.Min)
+	assert.Equal(t, 61, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33630447), planet.ID)
+	assert.Equal(t, Coordinate{2, 175, 8, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_es(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/shipyard.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33644981), &OGame{language: "es"})
+	assert.Equal(t, "Planeta Principal", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, -18, planet.Temperature.Min)
+	assert.Equal(t, 22, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 193, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33644981), planet.ID)
+	assert.Equal(t, Coordinate{2, 493, 10, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_br(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33633767), &OGame{language: "br"})
+	assert.Equal(t, "Planeta Principal", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, -13, planet.Temperature.Min)
+	assert.Equal(t, 27, planet.Temperature.Max)
+	assert.Equal(t, 5, planet.Fields.Built)
+	assert.Equal(t, 193, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33633767), planet.ID)
+	assert.Equal(t, Coordinate{1, 449, 12, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_it(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/it/overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33634944), &OGame{language: "it"})
+	assert.Equal(t, "Pianeta Madre", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 28, planet.Temperature.Min)
+	assert.Equal(t, 68, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33634944), planet.ID)
+	assert.Equal(t, Coordinate{2, 58, 8, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_jp(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/jp_overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33620484), &OGame{language: "jp"})
+	assert.Equal(t, "ホームワールド", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 40, planet.Temperature.Min)
+	assert.Equal(t, 80, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33620484), planet.ID)
+	assert.Equal(t, Coordinate{1, 18, 4, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_pl(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/pl_overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33669699), &OGame{language: "pl"})
+	assert.Equal(t, "Planeta matka", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, -21, planet.Temperature.Min)
+	assert.Equal(t, 19, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33669699), planet.ID)
+	assert.Equal(t, Coordinate{4, 248, 12, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_tr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/tr_overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33650421), &OGame{language: "tr"})
+	assert.Equal(t, "Ana Gezegen", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 9, planet.Temperature.Min)
+	assert.Equal(t, 49, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33650421), planet.ID)
+	assert.Equal(t, Coordinate{3, 143, 10, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_pt(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/pt_overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33635398), &OGame{language: "pt"})
+	assert.Equal(t, "Planeta Principal", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 33, planet.Temperature.Min)
+	assert.Equal(t, 73, planet.Temperature.Max)
+	assert.Equal(t, 4, planet.Fields.Built)
+	assert.Equal(t, 193, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33635398), planet.ID)
+	assert.Equal(t, Coordinate{2, 241, 6, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_nl(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/nl_overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33624684), &OGame{language: "nl"})
+	assert.Equal(t, "Hoofdplaneet", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, -47, planet.Temperature.Min)
+	assert.Equal(t, -7, planet.Temperature.Max)
+	assert.Equal(t, 5, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33624684), planet.ID)
+	assert.Equal(t, Coordinate{1, 178, 12, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_ar(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/ar/overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33629527), &OGame{language: "ar"})
+	assert.Equal(t, "Planeta Principal", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 37, planet.Temperature.Min)
+	assert.Equal(t, 77, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 193, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33629527), planet.ID)
+	assert.Equal(t, Coordinate{1, 367, 4, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
 }
 
 func TestExtractPlanet_notExists(t *testing.T) {

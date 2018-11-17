@@ -51,7 +51,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	}
 
 	txt := goquery.NewDocumentFromNode(root).Text()
-	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de )?([-\d]+).+C\s*(?:bis|para|to|à|a) ([-\d]+).+C`)
+	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de|da|od)?\s*([-\d]+).+C\s*(?:bis|para|to|à|a|～|do|ile|tot)\s*([-\d]+).+C`)
 	m := planetInfosRgx.FindStringSubmatch(txt)
 	if len(m) < 10 {
 		return Planet{}, errors.New("failed to parse planet infos: " + txt)
