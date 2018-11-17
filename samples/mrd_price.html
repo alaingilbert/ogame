@@ -1,0 +1,171 @@
+        <input type="hidden" name="modus" value="1">
+<input type="hidden" name="type" value="124">
+
+
+
+
+<div id="research_124_large" class="pic">
+
+        <a href="https://www.ogame.ninja/bots/13/browser/html/s117-es?page=techtree&techID=124" class="techtree_link js_hideTipOnMobile tooltip overlay"
+       data-overlay-title="Tecnología - Astrofísica"
+       title="Abrir árbol tecnológico">
+        <div class="techtree_img"></div>
+        <span class="label">Tecnología</span>
+    </a>
+
+
+    </div>
+
+<div id="content">
+
+	<h2>Astrofísica</h2>
+	<a id="close" class='close_details'
+	   href="javascript:void(0);"
+	   onclick="gfSlider.hide(getElementByIdWithCache('detail')); return false;">
+	</a>
+        <span class="level">
+        Nivel 23        <span class="undermark"></span>
+	</span>
+	<br class="clearfloat"/>
+
+    <ul class="production_info ">
+        <li>
+            Tiempo de investigación:            <span class="time" id="buildDuration">
+                51s 3d 2h                 <span class="undermark">
+                                    </span>
+            </span>
+        </li>
+                                    </ul>
+
+        
+
+
+	<div class="costs_wrap">
+
+        <p class="costs_info">Requerido para subir al nivel 24:</p>
+
+        <ul id="costs">
+                            <li class="metal tooltip" title="1.555.733.200 Metal">
+                    <div class="resourceIcon metal"></div>
+	                <div class="cost overmark">
+	                    1,555Mrd	                </div>
+	            </li>
+                        	            <li class="crystal tooltip" title="3.111.466.300 Cristal">
+                    <div class="resourceIcon crystal"></div>
+	                <div class="cost overmark">
+	                    3,111Mrd	                </div>
+	            </li>
+                        	            <li class="deuterium tooltip" title="1.555.733.200 Deuterio">
+                    <div class="resourceIcon deuterium"></div>
+	                <div class="cost overmark">
+	                    1,555Mrd	                </div>
+	            </li>
+                                </ul>
+	</div>
+
+    <div class="build-it_wrap">
+
+<!-- all ok -->
+             <div class="premium_info_placeholder"></div> 
+    	<a class="build-it_premium"
+            href="javascript:void(0);">
+            <span>Contratar comandante</span>
+        </a>
+
+    </div>
+
+</div>
+<br clear="all"/>
+
+<div id="description">
+
+    
+        <div class="txt_box  ">
+        <a class="tooltip js_hideTipOnMobile help overlay"
+            href="https://www.ogame.ninja/bots/13/browser/html/s117-es?page=techtree&tab=2&techID=124"
+            title="Más detalles">
+        </a>
+        <p class="description_txt" style="width: 90%">Las naves pueden realizar expediciones largas con el modulo de investigación. Cada segundo nivel de esta tecnología permitirá colonizar un planeta adicional.</p>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $("#number").focus();
+    });
+
+
+  	var links = {
+		'overlay' 	:	'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=buyResourceOverlay&techID=124',
+		'decisionCommander' 	:	'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=premium&openDetail=2',
+		'1000'	:	'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=premium&openDetail=1',
+		'10' : 'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=resources&openTech=22',
+		'20' : 'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=resources&openTech=23',
+		'30' : 'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=resources&openTech=24',
+		'notify'	:	'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=station&openTech=44'
+	};
+
+    var loca = loca || {};
+        loca = $.extend({},
+            loca,
+            {
+                'allError'				:	'Error',
+                'infoBuildlist'			:	'Para poder usar enlaces directos, necesitas el modo comandante. ¿Deseas saber más sobre las ventajas del modo comandante?',
+                'allYes'				:	'Sí',
+                'allNo'					:	'No',
+                'allOk'					:	'Ok',
+                'noRocketsiloCapacity'	:	'No hay suficiente espacio de almacenamiento. Mejora el silo de misiles.',
+                'allDetailNow'			:	'ahora'
+            }
+        );
+
+    var buttonClass = "build-it_premium";
+
+	var overlayTitle = 'Empezar con MO';
+
+	var showSlotWarning = 0;
+
+	var buttonState = 0;
+
+	var techID = 124;
+
+	var isRocketAndStorageNotFree = 0;
+
+	var couldBeBuild = 1;
+
+	var isShip = 0;
+
+	var isRocket = 0;
+
+	var hasCommander = 0;
+
+	var buildableAt = null;
+
+    var error = 100;
+
+    var premiumerror = 0;
+
+    var showErrorOnPremiumbutton = 0;
+
+    var errorlist = {
+				'2000' : 'Con un precio de 0 MO, ¡el margen de beneficio es muy pequeño para el comerciante!',
+				'100' : 'El comerciante solo puede entregarte una cantidad máxima de 10.000.000 de un recurso',
+				'10' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+				'20' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+				'30' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+				'1000' : '¡No hay suficiente Materia Oscura disponible! ¿Deseas comprar más ahora?'
+    };
+
+
+    var isBuildlistNeeded = 1;
+
+	//var showCommanderHint = (!buttonState && !hasCommander && isBuildlistNeeded && couldBeBuild && (isShip || isRocket));
+
+    var showNoPremiumError = 0;
+
+    var pageToReload = "https:\/\/www.ogame.ninja\/bots\/13\/browser\/html\/s117-es?page=research";
+
+    var isBusy = 0;
+
+    initTechDetailsAjax();
+</script>

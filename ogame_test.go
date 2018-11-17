@@ -36,6 +36,22 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 	}
 }
 
+func TestParseInt2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/deathstar_price.html")
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	title := doc.Find("li.metal").AttrOr("title", "")
+	metalStr := regexp.MustCompile(`([\d.]+)`).FindStringSubmatch(title)[1]
+	metal := ParseInt(metalStr)
+	assert.Equal(t, 5000000, metal)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/mrd_price.html")
+	doc, _ = goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	title = doc.Find("li.metal").AttrOr("title", "")
+	metalStr = regexp.MustCompile(`([\d.]+)`).FindStringSubmatch(title)[1]
+	metal = ParseInt(metalStr)
+	assert.Equal(t, 1555733200, metal)
+}
+
 func TestExtractFleetDeutSaveFactor_V6_2_2_1(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_active.html")
 	res := ExtractFleetDeutSaveFactor(pageHTMLBytes)
