@@ -1,0 +1,169 @@
+<html><head></head><body><input type="hidden" name="modus" value="1"/>
+<input type="hidden" name="type" value="214"/>
+
+
+
+
+<div id="shipyard_214_large" class="pic">
+
+        <a href="https://www.ogame.ninja/bots/13/browser/html/s117-es?page=techtree&amp;techID=214" class="techtree_link js_hideTipOnMobile tooltip overlay" data-overlay-title="Tecnología - Estrella de la muerte" title="Abrir árbol tecnológico">
+        <div class="techtree_img"></div>
+        <span class="label">Tecnología</span>
+    </a>
+
+
+    </div>
+
+<div id="content">
+
+	<h2>Estrella de la muerte</h2>
+	<a id="close" class="close_details" href="javascript:void(0);" onclick="gfSlider.hide(getElementByIdWithCache(&#39;detail&#39;)); return false;">
+	</a>
+        <span class="level">
+        Numero: 0        <span class="undermark"></span>
+	</span>
+	<br class="clearfloat"/>
+
+    <ul class="production_info narrow">
+        <li>
+            Tiempo de producción:            <span class="time" id="buildDuration">
+                43m 16s                <span class="undermark">
+                                    </span>
+            </span>
+        </li>
+                                    </ul>
+
+                <div class="enter">
+            <p class="amount">Cantidad:</p>
+                                <input id="number" type="text" class="amount_input" pattern="[0-9,.]*" size="5" name="menge" value="1" onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, 9999);event.stopPropagation();"/>
+                    <div onclick="document.getElementById(&#39;number&#39;).value = 9223372036854775807" style="padding: 10px;margin-left: 95px;">[<a style="cursor: pointer;">max. 9223372036854775807</a>]</div></div>
+    
+
+
+	<div class="costs_wrap">
+
+        <p class="costs_info">Costes por unidad:</p>
+
+        <ul id="costs">
+                            <li class="metal tooltip" title="5.000.000 Metal">
+                    <div class="resourceIcon metal"></div>
+	                <div class="cost ">
+	                    5M	                </div>
+	            </li>
+                        	            <li class="crystal tooltip" title="4.000.000 Cristal">
+                    <div class="resourceIcon crystal"></div>
+	                <div class="cost overmark">
+	                    4M	                </div>
+	            </li>
+                        	            <li class="deuterium tooltip" title="1.000.000 Deuterio">
+                    <div class="resourceIcon deuterium"></div>
+	                <div class="cost ">
+	                    1M	                </div>
+	            </li>
+                                </ul>
+	</div>
+
+    <div class="build-it_wrap">
+
+<!-- all ok -->
+             <div class="premium_info_placeholder"></div> 
+    	<a class="overlay build-it_premium" href="https://www.ogame.ninja/bots/13/browser/html/s117-es?page=payment">
+            <span>Conseguir Materia Oscura</span>
+        </a>
+
+    </div>
+
+</div>
+<br clear="all"/>
+
+<div id="description">
+
+    
+        <div class="txt_box  ">
+        <a class="tooltip js_hideTipOnMobile help overlay" href="https://www.ogame.ninja/bots/13/browser/html/s117-es?page=techtree&amp;tab=2&amp;techID=214" title="Más detalles">
+        </a>
+        <p class="description_txt" style="width: 90%">No hay nada tan grande y peligroso como una estrella de la muerte aproximándose.</p>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $("#number").focus();
+    });
+
+
+  	var links = {
+		'overlay' 	:	'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=buyResourceOverlay&techID=214',
+		'decisionCommander' 	:	'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=premium&openDetail=2',
+		'1000'	:	'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=premium&openDetail=1',
+		'10' : 'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=resources&openTech=22',
+		'20' : 'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=resources&openTech=23',
+		'30' : 'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=resources&openTech=24',
+		'notify'	:	'https://www.ogame.ninja/bots/13/browser/html/s117-es?page=station&openTech=44'
+	};
+
+    var loca = loca || {};
+        loca = $.extend({},
+            loca,
+            {
+                'allError'				:	'Error',
+                'infoBuildlist'			:	'Para poder usar enlaces directos, necesitas el modo comandante. ¿Deseas saber más sobre las ventajas del modo comandante?',
+                'allYes'				:	'Sí',
+                'allNo'					:	'No',
+                'allOk'					:	'Ok',
+                'noRocketsiloCapacity'	:	'No hay suficiente espacio de almacenamiento. Mejora el silo de misiles.',
+                'allDetailNow'			:	'ahora'
+            }
+        );
+
+    var buttonClass = "overlay build-it_premium";
+
+	var overlayTitle = 'Empezar con MO';
+
+	var showSlotWarning = 0;
+
+	var buttonState = 0;
+
+	var techID = 214;
+
+	var isRocketAndStorageNotFree = 0;
+
+	var couldBeBuild = 1;
+
+	var isShip = 1;
+
+	var isRocket = 0;
+
+	var hasCommander = 0;
+
+	var buildableAt = null;
+
+    var error = 1000;
+
+    var premiumerror = 1;
+
+    var showErrorOnPremiumbutton = 1;
+
+    var errorlist = {
+				'2000' : 'Con un precio de 0 MO, ¡el margen de beneficio es muy pequeño para el comerciante!',
+				'100' : 'El comerciante solo puede entregarte una cantidad máxima de 10.000.000 de un recurso',
+				'10' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+				'20' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+				'30' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+				'1000' : '¡No hay suficiente Materia Oscura disponible! ¿Deseas comprar más ahora?'
+    };
+
+
+    var isBuildlistNeeded = 0;
+
+	//var showCommanderHint = (!buttonState && !hasCommander && isBuildlistNeeded && couldBeBuild && (isShip || isRocket));
+
+    var showNoPremiumError = 0;
+
+    var pageToReload = "https:\/\/www.ogame.ninja\/bots\/13\/browser\/html\/s117-es?page=shipyard";
+
+    var isBusy = 0;
+
+    initTechDetailsAjax();
+</script>
+</body></html>
