@@ -369,6 +369,20 @@ func TestExtractPlanet_de(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_dk(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/dk_overview.html")
+	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33627426), &OGame{language: "dk"})
+	assert.Equal(t, "Hjemme verden", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, -23, planet.Temperature.Min)
+	assert.Equal(t, 17, planet.Temperature.Max)
+	assert.Equal(t, 5, planet.Fields.Built)
+	assert.Equal(t, 193, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33627426), planet.ID)
+	assert.Equal(t, Coordinate{1, 148, 12, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_es(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/shipyard.html")
 	planet, _ := extractPlanet(pageHTMLBytes, PlanetID(33644981), &OGame{language: "es"})
@@ -661,6 +675,23 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recycler"))
 	assert.Equal(t, EspionageProbeID, name2id("Spionagesonde"))
 	assert.Equal(t, SolarSatelliteID, name2id("Zonne-energiesatelliet"))
+
+	//dk
+	assert.Equal(t, LightFighterID, name2id("Lille Jæger"))
+	assert.Equal(t, HeavyFighterID, name2id("Stor Jæger"))
+	assert.Equal(t, CruiserID, name2id("Krydser"))
+	assert.Equal(t, BattleshipID, name2id("Slagskib"))
+	assert.Equal(t, BattlecruiserID, name2id("Interceptor"))
+	assert.Equal(t, BomberID, name2id("Bomber"))
+	assert.Equal(t, DestroyerID, name2id("Destroyer"))
+	assert.Equal(t, DeathstarID, name2id("Dødsstjerne"))
+	assert.Equal(t, SmallCargoID, name2id("Lille Transporter"))
+	assert.Equal(t, LargeCargoID, name2id("Stor Transporter"))
+	assert.Equal(t, ColonyShipID, name2id("Koloniskib"))
+	assert.Equal(t, RecyclerID, name2id("Recycler"))
+	assert.Equal(t, EspionageProbeID, name2id("Spionagesonde"))
+	assert.Equal(t, SolarSatelliteID, name2id("Solarsatellit"))
+
 }
 
 func TestExtractResourcesProductions(t *testing.T) {
@@ -846,6 +877,15 @@ func TestExtractUserInfos_de(t *testing.T) {
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 2980, infos.Rank)
 	assert.Equal(t, 2980, infos.Total)
+}
+
+func TestExtractUserInfos_dk(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/dk_overview.html")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "dk")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 253, infos.Rank)
+	assert.Equal(t, 254, infos.Total)
+	assert.Equal(t, "Procurator Zibal", infos.PlayerName)
 }
 
 func TestExtractUserInfos_jp(t *testing.T) {
