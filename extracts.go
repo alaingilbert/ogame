@@ -51,7 +51,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	}
 
 	txt := goquery.NewDocumentFromNode(root).Text()
-	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)(?:de|da|od)?\s*([-\d]+).+C\s*(?:bis|para|to|à|a|～|do|ile|tot)\s*([-\d]+).+C`)
+	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)km \((\d+)/(\d+)\)(?:de|da|od|mellem)?\s*([-\d]+).+C\s*(?:bis|para|to|à|a|～|do|ile|tot|og)\s*([-\d]+).+C`)
 	m := planetInfosRgx.FindStringSubmatch(txt)
 	if len(m) < 10 {
 		return Planet{}, errors.New("failed to parse planet infos: " + txt)
@@ -297,6 +297,9 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posi\\u00e7\\u00e3o ([\d.]+) de ([\d.]+)\)`)
 	case "nl":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Plaats ([\d.]+) van ([\d.]+)\)`)
+	case "dk":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Placering ([\d.]+) af ([\d.]+)\)`)
+
 	}
 	// pl: 0 (Miejsce 5.872 z 5.875)
 	// fr: 0 (Place 3.197 sur 3.348)
