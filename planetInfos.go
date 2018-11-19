@@ -1,5 +1,7 @@
 package ogame
 
+import "encoding/json"
+
 // SystemInfos planets information for a specific system
 type SystemInfos struct {
 	galaxy  int
@@ -23,6 +25,19 @@ func (s *SystemInfos) Position(idx int) *PlanetInfos {
 		return nil
 	}
 	return s.planets[idx-1]
+}
+
+// MarshalJSON export private fields to json for ogamed
+func (s SystemInfos) MarshalJSON() ([]byte, error) {
+	var tmp struct {
+		Galaxy  int
+		System  int
+		Planets [15]*PlanetInfos
+	}
+	tmp.Galaxy = s.galaxy
+	tmp.System = s.system
+	tmp.Planets = s.planets
+	return json.Marshal(tmp)
 }
 
 // MoonInfos public information of a moon in the galaxy page
