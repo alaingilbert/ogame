@@ -99,7 +99,7 @@ func extractMoonFromSelection(moonLink *goquery.Selection, b *OGame) (Moon, erro
 		return Moon{}, err
 	}
 	txt := goquery.NewDocumentFromNode(root).Text()
-	moonInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)km \((\d+)/(\d+)\)`)
+	moonInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)km \((\d+)/(\d+)\)`)
 	mm := moonInfosRgx.FindStringSubmatch(txt)
 	if len(mm) < 8 {
 		return Moon{}, errors.New("failed to parse moon infos: " + txt)
