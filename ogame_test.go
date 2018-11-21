@@ -1420,6 +1420,32 @@ func TestExtractEspionageReport(t *testing.T) {
 	assert.Nil(t, infos.SolarSatellite)
 }
 
+func TestExtractEspionageReport_noPictures(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_no_pics.html")
+	infos, err := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, ErrDeactivateHidePictures, err)
+	assert.Equal(t, Coordinate{4, 203, 6, PlanetType}, infos.Coordinate)
+	assert.Equal(t, Report, infos.Type)
+	assert.True(t, infos.HasFleet)
+	assert.True(t, infos.HasDefenses)
+	assert.True(t, infos.HasBuildings)
+	assert.True(t, infos.HasResearches)
+	assert.Equal(t, 9142399, infos.ID)
+	assert.Equal(t, 0, infos.CounterEspionage)
+	assert.Equal(t, 1131895, infos.Metal)
+	assert.Equal(t, 432515, infos.Crystal)
+	assert.Equal(t, 114957, infos.Deuterium)
+	assert.Equal(t, 4727, infos.Energy)
+	assert.Nil(t, infos.MetalMine)
+	assert.Nil(t, infos.CrystalMine)
+	assert.Nil(t, infos.DeuteriumSynthesizer)
+	assert.Nil(t, infos.SolarPlant)
+	assert.Nil(t, infos.RoboticsFactory)
+	assert.Nil(t, infos.Shipyard)
+	assert.Nil(t, infos.MetalStorage)
+	assert.Nil(t, infos.CrystalStorage)
+}
+
 func TestExtractEspionageReportMoon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_moon.html")
 	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))

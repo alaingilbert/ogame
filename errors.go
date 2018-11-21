@@ -17,6 +17,9 @@ var ErrAllSlotsInUse = errors.New("all slots are in use")
 // ErrBotInactive returned when the bot is not active (manually logged out)
 var ErrBotInactive = errors.New("bot is not active")
 
+// ErrDeactivvateHidePictures returned when "Hide pictures in reports" is activated
+var ErrDeactivateHidePictures = errors.New("deactivate 'Hide pictures in reports'")
+
 // Send fleet errors
 var (
 	ErrNoShipSelected = errors.New("no ships to send")
