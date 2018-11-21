@@ -1130,6 +1130,7 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 		report.CounterEspionage, _ = strconv.Atoi(m1[1])
 	}
 
+	hasError := false
 	doc.Find("ul.detail_list").Each(func(i int, s *goquery.Selection) {
 		dataType := s.AttrOr("data-type", "")
 		if dataType == "resources" {
@@ -1139,8 +1140,13 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 			report.Energy = ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
 			report.HasBuildings = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
-				imgClass := s2.Find("img").AttrOr("class", "")
+			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+				img := s2.Find("img")
+				if img.Size() == 0 {
+					hasError = true
+					return false
+				}
+				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
@@ -1185,11 +1191,17 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 				case JumpGate.ID:
 					report.JumpGate = level
 				}
+				return true
 			})
 		} else if dataType == "research" {
 			report.HasResearches = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
-				imgClass := s2.Find("img").AttrOr("class", "")
+			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+				img := s2.Find("img")
+				if img.Size() == 0 {
+					hasError = true
+					return false
+				}
+				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
@@ -1228,11 +1240,17 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 				case GravitonTechnology.ID:
 					report.GravitonTechnology = level
 				}
+				return true
 			})
 		} else if dataType == "ships" {
 			report.HasFleet = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
-				imgClass := s2.Find("img").AttrOr("class", "")
+			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+				img := s2.Find("img")
+				if img.Size() == 0 {
+					hasError = true
+					return false
+				}
+				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
@@ -1267,11 +1285,17 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 				case Battlecruiser.ID:
 					report.Battlecruiser = level
 				}
+				return true
 			})
 		} else if dataType == "defense" {
 			report.HasDefenses = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").Each(func(i int, s2 *goquery.Selection) {
-				imgClass := s2.Find("img").AttrOr("class", "")
+			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+				img := s2.Find("img")
+				if img.Size() == 0 {
+					hasError = true
+					return false
+				}
+				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
@@ -1298,9 +1322,13 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 				case InterplanetaryMissiles.ID:
 					report.InterplanetaryMissiles = level
 				}
+				return true
 			})
 		}
 	})
+	if hasError {
+		return report, ErrDeactivateHidePictures
+	}
 	return report, nil
 }
 
