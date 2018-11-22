@@ -747,6 +747,30 @@ func isLogged(pageHTML []byte) bool {
 	return ogameSession != ""
 }
 
+func IsKnowFullPage(vals url.Values) bool {
+	page := vals.Get("page")
+	return page == "overview" ||
+		page == "resources" ||
+		page == "station" ||
+		page == "traderOverview" ||
+		page == "research" ||
+		page == "shipyard" ||
+		page == "defense" ||
+		page == "fleet1" ||
+		page == "galaxy" ||
+		page == "alliance" ||
+		page == "premium" ||
+		page == "shop" ||
+		page == "rewards" ||
+		page == "resourceSettings" ||
+		page == "movement" ||
+		page == "highscore" ||
+		page == "buddies" ||
+		page == "preferences" ||
+		page == "messages" ||
+		page == "chat"
+}
+
 // IsAjaxPage either the requested page is a partial/ajax page
 func IsAjaxPage(vals url.Values) bool {
 	page := vals.Get("page")
@@ -768,6 +792,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == "planetRename" ||
 		page == "rightmenu" ||
 		page == "allianceOverview" ||
+		page == "support" ||
 		ajax == "1"
 }
 
@@ -860,7 +885,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		}
 		pageHTMLBytes = by
 
-		if page != "logout" && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
+		if page != "logout" && IsKnowFullPage(vals) && !isLogged(pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
 			return ErrNotLogged
 		}
