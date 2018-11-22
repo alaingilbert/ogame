@@ -767,6 +767,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == "traderlayer" ||
 		page == "planetRename" ||
 		page == "rightmenu" ||
+		page == "allianceOverview" ||
 		ajax == "1"
 }
 
