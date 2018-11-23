@@ -1148,7 +1148,7 @@ func (b *OGame) serverTime() time.Time {
 func name2id(name string) ID {
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	name, _, _ = transform.String(t, name)
-	reg, _ := regexp.Compile("[^a-zA-Z]+")
+	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя]+")
 	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
 	nameMap := map[string]ID{
 		// en
@@ -1330,6 +1330,22 @@ func name2id(name string) ID {
 		//"recycler":         RecyclerID,
 		//"spionagesonde":    EspionageProbeID,
 		//"solarsatellit":    SolarSatelliteID,
+
+		// ru
+		"легкииистребитель":  LightFighterID,
+		"тяжелыиистребитель": HeavyFighterID,
+		"креисер":            CruiserID,
+		"линкор":             BattleshipID,
+		"линеиныикреисер":    BattlecruiserID,
+		"бомбардировщик":     BomberID,
+		"уничтожитель":       DestroyerID,
+		"звездасмерти":       DeathstarID,
+		"малыитранспорт":     SmallCargoID,
+		"большоитранспорт":   LargeCargoID,
+		"колонизатор":        ColonyShipID,
+		"переработчик":       RecyclerID,
+		"шпионскиизонд":      EspionageProbeID,
+		"солнечныиспутник":   SolarSatelliteID,
 	}
 	return nameMap[processedString]
 }

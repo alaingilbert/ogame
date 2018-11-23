@@ -51,7 +51,7 @@ func extractPlanetFromSelection(s *goquery.Selection, b *OGame) (Planet, error) 
 	}
 
 	txt := goquery.NewDocumentFromNode(root).Text()
-	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)km \((\d+)/(\d+)\)(?:de|da|od|mellem)?\s*([-\d]+).+C\s*(?:bis|para|to|à|a|～|do|ile|tot|og)\s*([-\d]+).+C`)
+	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|a|～|do|ile|tot|og|до)\s*([-\d]+).+C`)
 	m := planetInfosRgx.FindStringSubmatch(txt)
 	if len(m) < 10 {
 		return Planet{}, errors.New("failed to parse planet infos: " + txt)
@@ -99,7 +99,7 @@ func extractMoonFromSelection(moonLink *goquery.Selection, b *OGame) (Moon, erro
 		return Moon{}, err
 	}
 	txt := goquery.NewDocumentFromNode(root).Text()
-	moonInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)km \((\d+)/(\d+)\)`)
+	moonInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км) \((\d+)/(\d+)\)`)
 	mm := moonInfosRgx.FindStringSubmatch(txt)
 	if len(mm) < 8 {
 		return Moon{}, errors.New("failed to parse moon infos: " + txt)
@@ -299,7 +299,8 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Plaats ([\d.]+) van ([\d.]+)\)`)
 	case "dk":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Placering ([\d.]+) af ([\d.]+)\)`)
-
+	case "ru":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u041c\\u0435\\u0441\\u0442\\u043e ([\d.]+) \\u0438\\u0437 ([\d.]+)\)`)
 	}
 	// pl: 0 (Miejsce 5.872 z 5.875)
 	// fr: 0 (Place 3.197 sur 3.348)
