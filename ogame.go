@@ -46,6 +46,7 @@ type Wrapper interface {
 	ServerURL() string
 	GetLanguage() string
 	GetPageContent(url.Values) []byte
+	GetAlliancePageContent(url.Values) []byte
 	PostPageContent(url.Values, url.Values) []byte
 	Login() error
 	Logout()
@@ -846,6 +847,38 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	}()
 
 	return body, nil
+}
+
+func (b *OGame) GetAlliancePageContent(vals url.Values) ([]byte, error) {
+	if b.serverURL == "" {
+		err := errors.New("serverURL is empty")
+		b.error(err)
+		return []byte{}, err
+	}
+	finalURL := b.serverURL + "/game/allianceInfo.php?" + vals.Encode()
+	var pageHTMLBytes []byte
+	req, err := http.NewRequest("GET", finalURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := b.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 500 {
+		return nil, err
+	}
+
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	pageHTMLBytes = by
+
+	return pageHTMLBytes, nil
 }
 
 func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
@@ -2567,6 +2600,19 @@ func (b *OGame) IsDonutSystem() bool {
 // FleetDeutSaveFactor returns the fleet deut save factor
 func (b *OGame) FleetDeutSaveFactor() float64 {
 	return b.fleetDeutSaveFactor
+}
+
+// GetAlliancePageContent gets the html for a specific ogame page
+func (b *Prioritize) GetAlliancePageContent(vals url.Values) []byte {
+	b.begin("GetAlliancePageContent")
+	defer b.done()
+	pageHTML, _ := b.bot.GetAlliancePageContent(vals)
+	return pageHTML
+}
+
+// GetAlliancePageContent gets the html for a specific alliance page
+func (b *OGame) GetAlliancePageContent(vals url.Values) []byte {
+	return b.WithPriority(Normal).GetPageContent(vals)
 }
 
 // GetPageContent gets the html for a specific ogame page
