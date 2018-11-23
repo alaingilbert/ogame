@@ -2036,7 +2036,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Add("crystal", strconv.Itoa(resources.Crystal))
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
 	payload.Add("metal", strconv.Itoa(resources.Metal))
-	payload.Add("mission", strconv.Itoa(int(mission)))
+	payload.Set("mission", strconv.Itoa(int(mission)))
 
 	// Page 4 : send the fleet
 	pageHTML, err = b.postPageContent(url.Values{"page": {"movement"}}, payload)
