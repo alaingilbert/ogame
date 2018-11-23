@@ -849,7 +849,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	return body, nil
 }
 
-func (b *OGame) GetAlliancePageContent(vals url.Values) ([]byte, error) {
+func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 	if b.serverURL == "" {
 		err := errors.New("serverURL is empty")
 		b.error(err)
@@ -2606,7 +2606,7 @@ func (b *OGame) FleetDeutSaveFactor() float64 {
 func (b *Prioritize) GetAlliancePageContent(vals url.Values) []byte {
 	b.begin("GetAlliancePageContent")
 	defer b.done()
-	pageHTML, _ := b.bot.GetAlliancePageContent(vals)
+	pageHTML, _ := b.bot.getAlliancePageContent(vals)
 	return pageHTML
 }
 
