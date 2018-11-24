@@ -61,6 +61,11 @@ func (m Moon) GetShips() (ShipsInfos, error) {
 	return m.ogame.GetShips(m.ID.Celestial())
 }
 
+// Build builds any ogame objects (building, technology, ship, defence)
+func (m Moon) Build(id ID, nbr int) error {
+	return m.ogame.Build(CelestialID(m.ID), id, nbr)
+}
+
 // BuildTechnology ensure that we're trying to build a technology
 func (m Moon) BuildTechnology(technologyID ID) error {
 	return errors.New("cannot build technology on a moon")
