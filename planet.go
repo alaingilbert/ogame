@@ -83,7 +83,7 @@ func (p Planet) GetFacilities() (Facilities, error) {
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
-func (p *Planet) Build(id ID, nbr int) error {
+func (p Planet) Build(id ID, nbr int) error {
 	return p.ogame.Build(CelestialID(p.ID), id, nbr)
 }
 

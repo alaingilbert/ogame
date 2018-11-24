@@ -1091,6 +1091,7 @@ type Celestial interface {
 	BuildDefense(defenseID ID, nbr int) error
 	ConstructionsBeingBuilt() (ID, int, ID, int)
 	GetResourcesBuildings() (ResourcesBuildings, error)
+	Build(id ID, nbr int) error
 	BuildBuilding(buildingID ID) error
 	BuildTechnology(technologyID ID) error
 	CancelResearch() error
