@@ -106,7 +106,11 @@ func start(c *cli.Context) error {
 	e.GET("/bot/user-infos", getUserInfos)
 	e.POST("/bot/send-message", sendMessage)
 	e.GET("/bot/fleets", getFleets)
+	e.GET("/bot/fleets/slots", getSlots)
 	e.POST("/bot/fleets/:fleetID/cancel", cancelFleet)
+	e.GET("/bot/espionage-report/:msgid", getEspionageReport)
+	e.GET("/bot/espionage-report/:galaxy/:system/:position", getEspionageReportFor)
+	e.GET("/bot/espionage-report", getEspionageReportMessages)
 	e.GET("/bot/attacks", getAttacks)
 	e.GET("/bot/galaxy-infos/:galaxy/:system", galaxyInfos)
 	e.GET("/bot/get-research", getResearch)
@@ -232,6 +236,46 @@ func getUserInfos(c echo.Context) error {
 	return c.JSON(http.StatusOK, successResp(bot.GetUserInfos()))
 }
 
+func getEspionageReportMessages(c echo.Context) error {
+	report, err := bot.GetEspionageReportMessages()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, successResp(report))
+}
+
+func getEspionageReport(c echo.Context) error {
+	msgID, err := strconv.Atoi(c.Param("msgid"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid msgid id"))
+	}
+	espionageReport, err := bot.GetEspionageReport(msgID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, successResp(espionageReport))
+}
+
+func getEspionageReportFor(c echo.Context) error {
+	galaxy, err := strconv.Atoi(c.Param("galaxy"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid galaxy"))
+	}
+	system, err := strconv.Atoi(c.Param("system"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid system"))
+	}
+	position, err := strconv.Atoi(c.Param("position"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid position"))
+	}
+	planet, err := bot.GetEspionageReportFor(ogame.Coordinate{Type: ogame.PlanetType, Galaxy: galaxy, System: system, Position: position})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, successResp(planet))
+}
+
 // curl 127.0.0.1:1234/bot/send-message -d 'playerID=123&message="Sup boi!"'
 func sendMessage(c echo.Context) error {
 	playerID, err := strconv.Atoi(c.Request().PostFormValue("playerID"))
@@ -251,6 +295,11 @@ func sendMessage(c echo.Context) error {
 func getFleets(c echo.Context) error {
 	fleets, _ := bot.GetFleets()
 	return c.JSON(http.StatusOK, successResp(fleets))
+}
+
+func getSlots(c echo.Context) error {
+	slots := bot.GetSlots()
+	return c.JSON(http.StatusOK, successResp(slots))
 }
 
 func cancelFleet(c echo.Context) error {
@@ -314,7 +363,7 @@ func getPlanetByCoord(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid position"))
 	}
-	planet, err := bot.GetPlanetByCoord(ogame.Coordinate{Galaxy: galaxy, System: system, Position: position})
+	planet, err := bot.GetPlanetByCoord(ogame.Coordinate{Type: ogame.PlanetType, Galaxy: galaxy, System: system, Position: position})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}
