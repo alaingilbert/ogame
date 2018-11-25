@@ -113,6 +113,7 @@ type Wrapper interface {
 	SetResourceSettings(PlanetID, ResourceSettings) error
 	//GetResourcesProductionRatio(PlanetID) (float64, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
+	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
 
 	// Moon specific functions
 	Phalanx(MoonID, Coordinate) ([]Fleet, error)
@@ -2327,6 +2328,14 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	return productions, nil
 }
 
+func (b *OGame) getResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
+	resSettings ResourceSettings, temp Temperature) Resources {
+	universeSpeed := b.getUniverseSpeed()
+	ratio := productionRatio(temp, resBuildings, resSettings, researches.EnergyTechnology)
+	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, temp, ratio)
+	return productions
+}
+
 // GetPublicIP get the public IP used by the bot
 func (b *OGame) GetPublicIP() (string, error) {
 	var res struct {
@@ -3211,6 +3220,20 @@ func (b *Prioritize) GetResourcesProductions(planetID PlanetID) (Resources, erro
 // GetResourcesProductions gets the planet resources production
 func (b *OGame) GetResourcesProductions(planetID PlanetID) (Resources, error) {
 	return b.WithPriority(Normal).GetResourcesProductions(planetID)
+}
+
+// GetResourcesProductions gets the planet resources production
+func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
+	resSettings ResourceSettings, temp Temperature) Resources {
+	b.begin("GetResourcesProductionsLight")
+	defer b.done()
+	return b.bot.getResourcesProductionsLight(resBuildings, researches, resSettings, temp)
+}
+
+// GetResourcesProductionsLight gets the planet resources production
+func (b *OGame) GetResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
+	resSettings ResourceSettings, temp Temperature) Resources {
+	return b.WithPriority(Normal).GetResourcesProductionsLight(resBuildings, researches, resSettings, temp)
 }
 
 // FlightTime calculate flight time and fuel needed
