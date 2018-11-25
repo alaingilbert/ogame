@@ -1,0 +1,178 @@
+        <input type="hidden" name="modus" value="1">
+<input type="hidden" name="type" value="401">
+
+
+
+
+<div id="defense_401_large" class="pic">
+
+        <a href="https://s155-es.ogame.gameforge.com/game/index.php?page=techtree&techID=401" class="techtree_link js_hideTipOnMobile tooltip overlay"
+       data-overlay-title="Tecnología - Lanzamisiles"
+       title="Abrir árbol tecnológico">
+        <div class="techtree_img"></div>
+        <span class="label">Tecnología</span>
+    </a>
+
+
+    </div>
+
+<div id="content">
+
+    <h2>Lanzamisiles</h2>
+    <a id="close" class='close_details'
+       href="javascript:void(0);"
+       onclick="gfSlider.hide(getElementByIdWithCache('detail')); return false;">
+    </a>
+        <span class="level">
+        Numero: 122        <span class="undermark"></span>
+    </span>
+    <br class="clearfloat"/>
+
+    <ul class="production_info narrow">
+        <li>
+            Tiempo de producción:            <span class="time" id="buildDuration">
+                1m 55s                <span class="undermark">
+                                    </span>
+            </span>
+        </li>
+                    <li>
+                Construcción posible a partir de: <span class="time" id="possibleInTime">ahora</span>            </li>
+                                    </ul>
+
+                <div class="enter">
+            <p class="amount">Cantidad:</p>
+                            <div class="clearfix maxlink_wrap">
+                                <input id="number" type="text" class="amount_input"
+                            pattern="[0-9,.]*"
+                            size="5" name="menge" value="1"
+                            onfocus="clearInput(this);" onkeyup="checkIntInput(this, 1, 9999);event.stopPropagation();">
+                            <div class="maxlink_arrow"></div>
+                <a id="maxlink" class="tooltip js_hideTipOnMobile"
+                    title="Construir número máximo" href="javascript:void(0);"
+                    onClick="document.forms['form'].menge.value = 151;">
+                    [max. 151]
+                </a>
+                </div>
+                    </div>
+    
+
+
+    <div class="costs_wrap">
+
+        <p class="costs_info">Costes por unidad:</p>
+
+        <ul id="costs">
+                            <li class="metal tooltip" title="2.000 Metal">
+                    <div class="resourceIcon metal"></div>
+                    <div class="cost ">
+                        2.000                   </div>
+                </li>
+                                                        </ul>
+    </div>
+
+    <div class="build-it_wrap">
+
+<!-- all ok -->
+             <div class="premium_info_placeholder"></div> 
+        <a class="build-it"
+            href="javascript:void(0);">
+            <span>En cola</span>
+        </a>
+
+    </div>
+
+</div>
+<br clear="all"/>
+
+<div id="description">
+
+    
+        <div class="txt_box  ">
+        <a class="tooltip js_hideTipOnMobile help overlay"
+            href="https://s155-es.ogame.gameforge.com/game/index.php?page=techtree&tab=2&techID=401"
+            title="Más detalles">
+        </a>
+        <p class="description_txt" style="width: 90%">El lanzamisiles es un sistema de defensa sencillo, pero barato.</p>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $("#number").focus();
+    });
+
+
+    var links = {
+        'overlay'   :   'https://s155-es.ogame.gameforge.com/game/index.php?page=buyResourceOverlay&techID=401',
+        'decisionCommander'     :   'https://s155-es.ogame.gameforge.com/game/index.php?page=premium&openDetail=2',
+        '1000'  :   'https://s155-es.ogame.gameforge.com/game/index.php?page=premium&openDetail=1',
+        '10' : 'https://s155-es.ogame.gameforge.com/game/index.php?page=resources&openTech=22',
+        '20' : 'https://s155-es.ogame.gameforge.com/game/index.php?page=resources&openTech=23',
+        '30' : 'https://s155-es.ogame.gameforge.com/game/index.php?page=resources&openTech=24',
+        'notify'    :   'https://s155-es.ogame.gameforge.com/game/index.php?page=station&openTech=44'
+    };
+
+    var loca = loca || {};
+        loca = $.extend({},
+            loca,
+            {
+                'allError'              :   'Error',
+                'infoBuildlist'         :   'Para poder usar enlaces directos, necesitas el modo comandante. ¿Deseas saber más sobre las ventajas del modo comandante?',
+                'allYes'                :   'Sí',
+                'allNo'                 :   'No',
+                'allOk'                 :   'Ok',
+                'noRocketsiloCapacity'  :   'No hay suficiente espacio de almacenamiento. Mejora el silo de misiles.',
+                'allDetailNow'          :   'ahora'
+            }
+        );
+
+    var buttonClass = "build-it";
+
+    var overlayTitle = 'Empezar con MO';
+
+    var showSlotWarning = 0;
+
+    var buttonState = 1;
+
+    var techID = 401;
+
+    var isRocketAndStorageNotFree = 0;
+
+    var couldBeBuild = 1;
+
+    var isShip = 0;
+
+    var isRocket = 0;
+
+    var hasCommander = 1;
+
+    var buildableAt = "ahora";
+
+    var error = 2000;
+
+    var premiumerror = 0;
+
+    var showErrorOnPremiumbutton = 0;
+
+    var errorlist = {
+                '2000' : 'Con un precio de 0 MO, ¡el margen de beneficio es muy pequeño para el comerciante!',
+                '100' : 'El comerciante solo puede entregarte una cantidad máxima de 10.000.000 de un recurso',
+                '10' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+                '20' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+                '30' : 'No hay suficiente capacidad de almacenamiento. - ¿Quieres ampliar tu almacén?',
+                '1000' : '¡No hay suficiente Materia Oscura disponible! ¿Deseas comprar más ahora?'
+    };
+
+
+    var isBuildlistNeeded = 0;
+
+    //var showCommanderHint = (!buttonState && !hasCommander && isBuildlistNeeded && couldBeBuild && (isShip || isRocket));
+
+    var showNoPremiumError = 0;
+
+    var pageToReload = "https:\/\/s155-es.ogame.gameforge.com\/game\/index.php?page=defense";
+
+    var isBusy = 0;
+
+    initTechDetailsAjax();
+</script>

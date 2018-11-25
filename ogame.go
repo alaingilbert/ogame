@@ -1149,7 +1149,7 @@ func (b *OGame) serverTime() time.Time {
 func name2id(name string) ID {
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	name, _, _ = transform.String(t, name)
-	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя]+")
+	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シ]+")
 	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
 	nameMap := map[string]ID{
 		// en
@@ -1252,14 +1252,14 @@ func name2id(name string) ID {
 		"軽戦闘機":      LightFighterID,
 		"重戦闘機":      HeavyFighterID,
 		"巡洋艦":       CruiserID,
-		"バトルシップ":    BattleshipID,
+		"トルシッ":      BattleshipID,
 		"大型戦艦":      BattlecruiserID,
 		"爆撃機":       BomberID,
-		"デストロイヤー":   DestroyerID,
-		"デススター":     DeathstarID,
+		"テストロイヤー":   DestroyerID,
+		"テススター":     DeathstarID,
 		"小型輸送機":     SmallCargoID,
 		"大型輸送機":     LargeCargoID,
-		"コロニーシップ":   ColonyShipID,
+		"コロニーシッ":    ColonyShipID,
 		"残骸回収船":     RecyclerID,
 		"偵察機":       EspionageProbeID,
 		"ソーラーサテライト": SolarSatelliteID,
