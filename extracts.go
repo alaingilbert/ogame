@@ -314,7 +314,7 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 	res.Points = ParseInt(infos[1])
 	res.Rank = ParseInt(infos[2])
 	res.Total = ParseInt(infos[3])
-	if lang == "tr" {
+	if lang == "tr" || lang == "jp" {
 		res.Rank = ParseInt(infos[3])
 		res.Total = ParseInt(infos[2])
 	}
