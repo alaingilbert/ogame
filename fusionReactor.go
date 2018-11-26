@@ -23,3 +23,8 @@ func (b *fusionReactor) Production(energyTechnology, lvl int) int {
 	energyTechnologyf := float64(energyTechnology)
 	return int(math.Round(30 * lvlf * math.Pow(1.05+energyTechnologyf*0.01, lvlf) * pct))
 }
+
+// GetFuelConsumption returns the deuterium consumed by the fusion reactor
+func (b fusionReactor) GetFuelConsumption(universeSpeed int, ratio float64, lvl int) int {
+	return int(math.Abs(math.Floor(-10 * float64(universeSpeed) * float64(lvl) * math.Pow(1.1, float64(lvl)) * ratio)))
+}
