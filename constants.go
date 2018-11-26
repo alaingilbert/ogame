@@ -37,6 +37,11 @@ func (m MissionID) String() string {
 // Speed represent a fleet speed
 type Speed int
 
+// Int returns an integer value of the speed
+func (s Speed) Int() int {
+	return int(s)
+}
+
 func (s Speed) String() string {
 	switch s {
 	case TenPercent:
