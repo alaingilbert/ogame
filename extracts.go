@@ -494,6 +494,36 @@ func ExtractResources(pageHTML []byte) Resources {
 	return res
 }
 
+func ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	bodyID, _ := doc.Find("body").Attr("id")
+	if bodyID == "overview" {
+		return ResourceSettings{}, ErrInvalidPlanetID
+	}
+	vals := make([]int, 0)
+	doc.Find("option").Each(func(i int, s *goquery.Selection) {
+		_, selectedExists := s.Attr("selected")
+		if selectedExists {
+			a, _ := s.Attr("value")
+			val, _ := strconv.Atoi(a)
+			vals = append(vals, val)
+		}
+	})
+	if len(vals) != 6 {
+		return ResourceSettings{}, errors.New("failed to find all resource settings")
+	}
+
+	res := ResourceSettings{}
+	res.MetalMine = vals[0]
+	res.CrystalMine = vals[1]
+	res.DeuteriumSynthesizer = vals[2]
+	res.SolarPlant = vals[3]
+	res.FusionReactor = vals[4]
+	res.SolarSatellite = vals[5]
+
+	return res, nil
+}
+
 func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 	res := make([]Fleet, 0)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
