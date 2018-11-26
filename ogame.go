@@ -2030,6 +2030,28 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, errors.New("unknown error")
 	}
 
+	if mission == Spy && fleet3Doc.Find("li#button6").HasClass("off") {
+		return Fleet{}, errors.New("target cannot be spied (button disabled)")
+	} else if mission == Attack && fleet3Doc.Find("li#button1").HasClass("off") {
+		return Fleet{}, errors.New("target cannot be attacked (button disabled)")
+	} else if mission == Transport && fleet3Doc.Find("li#button3").HasClass("off") {
+		return Fleet{}, errors.New("cannot send transport (button disabled)")
+	} else if mission == Park && fleet3Doc.Find("li#button4").HasClass("off") {
+		return Fleet{}, errors.New("cannot send deployment (button disabled)")
+	} else if mission == Colonize && fleet3Doc.Find("li#button7").HasClass("off") {
+		return Fleet{}, errors.New("cannot send colonisation (button disabled)")
+	} else if mission == Expedition && fleet3Doc.Find("li#button15").HasClass("off") {
+		return Fleet{}, errors.New("cannot send expedition (button disabled)")
+	} else if mission == RecycleDebrisField && fleet3Doc.Find("li#button8").HasClass("off") {
+		return Fleet{}, errors.New("cannot recycle (button disabled)")
+		//} else if mission == Transport && fleet3Doc.Find("li#button5").HasClass("off") {
+		//	return Fleet{}, errors.New("cannot acs defend (button disabled)")
+		//} else if mission == Transport && fleet3Doc.Find("li#button2").HasClass("off") {
+		//	return Fleet{}, errors.New("cannot acs attack (button disabled)")
+	} else if mission == Destroy && fleet3Doc.Find("li#button9").HasClass("off") {
+		return Fleet{}, errors.New("cannot destroy (button disabled)")
+	}
+
 	payload = url.Values{}
 	hidden = getHiddenFields(pageHTML)
 	for k, v := range hidden {
@@ -2239,7 +2261,10 @@ func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error)
 	page := 1
 	nbPage := 1
 	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, tabid)
+		pageHTML, err := b.getPageMessages(page, tabid)
+		if err != nil {
+			return EspionageReport{}, err
+		}
 		newMessages, newNbPage := extractEspionageReportMessageIDs(pageHTML)
 		for _, m := range newMessages {
 			if m.Target.Equal(coord) {
