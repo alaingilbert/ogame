@@ -19,5 +19,5 @@ func TestCrystalMine_EnergyConsumption(t *testing.T) {
 
 func TestCrystalMine_Production(t *testing.T) {
 	cm := newCrystalMine()
-	assert.Equal(t, 37921+1752+105, cm.Production(7, 1, 7, 25))
+	assert.Equal(t, 37921+1752+105, cm.Production(7, 1, 1, 7, 25))
 }
