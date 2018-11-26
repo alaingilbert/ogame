@@ -21,6 +21,6 @@ func (b *deuteriumSynthesizer) EnergyConsumption(level int) int {
 }
 
 // Production returns the deuterium production of the mine
-func (b *deuteriumSynthesizer) Production(universeSpeed, avgTemp int, productionRatio float64, level int) int {
-	return int(math.Round(10 * float64(level) * math.Pow(1.1, float64(level)) * (-0.004*float64(avgTemp) + 1.36) * float64(universeSpeed) * productionRatio))
+func (b *deuteriumSynthesizer) Production(universeSpeed, avgTemp int, productionRatio, globalRatio float64, level int) int {
+	return int(math.Round(10 * float64(level) * math.Pow(1.1, float64(level)) * (-0.004*float64(avgTemp) + 1.36) * float64(universeSpeed) * productionRatio * globalRatio))
 }

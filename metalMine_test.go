@@ -9,11 +9,11 @@ import (
 
 func TestMetalMineProduction(t *testing.T) {
 	mm := newMetalMine()
-	assert.Equal(t, 30, mm.Production(1, 1, 0, 0))
-	assert.Equal(t, 63, mm.Production(1, 1, 0, 1))
-	assert.Equal(t, 120, mm.Production(4, 1, 0, 0))
-	assert.Equal(t, 252, mm.Production(4, 1, 0, 1))
-	assert.Equal(t, 96606+6762+210, mm.Production(7, 1, 7, 29))
+	assert.Equal(t, 30, mm.Production(1, 1, 1, 0, 0))
+	assert.Equal(t, 63, mm.Production(1, 1, 1, 0, 1))
+	assert.Equal(t, 120, mm.Production(4, 1, 1, 0, 0))
+	assert.Equal(t, 252, mm.Production(4, 1, 1, 0, 1))
+	assert.Equal(t, 96606+6762+210, mm.Production(7, 1, 1, 7, 29))
 }
 
 func TestMetalMineConstructionTime(t *testing.T) {

@@ -1645,33 +1645,7 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"resourceSettings"}, "cp": {planetID.String()}})
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	bodyID, _ := doc.Find("body").Attr("id")
-	if bodyID == "overview" {
-		return ResourceSettings{}, ErrInvalidPlanetID
-	}
-	vals := make([]int, 0)
-	doc.Find("option").Each(func(i int, s *goquery.Selection) {
-		_, selectedExists := s.Attr("selected")
-		if selectedExists {
-			a, _ := s.Attr("value")
-			val, _ := strconv.Atoi(a)
-			vals = append(vals, val)
-		}
-	})
-	if len(vals) != 6 {
-		return ResourceSettings{}, errors.New("failed to find all resource settings")
-	}
-
-	res := ResourceSettings{}
-	res.MetalMine = vals[0]
-	res.CrystalMine = vals[1]
-	res.DeuteriumSynthesizer = vals[2]
-	res.SolarPlant = vals[3]
-	res.FusionReactor = vals[4]
-	res.SolarSatellite = vals[5]
-
-	return res, nil
+	return ExtractResourceSettings(pageHTML)
 }
 
 func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings) error {
@@ -2331,13 +2305,16 @@ func productionRatio(temp Temperature, resourcesBuildings ResourcesBuildings, re
 }
 
 func getProductions(resBuildings ResourcesBuildings, resSettings ResourceSettings, researches Researches, universeSpeed int,
-	temp Temperature, productionRatio float64) Resources {
+	temp Temperature, globalRatio float64) Resources {
 	energyProduced := energyProduced(temp, resBuildings, resSettings, researches.EnergyTechnology)
 	energyNeeded := energyNeeded(resBuildings, resSettings)
+	metalSetting := float64(resSettings.MetalMine) / 100
+	crystalSetting := float64(resSettings.CrystalMine) / 100
+	deutSetting := float64(resSettings.DeuteriumSynthesizer) / 100
 	return Resources{
-		Metal:     MetalMine.Production(universeSpeed, productionRatio, researches.PlasmaTechnology, resBuildings.MetalMine),
-		Crystal:   CrystalMine.Production(universeSpeed, productionRatio, researches.PlasmaTechnology, resBuildings.CrystalMine),
-		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), productionRatio, resBuildings.DeuteriumSynthesizer) - FusionReactor.GetFuelConsumption(universeSpeed, productionRatio, resBuildings.FusionReactor),
+		Metal:     MetalMine.Production(universeSpeed, metalSetting, globalRatio, researches.PlasmaTechnology, resBuildings.MetalMine),
+		Crystal:   CrystalMine.Production(universeSpeed, crystalSetting, globalRatio, researches.PlasmaTechnology, resBuildings.CrystalMine),
+		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), deutSetting, globalRatio, resBuildings.DeuteriumSynthesizer) - FusionReactor.GetFuelConsumption(universeSpeed, globalRatio, resBuildings.FusionReactor),
 		Energy:    energyProduced - energyNeeded,
 	}
 }
