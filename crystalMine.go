@@ -21,9 +21,9 @@ func (b *crystalMine) EnergyConsumption(level int) int {
 }
 
 // Production returns the crystal production of the mine
-func (b *crystalMine) Production(universeSpeed int, productionRatio float64, plasmaTech, level int) int {
+func (b *crystalMine) Production(universeSpeed int, productionRatio, globalRatio float64, plasmaTech, level int) int {
 	basicIncome := 15.0
 	levelProduction := 20 * float64(universeSpeed) * (1 + float64(plasmaTech)*0.0066) * float64(level) * math.Pow(1.1, float64(level))
-	production := int(levelProduction*productionRatio + (basicIncome * float64(universeSpeed)))
+	production := int(levelProduction*productionRatio*globalRatio + (basicIncome * float64(universeSpeed)))
 	return production
 }

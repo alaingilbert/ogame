@@ -2305,13 +2305,16 @@ func productionRatio(temp Temperature, resourcesBuildings ResourcesBuildings, re
 }
 
 func getProductions(resBuildings ResourcesBuildings, resSettings ResourceSettings, researches Researches, universeSpeed int,
-	temp Temperature, productionRatio float64) Resources {
+	temp Temperature, globalRatio float64) Resources {
 	energyProduced := energyProduced(temp, resBuildings, resSettings, researches.EnergyTechnology)
 	energyNeeded := energyNeeded(resBuildings, resSettings)
+	metalSetting := float64(resSettings.MetalMine) / 100
+	crystalSetting := float64(resSettings.CrystalMine) / 100
+	deutSetting := float64(resSettings.DeuteriumSynthesizer) / 100
 	return Resources{
-		Metal:     MetalMine.Production(universeSpeed, productionRatio, researches.PlasmaTechnology, resBuildings.MetalMine),
-		Crystal:   CrystalMine.Production(universeSpeed, productionRatio, researches.PlasmaTechnology, resBuildings.CrystalMine),
-		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), productionRatio, resBuildings.DeuteriumSynthesizer) - FusionReactor.GetFuelConsumption(universeSpeed, productionRatio, resBuildings.FusionReactor),
+		Metal:     MetalMine.Production(universeSpeed, metalSetting, globalRatio, researches.PlasmaTechnology, resBuildings.MetalMine),
+		Crystal:   CrystalMine.Production(universeSpeed, crystalSetting, globalRatio, researches.PlasmaTechnology, resBuildings.CrystalMine),
+		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), deutSetting, globalRatio, resBuildings.DeuteriumSynthesizer) - FusionReactor.GetFuelConsumption(universeSpeed, globalRatio, resBuildings.FusionReactor),
 		Energy:    energyProduced - energyNeeded,
 	}
 }
