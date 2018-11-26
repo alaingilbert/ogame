@@ -1390,7 +1390,7 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 func (b *OGame) getFleets() ([]Fleet, Slots) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
 	fleets := extractFleets(pageHTML)
-	slots := extractSlots(pageHTML)
+	slots := ExtractSlots(pageHTML)
 	return fleets, slots
 }
 
@@ -1406,7 +1406,7 @@ type Slots struct {
 
 func (b *OGame) getSlots() Slots {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"fleet1"}})
-	return extractSlots(pageHTML)
+	return ExtractSlots(pageHTML)
 }
 
 // Returns the distance between two galaxy
@@ -2062,7 +2062,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 	}
 
-	slots := extractSlots(movementHTML)
+	slots := ExtractSlots(movementHTML)
 	if slots.InUse == slots.Total {
 		return Fleet{}, ErrAllSlotsInUse
 	}
