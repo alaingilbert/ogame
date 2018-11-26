@@ -25,3 +25,9 @@ func TestFusionReactor_Production(t *testing.T) {
 	fr := newFusionReactor()
 	assert.Equal(t, 3002, fr.Production(12, 13))
 }
+
+func TestFusionReactor_GetFuelConsumption(t *testing.T) {
+	fr := newFusionReactor()
+	assert.Equal(t, 1486, fr.GetFuelConsumption(7, 1.0, 9))
+	assert.Equal(t, 1040, fr.GetFuelConsumption(7, 0.7, 9))
+}

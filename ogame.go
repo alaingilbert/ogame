@@ -2337,7 +2337,7 @@ func getProductions(resBuildings ResourcesBuildings, resSettings ResourceSetting
 	return Resources{
 		Metal:     MetalMine.Production(universeSpeed, productionRatio, researches.PlasmaTechnology, resBuildings.MetalMine),
 		Crystal:   CrystalMine.Production(universeSpeed, productionRatio, researches.PlasmaTechnology, resBuildings.CrystalMine),
-		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), productionRatio, resBuildings.DeuteriumSynthesizer),
+		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), productionRatio, resBuildings.DeuteriumSynthesizer) - FusionReactor.GetFuelConsumption(universeSpeed, productionRatio, resBuildings.FusionReactor),
 		Energy:    energyProduced - energyNeeded,
 	}
 }
