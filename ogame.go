@@ -32,6 +32,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	Quiet(bool)
 	Tx(clb func(tx *Prioritize) error) error
 	Begin() *Prioritize
 	WithPriority(priority int) *Prioritize
