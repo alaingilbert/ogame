@@ -766,6 +766,7 @@ func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 			planetInfos.Player.IsBandit = tdPlayername.HasClass("rank_bandit1") || tdPlayername.HasClass("rank_bandit2") || tdPlayername.HasClass("rank_bandit3")
 			planetInfos.Player.IsStarlord = tdPlayername.HasClass("rank_starlord1") || tdPlayername.HasClass("rank_starlord2") || tdPlayername.HasClass("rank_starlord3")
 			planetInfos.Coordinate = extractCoord(coordsRaw)
+			planetInfos.Coordinate.Type = PlanetType
 
 			var playerID int
 			var playerName string
