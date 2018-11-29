@@ -927,11 +927,15 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	}
 
 	if page == "overview" {
-		b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
-		b.Planets = ExtractPlanets(pageHTMLBytes, b)
+		if isLogged(pageHTMLBytes) {
+			b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
+			b.Planets = ExtractPlanets(pageHTMLBytes, b)
+		}
 	} else if IsAjaxPage(vals) {
 	} else {
-		b.Planets = ExtractPlanets(pageHTMLBytes, b)
+		if isLogged(pageHTMLBytes) {
+			b.Planets = ExtractPlanets(pageHTMLBytes, b)
+		}
 	}
 
 	go func() {
