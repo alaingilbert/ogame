@@ -119,7 +119,7 @@ func extractMoonFromSelection(moonLink *goquery.Selection, b *OGame) (Moon, erro
 	return moon, nil
 }
 
-func extractPlanets(pageHTML []byte, b *OGame) []Planet {
+func ExtractPlanets(pageHTML []byte, b *OGame) []Planet {
 	res := make([]Planet, 0)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
@@ -133,7 +133,7 @@ func extractPlanets(pageHTML []byte, b *OGame) []Planet {
 	return res
 }
 
-func extractPlanet(pageHTML []byte, planetID PlanetID, b *OGame) (Planet, error) {
+func ExtractPlanet(pageHTML []byte, planetID PlanetID, b *OGame) (Planet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	s := doc.Find("div#planet-" + planetID.String())
 	if len(s.Nodes) > 0 { // planet
@@ -142,8 +142,8 @@ func extractPlanet(pageHTML []byte, planetID PlanetID, b *OGame) (Planet, error)
 	return Planet{}, errors.New("failed to find planetID")
 }
 
-func extractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error) {
-	planets := extractPlanets(pageHTML, b)
+func ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error) {
+	planets := ExtractPlanets(pageHTML, b)
 	for _, planet := range planets {
 		if planet.Coordinate.Equal(coord) {
 			return planet, nil
@@ -152,7 +152,7 @@ func extractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, 
 	return Planet{}, errors.New("invalid planet coordinate")
 }
 
-func extractMoons(pageHTML []byte, b *OGame) []Moon {
+func ExtractMoons(pageHTML []byte, b *OGame) []Moon {
 	res := make([]Moon, 0)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("a.moonlink").Each(func(i int, s *goquery.Selection) {
@@ -165,8 +165,8 @@ func extractMoons(pageHTML []byte, b *OGame) []Moon {
 	return res
 }
 
-func extractMoon(pageHTML []byte, b *OGame, moonID MoonID) (Moon, error) {
-	moons := extractMoons(pageHTML, b)
+func ExtractMoon(pageHTML []byte, b *OGame, moonID MoonID) (Moon, error) {
+	moons := ExtractMoons(pageHTML, b)
 	for _, moon := range moons {
 		if moon.ID == moonID {
 			return moon, nil
@@ -175,8 +175,8 @@ func extractMoon(pageHTML []byte, b *OGame, moonID MoonID) (Moon, error) {
 	return Moon{}, errors.New("moon not found")
 }
 
-func extractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error) {
-	moons := extractMoons(pageHTML, b)
+func ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error) {
+	moons := ExtractMoons(pageHTML, b)
 	for _, moon := range moons {
 		if moon.Coordinate.Equal(coord) {
 			return moon, nil
@@ -185,11 +185,11 @@ func extractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, erro
 	return Moon{}, errors.New("invalid moon coordinate")
 }
 
-func extractCelestial(pageHTML []byte, b *OGame, coord Coordinate) (Celestial, error) {
+func ExtractCelestial(pageHTML []byte, b *OGame, coord Coordinate) (Celestial, error) {
 	if coord.Type == PlanetType {
-		return extractPlanetByCoord(pageHTML, b, coord)
+		return ExtractPlanetByCoord(pageHTML, b, coord)
 	} else if coord.Type == MoonType {
-		return extractMoonByCoord(pageHTML, b, coord)
+		return ExtractMoonByCoord(pageHTML, b, coord)
 	}
 	return nil, errors.New("celestial not found")
 }
@@ -386,7 +386,7 @@ func ExtractFleetsFromEventList(pageHTML []byte) []Fleet {
 	return res
 }
 
-func extractFleets(pageHTML []byte) (res []Fleet) {
+func ExtractFleets(pageHTML []byte) (res []Fleet) {
 	res = make([]Fleet, 0)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -477,7 +477,7 @@ func ExtractSlots(pageHTML []byte) Slots {
 	return slots
 }
 
-func extractOgameTimestamp(pageHTML []byte) int {
+func ExtractOgameTimestamp(pageHTML []byte) int {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
 	return ogameTimestamp
@@ -1364,7 +1364,7 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 	return report, nil
 }
 
-func extractResourcesProductions(pageHTML []byte) (Resources, error) {
+func ExtractResourcesProductions(pageHTML []byte) (Resources, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	res := Resources{}
 	selector := "table.listOfResourceSettingsPerPlanet tr.summary td span"

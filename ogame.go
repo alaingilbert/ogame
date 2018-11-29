@@ -595,7 +595,7 @@ func (b *OGame) login() error {
 	b.ogameVersion = doc.Find("meta[name=ogame-version]").AttrOr("content", "")
 
 	b.Player, _ = ExtractUserInfos(pageHTML, b.language)
-	b.Planets = extractPlanets(pageHTML, b)
+	b.Planets = ExtractPlanets(pageHTML, b)
 
 	b.fleetDeutSaveFactor = ExtractFleetDeutSaveFactor(pageHTML)
 
@@ -933,10 +933,10 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 	if page == "overview" {
 		b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
-		b.Planets = extractPlanets(pageHTMLBytes, b)
+		b.Planets = ExtractPlanets(pageHTMLBytes, b)
 	} else if IsAjaxPage(vals) {
 	} else {
-		b.Planets = extractPlanets(pageHTMLBytes, b)
+		b.Planets = ExtractPlanets(pageHTMLBytes, b)
 	}
 
 	go func() {
@@ -1102,37 +1102,37 @@ type Celestial interface {
 
 func (b *OGame) getPlanets() []Planet {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractPlanets(pageHTML, b)
+	return ExtractPlanets(pageHTML, b)
 }
 
 func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractPlanet(pageHTML, planetID, b)
+	return ExtractPlanet(pageHTML, planetID, b)
 }
 
 func (b *OGame) getPlanetByCoord(coord Coordinate) (Planet, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractPlanetByCoord(pageHTML, b, coord)
+	return ExtractPlanetByCoord(pageHTML, b, coord)
 }
 
 func (b *OGame) getMoons() []Moon {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractMoons(pageHTML, b)
+	return ExtractMoons(pageHTML, b)
 }
 
 func (b *OGame) getMoon(moonID MoonID) (Moon, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractMoon(pageHTML, b, moonID)
+	return ExtractMoon(pageHTML, b, moonID)
 }
 
 func (b *OGame) getMoonByCoord(coord Coordinate) (Moon, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractMoonByCoord(pageHTML, b, coord)
+	return ExtractMoonByCoord(pageHTML, b, coord)
 }
 
 func (b *OGame) getCelestial(coord Coordinate) (Celestial, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return extractCelestial(pageHTML, b, coord)
+	return ExtractCelestial(pageHTML, b, coord)
 }
 
 func (b *OGame) serverVersion() string {
@@ -1390,7 +1390,7 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 
 func (b *OGame) getFleets() ([]Fleet, Slots) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
-	fleets := extractFleets(pageHTML)
+	fleets := ExtractFleets(pageHTML)
 	slots := ExtractSlots(pageHTML)
 	return fleets, slots
 }
@@ -1501,13 +1501,13 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	moonFacilitiesHTML, _ := b.getPageContent(url.Values{"page": {"station"}, "cp": {strconv.Itoa(int(moonID))}})
 
 	// Extract bunch of infos from the html
-	moon, err := extractMoon(moonFacilitiesHTML, b, moonID)
+	moon, err := ExtractMoon(moonFacilitiesHTML, b, moonID)
 	if err != nil {
 		return res, errors.New("moon not found")
 	}
 	resources := ExtractResources(moonFacilitiesHTML)
 	moonFacilities, _ := ExtractFacilities(moonFacilitiesHTML)
-	ogameTimestamp := extractOgameTimestamp(moonFacilitiesHTML)
+	ogameTimestamp := ExtractOgameTimestamp(moonFacilitiesHTML)
 	phalanxLvl := moonFacilities.SensorPhalanx
 
 	// Ensure we have the resources to scan the planet
@@ -1885,7 +1885,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Ensure we're not trying to attack/spy ourself
 	destinationIsMyOwnPlanet := false
-	myPlanets := extractPlanets(pageHTML, b)
+	myPlanets := ExtractPlanets(pageHTML, b)
 	for _, p := range myPlanets {
 		if p.Coordinate.Equal(where) || (p.Moon != nil && p.Moon.Coordinate.Equal(where)) {
 			destinationIsMyOwnPlanet = true
@@ -2043,7 +2043,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	// Page 5
 	movementHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
 	originCoords, _ := ExtractPlanetCoordinate(movementHTML)
-	fleets := extractFleets(movementHTML)
+	fleets := ExtractFleets(movementHTML)
 	if len(fleets) > 0 {
 		max := Fleet{}
 		for i, fleet := range fleets {
