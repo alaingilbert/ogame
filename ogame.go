@@ -742,12 +742,7 @@ func (b *OGame) logout() {
 }
 
 func isLogged(pageHTML []byte) bool {
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	if err != nil {
-		return false
-	}
-	ogameSession := doc.Find("meta[name=ogame-session]").AttrOr("content", "")
-	return ogameSession != ""
+	return len(regexp.MustCompile(`<meta name="ogame-session" content="\w+"/>`).FindSubmatch(pageHTML)) == 1
 }
 
 func IsKnowFullPage(vals url.Values) bool {
