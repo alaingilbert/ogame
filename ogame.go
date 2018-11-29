@@ -581,10 +581,6 @@ func (b *OGame) login() error {
 	atomic.StoreInt32(&b.isActive, 1) // At this point, we are logged in
 	b.sessionChatCounter = 1
 
-	for _, fn := range b.interceptorCallbacks {
-		fn("GET", nil, nil, pageHTML)
-	}
-
 	serverTime, _ := extractServerTime(pageHTML)
 	b.location = serverTime.Location()
 	b.universeSize = server.Settings.UniverseSize
@@ -598,6 +594,10 @@ func (b *OGame) login() error {
 	b.Planets = ExtractPlanets(pageHTML, b)
 
 	b.fleetDeutSaveFactor = ExtractFleetDeutSaveFactor(pageHTML)
+
+	for _, fn := range b.interceptorCallbacks {
+		fn("GET", nil, nil, pageHTML)
+	}
 
 	// Extract chat host and port
 	m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindSubmatch(pageHTML)
