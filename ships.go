@@ -47,6 +47,7 @@ func (s ShipsInfos) FleetValue() int {
 	val += s.ColonyShip * ColonyShip.Price.Total()
 	val += s.Recycler * Recycler.Price.Total()
 	val += s.EspionageProbe * EspionageProbe.Price.Total()
+	val += s.SolarSatellite * SolarSatellite.Price.Total()
 	return val
 }
 
