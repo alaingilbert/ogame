@@ -817,6 +817,14 @@ func TestExtractAttacksWithThousandsShips(t *testing.T) {
 	assert.Equal(t, 1000, attacks[1].Ships.LargeCargo)
 }
 
+func TestExtractAttacksUnknownShips(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_unknown_ships_nbr.html")
+	attacks, _ := ExtractAttacks(pageHTMLBytes)
+	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, -1, attacks[0].Ships.Cruiser)
+	assert.Equal(t, 0, attacks[0].Ships.Destroyer)
+}
+
 func TestExtractAttacks_spy(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_spy.html")
 	attacks, _ := ExtractAttacks(pageHTMLBytes)
@@ -830,6 +838,7 @@ func TestExtractAttacks1(t *testing.T) {
 	attacks, _ := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, 1, attacks[0].Missiles)
+	assert.Nil(t, attacks[0].Ships)
 }
 
 func TestExtractGalaxyInfos_bandit(t *testing.T) {

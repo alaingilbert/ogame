@@ -404,9 +404,12 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 			q := goquery.NewDocumentFromNode(root)
 			q.Find("tr").Each(func(i int, s *goquery.Selection) {
 				name := s.Find("td").Eq(0).Text()
-				nbr := ParseInt(s.Find("td").Eq(1).Text())
+				nbrTxt := s.Find("td").Eq(1).Text()
+				nbr := ParseInt(nbrTxt)
 				if name != "" && nbr > 0 {
 					attack.Ships.Set(name2id(name), nbr)
+				} else if nbrTxt == "?" {
+					attack.Ships.Set(name2id(name), -1)
 				}
 			})
 		}
