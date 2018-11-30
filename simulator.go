@@ -1042,7 +1042,7 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	defender.Units = make([]combatUnit, defender.TotalUnits+1, defender.TotalUnits+1)
 
 	cs := newCombatSimulator(attacker, defender)
-	cs.IsLogging = true
+	cs.IsLogging = false
 
 	for i := 0; i < nbSimulations; i++ {
 		cs.Rounds = 1
