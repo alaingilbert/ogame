@@ -20,6 +20,36 @@ type ShipsInfos struct {
 	SolarSatellite int
 }
 
+// Has returns true if v is contained by s
+func (s ShipsInfos) Has(v ShipsInfos) bool {
+	for _, ship := range Ships {
+		needed := v.ByID(ship.GetID())
+		current := s.ByID(ship.GetID())
+		if needed > 0 && needed > current {
+			return false
+		}
+	}
+	return true
+}
+
+// FleetValue returns the value of the fleet
+func (s ShipsInfos) FleetValue() int {
+	val := s.LightFighter * LightFighter.Price.Total()
+	val += s.HeavyFighter * HeavyFighter.Price.Total()
+	val += s.Cruiser * Cruiser.Price.Total()
+	val += s.Battleship * Battleship.Price.Total()
+	val += s.Battlecruiser * Battlecruiser.Price.Total()
+	val += s.Bomber * Bomber.Price.Total()
+	val += s.Destroyer * Destroyer.Price.Total()
+	val += s.Deathstar * Deathstar.Price.Total()
+	val += s.SmallCargo * SmallCargo.Price.Total()
+	val += s.LargeCargo * LargeCargo.Price.Total()
+	val += s.ColonyShip * ColonyShip.Price.Total()
+	val += s.Recycler * Recycler.Price.Total()
+	val += s.EspionageProbe * EspionageProbe.Price.Total()
+	return val
+}
+
 // Add adds two ShipsInfos together
 func (s *ShipsInfos) Add(v ShipsInfos) {
 	s.LightFighter += v.LightFighter
