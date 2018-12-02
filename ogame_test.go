@@ -1340,6 +1340,17 @@ func TestExtractFleet(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 123, Crystal: 456, Deuterium: 789}, fleets[0].Resources)
 }
 
+func TestExtractFleet_expedition(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_expedition.html")
+	fleets := ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 2, len(fleets))
+	assert.Equal(t, 2, fleets[1].Ships.LargeCargo)
+	assert.Equal(t, Expedition, fleets[1].Mission)
+	assert.False(t, fleets[1].ReturnFlight)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, fleets[1].Origin)
+	assert.Equal(t, Coordinate{4, 116, 16, PlanetType}, fleets[1].Destination)
+}
+
 func TestExtractFleet_returningTransport(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_2.html")
 	fleets := ExtractFleets(pageHTMLBytes)
@@ -1620,6 +1631,8 @@ func TestExtractFleetSlot_fleet1(t *testing.T) {
 	s := ExtractSlots(pageHTMLBytes)
 	assert.Equal(t, 2, s.InUse)
 	assert.Equal(t, 14, s.Total)
+	assert.Equal(t, 0, s.ExpInUse)
+	assert.Equal(t, 3, s.ExpTotal)
 }
 
 func TestExtractFleetSlot_movement(t *testing.T) {
@@ -1627,4 +1640,6 @@ func TestExtractFleetSlot_movement(t *testing.T) {
 	s := ExtractSlots(pageHTMLBytes)
 	assert.Equal(t, 1, s.InUse)
 	assert.Equal(t, 11, s.Total)
+	assert.Equal(t, 0, s.ExpInUse)
+	assert.Equal(t, 2, s.ExpTotal)
 }

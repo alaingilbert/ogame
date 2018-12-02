@@ -382,7 +382,7 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 		attack.MissionType = missionType
 		if missionType == Attack || missionType == MissileAttack || missionType == Spy {
 			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
-			attack.Origin = extractCoord(coordsOrigin)
+			attack.Origin = ExtractCoord(coordsOrigin)
 			attack.Origin.Type = PlanetType
 			if s.Find("td.originFleet figure").HasClass("moon") {
 				attack.Origin.Type = MoonType
@@ -415,7 +415,7 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 		}
 
 		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
-		attack.Destination = extractCoord(destCoords)
+		attack.Destination = ExtractCoord(destCoords)
 		attack.Destination.Type = PlanetType
 		if s.Find("td.destFleet figure").HasClass("moon") {
 			attack.Destination.Type = MoonType
@@ -534,7 +534,7 @@ func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]Espionage
 				report.From = s.Find("span.msg_sender").Text()
 				spanLink := s.Find("span.msg_title a")
 				targetStr := spanLink.Text()
-				report.Target = extractCoord(targetStr)
+				report.Target = ExtractCoord(targetStr)
 				report.Target.Type = PlanetType
 				if spanLink.Find("figure").HasClass("moon") {
 					report.Target.Type = MoonType
@@ -556,7 +556,7 @@ func extractCombatReportMessagesSummaryFromDoc(doc *goquery.Document) ([]CombatR
 				report := CombatReportSummary{ID: id}
 				spanLink := s.Find("span.msg_title")
 				targetStr := spanLink.Find("a").Text()
-				report.Destination = extractCoord(targetStr)
+				report.Destination = ExtractCoord(targetStr)
 				report.Destination.Type = PlanetType
 				if spanLink.Find("figure").HasClass("moon") {
 					report.Destination.Type = MoonType
@@ -882,8 +882,8 @@ func ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet {
 				fleet.Ships.Set(name2id(name), nbr)
 			}
 		})
-		fleet.Origin = extractCoord(doc.Find("td.coordsOrigin").Text())
-		fleet.Destination = extractCoord(doc.Find("td.destCoords").Text())
+		fleet.Origin = ExtractCoord(doc.Find("td.coordsOrigin").Text())
+		fleet.Destination = ExtractCoord(doc.Find("td.destCoords").Text())
 
 		res := Resources{}
 		trs := doc2.Find("tr")
@@ -907,14 +907,14 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 	script := doc.Find("div#content script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
 		originText := s.Find("span.originCoords a").Text()
-		origin := extractCoord(originText)
+		origin := ExtractCoord(originText)
 		origin.Type = PlanetType
 		if s.Find("span.originPlanet figure").HasClass("moon") {
 			origin.Type = MoonType
 		}
 
 		destText := s.Find("span.destinationCoords a").Text()
-		dest := extractCoord(destText)
+		dest := ExtractCoord(destText)
 		dest.Type = PlanetType
 		if s.Find("span.destinationPlanet figure").HasClass("moon") {
 			dest.Type = MoonType
@@ -981,12 +981,21 @@ func ExtractSlotsFromDoc(doc *goquery.Document) Slots {
 	if page == "movement" {
 		slots.InUse = ParseInt(doc.Find("span.fleetSlots > span.current").Text())
 		slots.Total = ParseInt(doc.Find("span.fleetSlots > span.all").Text())
+		slots.ExpInUse = ParseInt(doc.Find("span.expSlots > span.current").Text())
+		slots.ExpTotal = ParseInt(doc.Find("span.expSlots > span.all").Text())
 	} else if page == "fleet1" {
-		txt := doc.Find("div#slots div span").First().Text()
-		m := regexp.MustCompile(`(\d+)/(\d+)`).FindStringSubmatch(txt)
+		r := regexp.MustCompile(`(\d+)/(\d+)`)
+		txt := doc.Find("div#slots div").Eq(0).Text()
+		m := r.FindStringSubmatch(txt)
 		if len(m) == 3 {
 			slots.InUse, _ = strconv.Atoi(m[1])
 			slots.Total, _ = strconv.Atoi(m[2])
+		}
+		txt = doc.Find("div#slots div").Eq(1).Text()
+		m = r.FindStringSubmatch(txt)
+		if len(m) == 3 {
+			slots.ExpInUse, _ = strconv.Atoi(m[1])
+			slots.ExpTotal, _ = strconv.Atoi(m[2])
 		}
 	}
 	return slots
@@ -1126,7 +1135,7 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 
 // </Works with []byte only> --------------------------------------------------
 
-func extractCoord(v string) (coord Coordinate) {
+func ExtractCoord(v string) (coord Coordinate) {
 	coordRgx := regexp.MustCompile(`\[(\d+):(\d+):(\d+)]`)
 	m := coordRgx.FindStringSubmatch(v)
 	if len(m) == 4 {
@@ -1219,7 +1228,7 @@ func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 			tdPlayername := s.Find("td.playername span")
 			planetInfos.Player.IsBandit = tdPlayername.HasClass("rank_bandit1") || tdPlayername.HasClass("rank_bandit2") || tdPlayername.HasClass("rank_bandit3")
 			planetInfos.Player.IsStarlord = tdPlayername.HasClass("rank_starlord1") || tdPlayername.HasClass("rank_starlord2") || tdPlayername.HasClass("rank_starlord3")
-			planetInfos.Coordinate = extractCoord(coordsRaw)
+			planetInfos.Coordinate = ExtractCoord(coordsRaw)
 			planetInfos.Coordinate.Type = PlanetType
 
 			var playerID int
@@ -1306,12 +1315,12 @@ func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 		fleet.Mission = MissionID(mission)
 		fleet.ReturnFlight = returning
 		fleet.ArriveIn = arriveIn
-		fleet.Origin = extractCoord(originTxt)
+		fleet.Origin = ExtractCoord(originTxt)
 		fleet.Origin.Type = PlanetType
 		if originFleetFigure.HasClass("moon") {
 			fleet.Origin.Type = MoonType
 		}
-		fleet.Destination = extractCoord(destTxt)
+		fleet.Destination = ExtractCoord(destTxt)
 		fleet.Destination.Type = PlanetType
 		res = append(res, fleet)
 	})
