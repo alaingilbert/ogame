@@ -92,7 +92,7 @@ type Wrapper interface {
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
-	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (Fleet, error)
+	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
 	Build(celestialID CelestialID, id ID, nbr int) error
 	BuildCancelable(CelestialID, ID) error
 	BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -1086,7 +1086,7 @@ type Celestial interface {
 	GetFields() Fields
 	GetResources() (Resources, error)
 	GetFacilities() (Facilities, error)
-	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources) (Fleet, error)
+	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
 	GetDefense() (DefensesInfos, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
@@ -1400,8 +1400,10 @@ func (b *OGame) cancelFleet(fleetID FleetID) error {
 }
 
 type Slots struct {
-	InUse int
-	Total int
+	InUse    int
+	Total    int
+	ExpInUse int
+	ExpTotal int
 }
 
 func (b *OGame) getSlots() Slots {
@@ -1853,7 +1855,7 @@ func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 
 	// Keep track of start time. We use this value to find a fleet that was created after that time.
 	start := time.Now()
@@ -2035,6 +2037,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
 	payload.Add("metal", strconv.Itoa(resources.Metal))
 	payload.Set("mission", strconv.Itoa(int(mission)))
+	if mission == Expedition {
+		payload.Set("expeditiontime", strconv.Itoa(expeditiontime))
+	}
 
 	// Page 4 : send the fleet
 	pageHTML, err = b.postPageContent(url.Values{"page": {"movement"}}, payload)
@@ -2051,7 +2056,11 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 				fleet.Destination.Equal(where) &&
 				fleet.Mission == mission &&
 				!fleet.ReturnFlight {
-				if time.Duration(fleet.BackIn-fleet.ArriveIn*2)*time.Second > time.Since(start) {
+				delay := time.Duration(fleet.BackIn-fleet.ArriveIn*2) * time.Second
+				if mission == Expedition {
+					delay -= time.Duration(expeditiontime) * time.Hour
+				}
+				if delay < 0 || delay > time.Since(start) {
 					continue
 				}
 				max = fleets[i]
@@ -2067,9 +2076,15 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, ErrAllSlotsInUse
 	}
 
+	if mission == Expedition {
+		if slots.ExpInUse == slots.ExpTotal {
+			return Fleet{}, ErrAllSlotsInUse
+		}
+	}
+
 	now := time.Now().Unix()
-	ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_movement.html", pageHTML, 0644)
-	ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_get_movement.html", movementHTML, 0644)
+	//ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_movement.html", pageHTML, 0644)
+	//ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_get_movement.html", movementHTML, 0644)
 	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID, ", ts: ", now)
 	return Fleet{}, errors.New("could not find new fleet ID")
 }
@@ -3152,16 +3167,16 @@ func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
 
 // SendFleet sends a fleet
 func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	b.begin("SendFleet")
 	defer b.done()
-	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources)
+	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
 }
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources) (Fleet, error) {
-	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources)
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
 }
 
 // GetEspionageReportFor gets the latest espionage report for a given coordinate
