@@ -2,22 +2,27 @@ package ogame
 
 // FleetBuilder ...
 type FleetBuilder struct {
-	b           Wrapper
-	origin      CelestialID
-	destination Coordinate
-	speed       Speed
-	mission     MissionID
-	ships       []Quantifiable
-	resources   Resources
-	err         error
-	fleet       Fleet
+	b                Wrapper
+	origin           CelestialID
+	destination      Coordinate
+	speed            Speed
+	mission          MissionID
+	ships            []Quantifiable
+	resources        Resources
+	err              error
+	fleet            Fleet
+	expeditiontime   int
+	successCallbacks []func(Fleet)
+	errorCallbacks   []func(error)
 }
 
 // NewFleetBuilder ...
-func NewFleetBuilder() *FleetBuilder {
-	b := new(FleetBuilder)
-	b.mission = Transport
-	return b
+func NewFleetBuilder(b Wrapper) *FleetBuilder {
+	fb := new(FleetBuilder)
+	fb.b = b
+	fb.mission = Transport
+	fb.speed = HundredPercent
+	return fb
 }
 
 // SetOrigin ...
@@ -44,7 +49,7 @@ func (f *FleetBuilder) SetResources(resources Resources) *FleetBuilder {
 	return f
 }
 
-// SetAllResources ...
+// SetAllResources will send all resources from the origin
 func (f *FleetBuilder) SetAllResources() *FleetBuilder {
 	f.resources = Resources{Metal: -1, Crystal: -1, Deuterium: -1}
 	return f
@@ -56,6 +61,12 @@ func (f *FleetBuilder) SetMission(mission MissionID) *FleetBuilder {
 	return f
 }
 
+// SetDuration set expedition duration
+func (f *FleetBuilder) SetDuration(expeditiontime int) *FleetBuilder {
+	f.expeditiontime = expeditiontime
+	return f
+}
+
 // AddShips ...
 func (f *FleetBuilder) AddShips(id ID, nbr int) *FleetBuilder {
 	if id.IsShip() && id != SolarSatelliteID && nbr > 0 {
@@ -64,25 +75,39 @@ func (f *FleetBuilder) AddShips(id ID, nbr int) *FleetBuilder {
 	return f
 }
 
-// SendNow ...
-func (f *FleetBuilder) SendNow() *FleetBuilder {
-	res := f.resources
-	// Send all resources
-	if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
-		res, _ = f.b.GetResources(f.origin)
+// SendNow send the fleet with defined configurations
+func (f *FleetBuilder) SendNow() (Fleet, error) {
+	err := f.b.Tx(func(tx *Prioritize) error {
+		res := f.resources
+		// Send all resources
+		if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
+			res, _ = tx.GetResources(f.origin)
+		}
+		f.fleet, f.err = tx.SendFleet(f.origin, f.ships, f.speed, f.destination, f.mission, res, f.expeditiontime)
+		return f.err
+	})
+	if err != nil {
+		// On error, call error callbacks
+		for _, clb := range f.errorCallbacks {
+			clb(err)
+		}
+	} else {
+		// Otherwise, call success callbacks
+		for _, clb := range f.successCallbacks {
+			clb(f.fleet)
+		}
 	}
-	f.fleet, f.err = f.b.SendFleet(f.origin, f.ships, f.speed, f.destination, f.mission, res)
-	return f
+	return f.fleet, f.err
 }
 
-// OnError ...
+// OnError register an error callback
 func (f *FleetBuilder) OnError(clb func(error)) *FleetBuilder {
-	clb(f.err)
+	f.errorCallbacks = append(f.errorCallbacks, clb)
 	return f
 }
 
-// OnSuccess ...
+// OnSuccess register a success callback
 func (f *FleetBuilder) OnSuccess(clb func(Fleet)) *FleetBuilder {
-	clb(f.fleet)
+	f.successCallbacks = append(f.successCallbacks, clb)
 	return f
 }
