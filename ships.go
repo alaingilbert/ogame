@@ -20,6 +20,25 @@ type ShipsInfos struct {
 	SolarSatellite int
 }
 
+// Cargo returns the total cargo of the ships
+func (s ShipsInfos) Cargo() int {
+	res := LightFighter.CargoCapacity * s.LightFighter
+	res += HeavyFighter.CargoCapacity * s.HeavyFighter
+	res += Cruiser.CargoCapacity * s.Cruiser
+	res += Battleship.CargoCapacity * s.Battleship
+	res += Battlecruiser.CargoCapacity * s.Battlecruiser
+	res += Bomber.CargoCapacity * s.Bomber
+	res += Destroyer.CargoCapacity * s.Destroyer
+	res += Deathstar.CargoCapacity * s.Deathstar
+	res += SmallCargo.CargoCapacity * s.SmallCargo
+	res += LargeCargo.CargoCapacity * s.LargeCargo
+	res += ColonyShip.CargoCapacity * s.ColonyShip
+	res += Recycler.CargoCapacity * s.Recycler
+	res += EspionageProbe.CargoCapacity * s.EspionageProbe
+	res += SolarSatellite.CargoCapacity * s.SolarSatellite
+	return res
+}
+
 // Has returns true if v is contained by s
 func (s ShipsInfos) Has(v ShipsInfos) bool {
 	for _, ship := range Ships {
