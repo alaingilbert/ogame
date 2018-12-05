@@ -2030,8 +2030,19 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	payload = url.Values{}
 	hidden = getHiddenFields(pageHTML)
+	var finalShips ShipsInfos
 	for k, v := range hidden {
+		var shipID int
+		if n, err := fmt.Sscanf(k, "am%d", &shipID); err == nil && n == 1 {
+			nbr, _ := strconv.Atoi(v)
+			finalShips.Set(ID(shipID), nbr)
+		}
 		payload.Add(k, v)
+	}
+	deutConsumption := ParseInt(fleet3Doc.Find("div#roundup span#consumption").Text())
+	finalCargo := finalShips.Cargo()
+	if deutConsumption > finalCargo {
+		return Fleet{}, errors.New("not enough cargo capacity")
 	}
 	payload.Add("crystal", strconv.Itoa(resources.Crystal))
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
