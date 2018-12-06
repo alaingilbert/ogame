@@ -40,7 +40,7 @@ func (b BaseDefender) ConstructionTime(nbr, universeSpeed int, facilities Facili
 	shipyardLvl := float64(facilities.Shipyard)
 	naniteLvl := float64(facilities.NaniteFactory)
 	hours := float64(b.StructuralIntegrity) / (2500 * (1 + shipyardLvl) * float64(universeSpeed) * math.Pow(2, naniteLvl))
-	secs := hours * 3600
+	secs := math.Max(1, hours*3600)
 	return time.Duration(int(math.Floor(secs))*nbr) * time.Second
 }
 
