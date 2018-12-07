@@ -32,6 +32,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	IsActive() bool
 	Quiet(bool)
 	Tx(clb func(tx *Prioritize) error) error
 	Begin() *Prioritize
@@ -730,13 +731,14 @@ func (m ChatMsg) String() string {
 
 func (b *OGame) logout() {
 	b.getPageContent(url.Values{"page": {"logout"}})
-	atomic.StoreInt32(&b.isActive, 0)
-	select {
-	case <-b.closeChatCh:
-	default:
-		close(b.closeChatCh)
-		if b.ws != nil {
-			b.ws.Close()
+	if atomic.CompareAndSwapInt32(&b.isActive, 1, 0) {
+		select {
+		case <-b.closeChatCh:
+		default:
+			close(b.closeChatCh)
+			if b.ws != nil {
+				b.ws.Close()
+			}
 		}
 	}
 }
@@ -795,6 +797,10 @@ func IsAjaxPage(vals url.Values) bool {
 }
 
 func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
+	if !b.IsActive() {
+		return []byte{}, ErrBotInactive
+	}
+
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
 	if err != nil {
@@ -847,6 +853,10 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 }
 
 func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
+	if !b.IsActive() {
+		return []byte{}, ErrBotInactive
+	}
+
 	if b.serverURL == "" {
 		err := errors.New("serverURL is empty")
 		b.error(err)
@@ -879,6 +889,10 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 }
 
 func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
+	if !b.IsActive() {
+		return []byte{}, ErrBotInactive
+	}
+
 	if b.serverURL == "" {
 		err := errors.New("serverURL is empty")
 		b.error(err)
@@ -968,7 +982,7 @@ func (b *OGame) withRetry(fn func() error) error {
 		if err := fn(); err != nil {
 			if err == ErrNotLogged {
 				// If we manually logged out, do not try to auto re login.
-				if atomic.LoadInt32(&b.isActive) == 0 {
+				if !b.IsActive() {
 					return ErrBotInactive
 				}
 				retry(err)
@@ -988,6 +1002,9 @@ func (b *OGame) withRetry(fn func() error) error {
 }
 
 func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
+	if !b.IsActive() {
+		return ErrBotInactive
+	}
 	err := b.withRetry(func() error {
 		pageJSON, err := b.getPageContent(vals)
 		if err != nil {
@@ -999,6 +1016,10 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
 		return nil
 	})
 	return err
+}
+
+func (b *OGame) IsActive() bool {
+	return atomic.LoadInt32(&b.isActive) == 1
 }
 
 func (b *OGame) getUniverseSpeed() int {
@@ -1873,13 +1894,15 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	// Page 1 : get to fleet page
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {strconv.Itoa(int(celestialID))}})
+	pageHTML, err := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {strconv.Itoa(int(celestialID))}})
+	if err != nil {
+		return Fleet{}, err
+	}
 
 	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
 	if fleet1BodyID != "fleet1" {
 		now := time.Now().Unix()
-		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet1", pageHTML, 0644)
 		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, ErrInvalidPlanetID
 	}
@@ -1927,7 +1950,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	// Page 2 : select ships
-	pageHTML, err := b.postPageContent(url.Values{"page": {"fleet2"}}, payload)
+	pageHTML, err = b.postPageContent(url.Values{"page": {"fleet2"}}, payload)
 	if err != nil {
 		return Fleet{}, err
 	}
@@ -1935,7 +1958,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet2BodyID := fleet2Doc.Find("body").AttrOr("id", "")
 	if fleet2BodyID != "fleet2" {
 		now := time.Now().Unix()
-		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet2.html", pageHTML, 0644)
 		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, errors.New("unknown error")
 	}
@@ -2001,7 +2023,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet3BodyID := fleet3Doc.Find("body").AttrOr("id", "")
 	if fleet3BodyID != "fleet3" {
 		now := time.Now().Unix()
-		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet3", pageHTML, 0644)
 		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, errors.New("unknown error")
 	}
@@ -2094,8 +2115,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	now := time.Now().Unix()
-	//ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_movement.html", pageHTML, 0644)
-	//ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_get_movement.html", movementHTML, 0644)
 	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID, ", ts: ", now)
 	return Fleet{}, errors.New("could not find new fleet ID")
 }
