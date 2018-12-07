@@ -1903,7 +1903,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
 	if fleet1BodyID != "fleet1" {
 		now := time.Now().Unix()
-		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet1", pageHTML, 0644)
 		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, ErrInvalidPlanetID
 	}
@@ -1959,7 +1958,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet2BodyID := fleet2Doc.Find("body").AttrOr("id", "")
 	if fleet2BodyID != "fleet2" {
 		now := time.Now().Unix()
-		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet2.html", pageHTML, 0644)
 		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, errors.New("unknown error")
 	}
@@ -2025,7 +2023,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet3BodyID := fleet3Doc.Find("body").AttrOr("id", "")
 	if fleet3BodyID != "fleet3" {
 		now := time.Now().Unix()
-		ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_fleet3", pageHTML, 0644)
 		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, errors.New("unknown error")
 	}
@@ -2118,8 +2115,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	now := time.Now().Unix()
-	//ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_post_movement.html", pageHTML, 0644)
-	//ioutil.WriteFile("err_"+strconv.FormatInt(now, 10)+"_get_movement.html", movementHTML, 0644)
 	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID, ", ts: ", now)
 	return Fleet{}, errors.New("could not find new fleet ID")
 }
