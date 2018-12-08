@@ -1321,6 +1321,14 @@ func TestExtractFleetsFromEventList(t *testing.T) {
 	//assert.Equal(t, 4, len(fleets))
 }
 
+func TestExtractIPM(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/missileattacklayer.html")
+	duration, max, token := ExtractIPM(pageHTMLBytes)
+	assert.Equal(t, "26a08f4cc0c0b513e1e8c10d49c14a27", token)
+	assert.Equal(t, 17, max)
+	assert.Equal(t, 15, duration)
+}
+
 func TestExtractFleet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_1.html")
 	fleets := ExtractFleets(pageHTMLBytes)
