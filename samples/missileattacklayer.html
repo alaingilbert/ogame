@@ -1,0 +1,100 @@
+<div id="rocketattack" data-title="Missile Attack">
+    <form method="post" action="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=missileattack_execute" id="rocketForm">
+        <input type="hidden" name="galaxy" value="4"/>
+        <input type="hidden" name="system" value="116"/>
+        <input type="hidden" name="position" value="9"/>
+        <input type="hidden" name="planetType" value="1"/>
+        <input type="hidden" name="token" value="26a08f4cc0c0b513e1e8c10d49c14a27"/>
+         <div id="target">Target: <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Colony<span id="position">[4:116:9]</span></div>
+         <div id="flightDuration">Flight duration: 15s</div>
+         <div id="arrivalTime">Arrival: <span id="timer" data-duration="15">-</span> Clock</div>
+         <div id="infos">
+            <div id="numberrockets">
+                <ul>
+                    <li class="defense503">
+                        <div class="buildingimg">
+                            <a id="number" href="javascript:void(0);" class="tooltip js_hideTipOnMobile" title="Interplanetary Missiles">
+                                <span class="ecke">
+                                    <span class="level">
+                                        17
+                                    </span>
+                                </span>
+                            </a>
+
+                        </div>
+                    </li>
+                </ul>
+                <input type="text" pattern="[0-9]*" name="anz" id="anz" data-max="17" class="textinput" value="1"/>
+            </div>
+            <div id="priority">
+                Primary target:
+                <ul>
+                                            <li class="defense401">
+                            <div class="buildingimg">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile" ref="401" title="Rocket Launcher">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense402">
+                            <div class="buildingimg">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile" ref="402" title="Light Laser">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense403">
+                            <div class="buildingimg">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile" ref="403" title="Heavy Laser">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense404">
+                            <div class="buildingimg">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile" ref="404" title="Gauss Cannon">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense405">
+                            <div class="buildingimg">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile" ref="405" title="Ion Cannon">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense406">
+                            <div class="buildingimg">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile" ref="406" title="Plasma Turret">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense407">
+                            <div class="buildingimg">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile" ref="407" title="Small Shield Dome">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense408">
+                            <div class="buildingimg">
+                                <a href="javascript:void(0)" class="tooltip js_hideTipOnMobile" ref="408" title="Large Shield Dome">
+                                </a>
+                            </div>
+
+                        </li>
+                                    </ul>
+            </div>
+            <div id="noPriorityInfo">No primary target selected: random target</div>
+            <input type="hidden" name="pziel" id="primaryTarget" value=""/>
+            <input type="submit" class="btn_blue" value="Fire"/>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        initMissleAttackLayer();
+    });
+</script>

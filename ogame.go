@@ -113,6 +113,7 @@ type Wrapper interface {
 	// Planet specific functions
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
+	SendIPM(PlanetID, Coordinate, int, ID) (int, error)
 	//GetResourcesProductionRatio(PlanetID) (float64, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
 	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
@@ -1875,6 +1876,64 @@ func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 	}, err
 }
 
+func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
+	if priority != 0 && (!priority.IsDefense() || priority == AntiBallisticMissilesID || priority == InterplanetaryMissilesID) {
+		return 0, errors.New("invalid target id")
+	}
+	pageHTML, err := b.getPageContent(url.Values{
+		"page":       {"missileattacklayer"},
+		"galaxy":     {strconv.Itoa(coord.Galaxy)},
+		"system":     {strconv.Itoa(coord.System)},
+		"position":   {strconv.Itoa(coord.Position)},
+		"planetType": {strconv.Itoa(int(coord.Type))},
+		"cp":         {strconv.Itoa(int(planetID))},
+	})
+	if err != nil {
+		return 0, err
+	}
+	duration, max, token := ExtractIPM(pageHTML)
+	if max == 0 {
+		return 0, errors.New("no missile available")
+	}
+	if nbr > max {
+		nbr = max
+	}
+	payload := url.Values{
+		"galaxy":     {strconv.Itoa(coord.Galaxy)},
+		"system":     {strconv.Itoa(coord.System)},
+		"position":   {strconv.Itoa(coord.Position)},
+		"planetType": {strconv.Itoa(int(coord.Type))},
+		"token":      {token},
+		"anz":        {strconv.Itoa(nbr)},
+		"pziel":      {},
+	}
+	if priority != 0 {
+		payload.Add("pziel", strconv.Itoa(int(priority)))
+	}
+	by, err := b.postPageContent(url.Values{"page": {"missileattack_execute"}}, payload)
+	if err != nil {
+		return 0, err
+	}
+	// {"status":false,"errorbox":{"type":"fadeBox","text":"Target doesn`t exist!","failed":1}}
+	var resp struct {
+		Status   bool
+		ErrorBox struct {
+			Type   string
+			Text   string
+			Failed int
+		}
+	}
+	if err := json.Unmarshal(by, &resp); err != nil {
+		return 0, err
+	}
+	if resp.ErrorBox.Failed == 1 {
+		return 0, errors.New(resp.ErrorBox.Text)
+	}
+	fmt.Println(string(by))
+
+	return duration, nil
+}
+
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 
@@ -3207,6 +3266,19 @@ func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, sp
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+}
+
+// SendIPM sends IPM
+func (b *Prioritize) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
+	b.begin("SendIPM")
+	defer b.done()
+	fmt.Println("CALISSSS", planetID, priority)
+	return b.bot.sendIPM(planetID, coord, nbr, priority)
+}
+
+// SendIPM sends IPM
+func (b *OGame) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
+	return b.WithPriority(Normal).SendIPM(planetID, coord, nbr, priority)
 }
 
 // GetEspionageReportFor gets the latest espionage report for a given coordinate

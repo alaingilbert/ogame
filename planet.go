@@ -147,3 +147,7 @@ func (p *Planet) GetResourcesProductions() (Resources, error) {
 func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
 	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships)
 }
+
+func (p *Planet) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
+	return p.ogame.SendIPM(planetID, coord, nbr, priority)
+}

@@ -60,6 +60,11 @@ func ExtractFleetsFromEventList(pageHTML []byte) []Fleet {
 	return ExtractFleetsFromEventListFromDoc(doc)
 }
 
+func ExtractIPM(pageHTML []byte) (duration, max int, token string) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractIPMFromDoc(doc)
+}
+
 func ExtractFleets(pageHTML []byte) (res []Fleet) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractFleetsFromDoc(doc)
@@ -900,6 +905,13 @@ func ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet {
 	}
 
 	return res
+}
+
+func ExtractIPMFromDoc(doc *goquery.Document) (duration, max int, token string) {
+	duration, _ = strconv.Atoi(doc.Find("span#timer").AttrOr("data-duration", "0"))
+	max, _ = strconv.Atoi(doc.Find("input[name=anz]").AttrOr("data-max", "0"))
+	token = doc.Find("input[name=token]").AttrOr("value", "")
+	return
 }
 
 func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
