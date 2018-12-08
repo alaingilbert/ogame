@@ -12,6 +12,8 @@ type FleetBuilder struct {
 	err              error
 	fleet            Fleet
 	expeditiontime   int
+	allShips         bool
+	recallIn         int
 	successCallbacks []func(Fleet)
 	errorCallbacks   []func(error)
 }
@@ -75,15 +77,55 @@ func (f *FleetBuilder) AddShips(id ID, nbr int) *FleetBuilder {
 	return f
 }
 
+// SetAllShips ...
+func (f *FleetBuilder) SetAllShips() *FleetBuilder {
+	f.allShips = true
+	return f
+}
+
+// SetRecallIn ...
+func (f *FleetBuilder) SetRecallIn(secs int) *FleetBuilder {
+	f.recallIn = secs
+	return f
+}
+
 // SendNow send the fleet with defined configurations
 func (f *FleetBuilder) SendNow() (Fleet, error) {
 	err := f.b.Tx(func(tx *Prioritize) error {
-		res := f.resources
+
+		// Set all ships
+		if f.allShips {
+			ships, _ := tx.GetShips(f.origin)
+			f.ships = make([]Quantifiable, 0)
+			for _, ship := range Ships {
+				if ship.GetID() == SolarSatelliteID {
+					continue
+				}
+				nbr := ships.ByID(ship.GetID())
+				if nbr > 0 {
+					f.ships = append(f.ships, Quantifiable{ship.GetID(), nbr})
+				}
+			}
+		}
+
+		// Calculate cargo
+		cargoCapacity := 0
+		for _, ship := range f.ships {
+			cargoCapacity += Objs.ByID(ship.ID).(Ship).GetCargoCapacity() * ship.Nbr
+		}
+
+		payload := f.resources
 		// Send all resources
 		if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
-			res, _ = tx.GetResources(f.origin)
+			planetResources, _ := tx.GetResources(f.origin)
+			payload.Deuterium = int(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
+			cargoCapacity -= payload.Deuterium
+			payload.Crystal = int(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
+			cargoCapacity -= payload.Crystal
+			payload.Metal = int(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
 		}
-		f.fleet, f.err = tx.SendFleet(f.origin, f.ships, f.speed, f.destination, f.mission, res, f.expeditiontime)
+
+		f.fleet, f.err = tx.SendFleet(f.origin, f.ships, f.speed, f.destination, f.mission, payload, f.expeditiontime)
 		return f.err
 	})
 	if err != nil {
@@ -92,6 +134,13 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			clb(err)
 		}
 	} else {
+		if f.recallIn > 0 {
+			go func() {
+				time.Sleep(time.Duration(f.recallIn) * time.Second)
+				f.b.CancelFleet(f.fleet.ID)
+			}()
+		}
+
 		// Otherwise, call success callbacks
 		for _, clb := range f.successCallbacks {
 			clb(f.fleet)
