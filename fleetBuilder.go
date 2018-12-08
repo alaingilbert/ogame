@@ -1,5 +1,27 @@
 package ogame
 
+import (
+	"math"
+	"time"
+)
+
+// FleetBuilderFactory ...
+type FleetBuilderFactory struct {
+	b Wrapper
+}
+
+// NewFleetBuilderFactory ...
+func NewFleetBuilderFactory(b Wrapper) *FleetBuilderFactory {
+	f := new(FleetBuilderFactory)
+	f.b = b
+	return f
+}
+
+// NewFleet ...
+func (f FleetBuilderFactory) NewFleet() *FleetBuilder {
+	return NewFleetBuilder(f.b)
+}
+
 // FleetBuilder ...
 type FleetBuilder struct {
 	b                Wrapper
