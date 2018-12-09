@@ -24,6 +24,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
+	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
 	"golang.org/x/text/runes"
 	"golang.org/x/text/transform"
@@ -263,12 +264,15 @@ type OGame struct {
 
 // Params parameters for more fine-grained initialization
 type Params struct {
-	Universe  string
-	Username  string
-	Password  string
-	Lang      string
-	AutoLogin bool
-	Proxy     string
+	Universe       string
+	Username       string
+	Password       string
+	Lang           string
+	AutoLogin      bool
+	Proxy          string
+	Socks5Address  string
+	Socks5Username string
+	Socks5Password string
 }
 
 // New creates a new instance of OGame wrapper.
@@ -292,6 +296,20 @@ func NewWithParams(params Params) (*OGame, error) {
 			return nil, err
 		}
 		b.client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+	}
+
+	if params.Socks5Address != "" {
+		var auth *proxy.Auth
+		if params.Socks5Username != "" || params.Socks5Password != "" {
+			auth = &proxy.Auth{User: params.Socks5Username, Password: params.Socks5Password}
+		}
+		dialer, err := proxy.SOCKS5("tcp", params.Socks5Address, auth, proxy.Direct)
+		if err != nil {
+			return nil, err
+		}
+		httpTransport := &http.Transport{}
+		httpTransport.Dial = dialer.Dial
+		b.client.Transport = httpTransport
 	}
 
 	if params.AutoLogin {
