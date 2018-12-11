@@ -1663,3 +1663,12 @@ func TestExtractFleetSlot_movement(t *testing.T) {
 	assert.Equal(t, 0, s.ExpInUse)
 	assert.Equal(t, 2, s.ExpTotal)
 }
+
+func TestExtractFleetSlot_commanders(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1_extract_slots_with_commanders.html")
+	s := ExtractSlots(pageHTMLBytes)
+	assert.Equal(t, 13, s.InUse)
+	assert.Equal(t, 14, s.Total)
+	assert.Equal(t, 2, s.ExpInUse)
+	assert.Equal(t, 3, s.ExpTotal)
+}

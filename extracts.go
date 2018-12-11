@@ -993,13 +993,13 @@ func ExtractSlotsFromDoc(doc *goquery.Document) Slots {
 		slots.ExpTotal = ParseInt(doc.Find("span.expSlots > span.all").Text())
 	} else if page == "fleet1" {
 		r := regexp.MustCompile(`(\d+)/(\d+)`)
-		txt := doc.Find("div#slots div").Eq(0).Text()
+		txt := doc.Find("div#slots>div").Eq(0).Text()
 		m := r.FindStringSubmatch(txt)
 		if len(m) == 3 {
 			slots.InUse, _ = strconv.Atoi(m[1])
 			slots.Total, _ = strconv.Atoi(m[2])
 		}
-		txt = doc.Find("div#slots div").Eq(1).Text()
+		txt = doc.Find("div#slots>div").Eq(1).Text()
 		m = r.FindStringSubmatch(txt)
 		if len(m) == 3 {
 			slots.ExpInUse, _ = strconv.Atoi(m[1])
