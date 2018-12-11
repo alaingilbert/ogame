@@ -137,11 +137,6 @@ func ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 	return ExtractFleet1ShipsFromDoc(doc)
 }
 
-func extractCombatReportMessageIDs(pageHTML []byte) ([]CombatReportSummary, int) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return extractCombatReportMessageIDsFromDoc(doc)
-}
-
 func extractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return extractEspionageReportMessageIDsFromDoc(doc)
@@ -149,7 +144,7 @@ func extractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary
 
 func extractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return extractCombatReportMessagesSummaryFromDoc(doc)
+	return extractCombatReportMessagesFromDoc(doc)
 }
 
 func extractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
@@ -510,21 +505,6 @@ func ExtractFleet1ShipsFromDoc(doc *goquery.Document) ShipsInfos {
 	return s
 }
 
-func extractCombatReportMessageIDsFromDoc(doc *goquery.Document) ([]CombatReportSummary, int) {
-	msgs := make([]CombatReportSummary, 0)
-	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
-	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
-		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := strconv.Atoi(idStr); err == nil {
-				report := CombatReportSummary{ID: id}
-				msgs = append(msgs, report)
-
-			}
-		}
-	})
-	return msgs, nbPage
-}
-
 func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int) {
 	msgs := make([]EspionageReportSummary, 0)
 	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
@@ -552,23 +532,38 @@ func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]Espionage
 	return msgs, nbPage
 }
 
-func extractCombatReportMessagesSummaryFromDoc(doc *goquery.Document) ([]CombatReportSummary, int) {
+func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int) {
 	msgs := make([]CombatReportSummary, 0)
 	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := strconv.Atoi(idStr); err == nil {
 				report := CombatReportSummary{ID: id}
-				spanLink := s.Find("span.msg_title")
-				targetStr := spanLink.Find("a").Text()
-				report.Destination = ExtractCoord(targetStr)
-				report.Destination.Type = PlanetType
-				if spanLink.Find("figure").HasClass("moon") {
+				report.Destination = ExtractCoord(s.Find("div.msg_head a").Text())
+				if s.Find("div.msg_head figure").HasClass("planet") {
+					report.Destination.Type = PlanetType
+				} else if s.Find("div.msg_head figure").HasClass("moon") {
 					report.Destination.Type = MoonType
+				} else {
+					report.Destination.Type = PlanetType
 				}
+				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
+				m := regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
+				if len(m) == 4 {
+					report.Metal = ParseInt(m[1])
+					report.Crystal = ParseInt(m[2])
+					report.Deuterium = ParseInt(m[3])
+				}
+				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
+				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
+				if len(m) == 2 {
+					report.Loot = ParseInt(m[1])
+				}
+				msgDate, _ := time.Parse("02.01.2006 15:04:05", s.Find("span.msg_date").Text())
+				report.CreatedAt = msgDate
 
 				link := s.Find("div.msg_actions a span.icon_attack").Parent().AttrOr("href", "")
-				m := regexp.MustCompile(`page=fleet1&galaxy=(\d+)&system=(\d+)&position=(\d+)&type=(\d+)&`).FindStringSubmatch(link)
+				m = regexp.MustCompile(`page=fleet1&galaxy=(\d+)&system=(\d+)&position=(\d+)&type=(\d+)&`).FindStringSubmatch(link)
 				if len(m) != 5 {
 					return
 				}
@@ -580,6 +575,7 @@ func extractCombatReportMessagesSummaryFromDoc(doc *goquery.Document) ([]CombatR
 				if report.Origin.Equal(report.Destination) {
 					report.Origin = nil
 				}
+
 				msgs = append(msgs, report)
 			}
 		}
@@ -997,13 +993,13 @@ func ExtractSlotsFromDoc(doc *goquery.Document) Slots {
 		slots.ExpTotal = ParseInt(doc.Find("span.expSlots > span.all").Text())
 	} else if page == "fleet1" {
 		r := regexp.MustCompile(`(\d+)/(\d+)`)
-		txt := doc.Find("div#slots div").Eq(0).Text()
+		txt := doc.Find("div#slots>div").Eq(0).Text()
 		m := r.FindStringSubmatch(txt)
 		if len(m) == 3 {
 			slots.InUse, _ = strconv.Atoi(m[1])
 			slots.Total, _ = strconv.Atoi(m[2])
 		}
-		txt = doc.Find("div#slots div").Eq(1).Text()
+		txt = doc.Find("div#slots>div").Eq(1).Text()
 		m = r.FindStringSubmatch(txt)
 		if len(m) == 3 {
 			slots.ExpInUse, _ = strconv.Atoi(m[1])

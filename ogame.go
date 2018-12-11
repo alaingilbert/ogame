@@ -85,6 +85,8 @@ type Wrapper interface {
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
+	GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
+	//GetCombatReport(msgID int) (CombatReport, error)
 	DeleteMessage(msgID int) error
 	Distance(origin, destination Coordinate) int
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
@@ -2207,9 +2209,16 @@ const Report EspionageReportType = 1
 
 // CombatReportSummary summary of combat report
 type CombatReportSummary struct {
-	ID          int
-	Origin      *Coordinate
-	Destination Coordinate
+	ID           int
+	Origin       *Coordinate
+	Destination  Coordinate
+	AttackerName string
+	DefenderName string
+	Loot         int
+	Metal        int
+	Crystal      int
+	Deuterium    int
+	CreatedAt    time.Time
 }
 
 // EspionageReportSummary summary of espionage report
@@ -2272,6 +2281,27 @@ func (b *OGame) getCombatReportMessages() ([]CombatReportSummary, error) {
 		page++
 	}
 	return msgs, nil
+}
+
+func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error) {
+	tabid := 20
+	page := 1
+	nbPage := 1
+	for page <= nbPage {
+		pageHTML, err := b.getPageMessages(page, tabid)
+		if err != nil {
+			return CombatReportSummary{}, err
+		}
+		newMessages, newNbPage := extractCombatReportMessagesSummary(pageHTML)
+		for _, m := range newMessages {
+			if m.Destination.Equal(coord) {
+				return m, nil
+			}
+		}
+		nbPage = newNbPage
+		page++
+	}
+	return CombatReportSummary{}, errors.New("combat report not found for " + coord.String())
 }
 
 // EspionageReport detailed espionage report
@@ -3297,6 +3327,18 @@ func (b *Prioritize) SendIPM(planetID PlanetID, coord Coordinate, nbr int, prior
 // SendIPM sends IPM
 func (b *OGame) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
 	return b.WithPriority(Normal).SendIPM(planetID, coord, nbr, priority)
+}
+
+// GetCombatReportSummaryFor gets the latest combat report for a given coordinate
+func (b *Prioritize) GetCombatReportSummaryFor(coord Coordinate) (CombatReportSummary, error) {
+	b.begin("GetCombatReportSummaryFor")
+	defer b.done()
+	return b.bot.getCombatReportFor(coord)
+}
+
+// GetCombatReportSummaryFor gets the latest combat report for a given coordinate
+func (b *OGame) GetCombatReportSummaryFor(coord Coordinate) (CombatReportSummary, error) {
+	return b.WithPriority(Normal).GetCombatReportSummaryFor(coord)
 }
 
 // GetEspionageReportFor gets the latest espionage report for a given coordinate
