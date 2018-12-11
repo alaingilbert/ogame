@@ -2207,9 +2207,16 @@ const Report EspionageReportType = 1
 
 // CombatReportSummary summary of combat report
 type CombatReportSummary struct {
-	ID          int
-	Origin      *Coordinate
-	Destination Coordinate
+	ID           int
+	Origin       *Coordinate
+	Destination  Coordinate
+	AttackerName string
+	DefenderName string
+	Loot         int
+	Metal        int
+	Crystal      int
+	Deuterium    int
+	CreatedAt    time.Time
 }
 
 // EspionageReportSummary summary of espionage report

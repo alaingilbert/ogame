@@ -580,6 +580,24 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, msgs[1].Target)
 }
 
+func TestExtractCombatReportMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
+	msgs, _ := extractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 10, len(msgs))
+}
+
+func TestExtractCombatReportAttackingMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs_attacking.html")
+	msgs, _ := extractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 7945368, msgs[0].ID)
+	assert.Equal(t, Coordinate{4, 233, 11, PlanetType}, msgs[0].Destination)
+	assert.Equal(t, 50, msgs[0].Loot)
+	assert.Equal(t, 74495, msgs[0].Metal)
+	assert.Equal(t, 88280, msgs[0].Crystal)
+	assert.Equal(t, 21572, msgs[0].Deuterium)
+	assert.Equal(t, "08.09.2018 09:33:18", msgs[0].CreatedAt.Format("02.01.2006 15:04:05"))
+}
+
 func TestExtractCombatReportMessagesSummary(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs_2.html")
 	msgs, nbPages := extractCombatReportMessagesSummary(pageHTMLBytes)
@@ -587,12 +605,6 @@ func TestExtractCombatReportMessagesSummary(t *testing.T) {
 	assert.Equal(t, 44, nbPages)
 	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, msgs[1].Destination)
 	assert.Equal(t, Coordinate{4, 127, 9, MoonType}, *msgs[1].Origin)
-}
-
-func TestExtractCombatReportMessageIDs(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
-	msgs, _ := extractCombatReportMessageIDs(pageHTMLBytes)
-	assert.Equal(t, 10, len(msgs))
 }
 
 func TestName2id(t *testing.T) {
