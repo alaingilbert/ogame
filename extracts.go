@@ -591,9 +591,13 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	figure := spanLink.Find("figure").First()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
-	report.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
-	report.Coordinate.System, _ = strconv.Atoi(m[3])
-	report.Coordinate.Position, _ = strconv.Atoi(m[4])
+	if len(m) == 5 {
+		report.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
+		report.Coordinate.System, _ = strconv.Atoi(m[3])
+		report.Coordinate.Position, _ = strconv.Atoi(m[4])
+	} else {
+		return report, errors.New("failed to extract coordinate")
+	}
 	if figure.HasClass("planet") {
 		report.Coordinate.Type = PlanetType
 	} else if figure.HasClass("moon") {
