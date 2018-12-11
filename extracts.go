@@ -45,6 +45,11 @@ func ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, erro
 	return ExtractMoonByCoordFromDoc(doc, b, coord)
 }
 
+func ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractCelestialsFromDoc(doc, b)
+}
+
 func ExtractCelestial(pageHTML []byte, b *OGame, coord Coordinate) (Celestial, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractCelestialFromDoc(doc, b, coord)
@@ -235,6 +240,18 @@ func ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate
 		}
 	}
 	return Moon{}, errors.New("invalid moon coordinate")
+}
+
+func ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error) {
+	celestials := make([]Celestial, 0)
+	planets := ExtractPlanetsFromDoc(doc, b)
+	for _, planet := range planets {
+		celestials = append(celestials, planet)
+		if planet.Moon != nil {
+			celestials = append(celestials, planet.Moon)
+		}
+	}
+	return celestials, nil
 }
 
 func ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Celestial, error) {

@@ -82,6 +82,7 @@ type Wrapper interface {
 	GetMoon(MoonID) (Moon, error)
 	GetMoonByCoord(Coordinate) (Moon, error)
 	GetCelestial(Coordinate) (Celestial, error)
+	GetCelestials(Coordinate) ([]Celestial, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
@@ -1169,6 +1170,11 @@ func (b *OGame) getMoon(moonID MoonID) (Moon, error) {
 func (b *OGame) getMoonByCoord(coord Coordinate) (Moon, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
 	return ExtractMoonByCoord(pageHTML, b, coord)
+}
+
+func (b *OGame) getCelestials() ([]Celestial, error) {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
+	return ExtractCelestials(pageHTML, b)
 }
 
 func (b *OGame) getCelestial(coord Coordinate) (Celestial, error) {
@@ -2941,6 +2947,18 @@ func (b *Prioritize) GetMoonByCoord(coord Coordinate) (Moon, error) {
 // GetMoonByCoord get the player's moon using the coordinate
 func (b *OGame) GetMoonByCoord(coord Coordinate) (Moon, error) {
 	return b.WithPriority(Normal).GetMoonByCoord(coord)
+}
+
+// GetCelestial get the player's planets & moons
+func (b *Prioritize) GetCelestials() ([]Celestial, error) {
+	b.begin("GetCelestials")
+	defer b.done()
+	return b.bot.getCelestials()
+}
+
+// GetCelestial get the player's planets & moons
+func (b *OGame) GetCelestials() ([]Celestial, error) {
+	return b.WithPriority(Normal).GetCelestials()
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
