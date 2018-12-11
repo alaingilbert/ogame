@@ -2284,7 +2284,7 @@ func (b *OGame) getCombatReportMessages() ([]CombatReportSummary, error) {
 }
 
 func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error) {
-	tabid := 20
+	tabid := 21
 	page := 1
 	nbPage := 1
 	for page <= nbPage {
