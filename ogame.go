@@ -82,7 +82,7 @@ type Wrapper interface {
 	GetMoon(MoonID) (Moon, error)
 	GetMoonByCoord(Coordinate) (Moon, error)
 	GetCelestial(Coordinate) (Celestial, error)
-	GetCelestials(Coordinate) ([]Celestial, error)
+	GetCelestials() ([]Celestial, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
