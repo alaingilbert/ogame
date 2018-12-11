@@ -83,6 +83,7 @@ GetMoons(MoonID) []Moon
 GetMoon(MoonID) (Moon, error)
 GetMoonByCoord(Coordinate) (Moon, error)
 GetCelestial(Coordinate) (Celestial, error)
+GetCelestials() ([]Celestial, error)
 GetEspionageReportMessages() ([]EspionageReportSummary, error)
 GetEspionageReportFor(Coordinate) (EspionageReport, error)
 GetEspionageReport(msgID int) (EspionageReport, error)
