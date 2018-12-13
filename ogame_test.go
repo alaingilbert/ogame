@@ -583,7 +583,7 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 func TestExtractCombatReportMessages(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
 	msgs, _ := extractCombatReportMessagesSummary(pageHTMLBytes)
-	assert.Equal(t, 10, len(msgs))
+	assert.Equal(t, 9, len(msgs))
 }
 
 func TestExtractCombatReportAttackingMessages(t *testing.T) {

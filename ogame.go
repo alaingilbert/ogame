@@ -73,15 +73,13 @@ type Wrapper interface {
 	GetResearch() Researches
 	GetCachedPlanets() []Planet
 	GetCachedMoons() []Moon
-	GetCachedCelestial(CelestialID) Celestial
+	GetCachedCelestial(interface{}) Celestial
 	GetCachedPlayer() UserInfos
 	GetPlanets() []Planet
-	GetPlanet(PlanetID) (Planet, error)
-	GetPlanetByCoord(Coordinate) (Planet, error)
+	GetPlanet(interface{}) (Planet, error)
 	GetMoons(MoonID) []Moon
-	GetMoon(MoonID) (Moon, error)
-	GetMoonByCoord(Coordinate) (Moon, error)
-	GetCelestial(Coordinate) (Celestial, error)
+	GetMoon(interface{}) (Moon, error)
+	GetCelestial(interface{}) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
@@ -1147,14 +1145,9 @@ func (b *OGame) getPlanets() []Planet {
 	return ExtractPlanets(pageHTML, b)
 }
 
-func (b *OGame) getPlanet(planetID PlanetID) (Planet, error) {
+func (b *OGame) getPlanet(v interface{}) (Planet, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return ExtractPlanet(pageHTML, planetID, b)
-}
-
-func (b *OGame) getPlanetByCoord(coord Coordinate) (Planet, error) {
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return ExtractPlanetByCoord(pageHTML, b, coord)
+	return ExtractPlanet(pageHTML, v, b)
 }
 
 func (b *OGame) getMoons() []Moon {
@@ -1162,14 +1155,9 @@ func (b *OGame) getMoons() []Moon {
 	return ExtractMoons(pageHTML, b)
 }
 
-func (b *OGame) getMoon(moonID MoonID) (Moon, error) {
+func (b *OGame) getMoon(v interface{}) (Moon, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return ExtractMoon(pageHTML, b, moonID)
-}
-
-func (b *OGame) getMoonByCoord(coord Coordinate) (Moon, error) {
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return ExtractMoonByCoord(pageHTML, b, coord)
+	return ExtractMoon(pageHTML, b, v)
 }
 
 func (b *OGame) getCelestials() ([]Celestial, error) {
@@ -1177,9 +1165,9 @@ func (b *OGame) getCelestials() ([]Celestial, error) {
 	return ExtractCelestials(pageHTML, b)
 }
 
-func (b *OGame) getCelestial(coord Coordinate) (Celestial, error) {
+func (b *OGame) getCelestial(v interface{}) (Celestial, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	return ExtractCelestial(pageHTML, b, coord)
+	return ExtractCelestial(pageHTML, b, v)
 }
 
 func (b *OGame) serverVersion() string {
@@ -2875,7 +2863,37 @@ func (b *OGame) GetCachedMoons() []Moon {
 }
 
 // GetCachedCelestial return celestial from cached value
-func (b *OGame) GetCachedCelestial(celestialID CelestialID) Celestial {
+func (b *OGame) GetCachedCelestial(v interface{}) Celestial {
+	if celestialID, ok := v.(CelestialID); ok {
+		return b.GetCachedCelestialByID(celestialID)
+	} else if planetID, ok := v.(PlanetID); ok {
+		return b.GetCachedCelestialByID(planetID.Celestial())
+	} else if moonID, ok := v.(MoonID); ok {
+		return b.GetCachedCelestialByID(moonID.Celestial())
+	} else if id, ok := v.(int); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(int32); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(int64); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(float32); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(float64); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if coord, ok := v.(Coordinate); ok {
+		return b.GetCachedCelestialByCoord(coord)
+	} else if coordStr, ok := v.(string); ok {
+		coord, err := ParseCoord(coordStr)
+		if err != nil {
+			return nil
+		}
+		return b.GetCachedCelestialByCoord(coord)
+	}
+	return nil
+}
+
+// GetCachedCelestialByID return celestial from cached value
+func (b *OGame) GetCachedCelestialByID(celestialID CelestialID) Celestial {
 	for _, p := range b.Planets {
 		if p.ID.Celestial() == celestialID {
 			return p
@@ -2887,30 +2905,31 @@ func (b *OGame) GetCachedCelestial(celestialID CelestialID) Celestial {
 	return nil
 }
 
+// GetCachedCelestialByCoord return celestial from cached value
+func (b *OGame) GetCachedCelestialByCoord(coord Coordinate) Celestial {
+	for _, p := range b.Planets {
+		if p.GetCoordinate().Equal(coord) {
+			return p
+		}
+		if p.Moon != nil && p.Moon.GetCoordinate().Equal(coord) {
+			return p.Moon
+		}
+	}
+	return nil
+}
+
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *Prioritize) GetPlanet(planetID PlanetID) (Planet, error) {
+func (b *Prioritize) GetPlanet(v interface{}) (Planet, error) {
 	b.begin("GetPlanet")
 	defer b.done()
-	return b.bot.getPlanet(planetID)
+	return b.bot.getPlanet(v)
 }
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *OGame) GetPlanet(planetID PlanetID) (Planet, error) {
-	return b.WithPriority(Normal).GetPlanet(planetID)
-}
-
-// GetPlanetByCoord get the player's planet using the coordinate
-func (b *Prioritize) GetPlanetByCoord(coord Coordinate) (Planet, error) {
-	b.begin("GetPlanetByCoord")
-	defer b.done()
-	return b.bot.getPlanetByCoord(coord)
-}
-
-// GetPlanetByCoord get the player's planet using the coordinate
-func (b *OGame) GetPlanetByCoord(coord Coordinate) (Planet, error) {
-	return b.WithPriority(Normal).GetPlanetByCoord(coord)
+func (b *OGame) GetPlanet(v interface{}) (Planet, error) {
+	return b.WithPriority(Normal).GetPlanet(v)
 }
 
 // GetMoons returns the user moons
@@ -2926,27 +2945,15 @@ func (b *OGame) GetMoons(moonID MoonID) []Moon {
 }
 
 // GetMoon gets infos for moonID
-func (b *Prioritize) GetMoon(moonID MoonID) (Moon, error) {
+func (b *Prioritize) GetMoon(v interface{}) (Moon, error) {
 	b.begin("GetMoon")
 	defer b.done()
-	return b.bot.getMoon(moonID)
+	return b.bot.getMoon(v)
 }
 
 // GetMoon gets infos for moonID
-func (b *OGame) GetMoon(moonID MoonID) (Moon, error) {
-	return b.WithPriority(Normal).GetMoon(moonID)
-}
-
-// GetMoonByCoord get the player's moon using the coordinate
-func (b *Prioritize) GetMoonByCoord(coord Coordinate) (Moon, error) {
-	b.begin("GetMoonByCoord")
-	defer b.done()
-	return b.bot.getMoonByCoord(coord)
-}
-
-// GetMoonByCoord get the player's moon using the coordinate
-func (b *OGame) GetMoonByCoord(coord Coordinate) (Moon, error) {
-	return b.WithPriority(Normal).GetMoonByCoord(coord)
+func (b *OGame) GetMoon(v interface{}) (Moon, error) {
+	return b.WithPriority(Normal).GetMoon(v)
 }
 
 // GetCelestial get the player's planets & moons
@@ -2962,15 +2969,15 @@ func (b *OGame) GetCelestials() ([]Celestial, error) {
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *Prioritize) GetCelestial(coord Coordinate) (Celestial, error) {
+func (b *Prioritize) GetCelestial(v interface{}) (Celestial, error) {
 	b.begin("GetCelestial")
 	defer b.done()
-	return b.bot.getCelestial(coord)
+	return b.bot.getCelestial(v)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *OGame) GetCelestial(coord Coordinate) (Celestial, error) {
-	return b.WithPriority(Normal).GetCelestial(coord)
+func (b *OGame) GetCelestial(v interface{}) (Celestial, error) {
+	return b.WithPriority(Normal).GetCelestial(v)
 }
 
 // ServerVersion returns OGame version
@@ -3338,7 +3345,6 @@ func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 func (b *Prioritize) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
 	b.begin("SendIPM")
 	defer b.done()
-	fmt.Println("CALISSSS", planetID, priority)
 	return b.bot.sendIPM(planetID, coord, nbr, priority)
 }
 

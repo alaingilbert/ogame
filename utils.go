@@ -1,6 +1,8 @@
 package ogame
 
 import (
+	"errors"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -48,4 +50,27 @@ func IsResourceBuildingID(id int) bool {
 // IsFacilityID helper returns if an integer is a facility id
 func IsFacilityID(id int) bool {
 	return ID(id).IsFacility()
+}
+
+// ParseCoord parse a coordinate from a string
+func ParseCoord(str string) (coord Coordinate, err error) {
+	m := regexp.MustCompile(`^\[?(([P|M]):)?(\d{1,3}):(\d{1,3}):(\d{1,3})]?$`).FindStringSubmatch(str)
+	if len(m) == 5 {
+		galaxy, _ := strconv.Atoi(m[2])
+		system, _ := strconv.Atoi(m[3])
+		position, _ := strconv.Atoi(m[4])
+		planetType := PlanetType
+		return Coordinate{galaxy, system, position, planetType}, nil
+	} else if len(m) == 6 {
+		planetTypeStr := m[2]
+		galaxy, _ := strconv.Atoi(m[3])
+		system, _ := strconv.Atoi(m[4])
+		position, _ := strconv.Atoi(m[5])
+		planetType := PlanetType
+		if planetTypeStr == "M" {
+			planetType = MoonType
+		}
+		return Coordinate{galaxy, system, position, planetType}, nil
+	}
+	return coord, errors.New("unable to parse coordinate")
 }
