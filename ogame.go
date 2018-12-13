@@ -1132,6 +1132,7 @@ type Celestial interface {
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
 	ConstructionsBeingBuilt() (ID, int, ID, int)
+	GetProduction() ([]Quantifiable, error)
 	GetResourcesBuildings() (ResourcesBuildings, error)
 	Build(id ID, nbr int) error
 	BuildBuilding(buildingID ID) error
