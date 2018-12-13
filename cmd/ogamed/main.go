@@ -363,7 +363,7 @@ func getPlanetByCoord(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid position"))
 	}
-	planet, err := bot.GetPlanetByCoord(ogame.Coordinate{Type: ogame.PlanetType, Galaxy: galaxy, System: system, Position: position})
+	planet, err := bot.GetPlanet(ogame.Coordinate{Type: ogame.PlanetType, Galaxy: galaxy, System: system, Position: position})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, errorResp(500, err.Error()))
 	}

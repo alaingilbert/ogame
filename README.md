@@ -37,6 +37,8 @@ func main() {
 ### Available methods
 
 ```go
+IsActive() bool
+Quiet(bool)
 Tx(clb func(tx *Prioritize) error) error
 Begin() *Prioritize
 WithPriority(priority int) *Prioritize
@@ -51,6 +53,7 @@ SetUserAgent(newUserAgent string)
 ServerURL() string
 GetLanguage() string
 GetPageContent(url.Values) []byte
+GetAlliancePageContent(url.Values) []byte
 PostPageContent(url.Values, url.Values) []byte
 Login() error
 Logout()
@@ -74,19 +77,18 @@ GalaxyInfos(galaxy, system int) (SystemInfos, error)
 GetResearch() Researches
 GetCachedPlanets() []Planet
 GetCachedMoons() []Moon
-GetCachedCelestial(CelestialID) Celestial
+GetCachedCelestial(interface{}) Celestial
 GetCachedPlayer() UserInfos
 GetPlanets() []Planet
-GetPlanet(PlanetID) (Planet, error)
-GetPlanetByCoord(Coordinate) (Planet, error)
+GetPlanet(interface{}) (Planet, error)
 GetMoons(MoonID) []Moon
-GetMoon(MoonID) (Moon, error)
-GetMoonByCoord(Coordinate) (Moon, error)
-GetCelestial(Coordinate) (Celestial, error)
+GetMoon(interface{}) (Moon, error)
+GetCelestial(interface{}) (Celestial, error)
 GetCelestials() ([]Celestial, error)
 GetEspionageReportMessages() ([]EspionageReportSummary, error)
 GetEspionageReportFor(Coordinate) (EspionageReport, error)
 GetEspionageReport(msgID int) (EspionageReport, error)
+GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 DeleteMessage(msgID int) error
 Distance(origin, destination Coordinate) int
 FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
@@ -96,7 +98,7 @@ GetSlots() Slots
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
-SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources) (Fleet, error)
+SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
 Build(celestialID CelestialID, id ID, nbr int) error
 BuildCancelable(CelestialID, ID) error
 BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -116,7 +118,9 @@ BuildTechnology(celestialID CelestialID, technologyID ID) error
 // Planet specific functions
 GetResourceSettings(PlanetID) (ResourceSettings, error)
 SetResourceSettings(PlanetID, ResourceSettings) error
+SendIPM(PlanetID, Coordinate, int, ID) (int, error)
 GetResourcesProductions(PlanetID) (Resources, error)
+GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
 
 // Moon specific functions
 Phalanx(MoonID, Coordinate) ([]Fleet, error)
