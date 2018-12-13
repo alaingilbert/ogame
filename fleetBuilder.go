@@ -50,14 +50,20 @@ func NewFleetBuilder(b Wrapper) *FleetBuilder {
 }
 
 // SetOrigin ...
-func (f *FleetBuilder) SetOrigin(id CelestialID) *FleetBuilder {
-	f.origin = id
+func (f *FleetBuilder) SetOrigin(v interface{}) *FleetBuilder {
+	c := f.b.GetCachedCelestial(v)
+	if c != nil {
+		f.origin = c.GetID()
+	}
 	return f
 }
 
 // SetDestination ...
-func (f *FleetBuilder) SetDestination(destination Coordinate) *FleetBuilder {
-	f.destination = destination
+func (f *FleetBuilder) SetDestination(v interface{}) *FleetBuilder {
+	c := f.b.GetCachedCelestial(v)
+	if c != nil {
+		f.destination = c.GetCoordinate()
+	}
 	return f
 }
 
