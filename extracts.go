@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/html"
 )
 
@@ -246,6 +247,8 @@ func ExtractPlanetFromDoc(doc *goquery.Document, v interface{}, b *OGame) (Plane
 		return ExtractPlanetByIDFromDoc(doc, b, PlanetID(id))
 	} else if id, ok := v.(float64); ok {
 		return ExtractPlanetByIDFromDoc(doc, b, PlanetID(id))
+	} else if id, ok := v.(lua.LNumber); ok {
+		return ExtractPlanetByIDFromDoc(doc, b, PlanetID(id))
 	}
 	return Planet{}, errors.New("failed to find planet")
 }
@@ -282,6 +285,8 @@ func ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Moon, e
 	} else if id, ok := v.(float32); ok {
 		return ExtractMoonByIDFromDoc(doc, b, MoonID(id))
 	} else if id, ok := v.(float64); ok {
+		return ExtractMoonByIDFromDoc(doc, b, MoonID(id))
+	} else if id, ok := v.(lua.LNumber); ok {
 		return ExtractMoonByIDFromDoc(doc, b, MoonID(id))
 	}
 	return Moon{}, errors.New("moon not found")
@@ -335,6 +340,8 @@ func ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Ce
 	} else if id, ok := v.(float32); ok {
 		return ExtractCelestialByIDFromDoc(doc, b, CelestialID(id))
 	} else if id, ok := v.(float64); ok {
+		return ExtractCelestialByIDFromDoc(doc, b, CelestialID(id))
+	} else if id, ok := v.(lua.LNumber); ok {
 		return ExtractCelestialByIDFromDoc(doc, b, CelestialID(id))
 	} else if coord, ok := v.(Coordinate); ok {
 		if coord.Type == PlanetType {
