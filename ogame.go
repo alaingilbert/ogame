@@ -24,6 +24,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
+	"github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
 	"golang.org/x/text/runes"
@@ -2880,6 +2881,8 @@ func (b *OGame) GetCachedCelestial(v interface{}) Celestial {
 	} else if id, ok := v.(float32); ok {
 		return b.GetCachedCelestialByID(CelestialID(id))
 	} else if id, ok := v.(float64); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(lua.LNumber); ok {
 		return b.GetCachedCelestialByID(CelestialID(id))
 	} else if coord, ok := v.(Coordinate); ok {
 		return b.GetCachedCelestialByCoord(coord)

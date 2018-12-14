@@ -51,18 +51,44 @@ func NewFleetBuilder(b Wrapper) *FleetBuilder {
 
 // SetOrigin ...
 func (f *FleetBuilder) SetOrigin(v interface{}) *FleetBuilder {
-	c := f.b.GetCachedCelestial(v)
-	if c != nil {
-		f.origin = c.GetID()
+	var c Celestial
+	if celestial, ok := v.(Celestial); ok {
+		f.origin = celestial.GetID()
+	} else if planet, ok := v.(Planet); ok {
+		f.origin = planet.GetID()
+	} else if moon, ok := v.(Moon); ok {
+		f.origin = moon.GetID()
+	} else {
+		c = f.b.GetCachedCelestial(v)
+		if c != nil {
+			f.origin = c.GetID()
+		}
 	}
 	return f
 }
 
 // SetDestination ...
 func (f *FleetBuilder) SetDestination(v interface{}) *FleetBuilder {
-	c := f.b.GetCachedCelestial(v)
-	if c != nil {
-		f.destination = c.GetCoordinate()
+	var c Celestial
+	if celestial, ok := v.(Celestial); ok {
+		f.destination = celestial.GetCoordinate()
+	} else if planet, ok := v.(Planet); ok {
+		f.destination = planet.GetCoordinate()
+	} else if moon, ok := v.(Moon); ok {
+		f.destination = moon.GetCoordinate()
+	} else if coord, ok := v.(Coordinate); ok {
+		f.destination = coord
+	} else if coordStr, ok := v.(string); ok {
+		coord, err := ParseCoord(coordStr)
+		if err != nil {
+			return f
+		}
+		f.destination = coord
+	} else {
+		c = f.b.GetCachedCelestial(v)
+		if c != nil {
+			f.destination = c.GetCoordinate()
+		}
 	}
 	return f
 }
