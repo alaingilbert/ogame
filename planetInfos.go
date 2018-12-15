@@ -10,17 +10,17 @@ type SystemInfos struct {
 }
 
 // Galaxy returns galaxy info
-func (s *SystemInfos) Galaxy() int {
+func (s SystemInfos) Galaxy() int {
 	return s.galaxy
 }
 
 // System returns system info
-func (s *SystemInfos) System() int {
+func (s SystemInfos) System() int {
 	return s.system
 }
 
 // Position returns planet at position idx in the SystemInfos
-func (s *SystemInfos) Position(idx int) *PlanetInfos {
+func (s SystemInfos) Position(idx int) *PlanetInfos {
 	if idx < 1 || idx > 15 {
 		return nil
 	}
