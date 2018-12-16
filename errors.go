@@ -14,8 +14,11 @@ var ErrInvalidPlanetID = errors.New("invalid planet id")
 // ErrAllSlotsInUse returned when all slots are in use
 var ErrAllSlotsInUse = errors.New("all slots are in use")
 
-// ErrBotInactive returned when the bot is not active (manually logged out)
+// ErrBotInactive returned when the bot is not active
 var ErrBotInactive = errors.New("bot is not active")
+
+// ErrBotLoggedOut returned when the bot is logged out (manually logged out)
+var ErrBotLoggedOut = errors.New("bot is logged out")
 
 // ErrDeactivvateHidePictures returned when "Hide pictures in reports" is activated
 var ErrDeactivateHidePictures = errors.New("deactivate 'Hide pictures in reports'")
