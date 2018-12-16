@@ -1076,11 +1076,13 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
 // Enable enables communications with OGame Server
 func (b *OGame) Enable() {
 	atomic.StoreInt32(&b.isEnabled, 1)
+	b.stateChanged(false, "Enable")
 }
 
 // Disable disables communications with OGame Server
 func (b *OGame) Disable() {
 	atomic.StoreInt32(&b.isEnabled, 0)
+	b.stateChanged(false, "Disable")
 }
 
 // IsEnabled returns true if the bot is enabled, otherwise false
