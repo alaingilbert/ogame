@@ -34,7 +34,9 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
-	IsActive() bool
+	Enable()
+	Disable()
+	IsEnabled() bool
 	Quiet(bool)
 	Tx(clb func(tx *Prioritize) error) error
 	Begin() *Prioritize
@@ -54,6 +56,8 @@ type Wrapper interface {
 	PostPageContent(url.Values, url.Values) []byte
 	Login() error
 	Logout()
+	IsLoggedIn() bool
+	IsConnected() bool
 	GetUsername() string
 	GetUniverseName() string
 	GetUniverseSpeed() int
@@ -226,7 +230,9 @@ func (pq *PriorityQueue) Pop() interface{} {
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isActive             int32  // atomic, prevent auto re login if we manually logged out
+	isEnabled            int32  // atomic, prevent auto re login if we manually logged out
+	isLoggedIn           int32  // atomic, prevent auto re login if we manually logged out
+	isConnected          int32  // atomic, either or not communication between the bot and OGame is possible
 	locked               int32  // atomic, bot state locked/unlocked
 	state                string // keep name of the function that currently lock the bot
 	stateChangeCallbacks []func(locked bool, actor string)
@@ -326,6 +332,7 @@ func NewWithParams(params Params) (*OGame, error) {
 // NewNoLogin does not auto login.
 func NewNoLogin(universe, username, password, lang string) *OGame {
 	b := new(OGame)
+	b.Enable()
 	b.quiet = false
 	b.logger = log.New(os.Stdout, "", 0)
 
@@ -600,7 +607,8 @@ func (b *OGame) login() error {
 		return errors.New("bad credentials")
 	}
 
-	atomic.StoreInt32(&b.isActive, 1) // At this point, we are logged in
+	atomic.StoreInt32(&b.isLoggedIn, 1) // At this point, we are logged in
+	atomic.StoreInt32(&b.isConnected, 1)
 	b.sessionChatCounter = 1
 
 	serverTime, _ := extractServerTime(pageHTML)
@@ -752,7 +760,7 @@ func (m ChatMsg) String() string {
 
 func (b *OGame) logout() {
 	b.getPageContent(url.Values{"page": {"logout"}})
-	if atomic.CompareAndSwapInt32(&b.isActive, 1, 0) {
+	if atomic.CompareAndSwapInt32(&b.isLoggedIn, 1, 0) {
 		select {
 		case <-b.closeChatCh:
 		default:
@@ -762,6 +770,16 @@ func (b *OGame) logout() {
 			}
 		}
 	}
+}
+
+// IsLoggedIn returns true if the bot is currently logged-in, otherwise false
+func (b *OGame) IsLoggedIn() bool {
+	return atomic.LoadInt32(&b.isLoggedIn) == 1
+}
+
+// IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
+func (b *OGame) IsConnected() bool {
+	return atomic.LoadInt32(&b.isConnected) == 1
 }
 
 func isLogged(pageHTML []byte) bool {
@@ -818,8 +836,11 @@ func IsAjaxPage(vals url.Values) bool {
 }
 
 func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
-	if !b.IsActive() {
+	if !b.IsEnabled() {
 		return []byte{}, ErrBotInactive
+	}
+	if !b.IsLoggedIn() {
+		return []byte{}, ErrBotLoggedOut
 	}
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
@@ -874,8 +895,11 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 }
 
 func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
-	if !b.IsActive() {
+	if !b.IsEnabled() {
 		return []byte{}, ErrBotInactive
+	}
+	if !b.IsLoggedIn() {
+		return []byte{}, ErrBotLoggedOut
 	}
 
 	if b.serverURL == "" {
@@ -910,8 +934,11 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 }
 
 func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
-	if !b.IsActive() {
+	if !b.IsEnabled() {
 		return []byte{}, ErrBotInactive
+	}
+	if !b.IsLoggedIn() {
+		return []byte{}, ErrBotLoggedOut
 	}
 
 	if b.serverURL == "" {
@@ -952,6 +979,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 		if page != "logout" && IsKnowFullPage(vals) && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
+			atomic.StoreInt32(&b.isConnected, 0)
 			return ErrNotLogged
 		}
 
@@ -1003,8 +1031,11 @@ func (b *OGame) withRetry(fn func() error) error {
 		if err := fn(); err != nil {
 			if err == ErrNotLogged {
 				// If we manually logged out, do not try to auto re login.
-				if !b.IsActive() {
+				if !b.IsEnabled() {
 					return ErrBotInactive
+				}
+				if !b.IsLoggedIn() {
+					return ErrBotLoggedOut
 				}
 				retry(err)
 				if loginErr := b.login(); loginErr != nil {
@@ -1023,8 +1054,11 @@ func (b *OGame) withRetry(fn func() error) error {
 }
 
 func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
-	if !b.IsActive() {
+	if !b.IsEnabled() {
 		return ErrBotInactive
+	}
+	if !b.IsLoggedIn() {
+		return ErrBotLoggedOut
 	}
 	err := b.withRetry(func() error {
 		pageJSON, err := b.getPageContent(vals)
@@ -1039,8 +1073,19 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
 	return err
 }
 
-func (b *OGame) IsActive() bool {
-	return atomic.LoadInt32(&b.isActive) == 1
+// Enable enables communications with OGame Server
+func (b *OGame) Enable() {
+	atomic.StoreInt32(&b.isEnabled, 1)
+}
+
+// Disable disables communications with OGame Server
+func (b *OGame) Disable() {
+	atomic.StoreInt32(&b.isEnabled, 0)
+}
+
+// IsEnabled returns true if the bot is enabled, otherwise false
+func (b *OGame) IsEnabled() bool {
+	return atomic.LoadInt32(&b.isEnabled) == 1
 }
 
 func (b *OGame) getUniverseSpeed() int {
