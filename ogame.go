@@ -2065,8 +2065,12 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	for k, v := range hidden {
 		payload.Add(k, v)
 	}
+	cs := false // ColonyShip flag for fleet check
 	for _, s := range ships {
 		if s.Nbr > 0 {
+			if s.ID == ColonyShipID {
+				cs = true
+			}
 			payload.Add("am"+strconv.Itoa(int(s.ID)), strconv.Itoa(s.Nbr))
 		}
 	}
@@ -2105,6 +2109,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		"system": {strconv.Itoa(where.System)},
 		"planet": {strconv.Itoa(where.Position)},
 		"type":   {strconv.Itoa(int(t))},
+	}
+	if cs {
+		fleetCheckPayload.Add("cs", "1")
 	}
 	by1, err := b.postPageContent(url.Values{"page": {"fleetcheck"}, "ajax": {"1"}, "espionage": {"0"}}, fleetCheckPayload)
 	if err != nil {
