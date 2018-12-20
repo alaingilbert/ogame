@@ -439,6 +439,20 @@ func TestExtractPlanet_jp(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_cz(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/cz/overview.html")
+	planet, _ := ExtractPlanet(pageHTMLBytes, PlanetID(33622822), &OGame{language: "cz"})
+	assert.Equal(t, "Domovska planeta", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, -13, planet.Temperature.Min)
+	assert.Equal(t, 27, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33622822), planet.ID)
+	assert.Equal(t, Coordinate{1, 221, 12, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_jp1(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/jp/overview.html")
 	planet, _ := ExtractPlanet(pageHTMLBytes, PlanetID(33623513), &OGame{language: "jp"})
@@ -619,6 +633,22 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, SmallCargoID, name2id("Nave pequeña de carga"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satélite solar"))
 	assert.Equal(t, ID(0), name2id("人中位"))
+
+	// cz
+	assert.Equal(t, LightFighterID, name2id("Lehký stíhač"))
+	assert.Equal(t, HeavyFighterID, name2id("Těžký stíhač"))
+	assert.Equal(t, CruiserID, name2id("Křižník"))
+	assert.Equal(t, BattleshipID, name2id("Bitevní loď"))
+	assert.Equal(t, BattlecruiserID, name2id("Bitevní křižník"))
+	assert.Equal(t, BomberID, name2id("Bombardér"))
+	assert.Equal(t, DestroyerID, name2id("Ničitel"))
+	assert.Equal(t, DeathstarID, name2id("Hvězda smrti"))
+	assert.Equal(t, SmallCargoID, name2id("Malý transportér"))
+	assert.Equal(t, LargeCargoID, name2id("Velký transportér"))
+	assert.Equal(t, ColonyShipID, name2id("Kolonizační loď"))
+	assert.Equal(t, RecyclerID, name2id("Recyklátor"))
+	assert.Equal(t, EspionageProbeID, name2id("Špionážní sonda"))
+	assert.Equal(t, SolarSatelliteID, name2id("Solární satelit"))
 
 	// it
 	assert.Equal(t, LightFighterID, name2id("Caccia Leggero"))
@@ -983,6 +1013,14 @@ func TestExtractUserInfos_jp1(t *testing.T) {
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 85, infos.Rank)
 	assert.Equal(t, 86, infos.Total)
+}
+
+func TestExtractUserInfos_cz(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/cz/overview.html")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "cz")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 1008, infos.Rank)
+	assert.Equal(t, 1009, infos.Total)
 }
 
 func TestExtractUserInfos_fr(t *testing.T) {
