@@ -27,6 +27,13 @@ func (s SystemInfos) Position(idx int) *PlanetInfos {
 	return s.planets[idx-1]
 }
 
+// Each will execute provided callback for every positions in the system
+func (s SystemInfos) Each(clb func(planetInfo *PlanetInfos)) {
+	for i := 1; i <= 15; i++ {
+		clb(s.Position(i))
+	}
+}
+
 // MarshalJSON export private fields to json for ogamed
 func (s SystemInfos) MarshalJSON() ([]byte, error) {
 	var tmp struct {
