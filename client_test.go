@@ -18,7 +18,7 @@ func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 func TestOgameClient_Do(t *testing.T) {
-	c := ogameClient{UserAgent: "test", Client: http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
+	c := OGameClient{UserAgent: "test", Client: http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 		// Test request parameters
 		return &http.Response{
 			StatusCode: 200,
