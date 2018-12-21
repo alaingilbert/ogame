@@ -34,6 +34,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	GetClient() *OGameClient
 	Enable()
 	Disable()
 	IsEnabled() bool
@@ -257,7 +258,7 @@ type OGame struct {
 	fleetDeutSaveFactor  float64
 	ogameVersion         string
 	serverURL            string
-	Client               *ogameClient
+	Client               *OGameClient
 	logger               *log.Logger
 	chatCallbacks        []func(msg ChatMsg)
 	interceptorCallbacks []func(method string, params, payload url.Values, pageHTML []byte)
@@ -287,7 +288,6 @@ type Params struct {
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
 	b := NewNoLogin(universe, username, password, lang)
-
 	if err := b.Login(); err != nil {
 		return nil, err
 	}
@@ -343,7 +343,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.language = lang
 
 	jar, _ := cookiejar.New(nil)
-	b.Client = &ogameClient{}
+	b.Client = &OGameClient{}
 	b.Client.Jar = jar
 	b.Client.UserAgent = defaultUserAgent
 
@@ -388,7 +388,7 @@ type Server struct {
 // ogame cookie name for php session id
 const phpSessionIDCookieName = "PHPSESSID"
 
-func getPhpSessionID(client *ogameClient, username, password string) (string, error) {
+func getPhpSessionID(client *OGameClient, username, password string) (string, error) {
 	payload := url.Values{
 		"kid":                   {""},
 		"language":              {"en"},
@@ -446,7 +446,7 @@ type account struct {
 	}
 }
 
-func getUserAccounts(client *ogameClient, phpSessionID string) ([]account, error) {
+func getUserAccounts(client *OGameClient, phpSessionID string) ([]account, error) {
 	var userAccounts []account
 	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/users/me/accounts", nil)
 	if err != nil {
@@ -468,7 +468,7 @@ func getUserAccounts(client *ogameClient, phpSessionID string) ([]account, error
 	return userAccounts, nil
 }
 
-func getServers(client *ogameClient) ([]Server, error) {
+func getServers(client *OGameClient) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/servers", nil)
 	if err != nil {
@@ -513,7 +513,7 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 	return acc, server, nil
 }
 
-func getLoginLink(client *ogameClient, userAccount account, phpSessionID string) (string, error) {
+func getLoginLink(client *OGameClient, userAccount account, phpSessionID string) (string, error) {
 	ogURL := fmt.Sprintf("https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
 		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest("GET", ogURL, nil)
@@ -785,6 +785,11 @@ func (b *OGame) IsConnected() bool {
 
 func isLogged(pageHTML []byte) bool {
 	return len(regexp.MustCompile(`<meta name="ogame-session" content="\w+"/>`).FindSubmatch(pageHTML)) == 1
+}
+
+// GetClient get the http client used by the bot
+func (b *OGame) GetClient() *OGameClient {
+	return b.Client
 }
 
 func IsKnowFullPage(vals url.Values) bool {
