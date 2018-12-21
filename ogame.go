@@ -78,6 +78,7 @@ type Wrapper interface {
 	GetResearch() Researches
 	GetCachedPlanets() []Planet
 	GetCachedMoons() []Moon
+	GetCachedCelestials() []Celestial
 	GetCachedCelestial(interface{}) Celestial
 	GetCachedPlayer() UserInfos
 	GetPlanets() []Planet
@@ -256,7 +257,7 @@ type OGame struct {
 	fleetDeutSaveFactor  float64
 	ogameVersion         string
 	serverURL            string
-	client               *ogameClient
+	Client               *ogameClient
 	logger               *log.Logger
 	chatCallbacks        []func(msg ChatMsg)
 	interceptorCallbacks []func(method string, params, payload url.Values, pageHTML []byte)
@@ -303,7 +304,7 @@ func NewWithParams(params Params) (*OGame, error) {
 		if err != nil {
 			return nil, err
 		}
-		b.client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+		b.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	}
 
 	if params.Socks5Address != "" {
@@ -317,7 +318,7 @@ func NewWithParams(params Params) (*OGame, error) {
 		}
 		httpTransport := &http.Transport{}
 		httpTransport.Dial = dialer.Dial
-		b.client.Transport = httpTransport
+		b.Client.Transport = httpTransport
 	}
 
 	if params.AutoLogin {
@@ -342,9 +343,9 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.language = lang
 
 	jar, _ := cookiejar.New(nil)
-	b.client = &ogameClient{}
-	b.client.Jar = jar
-	b.client.UserAgent = defaultUserAgent
+	b.Client = &ogameClient{}
+	b.Client.Jar = jar
+	b.Client.UserAgent = defaultUserAgent
 
 	b.tasks = make(PriorityQueue, 0)
 	heap.Init(&b.tasks)
@@ -540,20 +541,20 @@ func getLoginLink(client *ogameClient, userAccount account, phpSessionID string)
 
 func (b *OGame) login() error {
 	jar, _ := cookiejar.New(nil)
-	b.client.Jar = jar
+	b.Client.Jar = jar
 
 	b.debug("get session")
-	phpSessionID, err := getPhpSessionID(b.client, b.Username, b.password)
+	phpSessionID, err := getPhpSessionID(b.Client, b.Username, b.password)
 	if err != nil {
 		return err
 	}
 	b.debug("get user accounts")
-	accounts, err := getUserAccounts(b.client, phpSessionID)
+	accounts, err := getUserAccounts(b.Client, phpSessionID)
 	if err != nil {
 		return err
 	}
 	b.debug("get servers")
-	servers, err := getServers(b.client)
+	servers, err := getServers(b.Client)
 	if err != nil {
 		return err
 	}
@@ -569,7 +570,7 @@ func (b *OGame) login() error {
 	b.server = server
 	b.language = userAccount.Server.Language
 	b.debug("get login link")
-	loginLink, err := getLoginLink(b.client, userAccount, phpSessionID)
+	loginLink, err := getLoginLink(b.Client, userAccount, phpSessionID)
 	if err != nil {
 		return err
 	}
@@ -586,7 +587,7 @@ func (b *OGame) login() error {
 		return err
 	}
 	b.debug("login to universe")
-	resp, err := b.client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -856,14 +857,14 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	}
 
 	// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
-	b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+	b.Client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	}
 	defer func() {
-		b.client.CheckRedirect = nil
+		b.Client.CheckRedirect = nil
 	}()
 
-	resp, err := b.client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		b.error(err)
 		return []byte{}, err
@@ -914,7 +915,7 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 		return nil, err
 	}
 
-	resp, err := b.client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -961,7 +962,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 			req.Header.Add("X-Requested-With", "XMLHttpRequest")
 		}
 
-		resp, err := b.client.Do(req)
+		resp, err := b.Client.Do(req)
 		if err != nil {
 			return err
 		}
@@ -1644,7 +1645,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		return res, err
 	}
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		b.error(err.Error())
 		return res, err
@@ -1697,7 +1698,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -1773,7 +1774,7 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 		"last212":      {strconv.Itoa(settings.SolarSatellite)},
 	}
 	url2 := b.serverURL + "/game/index.php?page=resourceSettings"
-	resp, err := b.client.PostForm(url2, payload)
+	resp, err := b.Client.PostForm(url2, payload)
 	if err != nil {
 		return err
 	}
@@ -1857,7 +1858,7 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
 	}
 
 	url2 := b.serverURL + "/game/index.php?page=" + page + "&cp=" + strconv.Itoa(int(celestialID))
-	resp, err := b.client.PostForm(url2, payload)
+	resp, err := b.Client.PostForm(url2, payload)
 	if err != nil {
 		return err
 	}
@@ -1915,7 +1916,7 @@ func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, i
 func (b *OGame) cancel(token string, techID, listID int) error {
 	finalURL := b.serverURL + "/game/index.php?page=overview&modus=2&token=" + token + "&techid=" + strconv.Itoa(techID) + "&listid=" + strconv.Itoa(listID)
 	req, _ := http.NewRequest("GET", finalURL, nil)
-	resp, _ := b.client.Do(req)
+	resp, _ := b.Client.Do(req)
 	defer resp.Body.Close()
 	return nil
 }
@@ -2316,7 +2317,7 @@ func (b *OGame) getPageMessages(page, tabid int) ([]byte, error) {
 	}
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	resp, err := b.client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -2488,7 +2489,7 @@ func (b *OGame) deleteMessage(msgID int) error {
 	}
 	req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	resp, err := b.client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return err
 	}
@@ -2567,7 +2568,7 @@ func (b *OGame) GetPublicIP() (string, error) {
 	var res struct {
 		IP string `json:"ip"`
 	}
-	resp, err := b.client.Get("https://jsonip.com/")
+	resp, err := b.Client.Get("https://jsonip.com/")
 	if err != nil {
 		return "", err
 	}
@@ -2651,7 +2652,7 @@ func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
 		return newAccount, err
 	}
 	req.Header.Add("Content-Type", "application/json")
-	resp, err := b.client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return newAccount, err
 	}
@@ -2792,7 +2793,7 @@ func (b *OGame) GetLanguage() string {
 
 // SetUserAgent change the user-agent used by the http client
 func (b *OGame) SetUserAgent(newUserAgent string) {
-	b.client.UserAgent = newUserAgent
+	b.Client.UserAgent = newUserAgent
 }
 
 // Login to ogame server
@@ -2938,6 +2939,18 @@ func (b *OGame) GetCachedMoons() []Moon {
 		}
 	}
 	return moons
+}
+
+// GetCachedCelestials get all cached celestials
+func (b *OGame) GetCachedCelestials() []Celestial {
+	celestials := make([]Celestial, 0)
+	for _, p := range b.Planets {
+		celestials = append(celestials, p)
+		if p.Moon != nil {
+			celestials = append(celestials, p.Moon)
+		}
+	}
+	return celestials
 }
 
 // GetCachedCelestial return celestial from cached value
