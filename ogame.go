@@ -34,6 +34,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	SetLoginWrapper(func(func() error) error)
 	GetClient() *OGameClient
 	Enable()
 	Disable()
@@ -270,6 +271,7 @@ type OGame struct {
 	tasksLock            sync.Mutex
 	tasksPushCh          chan *Item
 	tasksPopCh           chan struct{}
+	loginWrapper         func(func() error) error
 }
 
 // Params parameters for more fine-grained initialization
@@ -333,6 +335,7 @@ func NewWithParams(params Params) (*OGame, error) {
 // NewNoLogin does not auto login.
 func NewNoLogin(universe, username, password, lang string) *OGame {
 	b := new(OGame)
+	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
 	b.quiet = false
 	b.logger = log.New(os.Stdout, "", 0)
@@ -654,6 +657,18 @@ func (b *OGame) login() error {
 	}
 
 	return nil
+}
+
+var DefaultLoginWrapper = func(loginFn func() error) error {
+	return loginFn()
+}
+
+func (b *OGame) wrapLogin() error {
+	return b.loginWrapper(b.login)
+}
+
+func (b *OGame) SetLoginWrapper(newWrapper func(func() error) error) {
+	b.loginWrapper = newWrapper
 }
 
 func (b *OGame) connectChat(host, port string) {
@@ -1044,7 +1059,7 @@ func (b *OGame) withRetry(fn func() error) error {
 					return ErrBotLoggedOut
 				}
 				retry(err)
-				if loginErr := b.login(); loginErr != nil {
+				if loginErr := b.wrapLogin(); loginErr != nil {
 					b.error(loginErr.Error()) // log error
 					continue
 				}
@@ -2806,7 +2821,7 @@ func (b *OGame) SetUserAgent(newUserAgent string) {
 func (b *Prioritize) Login() error {
 	b.begin("Login")
 	defer b.done()
-	return b.bot.login()
+	return b.bot.wrapLogin()
 }
 
 // Login to ogame server
