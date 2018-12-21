@@ -998,7 +998,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		}
 		pageHTMLBytes = by
 
-		if page != "logout" && IsKnowFullPage(vals) && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
+		if page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
 			atomic.StoreInt32(&b.isConnected, 0)
 			return ErrNotLogged
