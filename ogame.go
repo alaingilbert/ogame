@@ -78,6 +78,7 @@ type Wrapper interface {
 	GetResearch() Researches
 	GetCachedPlanets() []Planet
 	GetCachedMoons() []Moon
+	GetCachedCelestials() []Celestial
 	GetCachedCelestial(interface{}) Celestial
 	GetCachedPlayer() UserInfos
 	GetPlanets() []Planet
@@ -2938,6 +2939,18 @@ func (b *OGame) GetCachedMoons() []Moon {
 		}
 	}
 	return moons
+}
+
+// GetCachedCelestials get all cached celestials
+func (b *OGame) GetCachedCelestials() []Celestial {
+	celestials := make([]Celestial, 0)
+	for _, p := range b.Planets {
+		celestials = append(celestials, p)
+		if p.Moon != nil {
+			celestials = append(celestials, p.Moon)
+		}
+	}
+	return celestials
 }
 
 // GetCachedCelestial return celestial from cached value
