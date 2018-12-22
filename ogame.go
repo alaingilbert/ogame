@@ -89,6 +89,7 @@ type Wrapper interface {
 	GetMoon(interface{}) (Moon, error)
 	GetCelestial(interface{}) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
+	Abandon(PlanetID) error
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
@@ -1238,6 +1239,21 @@ func (b *OGame) getCelestials() ([]Celestial, error) {
 func (b *OGame) getCelestial(v interface{}) (Celestial, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
 	return ExtractCelestial(pageHTML, b, v)
+}
+
+func (b *OGame) abandon(planetID PlanetID) error {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"planetlayer"}, "cp": {strconv.Itoa(int(planetID))}})
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
+	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
+	payload := url.Values{
+		"abandon":  {abandonToken},
+		"token":    {token},
+		"password": {b.password},
+	}
+	by, err := b.postPageContent(url.Values{"page": {"planetGiveup"}}, payload)
+	fmt.Println(string(by), err)
+	return nil
 }
 
 func (b *OGame) serverVersion() string {
@@ -3083,6 +3099,18 @@ func (b *Prioritize) GetCelestials() ([]Celestial, error) {
 // GetCelestial get the player's planets & moons
 func (b *OGame) GetCelestials() ([]Celestial, error) {
 	return b.WithPriority(Normal).GetCelestials()
+}
+
+// GetCelestial get the player's planets & moons
+func (b *Prioritize) Abandon(planetID PlanetID) error {
+	b.begin("Abandon")
+	defer b.done()
+	return b.bot.abandon(planetID)
+}
+
+// Abandon a planet
+func (b *OGame) Abandon(planetID PlanetID) error {
+	return b.WithPriority(Normal).Abandon(planetID)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
