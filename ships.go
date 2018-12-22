@@ -70,6 +70,25 @@ func (s ShipsInfos) FleetValue() int {
 	return val
 }
 
+// FleetValue returns the cost of the fleet
+func (s ShipsInfos) FleetCost() Resources {
+	val := LightFighter.Price.Mul(s.LightFighter)
+	val = val.Add(HeavyFighter.Price.Mul(s.HeavyFighter))
+	val = val.Add(Cruiser.Price.Mul(s.Cruiser))
+	val = val.Add(Battleship.Price.Mul(s.Battleship))
+	val = val.Add(Battlecruiser.Price.Mul(s.Battlecruiser))
+	val = val.Add(Bomber.Price.Mul(s.Bomber))
+	val = val.Add(Destroyer.Price.Mul(s.Destroyer))
+	val = val.Add(Deathstar.Price.Mul(s.Deathstar))
+	val = val.Add(SmallCargo.Price.Mul(s.SmallCargo))
+	val = val.Add(LargeCargo.Price.Mul(s.LargeCargo))
+	val = val.Add(ColonyShip.Price.Mul(s.ColonyShip))
+	val = val.Add(Recycler.Price.Mul(s.Recycler))
+	val = val.Add(EspionageProbe.Price.Mul(s.EspionageProbe))
+	val = val.Add(SolarSatellite.Price.Mul(s.SolarSatellite))
+	return val
+}
+
 // Add adds two ShipsInfos together
 func (s *ShipsInfos) Add(v ShipsInfos) {
 	s.LightFighter += v.LightFighter
