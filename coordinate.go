@@ -24,3 +24,18 @@ func (c Coordinate) Equal(v Coordinate) bool {
 		c.Position == v.Position &&
 		c.Type == v.Type
 }
+
+// IsPlanet return true if coordinate is a planet
+func (c Coordinate) IsPlanet() bool {
+	return c.Type == PlanetType
+}
+
+// IsMoon return true if coordinate is a moon
+func (c Coordinate) IsMoon() bool {
+	return c.Type == MoonType
+}
+
+// IsDebris return true if coordinate is a debris field
+func (c Coordinate) IsDebris() bool {
+	return c.Type == DebrisType
+}
