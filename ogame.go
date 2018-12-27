@@ -1875,31 +1875,51 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
 		"type":  {strconv.Itoa(int(id))},
 	}
 
-	// Techs don't have a token
-	if !id.IsTech() {
+	getToken := func() (string, error) {
 		pageHTML, _ := b.getPageContent(url.Values{"page": {page}, "cp": {strconv.Itoa(int(celestialID))}})
 		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 		if err != nil {
-			return err
+			return "", err
 		}
 		token, exists := doc.Find("form").Find("input[name=token]").Attr("value")
 		if !exists {
-			return errors.New("unable to find form token")
+			return "", errors.New("unable to find form token")
+		}
+		return token, nil
+	}
+
+	// Techs don't have a token
+	if !id.IsTech() {
+		token, err := getToken()
+		if err != nil {
+			return err
 		}
 		payload.Add("token", token)
 	}
 
 	if id.IsDefense() || id.IsShip() {
-		payload.Add("menge", strconv.Itoa(nbr))
-	}
-
-	url2 := b.serverURL + "/game/index.php?page=" + page + "&cp=" + strconv.Itoa(int(celestialID))
-	resp, err := b.Client.PostForm(url2, payload)
-	if err != nil {
+		maximumNbr := 9999
+		var err error
+		var token string
+		for nbr > 0 {
+			tmp := int(math.Min(float64(nbr), float64(maximumNbr)))
+			payload.Set("menge", strconv.Itoa(tmp))
+			_, err = b.postPageContent(url.Values{"page": {page}, "cp": {strconv.Itoa(int(celestialID))}}, payload)
+			if err != nil {
+				break
+			}
+			token, err = getToken()
+			if err != nil {
+				break
+			}
+			payload.Set("token", token)
+			nbr -= maximumNbr
+		}
 		return err
 	}
-	defer resp.Body.Close()
-	return nil
+
+	_, err := b.postPageContent(url.Values{"page": {page}, "cp": {strconv.Itoa(int(celestialID))}}, payload)
+	return err
 }
 
 func (b *OGame) buildCancelable(celestialID CelestialID, id ID) error {
