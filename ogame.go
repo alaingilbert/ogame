@@ -89,7 +89,7 @@ type Wrapper interface {
 	GetMoon(interface{}) (Moon, error)
 	GetCelestial(interface{}) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
-	Abandon(PlanetID) error
+	Abandon(interface{}) error
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int) (EspionageReport, error)
@@ -1241,8 +1241,56 @@ func (b *OGame) getCelestial(v interface{}) (Celestial, error) {
 	return ExtractCelestial(pageHTML, b, v)
 }
 
-func (b *OGame) abandon(planetID PlanetID) error {
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"planetlayer"}, "cp": {strconv.Itoa(int(planetID))}})
+func (b *OGame) abandon(v interface{}) error {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
+	var planetID PlanetID
+	if coordStr, ok := v.(string); ok {
+		coord, err := ParseCoord(coordStr)
+		if err != nil {
+			return err
+		}
+		planet, err := ExtractPlanetByCoord(pageHTML, b, coord)
+		if err != nil {
+			return err
+		}
+		planetID = planet.ID
+	} else if coord, ok := v.(Coordinate); ok {
+		planet, err := ExtractPlanetByCoord(pageHTML, b, coord)
+		if err != nil {
+			return err
+		}
+		planetID = planet.ID
+	} else if planet, ok := v.(Planet); ok {
+		planetID = planet.ID
+	} else if id, ok := v.(PlanetID); ok {
+		planetID = id
+	} else if id, ok := v.(int); ok {
+		planetID = PlanetID(id)
+	} else if id, ok := v.(int32); ok {
+		planetID = PlanetID(id)
+	} else if id, ok := v.(int64); ok {
+		planetID = PlanetID(id)
+	} else if id, ok := v.(float32); ok {
+		planetID = PlanetID(id)
+	} else if id, ok := v.(float64); ok {
+		planetID = PlanetID(id)
+	} else if id, ok := v.(lua.LNumber); ok {
+		planetID = PlanetID(id)
+	} else {
+		return errors.New("invalid parameter")
+	}
+	planets := ExtractPlanets(pageHTML, b)
+	found := false
+	for _, planet := range planets {
+		if planet.ID == planetID {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return errors.New("invalid planet id")
+	}
+	pageHTML, _ = b.getPageContent(url.Values{"page": {"planetlayer"}, "cp": {strconv.Itoa(int(planetID))}})
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
 	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
@@ -1251,9 +1299,8 @@ func (b *OGame) abandon(planetID PlanetID) error {
 		"token":    {token},
 		"password": {b.password},
 	}
-	by, err := b.postPageContent(url.Values{"page": {"planetGiveup"}}, payload)
-	fmt.Println(string(by), err)
-	return nil
+	_, err := b.postPageContent(url.Values{"page": {"planetGiveup"}}, payload)
+	return err
 }
 
 func (b *OGame) serverVersion() string {
@@ -3125,15 +3172,15 @@ func (b *OGame) GetCelestials() ([]Celestial, error) {
 }
 
 // GetCelestial get the player's planets & moons
-func (b *Prioritize) Abandon(planetID PlanetID) error {
+func (b *Prioritize) Abandon(v interface{}) error {
 	b.begin("Abandon")
 	defer b.done()
-	return b.bot.abandon(planetID)
+	return b.bot.abandon(v)
 }
 
 // Abandon a planet
-func (b *OGame) Abandon(planetID PlanetID) error {
-	return b.WithPriority(Normal).Abandon(planetID)
+func (b *OGame) Abandon(v interface{}) error {
+	return b.WithPriority(Normal).Abandon(v)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
