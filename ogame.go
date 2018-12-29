@@ -446,7 +446,7 @@ type account struct {
 	Sitting struct {
 		Shared       bool
 		EndTime      *string
-		CooldownTime *int
+		CooldownTime *string
 	}
 }
 
