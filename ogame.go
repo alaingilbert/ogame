@@ -14,7 +14,6 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
-	"ogb/pkg/config"
 	"os"
 	"regexp"
 	"strconv"
@@ -692,7 +691,7 @@ func (b *OGame) SetLoginProxy(proxy, username, password string) error {
 	}
 	t := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	if username != "" || password != "" {
-		basicAuth := "Basic " + base64.StdEncoding.EncodeToString([]byte(config.SmartproxyUsername+":"+config.SmartproxyPassword.Leak()))
+		basicAuth := "Basic " + base64.StdEncoding.EncodeToString([]byte(username+":"+password))
 		t.ProxyConnectHeader = http.Header{"Proxy-Authorization": {basicAuth}}
 	}
 	b.loginProxyTransport = t
