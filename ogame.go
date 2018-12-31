@@ -551,16 +551,7 @@ func (b *OGame) login() error {
 	b.Client.Jar = jar
 
 	b.debug("get session")
-	var phpSessionID string
-	var err error
-	if b.loginProxyTransport != nil {
-		oldTransport := b.Client.Transport
-		b.Client.Transport = b.loginProxyTransport
-		phpSessionID, err = getPhpSessionID(b.Client, b.Username, b.password)
-		b.Client.Transport = oldTransport
-	} else {
-		phpSessionID, err = getPhpSessionID(b.Client, b.Username, b.password)
-	}
+	phpSessionID, err := getPhpSessionID(b.Client, b.Username, b.password)
 	if err != nil {
 		return err
 	}
@@ -603,7 +594,15 @@ func (b *OGame) login() error {
 		return err
 	}
 	b.debug("login to universe")
-	resp, err := b.Client.Do(req)
+	var resp *http.Response
+	if b.loginProxyTransport != nil {
+		oldTransport := b.Client.Transport
+		b.Client.Transport = b.loginProxyTransport
+		resp, err = b.Client.Do(req)
+		b.Client.Transport = oldTransport
+	} else {
+		resp, err = b.Client.Do(req)
+	}
 	if err != nil {
 		return err
 	}
