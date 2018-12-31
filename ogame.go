@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"container/heap"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,6 +14,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
+	"ogb/pkg/config"
 	"os"
 	"regexp"
 	"strconv"
@@ -34,6 +36,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	SetLoginProxy(proxy, username, password string) error
 	SetLoginWrapper(func(func() error) error)
 	GetClient() *OGameClient
 	Enable()
@@ -273,6 +276,7 @@ type OGame struct {
 	tasksPushCh          chan *Item
 	tasksPopCh           chan struct{}
 	loginWrapper         func(func() error) error
+	loginProxyTransport  *http.Transport
 }
 
 // Params parameters for more fine-grained initialization
@@ -548,7 +552,16 @@ func (b *OGame) login() error {
 	b.Client.Jar = jar
 
 	b.debug("get session")
-	phpSessionID, err := getPhpSessionID(b.Client, b.Username, b.password)
+	var phpSessionID string
+	var err error
+	if b.loginProxyTransport != nil {
+		oldTransport := b.Client.Transport
+		b.Client.Transport = b.loginProxyTransport
+		phpSessionID, err = getPhpSessionID(b.Client, b.Username, b.password)
+		b.Client.Transport = oldTransport
+	} else {
+		phpSessionID, err = getPhpSessionID(b.Client, b.Username, b.password)
+	}
 	if err != nil {
 		return err
 	}
@@ -670,6 +683,20 @@ func (b *OGame) wrapLogin() error {
 
 func (b *OGame) SetLoginWrapper(newWrapper func(func() error) error) {
 	b.loginWrapper = newWrapper
+}
+
+func (b *OGame) SetLoginProxy(proxy, username, password string) error {
+	proxyURL, err := url.Parse(proxy)
+	if err != nil {
+		return err
+	}
+	t := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
+	if username != "" || password != "" {
+		basicAuth := "Basic " + base64.StdEncoding.EncodeToString([]byte(config.SmartproxyUsername+":"+config.SmartproxyPassword.Leak()))
+		t.ProxyConnectHeader = http.Header{"Proxy-Authorization": {basicAuth}}
+	}
+	b.loginProxyTransport = t
+	return nil
 }
 
 func (b *OGame) connectChat(host, port string) {
@@ -2678,7 +2705,16 @@ func (b *OGame) GetPublicIP() (string, error) {
 	var res struct {
 		IP string `json:"ip"`
 	}
-	resp, err := b.Client.Get("https://jsonip.com/")
+	var resp *http.Response
+	var err error
+	if b.loginProxyTransport != nil {
+		oldTransport := b.Client.Transport
+		b.Client.Transport = b.loginProxyTransport
+		resp, err = b.Client.Get("https://jsonip.com/")
+		b.Client.Transport = oldTransport
+	} else {
+		resp, err = b.Client.Get("https://jsonip.com/")
+	}
 	if err != nil {
 		return "", err
 	}
