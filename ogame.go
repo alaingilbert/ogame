@@ -1076,14 +1076,14 @@ func (b *OGame) withRetry(fn func() error) error {
 
 	for {
 		if err := fn(); err != nil {
+			// If we manually logged out, do not try to auto re login.
+			if !b.IsEnabled() {
+				return ErrBotInactive
+			}
+			if !b.IsLoggedIn() {
+				return ErrBotLoggedOut
+			}
 			if err == ErrNotLogged {
-				// If we manually logged out, do not try to auto re login.
-				if !b.IsEnabled() {
-					return ErrBotInactive
-				}
-				if !b.IsLoggedIn() {
-					return ErrBotLoggedOut
-				}
 				retry(err)
 				if loginErr := b.wrapLogin(); loginErr != nil {
 					b.error(loginErr.Error()) // log error
