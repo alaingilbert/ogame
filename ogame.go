@@ -2353,11 +2353,11 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	deutConsumption := ParseInt(fleet3Doc.Find("div#roundup span#consumption").Text())
 	resourcesAvailable := ExtractResourcesFromDoc(fleet3Doc)
 	if deutConsumption > resourcesAvailable.Deuterium {
-		return Fleet{}, errors.New("not enough deuterium")
+		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumption)
 	}
 	finalCargo := finalShips.Cargo()
 	if deutConsumption > finalCargo {
-		return Fleet{}, errors.New("not enough cargo capacity")
+		return Fleet{}, fmt.Errorf("not enough cargo capacity, avail: %d, need: %d", finalCargo, deutConsumption)
 	}
 	payload.Add("crystal", strconv.Itoa(resources.Crystal))
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
