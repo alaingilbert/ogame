@@ -16,6 +16,19 @@ type DefensesInfos struct {
 	InterplanetaryMissiles int
 }
 
+// AttackableValue returns the value of the defenses that can be attacked
+func (d DefensesInfos) AttackableValue() int {
+	val := d.RocketLauncher * RocketLauncher.Price.Total()
+	val += d.LightLaser * LightLaser.Price.Total()
+	val += d.HeavyLaser * HeavyLaser.Price.Total()
+	val += d.GaussCannon * GaussCannon.Price.Total()
+	val += d.IonCannon * IonCannon.Price.Total()
+	val += d.PlasmaTurret * PlasmaTurret.Price.Total()
+	val += d.SmallShieldDome * SmallShieldDome.Price.Total()
+	val += d.LargeShieldDome * LargeShieldDome.Price.Total()
+	return val
+}
+
 func (d DefensesInfos) String() string {
 	return "\n" +
 		"        Rocket Launcher: " + strconv.Itoa(d.RocketLauncher) + "\n" +
