@@ -93,6 +93,10 @@ type price struct {
 	Deuterium int
 }
 
+func (p price) Total() int {
+	return p.Metal + p.Crystal + p.Deuterium
+}
+
 func (p *price) add(n price) {
 	p.Metal += n.Metal
 	p.Crystal += n.Crystal
