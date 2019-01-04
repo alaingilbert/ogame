@@ -1367,6 +1367,9 @@ func name2id(name string) ID {
 		"espionageprobe": EspionageProbeID,
 		"solarsatellite": SolarSatelliteID,
 
+		// mx
+		"navedelacolonia": ColonyShipID,
+
 		// cz
 		"lehkystihac":      LightFighterID,
 		"tezkystihac":      HeavyFighterID,

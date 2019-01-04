@@ -439,6 +439,20 @@ func TestExtractPlanet_jp(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_mx(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/mx/overview.html")
+	planet, _ := ExtractPlanet(pageHTMLBytes, PlanetID(33624669), &OGame{language: "mx"})
+	assert.Equal(t, "Planeta Principal", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 33, planet.Temperature.Min)
+	assert.Equal(t, 73, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33624669), planet.ID)
+	assert.Equal(t, Coordinate{1, 390, 6, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_cz(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/cz/overview.html")
 	planet, _ := ExtractPlanet(pageHTMLBytes, PlanetID(33622822), &OGame{language: "cz"})
@@ -649,6 +663,22 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recyklátor"))
 	assert.Equal(t, EspionageProbeID, name2id("Špionážní sonda"))
 	assert.Equal(t, SolarSatelliteID, name2id("Solární satelit"))
+
+	// mx
+	assert.Equal(t, LightFighterID, name2id("Cazador ligero"))
+	assert.Equal(t, HeavyFighterID, name2id("Cazador pesado"))
+	assert.Equal(t, CruiserID, name2id("Crucero"))
+	assert.Equal(t, BattleshipID, name2id("Nave de batalla"))
+	assert.Equal(t, BattlecruiserID, name2id("Acorazado"))
+	assert.Equal(t, BomberID, name2id("Bombardero"))
+	assert.Equal(t, DestroyerID, name2id("Destructor"))
+	assert.Equal(t, DeathstarID, name2id("Estrella de la muerte"))
+	assert.Equal(t, SmallCargoID, name2id("Nave pequeña de carga"))
+	assert.Equal(t, LargeCargoID, name2id("Nave grande de carga"))
+	assert.Equal(t, ColonyShipID, name2id("Nave de la colonia"))
+	assert.Equal(t, RecyclerID, name2id("Reciclador"))
+	assert.Equal(t, EspionageProbeID, name2id("Sonda de espionaje"))
+	assert.Equal(t, SolarSatelliteID, name2id("Satélite solar"))
 
 	// it
 	assert.Equal(t, LightFighterID, name2id("Caccia Leggero"))
@@ -980,6 +1010,14 @@ func TestExtractUserInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
 	infos, _ := ExtractUserInfos(pageHTMLBytes, "en")
 	assert.Equal(t, 1295, infos.Points)
+}
+
+func TestExtractUserInfos_mx(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/mx/overview.html")
+	infos, _ := ExtractUserInfos(pageHTMLBytes, "mx")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 916, infos.Rank)
+	assert.Equal(t, 917, infos.Total)
 }
 
 func TestExtractUserInfos_de(t *testing.T) {
