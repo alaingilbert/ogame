@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"log"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/stretchr/testify/assert"
 )
@@ -1682,6 +1684,161 @@ func TestExtractEspionageReport_defence(t *testing.T) {
 	assert.Equal(t, 61, *infos.HeavyLaser)
 	assert.Nil(t, infos.GaussCannon)
 }
+
+// -------------------------------
+
+func TestExtractEspionageReport_bandit(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_bandit.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, true, infos.IsBandit)
+	assert.Equal(t, false, infos.IsStarlord)
+}
+
+func TestExtractEspionageReport_starlord(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_starlord.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, false, infos.IsBandit)
+	assert.Equal(t, true, infos.IsStarlord)
+}
+
+func TestExtractEspionageReport_none(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_research_no_inactive_player_no_starlord_no_bandit_no_inactive_timer.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, false, infos.IsBandit)
+	assert.Equal(t, false, infos.IsStarlord)
+
+}
+
+// Usernames
+func TestExtractEspionageReport_username(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_research_no_inactive_player_no_starlord_no_bandit_no_inactive_timer.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, "M4tj3", infos.Username)
+}
+
+
+func TestExtractEspionageReport_username2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_starlord.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, "makavelli007", infos.Username)
+}
+
+func TestExtractEspionageReport_username3(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_bandit_inactive_timer.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, "lobogrooby", infos.Username)
+}
+
+
+// Inactive Timers
+func TestExtractEspionageReport_inactivetimer_28_minutes(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_inactive_timer_28_minutes.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 27, infos.LastActivity)
+}
+
+func TestExtractEspionageReport_inactivetimer_28_minutes_2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_buildings.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 15, infos.LastActivity)
+}
+
+func TestExtractEspionageReport_inactivetimer_28_minutes_3(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_buildings_researches.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 29, infos.LastActivity)
+}
+
+func TestExtractEspionageReport_inactivetimer_within_15_minutes(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_bandit_inactive_timer.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 15, infos.LastActivity)
+}
+
+func TestExtractEspionageReport_inactivetimer_all(t *testing.T) {
+	inactivity := []struct {
+		file string
+		timer int
+	}{
+		{"samples/spy_report_res_buildings.html", 15},
+		{"samples/spy_report_thousand_units.html", 15},
+		{"samples/spy_report_res_bandit_inactive_timer.html", 15},
+		{"samples/spy_report_inactive_timer_28_minutes.html", 27},
+		{"samples/spy_report_res_buildings_researches.html", 29},
+		{"samples/spy_report_moon.html", 30},
+	}
+
+	for _, element := range inactivity {
+		pageHTMLBytes, err := ioutil.ReadFile(element.file)
+
+		if err != nil {
+			log.Fatal("File doesn't exist: " + element.file)
+		}
+
+		infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+		assert.Equal(t, element.timer, infos.LastActivity)
+	}
+}
+
+func TestExtractEspionageReport_inactivetimer_no_activity_within_last_hour(t *testing.T) {
+	inactivity := []struct {
+		file string
+	}{
+		{"samples/spy_report_res_bandit.html"},
+		{"samples/spy_report_res_no_starlord_no_bandit.html"},
+		{"samples/spy_report_res_research_no_inactive_player_no_starlord_no_bandit_no_inactive_timer_2.html"},
+		{"samples/spy_report_res_research_no_inactive_player_no_starlord_no_bandit_no_inactive_timer.html"},
+		{"samples/spy_report_res_starlord.html"},
+	}
+
+	for _, element := range inactivity {
+
+// Todo: double check if we need samples/ added to directory
+		pageHTMLBytes, err := ioutil.ReadFile(element.file)
+
+		if err != nil {
+			log.Fatal("File doesn't exist: " + element.file)
+		}
+
+		infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+		assert.Equal(t, 0, infos.LastActivity)
+	}
+}
+
+// SpyReport API key
+func TestExtractEspionageReport_api_key(t *testing.T) {
+	apikeys := []struct {
+		file string
+		apikey string
+	}{
+		{"samples/spy_report_inactive_timer_28_minutes.html", "sr-nl-107-1db4a288090186814e83f93761b8bdd600cbbfb3"},
+		{"samples/spy_report_moon.html", "sr-en-152-88ac901341a249175b11f5d4e83cea103cac4835"},
+		{"samples/spy_report_no_pics.html", "sr-en-152-2a5aa44ef7c3aedce99e8cffe057a8d9dc9c4ed6"},
+		{"samples/spy_report_res_bandit.html", "sr-nl-107-8f9ac21579fba590febdf8b7a83d55673a18dcf2"},
+		{"samples/spy_report_res_bandit_inactive_timer.html", "sr-nl-107-b41409250ac1bfe51ad2283491d03f5d1354b012"},
+		{"samples/spy_report_res_buildings.html", "sr-en-152-ba9e78020d33cad78009fb7c929b34a75f1c9d62"},
+		{"samples/spy_report_res_buildings_researches_fleet.html", "sr-en-152-52eab27e9d3e725329ef8a30d5bb15832490e487"},
+		{"samples/spy_report_res_buildings_researches.html", "sr-en-152-d28681501f8b3956c8de37ee70b201643542df35"},
+		{"samples/spy_report_res_fleet_defences.html", "sr-en-152-990d7315b8db9fcd802eb5faa610f57cb5e16448"},
+		{"samples/spy_report_res_no_starlord_no_bandit.html", "sr-nl-107-4e69b8b9f7bbbaf6cac67dfa1521fcf28ff93872"},
+		{"samples/spy_report_res_research_no_inactive_player_no_starlord_no_bandit_no_inactive_timer_2.html", "sr-nl-107-d3a5358be9f48a18459f7e38fef611ed148fc683"},
+		{"samples/spy_report_res_research_no_inactive_player_no_starlord_no_bandit_no_inactive_timer.html", "sr-nl-107-3d38963a6d0c8b8c18629a0180b14c6e388fed93"},
+		{"samples/spy_report_res_starlord.html", "sr-nl-107-5ab00e86ad8f5a10e195cf7054a5b0351a86f994"},
+		{"samples/spy_report_thousand_units.html", "sr-en-152-a692fcabeb8053887738a7c88f6d034218b93b8c"},
+	}
+
+	 for _, element := range apikeys {
+		 pageHTMLBytes, err := ioutil.ReadFile(element.file)
+
+		 if err != nil {
+			 log.Fatal("File doesn't exist: " + element.file)
+		 }
+
+		 infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+		 assert.Equal(t, element.apikey, infos.APIKey)
+	 }
+}
+
 
 func TestGalaxyDistance(t *testing.T) {
 	assert.Equal(t, 60000, galaxyDistance(6, 3, 6, false))
