@@ -2564,11 +2564,16 @@ func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error
 type EspionageReport struct {
 	Resources
 	ID                           int
+	Username                     string
+	LastActivity                 int
 	CounterEspionage             int
+	APIKey                       string
 	HasFleet                     bool
 	HasDefenses                  bool
 	HasBuildings                 bool
 	HasResearches                bool
+	IsBandit                     bool
+	IsStarlord                   bool
 	MetalMine                    *int // ResourcesBuildings
 	CrystalMine                  *int
 	DeuteriumSynthesizer         *int
