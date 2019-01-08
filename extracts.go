@@ -1376,8 +1376,9 @@ func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 						playerRank, _ = strconv.Atoi(s.Find("li.rank").Find("a").Text())
 					}
 				})
-			} else {
-				playerName = strings.TrimSpace(s.Find("td.playername").Find("span").Text())
+			}
+			if playerName == "" {
+				playerName := strings.TrimSpace(s.Find("td.playername").Find("span").Text())
 				if playerName == "" {
 					return
 				}
