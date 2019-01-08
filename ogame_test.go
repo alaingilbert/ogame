@@ -933,6 +933,12 @@ func TestExtractGalaxyInfos_destroyedPlanet(t *testing.T) {
 	assert.Nil(t, infos.Position(8))
 }
 
+func TestExtractGalaxyInfos_destroyedPlanetAndMoon(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_destroyed_planet_and_moon2.html")
+	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.Nil(t, infos.Position(15))
+}
+
 func TestExtractGalaxyInfos_banned(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_banned.html")
 	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
