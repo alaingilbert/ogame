@@ -774,6 +774,9 @@ LOOP:
 					clb(chatMsg)
 				}
 			}
+		} else {
+			b.error("unknown message received:", string(buf))
+			time.Sleep(time.Second)
 		}
 	}
 }
