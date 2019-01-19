@@ -8,8 +8,8 @@ import (
 
 func TestTerraformerIsAvailable(t *testing.T) {
 	resourcesBuildings := ResourcesBuildings{}
-	facilities := Facilities{NaniteFactory: 1}
-	researches := Researches{EnergyTechnology: 12}
+	facilities := Facilities{NaniteFactory: 1, RoboticsFactory: 10, ResearchLab: 1}
+	researches := Researches{EnergyTechnology: 12, ComputerTechnology: 10}
 	b := newTerraformer()
 	avail := b.IsAvailable(PlanetType, resourcesBuildings, facilities, researches, 0)
 	assert.True(t, avail)
