@@ -51,7 +51,23 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings ResourcesBuildings
 	if b.ID == GravitonTechnologyID && energy < 300000 {
 		return false
 	}
+	type requirement struct {
+		ID  ID
+		Lvl int
+	}
+	q := make([]requirement, 0)
 	for id, levelNeeded := range b.Requirements {
+		q = append(q, requirement{id, levelNeeded})
+	}
+	for len(q) > 0 {
+		var req requirement
+		req, q = q[0], q[1:]
+		reqs := Objs.ByID(req.ID).GetRequirements()
+		for k, v := range reqs {
+			q = append(q, requirement{k, v})
+		}
+		id := req.ID
+		levelNeeded := req.Lvl
 		if id.IsResourceBuilding() {
 			if resourcesBuildings.ByID(id) < levelNeeded {
 				return false
