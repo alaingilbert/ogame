@@ -22,6 +22,7 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Faci
 	if (level - 1) < 5 {
 		secs = secs * (2 / (7 - (float64(level) - 1)))
 	}
+	secs = math.Max(1, secs)
 	return time.Duration(int(math.Floor(secs))) * time.Second
 }
 
