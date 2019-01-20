@@ -17,7 +17,7 @@ func (b BaseTechnology) ConstructionTime(level, universeSpeed int, facilities Fa
 	crystalCost := float64(price.Crystal)
 	researchLabLvl := float64(facilities.ResearchLab)
 	hours := (metalCost + crystalCost) / (1000 * (1 + researchLabLvl) * float64(universeSpeed))
-	secs := hours * 3600
+	secs := math.Max(1, hours*3600)
 	return time.Duration(int(math.Floor(secs))) * time.Second
 }
 
