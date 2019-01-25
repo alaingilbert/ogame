@@ -133,6 +133,7 @@ type Wrapper interface {
 
 	// Moon specific functions
 	Phalanx(MoonID, Coordinate) ([]Fleet, error)
+	UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
 }
 
 const defaultUserAgent = "" +
@@ -1740,7 +1741,6 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	}
 	resources := ExtractResources(moonFacilitiesHTML)
 	moonFacilities, _ := ExtractFacilities(moonFacilitiesHTML)
-	ogameTimestamp := ExtractOgameTimestamp(moonFacilitiesHTML)
 	phalanxLvl := moonFacilities.SensorPhalanx
 
 	// Ensure we have the resources to scan the planet
@@ -1783,7 +1783,31 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	defer resp.Body.Close()
 	pageHTML, _ := ioutil.ReadAll(resp.Body)
 
-	return extractPhalanx(pageHTML, ogameTimestamp)
+	return extractPhalanx(pageHTML)
+}
+
+// getUnsafePhalanx ...
+func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	res := make([]Fleet, 0)
+
+	// Run the phalanx scan
+	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1",
+		coord.Galaxy, coord.System, coord.Position)
+	req, err := http.NewRequest("GET", finalURL, nil)
+	if err != nil {
+		b.error(err.Error())
+		return res, err
+	}
+	req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	resp, err := b.Client.Do(req)
+	if err != nil {
+		b.error(err.Error())
+		return res, err
+	}
+	defer resp.Body.Close()
+	pageHTML, _ := ioutil.ReadAll(resp.Body)
+
+	return extractPhalanx(pageHTML)
 }
 
 func moonIDInSlice(needle MoonID, haystack []MoonID) bool {
@@ -3759,5 +3783,17 @@ func (b *Prioritize) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
 // 			  and that you have enough deuterium.
 func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	return b.WithPriority(Normal).Phalanx(moonID, coord)
+}
+
+// UnsafePhalanx same as Phalanx but does not perform any input validation.
+func (b *Prioritize) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	b.begin("Phalanx")
+	defer b.done()
+	return b.bot.getUnsafePhalanx(moonID, coord)
+}
+
+// UnsafePhalanx same as Phalanx but does not perform any input validation.
+func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	return b.WithPriority(Normal).Phalanx(moonID, coord)
 }
