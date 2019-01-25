@@ -1400,8 +1400,9 @@ func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 	return res, nil
 }
 
-func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
+func extractPhalanx(pageHTML []byte) ([]Fleet, error) {
 	res := make([]Fleet, 0)
+	ogameTimestamp := 0
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
 	if eventFleet.Size() == 0 {
@@ -1414,6 +1415,12 @@ func extractPhalanx(pageHTML []byte, ogameTimestamp int) ([]Fleet, error) {
 		}
 		return res, errors.New(txt)
 	}
+
+	m := regexp.MustCompile(`var mytime = ([0-9]+)`).FindSubmatch(pageHTML)
+	if len(m) > 0 {
+		ogameTimestamp, _ = strconv.Atoi(string(m[1]))
+	}
+
 	eventFleet.Each(func(i int, s *goquery.Selection) {
 		mission, _ := strconv.Atoi(s.AttrOr("data-mission-type", "0"))
 		returning, _ := strconv.ParseBool(s.AttrOr("data-return-flight", "false"))

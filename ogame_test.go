@@ -136,7 +136,7 @@ func TestExtractResources(t *testing.T) {
 
 func TestExtractPhalanx(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
-	res, err := extractPhalanx(pageHTMLBytes, 0)
+	res, err := extractPhalanx(pageHTMLBytes)
 	assert.Nil(t, err)
 	assert.Equal(t, 1, len(res))
 	assert.Equal(t, MissionID(3), res[0].Mission)
@@ -149,14 +149,14 @@ func TestExtractPhalanx(t *testing.T) {
 
 func TestExtractPhalanx_fromMoon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_from_moon.html")
-	res, _ := extractPhalanx(pageHTMLBytes, 0)
+	res, _ := extractPhalanx(pageHTMLBytes)
 	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, res[0].Origin)
 	assert.Equal(t, Coordinate{4, 116, 9, PlanetType}, res[0].Destination)
 }
 
 func TestExtractPhalanx_manyFleets(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_fleets.html")
-	res, err := extractPhalanx(pageHTMLBytes, 0)
+	res, err := extractPhalanx(pageHTMLBytes)
 	assert.Nil(t, err)
 	assert.Equal(t, 12, len(res))
 	assert.Equal(t, Expedition, res[0].Mission)
@@ -178,14 +178,14 @@ func TestExtractPhalanx_manyFleets(t *testing.T) {
 
 func TestExtractPhalanx_noFleet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_fleet.html")
-	res, err := extractPhalanx(pageHTMLBytes, 0)
+	res, err := extractPhalanx(pageHTMLBytes)
 	assert.Equal(t, 0, len(res))
 	assert.Nil(t, err)
 }
 
 func TestExtractPhalanx_noDeut(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx_no_deut.html")
-	res, err := extractPhalanx(pageHTMLBytes, 0)
+	res, err := extractPhalanx(pageHTMLBytes)
 	assert.Equal(t, 0, len(res))
 	assert.NotNil(t, err)
 }
