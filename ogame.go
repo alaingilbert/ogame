@@ -399,7 +399,7 @@ type Server struct {
 // ogame cookie name for php session id
 const phpSessionIDCookieName = "PHPSESSID"
 
-func getPhpSessionID(client *OGameClient, username, password string) (string, error) {
+func getPhpSessionID(b *OGame, client *OGameClient, username, password string) (string, error) {
 	payload := url.Values{
 		"kid":                   {""},
 		"language":              {"en"},
@@ -424,6 +424,8 @@ func getPhpSessionID(client *OGameClient, username, password string) (string, er
 	}
 
 	if resp.StatusCode != 200 {
+		by, err := ioutil.ReadAll(resp.Body)
+		b.error(resp.StatusCode, string(by), err)
 		return "", ErrBadCredentials
 	}
 
@@ -555,7 +557,7 @@ func (b *OGame) login() error {
 	b.Client.Jar = jar
 
 	b.debug("get session")
-	phpSessionID, err := getPhpSessionID(b.Client, b.Username, b.password)
+	phpSessionID, err := getPhpSessionID(b, b.Client, b.Username, b.password)
 	if err != nil {
 		return err
 	}
