@@ -413,7 +413,17 @@ func getPhpSessionID(b *OGame, client *OGameClient, username, password string) (
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	resp, err := client.Do(req)
+
+	var resp *http.Response
+	if b.loginProxyTransport != nil {
+		oldTransport := b.Client.Transport
+		b.Client.Transport = b.loginProxyTransport
+		resp, err = b.Client.Do(req)
+		b.Client.Transport = oldTransport
+	} else {
+		resp, err = b.Client.Do(req)
+	}
+
 	if err != nil {
 		return "", err
 	}
