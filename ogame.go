@@ -1791,8 +1791,8 @@ func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, erro
 	res := make([]Fleet, 0)
 
 	// Run the phalanx scan
-	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1",
-		coord.Galaxy, coord.System, coord.Position)
+	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1&cp=%d",
+		coord.Galaxy, coord.System, coord.Position, moonID)
 	req, err := http.NewRequest("GET", finalURL, nil)
 	if err != nil {
 		b.error(err.Error())
@@ -3795,5 +3795,5 @@ func (b *Prioritize) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, er
 
 // UnsafePhalanx same as Phalanx but does not perform any input validation.
 func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
-	return b.WithPriority(Normal).Phalanx(moonID, coord)
+	return b.WithPriority(Normal).UnsafePhalanx(moonID, coord)
 }
