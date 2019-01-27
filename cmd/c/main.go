@@ -108,7 +108,7 @@ func GetResearch() (energyTechnology, laserTechnology, ionTechnology, hyperspace
 //export GetPlanetByCoord
 func GetPlanetByCoord(galaxyIn, systemIn, positionIn C.int) (id C.int, name *C.char, diameter, galaxy, system, position, fieldsBuilt, fieldsTotal,
 	temperatureMin, temperatureMax C.int, img *C.char, errorMsg *C.char) {
-	p, err := bot.GetPlanetByCoord(ogame.Coordinate{Galaxy: int(galaxyIn), System: int(systemIn), Position: int(positionIn)})
+	p, err := bot.GetPlanet(ogame.Coordinate{Galaxy: int(galaxyIn), System: int(systemIn), Position: int(positionIn)})
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -363,7 +363,7 @@ func GetResources(planetID C.int) (metal, crystal, deuterium, energy, darkmatter
 //export SendFleet
 func SendFleet(planetID, lightFighter, heavyFighter, cruiser, battleship, battlecruiser, bomber, destroyer, deathstar,
 	smallCargo, largeCargo, colonyShip, recycler, espionageProbe, speed, planetType, galaxy, system, position, mission,
-	metal, crystal, deuterium C.int) (fleetID C.int, errorMsg *C.char) {
+	metal, crystal, deuterium C.int, expeditiontime int) (fleetID C.int, errorMsg *C.char) {
 	ships := make([]ogame.Quantifiable, 0)
 	if int(lightFighter) > 0 {
 		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(lightFighter)})
@@ -404,17 +404,19 @@ func SendFleet(planetID, lightFighter, heavyFighter, cruiser, battleship, battle
 	if int(espionageProbe) > 0 {
 		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(espionageProbe)})
 	}
-	fleetIDInt, err := bot.SendFleet(
+	fleet, err := bot.SendFleet(
 		ogame.CelestialID(planetID),
-		ships, ogame.Speed(speed),
-		ogame.Coordinate{int(galaxy), int(system), int(position), ogame.CelestialType(planetType)},
+		ships,
+		ogame.Speed(speed),
+		ogame.Coordinate{Galaxy: int(galaxy), System: int(system), Position: int(position), Type: ogame.CelestialType(planetType)},
 		ogame.MissionID(mission),
 		ogame.Resources{Metal: int(metal), Crystal: int(crystal), Deuterium: int(deuterium)},
+		expeditiontime,
 	)
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
-	return C.int(fleetIDInt), errorMsg
+	return C.int(fleet.ID), errorMsg
 }
 
 func main() {}
