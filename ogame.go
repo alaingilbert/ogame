@@ -760,6 +760,8 @@ LOOP:
 				continue
 			} else {
 				b.error("chat unexpected error", err)
+				// connection reset by peer
+				break
 			}
 		}
 		msg := bytes.Trim(buf, "\x00")
