@@ -47,6 +47,9 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings ResourcesBuildings
 			b.ID == SpaceDockID {
 			return false
 		}
+		if b.ID.IsTech() {
+			return false
+		}
 	}
 	if b.ID == GravitonTechnologyID && energy < 300000 {
 		return false
@@ -62,9 +65,11 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings ResourcesBuildings
 	for len(q) > 0 {
 		var req requirement
 		req, q = q[0], q[1:]
-		reqs := Objs.ByID(req.ID).GetRequirements()
-		for k, v := range reqs {
-			q = append(q, requirement{k, v})
+		if t == PlanetType && b.ID.IsTech() {
+			reqs := Objs.ByID(req.ID).GetRequirements()
+			for k, v := range reqs {
+				q = append(q, requirement{k, v})
+			}
 		}
 		id := req.ID
 		levelNeeded := req.Lvl
