@@ -756,7 +756,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 
 	// CounterEspionage
 	ceTxt := doc.Find("div.detail_txt").Eq(1).Text()
-	m1 := regexp.MustCompile(`(\d+)\%`).FindStringSubmatch(ceTxt)
+	m1 := regexp.MustCompile(`(\d+)%`).FindStringSubmatch(ceTxt)
 	if len(m1) == 2 {
 		report.CounterEspionage, _ = strconv.Atoi(m1[1])
 	}
