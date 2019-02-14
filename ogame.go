@@ -2454,6 +2454,272 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	return Fleet{}, errors.New("could not find new fleet ID")
 }
 
+// Ensure fleet is sent, returns an error if there's not enough ships
+
+func (b *OGame) ensureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+
+	// Keep track of start time. We use this value to find a fleet that was created after that time.
+	start := time.Now()
+
+	// Utils function to extract hidden input from a page
+	getHiddenFields := func(pageHTML []byte) map[string]string {
+		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+		fields := make(map[string]string)
+		doc.Find("input[type=hidden]").Each(func(i int, s *goquery.Selection) {
+			name, _ := s.Attr("name")
+			value, _ := s.Attr("value")
+			fields[name] = value
+		})
+		return fields
+	}
+
+	// Page 1 : get to fleet page
+	pageHTML, err := b.getPageContent(url.Values{"page": {"fleet1"}, "cp": {strconv.Itoa(int(celestialID))}})
+	if err != nil {
+		return Fleet{}, err
+	}
+
+	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
+	if fleet1BodyID != "fleet1" {
+		now := time.Now().Unix()
+		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
+		return Fleet{}, ErrInvalidPlanetID
+	}
+
+	// Ensure we're not trying to attack/spy ourself
+	destinationIsMyOwnPlanet := false
+	myPlanets := ExtractPlanets(pageHTML, b)
+	for _, p := range myPlanets {
+		if p.Coordinate.Equal(where) && p.GetID() == celestialID || (p.Moon != nil && p.Moon.Coordinate.Equal(where) && p.Moon.GetID() == celestialID) {
+			return Fleet{}, errors.New("origin and destination are the same")
+		}
+		if p.Coordinate.Equal(where) || (p.Moon != nil && p.Moon.Coordinate.Equal(where)) {
+			destinationIsMyOwnPlanet = true
+			break
+		}
+	}
+	if destinationIsMyOwnPlanet {
+		switch mission {
+		case Spy:
+			return Fleet{}, errors.New("you cannot spy yourself")
+		case Attack:
+			return Fleet{}, errors.New("you cannot attack yourself")
+		}
+	}
+
+	availableShips := ExtractFleet1Ships(pageHTML)
+
+	enoughShips := true
+	for _, ship := range ships {
+		if ship.Nbr > availableShips.ByID(ship.ID) {
+			enoughShips = false
+			break
+		}
+	}
+	if !enoughShips {
+		return Fleet{}, ErrNotEnoughShips
+	}
+
+	payload := url.Values{}
+	hidden := getHiddenFields(pageHTML)
+	for k, v := range hidden {
+		payload.Add(k, v)
+	}
+	cs := false       // ColonyShip flag for fleet check
+	recycler := false // Recycler flag for fleet check
+	for _, s := range ships {
+		if s.Nbr > 0 {
+			if s.ID == ColonyShipID {
+				cs = true
+			} else if s.ID == RecyclerID {
+				recycler = true
+			}
+			payload.Add("am"+strconv.Itoa(int(s.ID)), strconv.Itoa(s.Nbr))
+		}
+	}
+
+	// Page 2 : select ships
+	pageHTML, err = b.postPageContent(url.Values{"page": {"fleet2"}}, payload)
+	if err != nil {
+		return Fleet{}, err
+	}
+	fleet2Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	fleet2BodyID := fleet2Doc.Find("body").AttrOr("id", "")
+	if fleet2BodyID != "fleet2" {
+		now := time.Now().Unix()
+		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
+		return Fleet{}, errors.New("unknown error")
+	}
+
+	payload = url.Values{}
+	hidden = getHiddenFields(pageHTML)
+	for k, v := range hidden {
+		payload.Add(k, v)
+	}
+	payload.Add("speed", strconv.Itoa(int(speed)))
+	payload.Add("galaxy", strconv.Itoa(where.Galaxy))
+	payload.Add("system", strconv.Itoa(where.System))
+	payload.Add("position", strconv.Itoa(where.Position))
+	t := where.Type
+	if mission == RecycleDebrisField {
+		t = DebrisType // Send to debris field
+	}
+	payload.Add("type", strconv.Itoa(int(t)))
+
+	// Check
+	fleetCheckPayload := url.Values{
+		"galaxy": {strconv.Itoa(where.Galaxy)},
+		"system": {strconv.Itoa(where.System)},
+		"planet": {strconv.Itoa(where.Position)},
+		"type":   {strconv.Itoa(int(t))},
+	}
+	if cs {
+		fleetCheckPayload.Add("cs", "1")
+	}
+	if recycler {
+		fleetCheckPayload.Add("recycler", "1")
+	}
+	by1, err := b.postPageContent(url.Values{"page": {"fleetcheck"}, "ajax": {"1"}, "espionage": {"0"}}, fleetCheckPayload)
+	if err != nil {
+		return Fleet{}, err
+	}
+	switch string(by1) {
+	case "1":
+		return Fleet{}, ErrUninhabitedPlanet
+	case "1d":
+		return Fleet{}, ErrNoDebrisField
+	case "2":
+		return Fleet{}, ErrPlayerInVacationMode
+	case "3":
+		return Fleet{}, ErrAdminOrGM
+	case "4":
+		return Fleet{}, ErrNoAstrophysics
+	case "5":
+		return Fleet{}, ErrNoobProtection
+	case "6":
+		return Fleet{}, ErrPlayerTooStrong
+	case "10":
+		return Fleet{}, ErrNoMoonAvailable
+	case "11":
+		return Fleet{}, ErrNoRecyclerAvailable
+	case "15":
+		return Fleet{}, ErrNoEventsRunning
+	case "16":
+		return Fleet{}, ErrPlanetAlreadyReservecForRelocation
+	}
+
+	// Page 3 : select coord, mission, speed
+	pageHTML, err = b.postPageContent(url.Values{"page": {"fleet3"}}, payload)
+	if err != nil {
+		return Fleet{}, err
+	}
+
+	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	fleet3BodyID := fleet3Doc.Find("body").AttrOr("id", "")
+	if fleet3BodyID != "fleet3" {
+		now := time.Now().Unix()
+		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
+		return Fleet{}, errors.New("unknown error")
+	}
+
+	if mission == Spy && fleet3Doc.Find("li#button6").HasClass("off") {
+		return Fleet{}, errors.New("target cannot be spied (button disabled)")
+	} else if mission == Attack && fleet3Doc.Find("li#button1").HasClass("off") {
+		return Fleet{}, errors.New("target cannot be attacked (button disabled)")
+	} else if mission == Transport && fleet3Doc.Find("li#button3").HasClass("off") {
+		return Fleet{}, errors.New("cannot send transport (button disabled)")
+	} else if mission == Park && fleet3Doc.Find("li#button4").HasClass("off") {
+		return Fleet{}, errors.New("cannot send deployment (button disabled)")
+	} else if mission == Colonize && fleet3Doc.Find("li#button7").HasClass("off") {
+		return Fleet{}, errors.New("cannot send colonisation (button disabled)")
+	} else if mission == Expedition && fleet3Doc.Find("li#button15").HasClass("off") {
+		return Fleet{}, errors.New("cannot send expedition (button disabled)")
+	} else if mission == RecycleDebrisField && fleet3Doc.Find("li#button8").HasClass("off") {
+		return Fleet{}, errors.New("cannot recycle (button disabled)")
+		//} else if mission == Transport && fleet3Doc.Find("li#button5").HasClass("off") {
+		//	return Fleet{}, errors.New("cannot acs defend (button disabled)")
+		//} else if mission == Transport && fleet3Doc.Find("li#button2").HasClass("off") {
+		//	return Fleet{}, errors.New("cannot acs attack (button disabled)")
+	} else if mission == Destroy && fleet3Doc.Find("li#button9").HasClass("off") {
+		return Fleet{}, errors.New("cannot destroy (button disabled)")
+	}
+
+	payload = url.Values{}
+	hidden = getHiddenFields(pageHTML)
+	var finalShips ShipsInfos
+	for k, v := range hidden {
+		var shipID int
+		if n, err := fmt.Sscanf(k, "am%d", &shipID); err == nil && n == 1 {
+			nbr, _ := strconv.Atoi(v)
+			finalShips.Set(ID(shipID), nbr)
+		}
+		payload.Add(k, v)
+	}
+	deutConsumption := ParseInt(fleet3Doc.Find("div#roundup span#consumption").Text())
+	resourcesAvailable := ExtractResourcesFromDoc(fleet3Doc)
+	if deutConsumption > resourcesAvailable.Deuterium {
+		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumption)
+	}
+	finalCargo := finalShips.Cargo()
+	if deutConsumption > finalCargo {
+		return Fleet{}, fmt.Errorf("not enough cargo capacity, avail: %d, need: %d", finalCargo, deutConsumption)
+	}
+	payload.Add("crystal", strconv.Itoa(resources.Crystal))
+	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
+	payload.Add("metal", strconv.Itoa(resources.Metal))
+	payload.Set("mission", strconv.Itoa(int(mission)))
+	if mission == Expedition {
+		payload.Set("expeditiontime", strconv.Itoa(expeditiontime))
+	}
+
+	// Page 4 : send the fleet
+	pageHTML, err = b.postPageContent(url.Values{"page": {"movement"}}, payload)
+
+	// Page 5
+	movementHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
+	originCoords, _ := ExtractPlanetCoordinate(movementHTML)
+	fleets := ExtractFleets(movementHTML)
+	if len(fleets) > 0 {
+		max := Fleet{}
+		for i, fleet := range fleets {
+			if fleet.ID > max.ID &&
+				fleet.Origin.Equal(originCoords) &&
+				fleet.Destination.Equal(where) &&
+				fleet.Mission == mission &&
+				!fleet.ReturnFlight {
+				delay := time.Duration(fleet.BackIn-fleet.ArriveIn*2) * time.Second
+				if mission == Expedition {
+					delay -= time.Duration(expeditiontime) * time.Hour
+				}
+				if delay < 0 || delay > time.Since(start) {
+					continue
+				}
+				max = fleets[i]
+			}
+		}
+		if max.ID > 0 {
+			return max, nil
+		}
+	}
+
+	slots := ExtractSlots(movementHTML)
+	if slots.InUse == slots.Total {
+		return Fleet{}, ErrAllSlotsInUse
+	}
+
+	if mission == Expedition {
+		if slots.ExpInUse == slots.ExpTotal {
+			return Fleet{}, ErrAllSlotsInUse
+		}
+	}
+
+	now := time.Now().Unix()
+	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID, ", ts: ", now)
+	return Fleet{}, errors.New("could not find new fleet ID")
+}
+
 // EspionageReportType type of espionage report (action or report)
 type EspionageReportType int
 
@@ -3636,6 +3902,20 @@ func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, sp
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+}
+
+// EnsureFleet makes sure a fleet is sent
+func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	b.begin("EnsureFleet")
+	defer b.done()
+	return b.bot.ensureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+}
+
+// EnsureFleet makes sure a fleet is sent
+func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
 }
 
 // SendIPM sends IPM
