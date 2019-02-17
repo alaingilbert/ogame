@@ -11,8 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"log"
-
 	"github.com/PuerkitoBio/goquery"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/html"
@@ -731,59 +729,27 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	msgDate, _ := time.ParseInLocation("02.01.2006 15:04:05", msgDateRaw, location)
 	report.Date = msgDate.In(location)
 
-	// Username
-	// Speler   Crabtree(i i)   Crabtree (i i)iiii
-	report.Username = ""
-
 	username := doc.Find("div.detail_txt").First().Find("span span").Text()
 	username = strings.TrimSpace(username)
-
 	split := strings.Split(username, "(i")
-
 	if len(split) > 0 {
 		report.Username = strings.TrimSpace(split[0])
 	}
 
 	// Bandit, Starlord
 	banditstarlord := doc.Find("div.detail_txt").First().Find("span")
-
-	report.IsBandit = false
-	report.IsStarlord = false
-
 	if banditstarlord.HasClass("honorRank") {
-		if banditstarlord.HasClass("rank_bandit1") || banditstarlord.HasClass("rank_bandit2") || banditstarlord.HasClass("rank_bandit3") {
-			report.IsBandit = true
-			log.Print("Bandit detected: " + strconv.FormatBool(report.IsBandit))
-		}
-
-		if banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3") {
-			report.IsStarlord = true
-			log.Print("Starlord detected: " + strconv.FormatBool(report.IsStarlord))
-		}
-	} else {
-		log.Print("No Bandit / Starlord detected")
+		report.IsBandit = banditstarlord.HasClass("rank_bandit1") || banditstarlord.HasClass("rank_bandit2") || banditstarlord.HasClass("rank_bandit3")
+		report.IsStarlord = banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3")
 	}
 
 	// APIKey
-	report.APIKey = ""
-
 	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
-	blaat, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
-	snarfzonk, _ := blaat.Find("input").First().Attr("value")
-
-	if len(snarfzonk) > 0 {
-		report.APIKey = snarfzonk
-	}
-
-//	alternative:
-//	reggie := regexp.MustCompile(`sr-[a-z]{2}-[0-9]{1,3}-[a-z0-9]{40}`).FindString(apikey)
-
+	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
 
 	// Inactivity timer
-	report.LastActivity = 0
-
 	activity := doc.Find("div.detail_txt").Eq(1).Find("font")
-
 	if len(activity.Text()) == 2 {
 		report.LastActivity = ParseInt(activity.Text())
 	}
