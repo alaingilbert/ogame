@@ -743,6 +743,15 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 		report.IsStarlord = banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3")
 	}
 
+	// IsInactive, IsLongInactive
+	inactive := doc.Find("div.detail_txt").First().Find("span")
+	if inactive.HasClass("status_abbr_longinactive") {
+		report.IsInactive = true
+		report.IsLongInactive = true
+	} else if inactive.HasClass("status_abbr_inactive") {
+		report.IsInactive = true
+	}
+
 	// APIKey
 	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
 	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))

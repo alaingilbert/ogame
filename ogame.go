@@ -2587,6 +2587,8 @@ type EspionageReport struct {
 	HasResearches                bool
 	IsBandit                     bool
 	IsStarlord                   bool
+	IsInactive                   bool
+	IsLongInactive               bool
 	MetalMine                    *int // ResourcesBuildings
 	CrystalMine                  *int
 	DeuteriumSynthesizer         *int
