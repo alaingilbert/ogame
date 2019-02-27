@@ -165,7 +165,7 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 		// Calculate cargo
 		cargoCapacity := 0
 		for _, ship := range f.ships {
-			cargoCapacity += Objs.ByID(ship.ID).(Ship).GetCargoCapacity() * ship.Nbr
+			cargoCapacity += Objs.ByID(ship.ID).(Ship).GetCargoCapacity(tx.GetResearch()) * ship.Nbr
 		}
 
 		payload := f.resources

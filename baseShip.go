@@ -10,8 +10,8 @@ type BaseShip struct {
 }
 
 // GetCargoCapacity returns ship cargo capacity
-func (b BaseShip) GetCargoCapacity() int {
-	return b.CargoCapacity
+func (b BaseShip) GetCargoCapacity(techs Researches) int {
+	return b.CargoCapacity + int(float64(b.CargoCapacity)*(float64(techs.HyperspaceTechnology)*0.02))
 }
 
 // GetFuelConsumption returns ship fuel consumption
