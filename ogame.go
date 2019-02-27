@@ -3661,7 +3661,7 @@ func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
 }
 
-// EnsureFleet makes sure a fleet is sent
+// EnsureFleet either sends all the requested ships or fail
 func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	b.begin("EnsureFleet")
@@ -3669,7 +3669,7 @@ func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, 
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, true)
 }
 
-// EnsureFleet makes sure a fleet is sent
+// EnsureFleet either sends all the requested ships or fail
 func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
