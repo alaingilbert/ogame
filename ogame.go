@@ -2260,15 +2260,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 			return Fleet{}, ErrNoShipSelected
 		}
 	} else {
-		enoughShips := true
 		for _, ship := range ships {
 			if ship.Nbr > availableShips.ByID(ship.ID) {
-				enoughShips = false
-				break
+				return Fleet{}, ErrNotEnoughShips
 			}
-		}
-		if !enoughShips {
-			return Fleet{}, ErrNotEnoughShips
 		}
 	}
 
