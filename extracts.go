@@ -1503,6 +1503,8 @@ func extractPhalanx(pageHTML []byte) ([]Fleet, error) {
 	return res, nil
 }
 
+// Return the available ships to send, form token, possible moon IDs and wait time (if any)
+// given a jump gate popup html.
 func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
 	m := regexp.MustCompile(`\$\("#cooldown"\), (\d+),`).FindSubmatch(pageHTML)
 	ships := ShipsInfos{}

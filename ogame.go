@@ -134,6 +134,7 @@ type Wrapper interface {
 	// Moon specific functions
 	Phalanx(MoonID, Coordinate) ([]Fleet, error)
 	UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
+	JumpGate(origin, dest MoonID, ships ShipsInfos) error
 }
 
 const defaultUserAgent = "" +
@@ -3832,4 +3833,16 @@ func (b *Prioritize) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, er
 // UnsafePhalanx same as Phalanx but does not perform any input validation.
 func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	return b.WithPriority(Normal).UnsafePhalanx(moonID, coord)
+}
+
+// JumpGate sends ships through a jump gate.
+func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
+	b.begin("JumpGate")
+	defer b.done()
+	return b.bot.executeJumpGate(origin, dest, ships)
+}
+
+// JumpGate sends ships through a jump gate.
+func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
+	return b.WithPriority(Normal).JumpGate(origin, dest, ships)
 }
