@@ -2191,7 +2191,7 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority I
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime int, ensure bool) (Fleet, error) {
 
 	// Keep track of start time. We use this value to find a fleet that was created after that time.
 	start := time.Now()
@@ -2245,15 +2245,28 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	availableShips := ExtractFleet1Ships(pageHTML)
 
-	atLeastOneShipSelected := false
-	for _, ship := range ships {
-		if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
-			atLeastOneShipSelected = true
-			break
+	if !ensure {
+		atLeastOneShipSelected := false
+		for _, ship := range ships {
+			if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
+				atLeastOneShipSelected = true
+				break
+			}
 		}
-	}
-	if !atLeastOneShipSelected {
-		return Fleet{}, ErrNoShipSelected
+		if !atLeastOneShipSelected {
+			return Fleet{}, ErrNoShipSelected
+		}
+	} else {
+		enoughShips := true
+		for _, ship := range ships {
+			if ship.Nbr > availableShips.ByID(ship.ID) {
+				enoughShips = false
+				break
+			}
+		}
+		if !enoughShips {
+			return Fleet{}, ErrNotEnoughShips
+		}
 	}
 
 	payload := url.Values{}
@@ -3634,13 +3647,27 @@ func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, sp
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	b.begin("SendFleet")
 	defer b.done()
-	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, false)
 }
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+}
+
+// EnsureFleet makes sure a fleet is sent
+func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	b.begin("EnsureFleet")
+	defer b.done()
+	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, true)
+}
+
+// EnsureFleet makes sure a fleet is sent
+func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
 }
 
 // SendIPM sends IPM
