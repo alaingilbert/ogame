@@ -47,7 +47,6 @@ func (m Moon) GetProduction() ([]Quantifiable, error) {
 	return m.ogame.GetProduction(m.ID.Celestial())
 }
 
-
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
 func (m Moon) ConstructionsBeingBuilt() (ID, int, ID, int) {
 	return m.ogame.ConstructionsBeingBuilt(CelestialID(m.ID))
@@ -102,6 +101,12 @@ func (m Moon) CancelResearch() error {
 func (m Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime)
+}
+
+// EnsureFleet sends a fleet
+func (m Moon) EnsureFleet(ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	return m.ogame.EnsureFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime)
 }
 
 // GetResources gets moon resources
