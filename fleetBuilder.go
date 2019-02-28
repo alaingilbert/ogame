@@ -162,15 +162,16 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			}
 		}
 
-		// Calculate cargo
-		cargoCapacity := 0
-		for _, ship := range f.ships {
-			cargoCapacity += Objs.ByID(ship.ID).(Ship).GetCargoCapacity(tx.GetResearch()) * ship.Nbr
-		}
-
 		payload := f.resources
 		// Send all resources
 		if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
+			// Calculate cargo
+			cargoCapacity := 0
+			techs := tx.GetResearch()
+			for _, ship := range f.ships {
+				cargoCapacity += Objs.ByID(ship.ID).(Ship).GetCargoCapacity(techs) * ship.Nbr
+			}
+
 			planetResources, _ := tx.GetResources(f.origin)
 			payload.Deuterium = int(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
 			cargoCapacity -= payload.Deuterium

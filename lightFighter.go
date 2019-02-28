@@ -11,7 +11,7 @@ func newLightFighter() *lightFighter {
 	l.StructuralIntegrity = 4000
 	l.ShieldPower = 10
 	l.WeaponPower = 50
-	l.CargoCapacity = 50
+	l.BaseCargoCapacity = 50
 	l.BaseSpeed = 12500
 	l.FuelConsumption = 20
 	l.RapidfireFrom = map[ID]int{CruiserID: 6, DeathstarID: 200}

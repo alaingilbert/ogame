@@ -11,7 +11,7 @@ func newBattleship() *battleship {
 	b.StructuralIntegrity = 60000
 	b.ShieldPower = 200
 	b.WeaponPower = 1000
-	b.CargoCapacity = 1500
+	b.BaseCargoCapacity = 1500
 	b.BaseSpeed = 10000
 	b.FuelConsumption = 500
 	b.RapidfireFrom = map[ID]int{BattlecruiserID: 7, DeathstarID: 30}

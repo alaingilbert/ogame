@@ -2407,7 +2407,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	if deutConsumption > resourcesAvailable.Deuterium {
 		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumption)
 	}
-	finalCargo := finalShips.Cargo()
+	finalCargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
 	if deutConsumption > finalCargo {
 		return Fleet{}, fmt.Errorf("not enough cargo capacity, avail: %d, need: %d", finalCargo, deutConsumption)
 	}

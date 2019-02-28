@@ -11,7 +11,7 @@ func newDestroyer() *destroyer {
 	s.StructuralIntegrity = 110000
 	s.ShieldPower = 500
 	s.WeaponPower = 2000
-	s.CargoCapacity = 2000
+	s.BaseCargoCapacity = 2000
 	s.BaseSpeed = 5000
 	s.FuelConsumption = 1000
 	s.RapidfireFrom = map[ID]int{DeathstarID: 5}

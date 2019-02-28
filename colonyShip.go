@@ -11,7 +11,7 @@ func newColonyShip() *colonyShip {
 	s.StructuralIntegrity = 30000
 	s.ShieldPower = 100
 	s.WeaponPower = 50
-	s.CargoCapacity = 7500
+	s.BaseCargoCapacity = 7500
 	s.BaseSpeed = 2500
 	s.FuelConsumption = 1000
 	s.RapidfireFrom = map[ID]int{DeathstarID: 250}
