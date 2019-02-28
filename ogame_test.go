@@ -913,6 +913,13 @@ func TestExtractAttacks1(t *testing.T) {
 	assert.Nil(t, attacks[0].Ships)
 }
 
+func TestExtractCargoCapacity(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/sendfleet3.htm")
+	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	cargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
+	assert.Equal(t, 442500, cargo)
+}
+
 func TestExtractGalaxyInfos_bandit(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_inactive_bandit_lord.html")
 	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)

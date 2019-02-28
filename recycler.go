@@ -11,7 +11,7 @@ func newRecycler() *recycler {
 	s.StructuralIntegrity = 16000
 	s.ShieldPower = 10
 	s.WeaponPower = 1
-	s.CargoCapacity = 20000
+	s.BaseCargoCapacity = 20000
 	s.BaseSpeed = 2000
 	s.FuelConsumption = 300
 	s.RapidfireFrom = map[ID]int{DeathstarID: 250}

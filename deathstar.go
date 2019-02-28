@@ -11,7 +11,7 @@ func newDeathstar() *deathstar {
 	s.StructuralIntegrity = 9000000
 	s.ShieldPower = 50000
 	s.WeaponPower = 200000
-	s.CargoCapacity = 1000000
+	s.BaseCargoCapacity = 1000000
 	s.BaseSpeed = 100
 	s.FuelConsumption = 1
 	s.RapidfireFrom = map[ID]int{}

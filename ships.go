@@ -21,21 +21,21 @@ type ShipsInfos struct {
 }
 
 // Cargo returns the total cargo of the ships
-func (s ShipsInfos) Cargo() int {
-	res := LightFighter.CargoCapacity * s.LightFighter
-	res += HeavyFighter.CargoCapacity * s.HeavyFighter
-	res += Cruiser.CargoCapacity * s.Cruiser
-	res += Battleship.CargoCapacity * s.Battleship
-	res += Battlecruiser.CargoCapacity * s.Battlecruiser
-	res += Bomber.CargoCapacity * s.Bomber
-	res += Destroyer.CargoCapacity * s.Destroyer
-	res += Deathstar.CargoCapacity * s.Deathstar
-	res += SmallCargo.CargoCapacity * s.SmallCargo
-	res += LargeCargo.CargoCapacity * s.LargeCargo
-	res += ColonyShip.CargoCapacity * s.ColonyShip
-	res += Recycler.CargoCapacity * s.Recycler
-	res += EspionageProbe.CargoCapacity * s.EspionageProbe
-	res += SolarSatellite.CargoCapacity * s.SolarSatellite
+func (s ShipsInfos) Cargo(techs Researches) int {
+	res := LightFighter.GetCargoCapacity(techs) * s.LightFighter
+	res += HeavyFighter.GetCargoCapacity(techs) * s.HeavyFighter
+	res += Cruiser.GetCargoCapacity(techs) * s.Cruiser
+	res += Battleship.GetCargoCapacity(techs) * s.Battleship
+	res += Battlecruiser.GetCargoCapacity(techs) * s.Battlecruiser
+	res += Bomber.GetCargoCapacity(techs) * s.Bomber
+	res += Destroyer.GetCargoCapacity(techs) * s.Destroyer
+	res += Deathstar.GetCargoCapacity(techs) * s.Deathstar
+	res += SmallCargo.GetCargoCapacity(techs) * s.SmallCargo
+	res += LargeCargo.GetCargoCapacity(techs) * s.LargeCargo
+	res += ColonyShip.GetCargoCapacity(techs) * s.ColonyShip
+	res += Recycler.GetCargoCapacity(techs) * s.Recycler
+	res += EspionageProbe.GetCargoCapacity(techs) * s.EspionageProbe
+	res += SolarSatellite.GetCargoCapacity(techs) * s.SolarSatellite
 	return res
 }
 
