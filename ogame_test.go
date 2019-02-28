@@ -913,6 +913,13 @@ func TestExtractAttacks1(t *testing.T) {
 	assert.Nil(t, attacks[0].Ships)
 }
 
+func TestExtractCargoCapacity(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/sendfleet3.htm")
+	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	cargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
+	assert.Equal(t, 442500, cargo)
+}
+
 func TestExtractGalaxyInfos_bandit(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_inactive_bandit_lord.html")
 	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
@@ -1681,6 +1688,64 @@ func TestExtractEspionageReport_defence(t *testing.T) {
 	assert.Equal(t, 57, *infos.LightLaser)
 	assert.Equal(t, 61, *infos.HeavyLaser)
 	assert.Nil(t, infos.GaussCannon)
+}
+
+func TestExtractEspionageReport_bandit(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_inactive_bandit_lord.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, true, infos.IsBandit)
+	assert.Equal(t, false, infos.IsStarlord)
+}
+
+func TestExtractEspionageReport_starlord(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_active_star_lord.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, false, infos.IsBandit)
+	assert.Equal(t, true, infos.IsStarlord)
+}
+
+func TestExtractEspionageReport_norank(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_buildings_researches_fleet.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, false, infos.IsBandit)
+	assert.Equal(t, false, infos.IsStarlord)
+
+}
+
+func TestExtractEspionageReport_username1(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_inactive_bandit_lord.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, "Cid Granjeador", infos.Username)
+}
+
+func TestExtractEspionageReport_username2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_active_star_lord.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, "Commodore Nomad", infos.Username)
+}
+
+func TestExtractEspionageReport_apiKey(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_active_star_lord.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, "sr-en-152-ea0b59302bfad7e3ab0f2d15f7ef2c6a4633b4ba", infos.APIKey)
+}
+
+func TestExtractEspionageReport_inactivetimer_within15(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_buildings.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 15, infos.LastActivity)
+}
+
+func TestExtractEspionageReport_inactivetimer_29(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_res_buildings_researches.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 29, infos.LastActivity)
+}
+
+func TestExtractEspionageReport_inactivetimer_over1h(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_inactive_bandit_lord.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 0, infos.LastActivity)
 }
 
 func TestGalaxyDistance(t *testing.T) {

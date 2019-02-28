@@ -11,7 +11,7 @@ func newHeavyFighter() *heavyFighter {
 	s.StructuralIntegrity = 10000
 	s.ShieldPower = 25
 	s.WeaponPower = 150
-	s.CargoCapacity = 100
+	s.BaseCargoCapacity = 100
 	s.BaseSpeed = 10000
 	s.FuelConsumption = 75
 	s.RapidfireFrom = map[ID]int{BattlecruiserID: 4, DeathstarID: 100}

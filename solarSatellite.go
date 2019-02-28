@@ -11,7 +11,7 @@ func newSolarSatellite() *solarSatellite {
 	s.StructuralIntegrity = 2000
 	s.ShieldPower = 1
 	s.WeaponPower = 1
-	s.CargoCapacity = 0
+	s.BaseCargoCapacity = 0
 	s.BaseSpeed = 0
 	s.FuelConsumption = 0
 	s.RapidfireFrom = map[ID]int{DeathstarID: 1250}

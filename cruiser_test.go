@@ -13,7 +13,8 @@ func TestCruiser_RapidfireAgainst(t *testing.T) {
 
 func TestCruiser_GetCargoCapacity(t *testing.T) {
 	c := newCruiser()
-	assert.Equal(t, 800, c.GetCargoCapacity())
+	assert.Equal(t, 800, c.GetCargoCapacity(Researches{HyperspaceTechnology: 0}))
+	assert.Equal(t, 928, c.GetCargoCapacity(Researches{HyperspaceTechnology: 8}))
 }
 
 func TestCruiser_GetFuelConsumption(t *testing.T) {

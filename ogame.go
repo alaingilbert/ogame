@@ -107,6 +107,7 @@ type Wrapper interface {
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
 	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
+	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
 	Build(celestialID CelestialID, id ID, nbr int) error
 	BuildCancelable(CelestialID, ID) error
 	BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -134,6 +135,7 @@ type Wrapper interface {
 	// Moon specific functions
 	Phalanx(MoonID, Coordinate) ([]Fleet, error)
 	UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
+	JumpGate(origin, dest MoonID, ships ShipsInfos) error
 }
 
 const defaultUserAgent = "" +
@@ -183,7 +185,7 @@ type DefenderObj interface {
 // Ship interface implemented by all ships units
 type Ship interface {
 	DefenderObj
-	GetCargoCapacity() int
+	GetCargoCapacity(researches Researches) int
 	GetSpeed(researches Researches) int
 	GetFuelConsumption() int
 	GetRapidfireAgainst() map[ID]int
@@ -1245,6 +1247,7 @@ type Celestial interface {
 	GetResources() (Resources, error)
 	GetFacilities() (Facilities, error)
 	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
+	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
 	GetDefense() (DefensesInfos, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
@@ -2191,7 +2194,7 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority I
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime int, ensure bool) (Fleet, error) {
 
 	// Keep track of start time. We use this value to find a fleet that was created after that time.
 	start := time.Now()
@@ -2245,15 +2248,23 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	availableShips := ExtractFleet1Ships(pageHTML)
 
-	atLeastOneShipSelected := false
-	for _, ship := range ships {
-		if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
-			atLeastOneShipSelected = true
-			break
+	if !ensure {
+		atLeastOneShipSelected := false
+		for _, ship := range ships {
+			if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
+				atLeastOneShipSelected = true
+				break
+			}
 		}
-	}
-	if !atLeastOneShipSelected {
-		return Fleet{}, ErrNoShipSelected
+		if !atLeastOneShipSelected {
+			return Fleet{}, ErrNoShipSelected
+		}
+	} else {
+		for _, ship := range ships {
+			if ship.Nbr > availableShips.ByID(ship.ID) {
+				return Fleet{}, ErrNotEnoughShips
+			}
+		}
 	}
 
 	payload := url.Values{}
@@ -2396,7 +2407,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	if deutConsumption > resourcesAvailable.Deuterium {
 		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumption)
 	}
-	finalCargo := finalShips.Cargo()
+	finalCargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
 	if deutConsumption > finalCargo {
 		return Fleet{}, fmt.Errorf("not enough cargo capacity, avail: %d, need: %d", finalCargo, deutConsumption)
 	}
@@ -2564,11 +2575,18 @@ func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error
 type EspionageReport struct {
 	Resources
 	ID                           int
+	Username                     string
+	LastActivity                 int
 	CounterEspionage             int
+	APIKey                       string
 	HasFleet                     bool
 	HasDefenses                  bool
 	HasBuildings                 bool
 	HasResearches                bool
+	IsBandit                     bool
+	IsStarlord                   bool
+	IsInactive                   bool
+	IsLongInactive               bool
 	MetalMine                    *int // ResourcesBuildings
 	CrystalMine                  *int
 	DeuteriumSynthesizer         *int
@@ -3629,13 +3647,27 @@ func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, sp
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	b.begin("SendFleet")
 	defer b.done()
-	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, false)
 }
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+}
+
+// EnsureFleet either sends all the requested ships or fail
+func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	b.begin("EnsureFleet")
+	defer b.done()
+	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, true)
+}
+
+// EnsureFleet either sends all the requested ships or fail
+func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
 }
 
 // SendIPM sends IPM
@@ -3798,4 +3830,16 @@ func (b *Prioritize) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, er
 // UnsafePhalanx same as Phalanx but does not perform any input validation.
 func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	return b.WithPriority(Normal).UnsafePhalanx(moonID, coord)
+}
+
+// JumpGate sends ships through a jump gate.
+func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
+	b.begin("JumpGate")
+	defer b.done()
+	return b.bot.executeJumpGate(origin, dest, ships)
+}
+
+// JumpGate sends ships through a jump gate.
+func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
+	return b.WithPriority(Normal).JumpGate(origin, dest, ships)
 }

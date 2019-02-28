@@ -11,7 +11,7 @@ func newBomber() *bomber {
 	b.StructuralIntegrity = 75000
 	b.ShieldPower = 500
 	b.WeaponPower = 1000
-	b.CargoCapacity = 500
+	b.BaseCargoCapacity = 500
 	b.BaseSpeed = 4000
 	b.FuelConsumption = 1000
 	b.RapidfireFrom = map[ID]int{DeathstarID: 25}

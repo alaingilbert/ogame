@@ -729,8 +729,43 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	msgDate, _ := time.ParseInLocation("02.01.2006 15:04:05", msgDateRaw, location)
 	report.Date = msgDate.In(location)
 
+	username := doc.Find("div.detail_txt").First().Find("span span").Text()
+	username = strings.TrimSpace(username)
+	split := strings.Split(username, "(i")
+	if len(split) > 0 {
+		report.Username = strings.TrimSpace(split[0])
+	}
+
+	// Bandit, Starlord
+	banditstarlord := doc.Find("div.detail_txt").First().Find("span")
+	if banditstarlord.HasClass("honorRank") {
+		report.IsBandit = banditstarlord.HasClass("rank_bandit1") || banditstarlord.HasClass("rank_bandit2") || banditstarlord.HasClass("rank_bandit3")
+		report.IsStarlord = banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3")
+	}
+
+	// IsInactive, IsLongInactive
+	inactive := doc.Find("div.detail_txt").First().Find("span")
+	if inactive.HasClass("status_abbr_longinactive") {
+		report.IsInactive = true
+		report.IsLongInactive = true
+	} else if inactive.HasClass("status_abbr_inactive") {
+		report.IsInactive = true
+	}
+
+	// APIKey
+	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
+	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
+
+	// Inactivity timer
+	activity := doc.Find("div.detail_txt").Eq(1).Find("font")
+	if len(activity.Text()) == 2 {
+		report.LastActivity = ParseInt(activity.Text())
+	}
+
+	// CounterEspionage
 	ceTxt := doc.Find("div.detail_txt").Eq(1).Text()
-	m1 := regexp.MustCompile(`(\d+)\%`).FindStringSubmatch(ceTxt)
+	m1 := regexp.MustCompile(`(\d+)%`).FindStringSubmatch(ceTxt)
 	if len(m1) == 2 {
 		report.CounterEspionage, _ = strconv.Atoi(m1[1])
 	}
@@ -1468,6 +1503,8 @@ func extractPhalanx(pageHTML []byte) ([]Fleet, error) {
 	return res, nil
 }
 
+// Return the available ships to send, form token, possible moon IDs and wait time (if any)
+// given a jump gate popup html.
 func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
 	m := regexp.MustCompile(`\$\("#cooldown"\), (\d+),`).FindSubmatch(pageHTML)
 	ships := ShipsInfos{}

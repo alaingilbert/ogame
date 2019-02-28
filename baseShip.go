@@ -3,15 +3,15 @@ package ogame
 // BaseShip base struct for ships
 type BaseShip struct {
 	BaseDefender
-	CargoCapacity    int
-	BaseSpeed        int
-	FuelConsumption  int
-	RapidfireAgainst map[ID]int
+	BaseCargoCapacity int
+	BaseSpeed         int
+	FuelConsumption   int
+	RapidfireAgainst  map[ID]int
 }
 
 // GetCargoCapacity returns ship cargo capacity
-func (b BaseShip) GetCargoCapacity() int {
-	return b.CargoCapacity
+func (b BaseShip) GetCargoCapacity(techs Researches) int {
+	return b.BaseCargoCapacity + int(float64(b.BaseCargoCapacity*techs.HyperspaceTechnology)*0.02)
 }
 
 // GetFuelConsumption returns ship fuel consumption
