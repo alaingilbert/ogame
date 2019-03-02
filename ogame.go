@@ -87,7 +87,7 @@ type Wrapper interface {
 	GetCachedPlayer() UserInfos
 	GetPlanets() []Planet
 	GetPlanet(interface{}) (Planet, error)
-	GetMoons(MoonID) []Moon
+	GetMoons() []Moon
 	GetMoon(interface{}) (Moon, error)
 	GetCelestial(interface{}) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
@@ -185,8 +185,8 @@ type DefenderObj interface {
 // Ship interface implemented by all ships units
 type Ship interface {
 	DefenderObj
-	GetCargoCapacity(researches Researches) int
-	GetSpeed(researches Researches) int
+	GetCargoCapacity(Researches) int
+	GetSpeed(Researches) int
 	GetFuelConsumption() int
 	GetRapidfireAgainst() map[ID]int
 }
@@ -3236,15 +3236,15 @@ func (b *OGame) GetPlanet(v interface{}) (Planet, error) {
 }
 
 // GetMoons returns the user moons
-func (b *Prioritize) GetMoons(moonID MoonID) []Moon {
+func (b *Prioritize) GetMoons() []Moon {
 	b.begin("GetMoons")
 	defer b.done()
 	return b.bot.getMoons()
 }
 
 // GetMoons returns the user moons
-func (b *OGame) GetMoons(moonID MoonID) []Moon {
-	return b.WithPriority(Normal).GetMoons(moonID)
+func (b *OGame) GetMoons() []Moon {
+	return b.WithPriority(Normal).GetMoons()
 }
 
 // GetMoon gets infos for moonID
