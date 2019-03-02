@@ -185,8 +185,8 @@ type DefenderObj interface {
 // Ship interface implemented by all ships units
 type Ship interface {
 	DefenderObj
-	GetCargoCapacity(researches Researches) int
-	GetSpeed(researches Researches) int
+	GetCargoCapacity(Researches) int
+	GetSpeed(Researches) int
 	GetFuelConsumption() int
 	GetRapidfireAgainst() map[ID]int
 }
