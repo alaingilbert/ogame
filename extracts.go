@@ -1247,6 +1247,8 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 	switch lang {
 	case "fr":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Place ([\d.]+) sur ([\d.]+)\)`)
+	case "hr":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Mjesto ([\d.]+) od ([\d.]+)\)`)
 	case "cz":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Pozice ([\d.]+) z ([\d.]+)\)`)
 	case "de":
