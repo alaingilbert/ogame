@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"container/heap"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -196,6 +198,7 @@ type Defense interface {
 	DefenderObj
 }
 
+// Item ...
 type Item struct {
 	canBeProcessedCh chan struct{}
 	isDoneCh         chan struct{}
@@ -219,6 +222,7 @@ func (pq PriorityQueue) Swap(i, j int) {
 	pq[j].index = j
 }
 
+// Push ...
 func (pq *PriorityQueue) Push(x interface{}) {
 	n := len(*pq)
 	item := x.(*Item)
@@ -226,6 +230,7 @@ func (pq *PriorityQueue) Push(x interface{}) {
 	*pq = append(*pq, item)
 }
 
+// Pop ...
 func (pq *PriorityQueue) Pop() interface{} {
 	old := *pq
 	n := len(old)
@@ -326,7 +331,9 @@ func NewWithParams(params Params) (*OGame, error) {
 			return nil, err
 		}
 		httpTransport := &http.Transport{}
-		httpTransport.Dial = dialer.Dial
+		httpTransport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return dialer.Dial(network, addr)
+		}
 		b.Client.Transport = httpTransport
 	}
 
@@ -402,7 +409,7 @@ type Server struct {
 // ogame cookie name for php session id
 const phpSessionIDCookieName = "PHPSESSID"
 
-func getPhpSessionID(b *OGame, client *OGameClient, username, password string) (string, error) {
+func getPhpSessionID(b *OGame, username, password string) (string, error) {
 	payload := url.Values{
 		"kid":                   {""},
 		"language":              {"en"},
@@ -430,7 +437,11 @@ func getPhpSessionID(b *OGame, client *OGameClient, username, password string) (
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 
 	if resp.StatusCode >= 500 {
 		return "", errors.New("OGame server error code : " + resp.Status)
@@ -472,18 +483,22 @@ type account struct {
 	}
 }
 
-func getUserAccounts(client *OGameClient, phpSessionID string) ([]account, error) {
+func getUserAccounts(b *OGame, phpSessionID string) ([]account, error) {
 	var userAccounts []account
 	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
 	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
-	resp, err := client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return userAccounts, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return userAccounts, err
@@ -494,17 +509,21 @@ func getUserAccounts(client *OGameClient, phpSessionID string) ([]account, error
 	return userAccounts, nil
 }
 
-func getServers(client *OGameClient) ([]Server, error) {
+func getServers(b *OGame) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/servers", nil)
 	if err != nil {
 		return servers, err
 	}
-	resp, err := client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return servers, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return servers, err
@@ -539,7 +558,7 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 	return acc, server, nil
 }
 
-func getLoginLink(client *OGameClient, userAccount account, phpSessionID string) (string, error) {
+func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, error) {
 	ogURL := fmt.Sprintf("https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
 		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest("GET", ogURL, nil)
@@ -547,11 +566,15 @@ func getLoginLink(client *OGameClient, userAccount account, phpSessionID string)
 		return "", err
 	}
 	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
-	resp, err := client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -570,17 +593,17 @@ func (b *OGame) login() error {
 	b.Client.Jar = jar
 
 	b.debug("get session")
-	phpSessionID, err := getPhpSessionID(b, b.Client, b.Username, b.password)
+	phpSessionID, err := getPhpSessionID(b, b.Username, b.password)
 	if err != nil {
 		return err
 	}
 	b.debug("get user accounts")
-	accounts, err := getUserAccounts(b.Client, phpSessionID)
+	accounts, err := getUserAccounts(b, phpSessionID)
 	if err != nil {
 		return err
 	}
 	b.debug("get servers")
-	servers, err := getServers(b.Client)
+	servers, err := getServers(b)
 	if err != nil {
 		return err
 	}
@@ -596,7 +619,7 @@ func (b *OGame) login() error {
 	b.server = server
 	b.language = userAccount.Server.Language
 	b.debug("get login link")
-	loginLink, err := getLoginLink(b.Client, userAccount, phpSessionID)
+	loginLink, err := getLoginLink(b, userAccount, phpSessionID)
 	if err != nil {
 		return err
 	}
@@ -625,7 +648,11 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 
 	pageHTML, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -690,6 +717,7 @@ func (b *OGame) login() error {
 	return nil
 }
 
+// DefaultLoginWrapper ...
 var DefaultLoginWrapper = func(loginFn func() error) error {
 	return loginFn()
 }
@@ -698,10 +726,12 @@ func (b *OGame) wrapLogin() error {
 	return b.loginWrapper(b.login)
 }
 
+// SetLoginWrapper ...
 func (b *OGame) SetLoginWrapper(newWrapper func(func() error) error) {
 	b.loginWrapper = newWrapper
 }
 
+// SetLoginProxy ...
 func (b *OGame) SetLoginProxy(proxy, username, password string) error {
 	proxyURL, err := url.Parse(proxy)
 	if err != nil {
@@ -728,14 +758,18 @@ func (b *OGame) connectChat(host, port string) {
 		b.error("failed to get socket.io token:", err)
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	b.chatRetry.Reset()
 	by, _ := ioutil.ReadAll(resp.Body)
 	token := strings.Split(string(by), ":")[0]
 
 	origin := "https://" + host + ":" + port + "/"
-	url := "wss://" + host + ":" + port + "/socket.io/1/websocket/" + token
-	b.ws, err = websocket.Dial(url, "", origin)
+	wssURL := "wss://" + host + ":" + port + "/socket.io/1/websocket/" + token
+	b.ws, err = websocket.Dial(wssURL, "", origin)
 	if err != nil {
 		b.error("failed to dial websocket:", err)
 		return
@@ -751,7 +785,9 @@ LOOP:
 		}
 
 		var buf = make([]byte, 1024*1024)
-		b.ws.SetReadDeadline(time.Now().Add(time.Second))
+		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+			b.error("failed to set read deadline:", err)
+		}
 		if _, err = b.ws.Read(buf); err != nil {
 			if err == io.EOF {
 				b.error("chat eof:", err)
@@ -768,13 +804,13 @@ LOOP:
 		}
 		msg := bytes.Trim(buf, "\x00")
 		if bytes.Equal(msg, []byte("1::")) {
-			b.ws.Write([]byte("1::/chat"))
+			_, _ = b.ws.Write([]byte("1::/chat"))
 		} else if bytes.Equal(msg, []byte("1::/chat")) {
 			authMsg := `5:` + strconv.Itoa(b.sessionChatCounter) + `+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
-			b.ws.Write([]byte(authMsg))
+			_, _ = b.ws.Write([]byte(authMsg))
 			b.sessionChatCounter++
 		} else if bytes.Equal(msg, []byte("2::")) {
-			b.ws.Write([]byte("2::"))
+			_, _ = b.ws.Write([]byte("2::"))
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).Match(msg) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[false]`).Match(msg) {
@@ -825,14 +861,14 @@ func (m ChatMsg) String() string {
 }
 
 func (b *OGame) logout() {
-	b.getPageContent(url.Values{"page": {"logout"}})
+	_, _ = b.getPageContent(url.Values{"page": {"logout"}})
 	if atomic.CompareAndSwapInt32(&b.isLoggedIn, 1, 0) {
 		select {
 		case <-b.closeChatCh:
 		default:
 			close(b.closeChatCh)
 			if b.ws != nil {
-				b.ws.Close()
+				_ = b.ws.Close()
 			}
 		}
 	}
@@ -857,6 +893,7 @@ func (b *OGame) GetClient() *OGameClient {
 	return b.Client
 }
 
+// IsKnowFullPage ...
 func IsKnowFullPage(vals url.Values) bool {
 	page := vals.Get("page")
 	return page == "overview" ||
@@ -939,13 +976,25 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 		b.error(err)
 		return []byte{}, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 
 	var reader io.ReadCloser
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
 		reader, err = gzip.NewReader(resp.Body)
-		defer reader.Close()
+		if err != nil {
+			b.error(err)
+			return []byte{}, err
+		}
+		defer func() {
+			if err := reader.Close(); err != nil {
+				b.error(err)
+			}
+		}()
 	default:
 		reader = resp.Body
 	}
@@ -989,7 +1038,11 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 
 	if resp.StatusCode >= 500 {
 		return nil, err
@@ -1036,7 +1089,11 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		if err != nil {
 			return err
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				b.error(err)
+			}
+		}()
 
 		if resp.StatusCode >= 500 {
 			return err
@@ -1238,6 +1295,7 @@ type resourcesResp struct {
 	HonorScore int
 }
 
+// Celestial ...
 type Celestial interface {
 	GetID() CelestialID
 	GetType() CelestialType
@@ -1647,10 +1705,11 @@ func (b *OGame) getFleets() ([]Fleet, Slots) {
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}})
+	_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}})
 	return nil
 }
 
+// Slots ...
 type Slots struct {
 	InUse    int
 	Total    int
@@ -1799,7 +1858,11 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		b.error(err.Error())
 		return res, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	pageHTML, _ := ioutil.ReadAll(resp.Body)
 
 	return extractPhalanx(pageHTML)
@@ -1823,7 +1886,11 @@ func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, erro
 		b.error(err.Error())
 		return res, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	pageHTML, _ := ioutil.ReadAll(resp.Body)
 
 	return extractPhalanx(pageHTML)
@@ -1951,7 +2018,11 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	return nil
 }
 
@@ -2110,7 +2181,11 @@ func (b *OGame) cancel(token string, techID, listID int) error {
 	finalURL := b.serverURL + "/game/index.php?page=overview&modus=2&token=" + token + "&techid=" + strconv.Itoa(techID) + "&listid=" + strconv.Itoa(listID)
 	req, _ := http.NewRequest("GET", finalURL, nil)
 	resp, _ := b.Client.Do(req)
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	return nil
 }
 
@@ -2140,13 +2215,16 @@ func (b *OGame) fetchResources(celestialID CelestialID) (resourcesResp, error) {
 
 func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 	res, err := b.fetchResources(celestialID)
+	if err != nil {
+		return Resources{}, err
+	}
 	return Resources{
 		Metal:      res.Metal.Resources.Actual,
 		Crystal:    res.Crystal.Resources.Actual,
 		Deuterium:  res.Deuterium.Resources.Actual,
 		Energy:     res.Energy.Resources.Actual,
 		Darkmatter: res.Darkmatter.Resources.Actual,
-	}, err
+	}, nil
 }
 
 func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
@@ -2437,7 +2515,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	// Page 4 : send the fleet
-	pageHTML, err = b.postPageContent(url.Values{"page": {"movement"}}, payload)
+	_, _ = b.postPageContent(url.Values{"page": {"movement"}}, payload)
 
 	// Page 5
 	movementHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
@@ -2533,7 +2611,11 @@ func (b *OGame) getPageMessages(page, tabid int) ([]byte, error) {
 		return []byte{}, err
 	}
 	by, _ := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	return by, nil
 }
 
@@ -2588,86 +2670,6 @@ func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error
 	return CombatReportSummary{}, errors.New("combat report not found for " + coord.String())
 }
 
-// EspionageReport detailed espionage report
-type EspionageReport struct {
-	Resources
-	ID                           int
-	Username                     string
-	LastActivity                 int
-	CounterEspionage             int
-	APIKey                       string
-	HasFleet                     bool
-	HasDefenses                  bool
-	HasBuildings                 bool
-	HasResearches                bool
-	IsBandit                     bool
-	IsStarlord                   bool
-	IsInactive                   bool
-	IsLongInactive               bool
-	MetalMine                    *int // ResourcesBuildings
-	CrystalMine                  *int
-	DeuteriumSynthesizer         *int
-	SolarPlant                   *int
-	FusionReactor                *int
-	SolarSatellite               *int
-	MetalStorage                 *int
-	CrystalStorage               *int
-	DeuteriumTank                *int
-	RoboticsFactory              *int // Facilities
-	Shipyard                     *int
-	ResearchLab                  *int
-	AllianceDepot                *int
-	MissileSilo                  *int
-	NaniteFactory                *int
-	Terraformer                  *int
-	SpaceDock                    *int
-	LunarBase                    *int
-	SensorPhalanx                *int
-	JumpGate                     *int
-	EnergyTechnology             *int // Researches
-	LaserTechnology              *int
-	IonTechnology                *int
-	HyperspaceTechnology         *int
-	PlasmaTechnology             *int
-	CombustionDrive              *int
-	ImpulseDrive                 *int
-	HyperspaceDrive              *int
-	EspionageTechnology          *int
-	ComputerTechnology           *int
-	Astrophysics                 *int
-	IntergalacticResearchNetwork *int
-	GravitonTechnology           *int
-	WeaponsTechnology            *int
-	ShieldingTechnology          *int
-	ArmourTechnology             *int
-	RocketLauncher               *int // Defenses
-	LightLaser                   *int
-	HeavyLaser                   *int
-	GaussCannon                  *int
-	IonCannon                    *int
-	PlasmaTurret                 *int
-	SmallShieldDome              *int
-	LargeShieldDome              *int
-	AntiBallisticMissiles        *int
-	InterplanetaryMissiles       *int
-	LightFighter                 *int // Fleets
-	HeavyFighter                 *int
-	Cruiser                      *int
-	Battleship                   *int
-	Battlecruiser                *int
-	Bomber                       *int
-	Destroyer                    *int
-	Deathstar                    *int
-	SmallCargo                   *int
-	LargeCargo                   *int
-	ColonyShip                   *int
-	Recycler                     *int
-	EspionageProbe               *int
-	Coordinate                   Coordinate
-	Type                         EspionageReportType
-	Date                         time.Time
-}
-
 func (b *OGame) getEspionageReport(msgID int) (EspionageReport, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"messages"}, "messageId": {strconv.Itoa(msgID)}, "tabid": {"20"}, "ajax": {"1"}})
 	return extractEspionageReport(pageHTML, b.location)
@@ -2711,7 +2713,11 @@ func (b *OGame) deleteMessage(msgID int) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, _ := ioutil.ReadAll(resp.Body)
 	var res map[string]bool
 	if err := json.Unmarshal(by, &res); err != nil {
@@ -2799,7 +2805,11 @@ func (b *OGame) GetPublicIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -2883,7 +2893,11 @@ func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
 	if err != nil {
 		return newAccount, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return newAccount, err
@@ -2914,6 +2928,7 @@ func (b *OGame) taskRunner() {
 	}()
 }
 
+// WithPriority ...
 func (b *OGame) WithPriority(priority int) *Prioritize {
 	canBeProcessedCh := make(chan struct{})
 	taskIsDoneCh := make(chan struct{})
@@ -2926,7 +2941,7 @@ func (b *OGame) WithPriority(priority int) *Prioritize {
 	return &Prioritize{bot: b, taskIsDoneCh: taskIsDoneCh}
 }
 
-// Start a transaction. Once this function is called, "Done" must be called to release the lock.
+// Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
 func (b *OGame) Begin() *Prioritize {
 	return b.WithPriority(Normal).Begin()
 }
@@ -3144,7 +3159,7 @@ func (b *OGame) GetMoon(v interface{}) (Moon, error) {
 	return b.WithPriority(Normal).GetMoon(v)
 }
 
-// GetCelestial get the player's planets & moons
+// GetCelestials get the player's planets & moons
 func (b *OGame) GetCelestials() ([]Celestial, error) {
 	return b.WithPriority(Normal).GetCelestials()
 }
@@ -3185,7 +3200,7 @@ func (b *OGame) GetFleets() ([]Fleet, Slots) {
 	return b.WithPriority(Normal).GetFleets()
 }
 
-// GetFleets get the player's own fleets activities
+// GetFleetsFromEventList get the player's own fleets activities
 func (b *OGame) GetFleetsFromEventList() []Fleet {
 	return b.WithPriority(Normal).GetFleetsFromEventList()
 }
@@ -3375,6 +3390,7 @@ func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 	b.chatCallbacks = append(b.chatCallbacks, fn)
 }
 
+// RegisterHTMLInterceptor ...
 func (b *OGame) RegisterHTMLInterceptor(fn func(method string, params, payload url.Values, pageHTML []byte)) {
 	b.interceptorCallbacks = append(b.interceptorCallbacks, fn)
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// Priorities
 const (
 	Low       = 1
 	Normal    = 2
@@ -13,6 +14,7 @@ const (
 	Critical  = 4
 )
 
+// Prioritize ...
 type Prioritize struct {
 	bot          *OGame
 	name         string
@@ -138,14 +140,14 @@ func (b *Prioritize) GetMoon(v interface{}) (Moon, error) {
 	return b.bot.getMoon(v)
 }
 
-// GetCelestial get the player's planets & moons
+// GetCelestials get the player's planets & moons
 func (b *Prioritize) GetCelestials() ([]Celestial, error) {
 	b.begin("GetCelestials")
 	defer b.done()
 	return b.bot.getCelestials()
 }
 
-// GetCelestial get the player's planets & moons
+// Abandon a planet. Warning: this is irreversible
 func (b *Prioritize) Abandon(v interface{}) error {
 	b.begin("Abandon")
 	defer b.done()
@@ -188,7 +190,7 @@ func (b *Prioritize) GetFleets() ([]Fleet, Slots) {
 	return b.bot.getFleets()
 }
 
-// GetFleets get the player's own fleets activities
+// GetFleetsFromEventList get the player's own fleets activities
 func (b *Prioritize) GetFleetsFromEventList() []Fleet {
 	b.begin("GetFleets")
 	defer b.done()
@@ -423,7 +425,7 @@ func (b *Prioritize) GetResourcesProductions(planetID PlanetID) (Resources, erro
 	return b.bot.getResourcesProductions(planetID)
 }
 
-// GetResourcesProductions gets the planet resources production
+// GetResourcesProductionsLight gets the planet resources production
 func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
 	resSettings ResourceSettings, temp Temperature) Resources {
 	b.begin("GetResourcesProductionsLight")

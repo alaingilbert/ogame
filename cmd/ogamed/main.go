@@ -21,7 +21,7 @@ var date = ""
 func main() {
 	app := cli.App{}
 	app.Authors = []*cli.Author{
-		{"Alain Gilbert", "alain.gilbert.15@gmail.com"},
+		{Name: "Alain Gilbert", Email: "alain.gilbert.15@gmail.com"},
 	}
 	app.Name = "ogamed"
 	app.Usage = "ogame deamon service"
@@ -672,7 +672,9 @@ func sendFleet(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid planet id"))
 	}
 
-	c.Request().ParseForm()
+	if err := c.Request().ParseForm(); err != nil {
+		return c.JSON(http.StatusBadRequest, errorResp(400, "invalid form"))
+	}
 
 	var ships []ogame.Quantifiable
 	where := ogame.Coordinate{Type: ogame.PlanetType}
@@ -758,19 +760,20 @@ func sendFleet(c echo.Context) error {
 	}
 
 	fleet, err := bot.SendFleet(ogame.CelestialID(planetID), ships, speed, where, mission, payload, duration)
-	if err == ogame.ErrInvalidPlanetID ||
-		err == ogame.ErrNoShipSelected ||
-		err == ogame.ErrUninhabitedPlanet ||
-		err == ogame.ErrNoDebrisField ||
-		err == ogame.ErrPlayerInVacationMode ||
-		err == ogame.ErrAdminOrGM ||
-		err == ogame.ErrNoAstrophysics ||
-		err == ogame.ErrNoobProtection ||
-		err == ogame.ErrPlayerTooStrong ||
-		err == ogame.ErrNoMoonAvailable ||
-		err == ogame.ErrNoRecyclerAvailable ||
-		err == ogame.ErrNoEventsRunning ||
-		err == ogame.ErrPlanetAlreadyReservecForRelocation {
+	if err != nil &&
+		(err == ogame.ErrInvalidPlanetID ||
+			err == ogame.ErrNoShipSelected ||
+			err == ogame.ErrUninhabitedPlanet ||
+			err == ogame.ErrNoDebrisField ||
+			err == ogame.ErrPlayerInVacationMode ||
+			err == ogame.ErrAdminOrGM ||
+			err == ogame.ErrNoAstrophysics ||
+			err == ogame.ErrNoobProtection ||
+			err == ogame.ErrPlayerTooStrong ||
+			err == ogame.ErrNoMoonAvailable ||
+			err == ogame.ErrNoRecyclerAvailable ||
+			err == ogame.ErrNoEventsRunning ||
+			err == ogame.ErrPlanetAlreadyReservecForRelocation) {
 		return c.JSON(http.StatusBadRequest, errorResp(400, err.Error()))
 	}
 	if err != nil {

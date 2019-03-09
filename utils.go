@@ -7,6 +7,7 @@ import (
 	"strings"
 )
 
+// ParseInt ...
 func ParseInt(val string) int {
 	val = strings.Replace(val, ".", "", -1)
 	val = strings.Replace(val, ",", "", -1)
@@ -54,7 +55,7 @@ func IsFacilityID(id int) bool {
 
 // ParseCoord parse a coordinate from a string
 func ParseCoord(str string) (coord Coordinate, err error) {
-	m := regexp.MustCompile(`^\[?(([P|M|D]):)?(\d{1,3}):(\d{1,3}):(\d{1,3})]?$`).FindStringSubmatch(str)
+	m := regexp.MustCompile(`^\[?(([PMD]):)?(\d{1,3}):(\d{1,3}):(\d{1,3})]?$`).FindStringSubmatch(str)
 	if len(m) == 5 {
 		galaxy, _ := strconv.Atoi(m[2])
 		system, _ := strconv.Atoi(m[3])

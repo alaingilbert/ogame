@@ -37,22 +37,27 @@ type Planet struct {
 	Moon        *Moon
 }
 
+// GetName ...
 func (p Planet) GetName() string {
 	return p.Name
 }
 
+// GetID ...
 func (p Planet) GetID() CelestialID {
 	return p.ID.Celestial()
 }
 
+// GetType ...
 func (p Planet) GetType() CelestialType {
 	return PlanetType
 }
 
+// GetCoordinate ...
 func (p Planet) GetCoordinate() Coordinate {
 	return p.Coordinate
 }
 
+// GetFields ...
 func (p Planet) GetFields() Fields {
 	return p.Fields
 }
@@ -160,6 +165,7 @@ func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfo
 	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships)
 }
 
+// SendIPM send interplanetary missiles
 func (p *Planet) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
 	return p.ogame.SendIPM(planetID, coord, nbr, priority)
 }

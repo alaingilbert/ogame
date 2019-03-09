@@ -12,13 +12,6 @@ import (
 	"github.com/olekukonko/tablewriter"
 )
 
-func round(val float64) int {
-	if val < 0 {
-		return int(val - 0.5)
-	}
-	return int(val + 0.5)
-}
-
 const (
 	SMALL_CARGO = iota
 	LARGE_CARGO
@@ -48,6 +41,7 @@ func isAlive(unit *CombatUnit) bool {
 	return getUnitHull(unit) > 0
 }
 
+// CombatUnit ...
 type CombatUnit struct {
 	PackedInfos uint64
 }
@@ -60,7 +54,7 @@ const (
 	HULL_MASK        uint64 = 35184363700224
 )
 
-func getUnitId(unit *CombatUnit) uint64 {
+func getUnitID(unit *CombatUnit) uint64 {
 	return (unit.PackedInfos & ID_MASK) >> 0
 }
 
@@ -72,7 +66,7 @@ func getUnitHull(unit *CombatUnit) uint64 {
 	return (unit.PackedInfos & HULL_MASK) >> 23
 }
 
-func setUnitId(unit *CombatUnit, id uint64) {
+func setUnitID(unit *CombatUnit, id uint64) {
 	unit.PackedInfos &= ^ID_MASK
 	unit.PackedInfos |= id << 0
 }
@@ -103,8 +97,8 @@ func (p *price) add(n price) {
 	p.Deuterium += n.Deuterium
 }
 
-func getUnitPrice(unitId uint64) price {
-	switch unitId {
+func getUnitPrice(unitID uint64) price {
+	switch unitID {
 	case SMALL_CARGO:
 		return price{2000, 2000, 0}
 	case LARGE_CARGO:
@@ -153,8 +147,8 @@ func getUnitPrice(unitId uint64) price {
 	return price{0, 0, 0}
 }
 
-func getUnitBaseShield(unitId uint64) int {
-	switch unitId {
+func getUnitBaseShield(unitID uint64) int {
+	switch unitID {
 	case SMALL_CARGO:
 		return 10
 	case LARGE_CARGO:
@@ -203,8 +197,8 @@ func getUnitBaseShield(unitId uint64) int {
 	return 0
 }
 
-func getUnitBaseWeapon(unitId uint64) uint64 {
-	switch unitId {
+func getUnitBaseWeapon(unitID uint64) uint64 {
+	switch unitID {
 	case SMALL_CARGO:
 		return 5
 	case LARGE_CARGO:
@@ -255,223 +249,157 @@ func getUnitBaseWeapon(unitId uint64) uint64 {
 
 func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 	rf := 0
-	switch getUnitId(unit) {
+	switch getUnitID(unit) {
 	case SMALL_CARGO:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		}
-		break
 	case LARGE_CARGO:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		}
-		break
 	case LIGHT_FIGHTER:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		}
-		break
 	case HEAVY_FIGHTER:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		case SMALL_CARGO:
 			rf = 3
-			break
 		}
-		break
 	case CRUISER:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		case LIGHT_FIGHTER:
 			rf = 6
-			break
 		case ROCKET_LAUNCHER:
 			rf = 10
-			break
 		}
-		break
 	case BATTLESHIP:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		}
-		break
 	case COLONY_SHIP:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		}
-		break
 	case RECYCLER:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		}
-		break
 	case BOMBER:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		case ION_CANNON:
 			rf = 10
-			break
 		case ROCKET_LAUNCHER:
 			rf = 20
-			break
 		case LIGHT_LASER:
 			rf = 20
-			break
 		case HEAVY_LASER:
 			rf = 10
-			break
 		}
-		break
 	case DESTROYER:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		case LIGHT_LASER:
 			rf = 10
-			break
 		case BATTLECRUISER:
 			rf = 2
-			break
 		}
-		break
 	case DEATHSTAR:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case SMALL_CARGO:
 			rf = 250
-			break
 		case LARGE_CARGO:
 			rf = 250
-			break
 		case LIGHT_FIGHTER:
 			rf = 200
-			break
 		case HEAVY_FIGHTER:
 			rf = 100
-			break
 		case CRUISER:
 			rf = 33
-			break
 		case BATTLESHIP:
 			rf = 30
-			break
 		case COLONY_SHIP:
 			rf = 250
-			break
 		case RECYCLER:
 			rf = 250
-			break
 		case ESPIONAGE_PROBE:
 			rf = 1250
-			break
 		case SOLAR_SATELLITE:
 			rf = 1250
-			break
 		case BOMBER:
 			rf = 25
-			break
 		case DESTROYER:
 			rf = 5
-			break
 		case ROCKET_LAUNCHER:
 			rf = 200
-			break
 		case LIGHT_LASER:
 			rf = 200
-			break
 		case HEAVY_LASER:
 			rf = 100
-			break
 		case GAUSS_CANNON:
 			rf = 50
-			break
 		case ION_CANNON:
 			rf = 100
-			break
 		case BATTLECRUISER:
 			rf = 15
-			break
 		}
-		break
 	case BATTLECRUISER:
-		switch getUnitId(targetUnit) {
+		switch getUnitID(targetUnit) {
 		case ESPIONAGE_PROBE:
 			rf = 5
-			break
 		case SOLAR_SATELLITE:
 			rf = 5
-			break
 		case SMALL_CARGO:
 			rf = 3
-			break
 		case LARGE_CARGO:
 			rf = 3
-			break
 		case HEAVY_FIGHTER:
 			rf = 4
-			break
 		case CRUISER:
 			rf = 4
-			break
 		case BATTLESHIP:
 			rf = 7
-			break
 		}
-		break
 	}
 	return rf
 }
 
-func getUnitName(unitId uint64) string {
-	switch unitId {
+func getUnitName(unitID uint64) string {
+	switch unitID {
 	case SMALL_CARGO:
 		return "Small cargo"
 	case LARGE_CARGO:
@@ -520,24 +448,24 @@ func getUnitName(unitId uint64) string {
 	return ""
 }
 
-func getUnitWeaponPower(unitId uint64, weaponTechno int) uint64 {
-	return uint64(float64(getUnitBaseWeapon(unitId)) * (1 + 0.1*float64(weaponTechno)))
+func getUnitWeaponPower(unitID uint64, weaponTechno int) uint64 {
+	return uint64(float64(getUnitBaseWeapon(unitID)) * (1 + 0.1*float64(weaponTechno)))
 }
 
-func getUnitInitialShield(unitId uint64, shieldTechno int) uint64 {
-	return uint64(float64(getUnitBaseShield(unitId)) * (1 + 0.1*float64(shieldTechno)))
+func getUnitInitialShield(unitID uint64, shieldTechno int) uint64 {
+	return uint64(float64(getUnitBaseShield(unitID)) * (1 + 0.1*float64(shieldTechno)))
 }
 
 func getUnitInitialHullPlating(armourTechno, metalPrice, crystalPrice int) uint64 {
 	return uint64((1 + (float64(armourTechno) / 10)) * (float64(metalPrice+crystalPrice) / 10))
 }
 
-func newUnit(entity *entity, unitId uint64) CombatUnit {
+func newUnit(entity *entity, unitID uint64) CombatUnit {
 	var unit CombatUnit
-	setUnitId(&unit, unitId)
-	unitPrice := getUnitPrice(unitId)
+	setUnitID(&unit, unitID)
+	unitPrice := getUnitPrice(unitID)
 	setUnitHull(&unit, getUnitInitialHullPlating(entity.Armour, unitPrice.Metal, unitPrice.Crystal))
-	setUnitShield(&unit, getUnitInitialShield(unitId, entity.Shield))
+	setUnitShield(&unit, getUnitInitialShield(unitID, entity.Shield))
 	return unit
 }
 
@@ -686,7 +614,7 @@ type combatSimulator struct {
 
 func (simulator *combatSimulator) hasExploded(entity *entity, defendingUnit *CombatUnit) bool {
 	exploded := false
-	unitPrice := getUnitPrice(getUnitId(defendingUnit))
+	unitPrice := getUnitPrice(getUnitID(defendingUnit))
 	hullPercentage := float64(getUnitHull(defendingUnit)) / float64(getUnitInitialHullPlating(entity.Armour, unitPrice.Metal, unitPrice.Crystal))
 	if hullPercentage <= 0.7 {
 		probabilityOfExploding := 1.0 - hullPercentage
@@ -724,17 +652,17 @@ func (simulator *combatSimulator) getAnotherShot(unit, targetUnit *CombatUnit) b
 		}
 		if dice <= chance {
 			if simulator.IsLogging {
-				msg += fmt.Sprintf("%s gets another shot.", getUnitName(getUnitId(unit)))
+				msg += fmt.Sprintf("%s gets another shot.", getUnitName(getUnitID(unit)))
 			}
 		} else {
 			if simulator.IsLogging {
-				msg += fmt.Sprintf("%s does not get another shot.", getUnitName(getUnitId(unit)))
+				msg += fmt.Sprintf("%s does not get another shot.", getUnitName(getUnitID(unit)))
 			}
 			rapidFire = false
 		}
 	} else {
 		if simulator.IsLogging {
-			msg += fmt.Sprintf("%s doesn't have rapid fire against %s.", getUnitName(getUnitId(unit)), getUnitName(getUnitId(targetUnit)))
+			msg += fmt.Sprintf("%s doesn't have rapid fire against %s.", getUnitName(getUnitID(unit)), getUnitName(getUnitID(targetUnit)))
 		}
 		rapidFire = false
 	}
@@ -746,10 +674,10 @@ func (simulator *combatSimulator) getAnotherShot(unit, targetUnit *CombatUnit) b
 
 func (simulator *combatSimulator) attack(attacker *entity, attackingUnit *CombatUnit, defender *entity, defendingUnit *CombatUnit) {
 	if simulator.IsLogging {
-		simulator.Logs += fmt.Sprintf("%s fires at %s; ", getUnitName(getUnitId(attackingUnit)), getUnitName(getUnitId(defendingUnit)))
+		simulator.Logs += fmt.Sprintf("%s fires at %s; ", getUnitName(getUnitID(attackingUnit)), getUnitName(getUnitID(defendingUnit)))
 	}
 
-	weapon := getUnitWeaponPower(getUnitId(attackingUnit), attacker.Weapon)
+	weapon := getUnitWeaponPower(getUnitID(attackingUnit), attacker.Weapon)
 	// Check for shot bounce
 	if float64(weapon) < 0.01*float64(getUnitShield(defendingUnit)) {
 		if simulator.IsLogging {
@@ -773,7 +701,7 @@ func (simulator *combatSimulator) attack(attacker *entity, attackingUnit *Combat
 		setUnitShield(defendingUnit, currentShield-weapon)
 	}
 	if simulator.IsLogging {
-		simulator.Logs += fmt.Sprintf("result is %s %d %d\n", getUnitName(getUnitId(defendingUnit)), getUnitHull(defendingUnit), getUnitShield(defendingUnit))
+		simulator.Logs += fmt.Sprintf("result is %s %d %d\n", getUnitName(getUnitID(defendingUnit)), getUnitHull(defendingUnit), getUnitShield(defendingUnit))
 	}
 
 	// Check for explosion
@@ -814,7 +742,7 @@ func (simulator *combatSimulator) defenderFires() {
 }
 
 func isShip(unit *CombatUnit) bool {
-	switch getUnitId(unit) {
+	switch getUnitID(unit) {
 	case SMALL_CARGO:
 		return true
 	case LARGE_CARGO:
@@ -851,8 +779,8 @@ func (simulator *combatSimulator) removeDestroyedUnits() {
 	l := simulator.Defender.TotalUnits
 	for i := l - 1; i >= 0; i-- {
 		unit := &simulator.Defender.Units[i]
-		if getUnitHull(unit) <= 0 {
-			unitPrice := getUnitPrice(getUnitId(unit))
+		if getUnitHull(unit) == 0 {
+			unitPrice := getUnitPrice(getUnitID(unit))
 			if isShip(unit) {
 				simulator.Debris.Metal += int(simulator.FleetToDebris * float64(unitPrice.Metal))
 				simulator.Debris.Crystal += int(simulator.FleetToDebris * float64(unitPrice.Crystal))
@@ -862,15 +790,15 @@ func (simulator *combatSimulator) removeDestroyedUnits() {
 			simulator.Defender.TotalUnits--
 			//simulator.Defender.Units = simulator.Defender.Units[:len(simulator.Defender.Units)-1]
 			if simulator.IsLogging {
-				simulator.Logs += fmt.Sprintf("%s lost all its integrity, remove from battle\n", getUnitName(getUnitId(unit)))
+				simulator.Logs += fmt.Sprintf("%s lost all its integrity, remove from battle\n", getUnitName(getUnitID(unit)))
 			}
 		}
 	}
 	l = simulator.Attacker.TotalUnits
 	for i := l - 1; i >= 0; i-- {
 		unit := &simulator.Attacker.Units[i]
-		if getUnitHull(unit) <= 0 {
-			unitPrice := getUnitPrice(getUnitId(unit))
+		if getUnitHull(unit) == 0 {
+			unitPrice := getUnitPrice(getUnitID(unit))
 			if isShip(unit) {
 				simulator.Debris.Metal += int(simulator.FleetToDebris * float64(unitPrice.Metal))
 				simulator.Debris.Crystal += int(simulator.FleetToDebris * float64(unitPrice.Crystal))
@@ -880,7 +808,7 @@ func (simulator *combatSimulator) removeDestroyedUnits() {
 			simulator.Attacker.TotalUnits--
 			//simulator.Attacker.Units = simulator.Attacker.Units[:len(simulator.Attacker.Units)-1]
 			if simulator.IsLogging {
-				simulator.Logs += fmt.Sprintf("%s lost all its integrity, remove from battle\n", getUnitName(getUnitId(unit)))
+				simulator.Logs += fmt.Sprintf("%s lost all its integrity, remove from battle\n", getUnitName(getUnitID(unit)))
 			}
 		}
 	}
@@ -889,16 +817,16 @@ func (simulator *combatSimulator) removeDestroyedUnits() {
 func (simulator *combatSimulator) restoreShields() {
 	for i := 0; i < simulator.Attacker.TotalUnits; i++ {
 		unit := &simulator.Attacker.Units[i]
-		setUnitShield(unit, getUnitInitialShield(getUnitId(unit), simulator.Attacker.Shield))
+		setUnitShield(unit, getUnitInitialShield(getUnitID(unit), simulator.Attacker.Shield))
 		if simulator.IsLogging {
-			simulator.Logs += fmt.Sprintf("%s still has integrity, restore its shield\n", getUnitName(getUnitId(unit)))
+			simulator.Logs += fmt.Sprintf("%s still has integrity, restore its shield\n", getUnitName(getUnitID(unit)))
 		}
 	}
 	for i := 0; i < simulator.Defender.TotalUnits; i++ {
 		unit := &simulator.Defender.Units[i]
-		setUnitShield(unit, getUnitInitialShield(getUnitId(unit), simulator.Defender.Shield))
+		setUnitShield(unit, getUnitInitialShield(getUnitID(unit), simulator.Defender.Shield))
 		if simulator.IsLogging {
-			simulator.Logs += fmt.Sprintf("%s still has integrity, restore its shield\n", getUnitName(getUnitId(unit)))
+			simulator.Logs += fmt.Sprintf("%s still has integrity, restore its shield\n", getUnitName(getUnitID(unit)))
 		}
 	}
 }
@@ -967,6 +895,7 @@ func newCombatSimulator(attacker *entity, defender *entity) *combatSimulator {
 	return cs
 }
 
+// Config ...
 type Config struct {
 	IsLogging   bool
 	Simulations int
@@ -1091,6 +1020,7 @@ func (e *entity) reset() {
 	e.TotalUnits += e.LargeShieldDome
 }
 
+// Simulate ...
 func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorParams) SimulatorResult {
 	nbSimulations := params.Simulations
 
@@ -1130,7 +1060,7 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	attacker.SmallShieldDome = 0
 	attacker.LargeShieldDome = 0
 	attacker.reset()
-	attacker.Units = make([]CombatUnit, attacker.TotalUnits+1, attacker.TotalUnits+1)
+	attacker.Units = make([]CombatUnit, attacker.TotalUnits+1)
 
 	defender := newEntity()
 	defender.Weapon = defenderParam.Weapon
@@ -1159,7 +1089,7 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	defender.SmallShieldDome = defenderParam.SmallShieldDome
 	defender.LargeShieldDome = defenderParam.LargeShieldDome
 	defender.reset()
-	defender.Units = make([]CombatUnit, defender.TotalUnits+1, defender.TotalUnits+1)
+	defender.Units = make([]CombatUnit, defender.TotalUnits+1)
 
 	cs := newCombatSimulator(attacker, defender)
 	cs.IsLogging = false
@@ -1208,6 +1138,7 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 	return result
 }
 
+// Attacker ...
 type Attacker struct {
 	Weapon int
 	Shield int
@@ -1215,6 +1146,7 @@ type Attacker struct {
 	ShipsInfos
 }
 
+// Defender ...
 type Defender struct {
 	Metal     int
 	Crystal   int
@@ -1226,10 +1158,12 @@ type Defender struct {
 	DefensesInfos
 }
 
+// SimulatorParams ...
 type SimulatorParams struct {
 	Simulations int
 }
 
+// SimulatorResult ...
 type SimulatorResult struct {
 	Simulations    int
 	AttackerWin    int
