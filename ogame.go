@@ -48,6 +48,7 @@ type OGame struct {
 	isLoggedInAtom       int32  // atomic, prevent auto re login if we manually logged out
 	isConnectedAtom      int32  // atomic, either or not communication between the bot and OGame is possible
 	lockedAtom           int32  // atomic, bot state locked/unlocked
+	chatConnectedAtom    int32  // atomic, either or not the chat is connected
 	state                string // keep name of the function that currently lock the bot
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
@@ -75,7 +76,6 @@ type OGame struct {
 	chatCallbacks        []func(msg ChatMsg)
 	interceptorCallbacks []func(method string, params, payload url.Values, pageHTML []byte)
 	closeChatCh          chan struct{}
-	chatConnectedAtom    int32
 	chatRetry            *ExponentialBackoff
 	ws                   *websocket.Conn
 	tasks                priorityQueue
