@@ -44,7 +44,7 @@ type CelestialID int
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabled            int32  // atomic, prevent auto re login if we manually logged out
+	isEnabledAtom        int32  // atomic, prevent auto re login if we manually logged out
 	isLoggedIn           int32  // atomic, prevent auto re login if we manually logged out
 	isConnected          int32  // atomic, either or not communication between the bot and OGame is possible
 	locked               int32  // atomic, bot state locked/unlocked
@@ -674,23 +674,8 @@ func (b *OGame) logout() {
 	}
 }
 
-// IsLoggedIn returns true if the bot is currently logged-in, otherwise false
-func (b *OGame) IsLoggedIn() bool {
-	return atomic.LoadInt32(&b.isLoggedIn) == 1
-}
-
-// IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
-func (b *OGame) IsConnected() bool {
-	return atomic.LoadInt32(&b.isConnected) == 1
-}
-
 func isLogged(pageHTML []byte) bool {
 	return len(regexp.MustCompile(`<meta name="ogame-session" content="\w+"/>`).FindSubmatch(pageHTML)) == 1
-}
-
-// GetClient get the http client used by the bot
-func (b *OGame) GetClient() *OGameClient {
-	return b.Client
 }
 
 // IsKnowFullPage ...
@@ -1001,21 +986,18 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
 	return err
 }
 
-// Enable enables communications with OGame Server
-func (b *OGame) Enable() {
-	atomic.StoreInt32(&b.isEnabled, 1)
+func (b *OGame) enable() {
+	atomic.StoreInt32(&b.isEnabledAtom, 1)
 	b.stateChanged(false, "Enable")
 }
 
-// Disable disables communications with OGame Server
-func (b *OGame) Disable() {
-	atomic.StoreInt32(&b.isEnabled, 0)
+func (b *OGame) disable() {
+	atomic.StoreInt32(&b.isEnabledAtom, 0)
 	b.stateChanged(false, "Disable")
 }
 
-// IsEnabled returns true if the bot is enabled, otherwise false
-func (b *OGame) IsEnabled() bool {
-	return atomic.LoadInt32(&b.isEnabled) == 1
+func (b *OGame) isEnabled() bool {
+	return atomic.LoadInt32(&b.isEnabledAtom) == 1
 }
 
 func (b *OGame) getUniverseSpeed() int {
@@ -2325,8 +2307,7 @@ func (b *OGame) getResourcesProductionsLight(resBuildings ResourcesBuildings, re
 	return productions
 }
 
-// GetPublicIP get the public IP used by the bot
-func (b *OGame) GetPublicIP() (string, error) {
+func (b *OGame) getPublicIP() (string, error) {
 	var res struct {
 		IP string `json:"ip"`
 	}
@@ -2358,25 +2339,10 @@ func (b *OGame) GetPublicIP() (string, error) {
 	return res.IP, nil
 }
 
-// OnStateChange register a callback that is notified when the bot state changes
-func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
-	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
-}
-
 func (b *OGame) stateChanged(locked bool, actor string) {
 	for _, clb := range b.stateChangeCallbacks {
 		clb(locked, actor)
 	}
-}
-
-// GetState returns the current bot state
-func (b *OGame) GetState() (bool, string) {
-	return atomic.LoadInt32(&b.locked) == 1, b.state
-}
-
-// IsLocked returns either or not the bot is currently locked
-func (b *OGame) IsLocked() bool {
-	return atomic.LoadInt32(&b.locked) == 1
 }
 
 func (b *OGame) botLock(lockedBy string) {
@@ -2395,11 +2361,6 @@ func (b *OGame) botUnlock(unlockedBy string) {
 	}
 }
 
-// GetSession get ogame session
-func (b *OGame) GetSession() string {
-	return b.ogameSession
-}
-
 // NewAccount response from creating a new account
 type NewAccount struct {
 	ID     int
@@ -2409,8 +2370,7 @@ type NewAccount struct {
 	}
 }
 
-// AddAccount add a new account (server) to your list of accounts
-func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
+func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 	var payload struct {
 		Language string `json:"language"`
 		Number   int    `json:"number"`
@@ -2466,27 +2426,61 @@ func (b *OGame) taskRunner() {
 	}()
 }
 
-// WithPriority ...
-func (b *OGame) WithPriority(priority int) *Prioritize {
-	canBeProcessedCh := make(chan struct{})
-	taskIsDoneCh := make(chan struct{})
-	task := new(item)
-	task.priority = priority
-	task.canBeProcessedCh = canBeProcessedCh
-	task.isDoneCh = taskIsDoneCh
-	b.tasksPushCh <- task
-	<-canBeProcessedCh
-	return &Prioritize{bot: b, taskIsDoneCh: taskIsDoneCh}
+func (b *OGame) getCachedCelestial(v interface{}) Celestial {
+	if celestialID, ok := v.(CelestialID); ok {
+		return b.GetCachedCelestialByID(celestialID)
+	} else if planetID, ok := v.(PlanetID); ok {
+		return b.GetCachedCelestialByID(planetID.Celestial())
+	} else if moonID, ok := v.(MoonID); ok {
+		return b.GetCachedCelestialByID(moonID.Celestial())
+	} else if id, ok := v.(int); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(int32); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(int64); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(float32); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(float64); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if id, ok := v.(lua.LNumber); ok {
+		return b.GetCachedCelestialByID(CelestialID(id))
+	} else if coord, ok := v.(Coordinate); ok {
+		return b.GetCachedCelestialByCoord(coord)
+	} else if coordStr, ok := v.(string); ok {
+		coord, err := ParseCoord(coordStr)
+		if err != nil {
+			return nil
+		}
+		return b.GetCachedCelestialByCoord(coord)
+	}
+	return nil
 }
 
-// Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
-func (b *OGame) Begin() *Prioritize {
-	return b.WithPriority(Normal).Begin()
+// GetCachedCelestialByID return celestial from cached value
+func (b *OGame) GetCachedCelestialByID(celestialID CelestialID) Celestial {
+	for _, p := range b.Planets {
+		if p.ID.Celestial() == celestialID {
+			return p
+		}
+		if p.Moon != nil && p.Moon.ID.Celestial() == celestialID {
+			return p.Moon
+		}
+	}
+	return nil
 }
 
-// Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *OGame) Tx(clb func(tx *Prioritize) error) error {
-	return b.WithPriority(Normal).Tx(clb)
+// GetCachedCelestialByCoord return celestial from cached value
+func (b *OGame) GetCachedCelestialByCoord(coord Coordinate) Celestial {
+	for _, p := range b.Planets {
+		if p.GetCoordinate().Equal(coord) {
+			return p
+		}
+		if p.Moon != nil && p.Moon.GetCoordinate().Equal(coord) {
+			return p.Moon
+		}
+	}
+	return nil
 }
 
 func (b *OGame) fakeCall(name string, delay int) {
@@ -2498,6 +2492,116 @@ func (b *OGame) fakeCall(name string, delay int) {
 // FakeCall used for debugging
 func (b *OGame) FakeCall(priority int, name string, delay int) {
 	b.WithPriority(priority).FakeCall(name, delay)
+}
+
+func (b *OGame) getCachedMoons() []Moon {
+	var moons []Moon
+	for _, p := range b.Planets {
+		if p.Moon != nil {
+			moons = append(moons, *p.Moon)
+		}
+	}
+	return moons
+}
+
+func (b *OGame) getCachedCelestials() []Celestial {
+	celestials := make([]Celestial, 0)
+	for _, p := range b.Planets {
+		celestials = append(celestials, p)
+		if p.Moon != nil {
+			celestials = append(celestials, p.Moon)
+		}
+	}
+	return celestials
+}
+
+func (b *OGame) withPriority(priority int) *Prioritize {
+	canBeProcessedCh := make(chan struct{})
+	taskIsDoneCh := make(chan struct{})
+	task := new(item)
+	task.priority = priority
+	task.canBeProcessedCh = canBeProcessedCh
+	task.isDoneCh = taskIsDoneCh
+	b.tasksPushCh <- task
+	<-canBeProcessedCh
+	return &Prioritize{bot: b, taskIsDoneCh: taskIsDoneCh}
+}
+
+// Public interface -----------------------------------------------------------
+
+// Enable enables communications with OGame Server
+func (b *OGame) Enable() {
+	b.enable()
+}
+
+// Disable disables communications with OGame Server
+func (b *OGame) Disable() {
+	b.disable()
+}
+
+// IsEnabled returns true if the bot is enabled, otherwise false
+func (b *OGame) IsEnabled() bool {
+	return b.isEnabled()
+}
+
+// IsLoggedIn returns true if the bot is currently logged-in, otherwise false
+func (b *OGame) IsLoggedIn() bool {
+	return atomic.LoadInt32(&b.isLoggedIn) == 1
+}
+
+// IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
+func (b *OGame) IsConnected() bool {
+	return atomic.LoadInt32(&b.isConnected) == 1
+}
+
+// GetClient get the http client used by the bot
+func (b *OGame) GetClient() *OGameClient {
+	return b.Client
+}
+
+// GetPublicIP get the public IP used by the bot
+func (b *OGame) GetPublicIP() (string, error) {
+	return b.getPublicIP()
+}
+
+// OnStateChange register a callback that is notified when the bot state changes
+func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
+	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
+}
+
+// GetState returns the current bot state
+func (b *OGame) GetState() (bool, string) {
+	return atomic.LoadInt32(&b.locked) == 1, b.state
+}
+
+// IsLocked returns either or not the bot is currently locked
+func (b *OGame) IsLocked() bool {
+	return atomic.LoadInt32(&b.locked) == 1
+}
+
+// GetSession get ogame session
+func (b *OGame) GetSession() string {
+	return b.ogameSession
+}
+
+// AddAccount add a new account (server) to your list of accounts
+func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
+	return b.addAccount(number, lang)
+}
+
+// WithPriority ...
+func (b *OGame) WithPriority(priority int) *Prioritize {
+	return b.withPriority(priority)
+}
+
+// Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
+func (b *OGame) Begin() *Prioritize {
+	return b.WithPriority(Normal).Begin()
+}
+
+// Tx locks the bot during the transaction and ensure the lock is released afterward
+func (b *OGame) Tx(clb func(tx *Prioritize) error) error {
+	return b.WithPriority(Normal).Tx(clb)
 }
 
 // GetServer get ogame server information that the bot is connected to
@@ -2602,83 +2706,17 @@ func (b *OGame) GetCachedPlanets() []Planet {
 
 // GetCachedMoons return moons from cached value
 func (b *OGame) GetCachedMoons() []Moon {
-	var moons []Moon
-	for _, p := range b.Planets {
-		if p.Moon != nil {
-			moons = append(moons, *p.Moon)
-		}
-	}
-	return moons
+	return b.getCachedMoons()
 }
 
 // GetCachedCelestials get all cached celestials
 func (b *OGame) GetCachedCelestials() []Celestial {
-	celestials := make([]Celestial, 0)
-	for _, p := range b.Planets {
-		celestials = append(celestials, p)
-		if p.Moon != nil {
-			celestials = append(celestials, p.Moon)
-		}
-	}
-	return celestials
+	return b.getCachedCelestials()
 }
 
 // GetCachedCelestial return celestial from cached value
 func (b *OGame) GetCachedCelestial(v interface{}) Celestial {
-	if celestialID, ok := v.(CelestialID); ok {
-		return b.GetCachedCelestialByID(celestialID)
-	} else if planetID, ok := v.(PlanetID); ok {
-		return b.GetCachedCelestialByID(planetID.Celestial())
-	} else if moonID, ok := v.(MoonID); ok {
-		return b.GetCachedCelestialByID(moonID.Celestial())
-	} else if id, ok := v.(int); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(int32); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(int64); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(float32); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(float64); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(lua.LNumber); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if coord, ok := v.(Coordinate); ok {
-		return b.GetCachedCelestialByCoord(coord)
-	} else if coordStr, ok := v.(string); ok {
-		coord, err := ParseCoord(coordStr)
-		if err != nil {
-			return nil
-		}
-		return b.GetCachedCelestialByCoord(coord)
-	}
-	return nil
-}
-
-// GetCachedCelestialByID return celestial from cached value
-func (b *OGame) GetCachedCelestialByID(celestialID CelestialID) Celestial {
-	for _, p := range b.Planets {
-		if p.ID.Celestial() == celestialID {
-			return p
-		}
-		if p.Moon != nil && p.Moon.ID.Celestial() == celestialID {
-			return p.Moon
-		}
-	}
-	return nil
-}
-
-// GetCachedCelestialByCoord return celestial from cached value
-func (b *OGame) GetCachedCelestialByCoord(coord Coordinate) Celestial {
-	for _, p := range b.Planets {
-		if p.GetCoordinate().Equal(coord) {
-			return p
-		}
-		if p.Moon != nil && p.Moon.GetCoordinate().Equal(coord) {
-			return p.Moon
-		}
-	}
-	return nil
+	return b.getCachedCelestial(v)
 }
 
 // GetPlanet gets infos for planetID
