@@ -1,6 +1,6 @@
 <img src="./logo.png" width="300" />
 
-[![Build Status](https://travis-ci.org/alaingilbert/ogame.svg?branch=master)](https://travis-ci.org/alaingilbert/ogame) [![codecov](https://codecov.io/gh/alaingilbert/ogame/branch/master/graph/badge.svg)](https://codecov.io/gh/alaingilbert/ogame) [![codecov](https://img.shields.io/discord/546546108277719052.svg)](https://discord.gg/thnbsP)
+[![Build Status](https://travis-ci.org/alaingilbert/ogame.svg?branch=master)](https://travis-ci.org/alaingilbert/ogame) [![codecov](https://codecov.io/gh/alaingilbert/ogame/branch/master/graph/badge.svg)](https://codecov.io/gh/alaingilbert/ogame) [![discord](https://img.shields.io/discord/546546108277719052.svg)](https://discord.gg/4dZtZpz)
 
 # OGame automation toolkit
 
