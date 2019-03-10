@@ -206,24 +206,24 @@ type Item struct {
 	index            int // The index of the item in the heap.
 }
 
-// A PriorityQueue implements heap.Interface and holds Items.
-type PriorityQueue []*Item
+// A priorityQueue implements heap.Interface and holds Items.
+type priorityQueue []*Item
 
-func (pq PriorityQueue) Len() int { return len(pq) }
+func (pq priorityQueue) Len() int { return len(pq) }
 
-func (pq PriorityQueue) Less(i, j int) bool {
+func (pq priorityQueue) Less(i, j int) bool {
 	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
 	return pq[i].priority > pq[j].priority
 }
 
-func (pq PriorityQueue) Swap(i, j int) {
+func (pq priorityQueue) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 	pq[i].index = i
 	pq[j].index = j
 }
 
 // Push ...
-func (pq *PriorityQueue) Push(x interface{}) {
+func (pq *priorityQueue) Push(x interface{}) {
 	n := len(*pq)
 	item := x.(*Item)
 	item.index = n
@@ -231,7 +231,7 @@ func (pq *PriorityQueue) Push(x interface{}) {
 }
 
 // Pop ...
-func (pq *PriorityQueue) Pop() interface{} {
+func (pq *priorityQueue) Pop() interface{} {
 	old := *pq
 	n := len(old)
 	item := old[n-1]
@@ -278,7 +278,7 @@ type OGame struct {
 	chatConnected        int32
 	chatRetry            *ExponentialBackoff
 	ws                   *websocket.Conn
-	tasks                PriorityQueue
+	tasks                priorityQueue
 	tasksLock            sync.Mutex
 	tasksPushCh          chan *Item
 	tasksPopCh           chan struct{}
@@ -368,7 +368,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.Client.Jar = jar
 	b.Client.UserAgent = defaultUserAgent
 
-	b.tasks = make(PriorityQueue, 0)
+	b.tasks = make(priorityQueue, 0)
 	heap.Init(&b.tasks)
 	b.tasksPushCh = make(chan *Item, 100)
 	b.tasksPopCh = make(chan struct{}, 100)
