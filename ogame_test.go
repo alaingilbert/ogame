@@ -36,6 +36,12 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 	}
 }
 
+func TestWrapper(t *testing.T) {
+	var bot Wrapper
+	bot = NewNoLogin("", "", "", "")
+	assert.NotNil(t, bot)
+}
+
 func TestParseInt2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/deathstar_price.html")
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
