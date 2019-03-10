@@ -31,15 +31,6 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const defaultUserAgent = "" +
-	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) " +
-	"AppleWebKit/537.36 (KHTML, like Gecko) " +
-	"Chrome/51.0.2704.103 " +
-	"Safari/537.36"
-
-// CelestialID represent either a PlanetID or a MoonID
-type CelestialID int
-
 // OGame is a client for ogame.org. It is safe for concurrent use by
 // multiple goroutines (thread-safe)
 type OGame struct {
@@ -85,6 +76,15 @@ type OGame struct {
 	loginWrapper         func(func() error) error
 	loginProxyTransport  *http.Transport
 }
+
+const defaultUserAgent = "" +
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) " +
+	"AppleWebKit/537.36 (KHTML, like Gecko) " +
+	"Chrome/51.0.2704.103 " +
+	"Safari/537.36"
+
+// CelestialID represent either a PlanetID or a MoonID
+type CelestialID int
 
 // Params parameters for more fine-grained initialization
 type Params struct {
