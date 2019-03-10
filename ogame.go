@@ -45,9 +45,9 @@ type CelestialID int
 type OGame struct {
 	sync.Mutex
 	isEnabledAtom        int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedIn           int32  // atomic, prevent auto re login if we manually logged out
-	isConnected          int32  // atomic, either or not communication between the bot and OGame is possible
-	locked               int32  // atomic, bot state locked/unlocked
+	isLoggedInAtom       int32  // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom      int32  // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom           int32  // atomic, bot state locked/unlocked
 	state                string // keep name of the function that currently lock the bot
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
@@ -75,7 +75,7 @@ type OGame struct {
 	chatCallbacks        []func(msg ChatMsg)
 	interceptorCallbacks []func(method string, params, payload url.Values, pageHTML []byte)
 	closeChatCh          chan struct{}
-	chatConnected        int32
+	chatConnectedAtom    int32
 	chatRetry            *ExponentialBackoff
 	ws                   *websocket.Conn
 	tasks                priorityQueue
@@ -469,8 +469,8 @@ func (b *OGame) login() error {
 		return errors.New("bad credentials")
 	}
 
-	atomic.StoreInt32(&b.isLoggedIn, 1) // At this point, we are logged in
-	atomic.StoreInt32(&b.isConnected, 1)
+	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
+	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	b.sessionChatCounter = 1
 
 	serverTime, _ := extractServerTime(pageHTML)
@@ -496,10 +496,10 @@ func (b *OGame) login() error {
 	chatHost := string(m[1])
 	chatPort := string(m[2])
 
-	if atomic.CompareAndSwapInt32(&b.chatConnected, 0, 1) {
+	if atomic.CompareAndSwapInt32(&b.chatConnectedAtom, 0, 1) {
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
-			defer atomic.StoreInt32(&b.chatConnected, 0)
+			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
 			b.chatRetry = NewExponentialBackoff(60)
 		LOOP:
 			for {
@@ -662,7 +662,7 @@ func (m ChatMsg) String() string {
 
 func (b *OGame) logout() {
 	_, _ = b.getPageContent(url.Values{"page": {"logout"}})
-	if atomic.CompareAndSwapInt32(&b.isLoggedIn, 1, 0) {
+	if atomic.CompareAndSwapInt32(&b.isLoggedInAtom, 1, 0) {
 		select {
 		case <-b.closeChatCh:
 		default:
@@ -892,7 +892,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 		if page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
-			atomic.StoreInt32(&b.isConnected, 0)
+			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
 		}
 
@@ -2347,7 +2347,7 @@ func (b *OGame) stateChanged(locked bool, actor string) {
 
 func (b *OGame) botLock(lockedBy string) {
 	b.Lock()
-	if atomic.CompareAndSwapInt32(&b.locked, 0, 1) {
+	if atomic.CompareAndSwapInt32(&b.lockedAtom, 0, 1) {
 		b.state = lockedBy
 		b.stateChanged(true, lockedBy)
 	}
@@ -2355,7 +2355,7 @@ func (b *OGame) botLock(lockedBy string) {
 
 func (b *OGame) botUnlock(unlockedBy string) {
 	b.Unlock()
-	if atomic.CompareAndSwapInt32(&b.locked, 1, 0) {
+	if atomic.CompareAndSwapInt32(&b.lockedAtom, 1, 0) {
 		b.state = unlockedBy
 		b.stateChanged(false, unlockedBy)
 	}
@@ -2546,12 +2546,12 @@ func (b *OGame) IsEnabled() bool {
 
 // IsLoggedIn returns true if the bot is currently logged-in, otherwise false
 func (b *OGame) IsLoggedIn() bool {
-	return atomic.LoadInt32(&b.isLoggedIn) == 1
+	return atomic.LoadInt32(&b.isLoggedInAtom) == 1
 }
 
 // IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
 func (b *OGame) IsConnected() bool {
-	return atomic.LoadInt32(&b.isConnected) == 1
+	return atomic.LoadInt32(&b.isConnectedAtom) == 1
 }
 
 // GetClient get the http client used by the bot
@@ -2571,12 +2571,12 @@ func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
 
 // GetState returns the current bot state
 func (b *OGame) GetState() (bool, string) {
-	return atomic.LoadInt32(&b.locked) == 1, b.state
+	return atomic.LoadInt32(&b.lockedAtom) == 1, b.state
 }
 
 // IsLocked returns either or not the bot is currently locked
 func (b *OGame) IsLocked() bool {
-	return atomic.LoadInt32(&b.locked) == 1
+	return atomic.LoadInt32(&b.lockedAtom) == 1
 }
 
 // GetSession get ogame session
