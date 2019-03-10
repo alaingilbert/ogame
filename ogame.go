@@ -198,8 +198,8 @@ type Defense interface {
 	DefenderObj
 }
 
-// Item ...
-type Item struct {
+// item ...
+type item struct {
 	canBeProcessedCh chan struct{}
 	isDoneCh         chan struct{}
 	priority         int
@@ -207,7 +207,7 @@ type Item struct {
 }
 
 // A priorityQueue implements heap.Interface and holds Items.
-type priorityQueue []*Item
+type priorityQueue []*item
 
 func (pq priorityQueue) Len() int { return len(pq) }
 
@@ -225,7 +225,7 @@ func (pq priorityQueue) Swap(i, j int) {
 // Push ...
 func (pq *priorityQueue) Push(x interface{}) {
 	n := len(*pq)
-	item := x.(*Item)
+	item := x.(*item)
 	item.index = n
 	*pq = append(*pq, item)
 }
@@ -280,7 +280,7 @@ type OGame struct {
 	ws                   *websocket.Conn
 	tasks                priorityQueue
 	tasksLock            sync.Mutex
-	tasksPushCh          chan *Item
+	tasksPushCh          chan *item
 	tasksPopCh           chan struct{}
 	loginWrapper         func(func() error) error
 	loginProxyTransport  *http.Transport
@@ -370,7 +370,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 
 	b.tasks = make(priorityQueue, 0)
 	heap.Init(&b.tasks)
-	b.tasksPushCh = make(chan *Item, 100)
+	b.tasksPushCh = make(chan *item, 100)
 	b.tasksPopCh = make(chan struct{}, 100)
 	b.taskRunner()
 
@@ -2920,7 +2920,7 @@ func (b *OGame) taskRunner() {
 	go func() {
 		for range b.tasksPopCh {
 			b.tasksLock.Lock()
-			task := heap.Pop(&b.tasks).(*Item)
+			task := heap.Pop(&b.tasks).(*item)
 			b.tasksLock.Unlock()
 			close(task.canBeProcessedCh)
 			<-task.isDoneCh
@@ -2932,7 +2932,7 @@ func (b *OGame) taskRunner() {
 func (b *OGame) WithPriority(priority int) *Prioritize {
 	canBeProcessedCh := make(chan struct{})
 	taskIsDoneCh := make(chan struct{})
-	task := new(Item)
+	task := new(item)
 	task.priority = priority
 	task.canBeProcessedCh = canBeProcessedCh
 	task.isDoneCh = taskIsDoneCh
