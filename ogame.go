@@ -1192,11 +1192,18 @@ func (b *OGame) getUserInfos() UserInfos {
 }
 
 func (b *OGame) sendMessage(playerID int, message string) error {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
+	token, err := ExtractAjaxChatToken(pageHTML)
+	if err != nil {
+		return err
+	}
+
 	payload := url.Values{
 		"playerId": {strconv.Itoa(playerID)},
 		"text":     {message + "\n"},
 		"mode":     {"1"},
 		"ajax":     {"1"},
+		"token":    {token},
 	}
 	bobyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
 	if err != nil {

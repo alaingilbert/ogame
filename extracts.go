@@ -1271,6 +1271,17 @@ func ExtractPlanetType(pageHTML []byte) (CelestialType, error) {
 	return 0, errors.New("invalid planet type : " + string(m[1]))
 }
 
+// ExtractAjaxChatToken ...
+func ExtractAjaxChatToken(pageHTML []byte) (string, error) {
+	r1 := regexp.MustCompile(`ajaxChatToken='(\w+)'`)
+	m1 := r1.FindSubmatch(pageHTML)
+	if len(m1) < 2 {
+		return "", errors.New("unable to find token")
+	}
+	token := string(m1[1])
+	return token, nil
+}
+
 // ExtractUserInfos ...
 func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 	playerIDRgx := regexp.MustCompile(`<meta name="ogame-player-id" content="(\d+)"/>`)
