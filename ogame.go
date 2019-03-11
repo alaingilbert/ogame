@@ -1665,14 +1665,8 @@ func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, i
 }
 
 func (b *OGame) cancel(token string, techID, listID int) error {
-	finalURL := b.serverURL + "/game/index.php?page=overview&modus=2&token=" + token + "&techid=" + strconv.Itoa(techID) + "&listid=" + strconv.Itoa(listID)
-	req, _ := http.NewRequest("GET", finalURL, nil)
-	resp, _ := b.Client.Do(req)
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
+	_, _ = b.getPageContent(url.Values{"page": {"overview"}, "modus": {"2"}, "token": {token},
+		"techid": {strconv.Itoa(techID)}, "listid": {strconv.Itoa(listID)}})
 	return nil
 }
 
