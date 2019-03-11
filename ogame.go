@@ -1418,11 +1418,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 		return errors.New("destination moon id invalid")
 	}
 
-	finalURL := b.serverURL + "/game/index.php?page=jumpgate_execute"
-	payload := url.Values{
-		"token": {token},
-		"zm":    {strconv.Itoa(int(destMoonID))},
-	}
+	payload := url.Values{"token": {token}, "zm": {strconv.Itoa(int(destMoonID))}}
 
 	// Add ships to payload
 	for _, s := range Ships {
@@ -1433,18 +1429,8 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 		}
 	}
 
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
-	if err != nil {
+	if _, err := b.postPageContent(url.Values{"page": {"jumpgate_execute"}}, payload); err != nil {
 		return err
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("failed to execute jump gate : %s", resp.Status)
 	}
 	return nil
 }
