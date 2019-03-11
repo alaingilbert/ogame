@@ -46,7 +46,7 @@ type OGame struct {
 	Player               UserInfos
 	researches           *Researches
 	Planets              []Planet
-	AjaxChatToken        string
+	ajaxChatToken        string
 	Universe             string
 	Username             string
 	password             string
@@ -519,7 +519,7 @@ func (b *OGame) login() error {
 
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.Planets = ExtractPlanets(pageHTML, b)
-	b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTML)
+	b.ajaxChatToken, _ = ExtractAjaxChatToken(pageHTML)
 	if page == "overview" {
 		b.Player, _ = ExtractUserInfos(pageHTML, b.language)
 	}
@@ -1207,7 +1207,7 @@ func (b *OGame) sendMessage(playerID int, message string) error {
 		"text":     {message + "\n"},
 		"mode":     {"1"},
 		"ajax":     {"1"},
-		"token":    {b.AjaxChatToken},
+		"token":    {b.ajaxChatToken},
 	}
 	bobyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
 	if err != nil {
@@ -1224,7 +1224,7 @@ func (b *OGame) sendMessage(playerID int, message string) error {
 	if err := json.Unmarshal(bobyBytes, &res); err != nil {
 		return err
 	}
-	b.AjaxChatToken = res.NewToken
+	b.ajaxChatToken = res.NewToken
 	return nil
 }
 
