@@ -13,28 +13,28 @@ import (
 )
 
 const (
-	SMALL_CARGO = iota
-	LARGE_CARGO
-	LIGHT_FIGHTER
-	HEAVY_FIGHTER
-	CRUISER
-	BATTLESHIP
-	COLONY_SHIP
-	RECYCLER
-	ESPIONAGE_PROBE
-	BOMBER
-	SOLAR_SATELLITE
-	DESTROYER
-	DEATHSTAR
-	BATTLECRUISER
-	ROCKET_LAUNCHER
-	LIGHT_LASER
-	HEAVY_LASER
-	GAUSS_CANNON
-	ION_CANNON
-	PLASMA_TURRET
-	SMALL_SHIELD_DOME
-	LARGE_SHIELD_DOME
+	smallCargoConst = iota
+	largeCargoConst
+	lightFighterConst
+	heavyFighterConst
+	cruiserConst
+	battleshipConst
+	colonyShipConst
+	recyclerConst
+	espionageProbeConst
+	bomberConst
+	solarSatelliteConst
+	destroyerConst
+	deathstarConst
+	battlecruiserConst
+	rocketLauncherConst
+	lightLaserConst
+	heavyLaserConst
+	gaussCannonConst
+	ionCannonConst
+	plasmaTurretConst
+	smallShieldDomeConst
+	largeShieldDomeConst
 )
 
 func isAlive(unit *CombatUnit) bool {
@@ -47,37 +47,37 @@ type CombatUnit struct {
 }
 
 const (
-	MAX_ARMOUR_LEVEL uint64 = 36
-	MAX_SHIELD_LEVEL uint64 = 42
-	ID_MASK          uint64 = 31
-	SHIELD_MASK      uint64 = 8388576
-	HULL_MASK        uint64 = 35184363700224
+	maxArmourLevel uint64 = 36
+	maxShieldLevel uint64 = 42
+	idMask         uint64 = 31
+	shieldMask     uint64 = 8388576
+	hullMask       uint64 = 35184363700224
 )
 
 func getUnitID(unit *CombatUnit) uint64 {
-	return (unit.PackedInfos & ID_MASK) >> 0
+	return (unit.PackedInfos & idMask) >> 0
 }
 
 func getUnitShield(unit *CombatUnit) uint64 {
-	return (unit.PackedInfos & SHIELD_MASK) >> 5
+	return (unit.PackedInfos & shieldMask) >> 5
 }
 
 func getUnitHull(unit *CombatUnit) uint64 {
-	return (unit.PackedInfos & HULL_MASK) >> 23
+	return (unit.PackedInfos & hullMask) >> 23
 }
 
 func setUnitID(unit *CombatUnit, id uint64) {
-	unit.PackedInfos &= ^ID_MASK
+	unit.PackedInfos &= ^idMask
 	unit.PackedInfos |= id << 0
 }
 
 func setUnitShield(unit *CombatUnit, shield uint64) {
-	unit.PackedInfos &= ^SHIELD_MASK
+	unit.PackedInfos &= ^shieldMask
 	unit.PackedInfos |= shield << 5
 }
 
 func setUnitHull(unit *CombatUnit, hull uint64) {
-	unit.PackedInfos &= ^HULL_MASK
+	unit.PackedInfos &= ^hullMask
 	unit.PackedInfos |= hull << 23
 }
 
@@ -99,49 +99,49 @@ func (p *price) add(n price) {
 
 func getUnitPrice(unitID uint64) price {
 	switch unitID {
-	case SMALL_CARGO:
+	case smallCargoConst:
 		return price{2000, 2000, 0}
-	case LARGE_CARGO:
+	case largeCargoConst:
 		return price{6000, 6000, 0}
-	case LIGHT_FIGHTER:
+	case lightFighterConst:
 		return price{3000, 1000, 0}
-	case HEAVY_FIGHTER:
+	case heavyFighterConst:
 		return price{6000, 4000, 0}
-	case CRUISER:
+	case cruiserConst:
 		return price{20000, 7000, 2000}
-	case BATTLESHIP:
+	case battleshipConst:
 		return price{45000, 15000, 0}
-	case COLONY_SHIP:
+	case colonyShipConst:
 		return price{10000, 20000, 10000}
-	case RECYCLER:
+	case recyclerConst:
 		return price{10000, 6000, 2000}
-	case ESPIONAGE_PROBE:
+	case espionageProbeConst:
 		return price{0, 1000, 0}
-	case BOMBER:
+	case bomberConst:
 		return price{50000, 25000, 15000}
-	case SOLAR_SATELLITE:
+	case solarSatelliteConst:
 		return price{0, 2000, 500}
-	case DESTROYER:
+	case destroyerConst:
 		return price{60000, 50000, 15000}
-	case DEATHSTAR:
+	case deathstarConst:
 		return price{5000000, 4000000, 1000000}
-	case BATTLECRUISER:
+	case battlecruiserConst:
 		return price{30000, 40000, 15000}
-	case ROCKET_LAUNCHER:
+	case rocketLauncherConst:
 		return price{2000, 0, 0}
-	case LIGHT_LASER:
+	case lightLaserConst:
 		return price{1500, 500, 0}
-	case HEAVY_LASER:
+	case heavyLaserConst:
 		return price{6000, 2000, 0}
-	case GAUSS_CANNON:
+	case gaussCannonConst:
 		return price{20000, 15000, 2000}
-	case ION_CANNON:
+	case ionCannonConst:
 		return price{2000, 6000, 0}
-	case PLASMA_TURRET:
+	case plasmaTurretConst:
 		return price{50000, 50000, 30000}
-	case SMALL_SHIELD_DOME:
+	case smallShieldDomeConst:
 		return price{10000, 10000, 0}
-	case LARGE_SHIELD_DOME:
+	case largeShieldDomeConst:
 		return price{50000, 50000, 0}
 	}
 	return price{0, 0, 0}
@@ -149,49 +149,49 @@ func getUnitPrice(unitID uint64) price {
 
 func getUnitBaseShield(unitID uint64) int {
 	switch unitID {
-	case SMALL_CARGO:
+	case smallCargoConst:
 		return 10
-	case LARGE_CARGO:
+	case largeCargoConst:
 		return 25
-	case LIGHT_FIGHTER:
+	case lightFighterConst:
 		return 10
-	case HEAVY_FIGHTER:
+	case heavyFighterConst:
 		return 25
-	case CRUISER:
+	case cruiserConst:
 		return 50
-	case BATTLESHIP:
+	case battleshipConst:
 		return 200
-	case COLONY_SHIP:
+	case colonyShipConst:
 		return 100
-	case RECYCLER:
+	case recyclerConst:
 		return 10
-	case ESPIONAGE_PROBE:
+	case espionageProbeConst:
 		return 1 // 0.01
-	case BOMBER:
+	case bomberConst:
 		return 500
-	case SOLAR_SATELLITE:
+	case solarSatelliteConst:
 		return 1
-	case DESTROYER:
+	case destroyerConst:
 		return 500
-	case DEATHSTAR:
+	case deathstarConst:
 		return 50000
-	case BATTLECRUISER:
+	case battlecruiserConst:
 		return 400
-	case ROCKET_LAUNCHER:
+	case rocketLauncherConst:
 		return 20
-	case LIGHT_LASER:
+	case lightLaserConst:
 		return 25
-	case HEAVY_LASER:
+	case heavyLaserConst:
 		return 100
-	case GAUSS_CANNON:
+	case gaussCannonConst:
 		return 200
-	case ION_CANNON:
+	case ionCannonConst:
 		return 500
-	case PLASMA_TURRET:
+	case plasmaTurretConst:
 		return 300
-	case SMALL_SHIELD_DOME:
+	case smallShieldDomeConst:
 		return 2000
-	case LARGE_SHIELD_DOME:
+	case largeShieldDomeConst:
 		return 10000
 	}
 	return 0
@@ -199,49 +199,49 @@ func getUnitBaseShield(unitID uint64) int {
 
 func getUnitBaseWeapon(unitID uint64) uint64 {
 	switch unitID {
-	case SMALL_CARGO:
+	case smallCargoConst:
 		return 5
-	case LARGE_CARGO:
+	case largeCargoConst:
 		return 5
-	case LIGHT_FIGHTER:
+	case lightFighterConst:
 		return 50
-	case HEAVY_FIGHTER:
+	case heavyFighterConst:
 		return 150
-	case CRUISER:
+	case cruiserConst:
 		return 400
-	case BATTLESHIP:
+	case battleshipConst:
 		return 1000
-	case COLONY_SHIP:
+	case colonyShipConst:
 		return 50
-	case RECYCLER:
+	case recyclerConst:
 		return 1
-	case ESPIONAGE_PROBE:
+	case espionageProbeConst:
 		return 1 // 0.01
-	case BOMBER:
+	case bomberConst:
 		return 1000
-	case SOLAR_SATELLITE:
+	case solarSatelliteConst:
 		return 1
-	case DESTROYER:
+	case destroyerConst:
 		return 2000
-	case DEATHSTAR:
+	case deathstarConst:
 		return 200000
-	case BATTLECRUISER:
+	case battlecruiserConst:
 		return 700
-	case ROCKET_LAUNCHER:
+	case rocketLauncherConst:
 		return 80
-	case LIGHT_LASER:
+	case lightLaserConst:
 		return 100
-	case HEAVY_LASER:
+	case heavyLaserConst:
 		return 250
-	case GAUSS_CANNON:
+	case gaussCannonConst:
 		return 1100
-	case ION_CANNON:
+	case ionCannonConst:
 		return 150
-	case PLASMA_TURRET:
+	case plasmaTurretConst:
 		return 3000
-	case SMALL_SHIELD_DOME:
+	case smallShieldDomeConst:
 		return 1
-	case LARGE_SHIELD_DOME:
+	case largeShieldDomeConst:
 		return 1
 	}
 	return 0
@@ -250,148 +250,148 @@ func getUnitBaseWeapon(unitID uint64) uint64 {
 func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 	rf := 0
 	switch getUnitID(unit) {
-	case SMALL_CARGO:
+	case smallCargoConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
 		}
-	case LARGE_CARGO:
+	case largeCargoConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
 		}
-	case LIGHT_FIGHTER:
+	case lightFighterConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
 		}
-	case HEAVY_FIGHTER:
+	case heavyFighterConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
-		case SMALL_CARGO:
+		case smallCargoConst:
 			rf = 3
 		}
-	case CRUISER:
+	case cruiserConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
-		case LIGHT_FIGHTER:
+		case lightFighterConst:
 			rf = 6
-		case ROCKET_LAUNCHER:
+		case rocketLauncherConst:
 			rf = 10
 		}
-	case BATTLESHIP:
+	case battleshipConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
 		}
-	case COLONY_SHIP:
+	case colonyShipConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
 		}
-	case RECYCLER:
+	case recyclerConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
 		}
-	case BOMBER:
+	case bomberConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
-		case ION_CANNON:
+		case ionCannonConst:
 			rf = 10
-		case ROCKET_LAUNCHER:
+		case rocketLauncherConst:
 			rf = 20
-		case LIGHT_LASER:
+		case lightLaserConst:
 			rf = 20
-		case HEAVY_LASER:
+		case heavyLaserConst:
 			rf = 10
 		}
-	case DESTROYER:
+	case destroyerConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
-		case LIGHT_LASER:
+		case lightLaserConst:
 			rf = 10
-		case BATTLECRUISER:
+		case battlecruiserConst:
 			rf = 2
 		}
-	case DEATHSTAR:
+	case deathstarConst:
 		switch getUnitID(targetUnit) {
-		case SMALL_CARGO:
+		case smallCargoConst:
 			rf = 250
-		case LARGE_CARGO:
+		case largeCargoConst:
 			rf = 250
-		case LIGHT_FIGHTER:
+		case lightFighterConst:
 			rf = 200
-		case HEAVY_FIGHTER:
+		case heavyFighterConst:
 			rf = 100
-		case CRUISER:
+		case cruiserConst:
 			rf = 33
-		case BATTLESHIP:
+		case battleshipConst:
 			rf = 30
-		case COLONY_SHIP:
+		case colonyShipConst:
 			rf = 250
-		case RECYCLER:
+		case recyclerConst:
 			rf = 250
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 1250
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 1250
-		case BOMBER:
+		case bomberConst:
 			rf = 25
-		case DESTROYER:
+		case destroyerConst:
 			rf = 5
-		case ROCKET_LAUNCHER:
+		case rocketLauncherConst:
 			rf = 200
-		case LIGHT_LASER:
+		case lightLaserConst:
 			rf = 200
-		case HEAVY_LASER:
+		case heavyLaserConst:
 			rf = 100
-		case GAUSS_CANNON:
+		case gaussCannonConst:
 			rf = 50
-		case ION_CANNON:
+		case ionCannonConst:
 			rf = 100
-		case BATTLECRUISER:
+		case battlecruiserConst:
 			rf = 15
 		}
-	case BATTLECRUISER:
+	case battlecruiserConst:
 		switch getUnitID(targetUnit) {
-		case ESPIONAGE_PROBE:
+		case espionageProbeConst:
 			rf = 5
-		case SOLAR_SATELLITE:
+		case solarSatelliteConst:
 			rf = 5
-		case SMALL_CARGO:
+		case smallCargoConst:
 			rf = 3
-		case LARGE_CARGO:
+		case largeCargoConst:
 			rf = 3
-		case HEAVY_FIGHTER:
+		case heavyFighterConst:
 			rf = 4
-		case CRUISER:
+		case cruiserConst:
 			rf = 4
-		case BATTLESHIP:
+		case battleshipConst:
 			rf = 7
 		}
 	}
@@ -400,49 +400,49 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 
 func getUnitName(unitID uint64) string {
 	switch unitID {
-	case SMALL_CARGO:
+	case smallCargoConst:
 		return "Small cargo"
-	case LARGE_CARGO:
+	case largeCargoConst:
 		return "Large cargo"
-	case LIGHT_FIGHTER:
+	case lightFighterConst:
 		return "Light fighter"
-	case HEAVY_FIGHTER:
+	case heavyFighterConst:
 		return "Heavy fighter"
-	case CRUISER:
+	case cruiserConst:
 		return "Cruiser"
-	case BATTLESHIP:
+	case battleshipConst:
 		return "Battleship"
-	case COLONY_SHIP:
+	case colonyShipConst:
 		return "Colony ship"
-	case RECYCLER:
+	case recyclerConst:
 		return "Recycler"
-	case ESPIONAGE_PROBE:
+	case espionageProbeConst:
 		return "Expionage probe"
-	case BOMBER:
+	case bomberConst:
 		return "Bomber"
-	case SOLAR_SATELLITE:
+	case solarSatelliteConst:
 		return "Solar satellite"
-	case DESTROYER:
+	case destroyerConst:
 		return "Destroyer"
-	case DEATHSTAR:
+	case deathstarConst:
 		return "Deathstar"
-	case BATTLECRUISER:
+	case battlecruiserConst:
 		return "Battlecruiser"
-	case ROCKET_LAUNCHER:
+	case rocketLauncherConst:
 		return "Rocket launcher"
-	case LIGHT_LASER:
+	case lightLaserConst:
 		return "Light laser"
-	case HEAVY_LASER:
+	case heavyLaserConst:
 		return "Heavy laser"
-	case GAUSS_CANNON:
+	case gaussCannonConst:
 		return "Gauss cannon"
-	case ION_CANNON:
+	case ionCannonConst:
 		return "Ion cannon"
-	case PLASMA_TURRET:
+	case plasmaTurretConst:
 		return "Plasma turret"
-	case SMALL_SHIELD_DOME:
+	case smallShieldDomeConst:
 		return "Small shield dome"
-	case LARGE_SHIELD_DOME:
+	case largeShieldDomeConst:
 		return "Large shield dome"
 	}
 	return ""
@@ -507,91 +507,91 @@ func (e *entity) init() {
 	e.reset()
 	idx := 0
 	for i := 0; i < e.SmallCargo; i++ {
-		e.Units[idx] = newUnit(e, SMALL_CARGO)
+		e.Units[idx] = newUnit(e, smallCargoConst)
 		idx++
 	}
 	for i := 0; i < e.LargeCargo; i++ {
-		e.Units[idx] = newUnit(e, LARGE_CARGO)
+		e.Units[idx] = newUnit(e, largeCargoConst)
 		idx++
 	}
 	for i := 0; i < e.LightFighter; i++ {
-		e.Units[idx] = newUnit(e, LIGHT_FIGHTER)
+		e.Units[idx] = newUnit(e, lightFighterConst)
 		idx++
 	}
 	for i := 0; i < e.HeavyFighter; i++ {
-		e.Units[idx] = newUnit(e, HEAVY_FIGHTER)
+		e.Units[idx] = newUnit(e, heavyFighterConst)
 		idx++
 	}
 	for i := 0; i < e.Cruiser; i++ {
-		e.Units[idx] = newUnit(e, CRUISER)
+		e.Units[idx] = newUnit(e, cruiserConst)
 		idx++
 	}
 	for i := 0; i < e.Battleship; i++ {
-		e.Units[idx] = newUnit(e, BATTLESHIP)
+		e.Units[idx] = newUnit(e, battleshipConst)
 		idx++
 	}
 	for i := 0; i < e.ColonyShip; i++ {
-		e.Units[idx] = newUnit(e, COLONY_SHIP)
+		e.Units[idx] = newUnit(e, colonyShipConst)
 		idx++
 	}
 	for i := 0; i < e.Recycler; i++ {
-		e.Units[idx] = newUnit(e, RECYCLER)
+		e.Units[idx] = newUnit(e, recyclerConst)
 		idx++
 	}
 	for i := 0; i < e.EspionageProbe; i++ {
-		e.Units[idx] = newUnit(e, ESPIONAGE_PROBE)
+		e.Units[idx] = newUnit(e, espionageProbeConst)
 		idx++
 	}
 	for i := 0; i < e.Bomber; i++ {
-		e.Units[idx] = newUnit(e, BOMBER)
+		e.Units[idx] = newUnit(e, bomberConst)
 		idx++
 	}
 	for i := 0; i < e.SolarSatellite; i++ {
-		e.Units[idx] = newUnit(e, SOLAR_SATELLITE)
+		e.Units[idx] = newUnit(e, solarSatelliteConst)
 		idx++
 	}
 	for i := 0; i < e.Destroyer; i++ {
-		e.Units[idx] = newUnit(e, DESTROYER)
+		e.Units[idx] = newUnit(e, destroyerConst)
 		idx++
 	}
 	for i := 0; i < e.Deathstar; i++ {
-		e.Units[idx] = newUnit(e, DEATHSTAR)
+		e.Units[idx] = newUnit(e, deathstarConst)
 		idx++
 	}
 	for i := 0; i < e.Battlecruiser; i++ {
-		e.Units[idx] = newUnit(e, BATTLECRUISER)
+		e.Units[idx] = newUnit(e, battlecruiserConst)
 		idx++
 	}
 	for i := 0; i < e.RocketLauncher; i++ {
-		e.Units[idx] = newUnit(e, ROCKET_LAUNCHER)
+		e.Units[idx] = newUnit(e, rocketLauncherConst)
 		idx++
 	}
 	for i := 0; i < e.LightLaser; i++ {
-		e.Units[idx] = newUnit(e, LIGHT_LASER)
+		e.Units[idx] = newUnit(e, lightLaserConst)
 		idx++
 	}
 	for i := 0; i < e.HeavyLaser; i++ {
-		e.Units[idx] = newUnit(e, HEAVY_LASER)
+		e.Units[idx] = newUnit(e, heavyLaserConst)
 		idx++
 	}
 	for i := 0; i < e.GaussCannon; i++ {
-		e.Units[idx] = newUnit(e, GAUSS_CANNON)
+		e.Units[idx] = newUnit(e, gaussCannonConst)
 		idx++
 	}
 	for i := 0; i < e.IonCannon; i++ {
-		e.Units[idx] = newUnit(e, ION_CANNON)
+		e.Units[idx] = newUnit(e, ionCannonConst)
 		idx++
 	}
 	for i := 0; i < e.PlasmaTurret; i++ {
-		e.Units[idx] = newUnit(e, PLASMA_TURRET)
+		e.Units[idx] = newUnit(e, plasmaTurretConst)
 		idx++
 	}
 	for i := 0; i < e.SmallShieldDome; i++ {
-		e.Units[idx] = newUnit(e, SMALL_SHIELD_DOME)
+		e.Units[idx] = newUnit(e, smallShieldDomeConst)
 		idx++
 	}
 	for i := 0; i < e.LargeShieldDome; i++ {
-		e.Units[idx] = newUnit(e, LARGE_SHIELD_DOME)
+		e.Units[idx] = newUnit(e, largeShieldDomeConst)
 		idx++
 	}
 }
@@ -743,33 +743,33 @@ func (simulator *combatSimulator) defenderFires() {
 
 func isShip(unit *CombatUnit) bool {
 	switch getUnitID(unit) {
-	case SMALL_CARGO:
+	case smallCargoConst:
 		return true
-	case LARGE_CARGO:
+	case largeCargoConst:
 		return true
-	case LIGHT_FIGHTER:
+	case lightFighterConst:
 		return true
-	case HEAVY_FIGHTER:
+	case heavyFighterConst:
 		return true
-	case CRUISER:
+	case cruiserConst:
 		return true
-	case BATTLESHIP:
+	case battleshipConst:
 		return true
-	case COLONY_SHIP:
+	case colonyShipConst:
 		return true
-	case RECYCLER:
+	case recyclerConst:
 		return true
-	case ESPIONAGE_PROBE:
+	case espionageProbeConst:
 		return true
-	case BOMBER:
+	case bomberConst:
 		return true
-	case SOLAR_SATELLITE:
+	case solarSatelliteConst:
 		return true
-	case DESTROYER:
+	case destroyerConst:
 		return true
-	case DEATHSTAR:
+	case deathstarConst:
 		return true
-	case BATTLECRUISER:
+	case battlecruiserConst:
 		return true
 	}
 	return false
