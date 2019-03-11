@@ -733,6 +733,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == "rightmenu" ||
 		page == "allianceOverview" ||
 		page == "support" ||
+		page == "buffActivation" ||
 		ajax == "1"
 }
 
