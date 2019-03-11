@@ -46,6 +46,7 @@ type OGame struct {
 	Player               UserInfos
 	researches           *Researches
 	Planets              []Planet
+	AjaxChatToken        string
 	Universe             string
 	Username             string
 	password             string
@@ -484,6 +485,7 @@ func (b *OGame) login() error {
 
 	b.Player, _ = ExtractUserInfos(pageHTML, b.language)
 	b.Planets = ExtractPlanets(pageHTML, b)
+	b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTML)
 
 	b.fleetDeutSaveFactor = ExtractFleetDeutSaveFactor(pageHTML)
 
@@ -906,11 +908,13 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		if isLogged(pageHTMLBytes) {
 			b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
 			b.Planets = ExtractPlanets(pageHTMLBytes, b)
+			b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTMLBytes)
 		}
 	} else if IsAjaxPage(vals) {
 	} else {
 		if isLogged(pageHTMLBytes) {
 			b.Planets = ExtractPlanets(pageHTMLBytes, b)
+			b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTMLBytes)
 		}
 	}
 
@@ -1191,19 +1195,23 @@ func (b *OGame) getUserInfos() UserInfos {
 	return userInfos
 }
 
-func (b *OGame) sendMessage(playerID int, message string) error {
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
-	token, err := ExtractAjaxChatToken(pageHTML)
-	if err != nil {
-		return err
-	}
+type ChatPostResp struct {
+	Status   string `json:"status"`
+	ID       int    `json:"id"`
+	SenderID int    `json:"senderId"`
+	TargetID int    `json:"targetId"`
+	Text     string `json:"text"`
+	Date     int    `json:"date"`
+	NewToken string `json:"newToken"`
+}
 
+func (b *OGame) sendMessage(playerID int, message string) error {
 	payload := url.Values{
 		"playerId": {strconv.Itoa(playerID)},
 		"text":     {message + "\n"},
 		"mode":     {"1"},
 		"ajax":     {"1"},
-		"token":    {token},
+		"token":    {b.AjaxChatToken},
 	}
 	bobyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
 	if err != nil {
@@ -1216,6 +1224,11 @@ func (b *OGame) sendMessage(playerID int, message string) error {
 	if doc.Find("title").Text() == "OGame Lobby" {
 		return ErrNotLogged
 	}
+	var res ChatPostResp
+	if err := json.Unmarshal(bobyBytes, &res); err != nil {
+		return err
+	}
+	b.AjaxChatToken = res.NewToken
 	return nil
 }
 
