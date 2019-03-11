@@ -2073,7 +2073,6 @@ type EspionageReportSummary struct {
 }
 
 func (b *OGame) getPageMessages(page, tabid int) ([]byte, error) {
-	finalURL := b.serverURL + "/game/index.php?page=messages"
 	payload := url.Values{
 		"messageId":  {"-1"},
 		"tabid":      {strconv.Itoa(tabid)},
@@ -2081,23 +2080,7 @@ func (b *OGame) getPageMessages(page, tabid int) ([]byte, error) {
 		"pagination": {strconv.Itoa(page)},
 		"ajax":       {"1"},
 	}
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
-	if err != nil {
-		return []byte{}, err
-	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return []byte{}, err
-	}
-	by, _ := ioutil.ReadAll(resp.Body)
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	return by, nil
+	return b.postPageContent(url.Values{"page": {"messages"}}, payload)
 }
 
 func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
@@ -2178,28 +2161,16 @@ func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error)
 }
 
 func (b *OGame) deleteMessage(msgID int) error {
-	finalURL := b.serverURL + "/game/index.php?page=messages"
 	payload := url.Values{
 		"messageId": {strconv.Itoa(msgID)},
 		"action":    {"103"},
 		"ajax":      {"1"},
 	}
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	by, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
 	if err != nil {
 		return err
 	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	by, _ := ioutil.ReadAll(resp.Body)
+
 	var res map[string]bool
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New("unable to find message id " + strconv.Itoa(msgID))
