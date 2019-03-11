@@ -1381,54 +1381,19 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	}
 
 	// Run the phalanx scan (third call to ogame server)
-	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1",
-		coord.Galaxy, coord.System, coord.Position)
-	req, err := http.NewRequest("GET", finalURL, nil)
-	if err != nil {
-		b.error(err.Error())
-		return res, err
-	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		b.error(err.Error())
-		return res, err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	pageHTML, _ := ioutil.ReadAll(resp.Body)
-
-	return extractPhalanx(pageHTML)
+	return b.getUnsafePhalanx(moonID, coord)
 }
 
 // getUnsafePhalanx ...
 func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
-	res := make([]Fleet, 0)
-
-	// Run the phalanx scan
-	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1&cp=%d",
-		coord.Galaxy, coord.System, coord.Position, moonID)
-	req, err := http.NewRequest("GET", finalURL, nil)
-	if err != nil {
-		b.error(err.Error())
-		return res, err
-	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		b.error(err.Error())
-		return res, err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	pageHTML, _ := ioutil.ReadAll(resp.Body)
-
+	pageHTML, _ := b.getPageContent(url.Values{
+		"page":     {"phalanx"},
+		"galaxy":   {strconv.Itoa(coord.Galaxy)},
+		"system":   {strconv.Itoa(coord.System)},
+		"position": {strconv.Itoa(coord.Position)},
+		"ajax":     {"1"},
+		"cp":       {strconv.Itoa(int(moonID))},
+	})
 	return extractPhalanx(pageHTML)
 }
 
