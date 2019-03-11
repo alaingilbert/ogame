@@ -483,9 +483,7 @@ func (b *OGame) login() error {
 	b.donutSystem, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-system]").AttrOr("content", "1"))
 	b.ogameVersion = doc.Find("meta[name=ogame-version]").AttrOr("content", "")
 
-	b.Player, _ = ExtractUserInfos(pageHTML, b.language)
-	b.Planets = ExtractPlanets(pageHTML, b)
-	b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTML)
+	b.cacheFullPageInfo("overview", pageHTML)
 
 	b.fleetDeutSaveFactor = ExtractFleetDeutSaveFactor(pageHTML)
 
@@ -517,6 +515,14 @@ func (b *OGame) login() error {
 	}
 
 	return nil
+}
+
+func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
+	b.Planets = ExtractPlanets(pageHTML, b)
+	b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTML)
+	if page == "overview" {
+		b.Player, _ = ExtractUserInfos(pageHTML, b.language)
+	}
 }
 
 // DefaultLoginWrapper ...
@@ -905,11 +911,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	}
 
 	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
-		b.Planets = ExtractPlanets(pageHTMLBytes, b)
-		b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTMLBytes)
-		if page == "overview" {
-			b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
-		}
+		b.cacheFullPageInfo(page, pageHTMLBytes)
 	}
 
 	go func() {
