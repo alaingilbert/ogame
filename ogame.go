@@ -904,17 +904,11 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		return []byte{}, err
 	}
 
-	if page == "overview" {
-		if isLogged(pageHTMLBytes) {
+	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
+		b.Planets = ExtractPlanets(pageHTMLBytes, b)
+		b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTMLBytes)
+		if page == "overview" {
 			b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
-			b.Planets = ExtractPlanets(pageHTMLBytes, b)
-			b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTMLBytes)
-		}
-	} else if IsAjaxPage(vals) {
-	} else {
-		if isLogged(pageHTMLBytes) {
-			b.Planets = ExtractPlanets(pageHTMLBytes, b)
-			b.AjaxChatToken, _ = ExtractAjaxChatToken(pageHTMLBytes)
 		}
 	}
 
