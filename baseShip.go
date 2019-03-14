@@ -11,7 +11,7 @@ type BaseShip struct {
 
 // GetCargoCapacity returns ship cargo capacity
 func (b BaseShip) GetCargoCapacity(techs Researches) int {
-	return b.BaseCargoCapacity + int(float64(b.BaseCargoCapacity*techs.HyperspaceTechnology)*0.02)
+	return b.BaseCargoCapacity + int(float64(b.BaseCargoCapacity*techs.HyperspaceTechnology)*0.05)
 }
 
 // GetFuelConsumption returns ship fuel consumption
@@ -38,9 +38,8 @@ func (b BaseShip) GetSpeed(techs Researches) int {
 	if b.ID == RecyclerID && (techs.ImpulseDrive >= 17 || techs.HyperspaceDrive >= 15) {
 		if techs.HyperspaceDrive >= 15 {
 			return int(float64(b.BaseSpeed)+(float64(b.BaseSpeed)*0.3)*float64(techs.HyperspaceDrive)) * 3
-		} else {
-			return int(float64(b.BaseSpeed)+(float64(b.BaseSpeed)*0.2)*float64(techs.ImpulseDrive)) * 2
 		}
+		return int(float64(b.BaseSpeed)+(float64(b.BaseSpeed)*0.2)*float64(techs.ImpulseDrive)) * 2
 	}
 	if minLvl, ok := b.Requirements[CombustionDrive.ID]; ok {
 		techDriveLvl = techs.CombustionDrive

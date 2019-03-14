@@ -21,22 +21,27 @@ type Moon struct {
 	Fields     Fields
 }
 
+// GetName ...
 func (m Moon) GetName() string {
 	return m.Name
 }
 
+// GetID ...
 func (m Moon) GetID() CelestialID {
 	return m.ID.Celestial()
 }
 
+// GetType ...
 func (m Moon) GetType() CelestialType {
 	return MoonType
 }
 
+// GetCoordinate ...
 func (m Moon) GetCoordinate() Coordinate {
 	return m.Coordinate
 }
 
+// GetFields ...
 func (m Moon) GetFields() Fields {
 	return m.Fields
 }

@@ -16,41 +16,49 @@ import (
 	"golang.org/x/net/html"
 )
 
+// ExtractPlanets ...
 func ExtractPlanets(pageHTML []byte, b *OGame) []Planet {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractPlanetsFromDoc(doc, b)
 }
 
+// ExtractPlanet ...
 func ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractPlanetFromDoc(doc, v, b)
 }
 
+// ExtractPlanetByCoord ...
 func ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractPlanetByCoordFromDoc(doc, b, coord)
 }
 
+// ExtractMoons ...
 func ExtractMoons(pageHTML []byte, b *OGame) []Moon {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractMoonsFromDoc(doc, b)
 }
 
+// ExtractMoon ...
 func ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractMoonFromDoc(doc, b, v)
 }
 
+// ExtractMoonByCoord ...
 func ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractMoonByCoordFromDoc(doc, b, coord)
 }
 
+// ExtractCelestials ...
 func ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractCelestialsFromDoc(doc, b)
 }
 
+// ExtractCelestial ...
 func ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractCelestialFromDoc(doc, b, v)
@@ -61,66 +69,79 @@ func extractServerTime(pageHTML []byte) (time.Time, error) {
 	return extractServerTimeFromDoc(doc)
 }
 
+// ExtractFleetsFromEventList ...
 func ExtractFleetsFromEventList(pageHTML []byte) []Fleet {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractFleetsFromEventListFromDoc(doc)
 }
 
+// ExtractIPM ...
 func ExtractIPM(pageHTML []byte) (duration, max int, token string) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractIPMFromDoc(doc)
 }
 
+// ExtractFleets ...
 func ExtractFleets(pageHTML []byte) (res []Fleet) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractFleetsFromDoc(doc)
 }
 
+// ExtractSlots ...
 func ExtractSlots(pageHTML []byte) Slots {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractSlotsFromDoc(doc)
 }
 
+// ExtractOgameTimestamp ...
 func ExtractOgameTimestamp(pageHTML []byte) int {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractOgameTimestampFromDoc(doc)
 }
 
+// ExtractResources ...
 func ExtractResources(pageHTML []byte) Resources {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractResourcesFromDoc(doc)
 }
 
+// ExtractResourceSettings ...
 func ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractResourceSettingsFromDoc(doc)
 }
 
+// ExtractAttacks ...
 func ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractAttacksFromDoc(doc)
 }
 
+// ExtractResourcesBuildings ...
 func ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractResourcesBuildingsFromDoc(doc)
 }
 
+// ExtractDefense ...
 func ExtractDefense(pageHTML []byte) (DefensesInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractDefenseFromDoc(doc)
 }
 
+// ExtractShips ...
 func ExtractShips(pageHTML []byte) (ShipsInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractShipsFromDoc(doc)
 }
 
+// ExtractFacilities ...
 func ExtractFacilities(pageHTML []byte) (Facilities, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractFacilitiesFromDoc(doc)
 }
 
+// ExtractResearch ...
 func ExtractResearch(pageHTML []byte) Researches {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractResearchFromDoc(doc)
@@ -138,6 +159,7 @@ func ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, error) {
 	return ExtractOverviewProductionFromDoc(doc)
 }
 
+// ExtractFleet1Ships ...
 func ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractFleet1ShipsFromDoc(doc)
@@ -158,6 +180,7 @@ func extractEspionageReport(pageHTML []byte, location *time.Location) (Espionage
 	return extractEspionageReportFromDoc(doc, location)
 }
 
+// ExtractResourcesProductions ...
 func ExtractResourcesProductions(pageHTML []byte) (Resources, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractResourcesProductionsFromDoc(doc)
@@ -165,6 +188,7 @@ func ExtractResourcesProductions(pageHTML []byte) (Resources, error) {
 
 // <Extract from doc> ---------------------------------------------------------
 
+// ExtractPlanetsFromDoc ...
 func ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet {
 	res := make([]Planet, 0)
 	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
@@ -178,6 +202,7 @@ func ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet {
 	return res
 }
 
+// ExtractPlanetByIDFromDoc ...
 func ExtractPlanetByIDFromDoc(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error) {
 	planets := ExtractPlanetsFromDoc(doc, b)
 	for _, planet := range planets {
@@ -188,6 +213,7 @@ func ExtractPlanetByIDFromDoc(doc *goquery.Document, b *OGame, planetID PlanetID
 	return Planet{}, errors.New("invalid planet id")
 }
 
+// ExtractCelestialByIDFromDoc ...
 func ExtractCelestialByIDFromDoc(doc *goquery.Document, b *OGame, celestialID CelestialID) (Celestial, error) {
 	planets := ExtractPlanetsFromDoc(doc, b)
 	for _, planet := range planets {
@@ -201,6 +227,7 @@ func ExtractCelestialByIDFromDoc(doc *goquery.Document, b *OGame, celestialID Ce
 	return Planet{}, errors.New("invalid celestial id")
 }
 
+// ExtractPlanetByCoordFromDoc ...
 func ExtractPlanetByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Planet, error) {
 	planets := ExtractPlanetsFromDoc(doc, b)
 	for _, planet := range planets {
@@ -211,11 +238,13 @@ func ExtractPlanetByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordina
 	return Planet{}, errors.New("invalid planet coordinate")
 }
 
+// ExtractOgameTimestampFromDoc ...
 func ExtractOgameTimestampFromDoc(doc *goquery.Document) int {
 	ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
 	return ogameTimestamp
 }
 
+// ExtractResourcesFromDoc ...
 func ExtractResourcesFromDoc(doc *goquery.Document) Resources {
 	res := Resources{}
 	res.Metal = ParseInt(doc.Find("span#resources_metal").Text())
@@ -226,6 +255,7 @@ func ExtractResourcesFromDoc(doc *goquery.Document) Resources {
 	return res
 }
 
+// ExtractPlanetFromDoc ...
 func ExtractPlanetFromDoc(doc *goquery.Document, v interface{}, b *OGame) (Planet, error) {
 	if coordStr, ok := v.(string); ok {
 		coord, err := ParseCoord(coordStr)
@@ -253,6 +283,7 @@ func ExtractPlanetFromDoc(doc *goquery.Document, v interface{}, b *OGame) (Plane
 	return Planet{}, errors.New("failed to find planet")
 }
 
+// ExtractMoonsFromDoc ...
 func ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon {
 	res := make([]Moon, 0)
 	doc.Find("a.moonlink").Each(func(i int, s *goquery.Selection) {
@@ -265,6 +296,7 @@ func ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon {
 	return res
 }
 
+// ExtractMoonFromDoc ...
 func ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Moon, error) {
 	if coordStr, ok := v.(string); ok {
 		coord, err := ParseCoord(coordStr)
@@ -292,6 +324,7 @@ func ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Moon, e
 	return Moon{}, errors.New("moon not found")
 }
 
+// ExtractMoonByCoordFromDoc ...
 func ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error) {
 	moons := ExtractMoonsFromDoc(doc, b)
 	for _, moon := range moons {
@@ -302,6 +335,7 @@ func ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate
 	return Moon{}, errors.New("invalid moon coordinate")
 }
 
+// ExtractMoonByIDFromDoc ...
 func ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error) {
 	moons := ExtractMoonsFromDoc(doc, b)
 	for _, moon := range moons {
@@ -312,6 +346,7 @@ func ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moonID MoonID) (Moo
 	return Moon{}, errors.New("invalid moon id")
 }
 
+// ExtractCelestialsFromDoc ...
 func ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error) {
 	celestials := make([]Celestial, 0)
 	planets := ExtractPlanetsFromDoc(doc, b)
@@ -324,6 +359,7 @@ func ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, err
 	return celestials, nil
 }
 
+// ExtractCelestialFromDoc ...
 func ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Celestial, error) {
 	if planetID, ok := v.(PlanetID); ok {
 		return ExtractPlanetByIDFromDoc(doc, b, planetID)
@@ -363,6 +399,7 @@ func ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Ce
 	return nil, errors.New("celestial not found")
 }
 
+// ExtractResourcesBuildingsFromDoc ...
 func ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error) {
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -382,6 +419,7 @@ func ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings
 	return res, nil
 }
 
+// ExtractDefenseFromDoc ...
 func ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
@@ -403,6 +441,7 @@ func ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
 	return res, nil
 }
 
+// ExtractShipsFromDoc ...
 func ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error) {
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -428,6 +467,7 @@ func ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error) {
 	return res, nil
 }
 
+// ExtractFacilitiesFromDoc ...
 func ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
 	doc.Find("span.textlabel").Remove()
 	bodyID, _ := doc.Find("body").Attr("id")
@@ -449,6 +489,7 @@ func ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
 	return res, nil
 }
 
+// ExtractResearchFromDoc ...
 func ExtractResearchFromDoc(doc *goquery.Document) Researches {
 	doc.Find("span.textlabel").Remove()
 	res := Researches{}
@@ -472,6 +513,7 @@ func ExtractResearchFromDoc(doc *goquery.Document) Researches {
 	return res
 }
 
+// ExtractAttacksFromDoc ...
 func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 	attacks := make([]AttackEvent, 0)
 	if doc.Find("div#eventListWrap").Size() == 0 {
@@ -548,7 +590,7 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 	return attacks, nil
 }
 
-// ExtractProduction extracts ships/defenses production from the shipyard page
+// ExtractProductionFromDoc extracts ships/defenses production from the shipyard page
 func ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
 	res := make([]Quantifiable, 0)
 	active := doc.Find("table.construction")
@@ -578,7 +620,7 @@ func ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
 	return res, nil
 }
 
-// ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
+// ExtractOverviewProductionFromDoc extracts ships/defenses (partial) production from the overview page
 func ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
 	res := make([]Quantifiable, 0)
 	active := doc.Find("table.construction").Eq(2)
@@ -606,20 +648,22 @@ func ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, er
 	return res, nil
 }
 
-func ExtractFleet1ShipsFromDoc(doc *goquery.Document) ShipsInfos {
+// ExtractFleet1ShipsFromDoc ...
+func ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos) {
 	onclick := doc.Find("a#sendall").AttrOr("onclick", "")
 	matches := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)
 	if len(matches) == 0 {
-		return ShipsInfos{}
+		return
 	}
 	m := matches[1]
 	var res map[ID]int
-	json.Unmarshal([]byte(m), &res)
-	s := ShipsInfos{}
+	if err := json.Unmarshal([]byte(m), &res); err != nil {
+		return
+	}
 	for k, v := range res {
 		s.Set(k, v)
 	}
-	return s
+	return
 }
 
 func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int) {
@@ -972,6 +1016,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	return report, nil
 }
 
+// ExtractResourcesProductionsFromDoc ...
 func ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error) {
 	res := Resources{}
 	selector := "table.listOfResourceSettingsPerPlanet tr.summary td span"
@@ -983,6 +1028,7 @@ func ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error
 	return res, nil
 }
 
+// ExtractResourceSettingsFromDoc ...
 func ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error) {
 	bodyID, _ := doc.Find("body").Attr("id")
 	if bodyID == "overview" {
@@ -1012,6 +1058,7 @@ func ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, er
 	return res, nil
 }
 
+// ExtractFleetsFromEventListFromDoc ...
 func ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet {
 	type Tmp struct {
 		fleet Fleet
@@ -1059,6 +1106,7 @@ func ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet {
 	return res
 }
 
+// ExtractIPMFromDoc ...
 func ExtractIPMFromDoc(doc *goquery.Document) (duration, max int, token string) {
 	duration, _ = strconv.Atoi(doc.Find("span#timer").AttrOr("data-duration", "0"))
 	max, _ = strconv.Atoi(doc.Find("input[name=anz]").AttrOr("data-max", "0"))
@@ -1066,6 +1114,7 @@ func ExtractIPMFromDoc(doc *goquery.Document) (duration, max int, token string) 
 	return
 }
 
+// ExtractFleetsFromDoc ...
 func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 	res = make([]Fleet, 0)
 	script := doc.Find("div#content script").Text()
@@ -1137,7 +1186,7 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 	return
 }
 
-// extract fleet slots from page "fleet1"
+// ExtractSlotsFromDoc extract fleet slots from page "fleet1"
 // page "movement" redirect to "fleet1" when there is no fleet
 func ExtractSlotsFromDoc(doc *goquery.Document) Slots {
 	slots := Slots{}
@@ -1185,7 +1234,7 @@ func extractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
 
 // <Works with []byte only> ---------------------------------------------------
 
-// ExtractPlanetCoordinates extracts planet coordinate from html page
+// ExtractPlanetCoordinate extracts planet coordinate from html page
 func ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error) {
 	m := regexp.MustCompile(`<meta name="ogame-planet-coordinates" content="(\d+):(\d+):(\d+)"/>`).FindSubmatch(pageHTML)
 	if len(m) == 0 {
@@ -1222,6 +1271,18 @@ func ExtractPlanetType(pageHTML []byte) (CelestialType, error) {
 	return 0, errors.New("invalid planet type : " + string(m[1]))
 }
 
+// ExtractAjaxChatToken ...
+func ExtractAjaxChatToken(pageHTML []byte) (string, error) {
+	r1 := regexp.MustCompile(`ajaxChatToken='(\w+)'`)
+	m1 := r1.FindSubmatch(pageHTML)
+	if len(m1) < 2 {
+		return "", errors.New("unable to find token")
+	}
+	token := string(m1[1])
+	return token, nil
+}
+
+// ExtractUserInfos ...
 func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 	playerIDRgx := regexp.MustCompile(`<meta name="ogame-player-id" content="(\d+)"/>`)
 	playerNameRgx := regexp.MustCompile(`<meta name="ogame-player-name" content="([^"]+)"/>`)
@@ -1305,6 +1366,7 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 
 // </Works with []byte only> --------------------------------------------------
 
+// ExtractCoord ...
 func ExtractCoord(v string) (coord Coordinate) {
 	coordRgx := regexp.MustCompile(`\[(\d+):(\d+):(\d+)]`)
 	m := coordRgx.FindStringSubmatch(v)
@@ -1316,6 +1378,7 @@ func ExtractCoord(v string) (coord Coordinate) {
 	return
 }
 
+// ExtractGalaxyInfos ...
 func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
 	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
 
@@ -1531,6 +1594,7 @@ func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
 	return ships, token, destinations, 0
 }
 
+// ExtractConstructions ...
 func ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
 	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {

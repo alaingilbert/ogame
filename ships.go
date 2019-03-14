@@ -70,7 +70,7 @@ func (s ShipsInfos) FleetValue() int {
 	return val
 }
 
-// FleetValue returns the cost of the fleet
+// FleetCost returns the cost of the fleet
 func (s ShipsInfos) FleetCost() Resources {
 	val := LightFighter.Price.Mul(s.LightFighter)
 	val = val.Add(HeavyFighter.Price.Mul(s.HeavyFighter))

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"container/heap"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -21,234 +23,30 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	"unicode"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/pkg/errors"
 	"github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
-	"golang.org/x/text/runes"
-	"golang.org/x/text/transform"
-	"golang.org/x/text/unicode/norm"
 )
-
-// Wrapper all available functions to control ogame bot
-type Wrapper interface {
-	SetLoginProxy(proxy, username, password string) error
-	SetLoginWrapper(func(func() error) error)
-	GetClient() *OGameClient
-	Enable()
-	Disable()
-	IsEnabled() bool
-	Quiet(bool)
-	Tx(clb func(tx *Prioritize) error) error
-	Begin() *Prioritize
-	WithPriority(priority int) *Prioritize
-	GetPublicIP() (string, error)
-	OnStateChange(clb func(locked bool, actor string))
-	GetState() (bool, string)
-	IsLocked() bool
-	GetSession() string
-	AddAccount(number int, lang string) (NewAccount, error)
-	GetServer() Server
-	SetUserAgent(newUserAgent string)
-	ServerURL() string
-	GetLanguage() string
-	GetPageContent(url.Values) []byte
-	GetAlliancePageContent(url.Values) []byte
-	PostPageContent(url.Values, url.Values) []byte
-	Login() error
-	Logout()
-	IsLoggedIn() bool
-	IsConnected() bool
-	GetUsername() string
-	GetUniverseName() string
-	GetUniverseSpeed() int
-	GetUniverseSpeedFleet() int
-	IsDonutGalaxy() bool
-	IsDonutSystem() bool
-	FleetDeutSaveFactor() float64
-	ServerVersion() string
-	ServerTime() time.Time
-	IsUnderAttack() bool
-	GetUserInfos() UserInfos
-	SendMessage(playerID int, message string) error
-	GetFleets() ([]Fleet, Slots)
-	GetFleetsFromEventList() []Fleet
-	CancelFleet(FleetID) error
-	GetAttacks() []AttackEvent
-	GalaxyInfos(galaxy, system int) (SystemInfos, error)
-	GetResearch() Researches
-	GetCachedPlanets() []Planet
-	GetCachedMoons() []Moon
-	GetCachedCelestials() []Celestial
-	GetCachedCelestial(interface{}) Celestial
-	GetCachedPlayer() UserInfos
-	GetPlanets() []Planet
-	GetPlanet(interface{}) (Planet, error)
-	GetMoons() []Moon
-	GetMoon(interface{}) (Moon, error)
-	GetCelestial(interface{}) (Celestial, error)
-	GetCelestials() ([]Celestial, error)
-	Abandon(interface{}) error
-	GetEspionageReportMessages() ([]EspionageReportSummary, error)
-	GetEspionageReportFor(Coordinate) (EspionageReport, error)
-	GetEspionageReport(msgID int) (EspionageReport, error)
-	GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
-	//GetCombatReport(msgID int) (CombatReport, error)
-	DeleteMessage(msgID int) error
-	Distance(origin, destination Coordinate) int
-	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
-	RegisterChatCallback(func(ChatMsg))
-	RegisterHTMLInterceptor(func(method string, params, payload url.Values, pageHTML []byte))
-	GetSlots() Slots
-
-	// Planet or Moon functions
-	GetResources(CelestialID) (Resources, error)
-	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
-	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
-	Build(celestialID CelestialID, id ID, nbr int) error
-	BuildCancelable(CelestialID, ID) error
-	BuildProduction(celestialID CelestialID, id ID, nbr int) error
-	BuildBuilding(celestialID CelestialID, buildingID ID) error
-	BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error
-	BuildShips(celestialID CelestialID, shipID ID, nbr int) error
-	CancelBuilding(CelestialID) error
-	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
-	GetProduction(CelestialID) ([]Quantifiable, error)
-	GetFacilities(CelestialID) (Facilities, error)
-	GetDefense(CelestialID) (DefensesInfos, error)
-	GetShips(CelestialID) (ShipsInfos, error)
-	GetResourcesBuildings(CelestialID) (ResourcesBuildings, error)
-	CancelResearch(CelestialID) error
-	BuildTechnology(celestialID CelestialID, technologyID ID) error
-
-	// Planet specific functions
-	GetResourceSettings(PlanetID) (ResourceSettings, error)
-	SetResourceSettings(PlanetID, ResourceSettings) error
-	SendIPM(PlanetID, Coordinate, int, ID) (int, error)
-	//GetResourcesProductionRatio(PlanetID) (float64, error)
-	GetResourcesProductions(PlanetID) (Resources, error)
-	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
-
-	// Moon specific functions
-	Phalanx(MoonID, Coordinate) ([]Fleet, error)
-	UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
-	JumpGate(origin, dest MoonID, ships ShipsInfos) error
-}
-
-const defaultUserAgent = "" +
-	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) " +
-	"AppleWebKit/537.36 (KHTML, like Gecko) " +
-	"Chrome/51.0.2704.103 " +
-	"Safari/537.36"
-
-// CelestialID represent either a PlanetID or a MoonID
-type CelestialID int
-
-// BaseOgameObj base interface for all ogame objects (buildings, technologies, ships, defenses)
-type BaseOgameObj interface {
-	GetID() ID
-	GetName() string
-	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
-	GetRequirements() map[ID]int
-	GetPrice(int) Resources
-	IsAvailable(CelestialType, ResourcesBuildings, Facilities, Researches, int) bool
-}
-
-// Levelable base interface for all levelable ogame objects (buildings, technologies)
-type Levelable interface {
-	BaseOgameObj
-	GetLevel(ResourcesBuildings, Facilities, Researches) int
-}
-
-// Technology interface that all technologies implement
-type Technology interface {
-	Levelable
-}
-
-// Building interface that all buildings implement
-type Building interface {
-	Levelable
-}
-
-// DefenderObj base interface for all defensive units (ships, defenses)
-type DefenderObj interface {
-	BaseOgameObj
-	GetStructuralIntegrity(Researches) int
-	GetShieldPower(Researches) int
-	GetWeaponPower(Researches) int
-	GetRapidfireFrom() map[ID]int
-}
-
-// Ship interface implemented by all ships units
-type Ship interface {
-	DefenderObj
-	GetCargoCapacity(Researches) int
-	GetSpeed(Researches) int
-	GetFuelConsumption() int
-	GetRapidfireAgainst() map[ID]int
-}
-
-// Defense interface implemented by all defenses units
-type Defense interface {
-	DefenderObj
-}
-
-type Item struct {
-	canBeProcessedCh chan struct{}
-	isDoneCh         chan struct{}
-	priority         int
-	index            int // The index of the item in the heap.
-}
-
-// A PriorityQueue implements heap.Interface and holds Items.
-type PriorityQueue []*Item
-
-func (pq PriorityQueue) Len() int { return len(pq) }
-
-func (pq PriorityQueue) Less(i, j int) bool {
-	// We want Pop to give us the highest, not lowest, priority so we use greater than here.
-	return pq[i].priority > pq[j].priority
-}
-
-func (pq PriorityQueue) Swap(i, j int) {
-	pq[i], pq[j] = pq[j], pq[i]
-	pq[i].index = i
-	pq[j].index = j
-}
-
-func (pq *PriorityQueue) Push(x interface{}) {
-	n := len(*pq)
-	item := x.(*Item)
-	item.index = n
-	*pq = append(*pq, item)
-}
-
-func (pq *PriorityQueue) Pop() interface{} {
-	old := *pq
-	n := len(old)
-	item := old[n-1]
-	item.index = -1 // for safety
-	*pq = old[0 : n-1]
-	return item
-}
 
 // OGame is a client for ogame.org. It is safe for concurrent use by
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabled            int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedIn           int32  // atomic, prevent auto re login if we manually logged out
-	isConnected          int32  // atomic, either or not communication between the bot and OGame is possible
-	locked               int32  // atomic, bot state locked/unlocked
+	isEnabledAtom        int32  // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom       int32  // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom      int32  // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom           int32  // atomic, bot state locked/unlocked
+	chatConnectedAtom    int32  // atomic, either or not the chat is connected
 	state                string // keep name of the function that currently lock the bot
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
 	Player               UserInfos
 	researches           *Researches
 	Planets              []Planet
+	ajaxChatToken        string
 	Universe             string
 	Username             string
 	password             string
@@ -270,16 +68,24 @@ type OGame struct {
 	chatCallbacks        []func(msg ChatMsg)
 	interceptorCallbacks []func(method string, params, payload url.Values, pageHTML []byte)
 	closeChatCh          chan struct{}
-	chatConnected        int32
 	chatRetry            *ExponentialBackoff
 	ws                   *websocket.Conn
-	tasks                PriorityQueue
+	tasks                priorityQueue
 	tasksLock            sync.Mutex
-	tasksPushCh          chan *Item
+	tasksPushCh          chan *item
 	tasksPopCh           chan struct{}
 	loginWrapper         func(func() error) error
 	loginProxyTransport  *http.Transport
 }
+
+const defaultUserAgent = "" +
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) " +
+	"AppleWebKit/537.36 (KHTML, like Gecko) " +
+	"Chrome/51.0.2704.103 " +
+	"Safari/537.36"
+
+// CelestialID represent either a PlanetID or a MoonID
+type CelestialID int
 
 // Params parameters for more fine-grained initialization
 type Params struct {
@@ -326,7 +132,9 @@ func NewWithParams(params Params) (*OGame, error) {
 			return nil, err
 		}
 		httpTransport := &http.Transport{}
-		httpTransport.Dial = dialer.Dial
+		httpTransport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return dialer.Dial(network, addr)
+		}
 		b.Client.Transport = httpTransport
 	}
 
@@ -361,9 +169,9 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.Client.Jar = jar
 	b.Client.UserAgent = defaultUserAgent
 
-	b.tasks = make(PriorityQueue, 0)
+	b.tasks = make(priorityQueue, 0)
 	heap.Init(&b.tasks)
-	b.tasksPushCh = make(chan *Item, 100)
+	b.tasksPushCh = make(chan *item, 100)
 	b.tasksPopCh = make(chan struct{}, 100)
 	b.taskRunner()
 
@@ -402,7 +210,7 @@ type Server struct {
 // ogame cookie name for php session id
 const phpSessionIDCookieName = "PHPSESSID"
 
-func getPhpSessionID(b *OGame, client *OGameClient, username, password string) (string, error) {
+func getPhpSessionID(b *OGame, username, password string) (string, error) {
 	payload := url.Values{
 		"kid":                   {""},
 		"language":              {"en"},
@@ -430,7 +238,11 @@ func getPhpSessionID(b *OGame, client *OGameClient, username, password string) (
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 
 	if resp.StatusCode >= 500 {
 		return "", errors.New("OGame server error code : " + resp.Status)
@@ -472,18 +284,22 @@ type account struct {
 	}
 }
 
-func getUserAccounts(client *OGameClient, phpSessionID string) ([]account, error) {
+func getUserAccounts(b *OGame, phpSessionID string) ([]account, error) {
 	var userAccounts []account
 	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
 	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
-	resp, err := client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return userAccounts, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return userAccounts, err
@@ -494,17 +310,21 @@ func getUserAccounts(client *OGameClient, phpSessionID string) ([]account, error
 	return userAccounts, nil
 }
 
-func getServers(client *OGameClient) ([]Server, error) {
+func getServers(b *OGame) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/servers", nil)
 	if err != nil {
 		return servers, err
 	}
-	resp, err := client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return servers, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return servers, err
@@ -539,7 +359,7 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 	return acc, server, nil
 }
 
-func getLoginLink(client *OGameClient, userAccount account, phpSessionID string) (string, error) {
+func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, error) {
 	ogURL := fmt.Sprintf("https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
 		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest("GET", ogURL, nil)
@@ -547,11 +367,15 @@ func getLoginLink(client *OGameClient, userAccount account, phpSessionID string)
 		return "", err
 	}
 	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
-	resp, err := client.Do(req)
+	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -570,17 +394,17 @@ func (b *OGame) login() error {
 	b.Client.Jar = jar
 
 	b.debug("get session")
-	phpSessionID, err := getPhpSessionID(b, b.Client, b.Username, b.password)
+	phpSessionID, err := getPhpSessionID(b, b.Username, b.password)
 	if err != nil {
 		return err
 	}
 	b.debug("get user accounts")
-	accounts, err := getUserAccounts(b.Client, phpSessionID)
+	accounts, err := getUserAccounts(b, phpSessionID)
 	if err != nil {
 		return err
 	}
 	b.debug("get servers")
-	servers, err := getServers(b.Client)
+	servers, err := getServers(b)
 	if err != nil {
 		return err
 	}
@@ -596,7 +420,7 @@ func (b *OGame) login() error {
 	b.server = server
 	b.language = userAccount.Server.Language
 	b.debug("get login link")
-	loginLink, err := getLoginLink(b.Client, userAccount, phpSessionID)
+	loginLink, err := getLoginLink(b, userAccount, phpSessionID)
 	if err != nil {
 		return err
 	}
@@ -625,7 +449,11 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 
 	pageHTML, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -642,8 +470,8 @@ func (b *OGame) login() error {
 		return errors.New("bad credentials")
 	}
 
-	atomic.StoreInt32(&b.isLoggedIn, 1) // At this point, we are logged in
-	atomic.StoreInt32(&b.isConnected, 1)
+	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
+	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	b.sessionChatCounter = 1
 
 	serverTime, _ := extractServerTime(pageHTML)
@@ -655,8 +483,7 @@ func (b *OGame) login() error {
 	b.donutSystem, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-system]").AttrOr("content", "1"))
 	b.ogameVersion = doc.Find("meta[name=ogame-version]").AttrOr("content", "")
 
-	b.Player, _ = ExtractUserInfos(pageHTML, b.language)
-	b.Planets = ExtractPlanets(pageHTML, b)
+	b.cacheFullPageInfo("overview", pageHTML)
 
 	b.fleetDeutSaveFactor = ExtractFleetDeutSaveFactor(pageHTML)
 
@@ -669,10 +496,10 @@ func (b *OGame) login() error {
 	chatHost := string(m[1])
 	chatPort := string(m[2])
 
-	if atomic.CompareAndSwapInt32(&b.chatConnected, 0, 1) {
+	if atomic.CompareAndSwapInt32(&b.chatConnectedAtom, 0, 1) {
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
-			defer atomic.StoreInt32(&b.chatConnected, 0)
+			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
 			b.chatRetry = NewExponentialBackoff(60)
 		LOOP:
 			for {
@@ -690,6 +517,15 @@ func (b *OGame) login() error {
 	return nil
 }
 
+func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
+	b.Planets = ExtractPlanets(pageHTML, b)
+	b.ajaxChatToken, _ = ExtractAjaxChatToken(pageHTML)
+	if page == "overview" {
+		b.Player, _ = ExtractUserInfos(pageHTML, b.language)
+	}
+}
+
+// DefaultLoginWrapper ...
 var DefaultLoginWrapper = func(loginFn func() error) error {
 	return loginFn()
 }
@@ -698,10 +534,12 @@ func (b *OGame) wrapLogin() error {
 	return b.loginWrapper(b.login)
 }
 
+// SetLoginWrapper ...
 func (b *OGame) SetLoginWrapper(newWrapper func(func() error) error) {
 	b.loginWrapper = newWrapper
 }
 
+// SetLoginProxy ...
 func (b *OGame) SetLoginProxy(proxy, username, password string) error {
 	proxyURL, err := url.Parse(proxy)
 	if err != nil {
@@ -728,14 +566,18 @@ func (b *OGame) connectChat(host, port string) {
 		b.error("failed to get socket.io token:", err)
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	b.chatRetry.Reset()
 	by, _ := ioutil.ReadAll(resp.Body)
 	token := strings.Split(string(by), ":")[0]
 
 	origin := "https://" + host + ":" + port + "/"
-	url := "wss://" + host + ":" + port + "/socket.io/1/websocket/" + token
-	b.ws, err = websocket.Dial(url, "", origin)
+	wssURL := "wss://" + host + ":" + port + "/socket.io/1/websocket/" + token
+	b.ws, err = websocket.Dial(wssURL, "", origin)
 	if err != nil {
 		b.error("failed to dial websocket:", err)
 		return
@@ -751,7 +593,9 @@ LOOP:
 		}
 
 		var buf = make([]byte, 1024*1024)
-		b.ws.SetReadDeadline(time.Now().Add(time.Second))
+		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+			b.error("failed to set read deadline:", err)
+		}
 		if _, err = b.ws.Read(buf); err != nil {
 			if err == io.EOF {
 				b.error("chat eof:", err)
@@ -768,13 +612,13 @@ LOOP:
 		}
 		msg := bytes.Trim(buf, "\x00")
 		if bytes.Equal(msg, []byte("1::")) {
-			b.ws.Write([]byte("1::/chat"))
+			_, _ = b.ws.Write([]byte("1::/chat"))
 		} else if bytes.Equal(msg, []byte("1::/chat")) {
 			authMsg := `5:` + strconv.Itoa(b.sessionChatCounter) + `+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
-			b.ws.Write([]byte(authMsg))
+			_, _ = b.ws.Write([]byte(authMsg))
 			b.sessionChatCounter++
 		} else if bytes.Equal(msg, []byte("2::")) {
-			b.ws.Write([]byte("2::"))
+			_, _ = b.ws.Write([]byte("2::"))
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).Match(msg) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[false]`).Match(msg) {
@@ -825,38 +669,24 @@ func (m ChatMsg) String() string {
 }
 
 func (b *OGame) logout() {
-	b.getPageContent(url.Values{"page": {"logout"}})
-	if atomic.CompareAndSwapInt32(&b.isLoggedIn, 1, 0) {
+	_, _ = b.getPageContent(url.Values{"page": {"logout"}})
+	if atomic.CompareAndSwapInt32(&b.isLoggedInAtom, 1, 0) {
 		select {
 		case <-b.closeChatCh:
 		default:
 			close(b.closeChatCh)
 			if b.ws != nil {
-				b.ws.Close()
+				_ = b.ws.Close()
 			}
 		}
 	}
-}
-
-// IsLoggedIn returns true if the bot is currently logged-in, otherwise false
-func (b *OGame) IsLoggedIn() bool {
-	return atomic.LoadInt32(&b.isLoggedIn) == 1
-}
-
-// IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
-func (b *OGame) IsConnected() bool {
-	return atomic.LoadInt32(&b.isConnected) == 1
 }
 
 func isLogged(pageHTML []byte) bool {
 	return len(regexp.MustCompile(`<meta name="ogame-session" content="\w+"/>`).FindSubmatch(pageHTML)) == 1
 }
 
-// GetClient get the http client used by the bot
-func (b *OGame) GetClient() *OGameClient {
-	return b.Client
-}
-
+// IsKnowFullPage ...
 func IsKnowFullPage(vals url.Values) bool {
 	page := vals.Get("page")
 	return page == "overview" ||
@@ -903,6 +733,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == "rightmenu" ||
 		page == "allianceOverview" ||
 		page == "support" ||
+		page == "buffActivation" ||
 		ajax == "1"
 }
 
@@ -939,13 +770,25 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 		b.error(err)
 		return []byte{}, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 
 	var reader io.ReadCloser
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
 		reader, err = gzip.NewReader(resp.Body)
-		defer reader.Close()
+		if err != nil {
+			b.error(err)
+			return []byte{}, err
+		}
+		defer func() {
+			if err := reader.Close(); err != nil {
+				b.error(err)
+			}
+		}()
 	default:
 		reader = resp.Body
 	}
@@ -989,7 +832,11 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 
 	if resp.StatusCode >= 500 {
 		return nil, err
@@ -1036,7 +883,11 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		if err != nil {
 			return err
 		}
-		defer resp.Body.Close()
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				b.error(err)
+			}
+		}()
 
 		if resp.StatusCode >= 500 {
 			return err
@@ -1050,7 +901,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 		if page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
-			atomic.StoreInt32(&b.isConnected, 0)
+			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
 		}
 
@@ -1060,16 +911,8 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		return []byte{}, err
 	}
 
-	if page == "overview" {
-		if isLogged(pageHTMLBytes) {
-			b.Player, _ = ExtractUserInfos(pageHTMLBytes, b.language)
-			b.Planets = ExtractPlanets(pageHTMLBytes, b)
-		}
-	} else if IsAjaxPage(vals) {
-	} else {
-		if isLogged(pageHTMLBytes) {
-			b.Planets = ExtractPlanets(pageHTMLBytes, b)
-		}
+	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
+		b.cacheFullPageInfo(page, pageHTMLBytes)
 	}
 
 	go func() {
@@ -1144,21 +987,18 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
 	return err
 }
 
-// Enable enables communications with OGame Server
-func (b *OGame) Enable() {
-	atomic.StoreInt32(&b.isEnabled, 1)
+func (b *OGame) enable() {
+	atomic.StoreInt32(&b.isEnabledAtom, 1)
 	b.stateChanged(false, "Enable")
 }
 
-// Disable disables communications with OGame Server
-func (b *OGame) Disable() {
-	atomic.StoreInt32(&b.isEnabled, 0)
+func (b *OGame) disable() {
+	atomic.StoreInt32(&b.isEnabledAtom, 0)
 	b.stateChanged(false, "Disable")
 }
 
-// IsEnabled returns true if the bot is enabled, otherwise false
-func (b *OGame) IsEnabled() bool {
-	return atomic.LoadInt32(&b.isEnabled) == 1
+func (b *OGame) isEnabled() bool {
+	return atomic.LoadInt32(&b.isEnabledAtom) == 1
 }
 
 func (b *OGame) getUniverseSpeed() int {
@@ -1236,29 +1076,6 @@ type resourcesResp struct {
 		Tooltip string
 	}
 	HonorScore int
-}
-
-type Celestial interface {
-	GetID() CelestialID
-	GetType() CelestialType
-	GetName() string
-	GetCoordinate() Coordinate
-	GetFields() Fields
-	GetResources() (Resources, error)
-	GetFacilities() (Facilities, error)
-	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
-	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
-	GetDefense() (DefensesInfos, error)
-	GetShips() (ShipsInfos, error)
-	BuildDefense(defenseID ID, nbr int) error
-	ConstructionsBeingBuilt() (ID, int, ID, int)
-	GetProduction() ([]Quantifiable, error)
-	GetResourcesBuildings() (ResourcesBuildings, error)
-	Build(id ID, nbr int) error
-	BuildBuilding(buildingID ID) error
-	BuildTechnology(technologyID ID) error
-	CancelResearch() error
-	CancelBuilding() error
 }
 
 func (b *OGame) getPlanets() []Planet {
@@ -1366,244 +1183,6 @@ func (b *OGame) serverTime() time.Time {
 	return serverTime
 }
 
-func name2id(name string) ID {
-	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
-	name, _, _ = transform.String(t, name)
-	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シ]+")
-	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
-	nameMap := map[string]ID{
-		// en
-		"lightfighter":   LightFighterID,
-		"heavyfighter":   HeavyFighterID,
-		"cruiser":        CruiserID,
-		"battleship":     BattleshipID,
-		"battlecruiser":  BattlecruiserID,
-		"bomber":         BomberID,
-		"destroyer":      DestroyerID,
-		"deathstar":      DeathstarID,
-		"smallcargo":     SmallCargoID,
-		"largecargo":     LargeCargoID,
-		"colonyship":     ColonyShipID,
-		"recycler":       RecyclerID,
-		"espionageprobe": EspionageProbeID,
-		"solarsatellite": SolarSatelliteID,
-
-		// hr
-		"malilovac":         LightFighterID,
-		"velikilovac":       HeavyFighterID,
-		"krstarica":         CruiserID,
-		"borbenibrod":       BattleshipID,
-		"oklopnakrstarica":  BattlecruiserID,
-		"razarac":           DestroyerID,
-		"zvijezdasmrti":     DeathstarID,
-		"malitransporter":   SmallCargoID,
-		"velikitransporter": LargeCargoID,
-		"kolonijalnibrod":   ColonyShipID,
-		"recikler":          RecyclerID,
-		"sondezaspijunazu":  EspionageProbeID,
-
-		// mx
-		"navedelacolonia": ColonyShipID,
-
-		// cz
-		"lehkystihac":      LightFighterID,
-		"tezkystihac":      HeavyFighterID,
-		"kriznik":          CruiserID,
-		"bitevnilod":       BattleshipID,
-		"bitevnikriznik":   BattlecruiserID,
-		"bombarder":        BomberID,
-		"nicitel":          DestroyerID,
-		"hvezdasmrti":      DeathstarID,
-		"malytransporter":  SmallCargoID,
-		"velkytransporter": LargeCargoID,
-		"kolonizacnilod":   ColonyShipID,
-		"recyklator":       RecyclerID,
-		"spionaznisonda":   EspionageProbeID,
-		"solarnisatelit":   SolarSatelliteID,
-
-		// it
-		"caccialeggero":           LightFighterID,
-		"cacciapesante":           HeavyFighterID,
-		"incrociatore":            CruiserID,
-		"navedabattaglia":         BattleshipID,
-		"incrociatoredabattaglia": BattlecruiserID,
-		"bombardiere":             BomberID,
-		"corazzata":               DestroyerID,
-		"mortenera":               DeathstarID,
-		"cargoleggero":            SmallCargoID,
-		"cargopesante":            LargeCargoID,
-		"colonizzatrice":          ColonyShipID,
-		"riciclatrici":            RecyclerID,
-		"sondaspia":               EspionageProbeID,
-		"satellitesolare":         SolarSatelliteID,
-
-		// de
-		"leichterjager":      LightFighterID,
-		"schwererjager":      HeavyFighterID,
-		"kreuzer":            CruiserID,
-		"schlachtschiff":     BattleshipID,
-		"schlachtkreuzer":    BattlecruiserID,
-		"zerstorer":          DestroyerID,
-		"todesstern":         DeathstarID,
-		"kleinertransporter": SmallCargoID,
-		"groertransporter":   LargeCargoID,
-		"kolonieschiff":      ColonyShipID,
-		"spionagesonde":      EspionageProbeID,
-		"solarsatellit":      SolarSatelliteID,
-		// "bomber":             BomberID,
-		// "recycler":           RecyclerID,
-
-		// es
-		"cazadorligero":      LightFighterID,
-		"cazadorpesado":      HeavyFighterID,
-		"crucero":            CruiserID,
-		"navedebatalla":      BattleshipID,
-		"acorazado":          BattlecruiserID,
-		"bombardero":         BomberID,
-		"destructor":         DestroyerID,
-		"estrelladelamuerte": DeathstarID,
-		"navepequenadecarga": SmallCargoID,
-		"navegrandedecarga":  LargeCargoID,
-		"colonizador":        ColonyShipID,
-		"reciclador":         RecyclerID,
-		"sondadeespionaje":   EspionageProbeID,
-		"satelitesolar":      SolarSatelliteID,
-
-		// fr
-		"chasseurleger":          LightFighterID,
-		"chasseurlourd":          HeavyFighterID,
-		"croiseur":               CruiserID,
-		"vaisseaudebataille":     BattleshipID,
-		"traqueur":               BattlecruiserID,
-		"bombardier":             BomberID,
-		"destructeur":            DestroyerID,
-		"etoiledelamort":         DeathstarID,
-		"petittransporteur":      SmallCargoID,
-		"grandtransporteur":      LargeCargoID,
-		"vaisseaudecolonisation": ColonyShipID,
-		"recycleur":              RecyclerID,
-		"sondedespionnage":       EspionageProbeID,
-		"satellitesolaire":       SolarSatelliteID,
-
-		// br
-		"cacaligeiro":       LightFighterID,
-		"cacapesado":        HeavyFighterID,
-		"cruzador":          CruiserID,
-		"navedebatalha":     BattleshipID,
-		"interceptador":     BattlecruiserID,
-		"bombardeiro":       BomberID,
-		"destruidor":        DestroyerID,
-		"estreladamorte":    DeathstarID,
-		"cargueiropequeno":  SmallCargoID,
-		"cargueirogrande":   LargeCargoID,
-		"navecolonizadora":  ColonyShipID,
-		"sondadeespionagem": EspionageProbeID,
-		//"reciclador":        RecyclerID,
-		//"satelitesolar":     SolarSatelliteID,
-
-		// jp
-		"軽戦闘機":      LightFighterID,
-		"重戦闘機":      HeavyFighterID,
-		"巡洋艦":       CruiserID,
-		"トルシッ":      BattleshipID,
-		"大型戦艦":      BattlecruiserID,
-		"爆撃機":       BomberID,
-		"テストロイヤー":   DestroyerID,
-		"テススター":     DeathstarID,
-		"小型輸送機":     SmallCargoID,
-		"大型輸送機":     LargeCargoID,
-		"コロニーシッ":    ColonyShipID,
-		"残骸回収船":     RecyclerID,
-		"偵察機":       EspionageProbeID,
-		"ソーラーサテライト": SolarSatelliteID,
-
-		// pl
-		"lekkimysliwiec":      LightFighterID,
-		"ciezkimysliwiec":     HeavyFighterID,
-		"krazownik":           CruiserID,
-		"okretwojenny":        BattleshipID,
-		"pancernik":           BattlecruiserID,
-		"bombowiec":           BomberID,
-		"niszczyciel":         DestroyerID,
-		"gwiazdasmierci":      DeathstarID,
-		"maytransporter":      SmallCargoID,
-		"duzytransporter":     LargeCargoID,
-		"statekkolonizacyjny": ColonyShipID,
-		"recykler":            RecyclerID,
-		"sondaszpiegowska":    EspionageProbeID,
-		"satelitasoneczny":    SolarSatelliteID,
-
-		// tr
-		"hafifavc":           LightFighterID,
-		"agravc":             HeavyFighterID,
-		"kruvazoradet":       CruiserID,
-		"komutagemisi":       BattleshipID,
-		"firkateyn":          BattlecruiserID,
-		"bombardmangemisi":   BomberID,
-		"muhrip":             DestroyerID,
-		"olumyildizi":        DeathstarID,
-		"kucuknakliyegemisi": SmallCargoID,
-		"buyuknakliyegemisi": LargeCargoID,
-		"kolonigemisi":       ColonyShipID,
-		"geridonusumcu":      RecyclerID,
-		"casussondasi":       EspionageProbeID,
-		"solaruydu":          SolarSatelliteID,
-
-		// pt
-		"interceptor":       BattlecruiserID,
-		"navedecolonizacao": ColonyShipID,
-
-		// nl
-		"lichtgevechtsschip": LightFighterID,
-		"zwaargevechtsschip": HeavyFighterID,
-		"kruiser":            CruiserID,
-		"slagschip":          BattleshipID,
-		//"interceptor":          BattlecruiserID,
-		"bommenwerper":     BomberID,
-		"vernietiger":      DestroyerID,
-		"sterdesdoods":     DeathstarID,
-		"kleinvrachtschip": SmallCargoID,
-		"grootvrachtschip": LargeCargoID,
-		"kolonisatieschip": ColonyShipID,
-		//"recycler":      RecyclerID,
-		//"spionagesonde":       EspionageProbeID,
-		"zonneenergiesatelliet": SolarSatelliteID,
-
-		//dk
-		"lillejger": LightFighterID,
-		"storjger":  HeavyFighterID,
-		"krydser":   CruiserID,
-		"slagskib":  BattleshipID,
-		//"interceptor":      BattlecruiserID,
-		//"bomber":           BomberID,
-		//"destroyer":        DestroyerID,
-		"ddsstjerne":       DeathstarID,
-		"lilletransporter": SmallCargoID,
-		"stortransporter":  LargeCargoID,
-		"koloniskib":       ColonyShipID,
-		//"recycler":         RecyclerID,
-		//"spionagesonde":    EspionageProbeID,
-		//"solarsatellit":    SolarSatelliteID,
-
-		// ru
-		"легкииистребитель":  LightFighterID,
-		"тяжелыиистребитель": HeavyFighterID,
-		"креисер":            CruiserID,
-		"линкор":             BattleshipID,
-		"линеиныикреисер":    BattlecruiserID,
-		"бомбардировщик":     BomberID,
-		"уничтожитель":       DestroyerID,
-		"звездасмерти":       DeathstarID,
-		"малыитранспорт":     SmallCargoID,
-		"большоитранспорт":   LargeCargoID,
-		"колонизатор":        ColonyShipID,
-		"переработчик":       RecyclerID,
-		"шпионскиизонд":      EspionageProbeID,
-		"солнечныиспутник":   SolarSatelliteID,
-	}
-	return nameMap[processedString]
-}
-
 func (b *OGame) getUserInfos() UserInfos {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"overview"}})
 	userInfos, err := ExtractUserInfos(pageHTML, b.language)
@@ -1613,12 +1192,23 @@ func (b *OGame) getUserInfos() UserInfos {
 	return userInfos
 }
 
+type ChatPostResp struct {
+	Status   string `json:"status"`
+	ID       int    `json:"id"`
+	SenderID int    `json:"senderId"`
+	TargetID int    `json:"targetId"`
+	Text     string `json:"text"`
+	Date     int    `json:"date"`
+	NewToken string `json:"newToken"`
+}
+
 func (b *OGame) sendMessage(playerID int, message string) error {
 	payload := url.Values{
 		"playerId": {strconv.Itoa(playerID)},
 		"text":     {message + "\n"},
 		"mode":     {"1"},
 		"ajax":     {"1"},
+		"token":    {b.ajaxChatToken},
 	}
 	bobyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
 	if err != nil {
@@ -1631,6 +1221,11 @@ func (b *OGame) sendMessage(playerID int, message string) error {
 	if doc.Find("title").Text() == "OGame Lobby" {
 		return ErrNotLogged
 	}
+	var res ChatPostResp
+	if err := json.Unmarshal(bobyBytes, &res); err != nil {
+		return err
+	}
+	b.ajaxChatToken = res.NewToken
 	return nil
 }
 
@@ -1647,10 +1242,11 @@ func (b *OGame) getFleets() ([]Fleet, Slots) {
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}})
+	_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}})
 	return nil
 }
 
+// Slots ...
 type Slots struct {
 	InUse    int
 	Total    int
@@ -1786,46 +1382,19 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	}
 
 	// Run the phalanx scan (third call to ogame server)
-	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1",
-		coord.Galaxy, coord.System, coord.Position)
-	req, err := http.NewRequest("GET", finalURL, nil)
-	if err != nil {
-		b.error(err.Error())
-		return res, err
-	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		b.error(err.Error())
-		return res, err
-	}
-	defer resp.Body.Close()
-	pageHTML, _ := ioutil.ReadAll(resp.Body)
-
-	return extractPhalanx(pageHTML)
+	return b.getUnsafePhalanx(moonID, coord)
 }
 
 // getUnsafePhalanx ...
 func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
-	res := make([]Fleet, 0)
-
-	// Run the phalanx scan
-	finalURL := fmt.Sprintf(b.serverURL+"/game/index.php?page=phalanx&galaxy=%d&system=%d&position=%d&ajax=1&cp=%d",
-		coord.Galaxy, coord.System, coord.Position, moonID)
-	req, err := http.NewRequest("GET", finalURL, nil)
-	if err != nil {
-		b.error(err.Error())
-		return res, err
-	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		b.error(err.Error())
-		return res, err
-	}
-	defer resp.Body.Close()
-	pageHTML, _ := ioutil.ReadAll(resp.Body)
-
+	pageHTML, _ := b.getPageContent(url.Values{
+		"page":     {"phalanx"},
+		"galaxy":   {strconv.Itoa(coord.Galaxy)},
+		"system":   {strconv.Itoa(coord.System)},
+		"position": {strconv.Itoa(coord.Position)},
+		"ajax":     {"1"},
+		"cp":       {strconv.Itoa(int(moonID))},
+	})
 	return extractPhalanx(pageHTML)
 }
 
@@ -1850,11 +1419,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 		return errors.New("destination moon id invalid")
 	}
 
-	finalURL := b.serverURL + "/game/index.php?page=jumpgate_execute"
-	payload := url.Values{
-		"token": {token},
-		"zm":    {strconv.Itoa(int(destMoonID))},
-	}
+	payload := url.Values{"token": {token}, "zm": {strconv.Itoa(int(destMoonID))}}
 
 	// Add ships to payload
 	for _, s := range Ships {
@@ -1865,18 +1430,8 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 		}
 	}
 
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
-	if err != nil {
+	if _, err := b.postPageContent(url.Values{"page": {"jumpgate_execute"}}, payload); err != nil {
 		return err
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode != 200 {
-		return fmt.Errorf("failed to execute jump gate : %s", resp.Status)
 	}
 	return nil
 }
@@ -1951,7 +1506,11 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	return nil
 }
 
@@ -2107,10 +1666,8 @@ func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, i
 }
 
 func (b *OGame) cancel(token string, techID, listID int) error {
-	finalURL := b.serverURL + "/game/index.php?page=overview&modus=2&token=" + token + "&techid=" + strconv.Itoa(techID) + "&listid=" + strconv.Itoa(listID)
-	req, _ := http.NewRequest("GET", finalURL, nil)
-	resp, _ := b.Client.Do(req)
-	defer resp.Body.Close()
+	_, _ = b.getPageContent(url.Values{"page": {"overview"}, "modus": {"2"}, "token": {token},
+		"techid": {strconv.Itoa(techID)}, "listid": {strconv.Itoa(listID)}})
 	return nil
 }
 
@@ -2140,13 +1697,16 @@ func (b *OGame) fetchResources(celestialID CelestialID) (resourcesResp, error) {
 
 func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 	res, err := b.fetchResources(celestialID)
+	if err != nil {
+		return Resources{}, err
+	}
 	return Resources{
 		Metal:      res.Metal.Resources.Actual,
 		Crystal:    res.Crystal.Resources.Actual,
 		Deuterium:  res.Deuterium.Resources.Actual,
 		Energy:     res.Energy.Resources.Actual,
 		Darkmatter: res.Darkmatter.Resources.Actual,
-	}, err
+	}, nil
 }
 
 func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
@@ -2437,7 +1997,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	// Page 4 : send the fleet
-	pageHTML, err = b.postPageContent(url.Values{"page": {"movement"}}, payload)
+	_, _ = b.postPageContent(url.Values{"page": {"movement"}}, payload)
 
 	// Page 5
 	movementHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
@@ -2514,7 +2074,6 @@ type EspionageReportSummary struct {
 }
 
 func (b *OGame) getPageMessages(page, tabid int) ([]byte, error) {
-	finalURL := b.serverURL + "/game/index.php?page=messages"
 	payload := url.Values{
 		"messageId":  {"-1"},
 		"tabid":      {strconv.Itoa(tabid)},
@@ -2522,19 +2081,7 @@ func (b *OGame) getPageMessages(page, tabid int) ([]byte, error) {
 		"pagination": {strconv.Itoa(page)},
 		"ajax":       {"1"},
 	}
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
-	if err != nil {
-		return []byte{}, err
-	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return []byte{}, err
-	}
-	by, _ := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	return by, nil
+	return b.postPageContent(url.Values{"page": {"messages"}}, payload)
 }
 
 func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
@@ -2588,86 +2135,6 @@ func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error
 	return CombatReportSummary{}, errors.New("combat report not found for " + coord.String())
 }
 
-// EspionageReport detailed espionage report
-type EspionageReport struct {
-	Resources
-	ID                           int
-	Username                     string
-	LastActivity                 int
-	CounterEspionage             int
-	APIKey                       string
-	HasFleet                     bool
-	HasDefenses                  bool
-	HasBuildings                 bool
-	HasResearches                bool
-	IsBandit                     bool
-	IsStarlord                   bool
-	IsInactive                   bool
-	IsLongInactive               bool
-	MetalMine                    *int // ResourcesBuildings
-	CrystalMine                  *int
-	DeuteriumSynthesizer         *int
-	SolarPlant                   *int
-	FusionReactor                *int
-	SolarSatellite               *int
-	MetalStorage                 *int
-	CrystalStorage               *int
-	DeuteriumTank                *int
-	RoboticsFactory              *int // Facilities
-	Shipyard                     *int
-	ResearchLab                  *int
-	AllianceDepot                *int
-	MissileSilo                  *int
-	NaniteFactory                *int
-	Terraformer                  *int
-	SpaceDock                    *int
-	LunarBase                    *int
-	SensorPhalanx                *int
-	JumpGate                     *int
-	EnergyTechnology             *int // Researches
-	LaserTechnology              *int
-	IonTechnology                *int
-	HyperspaceTechnology         *int
-	PlasmaTechnology             *int
-	CombustionDrive              *int
-	ImpulseDrive                 *int
-	HyperspaceDrive              *int
-	EspionageTechnology          *int
-	ComputerTechnology           *int
-	Astrophysics                 *int
-	IntergalacticResearchNetwork *int
-	GravitonTechnology           *int
-	WeaponsTechnology            *int
-	ShieldingTechnology          *int
-	ArmourTechnology             *int
-	RocketLauncher               *int // Defenses
-	LightLaser                   *int
-	HeavyLaser                   *int
-	GaussCannon                  *int
-	IonCannon                    *int
-	PlasmaTurret                 *int
-	SmallShieldDome              *int
-	LargeShieldDome              *int
-	AntiBallisticMissiles        *int
-	InterplanetaryMissiles       *int
-	LightFighter                 *int // Fleets
-	HeavyFighter                 *int
-	Cruiser                      *int
-	Battleship                   *int
-	Battlecruiser                *int
-	Bomber                       *int
-	Destroyer                    *int
-	Deathstar                    *int
-	SmallCargo                   *int
-	LargeCargo                   *int
-	ColonyShip                   *int
-	Recycler                     *int
-	EspionageProbe               *int
-	Coordinate                   Coordinate
-	Type                         EspionageReportType
-	Date                         time.Time
-}
-
 func (b *OGame) getEspionageReport(msgID int) (EspionageReport, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"messages"}, "messageId": {strconv.Itoa(msgID)}, "tabid": {"20"}, "ajax": {"1"}})
 	return extractEspionageReport(pageHTML, b.location)
@@ -2695,24 +2162,16 @@ func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error)
 }
 
 func (b *OGame) deleteMessage(msgID int) error {
-	finalURL := b.serverURL + "/game/index.php?page=messages"
 	payload := url.Values{
 		"messageId": {strconv.Itoa(msgID)},
 		"action":    {"103"},
 		"ajax":      {"1"},
 	}
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
+	by, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
 	if err != nil {
 		return err
 	}
-	req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	by, _ := ioutil.ReadAll(resp.Body)
+
 	var res map[string]bool
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New("unable to find message id " + strconv.Itoa(msgID))
@@ -2781,8 +2240,7 @@ func (b *OGame) getResourcesProductionsLight(resBuildings ResourcesBuildings, re
 	return productions
 }
 
-// GetPublicIP get the public IP used by the bot
-func (b *OGame) GetPublicIP() (string, error) {
+func (b *OGame) getPublicIP() (string, error) {
 	var res struct {
 		IP string `json:"ip"`
 	}
@@ -2799,7 +2257,11 @@ func (b *OGame) GetPublicIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -2810,30 +2272,15 @@ func (b *OGame) GetPublicIP() (string, error) {
 	return res.IP, nil
 }
 
-// OnStateChange register a callback that is notified when the bot state changes
-func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
-	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
-}
-
 func (b *OGame) stateChanged(locked bool, actor string) {
 	for _, clb := range b.stateChangeCallbacks {
 		clb(locked, actor)
 	}
 }
 
-// GetState returns the current bot state
-func (b *OGame) GetState() (bool, string) {
-	return atomic.LoadInt32(&b.locked) == 1, b.state
-}
-
-// IsLocked returns either or not the bot is currently locked
-func (b *OGame) IsLocked() bool {
-	return atomic.LoadInt32(&b.locked) == 1
-}
-
 func (b *OGame) botLock(lockedBy string) {
 	b.Lock()
-	if atomic.CompareAndSwapInt32(&b.locked, 0, 1) {
+	if atomic.CompareAndSwapInt32(&b.lockedAtom, 0, 1) {
 		b.state = lockedBy
 		b.stateChanged(true, lockedBy)
 	}
@@ -2841,15 +2288,10 @@ func (b *OGame) botLock(lockedBy string) {
 
 func (b *OGame) botUnlock(unlockedBy string) {
 	b.Unlock()
-	if atomic.CompareAndSwapInt32(&b.locked, 1, 0) {
+	if atomic.CompareAndSwapInt32(&b.lockedAtom, 1, 0) {
 		b.state = unlockedBy
 		b.stateChanged(false, unlockedBy)
 	}
-}
-
-// GetSession get ogame session
-func (b *OGame) GetSession() string {
-	return b.ogameSession
 }
 
 // NewAccount response from creating a new account
@@ -2861,8 +2303,7 @@ type NewAccount struct {
 	}
 }
 
-// AddAccount add a new account (server) to your list of accounts
-func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
+func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 	var payload struct {
 		Language string `json:"language"`
 		Number   int    `json:"number"`
@@ -2883,7 +2324,11 @@ func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
 	if err != nil {
 		return newAccount, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
 	by, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return newAccount, err
@@ -2906,7 +2351,7 @@ func (b *OGame) taskRunner() {
 	go func() {
 		for range b.tasksPopCh {
 			b.tasksLock.Lock()
-			task := heap.Pop(&b.tasks).(*Item)
+			task := heap.Pop(&b.tasks).(*item)
 			b.tasksLock.Unlock()
 			close(task.canBeProcessedCh)
 			<-task.isDoneCh
@@ -2914,274 +2359,7 @@ func (b *OGame) taskRunner() {
 	}()
 }
 
-func (b *OGame) WithPriority(priority int) *Prioritize {
-	canBeProcessedCh := make(chan struct{})
-	taskIsDoneCh := make(chan struct{})
-	task := new(Item)
-	task.priority = priority
-	task.canBeProcessedCh = canBeProcessedCh
-	task.isDoneCh = taskIsDoneCh
-	b.tasksPushCh <- task
-	<-canBeProcessedCh
-	return &Prioritize{bot: b, taskIsDoneCh: taskIsDoneCh}
-}
-
-const (
-	Low       = 1
-	Normal    = 2
-	Important = 3
-	Critical  = 4
-)
-
-type Prioritize struct {
-	bot          *OGame
-	name         string
-	taskIsDoneCh chan struct{}
-	isTx         int32
-}
-
-// Begin a new transaction. "Done" must be called to release the lock.
-func (b *Prioritize) Begin() *Prioritize {
-	return b.begin("Tx")
-}
-
-// Done terminate the transaction, release the lock.
-func (b *Prioritize) Done() {
-	b.done()
-}
-
-func (b *Prioritize) begin(name string) *Prioritize {
-	atomic.AddInt32(&b.isTx, 1)
-	if atomic.LoadInt32(&b.isTx) == 1 {
-		b.name = name
-		b.bot.botLock(name)
-	}
-	return b
-}
-
-func (b *Prioritize) done() {
-	atomic.AddInt32(&b.isTx, -1)
-	if atomic.LoadInt32(&b.isTx) == 0 {
-		defer close(b.taskIsDoneCh)
-		b.bot.botUnlock(b.name)
-	}
-}
-
-// Start a transaction. Once this function is called, "Done" must be called to release the lock.
-func (b *OGame) Begin() *Prioritize {
-	return b.WithPriority(Normal).Begin()
-}
-
-// Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *Prioritize) Tx(clb func(*Prioritize) error) error {
-	tx := b.Begin()
-	defer tx.Done()
-	err := clb(tx)
-	return err
-}
-
-// Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *OGame) Tx(clb func(tx *Prioritize) error) error {
-	return b.WithPriority(Normal).Tx(clb)
-}
-
-// FakeCall used for debugging
-func (b *Prioritize) FakeCall(name string, delay int) {
-	b.begin("FakeCall")
-	defer b.done()
-	b.bot.fakeCall(name, delay)
-}
-
-func (b *OGame) fakeCall(name string, delay int) {
-	fmt.Println("before", name)
-	time.Sleep(time.Duration(delay) * time.Millisecond)
-	fmt.Println("after", name)
-}
-
-// FakeCall used for debugging
-func (b *OGame) FakeCall(priority int, name string, delay int) {
-	b.WithPriority(priority).FakeCall(name, delay)
-}
-
-// GetServer get ogame server information that the bot is connected to
-func (b *OGame) GetServer() Server {
-	return b.server
-}
-
-// ServerURL get the ogame server specific url
-func (b *OGame) ServerURL() string {
-	return b.serverURL
-}
-
-// GetLanguage get ogame server language
-func (b *OGame) GetLanguage() string {
-	return b.language
-}
-
-// SetUserAgent change the user-agent used by the http client
-func (b *OGame) SetUserAgent(newUserAgent string) {
-	b.Client.UserAgent = newUserAgent
-}
-
-// Login to ogame server
-// Can fails with BadCredentialsError
-func (b *Prioritize) Login() error {
-	b.begin("Login")
-	defer b.done()
-	return b.bot.wrapLogin()
-}
-
-// Login to ogame server
-// Can fails with BadCredentialsError
-func (b *OGame) Login() error {
-	return b.WithPriority(Normal).Login()
-}
-
-// Logout the bot from ogame server
-func (b *Prioritize) Logout() {
-	b.begin("Logout")
-	defer b.done()
-	b.bot.logout()
-}
-
-// Logout the bot from ogame server
-func (b *OGame) Logout() { b.WithPriority(Normal).Logout() }
-
-// GetUniverseName get the name of the universe the bot is playing into
-func (b *OGame) GetUniverseName() string {
-	return b.Universe
-}
-
-// GetUsername get the username that was used to login on ogame server
-func (b *OGame) GetUsername() string {
-	return b.Username
-}
-
-// GetUniverseSpeed shortcut to get ogame universe speed
-func (b *OGame) GetUniverseSpeed() int {
-	return b.getUniverseSpeed()
-}
-
-// GetUniverseSpeedFleet shortcut to get ogame universe speed fleet
-func (b *OGame) GetUniverseSpeedFleet() int {
-	return b.getUniverseSpeedFleet()
-}
-
-// IsDonutGalaxy shortcut to get ogame galaxy donut config
-func (b *OGame) IsDonutGalaxy() bool {
-	return b.isDonutGalaxy()
-}
-
-// IsDonutSystem shortcut to get ogame system donut config
-func (b *OGame) IsDonutSystem() bool {
-	return b.isDonutSystem()
-}
-
-// FleetDeutSaveFactor returns the fleet deut save factor
-func (b *OGame) FleetDeutSaveFactor() float64 {
-	return b.fleetDeutSaveFactor
-}
-
-// GetAlliancePageContent gets the html for a specific ogame page
-func (b *Prioritize) GetAlliancePageContent(vals url.Values) []byte {
-	b.begin("GetAlliancePageContent")
-	defer b.done()
-	pageHTML, _ := b.bot.getAlliancePageContent(vals)
-	return pageHTML
-}
-
-// GetAlliancePageContent gets the html for a specific alliance page
-func (b *OGame) GetAlliancePageContent(vals url.Values) []byte {
-	return b.WithPriority(Normal).GetPageContent(vals)
-}
-
-// GetPageContent gets the html for a specific ogame page
-func (b *Prioritize) GetPageContent(vals url.Values) []byte {
-	b.begin("GetPageContent")
-	defer b.done()
-	pageHTML, _ := b.bot.getPageContent(vals)
-	return pageHTML
-}
-
-// GetPageContent gets the html for a specific ogame page
-func (b *OGame) GetPageContent(vals url.Values) []byte {
-	return b.WithPriority(Normal).GetPageContent(vals)
-}
-
-// PostPageContent make a post request to ogame server
-// This is useful when simulating a web browser
-func (b *Prioritize) PostPageContent(vals, payload url.Values) []byte {
-	b.begin("PostPageContent")
-	defer b.done()
-	by, _ := b.bot.postPageContent(vals, payload)
-	return by
-}
-
-// PostPageContent make a post request to ogame server
-// This is useful when simulating a web browser
-func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
-	return b.WithPriority(Normal).PostPageContent(vals, payload)
-}
-
-// IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *Prioritize) IsUnderAttack() bool {
-	b.begin("IsUnderAttack")
-	defer b.done()
-	return b.bot.isUnderAttack()
-}
-
-// IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *OGame) IsUnderAttack() bool {
-	return b.WithPriority(Normal).IsUnderAttack()
-}
-
-// GetCachedPlayer returns cached player infos
-func (b *OGame) GetCachedPlayer() UserInfos {
-	return b.Player
-}
-
-// GetPlanets returns the user planets
-func (b *Prioritize) GetPlanets() []Planet {
-	b.begin("GetPlanets")
-	defer b.done()
-	return b.bot.getPlanets()
-}
-
-// GetPlanets returns the user planets
-func (b *OGame) GetPlanets() []Planet {
-	return b.WithPriority(Normal).GetPlanets()
-}
-
-// GetCachedPlanets return planets from cached value
-func (b *OGame) GetCachedPlanets() []Planet {
-	return b.Planets
-}
-
-// GetCachedMoons return moons from cached value
-func (b *OGame) GetCachedMoons() []Moon {
-	var moons []Moon
-	for _, p := range b.Planets {
-		if p.Moon != nil {
-			moons = append(moons, *p.Moon)
-		}
-	}
-	return moons
-}
-
-// GetCachedCelestials get all cached celestials
-func (b *OGame) GetCachedCelestials() []Celestial {
-	celestials := make([]Celestial, 0)
-	for _, p := range b.Planets {
-		celestials = append(celestials, p)
-		if p.Moon != nil {
-			celestials = append(celestials, p.Moon)
-		}
-	}
-	return celestials
-}
-
-// GetCachedCelestial return celestial from cached value
-func (b *OGame) GetCachedCelestial(v interface{}) Celestial {
+func (b *OGame) getCachedCelestial(v interface{}) Celestial {
 	if celestialID, ok := v.(CelestialID); ok {
 		return b.GetCachedCelestialByID(celestialID)
 	} else if planetID, ok := v.(PlanetID); ok {
@@ -3238,12 +2416,240 @@ func (b *OGame) GetCachedCelestialByCoord(coord Coordinate) Celestial {
 	return nil
 }
 
-// GetPlanet gets infos for planetID
-// Fails if planetID is invalid
-func (b *Prioritize) GetPlanet(v interface{}) (Planet, error) {
-	b.begin("GetPlanet")
-	defer b.done()
-	return b.bot.getPlanet(v)
+func (b *OGame) fakeCall(name string, delay int) {
+	fmt.Println("before", name)
+	time.Sleep(time.Duration(delay) * time.Millisecond)
+	fmt.Println("after", name)
+}
+
+// FakeCall used for debugging
+func (b *OGame) FakeCall(priority int, name string, delay int) {
+	b.WithPriority(priority).FakeCall(name, delay)
+}
+
+func (b *OGame) getCachedMoons() []Moon {
+	var moons []Moon
+	for _, p := range b.Planets {
+		if p.Moon != nil {
+			moons = append(moons, *p.Moon)
+		}
+	}
+	return moons
+}
+
+func (b *OGame) getCachedCelestials() []Celestial {
+	celestials := make([]Celestial, 0)
+	for _, p := range b.Planets {
+		celestials = append(celestials, p)
+		if p.Moon != nil {
+			celestials = append(celestials, p.Moon)
+		}
+	}
+	return celestials
+}
+
+func (b *OGame) withPriority(priority int) *Prioritize {
+	canBeProcessedCh := make(chan struct{})
+	taskIsDoneCh := make(chan struct{})
+	task := new(item)
+	task.priority = priority
+	task.canBeProcessedCh = canBeProcessedCh
+	task.isDoneCh = taskIsDoneCh
+	b.tasksPushCh <- task
+	<-canBeProcessedCh
+	return &Prioritize{bot: b, taskIsDoneCh: taskIsDoneCh}
+}
+
+// Public interface -----------------------------------------------------------
+
+// Enable enables communications with OGame Server
+func (b *OGame) Enable() {
+	b.enable()
+}
+
+// Disable disables communications with OGame Server
+func (b *OGame) Disable() {
+	b.disable()
+}
+
+// IsEnabled returns true if the bot is enabled, otherwise false
+func (b *OGame) IsEnabled() bool {
+	return b.isEnabled()
+}
+
+// IsLoggedIn returns true if the bot is currently logged-in, otherwise false
+func (b *OGame) IsLoggedIn() bool {
+	return atomic.LoadInt32(&b.isLoggedInAtom) == 1
+}
+
+// IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
+func (b *OGame) IsConnected() bool {
+	return atomic.LoadInt32(&b.isConnectedAtom) == 1
+}
+
+// GetClient get the http client used by the bot
+func (b *OGame) GetClient() *OGameClient {
+	return b.Client
+}
+
+// GetPublicIP get the public IP used by the bot
+func (b *OGame) GetPublicIP() (string, error) {
+	return b.getPublicIP()
+}
+
+// OnStateChange register a callback that is notified when the bot state changes
+func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
+	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
+}
+
+// GetState returns the current bot state
+func (b *OGame) GetState() (bool, string) {
+	return atomic.LoadInt32(&b.lockedAtom) == 1, b.state
+}
+
+// IsLocked returns either or not the bot is currently locked
+func (b *OGame) IsLocked() bool {
+	return atomic.LoadInt32(&b.lockedAtom) == 1
+}
+
+// GetSession get ogame session
+func (b *OGame) GetSession() string {
+	return b.ogameSession
+}
+
+// AddAccount add a new account (server) to your list of accounts
+func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
+	return b.addAccount(number, lang)
+}
+
+// WithPriority ...
+func (b *OGame) WithPriority(priority int) *Prioritize {
+	return b.withPriority(priority)
+}
+
+// Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
+func (b *OGame) Begin() *Prioritize {
+	return b.WithPriority(Normal).Begin()
+}
+
+// Tx locks the bot during the transaction and ensure the lock is released afterward
+func (b *OGame) Tx(clb func(tx *Prioritize) error) error {
+	return b.WithPriority(Normal).Tx(clb)
+}
+
+// GetServer get ogame server information that the bot is connected to
+func (b *OGame) GetServer() Server {
+	return b.server
+}
+
+// ServerURL get the ogame server specific url
+func (b *OGame) ServerURL() string {
+	return b.serverURL
+}
+
+// GetLanguage get ogame server language
+func (b *OGame) GetLanguage() string {
+	return b.language
+}
+
+// SetUserAgent change the user-agent used by the http client
+func (b *OGame) SetUserAgent(newUserAgent string) {
+	b.Client.UserAgent = newUserAgent
+}
+
+// Login to ogame server
+// Can fails with BadCredentialsError
+func (b *OGame) Login() error {
+	return b.WithPriority(Normal).Login()
+}
+
+// Logout the bot from ogame server
+func (b *OGame) Logout() { b.WithPriority(Normal).Logout() }
+
+// GetUniverseName get the name of the universe the bot is playing into
+func (b *OGame) GetUniverseName() string {
+	return b.Universe
+}
+
+// GetUsername get the username that was used to login on ogame server
+func (b *OGame) GetUsername() string {
+	return b.Username
+}
+
+// GetUniverseSpeed shortcut to get ogame universe speed
+func (b *OGame) GetUniverseSpeed() int {
+	return b.getUniverseSpeed()
+}
+
+// GetUniverseSpeedFleet shortcut to get ogame universe speed fleet
+func (b *OGame) GetUniverseSpeedFleet() int {
+	return b.getUniverseSpeedFleet()
+}
+
+// IsDonutGalaxy shortcut to get ogame galaxy donut config
+func (b *OGame) IsDonutGalaxy() bool {
+	return b.isDonutGalaxy()
+}
+
+// IsDonutSystem shortcut to get ogame system donut config
+func (b *OGame) IsDonutSystem() bool {
+	return b.isDonutSystem()
+}
+
+// FleetDeutSaveFactor returns the fleet deut save factor
+func (b *OGame) FleetDeutSaveFactor() float64 {
+	return b.fleetDeutSaveFactor
+}
+
+// GetAlliancePageContent gets the html for a specific alliance page
+func (b *OGame) GetAlliancePageContent(vals url.Values) []byte {
+	return b.WithPriority(Normal).GetPageContent(vals)
+}
+
+// GetPageContent gets the html for a specific ogame page
+func (b *OGame) GetPageContent(vals url.Values) []byte {
+	return b.WithPriority(Normal).GetPageContent(vals)
+}
+
+// PostPageContent make a post request to ogame server
+// This is useful when simulating a web browser
+func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
+	return b.WithPriority(Normal).PostPageContent(vals, payload)
+}
+
+// IsUnderAttack returns true if the user is under attack, false otherwise
+func (b *OGame) IsUnderAttack() bool {
+	return b.WithPriority(Normal).IsUnderAttack()
+}
+
+// GetCachedPlayer returns cached player infos
+func (b *OGame) GetCachedPlayer() UserInfos {
+	return b.Player
+}
+
+// GetPlanets returns the user planets
+func (b *OGame) GetPlanets() []Planet {
+	return b.WithPriority(Normal).GetPlanets()
+}
+
+// GetCachedPlanets return planets from cached value
+func (b *OGame) GetCachedPlanets() []Planet {
+	return b.Planets
+}
+
+// GetCachedMoons return moons from cached value
+func (b *OGame) GetCachedMoons() []Moon {
+	return b.getCachedMoons()
+}
+
+// GetCachedCelestials get all cached celestials
+func (b *OGame) GetCachedCelestials() []Celestial {
+	return b.getCachedCelestials()
+}
+
+// GetCachedCelestial return celestial from cached value
+func (b *OGame) GetCachedCelestial(v interface{}) Celestial {
+	return b.getCachedCelestial(v)
 }
 
 // GetPlanet gets infos for planetID
@@ -3253,22 +2659,8 @@ func (b *OGame) GetPlanet(v interface{}) (Planet, error) {
 }
 
 // GetMoons returns the user moons
-func (b *Prioritize) GetMoons() []Moon {
-	b.begin("GetMoons")
-	defer b.done()
-	return b.bot.getMoons()
-}
-
-// GetMoons returns the user moons
 func (b *OGame) GetMoons() []Moon {
 	return b.WithPriority(Normal).GetMoons()
-}
-
-// GetMoon gets infos for moonID
-func (b *Prioritize) GetMoon(v interface{}) (Moon, error) {
-	b.begin("GetMoon")
-	defer b.done()
-	return b.bot.getMoon(v)
 }
 
 // GetMoon gets infos for moonID
@@ -3276,35 +2668,14 @@ func (b *OGame) GetMoon(v interface{}) (Moon, error) {
 	return b.WithPriority(Normal).GetMoon(v)
 }
 
-// GetCelestial get the player's planets & moons
-func (b *Prioritize) GetCelestials() ([]Celestial, error) {
-	b.begin("GetCelestials")
-	defer b.done()
-	return b.bot.getCelestials()
-}
-
-// GetCelestial get the player's planets & moons
+// GetCelestials get the player's planets & moons
 func (b *OGame) GetCelestials() ([]Celestial, error) {
 	return b.WithPriority(Normal).GetCelestials()
-}
-
-// GetCelestial get the player's planets & moons
-func (b *Prioritize) Abandon(v interface{}) error {
-	b.begin("Abandon")
-	defer b.done()
-	return b.bot.abandon(v)
 }
 
 // Abandon a planet
 func (b *OGame) Abandon(v interface{}) error {
 	return b.WithPriority(Normal).Abandon(v)
-}
-
-// GetCelestial get the player's planet/moon using the coordinate
-func (b *Prioritize) GetCelestial(v interface{}) (Celestial, error) {
-	b.begin("GetCelestial")
-	defer b.done()
-	return b.bot.getCelestial(v)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
@@ -3319,23 +2690,8 @@ func (b *OGame) ServerVersion() string {
 
 // ServerTime returns server time
 // Timezone is OGT (OGame Time zone)
-func (b *Prioritize) ServerTime() time.Time {
-	b.begin("ServerTime")
-	defer b.done()
-	return b.bot.serverTime()
-}
-
-// ServerTime returns server time
-// Timezone is OGT (OGame Time zone)
 func (b *OGame) ServerTime() time.Time {
 	return b.WithPriority(Normal).ServerTime()
-}
-
-// GetUserInfos gets the user information
-func (b *Prioritize) GetUserInfos() UserInfos {
-	b.begin("GetUserInfos")
-	defer b.done()
-	return b.bot.getUserInfos()
 }
 
 // GetUserInfos gets the user information
@@ -3344,22 +2700,8 @@ func (b *OGame) GetUserInfos() UserInfos {
 }
 
 // SendMessage sends a message to playerID
-func (b *Prioritize) SendMessage(playerID int, message string) error {
-	b.begin("SendMessage")
-	defer b.done()
-	return b.bot.sendMessage(playerID, message)
-}
-
-// SendMessage sends a message to playerID
 func (b *OGame) SendMessage(playerID int, message string) error {
 	return b.WithPriority(Normal).SendMessage(playerID, message)
-}
-
-// GetFleets get the player's own fleets activities
-func (b *Prioritize) GetFleets() ([]Fleet, Slots) {
-	b.begin("GetFleets")
-	defer b.done()
-	return b.bot.getFleets()
 }
 
 // GetFleets get the player's own fleets activities
@@ -3367,23 +2709,9 @@ func (b *OGame) GetFleets() ([]Fleet, Slots) {
 	return b.WithPriority(Normal).GetFleets()
 }
 
-// GetFleets get the player's own fleets activities
-func (b *Prioritize) GetFleetsFromEventList() []Fleet {
-	b.begin("GetFleets")
-	defer b.done()
-	return b.bot.getFleetsFromEventList()
-}
-
-// GetFleets get the player's own fleets activities
+// GetFleetsFromEventList get the player's own fleets activities
 func (b *OGame) GetFleetsFromEventList() []Fleet {
 	return b.WithPriority(Normal).GetFleetsFromEventList()
-}
-
-// CancelFleet cancel a fleet
-func (b *Prioritize) CancelFleet(fleetID FleetID) error {
-	b.begin("CancelFleet")
-	defer b.done()
-	return b.bot.cancelFleet(fleetID)
 }
 
 // CancelFleet cancel a fleet
@@ -3392,22 +2720,8 @@ func (b *OGame) CancelFleet(fleetID FleetID) error {
 }
 
 // GetAttacks get enemy fleets attacking you
-func (b *Prioritize) GetAttacks() []AttackEvent {
-	b.begin("GetAttacks")
-	defer b.done()
-	return b.bot.getAttacks()
-}
-
-// GetAttacks get enemy fleets attacking you
 func (b *OGame) GetAttacks() []AttackEvent {
 	return b.WithPriority(Normal).GetAttacks()
-}
-
-// GalaxyInfos get information of all planets and moons of a solar system
-func (b *Prioritize) GalaxyInfos(galaxy, system int) (SystemInfos, error) {
-	b.begin("GalaxyInfos")
-	defer b.done()
-	return b.bot.galaxyInfos(galaxy, system)
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
@@ -3416,34 +2730,13 @@ func (b *OGame) GalaxyInfos(galaxy, system int) (SystemInfos, error) {
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
-func (b *Prioritize) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
-	b.begin("GetResourceSettings")
-	defer b.done()
-	return b.bot.getResourceSettings(planetID)
-}
-
-// GetResourceSettings gets the resources settings for specified planetID
 func (b *OGame) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
 	return b.WithPriority(Normal).GetResourceSettings(planetID)
 }
 
 // SetResourceSettings set the resources settings on a planet
-func (b *Prioritize) SetResourceSettings(planetID PlanetID, settings ResourceSettings) error {
-	b.begin("SetResourceSettings")
-	defer b.done()
-	return b.bot.setResourceSettings(planetID, settings)
-}
-
-// SetResourceSettings set the resources settings on a planet
 func (b *OGame) SetResourceSettings(planetID PlanetID, settings ResourceSettings) error {
 	return b.WithPriority(Normal).SetResourceSettings(planetID, settings)
-}
-
-// GetResourcesBuildings gets the resources buildings levels
-func (b *Prioritize) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	b.begin("GetResourcesBuildings")
-	defer b.done()
-	return b.bot.getResourcesBuildings(celestialID)
 }
 
 // GetResourcesBuildings gets the resources buildings levels
@@ -3453,35 +2746,13 @@ func (b *OGame) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildin
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
-func (b *Prioritize) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
-	b.begin("GetDefense")
-	defer b.done()
-	return b.bot.getDefense(celestialID)
-}
-
-// GetDefense gets all the defenses units information of a planet
-// Fails if planetID is invalid
 func (b *OGame) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
 	return b.WithPriority(Normal).GetDefense(celestialID)
 }
 
 // GetShips gets all ships units information of a planet
-func (b *Prioritize) GetShips(celestialID CelestialID) (ShipsInfos, error) {
-	b.begin("GetShips")
-	defer b.done()
-	return b.bot.getShips(celestialID)
-}
-
-// GetShips gets all ships units information of a planet
 func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
 	return b.WithPriority(Normal).GetShips(celestialID)
-}
-
-// GetFacilities gets all facilities information of a planet
-func (b *Prioritize) GetFacilities(celestialID CelestialID) (Facilities, error) {
-	b.begin("GetFacilities")
-	defer b.done()
-	return b.bot.getFacilities(celestialID)
 }
 
 // GetFacilities gets all facilities information of a planet
@@ -3491,23 +2762,8 @@ func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (b *Prioritize) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
-	b.begin("GetProduction")
-	defer b.done()
-	return b.bot.getProduction(celestialID)
-}
-
-// GetProduction get what is in the production queue.
-// (ships & defense being built)
 func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
 	return b.WithPriority(Normal).GetProduction(celestialID)
-}
-
-// GetResearch gets the player researches information
-func (b *Prioritize) GetResearch() Researches {
-	b.begin("GetResearch")
-	defer b.done()
-	return b.bot.getResearch()
 }
 
 // GetResearch gets the player researches information
@@ -3516,22 +2772,8 @@ func (b *OGame) GetResearch() Researches {
 }
 
 // GetSlots gets the player current and total slots information
-func (b *Prioritize) GetSlots() Slots {
-	b.begin("GetSlots")
-	defer b.done()
-	return b.bot.getSlots()
-}
-
-// GetSlots gets the player current and total slots information
 func (b *OGame) GetSlots() Slots {
 	return b.WithPriority(Normal).GetSlots()
-}
-
-// Build builds any ogame objects (building, technology, ship, defence)
-func (b *Prioritize) Build(celestialID CelestialID, id ID, nbr int) error {
-	b.begin("Build")
-	defer b.done()
-	return b.bot.build(celestialID, id, nbr)
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
@@ -3540,22 +2782,8 @@ func (b *OGame) Build(celestialID CelestialID, id ID, nbr int) error {
 }
 
 // BuildCancelable builds any cancelable ogame objects (building, technology)
-func (b *Prioritize) BuildCancelable(celestialID CelestialID, id ID) error {
-	b.begin("BuildCancelable")
-	defer b.done()
-	return b.bot.buildCancelable(celestialID, id)
-}
-
-// BuildCancelable builds any cancelable ogame objects (building, technology)
 func (b *OGame) BuildCancelable(celestialID CelestialID, id ID) error {
 	return b.WithPriority(Normal).BuildCancelable(celestialID, id)
-}
-
-// BuildProduction builds any line production ogame objects (ship, defence)
-func (b *Prioritize) BuildProduction(celestialID CelestialID, id ID, nbr int) error {
-	b.begin("BuildProduction")
-	defer b.done()
-	return b.bot.buildProduction(celestialID, id, nbr)
 }
 
 // BuildProduction builds any line production ogame objects (ship, defence)
@@ -3564,22 +2792,8 @@ func (b *OGame) BuildProduction(celestialID CelestialID, id ID, nbr int) error {
 }
 
 // BuildBuilding ensure what is being built is a building
-func (b *Prioritize) BuildBuilding(celestialID CelestialID, buildingID ID) error {
-	b.begin("BuildBuilding")
-	defer b.done()
-	return b.bot.buildBuilding(celestialID, buildingID)
-}
-
-// BuildBuilding ensure what is being built is a building
 func (b *OGame) BuildBuilding(celestialID CelestialID, buildingID ID) error {
 	return b.WithPriority(Normal).BuildBuilding(celestialID, buildingID)
-}
-
-// BuildDefense builds a defense unit
-func (b *Prioritize) BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error {
-	b.begin("BuildDefense")
-	defer b.done()
-	return b.bot.buildDefense(celestialID, defenseID, nbr)
 }
 
 // BuildDefense builds a defense unit
@@ -3588,22 +2802,8 @@ func (b *OGame) BuildDefense(celestialID CelestialID, defenseID ID, nbr int) err
 }
 
 // BuildShips builds a ship unit
-func (b *Prioritize) BuildShips(celestialID CelestialID, shipID ID, nbr int) error {
-	b.begin("BuildShips")
-	defer b.done()
-	return b.bot.buildShips(celestialID, shipID, nbr)
-}
-
-// BuildShips builds a ship unit
 func (b *OGame) BuildShips(celestialID CelestialID, shipID ID, nbr int) error {
 	return b.WithPriority(Normal).BuildShips(celestialID, shipID, nbr)
-}
-
-// ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *Prioritize) ConstructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
-	b.begin("ConstructionsBeingBuilt")
-	defer b.done()
-	return b.bot.constructionsBeingBuilt(celestialID)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
@@ -3612,22 +2812,8 @@ func (b *OGame) ConstructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, i
 }
 
 // CancelBuilding cancel the construction of a building on a specified planet
-func (b *Prioritize) CancelBuilding(celestialID CelestialID) error {
-	b.begin("CancelBuilding")
-	defer b.done()
-	return b.bot.cancelBuilding(celestialID)
-}
-
-// CancelBuilding cancel the construction of a building on a specified planet
 func (b *OGame) CancelBuilding(celestialID CelestialID) error {
 	return b.WithPriority(Normal).CancelBuilding(celestialID)
-}
-
-// CancelResearch cancel the research
-func (b *Prioritize) CancelResearch(celestialID CelestialID) error {
-	b.begin("CancelResearch")
-	defer b.done()
-	return b.bot.cancelResearch(celestialID)
 }
 
 // CancelResearch cancel the research
@@ -3636,35 +2822,13 @@ func (b *OGame) CancelResearch(celestialID CelestialID) error {
 }
 
 // BuildTechnology ensure that we're trying to build a technology
-func (b *Prioritize) BuildTechnology(celestialID CelestialID, technologyID ID) error {
-	b.begin("BuildTechnology")
-	defer b.done()
-	return b.bot.buildTechnology(celestialID, technologyID)
-}
-
-// BuildTechnology ensure that we're trying to build a technology
 func (b *OGame) BuildTechnology(celestialID CelestialID, technologyID ID) error {
 	return b.WithPriority(Normal).BuildTechnology(celestialID, technologyID)
 }
 
 // GetResources gets user resources
-func (b *Prioritize) GetResources(celestialID CelestialID) (Resources, error) {
-	b.begin("GetResources")
-	defer b.done()
-	return b.bot.getResources(celestialID)
-}
-
-// GetResources gets user resources
 func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
 	return b.WithPriority(Normal).GetResources(celestialID)
-}
-
-// SendFleet sends a fleet
-func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	b.begin("SendFleet")
-	defer b.done()
-	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, false)
 }
 
 // SendFleet sends a fleet
@@ -3674,24 +2838,9 @@ func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 }
 
 // EnsureFleet either sends all the requested ships or fail
-func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	b.begin("EnsureFleet")
-	defer b.done()
-	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, true)
-}
-
-// EnsureFleet either sends all the requested ships or fail
 func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
 	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
-}
-
-// SendIPM sends IPM
-func (b *Prioritize) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
-	b.begin("SendIPM")
-	defer b.done()
-	return b.bot.sendIPM(planetID, coord, nbr, priority)
 }
 
 // SendIPM sends IPM
@@ -3700,22 +2849,8 @@ func (b *OGame) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority I
 }
 
 // GetCombatReportSummaryFor gets the latest combat report for a given coordinate
-func (b *Prioritize) GetCombatReportSummaryFor(coord Coordinate) (CombatReportSummary, error) {
-	b.begin("GetCombatReportSummaryFor")
-	defer b.done()
-	return b.bot.getCombatReportFor(coord)
-}
-
-// GetCombatReportSummaryFor gets the latest combat report for a given coordinate
 func (b *OGame) GetCombatReportSummaryFor(coord Coordinate) (CombatReportSummary, error) {
 	return b.WithPriority(Normal).GetCombatReportSummaryFor(coord)
-}
-
-// GetEspionageReportFor gets the latest espionage report for a given coordinate
-func (b *Prioritize) GetEspionageReportFor(coord Coordinate) (EspionageReport, error) {
-	b.begin("GetEspionageReportFor")
-	defer b.done()
-	return b.bot.getEspionageReportFor(coord)
 }
 
 // GetEspionageReportFor gets the latest espionage report for a given coordinate
@@ -3724,22 +2859,8 @@ func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
-func (b *Prioritize) GetEspionageReportMessages() ([]EspionageReportSummary, error) {
-	b.begin("GetEspionageReportMessages")
-	defer b.done()
-	return b.bot.getEspionageReportMessages()
-}
-
-// GetEspionageReportMessages gets the summary of each espionage reports
 func (b *OGame) GetEspionageReportMessages() ([]EspionageReportSummary, error) {
 	return b.WithPriority(Normal).GetEspionageReportMessages()
-}
-
-// GetEspionageReport gets a detailed espionage report
-func (b *Prioritize) GetEspionageReport(msgID int) (EspionageReport, error) {
-	b.begin("GetEspionageReport")
-	defer b.done()
-	return b.bot.getEspionageReport(msgID)
 }
 
 // GetEspionageReport gets a detailed espionage report
@@ -3748,22 +2869,8 @@ func (b *OGame) GetEspionageReport(msgID int) (EspionageReport, error) {
 }
 
 // DeleteMessage deletes a message from the mail box
-func (b *Prioritize) DeleteMessage(msgID int) error {
-	b.begin("DeleteMessage")
-	defer b.done()
-	return b.bot.deleteMessage(msgID)
-}
-
-// DeleteMessage deletes a message from the mail box
 func (b *OGame) DeleteMessage(msgID int) error {
 	return b.WithPriority(Normal).DeleteMessage(msgID)
-}
-
-// GetResourcesProductions gets the planet resources production
-func (b *Prioritize) GetResourcesProductions(planetID PlanetID) (Resources, error) {
-	b.begin("GetResourcesProductions")
-	defer b.done()
-	return b.bot.getResourcesProductions(planetID)
 }
 
 // GetResourcesProductions gets the planet resources production
@@ -3771,33 +2878,10 @@ func (b *OGame) GetResourcesProductions(planetID PlanetID) (Resources, error) {
 	return b.WithPriority(Normal).GetResourcesProductions(planetID)
 }
 
-// GetResourcesProductions gets the planet resources production
-func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
-	resSettings ResourceSettings, temp Temperature) Resources {
-	b.begin("GetResourcesProductionsLight")
-	defer b.done()
-	return b.bot.getResourcesProductionsLight(resBuildings, researches, resSettings, temp)
-}
-
 // GetResourcesProductionsLight gets the planet resources production
 func (b *OGame) GetResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
 	resSettings ResourceSettings, temp Temperature) Resources {
 	return b.WithPriority(Normal).GetResourcesProductionsLight(resBuildings, researches, resSettings, temp)
-}
-
-// FlightTime calculate flight time and fuel needed
-func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
-	if b.bot.researches == nil {
-		b.begin("FlightTime")
-		b.bot.getResearch()
-		b.done()
-	} else {
-		if atomic.LoadInt32(&b.isTx) == 0 {
-			defer close(b.taskIsDoneCh)
-		}
-	}
-	return calcFlightTime(origin, destination, b.bot.universeSize, b.bot.donutGalaxy, b.bot.donutSystem, b.bot.fleetDeutSaveFactor,
-		float64(speed)/10, b.bot.universeSpeedFleet, ships, *b.bot.researches)
 }
 
 // FlightTime calculate flight time and fuel needed
@@ -3815,18 +2899,9 @@ func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 	b.chatCallbacks = append(b.chatCallbacks, fn)
 }
 
+// RegisterHTMLInterceptor ...
 func (b *OGame) RegisterHTMLInterceptor(fn func(method string, params, payload url.Values, pageHTML []byte)) {
 	b.interceptorCallbacks = append(b.interceptorCallbacks, fn)
-}
-
-// Phalanx scan a coordinate from a moon to get fleets information
-// IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
-// IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
-// 			  and that you have enough deuterium.
-func (b *Prioritize) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
-	b.begin("Phalanx")
-	defer b.done()
-	return b.bot.getPhalanx(moonID, coord)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
@@ -3838,22 +2913,8 @@ func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 }
 
 // UnsafePhalanx same as Phalanx but does not perform any input validation.
-func (b *Prioritize) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
-	b.begin("Phalanx")
-	defer b.done()
-	return b.bot.getUnsafePhalanx(moonID, coord)
-}
-
-// UnsafePhalanx same as Phalanx but does not perform any input validation.
 func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	return b.WithPriority(Normal).UnsafePhalanx(moonID, coord)
-}
-
-// JumpGate sends ships through a jump gate.
-func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
-	b.begin("JumpGate")
-	defer b.done()
-	return b.bot.executeJumpGate(origin, dest, ships)
 }
 
 // JumpGate sends ships through a jump gate.
