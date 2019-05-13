@@ -1594,7 +1594,7 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
 	}
 
 	if id.IsDefense() || id.IsShip() {
-		maximumNbr := 9999
+		maximumNbr := 99999
 		var err error
 		var token string
 		for nbr > 0 {

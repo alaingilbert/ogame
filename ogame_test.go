@@ -710,6 +710,18 @@ func TestExtractAttacksMoon(t *testing.T) {
 	assert.Equal(t, 1, attacks[0].Ships.SmallCargo)
 }
 
+func TestExtractAttacksMoonDestruction(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_moon_destruction.html")
+	attacks, _ := ExtractAttacks(pageHTMLBytes)
+	assert.Equal(t, 1, len(attacks))
+	assert.NotNil(t, attacks[0].Ships)
+	assert.Equal(t, 106734, attacks[0].AttackerID)
+	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, attacks[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 9, MoonType}, attacks[0].Destination)
+	assert.Equal(t, MoonType, attacks[0].Destination.Type)
+	assert.Equal(t, 1, attacks[0].Ships.Deathstar)
+}
+
 func TestExtractAttacksWithThousandsShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_attack_thousands.html")
 	attacks, _ := ExtractAttacks(pageHTMLBytes)

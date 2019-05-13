@@ -533,13 +533,13 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 		missionTypeInt, _ := strconv.Atoi(missionTypeStr)
 		arrivalTimeInt, _ := strconv.Atoi(arrivalTimeStr)
 		missionType := MissionID(missionTypeInt)
-		if missionType != Attack && missionType != GroupedAttack &&
+		if missionType != Attack && missionType != GroupedAttack && missionType != Destroy &&
 			missionType != MissileAttack && missionType != Spy {
 			return
 		}
 		attack := AttackEvent{}
 		attack.MissionType = missionType
-		if missionType == Attack || missionType == MissileAttack || missionType == Spy {
+		if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy {
 			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 			attack.Origin = ExtractCoord(coordsOrigin)
 			attack.Origin.Type = PlanetType
