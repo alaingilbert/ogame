@@ -218,7 +218,7 @@ func getPhpSessionID(b *OGame, username, password string) (string, error) {
 		"credentials[email]":    {username},
 		"credentials[password]": {password},
 	}
-	req, err := http.NewRequest("POST", "https://lobby-api.ogame.gameforge.com/users", strings.NewReader(payload.Encode()))
+	req, err := http.NewRequest("POST", "https://lobby.ogame.gameforge.com/api/users", strings.NewReader(payload.Encode()))
 	if err != nil {
 		return "", err
 	}
@@ -286,7 +286,7 @@ type account struct {
 
 func getUserAccounts(b *OGame, phpSessionID string) ([]account, error) {
 	var userAccounts []account
-	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/users/me/accounts", nil)
+	req, err := http.NewRequest("GET", "https://lobby.ogame.gameforge.com/api/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
@@ -312,7 +312,7 @@ func getUserAccounts(b *OGame, phpSessionID string) ([]account, error) {
 
 func getServers(b *OGame) ([]Server, error) {
 	var servers []Server
-	req, err := http.NewRequest("GET", "https://lobby-api.ogame.gameforge.com/servers", nil)
+	req, err := http.NewRequest("GET", "https://lobby.ogame.gameforge.com/api/servers", nil)
 	if err != nil {
 		return servers, err
 	}
@@ -360,7 +360,7 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 }
 
 func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, error) {
-	ogURL := fmt.Sprintf("https://lobby-api.ogame.gameforge.com/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
+	ogURL := fmt.Sprintf("https://lobby.ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
 		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest("GET", ogURL, nil)
 	if err != nil {
@@ -2315,7 +2315,7 @@ func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 	if err != nil {
 		return newAccount, err
 	}
-	req, err := http.NewRequest("PUT", "https://lobby-api.ogame.gameforge.com/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return newAccount, err
 	}
