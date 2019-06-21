@@ -445,6 +445,20 @@ func TestExtractPlanet_jp(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_tw(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/tw/overview.html")
+	planet, _ := ExtractPlanet(pageHTMLBytes, PlanetID(33626432), &OGame{language: "tw"})
+	assert.Equal(t, "母星", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 29, planet.Temperature.Min)
+	assert.Equal(t, 69, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33626432), planet.ID)
+	assert.Equal(t, Coordinate{1, 206, 8, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_hr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/hr/overview.html")
 	planet, _ := ExtractPlanet(pageHTMLBytes, PlanetID(33627961), &OGame{language: "hr"})

@@ -105,6 +105,21 @@ func name2id(name string) ID {
 		"espionageprobe": EspionageProbeID,
 		"solarsatellite": SolarSatelliteID,
 
+		// tw
+		"輕型戰鬥機": LightFighterID,
+		"重型戰鬥機": HeavyFighterID,
+		"戰列艦":   BattleshipID,
+		"戰鬥巡洋艦": BattlecruiserID,
+		"導彈艦":   BomberID,
+		"毀滅者":   DestroyerID,
+		"死星":    DeathstarID,
+		"小型運輸艦": SmallCargoID,
+		"大型運輸艦": LargeCargoID,
+		"殖民船":   ColonyShipID,
+		"回收船":   RecyclerID,
+		"間諜衛星":  EspionageProbeID,
+		"太陽能衛星": SolarSatelliteID,
+
 		// hr
 		"malilovac":         LightFighterID,
 		"velikilovac":       HeavyFighterID,
