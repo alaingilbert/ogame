@@ -54,7 +54,7 @@ type OGame struct {
 	ogameSession         string
 	sessionChatCounter   int
 	server               Server
-	Location             *time.Location
+	location             *time.Location
 	universeSpeed        int
 	universeSize         int
 	universeSpeedFleet   int
@@ -475,7 +475,7 @@ func (b *OGame) login() error {
 	b.sessionChatCounter = 1
 
 	serverTime, _ := extractServerTime(pageHTML)
-	b.Location = serverTime.Location()
+	b.location = serverTime.Location()
 	b.universeSize = server.Settings.UniverseSize
 	b.universeSpeed, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed]").AttrOr("content", "1"))
 	b.universeSpeedFleet, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed-fleet]").AttrOr("content", "1"))
@@ -2137,7 +2137,7 @@ func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error
 
 func (b *OGame) getEspionageReport(msgID int) (EspionageReport, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"messages"}, "messageId": {strconv.Itoa(msgID)}, "tabid": {"20"}, "ajax": {"1"}})
-	return extractEspionageReport(pageHTML, b.Location)
+	return extractEspionageReport(pageHTML, b.location)
 }
 
 func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error) {
@@ -2692,6 +2692,11 @@ func (b *OGame) ServerVersion() string {
 // Timezone is OGT (OGame Time zone)
 func (b *OGame) ServerTime() time.Time {
 	return b.WithPriority(Normal).ServerTime()
+}
+
+// Location returns bot Time zone.
+func (b *OGame) Location() *time.Location {
+	return b.location
 }
 
 // GetUserInfos gets the user information

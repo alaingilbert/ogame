@@ -43,6 +43,7 @@ type Wrapper interface {
 	FleetDeutSaveFactor() float64
 	ServerVersion() string
 	ServerTime() time.Time
+	Location() *time.Location
 	IsUnderAttack() bool
 	GetUserInfos() UserInfos
 	SendMessage(playerID int, message string) error
