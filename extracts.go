@@ -524,7 +524,8 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 		if strings.Contains(classes, "partnerInfo") {
 			return
 		}
-		isHostile := s.Find("td.countDown.hostile").Size() > 0
+		td := s.Find("td.countDown")
+		isHostile := td.HasClass("hostile") || td.Find("span.hostile").Size() > 0
 		if !isHostile {
 			return
 		}
