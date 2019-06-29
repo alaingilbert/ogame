@@ -54,7 +54,7 @@ type OGame struct {
 	ogameSession         string
 	sessionChatCounter   int
 	server               Server
-	location             *time.Location
+	Location             *time.Location
 	universeSpeed        int
 	universeSize         int
 	universeSpeedFleet   int
@@ -475,7 +475,7 @@ func (b *OGame) login() error {
 	b.sessionChatCounter = 1
 
 	serverTime, _ := extractServerTime(pageHTML)
-	b.location = serverTime.Location()
+	b.Location = serverTime.Location()
 	b.universeSize = server.Settings.UniverseSize
 	b.universeSpeed, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed]").AttrOr("content", "1"))
 	b.universeSpeedFleet, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed-fleet]").AttrOr("content", "1"))
@@ -2137,7 +2137,7 @@ func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error
 
 func (b *OGame) getEspionageReport(msgID int) (EspionageReport, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"messages"}, "messageId": {strconv.Itoa(msgID)}, "tabid": {"20"}, "ajax": {"1"}})
-	return extractEspionageReport(pageHTML, b.location)
+	return extractEspionageReport(pageHTML, b.Location)
 }
 
 func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error) {
