@@ -269,6 +269,13 @@ func (b *Prioritize) GetProduction(celestialID CelestialID) ([]Quantifiable, err
 	return b.bot.getProduction(celestialID)
 }
 
+// GetCachedResearch gets the player cached researches information
+func (b *Prioritize) GetCachedResearch() Researches {
+	b.begin("GetCachedResearch")
+	defer b.done()
+	return b.bot.getCachedResearch()
+}
+
 // GetResearch gets the player researches information
 func (b *Prioritize) GetResearch() Researches {
 	b.begin("GetResearch")
@@ -435,17 +442,11 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuilding
 
 // FlightTime calculate flight time and fuel needed
 func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
-	if b.bot.researches == nil {
-		b.begin("FlightTime")
-		b.bot.getResearch()
-		b.done()
-	} else {
-		if atomic.LoadInt32(&b.isTx) == 0 {
-			defer close(b.taskIsDoneCh)
-		}
-	}
+	b.begin("FlightTime")
+	defer b.done()
+	researches := b.bot.getCachedResearch()
 	return calcFlightTime(origin, destination, b.bot.universeSize, b.bot.donutGalaxy, b.bot.donutSystem, b.bot.fleetDeutSaveFactor,
-		float64(speed)/10, b.bot.universeSpeedFleet, ships, *b.bot.researches)
+		float64(speed)/10, b.bot.universeSpeedFleet, ships, researches)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
