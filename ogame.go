@@ -1521,6 +1521,13 @@ func getNbr(doc *goquery.Document, name string) int {
 	return ParseInt(level.Text())
 }
 
+func (b *OGame) getCachedResearch() Researches {
+	if b.researches == nil {
+		return b.getResearch()
+	}
+	return *b.researches
+}
+
 func (b *OGame) getResearch() Researches {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"research"}})
 	researches := ExtractResearch(pageHTML)
@@ -2769,6 +2776,11 @@ func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
 // (ships & defense being built)
 func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
 	return b.WithPriority(Normal).GetProduction(celestialID)
+}
+
+// GetCachedResearch returns cached researches
+func (b *OGame) GetCachedResearch() Researches {
+	return b.WithPriority(Normal).GetCachedResearch()
 }
 
 // GetResearch gets the player researches information
