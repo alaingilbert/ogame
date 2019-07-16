@@ -1489,8 +1489,6 @@ func (b *OGame) buyOfferOfTheDay() error {
 	payload.Add("bid[honor]", "0")
 	payload.Add("token", importToken)
 	payload.Add("ajax", "1")
-	fmt.Println("CALISSSS1", planetResources)
-	fmt.Println("CALISSSS2", payload)
 	pageHTML1, err := b.postPageContent(url.Values{"page": {"import"}}, payload)
 	if err != nil {
 		return err
