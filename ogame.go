@@ -18,6 +18,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -1433,6 +1434,95 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	if _, err := b.postPageContent(url.Values{"page": {"jumpgate_execute"}}, payload); err != nil {
 		return err
 	}
+	return nil
+}
+
+func calcResources(price int, planetResources PlanetResources, multiplier Multiplier) url.Values {
+	sortedCelestialIDs := make([]CelestialID, 0)
+	for celestialID, _ := range planetResources {
+		sortedCelestialIDs = append(sortedCelestialIDs, celestialID)
+	}
+	sort.Slice(sortedCelestialIDs, func(i, j int) bool {
+		return int(sortedCelestialIDs[i]) < int(sortedCelestialIDs[j])
+	})
+
+	payload := url.Values{}
+	remaining := price
+	for celestialID, res := range planetResources {
+		metalNeeded := res.Input.Metal
+		if remaining < int(float64(metalNeeded)*multiplier.Metal) {
+			metalNeeded = int(math.Ceil(float64(remaining) / multiplier.Metal))
+		}
+		remaining -= int(float64(metalNeeded) * multiplier.Metal)
+
+		crystalNeeded := res.Input.Crystal
+		if remaining < int(float64(crystalNeeded)*multiplier.Crystal) {
+			crystalNeeded = int(math.Ceil(float64(remaining) / multiplier.Crystal))
+		}
+		remaining -= int(float64(crystalNeeded) * multiplier.Crystal)
+
+		deuteriumNeeded := res.Input.Deuterium
+		if remaining < int(float64(deuteriumNeeded)*multiplier.Deuterium) {
+			deuteriumNeeded = int(math.Ceil(float64(remaining) / multiplier.Deuterium))
+		}
+		remaining -= int(float64(deuteriumNeeded) * multiplier.Deuterium)
+
+		payload.Add("bid[planets]["+strconv.Itoa(int(celestialID))+"][metal]", strconv.Itoa(metalNeeded))
+		payload.Add("bid[planets]["+strconv.Itoa(int(celestialID))+"][crystal]", strconv.Itoa(crystalNeeded))
+		payload.Add("bid[planets]["+strconv.Itoa(int(celestialID))+"][deuterium]", strconv.Itoa(deuteriumNeeded))
+	}
+	return payload
+}
+
+func (b *OGame) buyOfferOfTheDay() error {
+	pageHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, url.Values{"show": {"importexport"}, "ajax": {"1"}})
+	if err != nil {
+		return err
+	}
+
+	price, importToken, planetResources, multiplier, err := ExtractOfferOfTheDay(pageHTML)
+	if err != nil {
+		return err
+	}
+	payload := calcResources(price, planetResources, multiplier)
+	payload.Add("action", "trade")
+	payload.Add("bid[honor]", "0")
+	payload.Add("token", importToken)
+	payload.Add("ajax", "1")
+	fmt.Println("CALISSSS1", planetResources)
+	fmt.Println("CALISSSS2", payload)
+	pageHTML1, err := b.postPageContent(url.Values{"page": {"import"}}, payload)
+	if err != nil {
+		return err
+	}
+	// {"message":"You have bought a container.","error":false,"item":{"uuid":"40f6c78e11be01ad3389b7dccd6ab8efa9347f3c","itemText":"You have purchased 1 KRAKEN Bronze.","bargainText":"The contents of the container not appeal to you? For 500 Dark Matter you can exchange the container for another random container of the same quality. You can only carry out this exchange 2 times per daily offer.","bargainCost":500,"bargainCostText":"Costs: 500 Dark Matter","tooltip":"KRAKEN Bronze|Reduces the building time of buildings currently under construction by <b>30m<\/b>.<br \/><br \/>\nDuration: now<br \/><br \/>\nPrice: --- <br \/>\nIn Inventory: 1","image":"98629d11293c9f2703592ed0314d99f320f45845","amount":1,"rarity":"common"},"newToken":"07eefc14105db0f30cb331a8b7af0bfe"}
+	var tmp struct {
+		Message  string
+		Error    bool
+		NewToken string
+	}
+	if err := json.Unmarshal(pageHTML1, &tmp); err != nil {
+		return err
+	}
+	if tmp.Error {
+		return errors.New(tmp.Message)
+	}
+
+	payload2 := url.Values{"action": {"takeItem"}, "token": {tmp.NewToken}, "ajax": {"1"}}
+	pageHTML2, err := b.postPageContent(url.Values{"page": {"import"}}, payload2)
+	var tmp2 struct {
+		Message  string
+		Error    bool
+		NewToken string
+	}
+	if err := json.Unmarshal(pageHTML2, &tmp2); err != nil {
+		return err
+	}
+	if tmp2.Error {
+		return errors.New(tmp2.Message)
+	}
+	// {"message":"You have accepted the offer and put the item in your inventory.","error":false,"item":{"name":"KRAKEN Bronze","image":"bc4e2315f7db4286ba72a424a32c920e78af8e27","imageLarge":"98629d11293c9f2703592ed0314d99f320f45845","title":"KRAKEN Bronze|Reduces the building time of buildings currently under construction by <b>30m<\/b>.<br \/><br \/>\nDuration: now<br \/><br \/>\nPrice: --- <br \/>\nIn Inventory: 2","effect":"Reduces the building time of buildings currently under construction by <b>30m<\/b>.","ref":"40f6c78e11be01ad3389b7dccd6ab8efa9347f3c","rarity":"common","amount":2,"amount_free":2,"amount_bought":0,"category":["d8d49c315fa620d9c7f1f19963970dea59a0e3be","dc9ec90e5a2163cc063b8bb3e9fe392782f565c8"],"currency":"dm","costs":"3000","isReduced":false,"buyable":false,"canBeActivated":false,"canBeBoughtAndActivated":false,"isAnUpgrade":false,"hasEnoughCurrency":true,"cooldown":0,"duration":0,"durationExtension":null,"totalTime":null,"timeLeft":null,"status":null,"extendable":false,"firstStatus":"effecting","toolTip":"KRAKEN Bronze|Reduces the building time of buildings currently under construction by &lt;b&gt;30m&lt;\/b&gt;.&lt;br \/&gt;&lt;br \/&gt;\nDuration: now&lt;br \/&gt;&lt;br \/&gt;\nPrice: --- &lt;br \/&gt;\nIn Inventory: 2","buyTitle":"This item is currently unavailable for purchase.","activationTitle":"There is no facility currently being built whose construction time can be shortened.","moonOnlyItem":false,"newOffer":false,"noOfferMessage":"There are no further offers today. Please come again tomorrow."},"newToken":"68198ffde0837211de8421b1c6447448"}
+
 	return nil
 }
 
@@ -2937,4 +3027,9 @@ func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) 
 // JumpGate sends ships through a jump gate.
 func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
 	return b.WithPriority(Normal).JumpGate(origin, dest, ships)
+}
+
+// BuyOfferOfTheDay buys the offer of the day.
+func (b *OGame) BuyOfferOfTheDay() error {
+	return b.WithPriority(Normal).BuyOfferOfTheDay()
 }

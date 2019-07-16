@@ -675,6 +675,51 @@ func TestExtractResourcesProductions(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 10352, Crystal: 5104, Deuterium: 1282, Energy: -52}, prods)
 }
 
+//func TestCalcResources(t *testing.T) {
+//	pageHTMLBytes, _ := ioutil.ReadFile("samples/traderOverview.html")
+//	price, _, planetResources, multiplier, _ := ExtractOfferOfTheDay(pageHTMLBytes)
+//	actual := calcResources(price, planetResources, multiplier)
+//	expected := url.Values{
+//		"bid[planets][33711028][crystal]":   []string{"0"},
+//		"bid[planets][33711028][deuterium]": []string{"0"},
+//		"bid[planets][33711028][metal]":     []string{"54243"},
+//		"bid[planets][33738397][crystal]":   []string{"0"},
+//		"bid[planets][33738397][deuterium]": []string{"0"},
+//		"bid[planets][33738397][metal]":     []string{"0"},
+//		"bid[planets][33738457][crystal]":   []string{"0"},
+//		"bid[planets][33738457][deuterium]": []string{"0"},
+//		"bid[planets][33738457][metal]":     []string{"0"},
+//		"bid[planets][33739506][crystal]":   []string{"0"},
+//		"bid[planets][33739506][deuterium]": []string{"0"},
+//		"bid[planets][33739506][metal]":     []string{"0"},
+//		"bid[planets][33760932][crystal]":   []string{"0"},
+//		"bid[planets][33760932][deuterium]": []string{"0"},
+//		"bid[planets][33760932][metal]":     []string{"0"},
+//		"bid[planets][33760935][crystal]":   []string{"0"},
+//		"bid[planets][33760935][deuterium]": []string{"0"},
+//		"bid[planets][33760935][metal]":     []string{"0"},
+//		"bid[planets][33760958][crystal]":   []string{"0"},
+//		"bid[planets][33760958][deuterium]": []string{"0"},
+//		"bid[planets][33760958][metal]":     []string{"0"},
+//		"bid[planets][33762073][crystal]":   []string{"0"},
+//		"bid[planets][33762073][deuterium]": []string{"0"},
+//		"bid[planets][33762073][metal]":     []string{"0"},
+//		"bid[planets][33765791][crystal]":   []string{"0"},
+//		"bid[planets][33765791][deuterium]": []string{"0"},
+//		"bid[planets][33765791][metal]":     []string{"0"},
+//		"bid[planets][33792134][crystal]":   []string{"0"},
+//		"bid[planets][33792134][deuterium]": []string{"0"},
+//		"bid[planets][33792134][metal]":     []string{"0"}}
+//	assert.Equal(t, expected, actual)
+//}
+
+func TestExtractOfferOfTheDayPrice(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/traderOverview.html")
+	price, token, _, _, _ := ExtractOfferOfTheDay(pageHTMLBytes)
+	assert.Equal(t, 54243, price)
+	assert.Equal(t, "8128c0ba0c9981599a87d818003f95e1", token)
+}
+
 func TestExtractAttacks(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks, _ := ExtractAttacks(pageHTMLBytes)
