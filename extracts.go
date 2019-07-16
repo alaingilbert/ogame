@@ -117,6 +117,12 @@ func ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
 	return ExtractAttacksFromDoc(doc)
 }
 
+// ExtractOfferOfTheDay ...
+func ExtractOfferOfTheDay(pageHTML []byte) (int, string, PlanetResources, Multiplier, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractOfferOfTheDayFromDoc(doc)
+}
+
 // ExtractResourcesBuildings ...
 func ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -589,6 +595,66 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 	doc.Find("tr.allianceAttack").Each(tmp)
 
 	return attacks, nil
+}
+
+type planetResource struct {
+	Input struct {
+		Metal     int
+		Crystal   int
+		Deuterium int
+	}
+	Output struct {
+		Metal     int
+		Crystal   int
+		Deuterium int
+	}
+	IsMoon        bool
+	ImageFileName string
+	Name          string
+	OtherPlanet   string
+}
+
+type PlanetResources map[CelestialID]planetResource
+
+type Multiplier struct {
+	Metal     float64
+	Crystal   float64
+	Deuterium float64
+	Honor     float64
+}
+
+// ExtractOfferOfTheDayFromDoc ...
+func ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int, importToken string, planetResources PlanetResources, multiplier Multiplier, err error) {
+	s := doc.Find("div.js_import_price")
+	if s.Size() == 0 {
+		err = errors.New("failed to extract offer of the day price")
+		return
+	}
+	price = ParseInt(s.Text())
+	script := doc.Find("script").Text()
+	m := regexp.MustCompile(`var importToken="([^"]*)";`).FindSubmatch([]byte(script))
+	if len(m) != 2 {
+		err = errors.New("failed to extract offer of the day import token")
+		return
+	}
+	importToken = string(m[1])
+	m = regexp.MustCompile(`var planetResources=({[^;]*});`).FindSubmatch([]byte(script))
+	if len(m) != 2 {
+		err = errors.New("failed to extract offer of the day raw planet resources")
+		return
+	}
+	if err = json.Unmarshal(m[1], &planetResources); err != nil {
+		return
+	}
+	m = regexp.MustCompile(`var multiplier=({[^;]*});`).FindSubmatch([]byte(script))
+	if len(m) != 2 {
+		err = errors.New("failed to extract offer of the day raw multiplier")
+		return
+	}
+	if err = json.Unmarshal(m[1], &multiplier); err != nil {
+		return
+	}
+	return
 }
 
 // ExtractProductionFromDoc extracts ships/defenses production from the shipyard page

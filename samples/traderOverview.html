@@ -1,0 +1,184 @@
+<!--  Trader ImportExport Start -->
+<div id="div_traderImportExport" class="div_trader" style="display:none;">
+    <div class="header">
+        <h2>Import / Export</h2>
+    </div>
+    <div class="content">
+        <p class="stimulus">Containers with unknown contents are sold here for resources every day.</p>
+        <!-- <div class="left_box_wrap"> -->
+            <div class="left_box">
+                <div class="left_header">
+                    <h2>Offer of the day</h2>
+                </div>
+                <div class="left_content">
+                <div class="bargain_left_overlay" style="display:none;"></div>
+                    <div class="image_140px">
+                                                    <img alt="Offer of the day" src="https://s152-en.ogame.gameforge.com/cdn/img/trader/container_common.jpg" height="140" width="140" />
+                            <a class="detail_button tooltip js_hideTipOnMobile r_common_140px"
+                               href="javascript:void(0);"
+                               title="A normal container">
+                                <span class="ecke">
+                                    <span class="level amount">?</span>
+                                </span>
+                            </a>
+                        
+                    </div>
+                    <label class="import_price">Price:</label>
+                    <div class="price js_import_price">54.243</div>
+                    <label class="import_price">Total:</label>
+                    <div class="price js_sum_price">0</div>
+                    <br class="clearfloat" />
+
+                </div>
+                <div class="left_footer"></div>
+            </div>
+        <!--</div> -->
+        <div class="right_box">
+            <div class="right_header">
+                <h2>Trade</h2>
+            </div>
+            <div class="right_content">
+                                <div class="bargain_overlay" style="display: none;">
+                    <p class="got_item_text"></p>
+                    <p class="bargain_text"></p>
+                    <a href="javascript:void(0);" class="bargain import_bargain change">Exchange</a>
+                    <a href="javascript:void(0);" class="bargain import_bargain take">Take item</a>
+                    <span class="bargain_cost ">Costs: 500 Dark Matter</span>
+                </div>
+                <div class="payment" style="display: block;">
+                    
+
+
+<div class="resourceSelection">
+    <div class="selectWrapper">
+        <a href="javascript:void(0);" alt="Select resources from your planets"
+            class="tooltip js_hideTipOnMobile source planet js_planet selected"
+            title="Select resources from your planets"></a>
+        <a href="javascript:void(0);" alt="Select resources from your moons"
+            class="tooltip js_hideTipOnMobile source moon js_moon"
+            title="Select resources from your moons"></a>
+        <a href="javascript:void(0);" alt="Exchange your honour points"
+                class="tooltip js_hideTipOnMobile source honor js_honor"
+                title="Exchange your honour points"></a>
+
+        <a id="js_toggleLinkImportExport" href="#togglePanel" class="js_valSourcePlanet toggleHidden toggleLink">
+                        <img alt="Colony" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/jungle_7_1.png" width="18" height="18" >
+            <span class="option_source">Colony</span>
+        </a>
+    </div>
+    <table class="table_ressources" cellspacing="0" cellpadding="0">
+        <tr class="normalResource">
+            <td><div class="resourceIcon metal resource_label"></div></td>
+            <td class="multiplier undermark tooltip" title="Each Metal unit has a value of 1.">
+                <span class="dark_highlight_tablet">x 1</span>
+            </td>
+            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderMetalInput js_metal checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+            <td><a class="value-control more js_sliderMetalMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+            <td><a class="value-control max js_sliderMetalMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+        </tr>
+        <tr class="normalResource">
+            <td colspan="2">&nbsp;</td>
+            <td><div class="max_hint">(max. <span class="max_planet_res max_planet_metal">6.015.376</span>)</div></td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr class="normalResource">
+            <td><div class="resourceIcon crystal resource_label"></div></td>
+            <td class="multiplier undermark tooltip" title="Each Crystal unit has a value of 1.5.">
+                <span class="dark_highlight_tablet">x 1.5</span>
+            </td>
+            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderCrystalInput js_crystal checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+            <td><a class="value-control more js_sliderCrystalMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+            <td><a class="value-control max js_sliderCrystalMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+        </tr>
+        <tr class="normalResource">
+            <td colspan="2">&nbsp;</td>
+            <td><div class="max_hint">(max. <span class="max_planet_res max_planet_crystal">3.479.837</span>)</div></td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr class="normalResource">
+            <td><div class="resourceIcon deuterium resource_label"></div></td>
+            <td class="multiplier undermark tooltip" title="Each Deuterium unit has a value of 3.">
+                <span class="dark_highlight_tablet">x 3</span>
+            </td>
+            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderDeuteriumInput js_deuterium checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+            <td><a class="value-control more js_sliderDeuteriumMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+            <td><a class="value-control max js_sliderDeuteriumMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+        </tr>
+        <tr class="normalResource">
+            <td colspan="2">&nbsp;</td>
+            <td><div class="max_hint">(max. <span class="max_planet_res max_planet_deuterium">1.331.651</span>)</div></td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr class="honorResource" style="display: none">
+            <td><img src="https://gf2.geo.gfsrv.net/cdn73/5ec55d1f417bc3fc71e98f19853fad.png" alt="Honour points" class="resource_label" /></td>
+            <td class="multiplier undermark tooltip" title="Each Honour points unit has a value of 100.">
+                <span class="dark_highlight_tablet">x 100</span>
+            </td>
+            <td><input type="text" pattern="[0-9,.]*"  class="resourceAmount js_amount js_sliderHonorInput js_honor checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+            <td><a class="value-control more js_sliderHonorMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 Honour points">+</a></td>
+            <td><a class="value-control max js_sliderHonorMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+        </tr>
+        <tr class="honorResource" style="display: none">
+            <td colspan="2">&nbsp;</td>
+            <td><div class="max_hint">(max. <span class="max_planet_res max_planet_honor">1.744</span>)</div></td>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+    </table>
+    <div id="js_togglePanelImportExport" class="togglePanel" style="display: none;">
+            <ul class="planet active">
+                <li id="33711028" class="dark_highlight_tablet  selected">
+                        <img alt="Colony" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/jungle_7_1.png" width="18" height="18" >
+            <span class="option_source">Colony [4:208:8]</span>
+        </li>
+                <li id="33738397" class="dark_highlight_tablet ">
+                        <img alt="Colony" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/water_3_1.png" width="18" height="18" >
+            <span class="option_source">Colony [4:212:10]</span>
+        </li>
+                <li id="33738457" class="dark_highlight_tablet ">
+                        <img alt="Colony" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/jungle_6_1.png" width="18" height="18" >
+            <span class="option_source">Colony [4:116:9]</span>
+        </li>
+                <li id="33739506" class="dark_highlight_tablet ">
+                        <img alt="Rehab" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/normal_10_1.png" width="18" height="18" >
+            <span class="option_source">Rehab [4:212:7]</span>
+        </li>
+                <li id="33760932" class="dark_highlight_tablet ">
+                        <img alt="Colony" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/dry_8_1.png" width="18" height="18" >
+            <span class="option_source">Colony [4:212:5]</span>
+        </li>
+                <li id="33760935" class="dark_highlight_tablet ">
+                        <img alt="Colony" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/water_7_1.png" width="18" height="18" >
+            <span class="option_source">Colony [4:116:10]</span>
+        </li>
+                <li id="33760958" class="dark_highlight_tablet ">
+                        <img alt="Colony" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/normal_3_1.png" width="18" height="18" >
+            <span class="option_source">Colony [4:116:6]</span>
+        </li>
+            </ul>
+    <ul class="moon" style="display: none">
+                <li id="33765791" class="dark_highlight_tablet ">
+                        <img alt="Moon" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/moon_2_1.gif" width="18" height="18" >
+            <span class="option_source">Moon [4:208:8]</span>
+        </li>
+                <li id="33762073" class="dark_highlight_tablet ">
+                        <img alt="Moon" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/moon_1_1.gif" width="18" height="18" >
+            <span class="option_source">Moon [4:116:9]</span>
+        </li>
+                <li id="33792134" class="dark_highlight_tablet ">
+                        <img alt="Moon" src="https://s152-en.ogame.gameforge.com/cdn/img/planets/moon_5_1.gif" width="18" height="18" >
+            <span class="option_source">Moon [4:212:7]</span>
+        </li>
+            </ul>
+    </div>
+</div>                    <a href="javascript:void(0);" class="pay disabled">Pay</a>
+                </div>
+            </div>
+            <div class="right_footer"></div>
+        </div> <!-- right_box End -->
+        <!-- <br class="clearfloat" /> -->
+    </div>
+    <div class="footer"></div>
+</div><!--  Trader ImportExport End -->
+
+<script type="text/javascript">
+var importChangeCost=500;var importUrl="https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=import";var importToken="8128c0ba0c9981599a87d818003f95e1";var planetResources={"33711028":{"input":{"metal":6015376,"crystal":3479837,"deuterium":1331651},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"jungle_7","name":"Colony","otherPlanet":"33765791"},"33765791":{"input":{"metal":37489,"crystal":0,"deuterium":6261},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":true,"imageFileName":"moon_2","name":"Moon","otherPlanet":"33711028"},"33738397":{"input":{"metal":5350004,"crystal":2730537,"deuterium":1252454},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"water_3","name":"Colony","otherPlanet":null},"33738457":{"input":{"metal":8669145,"crystal":5048406,"deuterium":1430016},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"jungle_6","name":"Colony","otherPlanet":"33762073"},"33762073":{"input":{"metal":190000,"crystal":130000,"deuterium":186629},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":true,"imageFileName":"moon_1","name":"Moon","otherPlanet":"33738457"},"33739506":{"input":{"metal":4914734,"crystal":2854645,"deuterium":1107255},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"normal_10","name":"Rehab","otherPlanet":"33792134"},"33792134":{"input":{"metal":0,"crystal":0,"deuterium":0},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":true,"imageFileName":"moon_5","name":"Moon","otherPlanet":"33739506"},"33760932":{"input":{"metal":1013690,"crystal":961839,"deuterium":303645},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"dry_8","name":"Colony","otherPlanet":null},"33760935":{"input":{"metal":865000,"crystal":1590000,"deuterium":470000},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"water_7","name":"Colony","otherPlanet":null},"33760958":{"input":{"metal":865000,"crystal":1590000,"deuterium":470000},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"normal_3","name":"Colony","otherPlanet":null}};var multiplier={"metal":1,"crystal":1.5,"deuterium":3,"honor":100};traderObj.initImportExport();initThousandSeparator();</script>

@@ -472,3 +472,10 @@ func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
 	defer b.done()
 	return b.bot.executeJumpGate(origin, dest, ships)
 }
+
+// BuyOfferOfTheDay buys the offer of the day.
+func (b *Prioritize) BuyOfferOfTheDay() error {
+	b.begin("BuyOfferOfTheDay")
+	defer b.done()
+	return b.bot.buyOfferOfTheDay()
+}

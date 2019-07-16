@@ -77,6 +77,7 @@ type Wrapper interface {
 	RegisterChatCallback(func(ChatMsg))
 	RegisterHTMLInterceptor(func(method string, params, payload url.Values, pageHTML []byte))
 	GetSlots() Slots
+	BuyOfferOfTheDay() error
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
