@@ -73,6 +73,7 @@ IsDonutSystem() bool
 FleetDeutSaveFactor() float64
 ServerVersion() string
 ServerTime() time.Time
+Location() *time.Location
 IsUnderAttack() bool
 GetUserInfos() UserInfos
 SendMessage(playerID int, message string) error
@@ -81,6 +82,7 @@ GetFleetsFromEventList() []Fleet
 CancelFleet(FleetID) error
 GetAttacks() []AttackEvent
 GalaxyInfos(galaxy, system int) (SystemInfos, error)
+GetCachedResearch() Researches
 GetResearch() Researches
 GetCachedPlanets() []Planet
 GetCachedMoons() []Moon
