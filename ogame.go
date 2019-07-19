@@ -644,8 +644,12 @@ LOOP:
 }
 
 // ReconnectChat ...
-func (b *OGame) ReconnectChat() {
+func (b *OGame) ReconnectChat() bool {
+	if b.ws == nil {
+		return false
+	}
 	_, _ = b.ws.Write([]byte("1::/chat"))
+	return true
 }
 
 // ChatPayload ...
