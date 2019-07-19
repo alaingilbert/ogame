@@ -1439,7 +1439,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 
 func calcResources(price int, planetResources PlanetResources, multiplier Multiplier) url.Values {
 	sortedCelestialIDs := make([]CelestialID, 0)
-	for celestialID, _ := range planetResources {
+	for celestialID := range planetResources {
 		sortedCelestialIDs = append(sortedCelestialIDs, celestialID)
 	}
 	sort.Slice(sortedCelestialIDs, func(i, j int) bool {
@@ -1752,7 +1752,7 @@ func (b *OGame) buildShips(celestialID CelestialID, shipID ID, nbr int) error {
 	if !shipID.IsShip() {
 		return errors.New("invalid ship id " + shipID.String())
 	}
-	return b.buildProduction(celestialID, ID(shipID), nbr)
+	return b.buildProduction(celestialID, shipID, nbr)
 }
 
 func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
