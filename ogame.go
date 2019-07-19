@@ -643,6 +643,11 @@ LOOP:
 	}
 }
 
+// ReconnectChat ...
+func (b *OGame) ReconnectChat() {
+	_, _ = b.ws.Write([]byte("1::/chat"))
+}
+
 // ChatPayload ...
 type ChatPayload struct {
 	Name string    `json:"name"`

@@ -77,6 +77,7 @@ Location() *time.Location
 IsUnderAttack() bool
 GetUserInfos() UserInfos
 SendMessage(playerID int, message string) error
+ReconnectChat()
 GetFleets() ([]Fleet, Slots)
 GetFleetsFromEventList() []Fleet
 CancelFleet(FleetID) error
