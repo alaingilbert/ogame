@@ -752,6 +752,14 @@ func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]Espionage
 				if spanLink.Find("figure").HasClass("moon") {
 					report.Target.Type = MoonType
 				}
+				if messageType == Report {
+					s.Find("div.compacting").Each(func(i int, s *goquery.Selection) {
+						if regexp.MustCompile(`%`).MatchString(s.Text()) {
+							report.LootPercentage, _ = strconv.ParseFloat(regexp.MustCompile(`: (\d+)%`).FindStringSubmatch(s.Text())[1], 64)
+							report.LootPercentage /= 100
+						}
+					})
+				}
 				msgs = append(msgs, report)
 
 			}

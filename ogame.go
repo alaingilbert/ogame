@@ -2171,10 +2171,11 @@ type CombatReportSummary struct {
 
 // EspionageReportSummary summary of espionage report
 type EspionageReportSummary struct {
-	ID     int
-	Type   EspionageReportType
-	From   string
-	Target Coordinate
+	ID             int
+	Type           EspionageReportType
+	From           string
+	Target         Coordinate
+	LootPercentage float64
 }
 
 func (b *OGame) getPageMessages(page, tabid int) ([]byte, error) {
