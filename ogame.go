@@ -67,6 +67,7 @@ type OGame struct {
 	Client               *OGameClient
 	logger               *log.Logger
 	chatCallbacks        []func(msg ChatMsg)
+	auctioneerCallbacks  []func(packet []byte)
 	interceptorCallbacks []func(method string, params, payload url.Values, pageHTML []byte)
 	closeChatCh          chan struct{}
 	chatRetry            *ExponentialBackoff
@@ -620,6 +621,10 @@ LOOP:
 			b.sessionChatCounter++
 		} else if bytes.Equal(msg, []byte("2::")) {
 			_, _ = b.ws.Write([]byte("2::"))
+		} else if regexp.MustCompile(`\d+::/auctioneer`).Match(msg) {
+			for _, clb := range b.auctioneerCallbacks {
+				clb(msg)
+			}
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).Match(msg) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[false]`).Match(msg) {
@@ -627,7 +632,7 @@ LOOP:
 		} else if bytes.HasPrefix(msg, []byte("5::/chat:")) {
 			payload := bytes.TrimPrefix(msg, []byte("5::/chat:"))
 			var chatPayload ChatPayload
-			if err := json.Unmarshal([]byte(payload), &chatPayload); err != nil {
+			if err := json.Unmarshal(payload, &chatPayload); err != nil {
 				b.error("Unable to unmarshal chat payload", err, payload)
 				continue
 			}
@@ -3012,6 +3017,11 @@ func (b *OGame) Distance(origin, destination Coordinate) int {
 // RegisterChatCallback register a callback that is called when chat messages are received
 func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 	b.chatCallbacks = append(b.chatCallbacks, fn)
+}
+
+// RegisterAuctioneerCallback register a callback that is called when auctioneer packets are received
+func (b *OGame) RegisterAuctioneerCallback(fn func(packet []byte)) {
+	b.auctioneerCallbacks = append(b.auctioneerCallbacks, fn)
 }
 
 // RegisterHTMLInterceptor ...
