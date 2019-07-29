@@ -636,10 +636,19 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	assert.Equal(t, 2, len(msgs))
 	assert.Equal(t, Report, msgs[0].Type)
 	assert.Equal(t, Coordinate{4, 117, 6, PlanetType}, msgs[0].Target)
+	assert.Equal(t, 0.5, msgs[0].LootPercentage)
 	assert.Equal(t, "Fleet Command", msgs[0].From)
 	assert.Equal(t, Action, msgs[1].Type)
 	assert.Equal(t, "Space Monitoring", msgs[1].From)
 	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, msgs[1].Target)
+}
+
+func TestExtractEspionageReportMessageIDsLootPercentage(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages_loot_percentage.html")
+	msgs, _ := extractEspionageReportMessageIDs(pageHTMLBytes)
+	assert.Equal(t, 1.0, msgs[0].LootPercentage)
+	assert.Equal(t, 0.5, msgs[1].LootPercentage)
+	assert.Equal(t, 0.5, msgs[2].LootPercentage)
 }
 
 func TestExtractCombatReportMessages(t *testing.T) {
