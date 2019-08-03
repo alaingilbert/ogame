@@ -1346,7 +1346,8 @@ func planetDistance(planet1, planet2 int) (distance int) {
 	return int(1000 + 5*math.Abs(float64(planet2-planet1)))
 }
 
-func distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool) (distance int) {
+// Distance returns the distance between two coordinates
+func Distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool) (distance int) {
 	if c1.Galaxy != c2.Galaxy {
 		return galaxyDistance(c1.Galaxy, c2.Galaxy, universeSize, donutGalaxy)
 	}
@@ -1390,7 +1391,7 @@ func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalax
 	s := speed
 	v := float64(findSlowestSpeed(ships, techs))
 	a := float64(universeSpeedFleet)
-	d := float64(distance(origin, destination, universeSize, donutGalaxy, donutSystem))
+	d := float64(Distance(origin, destination, universeSize, donutGalaxy, donutSystem))
 	secs = int(math.Round(((10 + (3500 / s)) * math.Sqrt((10*d)/v)) / a))
 	fuel = calcFuel(ships, int(d), s, fleetDeutSaveFactor)
 	return
@@ -3067,7 +3068,7 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination Coordinate) int {
-	return distance(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem)
+	return Distance(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem)
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received
