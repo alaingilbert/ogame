@@ -80,6 +80,8 @@ type Wrapper interface {
 	RegisterHTMLInterceptor(func(method string, params, payload url.Values, pageHTML []byte))
 	GetSlots() Slots
 	BuyOfferOfTheDay() error
+	BytesDownloaded() int64
+	BytesUploaded() int64
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)

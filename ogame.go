@@ -78,6 +78,8 @@ type OGame struct {
 	tasksPopCh           chan struct{}
 	loginWrapper         func(func() error) error
 	loginProxyTransport  *http.Transport
+	bytesUploaded        int64
+	bytesDownloaded      int64
 }
 
 const defaultUserAgent = "" +
@@ -293,6 +295,7 @@ func getUserAccounts(b *OGame, phpSessionID string) ([]account, error) {
 		return userAccounts, err
 	}
 	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return userAccounts, err
@@ -302,10 +305,11 @@ func getUserAccounts(b *OGame, phpSessionID string) ([]account, error) {
 			b.error(err)
 		}
 	}()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, err := readBody(b, resp)
 	if err != nil {
 		return userAccounts, err
 	}
+	b.bytesUploaded += req.ContentLength
 	if err := json.Unmarshal(by, &userAccounts); err != nil {
 		return userAccounts, err
 	}
@@ -318,6 +322,7 @@ func getServers(b *OGame) ([]Server, error) {
 	if err != nil {
 		return servers, err
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return servers, err
@@ -327,10 +332,11 @@ func getServers(b *OGame) ([]Server, error) {
 			b.error(err)
 		}
 	}()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, err := readBody(b, resp)
 	if err != nil {
 		return servers, err
 	}
+	b.bytesUploaded += req.ContentLength
 	if err := json.Unmarshal(by, &servers); err != nil {
 		return servers, err
 	}
@@ -361,6 +367,36 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 	return acc, server, nil
 }
 
+func readBody(b *OGame, resp *http.Response) ([]byte, error) {
+	n := int64(0)
+	defer func() {
+		b.bytesDownloaded += n
+	}()
+	isGzip := false
+	var reader io.ReadCloser
+	switch resp.Header.Get("Content-Encoding") {
+	case "gzip":
+		isGzip = true
+		n = resp.ContentLength
+		var err error
+		reader, err = gzip.NewReader(resp.Body)
+		if err != nil {
+			return []byte{}, err
+		}
+		defer reader.Close()
+	default:
+		reader = resp.Body
+	}
+	by, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return []byte{}, err
+	}
+	if !isGzip {
+		n = int64(len(by))
+	}
+	return by, nil
+}
+
 func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, error) {
 	ogURL := fmt.Sprintf("https://lobby.ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
 		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
@@ -369,6 +405,7 @@ func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, e
 		return "", err
 	}
 	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", err
@@ -378,10 +415,11 @@ func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, e
 			b.error(err)
 		}
 	}()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, err := readBody(b, resp)
 	if err != nil {
 		return "", err
 	}
+	b.bytesUploaded += req.ContentLength
 	var loginLink struct {
 		URL string
 	}
@@ -438,6 +476,7 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	b.debug("login to universe")
 	var resp *http.Response
 	if b.loginProxyTransport != nil {
@@ -457,11 +496,12 @@ func (b *OGame) login() error {
 		}
 	}()
 
-	pageHTML, err := ioutil.ReadAll(resp.Body)
+	pageHTML, err := readBody(b, resp)
 	if err != nil {
 		return err
 	}
 
+	b.bytesUploaded += req.ContentLength
 	b.debug("extract information from html")
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
@@ -790,29 +830,11 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 			b.error(err)
 		}
 	}()
-
-	var reader io.ReadCloser
-	switch resp.Header.Get("Content-Encoding") {
-	case "gzip":
-		reader, err = gzip.NewReader(resp.Body)
-		if err != nil {
-			b.error(err)
-			return []byte{}, err
-		}
-		defer func() {
-			if err := reader.Close(); err != nil {
-				b.error(err)
-			}
-		}()
-	default:
-		reader = resp.Body
-	}
-
-	body, err := ioutil.ReadAll(reader)
+	body, err := readBody(b, resp)
 	if err != nil {
-		b.error(err)
 		return []byte{}, err
 	}
+	b.bytesUploaded += req.ContentLength
 
 	go func() {
 		for _, fn := range b.interceptorCallbacks {
@@ -843,6 +865,7 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 		return nil, err
 	}
 
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -856,11 +879,11 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 	if resp.StatusCode >= 500 {
 		return nil, err
 	}
-
-	by, err := ioutil.ReadAll(resp.Body)
+	by, err := readBody(b, resp)
 	if err != nil {
 		return nil, err
 	}
+	b.bytesUploaded += req.ContentLength
 	pageHTMLBytes = by
 
 	return pageHTMLBytes, nil
@@ -890,6 +913,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 			return err
 		}
 
+		req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 		if IsAjaxPage(vals) {
 			req.Header.Add("X-Requested-With", "XMLHttpRequest")
 		}
@@ -907,11 +931,11 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		if resp.StatusCode >= 500 {
 			return err
 		}
-
-		by, err := ioutil.ReadAll(resp.Body)
+		by, err := readBody(b, resp)
 		if err != nil {
 			return err
 		}
+		b.bytesUploaded += req.ContentLength
 		pageHTMLBytes = by
 
 		if page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
@@ -2443,6 +2467,8 @@ func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 	if err != nil {
 		return newAccount, err
 	}
+	b.bytesUploaded += req.ContentLength
+	b.bytesDownloaded += int64(len(by))
 	if err := json.Unmarshal(by, &newAccount); err != nil {
 		return newAccount, err
 	}
@@ -2675,6 +2701,16 @@ func (b *OGame) Login() error {
 
 // Logout the bot from ogame server
 func (b *OGame) Logout() { b.WithPriority(Normal).Logout() }
+
+// BytesDownloaded returns the amount of bytes downloaded
+func (b *OGame) BytesDownloaded() int64 {
+	return b.bytesDownloaded
+}
+
+// BytesUploaded returns the amount of bytes uploaded
+func (b *OGame) BytesUploaded() int64 {
+	return b.bytesUploaded
+}
 
 // GetUniverseName get the name of the universe the bot is playing into
 func (b *OGame) GetUniverseName() string {
