@@ -192,6 +192,12 @@ func ExtractResourcesProductions(pageHTML []byte) (Resources, error) {
 	return ExtractResourcesProductionsFromDoc(doc)
 }
 
+// ExtractNbProbes ...
+func ExtractNbProbes(pageHTML []byte) int {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractNbProbesFromDoc(doc)
+}
+
 // <Extract from doc> ---------------------------------------------------------
 
 // ExtractPlanetsFromDoc ...
@@ -1303,6 +1309,12 @@ func extractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
 	serverTime = serverTime.Add(time.Duration(-n) * time.Second).In(time.FixedZone("OGT", n))
 
 	return serverTime, nil
+}
+
+// ExtractNbProbesFromDoc ...
+func ExtractNbProbesFromDoc(doc *goquery.Document) int {
+	out, _ := strconv.Atoi(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
+	return out
 }
 
 // </ Extract from doc> -------------------------------------------------------

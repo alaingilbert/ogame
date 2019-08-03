@@ -684,6 +684,16 @@ func TestExtractResourcesProductions(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 10352, Crystal: 5104, Deuterium: 1282, Energy: -52}, prods)
 }
 
+func TestExtractNbProbes(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences.html")
+	probes := ExtractNbProbes(pageHTMLBytes)
+	assert.Equal(t, 10, probes)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_mobile.html")
+	probes = ExtractNbProbes(pageHTMLBytes)
+	assert.Equal(t, 10, probes)
+}
+
 //func TestCalcResources(t *testing.T) {
 //	pageHTMLBytes, _ := ioutil.ReadFile("samples/traderOverview.html")
 //	price, _, planetResources, multiplier, _ := ExtractOfferOfTheDay(pageHTMLBytes)

@@ -45,6 +45,7 @@ type OGame struct {
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
 	Player               UserInfos
+	CachedNbProbes       int
 	researches           *Researches
 	Planets              []Planet
 	ajaxChatToken        string
@@ -533,6 +534,8 @@ func (b *OGame) login() error {
 		fn("GET", nil, nil, pageHTML)
 	}
 
+	_, _ = b.getPageContent(url.Values{"page": {"preferences"}}) // Will update preferences cached values
+
 	// Extract chat host and port
 	m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindSubmatch(pageHTML)
 	chatHost := string(m[1])
@@ -564,6 +567,8 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.ajaxChatToken, _ = ExtractAjaxChatToken(pageHTML)
 	if page == "overview" {
 		b.Player, _ = ExtractUserInfos(pageHTML, b.language)
+	} else if page == "preferences" {
+		b.CachedNbProbes = ExtractNbProbes(pageHTML)
 	}
 }
 
@@ -835,6 +840,16 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 		return []byte{}, err
 	}
 	b.bytesUploaded += req.ContentLength
+
+	if vals.Get("page") == "preferences" {
+		spioAnz := payload.Get("spio_anz")
+		if spioAnz != "" {
+			nbProbes, err := strconv.Atoi(spioAnz)
+			if err == nil {
+				b.CachedNbProbes = nbProbes
+			}
+		}
+	}
 
 	go func() {
 		for _, fn := range b.interceptorCallbacks {
@@ -2771,6 +2786,11 @@ func (b *OGame) IsUnderAttack() bool {
 // GetCachedPlayer returns cached player infos
 func (b *OGame) GetCachedPlayer() UserInfos {
 	return b.Player
+}
+
+// GetCachedNbProbes returns cached number of probes from preferences
+func (b *OGame) GetCachedNbProbes() int {
+	return b.CachedNbProbes
 }
 
 // GetPlanets returns the user planets

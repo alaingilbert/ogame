@@ -60,6 +60,7 @@ type Wrapper interface {
 	GetCachedCelestials() []Celestial
 	GetCachedCelestial(interface{}) Celestial
 	GetCachedPlayer() UserInfos
+	GetCachedNbProbes() int
 	GetPlanets() []Planet
 	GetPlanet(interface{}) (Planet, error)
 	GetMoons() []Moon
