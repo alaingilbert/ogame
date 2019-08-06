@@ -1212,6 +1212,8 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 		dest.Type = PlanetType
 		if s.Find("span.destinationPlanet figure").HasClass("moon") {
 			dest.Type = MoonType
+		} else if s.Find("span.destinationPlanet figure").HasClass("tf") {
+			dest.Type = DebrisType
 		}
 
 		idStr, _ := s.Find("span.reversal").Attr("ref")
