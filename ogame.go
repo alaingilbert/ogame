@@ -2030,18 +2030,19 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Add("galaxy", strconv.Itoa(where.Galaxy))
 	payload.Add("system", strconv.Itoa(where.System))
 	payload.Add("position", strconv.Itoa(where.Position))
-	t := where.Type
 	if mission == RecycleDebrisField {
-		t = DebrisType // Send to debris field
+		where.Type = DebrisType // Send to debris field
+	} else if mission == Colonize || mission == Expedition {
+		where.Type = PlanetType
 	}
-	payload.Add("type", strconv.Itoa(int(t)))
+	payload.Add("type", strconv.Itoa(int(where.Type)))
 
 	// Check
 	fleetCheckPayload := url.Values{
 		"galaxy": {strconv.Itoa(where.Galaxy)},
 		"system": {strconv.Itoa(where.System)},
 		"planet": {strconv.Itoa(where.Position)},
-		"type":   {strconv.Itoa(int(t))},
+		"type":   {strconv.Itoa(int(where.Type))},
 	}
 	if cs {
 		fleetCheckPayload.Add("cs", "1")

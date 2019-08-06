@@ -1393,6 +1393,13 @@ func TestExtractFleet_expedition(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 116, 16, PlanetType}, fleets[1].Destination)
 }
 
+func TestExtractFleet_harvest(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_harvest.html")
+	fleets := ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[5].Origin)
+	assert.Equal(t, Coordinate{4, 116, 9, DebrisType}, fleets[5].Destination)
+}
+
 func TestExtractFleet_returningTransport(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_2.html")
 	fleets := ExtractFleets(pageHTMLBytes)
