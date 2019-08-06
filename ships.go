@@ -1,6 +1,9 @@
 package ogame
 
-import "strconv"
+import (
+	"math"
+	"strconv"
+)
 
 // ShipsInfos represent a planet ships information
 type ShipsInfos struct {
@@ -18,6 +21,31 @@ type ShipsInfos struct {
 	Recycler       int
 	EspionageProbe int
 	SolarSatellite int
+}
+
+// HasShips returns either or not at least one ship is present
+func (s ShipsInfos) HasShips() bool {
+	for _, ship := range Ships {
+		if s.ByID(ship.GetID()) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// Speed returns the speed of the slowest ship
+func (s ShipsInfos) Speed(techs Researches) int {
+	minSpeed := math.MaxInt32
+	for _, ship := range Ships {
+		nbr := s.ByID(ship.GetID())
+		if nbr > 0 {
+			shipSpeed := ship.GetSpeed(techs)
+			if shipSpeed < minSpeed {
+				minSpeed = shipSpeed
+			}
+		}
+	}
+	return minSpeed
 }
 
 // Cargo returns the total cargo of the ships
