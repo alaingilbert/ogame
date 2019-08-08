@@ -127,7 +127,13 @@ func TestExtractJumpGate(t *testing.T) {
 func TestExtractOgameTimestamp(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
 	res := ExtractOgameTimestamp(pageHTMLBytes)
-	assert.Equal(t, 1538912592, res)
+	assert.Equal(t, int64(1538912592), res)
+}
+
+func TestExtractOgameTimestampFromBytes(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
+	res := ExtractOGameTimestampFromBytes(pageHTMLBytes)
+	assert.Equal(t, int64(1538912592), res)
 }
 
 func TestExtractResources(t *testing.T) {
