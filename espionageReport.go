@@ -81,3 +81,24 @@ type EspionageReport struct {
 	Type                         EspionageReportType
 	Date                         time.Time
 }
+
+// PlunderRatio returns the plunder ratio
+func (r EspionageReport) PlunderRatio() float64 {
+	plunderRatio := 0.5
+	if r.IsBandit {
+		plunderRatio = 1
+	} else if !r.IsInactive && r.IsStarlord {
+		plunderRatio = 0.75
+	}
+	return plunderRatio
+}
+
+// Loot returns the possible loot
+func (r EspionageReport) Loot() Resources {
+	plunderRatio := r.PlunderRatio()
+	return Resources{
+		Metal:     int(float64(r.Metal) * plunderRatio),
+		Crystal:   int(float64(r.Crystal) * plunderRatio),
+		Deuterium: int(float64(r.Deuterium) * plunderRatio),
+	}
+}
