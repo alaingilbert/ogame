@@ -94,7 +94,7 @@ func ExtractSlots(pageHTML []byte) Slots {
 }
 
 // ExtractOgameTimestamp ...
-func ExtractOgameTimestamp(pageHTML []byte) int {
+func ExtractOgameTimestamp(pageHTML []byte) int64 {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractOgameTimestampFromDoc(doc)
 }
@@ -251,8 +251,8 @@ func ExtractPlanetByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordina
 }
 
 // ExtractOgameTimestampFromDoc ...
-func ExtractOgameTimestampFromDoc(doc *goquery.Document) int {
-	ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
+func ExtractOgameTimestampFromDoc(doc *goquery.Document) int64 {
+	ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
 	return ogameTimestamp
 }
 
@@ -1344,6 +1344,16 @@ func ExtractPlanetID(pageHTML []byte) (CelestialID, error) {
 	}
 	planetID, _ := strconv.Atoi(string(m[1]))
 	return CelestialID(planetID), nil
+}
+
+// ExtractOGameTimestampFromBytes extracts ogame timestamp from an html page
+func ExtractOGameTimestampFromBytes(pageHTML []byte) int64 {
+	m := regexp.MustCompile(`<meta name="ogame-timestamp" content="(\d+)"/>`).FindSubmatch(pageHTML)
+	if len(m) != 2 {
+		return 0
+	}
+	ts, _ := strconv.ParseInt(string(m[1]), 10, 64)
+	return ts
 }
 
 // ExtractPlanetType extracts planet type from html page
