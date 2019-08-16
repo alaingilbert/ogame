@@ -48,6 +48,22 @@ func (s ShipsInfos) Speed(techs Researches) int {
 	return minSpeed
 }
 
+// ToQuantifiables convert a ShipsInfos to an array of Quantifiable
+func (s ShipsInfos) ToQuantifiables() []Quantifiable {
+	out := make([]Quantifiable, 0)
+	for _, ship := range Ships {
+		if ship.GetID() == SolarSatelliteID {
+			continue
+		}
+		shipID := ship.GetID()
+		nbr := s.ByID(shipID)
+		if nbr > 0 {
+			out = append(out, Quantifiable{ID: shipID, Nbr: nbr})
+		}
+	}
+	return out
+}
+
 // Cargo returns the total cargo of the ships
 func (s ShipsInfos) Cargo(techs Researches) int {
 	res := LightFighter.GetCargoCapacity(techs) * s.LightFighter
