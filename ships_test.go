@@ -19,6 +19,14 @@ func TestShipsInfos_Cargo(t *testing.T) {
 	assert.Equal(t, 60000, ships.Cargo(techs))
 }
 
+func TestShipsInfos_FleetValue(t *testing.T) {
+	ships := ShipsInfos{
+		SmallCargo: 2,
+		LargeCargo: 2,
+	}
+	assert.Equal(t, 32000, ships.FleetValue())
+}
+
 func TestShipsInfos_Add(t *testing.T) {
 	s1 := ShipsInfos{
 		LightFighter:   1,
