@@ -65,22 +65,11 @@ func (s ShipsInfos) ToQuantifiables() []Quantifiable {
 }
 
 // Cargo returns the total cargo of the ships
-func (s ShipsInfos) Cargo(techs Researches) int {
-	res := LightFighter.GetCargoCapacity(techs) * s.LightFighter
-	res += HeavyFighter.GetCargoCapacity(techs) * s.HeavyFighter
-	res += Cruiser.GetCargoCapacity(techs) * s.Cruiser
-	res += Battleship.GetCargoCapacity(techs) * s.Battleship
-	res += Battlecruiser.GetCargoCapacity(techs) * s.Battlecruiser
-	res += Bomber.GetCargoCapacity(techs) * s.Bomber
-	res += Destroyer.GetCargoCapacity(techs) * s.Destroyer
-	res += Deathstar.GetCargoCapacity(techs) * s.Deathstar
-	res += SmallCargo.GetCargoCapacity(techs) * s.SmallCargo
-	res += LargeCargo.GetCargoCapacity(techs) * s.LargeCargo
-	res += ColonyShip.GetCargoCapacity(techs) * s.ColonyShip
-	res += Recycler.GetCargoCapacity(techs) * s.Recycler
-	res += EspionageProbe.GetCargoCapacity(techs) * s.EspionageProbe
-	res += SolarSatellite.GetCargoCapacity(techs) * s.SolarSatellite
-	return res
+func (s ShipsInfos) Cargo(techs Researches) (out int) {
+	for _, ship := range Ships {
+		out += ship.GetCargoCapacity(techs) * s.ByID(ship.GetID())
+	}
+	return
 }
 
 // Has returns true if v is contained by s
