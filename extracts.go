@@ -461,20 +461,20 @@ func ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error) {
 		return ShipsInfos{}, ErrInvalidPlanetID
 	}
 	res := ShipsInfos{}
-	res.LightFighter = getNbr(doc, "military204")
-	res.HeavyFighter = getNbr(doc, "military205")
-	res.Cruiser = getNbr(doc, "military206")
-	res.Battleship = getNbr(doc, "military207")
-	res.Battlecruiser = getNbr(doc, "military215")
-	res.Bomber = getNbr(doc, "military211")
-	res.Destroyer = getNbr(doc, "military213")
-	res.Deathstar = getNbr(doc, "military214")
-	res.SmallCargo = getNbr(doc, "civil202")
-	res.LargeCargo = getNbr(doc, "civil203")
-	res.ColonyShip = getNbr(doc, "civil208")
-	res.Recycler = getNbr(doc, "civil209")
-	res.EspionageProbe = getNbr(doc, "civil210")
-	res.SolarSatellite = getNbr(doc, "civil212")
+	res.LightFighter = getNbrShips(doc, "military204")
+	res.HeavyFighter = getNbrShips(doc, "military205")
+	res.Cruiser = getNbrShips(doc, "military206")
+	res.Battleship = getNbrShips(doc, "military207")
+	res.Battlecruiser = getNbrShips(doc, "military215")
+	res.Bomber = getNbrShips(doc, "military211")
+	res.Destroyer = getNbrShips(doc, "military213")
+	res.Deathstar = getNbrShips(doc, "military214")
+	res.SmallCargo = getNbrShips(doc, "civil202")
+	res.LargeCargo = getNbrShips(doc, "civil203")
+	res.ColonyShip = getNbrShips(doc, "civil208")
+	res.Recycler = getNbrShips(doc, "civil209")
+	res.EspionageProbe = getNbrShips(doc, "civil210")
+	res.SolarSatellite = getNbrShips(doc, "civil212")
 
 	return res, nil
 }

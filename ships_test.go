@@ -10,6 +10,23 @@ func TestByID(t *testing.T) {
 	assert.Equal(t, 0, ShipsInfos{}.ByID(123456))
 }
 
+func TestShipsInfos_Cargo(t *testing.T) {
+	ships := ShipsInfos{
+		SmallCargo: 2,
+		LargeCargo: 2,
+	}
+	techs := Researches{}
+	assert.Equal(t, 60000, ships.Cargo(techs))
+}
+
+func TestShipsInfos_FleetValue(t *testing.T) {
+	ships := ShipsInfos{
+		SmallCargo: 2,
+		LargeCargo: 2,
+	}
+	assert.Equal(t, 32000, ships.FleetValue())
+}
+
 func TestShipsInfos_Add(t *testing.T) {
 	s1 := ShipsInfos{
 		LightFighter:   1,

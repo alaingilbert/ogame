@@ -48,23 +48,28 @@ func (s ShipsInfos) Speed(techs Researches) int {
 	return minSpeed
 }
 
+// ToQuantifiables convert a ShipsInfos to an array of Quantifiable
+func (s ShipsInfos) ToQuantifiables() []Quantifiable {
+	out := make([]Quantifiable, 0)
+	for _, ship := range Ships {
+		if ship.GetID() == SolarSatelliteID {
+			continue
+		}
+		shipID := ship.GetID()
+		nbr := s.ByID(shipID)
+		if nbr > 0 {
+			out = append(out, Quantifiable{ID: shipID, Nbr: nbr})
+		}
+	}
+	return out
+}
+
 // Cargo returns the total cargo of the ships
-func (s ShipsInfos) Cargo(techs Researches) int {
-	res := LightFighter.GetCargoCapacity(techs) * s.LightFighter
-	res += HeavyFighter.GetCargoCapacity(techs) * s.HeavyFighter
-	res += Cruiser.GetCargoCapacity(techs) * s.Cruiser
-	res += Battleship.GetCargoCapacity(techs) * s.Battleship
-	res += Battlecruiser.GetCargoCapacity(techs) * s.Battlecruiser
-	res += Bomber.GetCargoCapacity(techs) * s.Bomber
-	res += Destroyer.GetCargoCapacity(techs) * s.Destroyer
-	res += Deathstar.GetCargoCapacity(techs) * s.Deathstar
-	res += SmallCargo.GetCargoCapacity(techs) * s.SmallCargo
-	res += LargeCargo.GetCargoCapacity(techs) * s.LargeCargo
-	res += ColonyShip.GetCargoCapacity(techs) * s.ColonyShip
-	res += Recycler.GetCargoCapacity(techs) * s.Recycler
-	res += EspionageProbe.GetCargoCapacity(techs) * s.EspionageProbe
-	res += SolarSatellite.GetCargoCapacity(techs) * s.SolarSatellite
-	return res
+func (s ShipsInfos) Cargo(techs Researches) (out int) {
+	for _, ship := range Ships {
+		out += ship.GetCargoCapacity(techs) * s.ByID(ship.GetID())
+	}
+	return
 }
 
 // Has returns true if v is contained by s
@@ -80,59 +85,27 @@ func (s ShipsInfos) Has(v ShipsInfos) bool {
 }
 
 // FleetValue returns the value of the fleet
-func (s ShipsInfos) FleetValue() int {
-	val := s.LightFighter * LightFighter.Price.Total()
-	val += s.HeavyFighter * HeavyFighter.Price.Total()
-	val += s.Cruiser * Cruiser.Price.Total()
-	val += s.Battleship * Battleship.Price.Total()
-	val += s.Battlecruiser * Battlecruiser.Price.Total()
-	val += s.Bomber * Bomber.Price.Total()
-	val += s.Destroyer * Destroyer.Price.Total()
-	val += s.Deathstar * Deathstar.Price.Total()
-	val += s.SmallCargo * SmallCargo.Price.Total()
-	val += s.LargeCargo * LargeCargo.Price.Total()
-	val += s.ColonyShip * ColonyShip.Price.Total()
-	val += s.Recycler * Recycler.Price.Total()
-	val += s.EspionageProbe * EspionageProbe.Price.Total()
-	val += s.SolarSatellite * SolarSatellite.Price.Total()
-	return val
+func (s ShipsInfos) FleetValue() (out int) {
+	for _, ship := range Ships {
+		out += ship.GetPrice(s.ByID(ship.GetID())).Total()
+	}
+	return
 }
 
 // FleetCost returns the cost of the fleet
-func (s ShipsInfos) FleetCost() Resources {
-	val := LightFighter.Price.Mul(s.LightFighter)
-	val = val.Add(HeavyFighter.Price.Mul(s.HeavyFighter))
-	val = val.Add(Cruiser.Price.Mul(s.Cruiser))
-	val = val.Add(Battleship.Price.Mul(s.Battleship))
-	val = val.Add(Battlecruiser.Price.Mul(s.Battlecruiser))
-	val = val.Add(Bomber.Price.Mul(s.Bomber))
-	val = val.Add(Destroyer.Price.Mul(s.Destroyer))
-	val = val.Add(Deathstar.Price.Mul(s.Deathstar))
-	val = val.Add(SmallCargo.Price.Mul(s.SmallCargo))
-	val = val.Add(LargeCargo.Price.Mul(s.LargeCargo))
-	val = val.Add(ColonyShip.Price.Mul(s.ColonyShip))
-	val = val.Add(Recycler.Price.Mul(s.Recycler))
-	val = val.Add(EspionageProbe.Price.Mul(s.EspionageProbe))
-	val = val.Add(SolarSatellite.Price.Mul(s.SolarSatellite))
-	return val
+func (s ShipsInfos) FleetCost() (out Resources) {
+	for _, ship := range Ships {
+		out = out.Add(ship.GetPrice(s.ByID(ship.GetID())))
+	}
+	return
 }
 
 // Add adds two ShipsInfos together
 func (s *ShipsInfos) Add(v ShipsInfos) {
-	s.LightFighter += v.LightFighter
-	s.HeavyFighter += v.HeavyFighter
-	s.Cruiser += v.Cruiser
-	s.Battleship += v.Battleship
-	s.Battlecruiser += v.Battlecruiser
-	s.Bomber += v.Bomber
-	s.Destroyer += v.Destroyer
-	s.Deathstar += v.Deathstar
-	s.SmallCargo += v.SmallCargo
-	s.LargeCargo += v.LargeCargo
-	s.ColonyShip += v.ColonyShip
-	s.Recycler += v.Recycler
-	s.EspionageProbe += v.EspionageProbe
-	s.SolarSatellite += v.SolarSatellite
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		s.Set(shipID, s.ByID(shipID)+v.ByID(shipID))
+	}
 }
 
 // ByID get number of ships by ship id

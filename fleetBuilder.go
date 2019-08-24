@@ -131,6 +131,12 @@ func (f *FleetBuilder) AddShips(id ID, nbr int) *FleetBuilder {
 	return f
 }
 
+// SetShips ...
+func (f *FleetBuilder) SetShips(ships ShipsInfos) *FleetBuilder {
+	f.ships = ships.ToQuantifiables()
+	return f
+}
+
 // SetAllShips ...
 func (f *FleetBuilder) SetAllShips() *FleetBuilder {
 	f.allShips = true

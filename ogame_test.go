@@ -636,6 +636,12 @@ func TestExtractShips(t *testing.T) {
 	assert.Equal(t, 700, ships.Cruiser)
 }
 
+func TestExtractShipsMillions(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_millions_ships.html")
+	ships, _ := ExtractShips(pageHTMLBytes)
+	assert.Equal(t, 15000001, ships.LightFighter)
+}
+
 func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages.html")
 	msgs, _ := extractEspionageReportMessageIDs(pageHTMLBytes)
@@ -924,6 +930,12 @@ func TestExtractGalaxyInfosPlanetActivity23(t *testing.T) {
 	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.Equal(t, 23, infos.Position(9).Activity)
 }
+
+//func TestExtractGalaxyInfosPlanetActivityWithoutDetailedActivity(t *testing.T) {
+//	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_planet_activity_without_detailed_activity.html")
+//	infos, _ := ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+//	assert.Equal(t, 49, infos.Position(5).Activity)
+//}
 
 func TestExtractGalaxyInfosMoonActivity(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_moon_activity.html")
