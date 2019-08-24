@@ -1663,6 +1663,13 @@ func getNbr(doc *goquery.Document, name string) int {
 	return ParseInt(level.Text())
 }
 
+func getNbrShips(doc *goquery.Document, name string) int {
+	div := doc.Find("div." + name)
+	title := div.Find("a").AttrOr("title", "")
+	m := regexp.MustCompile(`.+\(([\d.,]+)\)`).FindStringSubmatch(title)
+	return ParseInt(m[1])
+}
+
 func (b *OGame) getCachedResearch() Researches {
 	if b.researches == nil {
 		return b.getResearch()
