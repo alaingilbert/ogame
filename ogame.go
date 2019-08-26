@@ -1665,8 +1665,14 @@ func getNbr(doc *goquery.Document, name string) int {
 
 func getNbrShips(doc *goquery.Document, name string) int {
 	div := doc.Find("div." + name)
-	title := div.Find("a").AttrOr("title", "")
+	title := div.AttrOr("title", "")
+	if title == "" {
+		title = div.Find("a").AttrOr("title", "")
+	}
 	m := regexp.MustCompile(`.+\(([\d.,]+)\)`).FindStringSubmatch(title)
+	if len(m) != 2 {
+		return 0
+	}
 	return ParseInt(m[1])
 }
 
