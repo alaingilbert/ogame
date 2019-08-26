@@ -642,6 +642,12 @@ func TestExtractShipsMillions(t *testing.T) {
 	assert.Equal(t, 15000001, ships.LightFighter)
 }
 
+func TestExtractShipsWhileBeingBuilt(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_ship_being_built.html")
+	ships, _ := ExtractShips(pageHTMLBytes)
+	assert.Equal(t, 213, ships.EspionageProbe)
+}
+
 func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages.html")
 	msgs, _ := extractEspionageReportMessageIDs(pageHTMLBytes)
