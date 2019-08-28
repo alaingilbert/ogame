@@ -166,11 +166,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.language = lang
 
 	jar, _ := cookiejar.New(nil)
-	b.Client = &OGameClient{
-		Client: http.Client{
-			Timeout: 30 * time.Second,
-		},
-	}
+	b.Client = NewOGameClient()
 	b.Client.Jar = jar
 	b.Client.UserAgent = defaultUserAgent
 
