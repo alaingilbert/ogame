@@ -35,12 +35,11 @@ func NewOGameClient() *OGameClient {
 		client.fpsStartTime = time.Now().Add(delay * time.Second)
 		client.fpsStartTimeMutex.Unlock()
 		for {
-			now := time.Now()
 			prevRPS := atomic.SwapInt32(&client.rpsCounter, 0)
 			rps := prevRPS / delay
 			atomic.StoreInt32(&client.rps, rps)
 			client.fpsStartTimeMutex.Lock()
-			client.fpsStartTime = now.Add(delay * time.Second)
+			client.fpsStartTime = time.Now().Add(delay * time.Second)
 			client.fpsStartTimeMutex.Unlock()
 			time.Sleep(delay * time.Second)
 		}
