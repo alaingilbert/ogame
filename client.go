@@ -15,8 +15,8 @@ type OGameClient struct {
 	rpsCounter        int32
 	rps               int32
 	maxRPS            int32
-	fpsStartTime      time.Time
-	fpsStartTimeMutex sync.Mutex
+	rpsStartTime      time.Time
+	rpsStartTimeMutex sync.Mutex
 }
 
 // NewOGameClient ...
@@ -35,9 +35,9 @@ func NewOGameClient() *OGameClient {
 			prevRPS := atomic.SwapInt32(&client.rpsCounter, 0)
 			rps := prevRPS / delay
 			atomic.StoreInt32(&client.rps, rps)
-			client.fpsStartTimeMutex.Lock()
-			client.fpsStartTime = time.Now().Add(delay * time.Second)
-			client.fpsStartTimeMutex.Unlock()
+			client.rpsStartTimeMutex.Lock()
+			client.rpsStartTime = time.Now().Add(delay * time.Second)
+			client.rpsStartTimeMutex.Unlock()
 			time.Sleep(delay * time.Second)
 		}
 	}()
@@ -53,9 +53,9 @@ func (c *OGameClient) SetMaxRPS(maxRPS int32) {
 func (c *OGameClient) incrRPS() {
 	newRPS := atomic.AddInt32(&c.rpsCounter, 1)
 	if c.maxRPS > 0 && newRPS > c.maxRPS {
-		c.fpsStartTimeMutex.Lock()
-		s := c.fpsStartTime.Sub(time.Now())
-		c.fpsStartTimeMutex.Unlock()
+		c.rpsStartTimeMutex.Lock()
+		s := c.rpsStartTime.Sub(time.Now())
+		c.rpsStartTimeMutex.Unlock()
 		// fmt.Printf("throttle %s\n", s)
 		time.Sleep(s)
 	}
