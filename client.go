@@ -3,7 +3,6 @@ package ogame
 import (
 	"fmt"
 	"net/http"
-	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -11,12 +10,11 @@ import (
 // OGameClient ...
 type OGameClient struct {
 	http.Client
-	UserAgent         string
-	rpsCounter        int32
-	rps               int32
-	maxRPS            int32
-	rpsStartTime      time.Time
-	rpsStartTimeMutex sync.Mutex
+	UserAgent    string
+	rpsCounter   int32
+	rps          int32
+	maxRPS       int32
+	rpsStartTime int64
 }
 
 // NewOGameClient ...
@@ -35,9 +33,7 @@ func NewOGameClient() *OGameClient {
 			prevRPS := atomic.SwapInt32(&client.rpsCounter, 0)
 			rps := prevRPS / delay
 			atomic.StoreInt32(&client.rps, rps)
-			client.rpsStartTimeMutex.Lock()
-			client.rpsStartTime = time.Now().Add(delay * time.Second)
-			client.rpsStartTimeMutex.Unlock()
+			atomic.StoreInt64(&client.rpsStartTime, time.Now().Add(delay*time.Second).UnixNano())
 			time.Sleep(delay * time.Second)
 		}
 	}()
@@ -53,11 +49,9 @@ func (c *OGameClient) SetMaxRPS(maxRPS int32) {
 func (c *OGameClient) incrRPS() {
 	newRPS := atomic.AddInt32(&c.rpsCounter, 1)
 	if c.maxRPS > 0 && newRPS > c.maxRPS {
-		c.rpsStartTimeMutex.Lock()
-		s := c.rpsStartTime.Sub(time.Now())
-		c.rpsStartTimeMutex.Unlock()
-		// fmt.Printf("throttle %s\n", s)
-		time.Sleep(s)
+		s := atomic.LoadInt64(&c.rpsStartTime) - time.Now().UnixNano()
+		// fmt.Printf("throttle %d\n", s)
+		time.Sleep(time.Duration(s))
 	}
 }
 
