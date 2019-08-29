@@ -31,8 +31,7 @@ func NewOGameClient() *OGameClient {
 	go func() {
 		for {
 			prevRPS := atomic.SwapInt32(&client.rpsCounter, 0)
-			rps := prevRPS / delay
-			atomic.StoreInt32(&client.rps, rps)
+			atomic.StoreInt32(&client.rps, prevRPS/delay)
 			atomic.StoreInt64(&client.rpsStartTime, time.Now().Add(delay*time.Second).UnixNano())
 			time.Sleep(delay * time.Second)
 		}
