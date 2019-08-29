@@ -146,6 +146,26 @@ func TestExtractResources(t *testing.T) {
 	assert.Equal(t, 25000, res.Darkmatter)
 }
 
+func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_1.html")
+	res := ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	assert.Equal(t, 1959227, res.Metal.Available)
+	assert.Equal(t, 37818, res.Metal.CurrentProduction)
+	assert.Equal(t, 5355000, res.Metal.StorageCapacity)
+	assert.Equal(t, 327916, res.Crystal.Available)
+	assert.Equal(t, 21862, res.Crystal.CurrentProduction)
+	assert.Equal(t, 865000, res.Crystal.StorageCapacity)
+	assert.Equal(t, 618155, res.Deuterium.Available)
+	assert.Equal(t, 7508, res.Deuterium.CurrentProduction)
+	assert.Equal(t, 865000, res.Deuterium.StorageCapacity)
+	assert.Equal(t, 220, res.Energy.Available)
+	assert.Equal(t, 17597, res.Energy.CurrentProduction)
+	assert.Equal(t, -17377, res.Energy.Consumption)
+	assert.Equal(t, 25000, res.Darkmatter.Available)
+	assert.Equal(t, 0, res.Darkmatter.Purchased)
+	assert.Equal(t, 25000, res.Darkmatter.Found)
+}
+
 func TestExtractPhalanx(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
 	res, err := extractPhalanx(pageHTMLBytes)

@@ -105,6 +105,12 @@ func ExtractResources(pageHTML []byte) Resources {
 	return ExtractResourcesFromDoc(doc)
 }
 
+// ExtractResourcesDetailsFromFullPage ...
+func ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractResourcesDetailsFromFullPageFromDoc(doc)
+}
+
 // ExtractResourceSettings ...
 func ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -265,6 +271,32 @@ func ExtractResourcesFromDoc(doc *goquery.Document) Resources {
 	res.Energy = ParseInt(doc.Find("span#resources_energy").Text())
 	res.Darkmatter = ParseInt(doc.Find("span#resources_darkmatter").Text())
 	return res
+}
+
+// ExtractResourcesDetailsFromFullPageFromDoc ...
+func ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails {
+	out := ResourcesDetails{}
+	out.Metal.Available = ParseInt(doc.Find("span#resources_metal").Text())
+	out.Crystal.Available = ParseInt(doc.Find("span#resources_crystal").Text())
+	out.Deuterium.Available = ParseInt(doc.Find("span#resources_deuterium").Text())
+	out.Energy.Available = ParseInt(doc.Find("span#resources_energy").Text())
+	out.Darkmatter.Available = ParseInt(doc.Find("span#resources_darkmatter").Text())
+	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
+	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
+	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
+	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
+	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
+	out.Metal.StorageCapacity = ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Metal.CurrentProduction = ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Crystal.StorageCapacity = ParseInt(crystalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Crystal.CurrentProduction = ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Deuterium.StorageCapacity = ParseInt(deuteriumDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Deuterium.CurrentProduction = ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Energy.CurrentProduction = ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	return out
 }
 
 // ExtractPlanetFromDoc ...

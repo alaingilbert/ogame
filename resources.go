@@ -39,6 +39,17 @@ type ResourcesDetails struct {
 	}
 }
 
+// Available returns the resources available
+func (r ResourcesDetails) Available() Resources {
+	return Resources{
+		Metal:      r.Metal.Available,
+		Crystal:    r.Crystal.Available,
+		Deuterium:  r.Deuterium.Available,
+		Energy:     r.Energy.Available,
+		Darkmatter: r.Darkmatter.Available,
+	}
+}
+
 // Resources represent ogame resources
 type Resources struct {
 	Metal      int
