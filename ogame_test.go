@@ -1783,3 +1783,27 @@ func TestExtractFleetSlot_commanders(t *testing.T) {
 	assert.Equal(t, 2, s.ExpInUse)
 	assert.Equal(t, 3, s.ExpTotal)
 }
+
+func TestGetResourcesDetails(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fetch_resources.html")
+	res, _ := ExtractResourcesDetails(pageHTMLBytes)
+	assert.Equal(t, 380030343, res.Metal.Available)
+	assert.Equal(t, 60510000, res.Metal.StorageCapacity)
+	assert.Equal(t, 0, res.Metal.CurrentProduction)
+
+	assert.Equal(t, 19320, res.Crystal.Available)
+	assert.Equal(t, 9820000, res.Crystal.StorageCapacity)
+	assert.Equal(t, 40636, res.Crystal.CurrentProduction)
+
+	assert.Equal(t, 24902, res.Deuterium.Available)
+	assert.Equal(t, 18005000, res.Deuterium.StorageCapacity)
+	assert.Equal(t, 22508, res.Deuterium.CurrentProduction)
+
+	assert.Equal(t, -8402, res.Energy.Available)
+	assert.Equal(t, 10469, res.Energy.CurrentProduction)
+	assert.Equal(t, -18871, res.Energy.Consumption)
+
+	assert.Equal(t, 28500, res.Darkmatter.Available)
+	assert.Equal(t, 0, res.Darkmatter.Purchased)
+	assert.Equal(t, 28500, res.Darkmatter.Found)
+}

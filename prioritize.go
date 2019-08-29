@@ -367,6 +367,13 @@ func (b *Prioritize) GetResources(celestialID CelestialID) (Resources, error) {
 	return b.bot.getResources(celestialID)
 }
 
+// GetResourcesDetails gets user resources
+func (b *Prioritize) GetResourcesDetails(celestialID CelestialID) (ResourcesDetails, error) {
+	b.begin("GetResourcesDetails")
+	defer b.done()
+	return b.bot.getResourcesDetails(celestialID)
+}
+
 // SendFleet sends a fleet
 func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {

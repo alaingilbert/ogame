@@ -7,6 +7,38 @@ import (
 	"github.com/google/gxui/math"
 )
 
+// ResourcesDetails ...
+type ResourcesDetails struct {
+	Metal struct {
+		Available         int
+		StorageCapacity   int
+		CurrentProduction int
+		// DenCapacity       int
+	}
+	Crystal struct {
+		Available         int
+		StorageCapacity   int
+		CurrentProduction int
+		// DenCapacity       int
+	}
+	Deuterium struct {
+		Available         int
+		StorageCapacity   int
+		CurrentProduction int
+		// DenCapacity       int
+	}
+	Energy struct {
+		Available         int
+		CurrentProduction int
+		Consumption       int
+	}
+	Darkmatter struct {
+		Available int
+		Purchased int
+		Found     int
+	}
+}
+
 // Resources represent ogame resources
 type Resources struct {
 	Metal      int
