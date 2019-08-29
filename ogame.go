@@ -1841,16 +1841,9 @@ func (b *OGame) cancelResearch(celestialID CelestialID) error {
 	return b.cancel(token, techID, listID)
 }
 
-func (b *OGame) fetchResources(celestialID CelestialID) (resourcesResp, error) {
+func (b *OGame) fetchResources(celestialID CelestialID) (ResourcesDetails, error) {
 	pageJSON, _ := b.getPageContent(url.Values{"page": {"fetchResources"}, "cp": {strconv.Itoa(int(celestialID))}})
-	var res resourcesResp
-	if err := json.Unmarshal(pageJSON, &res); err != nil {
-		if isLogged(pageJSON) {
-			return resourcesResp{}, ErrInvalidPlanetID
-		}
-		return resourcesResp{}, err
-	}
-	return res, nil
+	return ExtractResourcesDetails(pageJSON)
 }
 
 func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
@@ -1859,12 +1852,16 @@ func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 		return Resources{}, err
 	}
 	return Resources{
-		Metal:      res.Metal.Resources.Actual,
-		Crystal:    res.Crystal.Resources.Actual,
-		Deuterium:  res.Deuterium.Resources.Actual,
-		Energy:     res.Energy.Resources.Actual,
-		Darkmatter: res.Darkmatter.Resources.Actual,
+		Metal:      res.Metal.Available,
+		Crystal:    res.Crystal.Available,
+		Deuterium:  res.Deuterium.Available,
+		Energy:     res.Energy.Available,
+		Darkmatter: res.Darkmatter.Available,
 	}, nil
+}
+
+func (b *OGame) getResourcesDetails(celestialID CelestialID) (ResourcesDetails, error) {
+	return b.fetchResources(celestialID)
 }
 
 func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
@@ -3016,6 +3013,11 @@ func (b *OGame) BuildTechnology(celestialID CelestialID, technologyID ID) error 
 // GetResources gets user resources
 func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
 	return b.WithPriority(Normal).GetResources(celestialID)
+}
+
+// GetResourcesDetails gets user resources
+func (b *OGame) GetResourcesDetails(celestialID CelestialID) (ResourcesDetails, error) {
+	return b.WithPriority(Normal).GetResourcesDetails(celestialID)
 }
 
 // SendFleet sends a fleet

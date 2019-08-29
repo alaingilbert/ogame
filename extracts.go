@@ -1465,6 +1465,37 @@ func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 	return res, nil
 }
 
+func ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
+	var res resourcesResp
+	if err = json.Unmarshal(pageHTML, &res); err != nil {
+		if isLogged(pageHTML) {
+			return out, ErrInvalidPlanetID
+		}
+		return
+	}
+	out.Metal.Available = res.Metal.Resources.Actual
+	out.Metal.StorageCapacity = res.Metal.Resources.Max
+	out.Crystal.Available = res.Crystal.Resources.Actual
+	out.Crystal.StorageCapacity = res.Crystal.Resources.Max
+	out.Deuterium.Available = res.Deuterium.Resources.Actual
+	out.Deuterium.StorageCapacity = res.Deuterium.Resources.Max
+	out.Energy.Available = res.Energy.Resources.Actual
+	out.Darkmatter.Available = res.Darkmatter.Resources.Actual
+	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Metal.Tooltip))
+	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Crystal.Tooltip))
+	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Deuterium.Tooltip))
+	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Darkmatter.Tooltip))
+	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Energy.Tooltip))
+	out.Metal.CurrentProduction = ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Crystal.CurrentProduction = ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Deuterium.CurrentProduction = ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Energy.CurrentProduction = ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	return
+}
+
 // </Works with []byte only> --------------------------------------------------
 
 // ExtractCoord ...
