@@ -176,6 +176,7 @@ type Celestial interface {
 	GetCoordinate() Coordinate
 	GetFields() Fields
 	GetResources() (Resources, error)
+	GetResourcesDetails() (ResourcesDetails, error)
 	GetFacilities() (Facilities, error)
 	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
 	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
