@@ -119,6 +119,11 @@ func (m Moon) GetResources() (Resources, error) {
 	return m.ogame.GetResources(CelestialID(m.ID))
 }
 
+// GetResourcesDetails gets resources details
+func (m Moon) GetResourcesDetails() (ResourcesDetails, error) {
+	return m.ogame.GetResourcesDetails(CelestialID(m.ID))
+}
+
 // GetFacilities gets the moon facilities
 func (m Moon) GetFacilities() (Facilities, error) {
 	return m.ogame.GetFacilities(m.ID.Celestial())
