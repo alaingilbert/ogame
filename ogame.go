@@ -359,7 +359,7 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 		return account{}, Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
 	}
 	if acc.ID == 0 {
-		return account{}, Server{}, errors.New("account not found")
+		return account{}, Server{}, ErrAccountNotFound
 	}
 	return acc, server, nil
 }
@@ -451,7 +451,7 @@ func (b *OGame) login() error {
 		return err
 	}
 	if userAccount.Blocked {
-		return errors.New("your account is banned")
+		return ErrAccountBlocked
 	}
 	b.debug("Players online: " + strconv.Itoa(server.PlayersOnline) + ", Players: " + strconv.Itoa(server.PlayerCount))
 	b.server = server
@@ -992,27 +992,29 @@ func (b *OGame) withRetry(fn func() error) error {
 	}
 
 	for {
-		if err := fn(); err != nil {
-			// If we manually logged out, do not try to auto re login.
-			if !b.IsEnabled() {
-				return ErrBotInactive
-			}
-			if !b.IsLoggedIn() {
-				return ErrBotLoggedOut
-			}
-			if err == ErrNotLogged {
-				retry(err)
-				if loginErr := b.wrapLogin(); loginErr != nil {
-					b.error(loginErr.Error()) // log error
-					continue
+		err := fn()
+		if err == nil {
+			break
+		}
+		// If we manually logged out, do not try to auto re login.
+		if !b.IsEnabled() {
+			return ErrBotInactive
+		}
+		if !b.IsLoggedIn() {
+			return ErrBotLoggedOut
+		}
+
+		retry(err)
+
+		if err == ErrNotLogged {
+			if loginErr := b.wrapLogin(); loginErr != nil {
+				b.error(loginErr.Error()) // log error
+				if loginErr == ErrAccountNotFound ||
+					loginErr == ErrAccountBlocked {
+					return loginErr
 				}
-				continue
-			} else {
-				retry(err)
-				continue
 			}
 		}
-		break
 	}
 	return nil
 }
