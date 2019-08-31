@@ -716,6 +716,13 @@ func ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
 			m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 			if len(m) > 0 {
 				itemIDstr = m[1]
+			} else {
+				src := s.Find("img").AttrOr("src", "")
+				if strings.HasSuffix(src, "fb4e438cabd12ef1b0500a0f41abc1.jpg") {
+					itemIDstr = strconv.Itoa(int(AntiBallisticMissilesID))
+				} else if strings.HasSuffix(src, "36221e9493458b9fcc776bf350983e.jpg") {
+					itemIDstr = strconv.Itoa(int(InterplanetaryMissilesID))
+				}
 			}
 		}
 		itemID, _ := strconv.Atoi(itemIDstr)

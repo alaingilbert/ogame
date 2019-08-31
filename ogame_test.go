@@ -1523,6 +1523,28 @@ func TestExtractProduction2(t *testing.T) {
 	assert.Equal(t, 1, prods[10].Nbr)
 }
 
+func TestExtractProductionWithABM(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/production_with_abm.html")
+	prods, _ := ExtractProduction(pageHTMLBytes)
+	assert.Equal(t, 4, len(prods))
+	assert.Equal(t, DeathstarID, prods[0].ID)
+	assert.Equal(t, 1, prods[0].Nbr)
+	assert.Equal(t, AntiBallisticMissilesID, prods[1].ID)
+	assert.Equal(t, 1, prods[1].Nbr)
+	assert.Equal(t, InterplanetaryMissilesID, prods[2].ID)
+	assert.Equal(t, 1, prods[2].Nbr)
+}
+
+func TestExtractDKProductionWithABM(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/dk/production_with_abm.html")
+	prods, _ := ExtractProduction(pageHTMLBytes)
+	assert.Equal(t, 2, len(prods))
+	assert.Equal(t, AntiBallisticMissilesID, prods[0].ID)
+	assert.Equal(t, 1, prods[0].Nbr)
+	assert.Equal(t, AntiBallisticMissilesID, prods[1].ID)
+	assert.Equal(t, 1, prods[1].Nbr)
+}
+
 func TestIsShipID(t *testing.T) {
 	assert.True(t, IsShipID(int(SmallCargoID)))
 	assert.False(t, IsShipID(int(RocketLauncherID)))
