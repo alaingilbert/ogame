@@ -451,7 +451,7 @@ func (b *OGame) login() error {
 		return err
 	}
 	if userAccount.Blocked {
-		return errors.New("your account is banned")
+		return ErrAccountBlocked
 	}
 	b.debug("Players online: " + strconv.Itoa(server.PlayersOnline) + ", Players: " + strconv.Itoa(server.PlayerCount))
 	b.server = server
@@ -1006,6 +1006,8 @@ func (b *OGame) withRetry(fn func() error) error {
 					b.error(loginErr.Error()) // log error
 					if loginErr == ErrAccountNotFound {
 						return ErrAccountNotFound
+					} else if loginErr == ErrAccountBlocked {
+						return ErrAccountBlocked
 					}
 					continue
 				}
