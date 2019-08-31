@@ -1004,10 +1004,9 @@ func (b *OGame) withRetry(fn func() error) error {
 				retry(err)
 				if loginErr := b.wrapLogin(); loginErr != nil {
 					b.error(loginErr.Error()) // log error
-					if loginErr == ErrAccountNotFound {
-						return ErrAccountNotFound
-					} else if loginErr == ErrAccountBlocked {
-						return ErrAccountBlocked
+					if loginErr == ErrAccountNotFound ||
+						loginErr == ErrAccountBlocked {
+						return loginErr
 					}
 					continue
 				}
