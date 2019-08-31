@@ -992,31 +992,31 @@ func (b *OGame) withRetry(fn func() error) error {
 	}
 
 	for {
-		if err := fn(); err != nil {
-			// If we manually logged out, do not try to auto re login.
-			if !b.IsEnabled() {
-				return ErrBotInactive
-			}
-			if !b.IsLoggedIn() {
-				return ErrBotLoggedOut
-			}
-			if err == ErrNotLogged {
-				retry(err)
-				if loginErr := b.wrapLogin(); loginErr != nil {
-					b.error(loginErr.Error()) // log error
-					if loginErr == ErrAccountNotFound ||
-						loginErr == ErrAccountBlocked {
-						return loginErr
-					}
-					continue
-				}
-				continue
-			} else {
-				retry(err)
-				continue
-			}
+		err := fn()
+		if err == nil {
+			break
 		}
-		break
+		// If we manually logged out, do not try to auto re login.
+		if !b.IsEnabled() {
+			return ErrBotInactive
+		}
+		if !b.IsLoggedIn() {
+			return ErrBotLoggedOut
+		}
+
+		if err == ErrNotLogged {
+			retry(err)
+			if loginErr := b.wrapLogin(); loginErr != nil {
+				b.error(loginErr.Error()) // log error
+				if loginErr == ErrAccountNotFound ||
+					loginErr == ErrAccountBlocked {
+					return loginErr
+				}
+			}
+			continue
+		}
+
+		retry(err)
 	}
 	return nil
 }
