@@ -8,6 +8,9 @@ var ErrNotLogged = errors.New("not logged")
 // ErrBadCredentials returned when the provided credentials are invalid
 var ErrBadCredentials = errors.New("bad credentials")
 
+// ErrNotLogged returned when the account is not found
+var ErrAccountNotFound = errors.New("account not found")
+
 // ErrInvalidPlanetID returned when a planet id is invalid
 var ErrInvalidPlanetID = errors.New("invalid planet id")
 

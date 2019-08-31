@@ -359,7 +359,7 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 		return account{}, Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
 	}
 	if acc.ID == 0 {
-		return account{}, Server{}, errors.New("account not found")
+		return account{}, Server{}, ErrAccountNotFound
 	}
 	return acc, server, nil
 }
