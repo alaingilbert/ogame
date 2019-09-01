@@ -801,6 +801,10 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 		return []byte{}, ErrBotLoggedOut
 	}
 
+	if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
+		payload.Set("token", b.ajaxChatToken)
+	}
+
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
 	if err != nil {
@@ -845,6 +849,12 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 				b.CachedNbProbes = nbProbes
 			}
 		}
+	} else if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
+		var res ChatPostResp
+		if err := json.Unmarshal(body, &res); err != nil {
+			return []byte{}, err
+		}
+		b.ajaxChatToken = res.NewToken
 	}
 
 	go func() {
