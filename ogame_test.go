@@ -1167,6 +1167,15 @@ func TestExtractMoonByCoord_notExists(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestExtractIsInVacationFromDoc(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/overview_vacation.html")
+	assert.True(t, ExtractIsInVacation(pageHTMLBytes))
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/es/fleet1_vacation.html")
+	assert.True(t, ExtractIsInVacation(pageHTMLBytes))
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/es/shipyard.html")
+	assert.False(t, ExtractIsInVacation(pageHTMLBytes))
+}
+
 func TestExtractPlanetsMoon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
 	planets := ExtractPlanets(pageHTMLBytes, nil)
