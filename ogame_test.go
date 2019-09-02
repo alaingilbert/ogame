@@ -732,6 +732,20 @@ func TestExtractNbProbes(t *testing.T) {
 	assert.Equal(t, 10, probes)
 }
 
+func TestExtractPreferencesShowActivityMinutes(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences.html")
+	checked := ExtractPreferencesShowActivityMinutes(pageHTMLBytes)
+	assert.True(t, checked)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_mobile.html")
+	checked = ExtractPreferencesShowActivityMinutes(pageHTMLBytes)
+	assert.True(t, checked)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_without_detailed_activities.html")
+	checked = ExtractPreferencesShowActivityMinutes(pageHTMLBytes)
+	assert.False(t, checked)
+}
+
 //func TestCalcResources(t *testing.T) {
 //	pageHTMLBytes, _ := ioutil.ReadFile("samples/traderOverview.html")
 //	price, _, planetResources, multiplier, _ := ExtractOfferOfTheDay(pageHTMLBytes)

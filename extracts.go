@@ -211,6 +211,12 @@ func ExtractNbProbes(pageHTML []byte) int {
 	return ExtractNbProbesFromDoc(doc)
 }
 
+// ExtractNbProbes ...
+func ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractPreferencesShowActivityMinutesFromDoc(doc)
+}
+
 // <Extract from doc> ---------------------------------------------------------
 
 // ExtractBodyIDFromDoc ...
@@ -1382,6 +1388,12 @@ func extractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
 func ExtractNbProbesFromDoc(doc *goquery.Document) int {
 	out, _ := strconv.Atoi(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
 	return out
+}
+
+// ExtractPreferencesShowActivityMinutesFromDoc ...
+func ExtractPreferencesShowActivityMinutesFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=showActivityMinutes]").Attr("checked")
+	return exists
 }
 
 // </ Extract from doc> -------------------------------------------------------
