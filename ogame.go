@@ -1968,7 +1968,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Ensure we're not trying to attack/spy ourselves
 	destinationIsMyOwnPlanet := false
-	myPlanets := ExtractPlanets(pageHTML, b)
+	myPlanets := ExtractPlanetsFromDoc(fleet1Doc, b)
 	for _, p := range myPlanets {
 		if p.Coordinate.Equal(where) && p.GetID() == celestialID || (p.Moon != nil && p.Moon.Coordinate.Equal(where) && p.Moon.GetID() == celestialID) {
 			return Fleet{}, errors.New("origin and destination are the same")
