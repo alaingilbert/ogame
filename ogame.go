@@ -1966,6 +1966,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, ErrInvalidPlanetID
 	}
 
+	if ExtractIsInVacationFromDoc(fleet1Doc) {
+		return Fleet{}, ErrAccountInVacationMode
+	}
+
 	// Ensure we're not trying to attack/spy ourselves
 	destinationIsMyOwnPlanet := false
 	myPlanets := ExtractPlanetsFromDoc(fleet1Doc, b)
