@@ -36,51 +36,52 @@ import (
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabledAtom        int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedInAtom       int32  // atomic, prevent auto re login if we manually logged out
-	isConnectedAtom      int32  // atomic, either or not communication between the bot and OGame is possible
-	lockedAtom           int32  // atomic, bot state locked/unlocked
-	chatConnectedAtom    int32  // atomic, either or not the chat is connected
-	state                string // keep name of the function that currently lock the bot
-	stateChangeCallbacks []func(locked bool, actor string)
-	quiet                bool
-	Player               UserInfos
-	CachedPreferences    Preferences
-	researches           *Researches
-	Planets              []Planet
-	ajaxChatToken        string
-	Universe             string
-	Username             string
-	password             string
-	language             string
-	ogameSession         string
-	sessionChatCounter   int
-	server               Server
-	location             *time.Location
-	universeSpeed        int
-	universeSize         int
-	universeSpeedFleet   int
-	donutGalaxy          bool
-	donutSystem          bool
-	fleetDeutSaveFactor  float64
-	ogameVersion         string
-	serverURL            string
-	Client               *OGameClient
-	logger               *log.Logger
-	chatCallbacks        []func(msg ChatMsg)
-	auctioneerCallbacks  []func(packet []byte)
-	interceptorCallbacks []func(method string, params, payload url.Values, pageHTML []byte)
-	closeChatCh          chan struct{}
-	chatRetry            *ExponentialBackoff
-	ws                   *websocket.Conn
-	tasks                priorityQueue
-	tasksLock            sync.Mutex
-	tasksPushCh          chan *item
-	tasksPopCh           chan struct{}
-	loginWrapper         func(func() error) error
-	loginProxyTransport  *http.Transport
-	bytesUploaded        int64
-	bytesDownloaded      int64
+	isEnabledAtom         int32  // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom        int32  // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom       int32  // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom            int32  // atomic, bot state locked/unlocked
+	chatConnectedAtom     int32  // atomic, either or not the chat is connected
+	state                 string // keep name of the function that currently lock the bot
+	stateChangeCallbacks  []func(locked bool, actor string)
+	quiet                 bool
+	Player                UserInfos
+	CachedPreferences     Preferences
+	isVacationModeEnabled bool
+	researches            *Researches
+	Planets               []Planet
+	ajaxChatToken         string
+	Universe              string
+	Username              string
+	password              string
+	language              string
+	ogameSession          string
+	sessionChatCounter    int
+	server                Server
+	location              *time.Location
+	universeSpeed         int
+	universeSize          int
+	universeSpeedFleet    int
+	donutGalaxy           bool
+	donutSystem           bool
+	fleetDeutSaveFactor   float64
+	ogameVersion          string
+	serverURL             string
+	Client                *OGameClient
+	logger                *log.Logger
+	chatCallbacks         []func(msg ChatMsg)
+	auctioneerCallbacks   []func(packet []byte)
+	interceptorCallbacks  []func(method string, params, payload url.Values, pageHTML []byte)
+	closeChatCh           chan struct{}
+	chatRetry             *ExponentialBackoff
+	ws                    *websocket.Conn
+	tasks                 priorityQueue
+	tasksLock             sync.Mutex
+	tasksPushCh           chan *item
+	tasksPopCh            chan struct{}
+	loginWrapper          func(func() error) error
+	loginProxyTransport   *http.Transport
+	bytesUploaded         int64
+	bytesDownloaded       int64
 }
 
 // Preferences ...
@@ -596,6 +597,7 @@ func (b *OGame) login() error {
 
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.Planets = ExtractPlanets(pageHTML, b)
+	b.isVacationModeEnabled = ExtractIsInVacation(pageHTML)
 	b.ajaxChatToken, _ = ExtractAjaxChatToken(pageHTML)
 	if page == "overview" {
 		b.Player, _ = ExtractUserInfos(pageHTML, b.language)
@@ -2846,6 +2848,11 @@ func (b *OGame) GetCachedPlayer() UserInfos {
 // GetCachedNbProbes returns cached number of probes from preferences
 func (b *OGame) GetCachedPreferences() Preferences {
 	return b.CachedPreferences
+}
+
+// IsVacationModeEnabled returns either or not the bot is in vacation mode
+func (b *OGame) IsVacationModeEnabled() bool {
+	return b.isVacationModeEnabled
 }
 
 // GetPlanets returns the user planets
