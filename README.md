@@ -77,7 +77,7 @@ Location() *time.Location
 IsUnderAttack() bool
 GetUserInfos() UserInfos
 SendMessage(playerID int, message string) error
-ReconnectChat()
+ReconnectChat() bool
 GetFleets() ([]Fleet, Slots)
 GetFleetsFromEventList() []Fleet
 CancelFleet(FleetID) error
@@ -90,7 +90,8 @@ GetCachedMoons() []Moon
 GetCachedCelestials() []Celestial
 GetCachedCelestial(interface{}) Celestial
 GetCachedPlayer() UserInfos
-GetCachedNbProbes() int
+GetCachedPreferences() Preferences
+IsVacationModeEnabled() bool
 GetPlanets() []Planet
 GetPlanet(interface{}) (Planet, error)
 GetMoons() []Moon
@@ -107,6 +108,7 @@ DeleteMessage(msgID int) error
 Distance(origin, destination Coordinate) int
 FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 RegisterChatCallback(func(ChatMsg))
+RegisterAuctioneerCallback(func([]byte))
 RegisterHTMLInterceptor(func(method string, params, payload url.Values, pageHTML []byte))
 GetSlots() Slots
 BuyOfferOfTheDay() error

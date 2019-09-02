@@ -61,6 +61,7 @@ type Wrapper interface {
 	GetCachedCelestial(interface{}) Celestial
 	GetCachedPlayer() UserInfos
 	GetCachedPreferences() Preferences
+	IsVacationModeEnabled() bool
 	GetPlanets() []Planet
 	GetPlanet(interface{}) (Planet, error)
 	GetMoons() []Moon
