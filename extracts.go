@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
@@ -15,6 +16,12 @@ import (
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/html"
 )
+
+// ExtractIsInVacation ...
+func ExtractIsInVacation(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractIsInVacationFromDoc(doc)
+}
 
 // ExtractPlanets ...
 func ExtractPlanets(pageHTML []byte, b *OGame) []Planet {
@@ -209,6 +216,20 @@ func ExtractNbProbes(pageHTML []byte) int {
 // ExtractBodyIDFromDoc ...
 func ExtractBodyIDFromDoc(doc *goquery.Document) string {
 	return doc.Find("body").AttrOr("id", "")
+}
+
+// ExtractIsInVacationFromDoc ...
+func ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
+	href := doc.Find("div#advice-bar a").AttrOr("href", "")
+	if href == "" {
+		return false
+	}
+	u, _ := url.Parse(href)
+	q := u.Query()
+	if q.Get("page") == "preferences" && q.Get("selectedTab") == "3" && q.Get("openGroup") == "0" {
+		return true
+	}
+	return false
 }
 
 // ExtractPlanetsFromDoc ...
