@@ -206,6 +206,11 @@ func ExtractNbProbes(pageHTML []byte) int {
 
 // <Extract from doc> ---------------------------------------------------------
 
+// ExtractBodyIDFromDoc ...
+func ExtractBodyIDFromDoc(doc *goquery.Document) string {
+	return doc.Find("body").AttrOr("id", "")
+}
+
 // ExtractPlanetsFromDoc ...
 func ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet {
 	res := make([]Planet, 0)
@@ -446,7 +451,7 @@ func ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Ce
 // ExtractResourcesBuildingsFromDoc ...
 func ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error) {
 	doc.Find("span.textlabel").Remove()
-	bodyID, _ := doc.Find("body").Attr("id")
+	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return ResourcesBuildings{}, ErrInvalidPlanetID
 	}
@@ -465,7 +470,7 @@ func ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings
 
 // ExtractDefenseFromDoc ...
 func ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
-	bodyID, _ := doc.Find("body").Attr("id")
+	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return DefensesInfos{}, ErrInvalidPlanetID
 	}
@@ -488,7 +493,7 @@ func ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
 // ExtractShipsFromDoc ...
 func ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error) {
 	doc.Find("span.textlabel").Remove()
-	bodyID, _ := doc.Find("body").Attr("id")
+	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return ShipsInfos{}, ErrInvalidPlanetID
 	}
@@ -514,7 +519,7 @@ func ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error) {
 // ExtractFacilitiesFromDoc ...
 func ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
 	doc.Find("span.textlabel").Remove()
-	bodyID, _ := doc.Find("body").Attr("id")
+	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return Facilities{}, ErrInvalidPlanetID
 	}
@@ -1150,7 +1155,7 @@ func ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error
 
 // ExtractResourceSettingsFromDoc ...
 func ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error) {
-	bodyID, _ := doc.Find("body").Attr("id")
+	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return ResourceSettings{}, ErrInvalidPlanetID
 	}
@@ -1312,7 +1317,7 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 // page "movement" redirect to "fleet1" when there is no fleet
 func ExtractSlotsFromDoc(doc *goquery.Document) Slots {
 	slots := Slots{}
-	page := doc.Find("body").AttrOr("id", "")
+	page := ExtractBodyIDFromDoc(doc)
 	if page == "movement" {
 		slots.InUse = ParseInt(doc.Find("span.fleetSlots > span.current").Text())
 		slots.Total = ParseInt(doc.Find("span.fleetSlots > span.all").Text())

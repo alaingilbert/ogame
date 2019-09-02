@@ -1633,7 +1633,7 @@ func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error)
 func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings) error {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"resourceSettings"}, "cp": {planetID.String()}})
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	bodyID, _ := doc.Find("body").Attr("id")
+	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return ErrInvalidPlanetID
 	}
@@ -1959,7 +1959,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
+	fleet1BodyID := ExtractBodyIDFromDoc(fleet1Doc)
 	if fleet1BodyID != "fleet1" {
 		now := time.Now().Unix()
 		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
@@ -2032,7 +2032,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, err
 	}
 	fleet2Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet2BodyID := fleet2Doc.Find("body").AttrOr("id", "")
+	fleet2BodyID := ExtractBodyIDFromDoc(fleet2Doc)
 	if fleet2BodyID != "fleet2" {
 		now := time.Now().Unix()
 		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
@@ -2104,7 +2104,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet3BodyID := fleet3Doc.Find("body").AttrOr("id", "")
+	fleet3BodyID := ExtractBodyIDFromDoc(fleet3Doc)
 	if fleet3BodyID != "fleet3" {
 		now := time.Now().Unix()
 		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
