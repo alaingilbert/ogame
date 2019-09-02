@@ -1461,7 +1461,7 @@ func ExtractSortSettingFromDoc(doc *goquery.Document) int {
 
 // ExtractSortOrderFromDoc ...
 func ExtractSortOrderFromDoc(doc *goquery.Document) int {
-	val, _ := strconv.Atoi(doc.Find("select#sortOrderHidden option[selected]").AttrOr("value", "0"))
+	val, _ := strconv.Atoi(doc.Find("select#sortOrder option[selected]").AttrOr("value", "0"))
 	return val
 }
 
@@ -1485,13 +1485,13 @@ func ExtractAnimatedOverviewFromDoc(doc *goquery.Document) bool {
 
 // ExtractPopupsNoticesFromDoc ...
 func ExtractPopupsNoticesFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=popups[notices]]").Attr("checked")
+	_, exists := doc.Find(`input[name="popups[notices]"]`).Attr("checked")
 	return exists
 }
 
 // ExtractPopopsCombatreportFromDoc ...
 func ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=popups[combatreport]]").Attr("checked")
+	_, exists := doc.Find(`input[name="popups[combatreport]"]`).Attr("checked")
 	return exists
 }
 
