@@ -729,7 +729,7 @@ func TestExtractNbProbes(t *testing.T) {
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_mobile.html")
 	probes = ExtractSpioAnz(pageHTMLBytes)
-	assert.Equal(t, 10, probes)
+	assert.Equal(t, 3, probes)
 }
 
 func TestExtractPreferencesShowActivityMinutes(t *testing.T) {
