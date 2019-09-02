@@ -793,6 +793,38 @@ func TestExtractPreferences(t *testing.T) {
 	assert.False(t, prefs.ShowActivityMinutes)
 	assert.True(t, prefs.PreserveSystemOnPlanetChange)
 
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_mobile.html")
+	prefs = ExtractPreferences(pageHTMLBytes)
+	assert.Equal(t, 3, prefs.SpioAnz)
+	assert.False(t, prefs.DisableChatBar) // no mobile
+	assert.False(t, prefs.DisableOutlawWarning)
+	assert.True(t, prefs.MobileVersion)
+	assert.False(t, prefs.ShowOldDropDowns)
+	assert.False(t, prefs.ActivateAutofocus)
+	assert.Equal(t, 2, prefs.EventsShow)
+	assert.Equal(t, 0, prefs.SortSetting)
+	assert.Equal(t, 0, prefs.SortOrder)
+	assert.True(t, prefs.ShowDetailOverlay)
+	assert.False(t, prefs.AnimatedSliders)    // no mobile
+	assert.False(t, prefs.AnimatedOverview)   // no mobile
+	assert.False(t, prefs.PopupsNotices)      // no mobile
+	assert.False(t, prefs.PopopsCombatreport) // no mobile
+	assert.False(t, prefs.SpioReportPictures)
+	assert.Equal(t, 10, prefs.MsgResultsPerPage)
+	assert.True(t, prefs.AuctioneerNotifications)
+	assert.False(t, prefs.EconomyNotifications)
+	assert.True(t, prefs.ShowActivityMinutes)
+	assert.False(t, prefs.PreserveSystemOnPlanetChange)
+
+	//assert.True(t, prefs.Notifications.BuildList)
+	//assert.True(t, prefs.Notifications.FriendlyFleetActivities)
+	//assert.True(t, prefs.Notifications.HostileFleetActivities)
+	//assert.True(t, prefs.Notifications.ForeignEspionage)
+	//assert.True(t, prefs.Notifications.AllianceBroadcasts)
+	//assert.True(t, prefs.Notifications.AllianceMessages)
+	//assert.True(t, prefs.Notifications.Auctions)
+	//assert.True(t, prefs.Notifications.Account)
+
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_reverse_mobile.html")
 	prefs = ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, 2, prefs.SpioAnz)
@@ -805,8 +837,8 @@ func TestExtractPreferences(t *testing.T) {
 	assert.Equal(t, 3, prefs.SortSetting)
 	assert.Equal(t, 1, prefs.SortOrder)
 	assert.False(t, prefs.ShowDetailOverlay)
-	assert.False(t, prefs.AnimatedSliders)
-	assert.False(t, prefs.AnimatedOverview)
+	assert.False(t, prefs.AnimatedSliders)    // no mobile
+	assert.False(t, prefs.AnimatedOverview)   // no mobile
 	assert.False(t, prefs.PopupsNotices)      // no mobile
 	assert.False(t, prefs.PopopsCombatreport) // no mobile
 	assert.True(t, prefs.SpioReportPictures)
@@ -815,6 +847,15 @@ func TestExtractPreferences(t *testing.T) {
 	assert.True(t, prefs.EconomyNotifications)
 	assert.False(t, prefs.ShowActivityMinutes)
 	assert.True(t, prefs.PreserveSystemOnPlanetChange)
+
+	//assert.False(t, prefs.Notifications.BuildList)
+	//assert.False(t, prefs.Notifications.FriendlyFleetActivities)
+	//assert.False(t, prefs.Notifications.HostileFleetActivities)
+	//assert.False(t, prefs.Notifications.ForeignEspionage)
+	//assert.False(t, prefs.Notifications.AllianceBroadcasts)
+	//assert.False(t, prefs.Notifications.AllianceMessages)
+	//assert.False(t, prefs.Notifications.Auctions)
+	//assert.False(t, prefs.Notifications.Account)
 }
 
 //func TestCalcResources(t *testing.T) {

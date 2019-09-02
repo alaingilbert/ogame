@@ -208,7 +208,7 @@ func ExtractResourcesProductions(pageHTML []byte) (Resources, error) {
 // ExtractPreferences ...
 func ExtractPreferences(pageHTML []byte) Preferences {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return Preferences{
+	prefs := Preferences{
 		SpioAnz:                      ExtractSpioAnzFromDoc(doc),
 		DisableChatBar:               ExtractDisableChatBarFromDoc(doc),
 		DisableOutlawWarning:         ExtractDisableOutlawWarningFromDoc(doc),
@@ -230,6 +230,17 @@ func ExtractPreferences(pageHTML []byte) Preferences {
 		ShowActivityMinutes:          ExtractShowActivityMinutesFromDoc(doc),
 		PreserveSystemOnPlanetChange: ExtractPreserveSystemOnPlanetChangeFromDoc(doc),
 	}
+	if prefs.MobileVersion {
+		prefs.Notifications.BuildList = ExtractNotifBuildListFromDoc(doc)
+		prefs.Notifications.FriendlyFleetActivities = ExtractNotifFriendlyFleetActivitiesFromDoc(doc)
+		prefs.Notifications.HostileFleetActivities = ExtractNotifHostileFleetActivitiesFromDoc(doc)
+		prefs.Notifications.ForeignEspionage = ExtractNotifForeignEspionageFromDoc(doc)
+		prefs.Notifications.AllianceBroadcasts = ExtractNotifAllianceBroadcastsFromDoc(doc)
+		prefs.Notifications.AllianceMessages = ExtractNotifAllianceMessagesFromDoc(doc)
+		prefs.Notifications.Auctions = ExtractNotifAuctionsFromDoc(doc)
+		prefs.Notifications.Account = ExtractNotifAccountFromDoc(doc)
+	}
+	return prefs
 }
 
 // ExtractSpioAnz ...
@@ -1528,6 +1539,54 @@ func ExtractShowActivityMinutesFromDoc(doc *goquery.Document) bool {
 // ExtractPreserveSystemOnPlanetChangeFromDoc ...
 func ExtractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool {
 	_, exists := doc.Find("input[name=preserveSystemOnPlanetChange]").Attr("checked")
+	return exists
+}
+
+// ExtractNotifBuildListFromDoc ...
+func ExtractNotifBuildListFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find(`input[name="notifications[buildList]"]`).Attr("checked")
+	return exists
+}
+
+// ExtractNotifFriendlyFleetActivitiesFromDoc ...
+func ExtractNotifFriendlyFleetActivitiesFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find(`input[name="notifications[friendlyFleetActivities]"]`).Attr("checked")
+	return exists
+}
+
+// ExtractNotifHostileFleetActivitiesFromDoc ...
+func ExtractNotifHostileFleetActivitiesFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find(`input[name="notifications[hostileFleetActivities]"]`).Attr("checked")
+	return exists
+}
+
+// ExtractNotifForeignEspionageFromDoc ...
+func ExtractNotifForeignEspionageFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find(`input[name="notifications[foreignEspionage]"]`).Attr("checked")
+	return exists
+}
+
+// ExtractNotifAllianceBroadcastsFromDoc ...
+func ExtractNotifAllianceBroadcastsFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find(`input[name="notifications[allianceBroadcasts]"]`).Attr("checked")
+	return exists
+}
+
+// ExtractNotifAllianceMessagesFromDoc ...
+func ExtractNotifAllianceMessagesFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find(`input[name="notifications[allianceMessages]"]`).Attr("checked")
+	return exists
+}
+
+// ExtractNotifAuctionsFromDoc ...
+func ExtractNotifAuctionsFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find(`input[name="notifications[auctions]"]`).Attr("checked")
+	return exists
+}
+
+// ExtractNotifAccountFromDoc ...
+func ExtractNotifAccountFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find(`input[name="notifications[account]"]`).Attr("checked")
 	return exists
 }
 

@@ -86,7 +86,7 @@ type OGame struct {
 // Preferences ...
 type Preferences struct {
 	SpioAnz                      int
-	DisableChatBar               bool
+	DisableChatBar               bool // no-mobile
 	DisableOutlawWarning         bool
 	MobileVersion                bool
 	ShowOldDropDowns             bool
@@ -95,16 +95,28 @@ type Preferences struct {
 	SortSetting                  int // Order of emergence: 0, Coordinates: 1, Alphabet: 2, Size: 3, Used fields: 4
 	SortOrder                    int // Up: 0, Down: 1
 	ShowDetailOverlay            bool
-	AnimatedSliders              bool
-	AnimatedOverview             bool
-	PopupsNotices                bool
-	PopopsCombatreport           bool
+	AnimatedSliders              bool // no-mobile
+	AnimatedOverview             bool // no-mobile
+	PopupsNotices                bool // no-mobile
+	PopopsCombatreport           bool // no-mobile
 	SpioReportPictures           bool
 	MsgResultsPerPage            int // 10, 25, 50
 	AuctioneerNotifications      bool
 	EconomyNotifications         bool
 	ShowActivityMinutes          bool
 	PreserveSystemOnPlanetChange bool
+
+	// Mobile only
+	Notifications struct {
+		BuildList               bool
+		FriendlyFleetActivities bool
+		HostileFleetActivities  bool
+		ForeignEspionage        bool
+		AllianceBroadcasts      bool
+		AllianceMessages        bool
+		Auctions                bool
+		Account                 bool
+	}
 }
 
 const defaultUserAgent = "" +
