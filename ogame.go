@@ -1987,7 +1987,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 	}
 
-	availableShips := ExtractFleet1Ships(pageHTML)
+	availableShips := ExtractFleet1ShipsFromDoc(fleet1Doc)
 
 	if !ensure {
 		atLeastOneShipSelected := false
@@ -2169,8 +2169,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Page 5
 	movementHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
+	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
 	originCoords, _ := ExtractPlanetCoordinate(movementHTML)
-	fleets := ExtractFleets(movementHTML)
+	fleets := ExtractFleetsFromDoc(movementDoc)
 	if len(fleets) > 0 {
 		max := Fleet{}
 		for i, fleet := range fleets {
@@ -2194,7 +2195,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 	}
 
-	slots := ExtractSlots(movementHTML)
+	slots := ExtractSlotsFromDoc(movementDoc)
 	if slots.InUse == slots.Total {
 		return Fleet{}, ErrAllSlotsInUse
 	}
