@@ -45,7 +45,7 @@ type OGame struct {
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
 	Player               UserInfos
-	CachedNbProbes       int
+	CachedPreferences    Preferences
 	researches           *Researches
 	Planets              []Planet
 	ajaxChatToken        string
@@ -81,6 +81,42 @@ type OGame struct {
 	loginProxyTransport  *http.Transport
 	bytesUploaded        int64
 	bytesDownloaded      int64
+}
+
+// Preferences ...
+type Preferences struct {
+	SpioAnz                      int
+	DisableChatBar               bool // no-mobile
+	DisableOutlawWarning         bool
+	MobileVersion                bool
+	ShowOldDropDowns             bool
+	ActivateAutofocus            bool
+	EventsShow                   int // Hide: 1, Above the content: 2, Below the content: 3
+	SortSetting                  int // Order of emergence: 0, Coordinates: 1, Alphabet: 2, Size: 3, Used fields: 4
+	SortOrder                    int // Up: 0, Down: 1
+	ShowDetailOverlay            bool
+	AnimatedSliders              bool // no-mobile
+	AnimatedOverview             bool // no-mobile
+	PopupsNotices                bool // no-mobile
+	PopopsCombatreport           bool // no-mobile
+	SpioReportPictures           bool
+	MsgResultsPerPage            int // 10, 25, 50
+	AuctioneerNotifications      bool
+	EconomyNotifications         bool
+	ShowActivityMinutes          bool
+	PreserveSystemOnPlanetChange bool
+
+	// Mobile only
+	Notifications struct {
+		BuildList               bool
+		FriendlyFleetActivities bool
+		HostileFleetActivities  bool
+		ForeignEspionage        bool
+		AllianceBroadcasts      bool
+		AllianceMessages        bool
+		Auctions                bool
+		Account                 bool
+	}
 }
 
 const defaultUserAgent = "" +
@@ -564,7 +600,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	if page == "overview" {
 		b.Player, _ = ExtractUserInfos(pageHTML, b.language)
 	} else if page == "preferences" {
-		b.CachedNbProbes = ExtractNbProbes(pageHTML)
+		b.CachedPreferences = ExtractPreferences(pageHTML)
 	}
 }
 
@@ -842,13 +878,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	b.bytesUploaded += req.ContentLength
 
 	if vals.Get("page") == "preferences" {
-		spioAnz := payload.Get("spio_anz")
-		if spioAnz != "" {
-			nbProbes, err := strconv.Atoi(spioAnz)
-			if err == nil {
-				b.CachedNbProbes = nbProbes
-			}
-		}
+		b.CachedPreferences = ExtractPreferences(body)
 	} else if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
 		var res ChatPostResp
 		if err := json.Unmarshal(body, &res); err != nil {
@@ -1633,7 +1663,7 @@ func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error)
 func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings) error {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"resourceSettings"}, "cp": {planetID.String()}})
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	bodyID, _ := doc.Find("body").Attr("id")
+	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return ErrInvalidPlanetID
 	}
@@ -1959,16 +1989,20 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet1BodyID := fleet1Doc.Find("body").AttrOr("id", "")
+	fleet1BodyID := ExtractBodyIDFromDoc(fleet1Doc)
 	if fleet1BodyID != "fleet1" {
 		now := time.Now().Unix()
 		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, ErrInvalidPlanetID
 	}
 
-	// Ensure we're not trying to attack/spy ourself
+	if ExtractIsInVacationFromDoc(fleet1Doc) {
+		return Fleet{}, ErrAccountInVacationMode
+	}
+
+	// Ensure we're not trying to attack/spy ourselves
 	destinationIsMyOwnPlanet := false
-	myPlanets := ExtractPlanets(pageHTML, b)
+	myPlanets := ExtractPlanetsFromDoc(fleet1Doc, b)
 	for _, p := range myPlanets {
 		if p.Coordinate.Equal(where) && p.GetID() == celestialID || (p.Moon != nil && p.Moon.Coordinate.Equal(where) && p.Moon.GetID() == celestialID) {
 			return Fleet{}, errors.New("origin and destination are the same")
@@ -1987,7 +2021,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 	}
 
-	availableShips := ExtractFleet1Ships(pageHTML)
+	availableShips := ExtractFleet1ShipsFromDoc(fleet1Doc)
 
 	if !ensure {
 		atLeastOneShipSelected := false
@@ -2032,7 +2066,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, err
 	}
 	fleet2Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet2BodyID := fleet2Doc.Find("body").AttrOr("id", "")
+	fleet2BodyID := ExtractBodyIDFromDoc(fleet2Doc)
 	if fleet2BodyID != "fleet2" {
 		now := time.Now().Unix()
 		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
@@ -2104,7 +2138,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet3BodyID := fleet3Doc.Find("body").AttrOr("id", "")
+	fleet3BodyID := ExtractBodyIDFromDoc(fleet3Doc)
 	if fleet3BodyID != "fleet3" {
 		now := time.Now().Unix()
 		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
@@ -2169,8 +2203,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Page 5
 	movementHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
+	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
 	originCoords, _ := ExtractPlanetCoordinate(movementHTML)
-	fleets := ExtractFleets(movementHTML)
+	fleets := ExtractFleetsFromDoc(movementDoc)
 	if len(fleets) > 0 {
 		max := Fleet{}
 		for i, fleet := range fleets {
@@ -2194,7 +2229,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 	}
 
-	slots := ExtractSlots(movementHTML)
+	slots := ExtractSlotsFromDoc(movementDoc)
 	if slots.InUse == slots.Total {
 		return Fleet{}, ErrAllSlotsInUse
 	}
@@ -2809,8 +2844,8 @@ func (b *OGame) GetCachedPlayer() UserInfos {
 }
 
 // GetCachedNbProbes returns cached number of probes from preferences
-func (b *OGame) GetCachedNbProbes() int {
-	return b.CachedNbProbes
+func (b *OGame) GetCachedPreferences() Preferences {
+	return b.CachedPreferences
 }
 
 // GetPlanets returns the user planets

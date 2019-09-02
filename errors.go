@@ -31,6 +31,7 @@ var ErrDeactivateHidePictures = errors.New("deactivate 'Hide pictures in reports
 
 // Send fleet errors
 var (
+	ErrAccountInVacationMode              = errors.New("account in vacation mode")
 	ErrNoShipSelected                     = errors.New("no ships to send")
 	ErrNotEnoughShips                     = errors.New("not enough ships to send")
 	ErrUninhabitedPlanet                  = errors.New("uninhabited planet")
