@@ -45,7 +45,7 @@ type OGame struct {
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
 	Player               UserInfos
-	CachedNbProbes       int
+	CachedPreferences    Preferences
 	researches           *Researches
 	Planets              []Planet
 	ajaxChatToken        string
@@ -588,7 +588,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	if page == "overview" {
 		b.Player, _ = ExtractUserInfos(pageHTML, b.language)
 	} else if page == "preferences" {
-		b.CachedNbProbes = ExtractNbProbes(pageHTML)
+		b.CachedPreferences = ExtractPreferences(pageHTML)
 	}
 }
 
@@ -866,13 +866,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	b.bytesUploaded += req.ContentLength
 
 	if vals.Get("page") == "preferences" {
-		spioAnz := payload.Get("spio_anz")
-		if spioAnz != "" {
-			nbProbes, err := strconv.Atoi(spioAnz)
-			if err == nil {
-				b.CachedNbProbes = nbProbes
-			}
-		}
+		b.CachedPreferences = ExtractPreferences(body)
 	} else if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
 		var res ChatPostResp
 		if err := json.Unmarshal(body, &res); err != nil {
@@ -2838,8 +2832,8 @@ func (b *OGame) GetCachedPlayer() UserInfos {
 }
 
 // GetCachedNbProbes returns cached number of probes from preferences
-func (b *OGame) GetCachedNbProbes() int {
-	return b.CachedNbProbes
+func (b *OGame) GetCachedPreferences() Preferences {
+	return b.CachedPreferences
 }
 
 // GetPlanets returns the user planets
