@@ -1966,7 +1966,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, ErrInvalidPlanetID
 	}
 
-	// Ensure we're not trying to attack/spy ourself
+	// Ensure we're not trying to attack/spy ourselves
 	destinationIsMyOwnPlanet := false
 	myPlanets := ExtractPlanets(pageHTML, b)
 	for _, p := range myPlanets {
