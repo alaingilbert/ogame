@@ -85,26 +85,26 @@ type OGame struct {
 
 // Preferences ...
 type Preferences struct {
-	NbProbes                             int
-	DeactivateChatBar                    bool
-	DeactivateOutlawWarning              bool
-	ShowMobileVersion                    bool
-	ShowAlternativeDropdowns             bool
-	ActivateAutofocusHighscores          bool
-	AlwaysShowEvents                     int // Hide: 1, Above the content: 2, Below the content: 3
-	SortPlanetsBy                        int // Order of emergence: 0, Coordinates: 1, Alphabet: 2, Size: 3, Used fields: 4
-	SortingSequence                      int // Up: 0, Down: 1
-	HighlightPlanetInformation           bool
-	AnimatedDetailDisplay                bool
-	AnimatedOverview                     bool
-	NotesInExtraWindow                   bool
-	CombatReportsInExtraWindow           bool
-	HidePicturesInReports                bool
-	DisplayedMessagePerPage              int // 10, 25, 50
-	AuctioneerNotification               bool
-	CreateEconomyMessages                bool
-	DetailedActivityDisplay              bool
-	PreserveGalaxySystemWithPlanetChange bool
+	SpioAnz                      int
+	DisableChatBar               bool
+	DisableOutlawWarning         bool
+	MobileVersion                bool
+	ShowOldDropDowns             bool
+	ActivateAutofocus            bool
+	EventsShow                   int // Hide: 1, Above the content: 2, Below the content: 3
+	SortSetting                  int // Order of emergence: 0, Coordinates: 1, Alphabet: 2, Size: 3, Used fields: 4
+	SortOrder                    int // Up: 0, Down: 1
+	ShowDetailOverlay            bool
+	AnimatedSliders              bool
+	AnimatedOverview             bool
+	PopupsNotices                bool
+	PopopsCombatreport           bool
+	SpioReportPictures           bool
+	MsgResultsPerPage            int // 10, 25, 50
+	AuctioneerNotifications      bool
+	EconomyNotifications         bool
+	ShowActivityMinutes          bool
+	PreserveSystemOnPlanetChange bool
 }
 
 const defaultUserAgent = "" +
