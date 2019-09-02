@@ -724,11 +724,11 @@ func TestExtractResourcesProductions(t *testing.T) {
 
 func TestExtractNbProbes(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences.html")
-	probes := ExtractNbProbes(pageHTMLBytes)
+	probes := ExtractSpioAnz(pageHTMLBytes)
 	assert.Equal(t, 10, probes)
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_mobile.html")
-	probes = ExtractNbProbes(pageHTMLBytes)
+	probes = ExtractSpioAnz(pageHTMLBytes)
 	assert.Equal(t, 10, probes)
 }
 
@@ -744,6 +744,31 @@ func TestExtractPreferencesShowActivityMinutes(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_without_detailed_activities.html")
 	checked = ExtractPreferencesShowActivityMinutes(pageHTMLBytes)
 	assert.False(t, checked)
+}
+
+func TestExtractPreferences(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences.html")
+	prefs := ExtractPreferences(pageHTMLBytes)
+	assert.Equal(t, 10, prefs.NbProbes)
+	assert.False(t, prefs.DeactivateChatBar)
+	assert.False(t, prefs.DeactivateOutlawWarning)
+	assert.False(t, prefs.ShowMobileVersion)
+	assert.False(t, prefs.ShowAlternativeDropdowns)
+	assert.False(t, prefs.ActivateAutofocusHighscores)
+	assert.Equal(t, 1, prefs.AlwaysShowEvents)
+	assert.Equal(t, 0, prefs.SortPlanetsBy)
+	assert.Equal(t, 0, prefs.SortingSequence)
+	assert.True(t, prefs.HighlightPlanetInformation)
+	assert.True(t, prefs.AnimatedDetailDisplay)
+	assert.True(t, prefs.AnimatedOverview)
+	assert.False(t, prefs.NotesInExtraWindow)
+	assert.False(t, prefs.CombatReportsInExtraWindow)
+	assert.False(t, prefs.HidePicturesInReports)
+	assert.Equal(t, 10, prefs.DisplayedMessagePerPage)
+	assert.True(t, prefs.AuctioneerNotification)
+	assert.False(t, prefs.CreateEconomyMessages)
+	assert.True(t, prefs.DetailedActivityDisplay)
+	assert.False(t, prefs.PreserveGalaxySystemWithPlanetChange)
 }
 
 //func TestCalcResources(t *testing.T) {

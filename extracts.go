@@ -205,16 +205,43 @@ func ExtractResourcesProductions(pageHTML []byte) (Resources, error) {
 	return ExtractResourcesProductionsFromDoc(doc)
 }
 
-// ExtractNbProbes ...
-func ExtractNbProbes(pageHTML []byte) int {
+// ExtractPreferences ...
+func ExtractPreferences(pageHTML []byte) Preferences {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractNbProbesFromDoc(doc)
+	return Preferences{
+		NbProbes:                             ExtractSpioAnzFromDoc(doc),
+		DeactivateChatBar:                    ExtractDisableChatBarFromDoc(doc),
+		DeactivateOutlawWarning:              ExtractDisableOutlawWarningFromDoc(doc),
+		ShowMobileVersion:                    ExtractMobileVersionFromDoc(doc),
+		ShowAlternativeDropdowns:             ExtractShowOldDropDownsFromDoc(doc),
+		ActivateAutofocusHighscores:          ExtractActivateAutofocusFromDoc(doc),
+		AlwaysShowEvents:                     ExtractEventsShowFromDoc(doc),
+		SortPlanetsBy:                        ExtractSortSettingFromDoc(doc),
+		SortingSequence:                      ExtractSortOrderFromDoc(doc),
+		HighlightPlanetInformation:           ExtractShowDetailOverlayFromDoc(doc),
+		AnimatedDetailDisplay:                ExtractAnimatedSlidersFromDoc(doc),
+		AnimatedOverview:                     ExtractAnimatedOverviewFromDoc(doc),
+		NotesInExtraWindow:                   ExtractPopupsNoticesFromDoc(doc),
+		CombatReportsInExtraWindow:           ExtractPopopsCombatreportFromDoc(doc),
+		HidePicturesInReports:                ExtractSpioReportPicturesFromDoc(doc),
+		DisplayedMessagePerPage:              ExtractMsgResultsPerPageFromDoc(doc),
+		AuctioneerNotification:               ExtractAuctioneerNotificationsFromDoc(doc),
+		CreateEconomyMessages:                ExtractEconomyNotificationsFromDoc(doc),
+		DetailedActivityDisplay:              ExtractShowActivityMinutesFromDoc(doc),
+		PreserveGalaxySystemWithPlanetChange: ExtractPreserveSystemOnPlanetChangeFromDoc(doc),
+	}
+}
+
+// ExtractSpioAnz ...
+func ExtractSpioAnz(pageHTML []byte) int {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractSpioAnzFromDoc(doc)
 }
 
 // ExtractNbProbes ...
 func ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractPreferencesShowActivityMinutesFromDoc(doc)
+	return ExtractShowActivityMinutesFromDoc(doc)
 }
 
 // <Extract from doc> ---------------------------------------------------------
@@ -1384,15 +1411,123 @@ func extractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
 	return serverTime, nil
 }
 
-// ExtractNbProbesFromDoc ...
-func ExtractNbProbesFromDoc(doc *goquery.Document) int {
+// ExtractSpioAnzFromDoc ...
+func ExtractSpioAnzFromDoc(doc *goquery.Document) int {
 	out, _ := strconv.Atoi(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
 	return out
 }
 
-// ExtractPreferencesShowActivityMinutesFromDoc ...
-func ExtractPreferencesShowActivityMinutesFromDoc(doc *goquery.Document) bool {
+// ExtractDisableChatBarFromDoc ...
+func ExtractDisableChatBarFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=disableChatBar]").Attr("checked")
+	return exists
+}
+
+// ExtractDisableOutlawWarningFromDoc ...
+func ExtractDisableOutlawWarningFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=disableOutlawWarning]").Attr("checked")
+	return exists
+}
+
+// ExtractMobileVersionFromDoc ...
+func ExtractMobileVersionFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=mobileVersion]").Attr("checked")
+	return exists
+}
+
+// ExtractShowOldDropDownsFromDoc ...
+func ExtractShowOldDropDownsFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=showOldDropDowns]").Attr("checked")
+	return exists
+}
+
+// ExtractActivateAutofocusFromDoc ...
+func ExtractActivateAutofocusFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=activateAutofocus]").Attr("checked")
+	return exists
+}
+
+// ExtractEventsShowFromDoc ...
+func ExtractEventsShowFromDoc(doc *goquery.Document) int {
+	val, _ := strconv.Atoi(doc.Find("select[name=eventsShow] option[selected]").AttrOr("value", "1"))
+	return val
+}
+
+// ExtractSortSettingFromDoc ...
+func ExtractSortSettingFromDoc(doc *goquery.Document) int {
+	val, _ := strconv.Atoi(doc.Find("select#sortSetting option[selected]").AttrOr("value", "0"))
+	return val
+}
+
+// ExtractSortOrderFromDoc ...
+func ExtractSortOrderFromDoc(doc *goquery.Document) int {
+	val, _ := strconv.Atoi(doc.Find("select#sortOrderHidden option[selected]").AttrOr("value", "0"))
+	return val
+}
+
+// ExtractShowDetailOverlayFromDoc ...
+func ExtractShowDetailOverlayFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=showDetailOverlay]").Attr("checked")
+	return exists
+}
+
+// ExtractAnimatedSlidersFromDoc ...
+func ExtractAnimatedSlidersFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=animatedSliders]").Attr("checked")
+	return exists
+}
+
+// ExtractAnimatedOverviewFromDoc ...
+func ExtractAnimatedOverviewFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=animatedOverview]").Attr("checked")
+	return exists
+}
+
+// ExtractPopupsNoticesFromDoc ...
+func ExtractPopupsNoticesFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=popups[notices]]").Attr("checked")
+	return exists
+}
+
+// ExtractPopopsCombatreportFromDoc ...
+func ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=popups[combatreport]]").Attr("checked")
+	return exists
+}
+
+// ExtractSpioReportPicturesFromDoc ...
+func ExtractSpioReportPicturesFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=spioReportPictures]").Attr("checked")
+	return exists
+}
+
+// ExtractMsgResultsPerPageFromDoc ...
+func ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int {
+	val, _ := strconv.Atoi(doc.Find("select[name=msgResultsPerPage] option[selected]").AttrOr("value", "10"))
+	return val
+}
+
+// ExtractAuctioneerNotificationsFromDoc ...
+func ExtractAuctioneerNotificationsFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=auctioneerNotifications]").Attr("checked")
+	return exists
+}
+
+// ExtractEconomyNotificationsFromDoc ...
+func ExtractEconomyNotificationsFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=economyNotifications]").Attr("checked")
+	return exists
+}
+
+// ExtractShowActivityMinutesFromDoc ...
+func ExtractShowActivityMinutesFromDoc(doc *goquery.Document) bool {
 	_, exists := doc.Find("input[name=showActivityMinutes]").Attr("checked")
+	return exists
+}
+
+// ExtractPreserveSystemOnPlanetChangeFromDoc ...
+func ExtractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=preserveSystemOnPlanetChange]").Attr("checked")
 	return exists
 }
 

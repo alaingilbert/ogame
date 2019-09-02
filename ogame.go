@@ -83,6 +83,30 @@ type OGame struct {
 	bytesDownloaded      int64
 }
 
+// Preferences ...
+type Preferences struct {
+	NbProbes                             int
+	DeactivateChatBar                    bool
+	DeactivateOutlawWarning              bool
+	ShowMobileVersion                    bool
+	ShowAlternativeDropdowns             bool
+	ActivateAutofocusHighscores          bool
+	AlwaysShowEvents                     int // Hide: 1, Above the content: 2, Below the content: 3
+	SortPlanetsBy                        int // Order of emergence: 0, Coordinates: 1, Alphabet: 2, Size: 3, Used fields: 4
+	SortingSequence                      int // Up: 0, Down: 1
+	HighlightPlanetInformation           bool
+	AnimatedDetailDisplay                bool
+	AnimatedOverview                     bool
+	NotesInExtraWindow                   bool
+	CombatReportsInExtraWindow           bool
+	HidePicturesInReports                bool
+	DisplayedMessagePerPage              int // 10, 25, 50
+	AuctioneerNotification               bool
+	CreateEconomyMessages                bool
+	DetailedActivityDisplay              bool
+	PreserveGalaxySystemWithPlanetChange bool
+}
+
 const defaultUserAgent = "" +
 	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) " +
 	"AppleWebKit/537.36 (KHTML, like Gecko) " +
