@@ -2270,8 +2270,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 				delay := time.Duration(fleet.BackIn-fleet.ArriveIn*2) * time.Second
 				if mission == Expedition {
 					delay -= time.Duration(expeditiontime) * time.Hour
+				} else if mission == GroupedAttack {
+					delay = 0
 				}
-				if delay < 0 || delay > time.Since(start) {
+				if delay < 0 || delay > time.Since(start.Add(time.Second)) {
 					continue
 				}
 				max = fleets[i]
