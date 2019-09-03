@@ -264,13 +264,14 @@ func ExtractHiddenFields(pageHTML []byte) (fields url.Values) {
 // <Extract from doc> ---------------------------------------------------------
 
 // ExtractHiddenFieldsFromDoc utils function to extract hidden input from a page
-func ExtractHiddenFieldsFromDoc(doc *goquery.Document) (fields url.Values) {
+func ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values {
+	fields := url.Values{}
 	doc.Find("input[type=hidden]").Each(func(i int, s *goquery.Selection) {
 		name, _ := s.Attr("name")
 		value, _ := s.Attr("value")
 		fields.Add(name, value)
 	})
-	return
+	return fields
 }
 
 // ExtractBodyIDFromDoc ...
