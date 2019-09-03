@@ -255,7 +255,23 @@ func ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool {
 	return ExtractShowActivityMinutesFromDoc(doc)
 }
 
+// ExtractHiddenFields utils function to extract hidden input from a page
+func ExtractHiddenFields(pageHTML []byte) (fields url.Values) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractHiddenFieldsFromDoc(doc)
+}
+
 // <Extract from doc> ---------------------------------------------------------
+
+// ExtractHiddenFieldsFromDoc utils function to extract hidden input from a page
+func ExtractHiddenFieldsFromDoc(doc *goquery.Document) (fields url.Values) {
+	doc.Find("input[type=hidden]").Each(func(i int, s *goquery.Selection) {
+		name, _ := s.Attr("name")
+		value, _ := s.Attr("value")
+		fields.Add(name, value)
+	})
+	return
+}
 
 // ExtractBodyIDFromDoc ...
 func ExtractBodyIDFromDoc(doc *goquery.Document) string {
