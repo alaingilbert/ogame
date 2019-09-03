@@ -1325,8 +1325,7 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 			dest.Type = DebrisType
 		}
 
-		idStr, _ := s.Find("span.reversal").Attr("ref")
-		id, _ := strconv.Atoi(idStr)
+		id, _ := strconv.Atoi(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"))
 
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
 		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)

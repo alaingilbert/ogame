@@ -1610,7 +1610,7 @@ func TestExtractFleet_returning(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, fleets[0].Destination)
 	assert.Equal(t, Transport, fleets[0].Mission)
 	assert.Equal(t, true, fleets[0].ReturnFlight)
-	assert.Equal(t, FleetID(0), fleets[0].ID)
+	assert.Equal(t, FleetID(4494950), fleets[0].ID)
 	assert.Equal(t, 1, fleets[0].Ships.SmallCargo)
 	assert.Equal(t, 8, fleets[0].Ships.LargeCargo)
 	assert.Equal(t, 1, fleets[0].Ships.LightFighter)
