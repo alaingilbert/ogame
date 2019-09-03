@@ -1619,6 +1619,15 @@ func TestExtractFleet_returning(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 123, Crystal: 456, Deuterium: 789}, fleets[0].Resources)
 }
 
+func TestExtractFleet_targetPlanetID(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_moon_to_moon.html")
+	fleets := ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 0, fleets[0].TargetPlanetID)
+	assert.Equal(t, 0, fleets[1].TargetPlanetID)
+	assert.Equal(t, 33702114, fleets[2].TargetPlanetID)
+	assert.Equal(t, 33699325, fleets[3].TargetPlanetID)
+}
+
 func TestExtractOverviewProduction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_shipyard_queue_full.html")
 	prods, _ := ExtractOverviewProduction(pageHTMLBytes)

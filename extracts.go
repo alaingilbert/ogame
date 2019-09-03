@@ -1349,6 +1349,11 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 		shipment.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
 		shipment.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
 
+		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
+		fedAttackURL, _ := url.Parse(fedAttackHref)
+		fedAttackQuery := fedAttackURL.Query()
+		targetPlanetID, _ := strconv.Atoi(fedAttackQuery.Get("target"))
+
 		fleet := Fleet{}
 		fleet.ID = FleetID(id)
 		fleet.Origin = origin
@@ -1356,6 +1361,7 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 		fleet.Mission = MissionID(missionType)
 		fleet.ReturnFlight = returnFlight
 		fleet.Resources = shipment
+		fleet.TargetPlanetID = targetPlanetID
 		if !returnFlight {
 			fleet.ArriveIn = secs
 			fleet.BackIn = backIn
