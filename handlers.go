@@ -729,7 +729,7 @@ func SendFleetHandler(c echo.Context) error {
 		}
 	}
 
-	fleet, err := bot.SendFleet(CelestialID(planetID), ships, speed, where, mission, payload, duration)
+	fleet, err := bot.SendFleet(CelestialID(planetID), ships, speed, where, mission, payload, duration, 0)
 	if err != nil &&
 		(err == ErrInvalidPlanetID ||
 			err == ErrNoShipSelected ||

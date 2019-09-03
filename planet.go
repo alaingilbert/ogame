@@ -136,13 +136,13 @@ func (p Planet) GetResourcesDetails() (ResourcesDetails, error) {
 // SendFleet sends a fleet
 func (p Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, mission, resources, expeditiontime)
+	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, mission, resources, expeditiontime, 0)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (p Planet) EnsureFleet(ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return p.ogame.EnsureFleet(CelestialID(p.ID), ships, speed, where, mission, resources, expeditiontime)
+	return p.ogame.EnsureFleet(CelestialID(p.ID), ships, speed, where, mission, resources, expeditiontime, 0)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
