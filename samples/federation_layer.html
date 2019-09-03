@@ -1,0 +1,64 @@
+<div id="FederationLayer">
+    <div id="sftcontainer">
+        <!--<br class="clearfloat" />-->
+        <div id="changefleetname">
+            <form action="http://127.0.0.1:8080/bots/5/browser/html/s152-en?page=unionchange&ajax=1" id="unionform" name="unionform" onsubmit="handlerToSubmitAjaxForm('unionform'); return false;" >
+                <input type="hidden" name="fleetID" value="7953393">
+                <input type="hidden" name="targetID" value="33719721">
+                <input type="hidden" name="unionID" value="0">
+                <input type="hidden" id="unionUsers" name="unionUsers" value="">
+                <input type='hidden' name='token' value='566550cea3f8fd68695a427e1c1236e0' />        <div class="wrap">
+                    <div class="col textCenter">
+                        <a id="switch" href="javascript:void(0);" class="textBeefy">Search user</a>
+                    </div>
+                    <div class="col">
+                        <span class="textBeefy">Union name</span>
+                        <input class="textInput fix" id="groupNameInput" type="text" value="KV7953393" name="groupname"/>
+                    </div>
+                    <br class="clearfloat" />
+                </div>
+                <div class="wrap" style="position:relative">
+                    <div class="wrapInner">
+                        <div class="textBeefy">Buddy list:</div>
+                        <ul size="7" id="buddyselect">
+                        </ul>
+                    </div>
+                    <div class="buttonWrap">
+                        <input
+                                type="button"
+                                onClick="addUserToUnion(); return false"
+                                class="btn_blue" value="Invite >>" />
+                        <input type="button"
+                               onClick="removeUserFromUnion(); return false"
+                               class="btn_blue"
+                               value="<< Kick" />
+                    </div>
+                    <div class="wrapInner">
+                        <div class="textBeefy">Union user: (1/5)</div>
+                        <ul size="7" id="participantselect">
+                            <li ref="Constable Telesto" class="undermark">Constable Telesto</li>
+
+                        </ul>
+                    </div><!-- float1 -->
+                    <br class="clearfloat" />
+                </div>
+                <input type="submit" id="fleetOK" class="btn_blue float_right buttonOK" value="Ok">
+            </form>
+            <form action="#" name="unionUserSearch" id="unionUserSearch" onsubmit="handlerToSubmitAjaxForm('unionUserSearch'); return false;">
+                <div id="searchFed">
+                    <div id="honorWarning">
+                        Honourable battles can become dishonourable battles if strong players enter through ACS. The attacker`s sum of total military points in comparison to the defender`s sum of total military points is the decisive factor here.                </div>
+                    <div class="wrap" style="display:none;">
+                        <span class="textBeefy">Search user:</span>
+                        <input class="textInput fix" type="text" name="addtogroup"/>
+                        <input type="submit" class="btn_blue" value="Search"/>
+                    </div>
+                </div><!-- float2 -->
+            </form>
+            <br class="clearfloat"    />
+        </div><!-- changefleetname -->
+    </div><!-- sftcontainer -->
+</div>
+<script type="text/javascript">
+    function submit_unionUserSearch(){ajaxFormSubmit('unionUserSearch','http://127.0.0.1:8080/bots/5/browser/html/s152-en?page=federationSearchUser&ajax=1',unionUser);}
+    initFederationLayer();</script>
