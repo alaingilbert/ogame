@@ -84,12 +84,13 @@ type Wrapper interface {
 	BuyOfferOfTheDay() error
 	BytesDownloaded() int64
 	BytesUploaded() int64
+	CreateUnion(fleet Fleet) (int, error)
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
 	GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
-	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
+	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error)
+	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error)
 	Build(celestialID CelestialID, id ID, nbr int) error
 	BuildCancelable(CelestialID, ID) error
 	BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -179,8 +180,8 @@ type Celestial interface {
 	GetResources() (Resources, error)
 	GetResourcesDetails() (ResourcesDetails, error)
 	GetFacilities() (Facilities, error)
-	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
-	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
+	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int, int) (Fleet, error)
+	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int, int) (Fleet, error)
 	GetDefense() (DefensesInfos, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error

@@ -1610,13 +1610,32 @@ func TestExtractFleet_returning(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, fleets[0].Destination)
 	assert.Equal(t, Transport, fleets[0].Mission)
 	assert.Equal(t, true, fleets[0].ReturnFlight)
-	assert.Equal(t, FleetID(0), fleets[0].ID)
+	assert.Equal(t, FleetID(4494950), fleets[0].ID)
 	assert.Equal(t, 1, fleets[0].Ships.SmallCargo)
 	assert.Equal(t, 8, fleets[0].Ships.LargeCargo)
 	assert.Equal(t, 1, fleets[0].Ships.LightFighter)
 	assert.Equal(t, 1, fleets[0].Ships.ColonyShip)
 	assert.Equal(t, 1, fleets[0].Ships.EspionageProbe)
 	assert.Equal(t, Resources{Metal: 123, Crystal: 456, Deuterium: 789}, fleets[0].Resources)
+}
+
+func TestExtractFleet_targetPlanetID(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_moon_to_moon.html")
+	fleets := ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 0, fleets[0].TargetPlanetID)
+	assert.Equal(t, 0, fleets[1].TargetPlanetID)
+	assert.Equal(t, 33702114, fleets[2].TargetPlanetID)
+	assert.Equal(t, 33699325, fleets[3].TargetPlanetID)
+}
+
+func TestExtractFleet_unionID(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_no_union.html")
+	fleets := ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 0, fleets[0].UnionID)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/fleets_union_alone.html")
+	fleets = ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 13558, fleets[0].UnionID)
 }
 
 func TestExtractOverviewProduction(t *testing.T) {

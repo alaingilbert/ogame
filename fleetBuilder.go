@@ -34,6 +34,7 @@ type FleetBuilder struct {
 	err              error
 	fleet            Fleet
 	expeditiontime   int
+	unionID          int
 	allShips         bool
 	recallIn         int
 	successCallbacks []func(Fleet)
@@ -123,6 +124,12 @@ func (f *FleetBuilder) SetDuration(expeditiontime int) *FleetBuilder {
 	return f
 }
 
+// SetUnionID set union id to join
+func (f *FleetBuilder) SetUnionID(unionID int) *FleetBuilder {
+	f.unionID = unionID
+	return f
+}
+
 // AddShips ...
 func (f *FleetBuilder) AddShips(id ID, nbr int) *FleetBuilder {
 	if id.IsShip() && id != SolarSatelliteID && nbr > 0 {
@@ -186,7 +193,7 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			payload.Metal = int(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
 		}
 
-		f.fleet, f.err = tx.SendFleet(f.origin, f.ships, f.speed, f.destination, f.mission, payload, f.expeditiontime)
+		f.fleet, f.err = tx.EnsureFleet(f.origin, f.ships, f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)
 		return f.err
 	})
 	if err != nil {

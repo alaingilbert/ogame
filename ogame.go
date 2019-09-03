@@ -820,6 +820,8 @@ func IsAjaxPage(vals url.Values) bool {
 		page == "phalanx" ||
 		page == "shareReportOverlay" ||
 		page == "jumpgatelayer" ||
+		page == "federationlayer" ||
+		page == "unionchange" ||
 		page == "changenick" ||
 		page == "planetlayer" ||
 		page == "traderlayer" ||
@@ -1531,6 +1533,35 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	return nil
 }
 
+func (b *OGame) createUnion(fleet Fleet) (int, error) {
+	if fleet.ID == 0 {
+		return 0, errors.New("invalid fleet id")
+	}
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {strconv.Itoa(int(fleet.ID))}, "target": {strconv.Itoa(fleet.TargetPlanetID)}, "ajax": {"1"}})
+	payload := ExtractFederation(pageHTML)
+	by, err := b.postPageContent(url.Values{"page": {"unionchange"}, "ajax": {"1"}}, payload)
+	if err != nil {
+		return 0, err
+	}
+	var res struct {
+		FleetID  int
+		UnionID  int
+		TargetID int
+		Errorbox struct {
+			Type   string
+			Text   string
+			Failed int
+		}
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return 0, err
+	}
+	if res.Errorbox.Failed != 0 {
+		return 0, errors.New(res.Errorbox.Text)
+	}
+	return res.UnionID, nil
+}
+
 func calcResources(price int, planetResources PlanetResources, multiplier Multiplier) url.Values {
 	sortedCelestialIDs := make([]CelestialID, 0)
 	for celestialID := range planetResources {
@@ -1967,7 +1998,7 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority I
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int, ensure bool) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime, unionID int, ensure bool) (Fleet, error) {
 
 	// Keep track of start time. We use this value to find a fleet that was created after that time.
 	start := time.Now()
@@ -2090,6 +2121,26 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		where.Type = PlanetType
 	}
 	payload.Add("type", strconv.Itoa(int(where.Type)))
+
+	if unionID != 0 {
+		found := false
+		fleet2Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
+			acsValues := s.AttrOr("value", "")
+			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
+			if len(m) == 2 {
+				optUnionID, _ := strconv.Atoi(m[1])
+				if unionID == optUnionID {
+					found = true
+					payload.Add("acsValues", acsValues)
+					payload.Add("union", m[1])
+					mission = GroupedAttack
+				}
+			}
+		})
+		if !found {
+			return Fleet{}, ErrUnionNotFound
+		}
+	}
 
 	// Check
 	fleetCheckPayload := url.Values{
@@ -2219,8 +2270,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 				delay := time.Duration(fleet.BackIn-fleet.ArriveIn*2) * time.Second
 				if mission == Expedition {
 					delay -= time.Duration(expeditiontime) * time.Hour
+				} else if mission == GroupedAttack {
+					delay = 0
 				}
-				if delay < 0 || delay > time.Since(start) {
+				if delay < 0 || delay > time.Since(start.Add(time.Second)) {
 					continue
 				}
 				max = fleets[i]
@@ -3076,14 +3129,14 @@ func (b *OGame) GetResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
+	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
+	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // SendIPM sends IPM
@@ -3173,4 +3226,9 @@ func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
 // BuyOfferOfTheDay buys the offer of the day.
 func (b *OGame) BuyOfferOfTheDay() error {
 	return b.WithPriority(Normal).BuyOfferOfTheDay()
+}
+
+// CreateUnion creates a union
+func (b *OGame) CreateUnion(fleet Fleet) (int, error) {
+	return b.WithPriority(Normal).CreateUnion(fleet)
 }

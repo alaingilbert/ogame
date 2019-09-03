@@ -376,18 +376,18 @@ func (b *Prioritize) GetResourcesDetails(celestialID CelestialID) (ResourcesDeta
 
 // SendFleet sends a fleet
 func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
 	b.begin("SendFleet")
 	defer b.done()
-	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, false)
+	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, false)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
 	b.begin("EnsureFleet")
 	defer b.done()
-	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, true)
+	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, true)
 }
 
 // SendIPM sends IPM
@@ -485,4 +485,11 @@ func (b *Prioritize) BuyOfferOfTheDay() error {
 	b.begin("BuyOfferOfTheDay")
 	defer b.done()
 	return b.bot.buyOfferOfTheDay()
+}
+
+// CreateUnion creates a union
+func (b *Prioritize) CreateUnion(fleet Fleet) (int, error) {
+	b.begin("CreateUnion")
+	defer b.done()
+	return b.bot.createUnion(fleet)
 }

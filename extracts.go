@@ -255,7 +255,24 @@ func ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool {
 	return ExtractShowActivityMinutesFromDoc(doc)
 }
 
+// ExtractHiddenFields utils function to extract hidden input from a page
+func ExtractHiddenFields(pageHTML []byte) (fields url.Values) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractHiddenFieldsFromDoc(doc)
+}
+
 // <Extract from doc> ---------------------------------------------------------
+
+// ExtractHiddenFieldsFromDoc utils function to extract hidden input from a page
+func ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values {
+	fields := url.Values{}
+	doc.Find("input[type=hidden]").Each(func(i int, s *goquery.Selection) {
+		name, _ := s.Attr("name")
+		value, _ := s.Attr("value")
+		fields.Add(name, value)
+	})
+	return fields
+}
 
 // ExtractBodyIDFromDoc ...
 func ExtractBodyIDFromDoc(doc *goquery.Document) string {
@@ -1325,8 +1342,7 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 			dest.Type = DebrisType
 		}
 
-		idStr, _ := s.Find("span.reversal").Attr("ref")
-		id, _ := strconv.Atoi(idStr)
+		id, _ := strconv.Atoi(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"))
 
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
 		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
@@ -1350,6 +1366,12 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 		shipment.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
 		shipment.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
 
+		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
+		fedAttackURL, _ := url.Parse(fedAttackHref)
+		fedAttackQuery := fedAttackURL.Query()
+		targetPlanetID, _ := strconv.Atoi(fedAttackQuery.Get("target"))
+		unionID, _ := strconv.Atoi(fedAttackQuery.Get("union"))
+
 		fleet := Fleet{}
 		fleet.ID = FleetID(id)
 		fleet.Origin = origin
@@ -1357,6 +1379,8 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 		fleet.Mission = MissionID(missionType)
 		fleet.ReturnFlight = returnFlight
 		fleet.Resources = shipment
+		fleet.TargetPlanetID = targetPlanetID
+		fleet.UnionID = unionID
 		if !returnFlight {
 			fleet.ArriveIn = secs
 			fleet.BackIn = backIn
@@ -1995,6 +2019,18 @@ func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
 	})
 
 	return ships, token, destinations, 0
+}
+
+// ExtractFederation ...
+func ExtractFederation(pageHTML []byte) url.Values {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	payload := ExtractHiddenFieldsFromDoc(doc)
+	groupName := doc.Find("input#groupNameInput").AttrOr("value", "")
+	doc.Find("ul#participantselect li").Each(func(i int, s *goquery.Selection) {
+		payload.Add("unionUsers", s.Text())
+	})
+	payload.Add("groupname", groupName)
+	return payload
 }
 
 // ExtractConstructions ...
