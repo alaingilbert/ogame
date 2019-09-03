@@ -180,8 +180,8 @@ type Celestial interface {
 	GetResources() (Resources, error)
 	GetResourcesDetails() (ResourcesDetails, error)
 	GetFacilities() (Facilities, error)
-	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
-	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int) (Fleet, error)
+	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int, int) (Fleet, error)
+	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int, int) (Fleet, error)
 	GetDefense() (DefensesInfos, error)
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int) error
