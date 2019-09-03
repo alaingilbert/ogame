@@ -85,6 +85,11 @@ func (d CelestialType) String() string {
 	}
 }
 
+// Int returns an integer value of the CelestialType
+func (d CelestialType) Int() int {
+	return int(d)
+}
+
 // OGame constants
 const (
 	PlanetType CelestialType = 1
