@@ -1533,6 +1533,32 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	return nil
 }
 
+func (b *OGame) createUnion(fleet Fleet) (int, error) {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {strconv.Itoa(int(fleet.ID))}, "target": {strconv.Itoa(fleet.TargetPlanetID)}})
+	payload := ExtractFederation(pageHTML)
+	by, err := b.postPageContent(url.Values{"page": {"unionchange"}}, payload)
+	if err != nil {
+		return 0, err
+	}
+	var res struct {
+		FleetID  int
+		UnionID  int
+		TargetID int
+		Errorbox struct {
+			Type   string
+			Text   string
+			Failed int
+		}
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return 0, err
+	}
+	if res.Errorbox.Failed != 0 {
+		return 0, errors.New(res.Errorbox.Text)
+	}
+	return res.UnionID, nil
+}
+
 func calcResources(price int, planetResources PlanetResources, multiplier Multiplier) url.Values {
 	sortedCelestialIDs := make([]CelestialID, 0)
 	for celestialID := range planetResources {
