@@ -1628,6 +1628,16 @@ func TestExtractFleet_targetPlanetID(t *testing.T) {
 	assert.Equal(t, 33699325, fleets[3].TargetPlanetID)
 }
 
+func TestExtractFleet_unionID(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_no_union.html")
+	fleets := ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 0, fleets[0].UnionID)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/fleets_union_alone.html")
+	fleets = ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 13558, fleets[0].UnionID)
+}
+
 func TestExtractOverviewProduction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_shipyard_queue_full.html")
 	prods, _ := ExtractOverviewProduction(pageHTMLBytes)

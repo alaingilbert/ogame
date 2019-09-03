@@ -1369,6 +1369,7 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 		fedAttackURL, _ := url.Parse(fedAttackHref)
 		fedAttackQuery := fedAttackURL.Query()
 		targetPlanetID, _ := strconv.Atoi(fedAttackQuery.Get("target"))
+		unionID, _ := strconv.Atoi(fedAttackQuery.Get("union"))
 
 		fleet := Fleet{}
 		fleet.ID = FleetID(id)
@@ -1378,6 +1379,7 @@ func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 		fleet.ReturnFlight = returnFlight
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
+		fleet.UnionID = unionID
 		if !returnFlight {
 			fleet.ArriveIn = secs
 			fleet.BackIn = backIn

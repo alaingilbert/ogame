@@ -11,5 +11,6 @@ type Fleet struct {
 	Ships          ShipsInfos
 	ArriveIn       int
 	BackIn         int
+	UnionID        int
 	TargetPlanetID int
 }
