@@ -1995,7 +1995,7 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority I
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int, ensure bool) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime, unionID int, ensure bool) (Fleet, error) {
 
 	// Keep track of start time. We use this value to find a fleet that was created after that time.
 	start := time.Now()
@@ -2118,6 +2118,26 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		where.Type = PlanetType
 	}
 	payload.Add("type", strconv.Itoa(int(where.Type)))
+
+	if unionID != 0 {
+		found := false
+		fleet2Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
+			acsValues := s.AttrOr("value", "")
+			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
+			if len(m) == 2 {
+				optUnionID, _ := strconv.Atoi(m[1])
+				if unionID == optUnionID {
+					found = true
+					payload.Add("acsValues", acsValues)
+					payload.Add("union", m[1])
+					mission = GroupedAttack
+				}
+			}
+		})
+		if !found {
+			return Fleet{}, ErrUnionNotFound
+		}
+	}
 
 	// Check
 	fleetCheckPayload := url.Values{
@@ -3104,14 +3124,14 @@ func (b *OGame) GetResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
+	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime)
+	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
+	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // SendIPM sends IPM
