@@ -650,6 +650,7 @@ func SendFleetHandler(c echo.Context) error {
 	where := Coordinate{Type: PlanetType}
 	mission := Transport
 	duration := 0
+	unionID := 0
 	payload := Resources{}
 	speed := HundredPercent
 	for key, values := range c.Request().PostForm {
@@ -708,6 +709,11 @@ func SendFleetHandler(c echo.Context) error {
 			if err != nil {
 				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid duration"))
 			}
+		case "union":
+			unionID, err = strconv.Atoi(values[0])
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid union id"))
+			}
 		case "metal":
 			metal, err := strconv.Atoi(values[0])
 			if err != nil || metal < 0 {
@@ -729,7 +735,7 @@ func SendFleetHandler(c echo.Context) error {
 		}
 	}
 
-	fleet, err := bot.SendFleet(CelestialID(planetID), ships, speed, where, mission, payload, duration, 0)
+	fleet, err := bot.SendFleet(CelestialID(planetID), ships, speed, where, mission, payload, duration, unionID)
 	if err != nil &&
 		(err == ErrInvalidPlanetID ||
 			err == ErrNoShipSelected ||
