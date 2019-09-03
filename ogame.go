@@ -3202,3 +3202,8 @@ func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
 func (b *OGame) BuyOfferOfTheDay() error {
 	return b.WithPriority(Normal).BuyOfferOfTheDay()
 }
+
+// CreateUnion creates a union
+func (b *OGame) CreateUnion(fleet Fleet) (int, error) {
+	return b.WithPriority(Normal).CreateUnion(fleet)
+}

@@ -486,3 +486,10 @@ func (b *Prioritize) BuyOfferOfTheDay() error {
 	defer b.done()
 	return b.bot.buyOfferOfTheDay()
 }
+
+// CreateUnion creates a union
+func (b *Prioritize) CreateUnion(fleet Fleet) (int, error) {
+	b.begin("CreateUnion")
+	defer b.done()
+	return b.bot.createUnion(fleet)
+}

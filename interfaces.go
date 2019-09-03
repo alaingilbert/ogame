@@ -84,6 +84,7 @@ type Wrapper interface {
 	BuyOfferOfTheDay() error
 	BytesDownloaded() int64
 	BytesUploaded() int64
+	CreateUnion(fleet Fleet) (int, error)
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
