@@ -2018,6 +2018,18 @@ func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
 	return ships, token, destinations, 0
 }
 
+// ExtractFederation ...
+func ExtractFederation(pageHTML []byte) url.Values {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	payload := ExtractHiddenFieldsFromDoc(doc)
+	groupName := doc.Find("input#groupNameInput").AttrOr("value", "")
+	doc.Find("ul#participantselect li").Each(func(i int, s *goquery.Selection) {
+		payload.Add("unionUsers", s.Text())
+	})
+	payload.Add("groupname", groupName)
+	return payload
+}
+
 // ExtractConstructions ...
 func ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
 	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
