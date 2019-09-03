@@ -820,6 +820,8 @@ func IsAjaxPage(vals url.Values) bool {
 		page == "phalanx" ||
 		page == "shareReportOverlay" ||
 		page == "jumpgatelayer" ||
+		page == "federationlayer" ||
+		page == "unionchange" ||
 		page == "changenick" ||
 		page == "planetlayer" ||
 		page == "traderlayer" ||
