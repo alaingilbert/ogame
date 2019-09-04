@@ -2291,7 +2291,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 	}
 
-	slots := ExtractSlotsFromDoc(movementDoc)
+	slots = ExtractSlotsFromDoc(movementDoc)
 	if slots.InUse == slots.Total {
 		return Fleet{}, ErrAllSlotsInUse
 	}
