@@ -2000,9 +2000,6 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority I
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime, unionID int, ensure bool) (Fleet, error) {
 
-	// Keep track of start time. We use this value to find a fleet that was created after that time.
-	start := time.Now()
-
 	// Utils function to extract hidden input from a page
 	getHiddenFields := func(pageHTML []byte) map[string]string {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -2013,6 +2010,25 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 			fields[name] = value
 		})
 		return fields
+	}
+
+	// Get existing fleet, so we can ensure new fleet ID is greater
+	initialFleets, slots := b.getFleets()
+	maxInitialFleetID := FleetID(0)
+	for _, f := range initialFleets {
+		if f.ID > maxInitialFleetID {
+			maxInitialFleetID = f.ID
+		}
+	}
+
+	if slots.InUse == slots.Total {
+		return Fleet{}, ErrAllSlotsInUse
+	}
+
+	if mission == Expedition {
+		if slots.ExpInUse == slots.ExpTotal {
+			return Fleet{}, ErrAllSlotsInUse
+		}
 	}
 
 	// Page 1 : get to fleet page
@@ -2267,19 +2283,10 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 				fleet.Destination.Equal(where) &&
 				fleet.Mission == mission &&
 				!fleet.ReturnFlight {
-				delay := time.Duration(fleet.BackIn-fleet.ArriveIn*2) * time.Second
-				if mission == Expedition {
-					delay -= time.Duration(expeditiontime) * time.Hour
-				} else if mission == GroupedAttack {
-					delay = 0
-				}
-				if delay < 0 || delay > time.Since(start.Add(time.Second)) {
-					continue
-				}
 				max = fleets[i]
 			}
 		}
-		if max.ID > 0 {
+		if max.ID > maxInitialFleetID {
 			return max, nil
 		}
 	}
