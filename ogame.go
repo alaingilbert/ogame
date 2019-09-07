@@ -2233,8 +2233,8 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, errors.New("cannot recycle (button disabled)")
 		//} else if mission == Transport && fleet3Doc.Find("li#button5").HasClass("off") {
 		//	return Fleet{}, errors.New("cannot acs defend (button disabled)")
-		//} else if mission == Transport && fleet3Doc.Find("li#button2").HasClass("off") {
-		//	return Fleet{}, errors.New("cannot acs attack (button disabled)")
+	} else if mission == GroupedAttack && fleet3Doc.Find("li#button2").HasClass("off") {
+		return Fleet{}, errors.New("cannot acs attack (button disabled)")
 	} else if mission == Destroy && fleet3Doc.Find("li#button9").HasClass("off") {
 		return Fleet{}, errors.New("cannot destroy (button disabled)")
 	}
