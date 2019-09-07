@@ -1430,6 +1430,9 @@ func calcFuel(ships ShipsInfos, dist int, speed, fleetDeutSaveFactor float64) (f
 
 func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
+	if !ships.HasShips() {
+		return
+	}
 	s := speed
 	v := float64(findSlowestSpeed(ships, techs))
 	a := float64(universeSpeedFleet)
