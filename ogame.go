@@ -1413,15 +1413,16 @@ func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
 	return minSpeed
 }
 
-func calcFuel(ships ShipsInfos, dist int, speed, fleetDeutSaveFactor float64) (fuel int) {
-	tmpFn := func(baseFuel int) float64 {
-		return float64(baseFuel*dist) / 35000 * math.Pow(speed+1, 2)
+func calcFuel(ships ShipsInfos, dist, duration int, speed, fleetDeutSaveFactor float64, techs Researches) (fuel int) {
+	tmpFn := func(baseFuel, nbr, shipSpeed int) float64 {
+		tmpSpeed := (35000 / (float64(duration) - 10)) * math.Sqrt((float64(dist)*10)/float64(shipSpeed))
+		return float64(baseFuel*nbr*dist) / 35000 * math.Pow(tmpSpeed/10+1, 2)
 	}
 	tmpFuel := 0.0
 	for _, ship := range Ships {
 		nbr := ships.ByID(ship.GetID())
 		if nbr > 0 {
-			tmpFuel += tmpFn(ship.GetFuelConsumption()) * float64(nbr)
+			tmpFuel += tmpFn(ship.GetFuelConsumption(), nbr, ship.GetSpeed(techs))
 		}
 	}
 	fuel = int(1 + math.Round(tmpFuel*fleetDeutSaveFactor))
@@ -1437,8 +1438,8 @@ func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalax
 	v := float64(findSlowestSpeed(ships, techs))
 	a := float64(universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, donutGalaxy, donutSystem))
-	secs = int(math.Round(((10 + (3500 / s)) * math.Sqrt((10*d)/v)) / a))
-	fuel = calcFuel(ships, int(d), s, fleetDeutSaveFactor)
+	secs = int(math.Round(((3500/s)*math.Pow(d*10/v, 0.5) + 10) / a))
+	fuel = calcFuel(ships, int(d), secs, s, fleetDeutSaveFactor, techs)
 	return
 }
 
