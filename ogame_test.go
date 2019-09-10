@@ -1946,11 +1946,17 @@ func TestDistance(t *testing.T) {
 }
 
 func TestCalcFlightTime(t *testing.T) {
-	//secs, fuel := calcFlightTime(Coordinate{1, 1, 1}, Coordinate{1, 1, 2},
-	//	1, false, false, 1, 1,
-	//	ShipsInfos{LightFighter: 1}, Researches{})
-	//assert.Equal(t, 2121, secs)
-	//assert.Equal(t, 3, fuel)
+	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
+	secs, fuel := calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
+		1, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7})
+	assert.Equal(t, 4966, secs)
+	assert.Equal(t, 550, fuel)
+
+	// Different fleetDeutSaveFactor
+	secs, fuel = calcFlightTime(Coordinate{1, 162, 1, PlanetType}, Coordinate{4, 144, 1, PlanetType},
+		6, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10})
+	assert.Equal(t, 22594, secs)
+	assert.Equal(t, 699587, fuel)
 }
 
 func TestExtractFleetSlot_fleet1(t *testing.T) {

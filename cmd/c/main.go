@@ -363,7 +363,7 @@ func GetResources(planetID C.int) (metal, crystal, deuterium, energy, darkmatter
 //export SendFleet
 func SendFleet(planetID, lightFighter, heavyFighter, cruiser, battleship, battlecruiser, bomber, destroyer, deathstar,
 	smallCargo, largeCargo, colonyShip, recycler, espionageProbe, speed, planetType, galaxy, system, position, mission,
-	metal, crystal, deuterium C.int, expeditiontime int) (fleetID C.int, errorMsg *C.char) {
+	metal, crystal, deuterium C.int, expeditiontime, unionID int) (fleetID C.int, errorMsg *C.char) {
 	ships := make([]ogame.Quantifiable, 0)
 	if int(lightFighter) > 0 {
 		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int(lightFighter)})
@@ -412,6 +412,7 @@ func SendFleet(planetID, lightFighter, heavyFighter, cruiser, battleship, battle
 		ogame.MissionID(mission),
 		ogame.Resources{Metal: int(metal), Crystal: int(crystal), Deuterium: int(deuterium)},
 		expeditiontime,
+		unionID,
 	)
 	if err != nil {
 		errorMsg = C.CString(err.Error())
