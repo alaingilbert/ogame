@@ -313,7 +313,7 @@ type account struct {
 	Details    []struct {
 		Type  string
 		Title string
-		Value string
+		Value interface{} // Can be string or int
 	}
 	Sitting struct {
 		Shared       bool
