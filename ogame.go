@@ -2251,17 +2251,18 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 		payload.Add(k, v)
 	}
-	deutConsumption := ParseInt(fleet3Doc.Find("div#roundup span#consumption").Text())
+	deutConsumptionOneWay := ParseInt(fleet3Doc.Find("div#roundup span#consumption").Text())
+	deutConsumptionTwoWay := deutConsumptionOneWay * 2
 	resourcesAvailable := ExtractResourcesFromDoc(fleet3Doc)
-	if deutConsumption > resourcesAvailable.Deuterium {
-		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumption)
+	if deutConsumptionTwoWay > resourcesAvailable.Deuterium {
+		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumptionTwoWay)
 	}
 	finalCargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
 	if b.GetServer().Settings.EspionageProbeRaids != 1 {
 		finalCargo += finalShips.EspionageProbe * EspionageProbe.BaseCargoCapacity
 	}
-	if deutConsumption > finalCargo {
-		return Fleet{}, fmt.Errorf("not enough cargo capacity, avail: %d, need: %d", finalCargo, deutConsumption)
+	if deutConsumptionTwoWay > finalCargo {
+		return Fleet{}, fmt.Errorf("not enough cargo capacity, avail: %d, need: %d", finalCargo, deutConsumptionTwoWay)
 	}
 	payload.Add("crystal", strconv.Itoa(resources.Crystal))
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
