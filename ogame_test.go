@@ -1957,6 +1957,12 @@ func TestCalcFlightTime(t *testing.T) {
 		6, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10})
 	assert.Equal(t, 22594, secs)
 	assert.Equal(t, 699587, fuel)
+
+	// Test with solar satellite
+	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
+		6, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15})
+	assert.Equal(t, 651, secs)
+	assert.Equal(t, 612, fuel)
 }
 
 func TestExtractFleetSlot_fleet1(t *testing.T) {
