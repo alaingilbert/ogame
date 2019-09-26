@@ -1925,6 +1925,12 @@ func TestExtractEspionageReport_username2(t *testing.T) {
 	assert.Equal(t, "Commodore Nomad", infos.Username)
 }
 
+func TestExtractEspionageReport_username_outlaw(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_outlaw.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, "Constable Telesto", infos.Username)
+}
+
 func TestExtractEspionageReport_apiKey(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_active_star_lord.html")
 	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
