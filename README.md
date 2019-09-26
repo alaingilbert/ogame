@@ -68,6 +68,8 @@ GetUsername() string
 GetUniverseName() string
 GetUniverseSpeed() int
 GetUniverseSpeedFleet() int
+GetResearchSpeed() int
+SetResearchSpeed(int)
 IsDonutGalaxy() bool
 IsDonutSystem() bool
 FleetDeutSaveFactor() float64
