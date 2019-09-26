@@ -679,8 +679,7 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 			if s.Find("td.originFleet figure").HasClass("moon") {
 				attack.Origin.Type = MoonType
 			}
-			attackerIDStr, _ := s.Find("a.sendMail").Attr("data-playerid")
-			attack.AttackerID, _ = strconv.Atoi(attackerIDStr)
+			attack.AttackerID, _ = strconv.Atoi(s.Find("a.sendMail").AttrOr("data-playerid", ""))
 		}
 		if missionType == MissileAttack {
 			attack.Missiles = ParseInt(s.Find("td.detailsFleet span").First().Text())
