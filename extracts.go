@@ -646,15 +646,18 @@ func ExtractResearchFromDoc(doc *goquery.Document) Researches {
 
 // ExtractAttacksFromDoc ...
 func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
-	attacks := make([]AttackEvent, 0)
+	attacks := make([]*AttackEvent, 0)
+	out := make([]AttackEvent, 0)
 	if doc.Find("div#eventListWrap").Size() == 0 {
-		return attacks, ErrNotLogged
+		return out, ErrNotLogged
 	}
+
+	allianceAttacks := make(map[int]*AttackEvent)
+
 	tmp := func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")
-		if strings.Contains(classes, "partnerInfo") {
-			return
-		}
+		partner := strings.Contains(classes, "partnerInfo")
+
 		td := s.Find("td.countDown")
 		isHostile := td.HasClass("hostile") || td.Find("span.hostile").Size() > 0
 		if !isHostile {
@@ -669,7 +672,7 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 			missionType != MissileAttack && missionType != Spy {
 			return
 		}
-		attack := AttackEvent{}
+		attack := &AttackEvent{}
 		attack.MissionType = missionType
 		if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy {
 			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
@@ -705,6 +708,15 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 			})
 		}
 
+		rgx := regexp.MustCompile(`union(\d+)`)
+		classesArr := strings.Split(classes, " ")
+		for _, c := range classesArr {
+			m := rgx.FindStringSubmatch(c)
+			if len(m) == 2 {
+				attack.UnionID, _ = strconv.Atoi(m[1])
+			}
+		}
+
 		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
 		attack.Destination = ExtractCoord(destCoords)
 		attack.Destination.Type = PlanetType
@@ -714,12 +726,28 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
 
-		attacks = append(attacks, attack)
-	}
-	doc.Find("tr.eventFleet").Each(tmp)
-	doc.Find("tr.allianceAttack").Each(tmp)
+		if attack.UnionID != 0 {
+			if allianceAttack, ok := allianceAttacks[attack.UnionID]; ok {
+				if attack.Ships != nil {
+					allianceAttack.Ships.Add(*attack.Ships)
+				}
+			} else {
+				allianceAttacks[attack.UnionID] = attack
+			}
+		}
 
-	return attacks, nil
+		if !partner {
+			attacks = append(attacks, attack)
+		}
+	}
+	doc.Find("tr.allianceAttack").Each(tmp)
+	doc.Find("tr.eventFleet").Each(tmp)
+
+	for _, a := range attacks {
+		out = append(out, *a)
+	}
+
+	return out, nil
 }
 
 type planetResource struct {
