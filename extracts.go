@@ -1013,7 +1013,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	msgDate, _ := time.ParseInLocation("02.01.2006 15:04:05", msgDateRaw, location)
 	report.Date = msgDate.In(location)
 
-	username := doc.Find("div.detail_txt").First().Find("span span").Text()
+	username := doc.Find("div.detail_txt").First().Find("span span").First().Text()
 	username = strings.TrimSpace(username)
 	split := strings.Split(username, "(i")
 	if len(split) > 0 {
