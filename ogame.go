@@ -61,6 +61,7 @@ type OGame struct {
 	universeSpeed         int
 	universeSize          int
 	universeSpeedFleet    int
+	researchSpeed         int
 	donutGalaxy           bool
 	donutSystem           bool
 	fleetDeutSaveFactor   float64
@@ -554,6 +555,7 @@ func (b *OGame) login() error {
 	b.location = serverTime.Location()
 	b.universeSize = server.Settings.UniverseSize
 	b.universeSpeed, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed]").AttrOr("content", "1"))
+	b.researchSpeed = b.universeSpeed
 	b.universeSpeedFleet, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed-fleet]").AttrOr("content", "1"))
 	b.donutGalaxy, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-galaxy]").AttrOr("content", "1"))
 	b.donutSystem, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-system]").AttrOr("content", "1"))
@@ -2841,6 +2843,16 @@ func (b *OGame) GetUniverseName() string {
 // GetUsername get the username that was used to login on ogame server
 func (b *OGame) GetUsername() string {
 	return b.Username
+}
+
+// GetResearchSpeed gets the research speed
+func (b *OGame) GetResearchSpeed() int {
+	return b.researchSpeed
+}
+
+// SetResearchSpeed sets the research speed
+func (b *OGame) SetResearchSpeed(newSpeed int) {
+	b.researchSpeed = newSpeed
 }
 
 // GetUniverseSpeed shortcut to get ogame universe speed

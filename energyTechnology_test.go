@@ -9,8 +9,14 @@ import (
 
 func TestEnergyTechnologyConstructionTime(t *testing.T) {
 	mm := newEnergyTechnology()
-	ct := mm.ConstructionTime(5, 7, Facilities{ResearchLab: 3})
+	universeSpeed := 7
+	researchSpeed := universeSpeed
+	ct := mm.ConstructionTime(5, researchSpeed, Facilities{ResearchLab: 3})
 	assert.Equal(t, 1645*time.Second, ct)
+
+	researchSpeed = universeSpeed * 2
+	ct = mm.ConstructionTime(5, researchSpeed, Facilities{ResearchLab: 3})
+	assert.Equal(t, 822*time.Second, ct)
 }
 
 func TestEnergyTechnology_GetLevel(t *testing.T) {
