@@ -986,6 +986,43 @@ func TestExtractAttacksUnknownShips(t *testing.T) {
 	assert.Equal(t, 0, attacks[0].Ships.Destroyer)
 }
 
+func TestExtractAttacksACS(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs.html")
+	attacks, _ := ExtractAttacks(pageHTMLBytes)
+	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
+	assert.Equal(t, 10, attacks[0].Ships.LightFighter)
+	assert.Equal(t, 2176, attacks[0].Ships.Battlecruiser)
+}
+
+func TestExtractAttacksACSMany(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs_multiple.html")
+	attacks, _ := ExtractAttacks(pageHTMLBytes)
+	assert.Equal(t, 3, len(attacks))
+	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
+	assert.Equal(t, 2, attacks[0].Ships.LightFighter)
+	assert.Equal(t, 3, attacks[0].Ships.Battlecruiser)
+	assert.Equal(t, GroupedAttack, attacks[1].MissionType)
+	assert.Equal(t, 4, attacks[1].Ships.LightFighter)
+	assert.Equal(t, 5, attacks[1].Ships.Battlecruiser)
+	assert.Equal(t, Attack, attacks[2].MissionType)
+	assert.Equal(t, 1, attacks[2].Ships.LightFighter)
+	assert.Equal(t, 7, attacks[2].Ships.Battlecruiser)
+}
+
+func TestExtractAttacksACS2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs2.html")
+	attacks, _ := ExtractAttacks(pageHTMLBytes)
+	assert.Equal(t, 2, len(attacks))
+	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
+	assert.Equal(t, 4, attacks[0].Ships.SmallCargo)
+	assert.Equal(t, 3, attacks[0].Ships.Battlecruiser)
+	assert.Equal(t, GroupedAttack, attacks[1].MissionType)
+	assert.Equal(t, 7, attacks[1].Ships.SmallCargo)
+	assert.Equal(t, 11, attacks[1].Ships.Battlecruiser)
+	assert.Equal(t, 2, attacks[1].Ships.EspionageProbe)
+}
+
 func TestExtractAttacks_spy(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_spy.html")
 	attacks, _ := ExtractAttacks(pageHTMLBytes)
@@ -1957,6 +1994,12 @@ func TestCalcFlightTime(t *testing.T) {
 		6, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10})
 	assert.Equal(t, 22594, secs)
 	assert.Equal(t, 699587, fuel)
+
+	// Test with solar satellite
+	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
+		6, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15})
+	assert.Equal(t, 651, secs)
+	assert.Equal(t, 612, fuel)
 }
 
 func TestExtractFleetSlot_fleet1(t *testing.T) {

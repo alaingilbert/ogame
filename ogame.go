@@ -1405,6 +1405,9 @@ func Distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool
 func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
 	minSpeed := math.MaxInt32
 	for _, ship := range Ships {
+		if ship.GetID() == SolarSatelliteID {
+			continue
+		}
 		shipSpeed := ship.GetSpeed(techs)
 		if ships.ByID(ship.GetID()) > 0 && shipSpeed < minSpeed {
 			minSpeed = shipSpeed
@@ -1420,6 +1423,9 @@ func calcFuel(ships ShipsInfos, dist, duration int, universeSpeedFleet, fleetDeu
 	}
 	tmpFuel := 0.0
 	for _, ship := range Ships {
+		if ship.GetID() == SolarSatelliteID {
+			continue
+		}
 		nbr := ships.ByID(ship.GetID())
 		if nbr > 0 {
 			tmpFuel += tmpFn(ship.GetFuelConsumption(), nbr, ship.GetSpeed(techs))
@@ -2004,18 +2010,6 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority I
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime, unionID int, ensure bool) (Fleet, error) {
 
-	// Utils function to extract hidden input from a page
-	getHiddenFields := func(pageHTML []byte) map[string]string {
-		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-		fields := make(map[string]string)
-		doc.Find("input[type=hidden]").Each(func(i int, s *goquery.Selection) {
-			name, _ := s.Attr("name")
-			value, _ := s.Attr("value")
-			fields[name] = value
-		})
-		return fields
-	}
-
 	// Get existing fleet, so we can ensure new fleet ID is greater
 	initialFleets, slots := b.getFleets()
 	maxInitialFleetID := FleetID(0)
@@ -2055,12 +2049,12 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Ensure we're not trying to attack/spy ourselves
 	destinationIsMyOwnPlanet := false
-	myPlanets := ExtractPlanetsFromDoc(fleet1Doc, b)
-	for _, p := range myPlanets {
-		if p.Coordinate.Equal(where) && p.GetID() == celestialID || (p.Moon != nil && p.Moon.Coordinate.Equal(where) && p.Moon.GetID() == celestialID) {
+	myCelestials, _ := ExtractCelestialsFromDoc(fleet1Doc, b)
+	for _, c := range myCelestials {
+		if c.GetCoordinate().Equal(where) && c.GetID() == celestialID {
 			return Fleet{}, errors.New("origin and destination are the same")
 		}
-		if p.Coordinate.Equal(where) || (p.Moon != nil && p.Moon.Coordinate.Equal(where)) {
+		if c.GetCoordinate().Equal(where) {
 			destinationIsMyOwnPlanet = true
 			break
 		}
@@ -2095,11 +2089,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		}
 	}
 
-	payload := url.Values{}
-	hidden := getHiddenFields(pageHTML)
-	for k, v := range hidden {
-		payload.Add(k, v)
-	}
+	payload := ExtractHiddenFieldsFromDoc(fleet1Doc)
 	cs := false       // ColonyShip flag for fleet check
 	recycler := false // Recycler flag for fleet check
 	for _, s := range ships {
@@ -2126,11 +2116,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, errors.New("unknown error")
 	}
 
-	payload = url.Values{}
-	hidden = getHiddenFields(pageHTML)
-	for k, v := range hidden {
-		payload.Add(k, v)
-	}
+	payload = ExtractHiddenFieldsFromDoc(fleet2Doc)
 	payload.Add("speed", strconv.Itoa(int(speed)))
 	payload.Add("galaxy", strconv.Itoa(where.Galaxy))
 	payload.Add("system", strconv.Itoa(where.System))
@@ -2240,16 +2226,14 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, errors.New("cannot destroy (button disabled)")
 	}
 
-	payload = url.Values{}
-	hidden = getHiddenFields(pageHTML)
+	payload = ExtractHiddenFieldsFromDoc(fleet3Doc)
 	var finalShips ShipsInfos
-	for k, v := range hidden {
+	for k, v := range payload {
 		var shipID int
 		if n, err := fmt.Sscanf(k, "am%d", &shipID); err == nil && n == 1 {
-			nbr, _ := strconv.Atoi(v)
+			nbr, _ := strconv.Atoi(v[0])
 			finalShips.Set(ID(shipID), nbr)
 		}
-		payload.Add(k, v)
 	}
 	deutConsumption := ParseInt(fleet3Doc.Find("div#roundup span#consumption").Text())
 	resourcesAvailable := ExtractResourcesFromDoc(fleet3Doc)
