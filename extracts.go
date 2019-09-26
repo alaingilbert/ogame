@@ -672,14 +672,16 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 		}
 		attack := &AttackEvent{}
 		attack.MissionType = missionType
-		if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy {
-			coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
-			attack.Origin = ExtractCoord(coordsOrigin)
-			attack.Origin.Type = PlanetType
-			if s.Find("td.originFleet figure").HasClass("moon") {
-				attack.Origin.Type = MoonType
-			}
+		if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy || missionType == GroupedAttack {
 			attack.AttackerID, _ = strconv.Atoi(s.Find("a.sendMail").AttrOr("data-playerid", ""))
+			if attack.AttackerID != 0 {
+				coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
+				attack.Origin = ExtractCoord(coordsOrigin)
+				attack.Origin.Type = PlanetType
+				if s.Find("td.originFleet figure").HasClass("moon") {
+					attack.Origin.Type = MoonType
+				}
+			}
 		}
 		if missionType == MissileAttack {
 			attack.Missiles = ParseInt(s.Find("td.detailsFleet span").First().Text())
@@ -727,6 +729,12 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 			if allianceAttack, ok := allianceAttacks[attack.UnionID]; ok {
 				if attack.Ships != nil {
 					allianceAttack.Ships.Add(*attack.Ships)
+				}
+				if allianceAttack.AttackerID == 0 {
+					allianceAttack.AttackerID = attack.AttackerID
+				}
+				if allianceAttack.Origin.Equal(Coordinate{}) {
+					allianceAttack.Origin = attack.Origin
 				}
 			} else {
 				allianceAttacks[attack.UnionID] = attack
