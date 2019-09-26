@@ -23,6 +23,11 @@ type ShipsInfos struct {
 	SolarSatellite int
 }
 
+// ToPtr returns a pointer to self
+func (s ShipsInfos) ToPtr() *ShipsInfos {
+	return &s
+}
+
 // HasShips returns either or not at least one ship is present
 func (s ShipsInfos) HasShips() bool {
 	for _, ship := range Ships {
