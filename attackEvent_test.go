@@ -23,6 +23,7 @@ func TestAttackEvent_String(t *testing.T) {
 		" Destination: [P:4:5:6]\n" +
 		" ArrivalTime: 2018-09-11 01:02:03.000000004 +0000 UTC\n" +
 		"  AttackerID: 456\n" +
+		"     UnionID: 0\n" +
 		"    Missiles: 0"
 	assert.Equal(t, expected, a.String())
 }
