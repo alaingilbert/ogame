@@ -663,10 +663,8 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 		if !isHostile {
 			return
 		}
-		missionTypeStr, _ := s.Attr("data-mission-type")
-		arrivalTimeStr, _ := s.Attr("data-arrival-time")
-		missionTypeInt, _ := strconv.Atoi(missionTypeStr)
-		arrivalTimeInt, _ := strconv.Atoi(arrivalTimeStr)
+		missionTypeInt, _ := strconv.Atoi(s.AttrOr("data-mission-type", ""))
+		arrivalTimeInt, _ := strconv.Atoi(s.AttrOr("data-arrival-time", ""))
 		missionType := MissionID(missionTypeInt)
 		if missionType != Attack && missionType != GroupedAttack && missionType != Destroy &&
 			missionType != MissileAttack && missionType != Spy {
