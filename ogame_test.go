@@ -1416,6 +1416,21 @@ func TestExtractPlanets_fr(t *testing.T) {
 	assert.Equal(t, 12800, planets[0].Diameter)
 }
 
+func TestExtractPlanets_fr1(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr/overview.html")
+	planets := ExtractPlanets(pageHTMLBytes, &OGame{language: "fr"})
+	assert.Equal(t, 1, len(planets))
+	assert.Equal(t, PlanetID(33693887), planets[0].ID)
+	assert.Equal(t, Coordinate{Galaxy: 5, System: 201, Position: 4, Type: PlanetType}, planets[0].Coordinate)
+	assert.Equal(t, "planète mère", planets[0].Name)
+	assert.Equal(t, "https://gf1.geo.gfsrv.net/cdnf7/6177c65f05d9039be190b926a43f91.png", planets[0].Img)
+	assert.Equal(t, 70, planets[0].Temperature.Min)
+	assert.Equal(t, 110, planets[0].Temperature.Max)
+	assert.Equal(t, 3, planets[0].Fields.Built)
+	assert.Equal(t, 188, planets[0].Fields.Total)
+	assert.Equal(t, 12800, planets[0].Diameter)
+}
+
 func TestExtractPlanets_br(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
 	planets := ExtractPlanets(pageHTMLBytes, &OGame{language: "br"})
