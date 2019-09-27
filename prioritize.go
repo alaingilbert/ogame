@@ -452,7 +452,7 @@ func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, shi
 	b.begin("FlightTime")
 	defer b.done()
 	researches := b.bot.getCachedResearch()
-	return calcFlightTime(origin, destination, b.bot.universeSize, b.bot.donutGalaxy, b.bot.donutSystem, b.bot.fleetDeutSaveFactor,
+	return calcFlightTime(origin, destination, b.bot.universeSize, b.bot.nbSystems, b.bot.donutGalaxy, b.bot.donutSystem, b.bot.fleetDeutSaveFactor,
 		float64(speed)/10, b.bot.universeSpeedFleet, ships, researches)
 }
 
