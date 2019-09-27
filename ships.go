@@ -28,6 +28,17 @@ func (s ShipsInfos) ToPtr() *ShipsInfos {
 	return &s
 }
 
+// Equal either or not two ShipsInfos are equal
+func (s ShipsInfos) Equal(other ShipsInfos) bool {
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		if s.ByID(shipID) != other.ByID(shipID) {
+			return false
+		}
+	}
+	return true
+}
+
 // HasShips returns either or not at least one ship is present
 func (s ShipsInfos) HasShips() bool {
 	for _, ship := range Ships {
