@@ -60,6 +60,7 @@ type OGame struct {
 	location              *time.Location
 	universeSpeed         int
 	universeSize          int
+	nbSystems             int
 	universeSpeedFleet    int
 	researchSpeed         int
 	donutGalaxy           bool
@@ -554,6 +555,7 @@ func (b *OGame) login() error {
 	serverTime, _ := extractServerTime(pageHTML)
 	b.location = serverTime.Location()
 	b.universeSize = server.Settings.UniverseSize
+	b.nbSystems = 499
 	b.universeSpeed, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed]").AttrOr("content", "1"))
 	b.researchSpeed = b.universeSpeed
 	b.universeSpeedFleet, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed-fleet]").AttrOr("content", "1"))
@@ -1369,20 +1371,19 @@ func galaxyDistance(galaxy1, galaxy2, universeSize int, donutGalaxy bool) (dista
 	return int(20000 * val)
 }
 
-func systemDistance(system1, system2 int, donutSystem bool) (distance int) {
+func systemDistance(nbSystems, system1, system2 int, donutSystem bool) (distance int) {
 	if !donutSystem {
 		return int(math.Abs(float64(system2 - system1)))
 	}
-	systemSize := 499
 	if system1 > system2 {
 		system1, system2 = system2, system1
 	}
-	return int(math.Min(float64(system2-system1), float64((system1+systemSize)-system2)))
+	return int(math.Min(float64(system2-system1), float64((system1+nbSystems)-system2)))
 }
 
 // Returns the distance between two systems
-func flightSystemDistance(system1, system2 int, donutSystem bool) (distance int) {
-	return 2700 + 95*systemDistance(system1, system2, donutSystem)
+func flightSystemDistance(nbSystems, system1, system2 int, donutSystem bool) (distance int) {
+	return 2700 + 95*systemDistance(nbSystems, system1, system2, donutSystem)
 }
 
 // Returns the distance between two planets
@@ -1391,12 +1392,12 @@ func planetDistance(planet1, planet2 int) (distance int) {
 }
 
 // Distance returns the distance between two coordinates
-func Distance(c1, c2 Coordinate, universeSize int, donutGalaxy, donutSystem bool) (distance int) {
+func Distance(c1, c2 Coordinate, universeSize, nbSystems int, donutGalaxy, donutSystem bool) (distance int) {
 	if c1.Galaxy != c2.Galaxy {
 		return galaxyDistance(c1.Galaxy, c2.Galaxy, universeSize, donutGalaxy)
 	}
 	if c1.System != c2.System {
-		return flightSystemDistance(c1.System, c2.System, donutSystem)
+		return flightSystemDistance(nbSystems, c1.System, c2.System, donutSystem)
 	}
 	if c1.Position != c2.Position {
 		return planetDistance(c1.Position, c2.Position)
@@ -1437,7 +1438,7 @@ func calcFuel(ships ShipsInfos, dist, duration int, universeSpeedFleet, fleetDeu
 	return
 }
 
-func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalaxy, donutSystem bool,
+func calcFlightTime(origin, destination Coordinate, universeSize, nbSystems int, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
 	if !ships.HasShips() {
 		return
@@ -1445,7 +1446,7 @@ func calcFlightTime(origin, destination Coordinate, universeSize int, donutGalax
 	s := speed
 	v := float64(findSlowestSpeed(ships, techs))
 	a := float64(universeSpeedFleet)
-	d := float64(Distance(origin, destination, universeSize, donutGalaxy, donutSystem))
+	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	secs = int(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
 	fuel = calcFuel(ships, int(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs)
 	return
@@ -1475,7 +1476,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	// Verify that coordinate is in phalanx range
 	phalanxRange := SensorPhalanx.GetRange(phalanxLvl)
 	if moon.Coordinate.Galaxy != coord.Galaxy ||
-		systemDistance(moon.Coordinate.System, coord.System, b.donutSystem) > phalanxRange {
+		systemDistance(b.nbSystems, moon.Coordinate.System, coord.System, b.donutSystem) > phalanxRange {
 		return res, errors.New("coordinate not in phalanx range")
 	}
 
@@ -1679,8 +1680,8 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 	if galaxy < 0 || galaxy > b.server.Settings.UniverseSize {
 		return SystemInfos{}, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
 	}
-	if system < 0 || system > 499 {
-		return SystemInfos{}, errors.New("system must be within [0, 499]")
+	if system < 0 || system > b.nbSystems {
+		return SystemInfos{}, errors.New("system must be within [0, " + strconv.Itoa(b.nbSystems) + "]")
 	}
 	payload := url.Values{
 		"galaxy": {strconv.Itoa(galaxy)},
@@ -2855,6 +2856,16 @@ func (b *OGame) SetResearchSpeed(newSpeed int) {
 	b.researchSpeed = newSpeed
 }
 
+// GetNbSystems gets the number of systems
+func (b *OGame) GetNbSystems() int {
+	return b.nbSystems
+}
+
+// SetNbSystems sets the number of speed
+func (b *OGame) SetNbSystems(newNbSystems int) {
+	b.nbSystems = newNbSystems
+}
+
 // GetUniverseSpeed shortcut to get ogame universe speed
 func (b *OGame) GetUniverseSpeed() int {
 	return b.getUniverseSpeed()
@@ -3195,7 +3206,7 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination Coordinate) int {
-	return Distance(origin, destination, b.universeSize, b.donutGalaxy, b.donutSystem)
+	return Distance(origin, destination, b.universeSize, b.nbSystems, b.donutGalaxy, b.donutSystem)
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received

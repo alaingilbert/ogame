@@ -40,6 +40,8 @@ type Wrapper interface {
 	GetUniverseSpeedFleet() int
 	GetResearchSpeed() int
 	SetResearchSpeed(int)
+	GetNbSystems() int
+	SetNbSystems(int)
 	IsDonutGalaxy() bool
 	IsDonutSystem() bool
 	FleetDeutSaveFactor() float64

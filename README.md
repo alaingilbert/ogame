@@ -69,6 +69,8 @@ GetUniverseName() string
 GetUniverseSpeed() int
 GetUniverseSpeedFleet() int
 GetResearchSpeed() int
+GetNbSystems() int
+SetNbSystems(int)
 SetResearchSpeed(int)
 IsDonutGalaxy() bool
 IsDonutSystem() bool

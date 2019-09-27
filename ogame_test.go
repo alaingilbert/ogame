@@ -1987,13 +1987,13 @@ func TestGalaxyDistance(t *testing.T) {
 }
 
 func TestSystemDistance(t *testing.T) {
-	assert.Equal(t, 3175, flightSystemDistance(35, 30, false))
+	assert.Equal(t, 3175, flightSystemDistance(499, 35, 30, false))
 
-	assert.Equal(t, 2795, flightSystemDistance(1, 2, true))
-	assert.Equal(t, 2795, flightSystemDistance(1, 499, true))
-	assert.Equal(t, 2890, flightSystemDistance(1, 3, true))
-	assert.Equal(t, 2890, flightSystemDistance(1, 498, true))
-	assert.Equal(t, 2890, flightSystemDistance(498, 1, true))
+	assert.Equal(t, 2795, flightSystemDistance(499, 1, 2, true))
+	assert.Equal(t, 2795, flightSystemDistance(499, 1, 499, true))
+	assert.Equal(t, 2890, flightSystemDistance(499, 1, 3, true))
+	assert.Equal(t, 2890, flightSystemDistance(499, 1, 498, true))
+	assert.Equal(t, 2890, flightSystemDistance(499, 498, 1, true))
 }
 
 func TestPlanetDistance(t *testing.T) {
@@ -2001,28 +2001,28 @@ func TestPlanetDistance(t *testing.T) {
 }
 
 func TestDistance(t *testing.T) {
-	assert.Equal(t, 1015, Distance(Coordinate{1, 1, 3, PlanetType}, Coordinate{1, 1, 6, PlanetType}, 6, true, true))
-	assert.Equal(t, 2890, Distance(Coordinate{1, 1, 3, PlanetType}, Coordinate{1, 498, 6, PlanetType}, 6, true, true))
-	assert.Equal(t, 20000, Distance(Coordinate{6, 1, 3, PlanetType}, Coordinate{1, 498, 6, PlanetType}, 6, true, true))
-	assert.Equal(t, 5, Distance(Coordinate{6, 1, 3, PlanetType}, Coordinate{6, 1, 3, MoonType}, 6, true, true))
+	assert.Equal(t, 1015, Distance(Coordinate{1, 1, 3, PlanetType}, Coordinate{1, 1, 6, PlanetType}, 6, 499, true, true))
+	assert.Equal(t, 2890, Distance(Coordinate{1, 1, 3, PlanetType}, Coordinate{1, 498, 6, PlanetType}, 6, 499, true, true))
+	assert.Equal(t, 20000, Distance(Coordinate{6, 1, 3, PlanetType}, Coordinate{1, 498, 6, PlanetType}, 6, 499, true, true))
+	assert.Equal(t, 5, Distance(Coordinate{6, 1, 3, PlanetType}, Coordinate{6, 1, 3, MoonType}, 6, 499, true, true))
 }
 
 func TestCalcFlightTime(t *testing.T) {
 	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
 	secs, fuel := calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
-		1, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7})
+		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7})
 	assert.Equal(t, 4966, secs)
 	assert.Equal(t, 550, fuel)
 
 	// Different fleetDeutSaveFactor
 	secs, fuel = calcFlightTime(Coordinate{1, 162, 1, PlanetType}, Coordinate{4, 144, 1, PlanetType},
-		6, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10})
+		6, 499, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10})
 	assert.Equal(t, 22594, secs)
 	assert.Equal(t, 699587, fuel)
 
 	// Test with solar satellite
 	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
-		6, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15})
+		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15})
 	assert.Equal(t, 651, secs)
 	assert.Equal(t, 612, fuel)
 }
