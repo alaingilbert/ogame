@@ -180,7 +180,14 @@ func (b *Prioritize) GetUserInfos() UserInfos {
 func (b *Prioritize) SendMessage(playerID int, message string) error {
 	b.begin("SendMessage")
 	defer b.done()
-	return b.bot.sendMessage(playerID, message)
+	return b.bot.sendMessage(playerID, message, true)
+}
+
+// SendMessageAlliance sends a message to associationID
+func (b *Prioritize) SendMessageAlliance(associationID int, message string) error {
+	b.begin("SendMessageAlliance")
+	defer b.done()
+	return b.bot.sendMessage(associationID, message, false)
 }
 
 // GetFleets get the player's own fleets activities
