@@ -887,7 +887,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 
 	if vals.Get("page") == "preferences" {
 		b.CachedPreferences = ExtractPreferences(body)
-	} else if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
+	} else if vals.Get("page") == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
 		var res ChatPostResp
 		if err := json.Unmarshal(body, &res); err != nil {
 			return []byte{}, err
@@ -1302,13 +1302,18 @@ type ChatPostResp struct {
 	NewToken string `json:"newToken"`
 }
 
-func (b *OGame) sendMessage(playerID int, message string) error {
+func (b *OGame) sendMessage(id int, message string, isPlayer bool) error {
 	payload := url.Values{
-		"playerId": {strconv.Itoa(playerID)},
-		"text":     {message + "\n"},
-		"mode":     {"1"},
-		"ajax":     {"1"},
-		"token":    {b.ajaxChatToken},
+		"text":  {message + "\n"},
+		"ajax":  {"1"},
+		"token": {b.ajaxChatToken},
+	}
+	if isPlayer {
+		payload.Set("playerId", strconv.Itoa(id))
+		payload.Set("mode", "1")
+	} else {
+		payload.Set("associationId", strconv.Itoa(id))
+		payload.Set("mode", "3")
 	}
 	bobyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
 	if err != nil {
@@ -3007,6 +3012,11 @@ func (b *OGame) GetUserInfos() UserInfos {
 // SendMessage sends a message to playerID
 func (b *OGame) SendMessage(playerID int, message string) error {
 	return b.WithPriority(Normal).SendMessage(playerID, message)
+}
+
+// SendMessageAlliance sends a message to associationID
+func (b *OGame) SendMessageAlliance(associationID int, message string) error {
+	return b.WithPriority(Normal).SendMessageAlliance(associationID, message)
 }
 
 // GetFleets get the player's own fleets activities

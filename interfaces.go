@@ -51,6 +51,7 @@ type Wrapper interface {
 	IsUnderAttack() bool
 	GetUserInfos() UserInfos
 	SendMessage(playerID int, message string) error
+	SendMessageAlliance(associationID int, message string) error
 	ReconnectChat() bool
 	GetFleets() ([]Fleet, Slots)
 	GetFleetsFromEventList() []Fleet
