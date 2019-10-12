@@ -9,6 +9,10 @@
 
 ---
 
+Discord: https://discord.gg/4dZtZpz
+
+---
+
 # ogame library
 
 ### Verify attack example
