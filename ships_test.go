@@ -90,6 +90,9 @@ func TestShipsInfos_String(t *testing.T) {
 		Recycler:       12,
 		EspionageProbe: 13,
 		SolarSatellite: 14,
+		Crawler:        15,
+		Reaper:         16,
+		Pathfinder:     17,
 	}
 	expected := "\n" +
 		"  Light Fighter: 1\n" +
@@ -105,7 +108,10 @@ func TestShipsInfos_String(t *testing.T) {
 		"    Colony Ship: 11\n" +
 		"       Recycler: 12\n" +
 		"Espionage Probe: 13\n" +
-		"Solar Satellite: 14"
+		"Solar Satellite: 14\n" +
+		"        Crawler: 15\n" +
+		"         Reaper: 16\n" +
+		"     Pathfinder: 17"
 	assert.Equal(t, expected, s.String())
 }
 

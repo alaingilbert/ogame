@@ -1471,7 +1471,7 @@ func Distance(c1, c2 Coordinate, universeSize, nbSystems int, donutGalaxy, donut
 func findSlowestSpeed(ships ShipsInfos, techs Researches) int {
 	minSpeed := math.MaxInt32
 	for _, ship := range Ships {
-		if ship.GetID() == SolarSatelliteID {
+		if ship.GetID() == SolarSatelliteID || ship.GetID() == CrawlerID {
 			continue
 		}
 		shipSpeed := ship.GetSpeed(techs)
@@ -1489,7 +1489,7 @@ func calcFuel(ships ShipsInfos, dist, duration int, universeSpeedFleet, fleetDeu
 	}
 	tmpFuel := 0.0
 	for _, ship := range Ships {
-		if ship.GetID() == SolarSatelliteID {
+		if ship.GetID() == SolarSatelliteID || ship.GetID() == CrawlerID {
 			continue
 		}
 		nbr := ships.ByID(ship.GetID())

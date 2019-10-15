@@ -48,6 +48,9 @@ var (
 	LightFighter                 = newLightFighter()
 	Recycler                     = newRecycler()
 	SmallCargo                   = newSmallCargo()
+	Crawler                      = newCrawler()
+	Reaper                       = newReaper()
+	Pathfinder                   = newPathfinder()
 	ArmourTechnology             = newArmourTechnology() // Technologies
 	Astrophysics                 = newAstrophysics()
 	CombustionDrive              = newCombustionDrive()
@@ -114,6 +117,9 @@ type ObjsStruct struct {
 	LightFighter                 *lightFighter
 	Recycler                     *recycler
 	SmallCargo                   *smallCargo
+	Crawler                      *crawler
+	Reaper                       *reaper
+	Pathfinder                   *pathfinder
 	ArmourTechnology             *armourTechnology
 	Astrophysics                 *astrophysics
 	CombustionDrive              *combustionDrive
@@ -227,6 +233,12 @@ func (o *ObjsStruct) ByID(id ID) BaseOgameObj {
 		return o.Recycler
 	case SmallCargoID:
 		return o.SmallCargo
+	case CrawlerID:
+		return o.Crawler
+	case ReaperID:
+		return o.Reaper
+	case PathfinderID:
+		return o.Pathfinder
 	case ArmourTechnologyID:
 		return o.ArmourTechnology
 	case AstrophysicsID:
@@ -311,6 +323,9 @@ var Objs = ObjsStruct{
 	LightFighter:                 LightFighter,
 	Recycler:                     Recycler,
 	SmallCargo:                   SmallCargo,
+	Crawler:                      Crawler,
+	Reaper:                       Reaper,
+	Pathfinder:                   Pathfinder,
 	ArmourTechnology:             ArmourTechnology,
 	Astrophysics:                 Astrophysics,
 	CombustionDrive:              CombustionDrive,
@@ -359,6 +374,9 @@ var Ships = []Ship{
 	Recycler,
 	EspionageProbe,
 	SolarSatellite,
+	Crawler,
+	Reaper,
+	Pathfinder,
 }
 
 // Buildings array of all buildings/facilities objects

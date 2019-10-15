@@ -21,6 +21,9 @@ type ShipsInfos struct {
 	Recycler       int
 	EspionageProbe int
 	SolarSatellite int
+	Crawler        int
+	Reaper         int
+	Pathfinder     int
 }
 
 // ToPtr returns a pointer to self
@@ -71,7 +74,7 @@ func (s ShipsInfos) Speed(techs Researches) int {
 func (s ShipsInfos) ToQuantifiables() []Quantifiable {
 	out := make([]Quantifiable, 0)
 	for _, ship := range Ships {
-		if ship.GetID() == SolarSatelliteID {
+		if ship.GetID() == SolarSatelliteID || ship.GetID() == CrawlerID {
 			continue
 		}
 		shipID := ship.GetID()
@@ -158,6 +161,12 @@ func (s ShipsInfos) ByID(id ID) int {
 		return s.EspionageProbe
 	case SolarSatelliteID:
 		return s.SolarSatellite
+	case CrawlerID:
+		return s.Crawler
+	case ReaperID:
+		return s.Reaper
+	case PathfinderID:
+		return s.Pathfinder
 	default:
 		return 0
 	}
@@ -194,6 +203,12 @@ func (s *ShipsInfos) Set(id ID, val int) {
 		s.EspionageProbe = val
 	case SolarSatelliteID:
 		s.SolarSatellite = val
+	case CrawlerID:
+		s.Crawler = val
+	case ReaperID:
+		s.Reaper = val
+	case PathfinderID:
+		s.Pathfinder = val
 	}
 }
 
@@ -212,5 +227,8 @@ func (s ShipsInfos) String() string {
 		"    Colony Ship: " + strconv.Itoa(s.ColonyShip) + "\n" +
 		"       Recycler: " + strconv.Itoa(s.Recycler) + "\n" +
 		"Espionage Probe: " + strconv.Itoa(s.EspionageProbe) + "\n" +
-		"Solar Satellite: " + strconv.Itoa(s.SolarSatellite)
+		"Solar Satellite: " + strconv.Itoa(s.SolarSatellite) + "\n" +
+		"        Crawler: " + strconv.Itoa(s.Crawler) + "\n" +
+		"         Reaper: " + strconv.Itoa(s.Reaper) + "\n" +
+		"     Pathfinder: " + strconv.Itoa(s.Pathfinder)
 }
