@@ -98,6 +98,11 @@ func (p Planet) Build(id ID, nbr int) error {
 	return p.ogame.Build(CelestialID(p.ID), id, nbr)
 }
 
+// TearDown tears down any ogame building
+func (p Planet) TearDown(buildingID ID) error {
+	return p.ogame.TearDown(CelestialID(p.ID), buildingID)
+}
+
 // BuildCancelable builds any cancelable ogame objects (building, technology)
 func (p *Planet) BuildCancelable(id ID) error {
 	return p.ogame.BuildCancelable(CelestialID(p.ID), id)

@@ -77,6 +77,11 @@ func (m Moon) Build(id ID, nbr int) error {
 	return m.ogame.Build(CelestialID(m.ID), id, nbr)
 }
 
+// TearDown tears down any ogame building
+func (m Moon) TearDown(buildingID ID) error {
+	return m.ogame.TearDown(CelestialID(m.ID), buildingID)
+}
+
 // BuildTechnology ensure that we're trying to build a technology
 func (m Moon) BuildTechnology(technologyID ID) error {
 	return errors.New("cannot build technology on a moon")

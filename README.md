@@ -69,9 +69,9 @@ GetUniverseName() string
 GetUniverseSpeed() int
 GetUniverseSpeedFleet() int
 GetResearchSpeed() int
+SetResearchSpeed(int)
 GetNbSystems() int
 SetNbSystems(int)
-SetResearchSpeed(int)
 IsDonutGalaxy() bool
 IsDonutSystem() bool
 FleetDeutSaveFactor() float64
@@ -124,8 +124,8 @@ CreateUnion(fleet Fleet) (int, error)
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
 GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
-EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime int) (Fleet, error)
+SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error)
+EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error)
 Build(celestialID CelestialID, id ID, nbr int) error
 BuildCancelable(CelestialID, ID) error
 BuildProduction(celestialID CelestialID, id ID, nbr int) error
@@ -133,6 +133,7 @@ BuildBuilding(celestialID CelestialID, buildingID ID) error
 BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error
 BuildShips(celestialID CelestialID, shipID ID, nbr int) error
 CancelBuilding(CelestialID) error
+TearDown(celestialID CelestialID, id ID) error
 ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
 GetProduction(CelestialID) ([]Quantifiable, error)
 GetFacilities(CelestialID) (Facilities, error)
