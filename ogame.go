@@ -1817,6 +1817,15 @@ func getToken(b *OGame, page string, celestialID CelestialID) (string, error) {
 	return token, nil
 }
 
+func getDemolishToken(b *OGame, page string, celestialID CelestialID) (string, error) {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {page}, "cp": {strconv.Itoa(int(celestialID))}})
+	m := regexp.MustCompile(`modus=3&token=([^&]+)&`).FindSubmatch(pageHTML)
+	if len(m) != 2 {
+		return "", errors.New("unable to find form token")
+	}
+	return string(m[1]), nil
+}
+
 func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 	var page string
 	if id.IsResourceBuilding() {
@@ -1827,9 +1836,19 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 		return errors.New("invalid id " + id.String())
 	}
 
-	token, err := getToken(b, page, celestialID)
+	token, err := getDemolishToken(b, page, celestialID)
 	if err != nil {
 		return err
+	}
+
+	pageHTML, _ := b.getPageContent(url.Values{"page": {page}, "ajax": {"1"}, "type": {strconv.Itoa(int(celestialID))}, "cp": {strconv.Itoa(int(celestialID))}})
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return err
+	}
+	imgDisabled := doc.Find("a.demolish_link div").HasClass("demolish_img_disabled")
+	if imgDisabled {
+		return errors.New("tear down button is disabled")
 	}
 
 	params := url.Values{
@@ -1838,7 +1857,6 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 		"token": {token},
 		"type":  {strconv.Itoa(int(id))},
 	}
-
 	_, err = b.getPageContent(params)
 	return err
 }
@@ -1881,7 +1899,7 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
 			if err != nil {
 				break
 			}
-			token, err = getToken()
+			token, err = getToken(b, page, celestialID)
 			if err != nil {
 				break
 			}
