@@ -304,6 +304,13 @@ func (b *Prioritize) Build(celestialID CelestialID, id ID, nbr int) error {
 	return b.bot.build(celestialID, id, nbr)
 }
 
+// TearDown tears down any ogame building
+func (b *Prioritize) TearDown(celestialID CelestialID, id ID) error {
+	b.begin("TearDown")
+	defer b.done()
+	return b.bot.tearDown(celestialID, id)
+}
+
 // BuildCancelable builds any cancelable ogame objects (building, technology)
 func (b *Prioritize) BuildCancelable(celestialID CelestialID, id ID) error {
 	b.begin("BuildCancelable")
