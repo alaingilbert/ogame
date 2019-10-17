@@ -26,6 +26,9 @@ var ErrBotInactive = errors.New("bot is not active")
 // ErrBotLoggedOut returned when the bot is logged out (manually logged out)
 var ErrBotLoggedOut = errors.New("bot is logged out")
 
+// ErrFailedExecuteCallback returned when "withRetry" failed to execute callback
+var ErrFailedExecuteCallback = errors.New("failed to execute callback")
+
 // ErrDeactivateHidePictures returned when "Hide pictures in reports" is activated
 var ErrDeactivateHidePictures = errors.New("deactivate 'Hide pictures in reports'")
 

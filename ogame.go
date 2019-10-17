@@ -1029,6 +1029,7 @@ type eventboxResp struct {
 }
 
 func (b *OGame) withRetry(fn func() error) error {
+	maxRetry := 10
 	retryInterval := 1
 	retry := func(err error) {
 		b.error(err.Error())
@@ -1050,6 +1051,10 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 		if !b.IsLoggedIn() {
 			return ErrBotLoggedOut
+		}
+		maxRetry--
+		if maxRetry <= 0 {
+			return ErrFailedExecuteCallback
 		}
 
 		retry(err)
@@ -1074,17 +1079,14 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
 	if !b.IsLoggedIn() {
 		return ErrBotLoggedOut
 	}
-	err := b.withRetry(func() error {
-		pageJSON, err := b.getPageContent(vals)
-		if err != nil {
-			return err
-		}
-		if err := json.Unmarshal(pageJSON, v); err != nil {
-			return ErrNotLogged
-		}
-		return nil
-	})
-	return err
+	pageJSON, err := b.getPageContent(vals)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(pageJSON, v); err != nil {
+		return ErrNotLogged
+	}
+	return nil
 }
 
 func (b *OGame) enable() {
@@ -1667,18 +1669,18 @@ func (b *OGame) buyOfferOfTheDay() error {
 	return nil
 }
 
-func (b *OGame) getAttacks() []AttackEvent {
-	var attacks []AttackEvent
-	if err := b.withRetry(func() error {
-		pageHTML, _ := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
-		var err error
-		attacks, err = ExtractAttacks(pageHTML)
-		return err
-	}); err != nil {
+func (b *OGame) getAttacks() (out []AttackEvent) {
+	pageHTML, err := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
+	if err != nil {
 		b.error(err)
-		return []AttackEvent{}
+		return
 	}
-	return attacks
+	out, err = ExtractAttacks(pageHTML)
+	if err != nil {
+		b.error(err)
+		return
+	}
+	return
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
@@ -1693,17 +1695,11 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 		"system": {strconv.Itoa(system)},
 	}
 	var res SystemInfos
-	if err := b.withRetry(func() error {
-		pageHTML, err := b.postPageContent(url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}, payload)
-		if err != nil {
-			return err
-		}
-		res, err = ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
-		return err
-	}); err != nil {
+	pageHTML, err := b.postPageContent(url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}, payload)
+	if err != nil {
 		return res, err
 	}
-	return res, nil
+	return ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
