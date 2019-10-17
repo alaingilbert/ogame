@@ -72,7 +72,7 @@ type OGame struct {
 	logger                *log.Logger
 	chatCallbacks         []func(msg ChatMsg)
 	auctioneerCallbacks   []func(packet []byte)
-	interceptorCallbacks  []func(method string, params, payload url.Values, pageHTML []byte)
+	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
 	closeChatCh           chan struct{}
 	chatRetry             *ExponentialBackoff
 	ws                    *websocket.Conn
@@ -568,7 +568,7 @@ func (b *OGame) login() error {
 	b.fleetDeutSaveFactor = ExtractFleetDeutSaveFactor(pageHTML)
 
 	for _, fn := range b.interceptorCallbacks {
-		fn("GET", nil, nil, pageHTML)
+		fn("GET", loginLink, nil, nil, pageHTML)
 	}
 
 	_, _ = b.getPageContent(url.Values{"page": {"preferences"}}) // Will update preferences cached values
@@ -897,7 +897,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 
 	go func() {
 		for _, fn := range b.interceptorCallbacks {
-			fn("POST", vals, payload, body)
+			fn("POST", finalURL, vals, payload, body)
 		}
 	}()
 
@@ -1015,7 +1015,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 	go func() {
 		for _, fn := range b.interceptorCallbacks {
-			fn("GET", vals, nil, pageHTMLBytes)
+			fn("GET", finalURL, vals, nil, pageHTMLBytes)
 		}
 	}()
 
@@ -3275,7 +3275,7 @@ func (b *OGame) RegisterAuctioneerCallback(fn func(packet []byte)) {
 }
 
 // RegisterHTMLInterceptor ...
-func (b *OGame) RegisterHTMLInterceptor(fn func(method string, params, payload url.Values, pageHTML []byte)) {
+func (b *OGame) RegisterHTMLInterceptor(fn func(method, url string, params, payload url.Values, pageHTML []byte)) {
 	b.interceptorCallbacks = append(b.interceptorCallbacks, fn)
 }
 
