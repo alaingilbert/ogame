@@ -173,9 +173,15 @@ func ExtractProduction(pageHTML []byte) ([]Quantifiable, error) {
 }
 
 // ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
-func ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, error) {
+func ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractOverviewProductionFromDoc(doc)
+	shipSumCountdown := 0
+	shipSumCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\('shipSumCount7'\),\d+,\d+,(\d+),`).FindSubmatch(pageHTML)
+	if len(shipSumCountdownMatch) > 0 {
+		shipSumCountdown = toInt(shipSumCountdownMatch[1])
+	}
+	production, err := ExtractOverviewProductionFromDoc(doc)
+	return production, shipSumCountdown, err
 }
 
 // ExtractFleet1Ships ...
