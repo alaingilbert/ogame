@@ -1706,8 +1706,9 @@ func TestExtractFleet_unionID(t *testing.T) {
 
 func TestExtractOverviewProduction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_shipyard_queue_full.html")
-	prods, _ := ExtractOverviewProduction(pageHTMLBytes)
+	prods, countdown, _ := ExtractOverviewProduction(pageHTMLBytes)
 	assert.Equal(t, 6, len(prods))
+	assert.Equal(t, 3399, countdown)
 	assert.Equal(t, HeavyFighterID, prods[0].ID)
 	assert.Equal(t, 1, prods[0].Nbr)
 	assert.Equal(t, HeavyFighterID, prods[1].ID)
