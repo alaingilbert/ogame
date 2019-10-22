@@ -115,7 +115,7 @@ GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 //GetCombatReport(msgID int) (CombatReport, error)
 DeleteMessage(msgID int) error
 Distance(origin, destination Coordinate) int
-FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
+FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs time.Duration, fuel int)
 RegisterChatCallback(func(ChatMsg))
 RegisterAuctioneerCallback(func([]byte))
 RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))

@@ -1,6 +1,9 @@
 package ogame
 
-import "math"
+import (
+	"math"
+	"time"
+)
 
 // Fields planet fields stats
 type Fields struct {
@@ -171,7 +174,7 @@ func (p *Planet) GetResourcesProductions() (Resources, error) {
 }
 
 // FlightTime calculate flight time and fuel needed
-func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
+func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos) (secs time.Duration, fuel int) {
 	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships)
 }
 
