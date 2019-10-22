@@ -462,7 +462,7 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuilding
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
+func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs time.Duration, fuel int) {
 	b.begin("FlightTime")
 	defer b.done()
 	researches := b.bot.getCachedResearch()
