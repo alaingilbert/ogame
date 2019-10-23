@@ -837,6 +837,87 @@ func IsAjaxPage(vals url.Values) bool {
 		ajax == "1"
 }
 
+func canParseEventBox(by []byte) bool {
+	err := json.Unmarshal(by, &eventboxResp{})
+	return err == nil
+}
+
+func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
+	if !b.IsEnabled() {
+		return []byte{}, ErrBotInactive
+	}
+	if !b.IsLoggedIn() {
+		return []byte{}, ErrBotLoggedOut
+	}
+
+	if b.serverURL == "" {
+		err := errors.New("serverURL is empty")
+		b.error(err)
+		return []byte{}, err
+	}
+
+	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
+	page := vals.Get("page")
+	var pageHTMLBytes []byte
+
+	if err := b.withRetry(func() error {
+		req, err := http.NewRequest("GET", finalURL, nil)
+		if err != nil {
+			return err
+		}
+
+		req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+		if IsAjaxPage(vals) {
+			req.Header.Add("X-Requested-With", "XMLHttpRequest")
+		}
+
+		resp, err := b.Client.Do(req)
+		if err != nil {
+			return err
+		}
+		defer func() {
+			if err := resp.Body.Close(); err != nil {
+				b.error(err)
+			}
+		}()
+
+		if resp.StatusCode >= 500 {
+			return err
+		}
+		by, err := readBody(b, resp)
+		if err != nil {
+			return err
+		}
+		b.bytesUploaded += req.ContentLength
+		pageHTMLBytes = by
+
+		if (page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
+			(page == "eventList" && !bytes.Contains(by, []byte("eventListWrap"))) ||
+			(page == "fetchEventbox" && !canParseEventBox(by)) {
+			b.error("Err not logged on page : ", page)
+			atomic.StoreInt32(&b.isConnectedAtom, 0)
+			return ErrNotLogged
+		}
+
+		return nil
+	}); err != nil {
+		b.error(err)
+		return []byte{}, err
+	}
+
+	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
+		b.cacheFullPageInfo(page, pageHTMLBytes)
+	}
+
+	go func() {
+		for _, fn := range b.interceptorCallbacks {
+			fn("GET", finalURL, vals, nil, pageHTMLBytes)
+		}
+	}()
+
+	return pageHTMLBytes, nil
+}
+
 func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	if !b.IsEnabled() {
 		return []byte{}, ErrBotInactive
@@ -944,87 +1025,6 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 	}
 	b.bytesUploaded += req.ContentLength
 	pageHTMLBytes = by
-
-	return pageHTMLBytes, nil
-}
-
-func canParseEventBox(by []byte) bool {
-	err := json.Unmarshal(by, &eventboxResp{})
-	return err == nil
-}
-
-func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
-	if !b.IsEnabled() {
-		return []byte{}, ErrBotInactive
-	}
-	if !b.IsLoggedIn() {
-		return []byte{}, ErrBotLoggedOut
-	}
-
-	if b.serverURL == "" {
-		err := errors.New("serverURL is empty")
-		b.error(err)
-		return []byte{}, err
-	}
-
-	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
-	page := vals.Get("page")
-	var pageHTMLBytes []byte
-
-	if err := b.withRetry(func() error {
-		req, err := http.NewRequest("GET", finalURL, nil)
-		if err != nil {
-			return err
-		}
-
-		req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-		if IsAjaxPage(vals) {
-			req.Header.Add("X-Requested-With", "XMLHttpRequest")
-		}
-
-		resp, err := b.Client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer func() {
-			if err := resp.Body.Close(); err != nil {
-				b.error(err)
-			}
-		}()
-
-		if resp.StatusCode >= 500 {
-			return err
-		}
-		by, err := readBody(b, resp)
-		if err != nil {
-			return err
-		}
-		b.bytesUploaded += req.ContentLength
-		pageHTMLBytes = by
-
-		if (page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
-			(page == "eventList" && !bytes.Contains(by, []byte("eventListWrap"))) ||
-			(page == "fetchEventbox" && !canParseEventBox(by)) {
-			b.error("Err not logged on page : ", page)
-			atomic.StoreInt32(&b.isConnectedAtom, 0)
-			return ErrNotLogged
-		}
-
-		return nil
-	}); err != nil {
-		b.error(err)
-		return []byte{}, err
-	}
-
-	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
-		b.cacheFullPageInfo(page, pageHTMLBytes)
-	}
-
-	go func() {
-		for _, fn := range b.interceptorCallbacks {
-			fn("GET", finalURL, vals, nil, pageHTMLBytes)
-		}
-	}()
 
 	return pageHTMLBytes, nil
 }
