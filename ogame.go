@@ -955,28 +955,19 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	var pageHTMLBytes []byte
 
 	if err := b.withRetry(func() (err error) {
+		// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
 		// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
-		b.Client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		}
-		defer func() {
-			b.Client.CheckRedirect = nil
-		}()
+		b.Client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+		defer func() { b.Client.CheckRedirect = nil }()
 
 		pageHTMLBytes, err = b.execRequest("POST", finalURL, payload, vals)
 		if err != nil {
 			return err
 		}
 
-		if page == "preferences" {
-			b.CachedPreferences = ExtractPreferences(pageHTMLBytes)
-		} else if page == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
-			var res ChatPostResp
-			if err := json.Unmarshal(pageHTMLBytes, &res); err != nil {
-				return err
-			}
-			b.ajaxChatToken = res.NewToken
-		} else if page == "galaxyContent" && !canParseSystemInfos(pageHTMLBytes) {
+		if page == "galaxyContent" && !canParseSystemInfos(pageHTMLBytes) {
+			b.error("Err not logged on page : ", page)
+			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
 		}
 
@@ -984,6 +975,16 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	}); err != nil {
 		b.error(err)
 		return []byte{}, err
+	}
+
+	if page == "preferences" {
+		b.CachedPreferences = ExtractPreferences(pageHTMLBytes)
+	} else if page == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
+		var res ChatPostResp
+		if err := json.Unmarshal(pageHTMLBytes, &res); err != nil {
+			return []byte{}, err
+		}
+		b.ajaxChatToken = res.NewToken
 	}
 
 	go func() {
