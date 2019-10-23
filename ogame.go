@@ -842,6 +842,52 @@ func canParseEventBox(by []byte) bool {
 	return err == nil
 }
 
+func canParseSystemInfos(by []byte) bool {
+	err := json.Unmarshal(by, &SystemInfos{})
+	return err == nil
+}
+
+func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) ([]byte, error) {
+	var req *http.Request
+	var err error
+	if method == "GET" {
+		req, err = http.NewRequest(method, finalURL, nil)
+	} else {
+		req, err = http.NewRequest(method, finalURL, strings.NewReader(payload.Encode()))
+	}
+	if err != nil {
+		return []byte{}, err
+	}
+
+	if method == "POST" {
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	if IsAjaxPage(vals) {
+		req.Header.Add("X-Requested-With", "XMLHttpRequest")
+	}
+
+	resp, err := b.Client.Do(req)
+	if err != nil {
+		return []byte{}, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+
+	if resp.StatusCode >= 500 {
+		return []byte{}, err
+	}
+	by, err := readBody(b, resp)
+	if err != nil {
+		return []byte{}, err
+	}
+	b.bytesUploaded += req.ContentLength
+	return by, nil
+}
+
 func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	if !b.IsEnabled() {
 		return []byte{}, ErrBotInactive
@@ -860,40 +906,15 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	page := vals.Get("page")
 	var pageHTMLBytes []byte
 
-	if err := b.withRetry(func() error {
-		req, err := http.NewRequest("GET", finalURL, nil)
+	if err := b.withRetry(func() (err error) {
+		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
 		if err != nil {
 			return err
 		}
-
-		req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-		if IsAjaxPage(vals) {
-			req.Header.Add("X-Requested-With", "XMLHttpRequest")
-		}
-
-		resp, err := b.Client.Do(req)
-		if err != nil {
-			return err
-		}
-		defer func() {
-			if err := resp.Body.Close(); err != nil {
-				b.error(err)
-			}
-		}()
-
-		if resp.StatusCode >= 500 {
-			return err
-		}
-		by, err := readBody(b, resp)
-		if err != nil {
-			return err
-		}
-		b.bytesUploaded += req.ContentLength
-		pageHTMLBytes = by
 
 		if (page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
-			(page == "eventList" && !bytes.Contains(by, []byte("eventListWrap"))) ||
-			(page == "fetchEventbox" && !canParseEventBox(by)) {
+			(page == "eventList" && !bytes.Contains(pageHTMLBytes, []byte("eventListWrap"))) ||
+			(page == "fetchEventbox" && !canParseEventBox(pageHTMLBytes)) {
 			b.error("Err not logged on page : ", page)
 			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
@@ -931,58 +952,48 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 	}
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
-	req, err := http.NewRequest("POST", finalURL, strings.NewReader(payload.Encode()))
-	if err != nil {
+	page := vals.Get("page")
+	var pageHTMLBytes []byte
+
+	if err := b.withRetry(func() (err error) {
+		// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
+		b.Client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
+		defer func() {
+			b.Client.CheckRedirect = nil
+		}()
+
+		pageHTMLBytes, err = b.execRequest("POST", finalURL, payload, vals)
+		if err != nil {
+			return err
+		}
+
+		if page == "preferences" {
+			b.CachedPreferences = ExtractPreferences(pageHTMLBytes)
+		} else if page == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
+			var res ChatPostResp
+			if err := json.Unmarshal(pageHTMLBytes, &res); err != nil {
+				return err
+			}
+			b.ajaxChatToken = res.NewToken
+		} else if page == "galaxyContent" && !canParseSystemInfos(pageHTMLBytes) {
+			return ErrNotLogged
+		}
+
+		return nil
+	}); err != nil {
 		b.error(err)
 		return []byte{}, err
-	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	if IsAjaxPage(vals) {
-		req.Header.Add("X-Requested-With", "XMLHttpRequest")
-	}
-
-	// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
-	b.Client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		return http.ErrUseLastResponse
-	}
-	defer func() {
-		b.Client.CheckRedirect = nil
-	}()
-
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		b.error(err)
-		return []byte{}, err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	body, err := readBody(b, resp)
-	if err != nil {
-		return []byte{}, err
-	}
-	b.bytesUploaded += req.ContentLength
-
-	if vals.Get("page") == "preferences" {
-		b.CachedPreferences = ExtractPreferences(body)
-	} else if vals.Get("page") == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
-		var res ChatPostResp
-		if err := json.Unmarshal(body, &res); err != nil {
-			return []byte{}, err
-		}
-		b.ajaxChatToken = res.NewToken
 	}
 
 	go func() {
 		for _, fn := range b.interceptorCallbacks {
-			fn("POST", finalURL, vals, payload, body)
+			fn("POST", finalURL, vals, payload, pageHTMLBytes)
 		}
 	}()
 
-	return body, nil
+	return pageHTMLBytes, nil
 }
 
 func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
