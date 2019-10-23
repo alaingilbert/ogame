@@ -1073,12 +1073,6 @@ func (b *OGame) withRetry(fn func() error) error {
 }
 
 func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
-	if !b.IsEnabled() {
-		return ErrBotInactive
-	}
-	if !b.IsLoggedIn() {
-		return ErrBotLoggedOut
-	}
 	pageJSON, err := b.getPageContent(vals)
 	if err != nil {
 		return err
