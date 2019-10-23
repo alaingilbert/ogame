@@ -895,7 +895,6 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	if !b.IsLoggedIn() {
 		return []byte{}, ErrBotLoggedOut
 	}
-
 	if b.serverURL == "" {
 		err := errors.New("serverURL is empty")
 		b.error(err)
@@ -1003,40 +1002,16 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 	if !b.IsLoggedIn() {
 		return []byte{}, ErrBotLoggedOut
 	}
-
 	if b.serverURL == "" {
 		err := errors.New("serverURL is empty")
 		b.error(err)
 		return []byte{}, err
 	}
 	finalURL := b.serverURL + "/game/allianceInfo.php?" + vals.Encode()
-	var pageHTMLBytes []byte
-	req, err := http.NewRequest("GET", finalURL, nil)
+	pageHTMLBytes, err := b.execRequest("GET", finalURL, nil, vals)
 	if err != nil {
-		return nil, err
+		return []byte{}, err
 	}
-
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-
-	if resp.StatusCode >= 500 {
-		return nil, err
-	}
-	by, err := readBody(b, resp)
-	if err != nil {
-		return nil, err
-	}
-	b.bytesUploaded += req.ContentLength
-	pageHTMLBytes = by
-
 	return pageHTMLBytes, nil
 }
 
