@@ -847,6 +847,19 @@ func canParseSystemInfos(by []byte) bool {
 	return err == nil
 }
 
+func (b *OGame) preRequestChecks() error {
+	if !b.IsEnabled() {
+		return ErrBotInactive
+	}
+	if !b.IsLoggedIn() {
+		return ErrBotLoggedOut
+	}
+	if b.serverURL == "" {
+		return errors.New("serverURL is empty")
+	}
+	return nil
+}
+
 func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) ([]byte, error) {
 	var req *http.Request
 	var err error
@@ -889,15 +902,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 }
 
 func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
-	if !b.IsEnabled() {
-		return []byte{}, ErrBotInactive
-	}
-	if !b.IsLoggedIn() {
-		return []byte{}, ErrBotLoggedOut
-	}
-	if b.serverURL == "" {
-		err := errors.New("serverURL is empty")
-		b.error(err)
+	if err := b.preRequestChecks(); err != nil {
 		return []byte{}, err
 	}
 
@@ -939,11 +944,8 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 }
 
 func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
-	if !b.IsEnabled() {
-		return []byte{}, ErrBotInactive
-	}
-	if !b.IsLoggedIn() {
-		return []byte{}, ErrBotLoggedOut
+	if err := b.preRequestChecks(); err != nil {
+		return []byte{}, err
 	}
 
 	if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
@@ -997,15 +999,7 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 }
 
 func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
-	if !b.IsEnabled() {
-		return []byte{}, ErrBotInactive
-	}
-	if !b.IsLoggedIn() {
-		return []byte{}, ErrBotLoggedOut
-	}
-	if b.serverURL == "" {
-		err := errors.New("serverURL is empty")
-		b.error(err)
+	if err := b.preRequestChecks(); err != nil {
 		return []byte{}, err
 	}
 	finalURL := b.serverURL + "/game/allianceInfo.php?" + vals.Encode()
