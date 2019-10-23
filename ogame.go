@@ -948,6 +948,11 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 	return pageHTMLBytes, nil
 }
 
+func canParseEventBox(by []byte) bool {
+	err := json.Unmarshal(by, &eventboxResp{})
+	return err == nil
+}
+
 func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	if !b.IsEnabled() {
 		return []byte{}, ErrBotInactive
@@ -997,7 +1002,9 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		b.bytesUploaded += req.ContentLength
 		pageHTMLBytes = by
 
-		if page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes) {
+		if (page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
+			(page == "eventList" && !bytes.Contains(by, []byte("eventListWrap"))) ||
+			(page == "fetchEventbox" && !canParseEventBox(by)) {
 			b.error("Err not logged on page : ", page)
 			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
@@ -1113,15 +1120,14 @@ func (b *OGame) isDonutSystem() bool {
 	return b.donutSystem
 }
 
-func (b *OGame) fetchEventbox() (res eventboxResp) {
-	if err := b.getPageJSON(url.Values{"page": {"fetchEventbox"}}, &res); err != nil {
-		b.error(err)
-	}
+func (b *OGame) fetchEventbox() (res eventboxResp, err error) {
+	err = b.getPageJSON(url.Values{"page": {"fetchEventbox"}}, &res)
 	return
 }
 
-func (b *OGame) isUnderAttack() bool {
-	return b.fetchEventbox().Hostile > 0
+func (b *OGame) isUnderAttack() (bool, error) {
+	res, err := b.fetchEventbox()
+	return res.Hostile > 0, err
 }
 
 type resourcesResp struct {
@@ -1663,18 +1669,12 @@ func (b *OGame) buyOfferOfTheDay() error {
 	return nil
 }
 
-func (b *OGame) getAttacks() (out []AttackEvent) {
+func (b *OGame) getAttacks() (out []AttackEvent, err error) {
 	pageHTML, err := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
 	if err != nil {
-		b.error(err)
 		return
 	}
-	out, err = ExtractAttacks(pageHTML)
-	if err != nil {
-		b.error(err)
-		return
-	}
-	return
+	return ExtractAttacks(pageHTML)
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
@@ -2947,7 +2947,7 @@ func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *OGame) IsUnderAttack() bool {
+func (b *OGame) IsUnderAttack() (bool, error) {
 	return b.WithPriority(Normal).IsUnderAttack()
 }
 
@@ -3069,7 +3069,7 @@ func (b *OGame) CancelFleet(fleetID FleetID) error {
 }
 
 // GetAttacks get enemy fleets attacking you
-func (b *OGame) GetAttacks() []AttackEvent {
+func (b *OGame) GetAttacks() ([]AttackEvent, error) {
 	return b.WithPriority(Normal).GetAttacks()
 }
 

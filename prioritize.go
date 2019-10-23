@@ -105,7 +105,7 @@ func (b *Prioritize) PostPageContent(vals, payload url.Values) []byte {
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *Prioritize) IsUnderAttack() bool {
+func (b *Prioritize) IsUnderAttack() (bool, error) {
 	b.begin("IsUnderAttack")
 	defer b.done()
 	return b.bot.isUnderAttack()
@@ -212,7 +212,7 @@ func (b *Prioritize) CancelFleet(fleetID FleetID) error {
 }
 
 // GetAttacks get enemy fleets attacking you
-func (b *Prioritize) GetAttacks() []AttackEvent {
+func (b *Prioritize) GetAttacks() ([]AttackEvent, error) {
 	b.begin("GetAttacks")
 	defer b.done()
 	return b.bot.getAttacks()

@@ -48,7 +48,7 @@ type Wrapper interface {
 	ServerVersion() string
 	ServerTime() time.Time
 	Location() *time.Location
-	IsUnderAttack() bool
+	IsUnderAttack() (bool, error)
 	GetUserInfos() UserInfos
 	SendMessage(playerID int, message string) error
 	SendMessageAlliance(associationID int, message string) error
@@ -56,7 +56,7 @@ type Wrapper interface {
 	GetFleets() ([]Fleet, Slots)
 	GetFleetsFromEventList() []Fleet
 	CancelFleet(FleetID) error
-	GetAttacks() []AttackEvent
+	GetAttacks() ([]AttackEvent, error)
 	GalaxyInfos(galaxy, system int) (SystemInfos, error)
 	GetCachedResearch() Researches
 	GetResearch() Researches

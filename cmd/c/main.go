@@ -49,11 +49,16 @@ func ServerVersion() *C.char {
 }
 
 //export IsUnderAttack
-func IsUnderAttack() C.int {
-	if bot.IsUnderAttack() {
-		return C.int(1)
+func IsUnderAttack() (isUnderAttack C.int, errorMsg *C.char) {
+	var err error
+	isUnderAttack, err = bot.IsUnderAttack()
+	if err != nil {
+		return C.int(0), C.CString(err.Error())
 	}
-	return C.int(0)
+	if isUnderAttack {
+		return C.int(1), errorMsg
+	}
+	return C.int(0), errorMsg
 }
 
 //export GetUserInfos
