@@ -1446,7 +1446,7 @@ func calcFuel(ships ShipsInfos, dist, duration int, universeSpeedFleet, fleetDeu
 }
 
 func calcFlightTime(origin, destination Coordinate, universeSize, nbSystems int, donutGalaxy, donutSystem bool,
-	fleetDeutSaveFactor, speed float64, universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs time.Duration, fuel int) {
+	fleetDeutSaveFactor, speed float64, universeSpeedFleet int, ships ShipsInfos, techs Researches) (secs, fuel int) {
 	if !ships.HasShips() {
 		return
 	}
@@ -1454,9 +1454,9 @@ func calcFlightTime(origin, destination Coordinate, universeSize, nbSystems int,
 	v := float64(findSlowestSpeed(ships, techs))
 	a := float64(universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
-	secsInt := int(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
-	fuel = calcFuel(ships, int(d), secsInt, float64(universeSpeedFleet), fleetDeutSaveFactor, techs)
-	return time.Duration(secsInt) * time.Second, fuel
+	secs = int(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
+	fuel = calcFuel(ships, int(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs)
+	return
 }
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
@@ -3255,7 +3255,7 @@ func (b *OGame) GetResourcesProductionsLight(resBuildings ResourcesBuildings, re
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs time.Duration, fuel int) {
+func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
 	return b.WithPriority(Normal).FlightTime(origin, destination, speed, ships)
 }
 
