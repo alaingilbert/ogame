@@ -133,7 +133,11 @@ func ServerTimeHandler(c echo.Context) error {
 // IsUnderAttackHandler ...
 func IsUnderAttackHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.IsUnderAttack()))
+	isUnderAttack, err := bot.IsUnderAttack()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(isUnderAttack))
 }
 
 // GetUserInfosHandler ...
@@ -233,7 +237,11 @@ func CancelFleetHandler(c echo.Context) error {
 // GetAttacksHandler ...
 func GetAttacksHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetAttacks()))
+	attacks, err := bot.GetAttacks()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(attacks))
 }
 
 // GalaxyInfosHandler ...

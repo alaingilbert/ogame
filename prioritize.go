@@ -105,7 +105,7 @@ func (b *Prioritize) PostPageContent(vals, payload url.Values) []byte {
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *Prioritize) IsUnderAttack() bool {
+func (b *Prioritize) IsUnderAttack() (bool, error) {
 	b.begin("IsUnderAttack")
 	defer b.done()
 	return b.bot.isUnderAttack()
@@ -212,7 +212,7 @@ func (b *Prioritize) CancelFleet(fleetID FleetID) error {
 }
 
 // GetAttacks get enemy fleets attacking you
-func (b *Prioritize) GetAttacks() []AttackEvent {
+func (b *Prioritize) GetAttacks() ([]AttackEvent, error) {
 	b.begin("GetAttacks")
 	defer b.done()
 	return b.bot.getAttacks()
@@ -462,7 +462,7 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuilding
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs time.Duration, fuel int) {
+func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
 	b.begin("FlightTime")
 	defer b.done()
 	researches := b.bot.getCachedResearch()

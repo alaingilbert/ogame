@@ -33,7 +33,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	attacked := bot.IsUnderAttack()
+	attacked, _ := bot.IsUnderAttack()
 	fmt.Println(attacked) // False
 }
 ```
@@ -82,7 +82,7 @@ FleetDeutSaveFactor() float64
 ServerVersion() string
 ServerTime() time.Time
 Location() *time.Location
-IsUnderAttack() bool
+IsUnderAttack() (bool, error)
 GetUserInfos() UserInfos
 SendMessage(playerID int, message string) error
 SendMessageAlliance(associationID int, message string) error
@@ -90,7 +90,7 @@ ReconnectChat() bool
 GetFleets() ([]Fleet, Slots)
 GetFleetsFromEventList() []Fleet
 CancelFleet(FleetID) error
-GetAttacks() []AttackEvent
+GetAttacks() ([]AttackEvent, error)
 GalaxyInfos(galaxy, system int) (SystemInfos, error)
 GetCachedResearch() Researches
 GetResearch() Researches
@@ -115,7 +115,7 @@ GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 //GetCombatReport(msgID int) (CombatReport, error)
 DeleteMessage(msgID int) error
 Distance(origin, destination Coordinate) int
-FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs time.Duration, fuel int)
+FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
 RegisterChatCallback(func(ChatMsg))
 RegisterAuctioneerCallback(func([]byte))
 RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
