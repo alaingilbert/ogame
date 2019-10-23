@@ -1008,11 +1008,7 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 		return []byte{}, err
 	}
 	finalURL := b.serverURL + "/game/allianceInfo.php?" + vals.Encode()
-	pageHTMLBytes, err := b.execRequest("GET", finalURL, nil, vals)
-	if err != nil {
-		return []byte{}, err
-	}
-	return pageHTMLBytes, nil
+	return b.execRequest("GET", finalURL, nil, vals)
 }
 
 type eventboxResp struct {
