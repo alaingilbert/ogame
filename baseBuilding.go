@@ -27,7 +27,7 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Faci
 }
 
 // GetLevel returns current level of a building
-func (b BaseBuilding) GetLevel(lazyResourcesBuildings LazyResourcesBuildings, lazyFacilities LazyFacilities, lazyResearches LazyResearches) int {
+func (b BaseBuilding) GetLevel(lazyResourcesBuildings LazyResourcesBuildings, lazyFacilities LazyFacilities, _ LazyResearches) int {
 	if b.ID.IsResourceBuilding() {
 		return lazyResourcesBuildings().ByID(b.ID)
 	} else if b.ID.IsFacility() {
