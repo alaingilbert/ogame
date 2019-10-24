@@ -25,6 +25,11 @@ type Researches struct {
 	ArmourTechnology             int
 }
 
+// Lazy returns a function that return self
+func (s Researches) Lazy() LazyResearches {
+	return func() Researches { return s }
+}
+
 // ByID gets the player research level by research id
 func (s Researches) ByID(id ID) int {
 	if id == EnergyTechnology.ID {

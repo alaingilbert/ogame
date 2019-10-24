@@ -14,11 +14,11 @@ func TestFusionReactorCapacity(t *testing.T) {
 
 func TestFusionReactor_IsAvailable(t *testing.T) {
 	fr := newFusionReactor()
-	assert.False(t, fr.IsAvailable(PlanetType, newLazyResourcesBuildings(ResourcesBuildings{}), newLazyFacilities(Facilities{}), newLazyResearches(Researches{}), 0))
-	assert.False(t, fr.IsAvailable(PlanetType, newLazyResourcesBuildings(ResourcesBuildings{DeuteriumSynthesizer: 4}), newLazyFacilities(Facilities{ResearchLab: 1}), newLazyResearches(Researches{EnergyTechnology: 3}), 0))
-	assert.False(t, fr.IsAvailable(PlanetType, newLazyResourcesBuildings(ResourcesBuildings{DeuteriumSynthesizer: 5}), newLazyFacilities(Facilities{ResearchLab: 1}), newLazyResearches(Researches{EnergyTechnology: 2}), 0))
-	assert.True(t, fr.IsAvailable(PlanetType, newLazyResourcesBuildings(ResourcesBuildings{DeuteriumSynthesizer: 5}), newLazyFacilities(Facilities{ResearchLab: 1}), newLazyResearches(Researches{EnergyTechnology: 3}), 0))
-	assert.True(t, fr.IsAvailable(PlanetType, newLazyResourcesBuildings(ResourcesBuildings{DeuteriumSynthesizer: 6}), newLazyFacilities(Facilities{ResearchLab: 1}), newLazyResearches(Researches{EnergyTechnology: 4}), 0))
+	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0))
+	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 4}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 3}.Lazy(), 0))
+	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 5}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 2}.Lazy(), 0))
+	assert.True(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 5}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 3}.Lazy(), 0))
+	assert.True(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 6}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 4}.Lazy(), 0))
 }
 
 func TestFusionReactor_Production(t *testing.T) {

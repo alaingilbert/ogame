@@ -13,7 +13,7 @@ func TestCombustionDriveCost(t *testing.T) {
 
 func TestCombustionDrive_IsAvailable(t *testing.T) {
 	cd := newCombustionDrive()
-	assert.False(t, cd.IsAvailable(PlanetType, lazyResourcesBuildings, lazyFacilities, newLazyResearches(Researches{EnergyTechnology: 1}), 0))
-	assert.True(t, cd.IsAvailable(PlanetType, lazyResourcesBuildings, newLazyFacilities(Facilities{ResearchLab: 1}), newLazyResearches(Researches{EnergyTechnology: 1}), 0))
-	assert.False(t, cd.IsAvailable(MoonType, lazyResourcesBuildings, lazyFacilities, newLazyResearches(Researches{EnergyTechnology: 1}), 0))
+	assert.False(t, cd.IsAvailable(PlanetType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{EnergyTechnology: 1}.Lazy(), 0))
+	assert.True(t, cd.IsAvailable(PlanetType, ResourcesBuildings{}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 1}.Lazy(), 0))
+	assert.False(t, cd.IsAvailable(MoonType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{EnergyTechnology: 1}.Lazy(), 0))
 }

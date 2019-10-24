@@ -18,6 +18,11 @@ type ResourcesBuildings struct {
 	DeuteriumTank        int
 }
 
+// Lazy returns a function that return self
+func (r ResourcesBuildings) Lazy() LazyResourcesBuildings {
+	return func() ResourcesBuildings { return r }
+}
+
 // ByID gets the resource building level from a building id
 func (r ResourcesBuildings) ByID(id ID) int {
 	if id == MetalMine.ID {

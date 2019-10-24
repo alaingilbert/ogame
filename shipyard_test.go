@@ -13,6 +13,6 @@ func TestShipyardCost(t *testing.T) {
 
 func TestShipyard_GetLevel(t *testing.T) {
 	s := newShipyard()
-	assert.Equal(t, 0, s.GetLevel(newLazyResourcesBuildings(ResourcesBuildings{}), newLazyFacilities(Facilities{}), newLazyResearches(Researches{})))
-	assert.Equal(t, 3, s.GetLevel(newLazyResourcesBuildings(ResourcesBuildings{}), newLazyFacilities(Facilities{Shipyard: 3}), newLazyResearches(Researches{})))
+	assert.Equal(t, 0, s.GetLevel(ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy()))
+	assert.Equal(t, 3, s.GetLevel(ResourcesBuildings{}.Lazy(), Facilities{Shipyard: 3}.Lazy(), Researches{}.Lazy()))
 }

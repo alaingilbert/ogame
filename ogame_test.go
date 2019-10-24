@@ -11,13 +11,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var newLazyResearches = func(r Researches) LazyResearches { return func() Researches { return r } }
-var newLazyFacilities = func(r Facilities) LazyFacilities { return func() Facilities { return r } }
-var newLazyResourcesBuildings = func(r ResourcesBuildings) LazyResourcesBuildings { return func() ResourcesBuildings { return r } }
-var lazyResourcesBuildings = func() ResourcesBuildings { return ResourcesBuildings{} }
-var lazyFacilities = func() Facilities { return Facilities{} }
-var lazyResearches = func() Researches { return Researches{} }
-
 func BenchmarkUserInfoRegex(b *testing.B) {
 	extractUserRegex := func(pageHTML []byte) (int, string) {
 		playerID := toInt(regexp.MustCompile(`playerId="(\d+)"`).FindSubmatch(pageHTML)[1])
