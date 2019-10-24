@@ -20,6 +20,11 @@ type Facilities struct {
 	JumpGate        int
 }
 
+// Lazy returns a function that return self
+func (f Facilities) Lazy() LazyFacilities {
+	return func() Facilities { return f }
+}
+
 // ByID gets the facility level by facility id
 func (f Facilities) ByID(id ID) int {
 	if id == RoboticsFactory.ID {
