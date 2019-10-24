@@ -2,6 +2,9 @@ package ogame
 
 import "strconv"
 
+// LazyResearches ...
+type LazyResearches func() Researches
+
 // Researches represent player's researches
 type Researches struct {
 	EnergyTechnology             int

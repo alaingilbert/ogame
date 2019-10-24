@@ -2,6 +2,9 @@ package ogame
 
 import "strconv"
 
+// LazyResourcesBuildings ...
+type LazyResourcesBuildings func() ResourcesBuildings
+
 // ResourcesBuildings represent a planet resource buildings
 type ResourcesBuildings struct {
 	MetalMine            int

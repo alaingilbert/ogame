@@ -24,8 +24,8 @@ func TestMetalMineConstructionTime(t *testing.T) {
 
 func TestMetalMine_GetLevel(t *testing.T) {
 	mm := newMetalMine()
-	assert.Equal(t, 0, mm.GetLevel(ResourcesBuildings{}, Facilities{}, Researches{}))
-	assert.Equal(t, 3, mm.GetLevel(ResourcesBuildings{MetalMine: 3}, Facilities{}, Researches{}))
+	assert.Equal(t, 0, mm.GetLevel(newLazyResourcesBuildings(ResourcesBuildings{}), newLazyFacilities(Facilities{}), newLazyResearches(Researches{})))
+	assert.Equal(t, 3, mm.GetLevel(newLazyResourcesBuildings(ResourcesBuildings{MetalMine: 3}), newLazyFacilities(Facilities{}), newLazyResearches(Researches{})))
 }
 
 func TestMetalMine_EnergyConsumption(t *testing.T) {
@@ -35,7 +35,7 @@ func TestMetalMine_EnergyConsumption(t *testing.T) {
 
 func TestMetalMine_IsAvailable(t *testing.T) {
 	mm := newMetalMine()
-	assert.True(t, mm.IsAvailable(PlanetType, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
-	assert.False(t, mm.IsAvailable(DebrisType, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
-	assert.False(t, mm.IsAvailable(MoonType, ResourcesBuildings{}, Facilities{}, Researches{}, 0))
+	assert.True(t, mm.IsAvailable(PlanetType, newLazyResourcesBuildings(ResourcesBuildings{}), newLazyFacilities(Facilities{}), newLazyResearches(Researches{}), 0))
+	assert.False(t, mm.IsAvailable(DebrisType, newLazyResourcesBuildings(ResourcesBuildings{}), newLazyFacilities(Facilities{}), newLazyResearches(Researches{}), 0))
+	assert.False(t, mm.IsAvailable(MoonType, newLazyResourcesBuildings(ResourcesBuildings{}), newLazyFacilities(Facilities{}), newLazyResearches(Researches{}), 0))
 }

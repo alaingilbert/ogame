@@ -134,13 +134,13 @@ type BaseOgameObj interface {
 	ConstructionTime(nbr, universeSpeed int, facilities Facilities) time.Duration
 	GetRequirements() map[ID]int
 	GetPrice(int) Resources
-	IsAvailable(CelestialType, ResourcesBuildings, Facilities, Researches, int) bool
+	IsAvailable(CelestialType, LazyResourcesBuildings, LazyFacilities, LazyResearches, int) bool
 }
 
 // Levelable base interface for all levelable ogame objects (buildings, technologies)
 type Levelable interface {
 	BaseOgameObj
-	GetLevel(ResourcesBuildings, Facilities, Researches) int
+	GetLevel(LazyResourcesBuildings, LazyFacilities, LazyResearches) int
 }
 
 // Technology interface that all technologies implement

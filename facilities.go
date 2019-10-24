@@ -2,6 +2,9 @@ package ogame
 
 import "strconv"
 
+// LazyFacilities ...
+type LazyFacilities func() Facilities
+
 // Facilities represent a planet facilities information
 type Facilities struct {
 	RoboticsFactory int
