@@ -12,9 +12,7 @@ type FleetBuilderFactory struct {
 
 // NewFleetBuilderFactory ...
 func NewFleetBuilderFactory(b Wrapper) *FleetBuilderFactory {
-	f := new(FleetBuilderFactory)
-	f.b = b
-	return f
+	return &FleetBuilderFactory{b: b}
 }
 
 // NewFleet ...
