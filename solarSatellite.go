@@ -26,6 +26,6 @@ func (s *solarSatellite) Production(temp Temperature, nbr int) int {
 }
 
 // GetLevel only useful so the solar satellite can implement Building interface
-func (s *solarSatellite) GetLevel(ResourcesBuildings, Facilities, Researches) int {
+func (s *solarSatellite) GetLevel(LazyResourcesBuildings, LazyFacilities, LazyResearches) int {
 	return 0
 }

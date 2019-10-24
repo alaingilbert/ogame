@@ -2636,7 +2636,13 @@ func (b *OGame) taskRunner() {
 }
 
 func (b *OGame) getCachedCelestial(v interface{}) Celestial {
-	if celestialID, ok := v.(CelestialID); ok {
+	if celestial, ok := v.(Celestial); ok {
+		return celestial
+	} else if planet, ok := v.(Planet); ok {
+		return planet
+	} else if moon, ok := v.(Moon); ok {
+		return moon
+	} else if celestialID, ok := v.(CelestialID); ok {
 		return b.GetCachedCelestialByID(celestialID)
 	} else if planetID, ok := v.(PlanetID); ok {
 		return b.GetCachedCelestialByID(planetID.Celestial())

@@ -22,6 +22,6 @@ func (b BaseTechnology) ConstructionTime(level, universeSpeed int, facilities Fa
 }
 
 // GetLevel returns current level of a technology
-func (b BaseTechnology) GetLevel(resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches) int {
-	return researches.ByID(b.ID)
+func (b BaseTechnology) GetLevel(_ LazyResourcesBuildings, _ LazyFacilities, lazyResearches LazyResearches) int {
+	return lazyResearches().ByID(b.ID)
 }

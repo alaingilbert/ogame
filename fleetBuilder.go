@@ -12,9 +12,7 @@ type FleetBuilderFactory struct {
 
 // NewFleetBuilderFactory ...
 func NewFleetBuilderFactory(b Wrapper) *FleetBuilderFactory {
-	f := new(FleetBuilderFactory)
-	f.b = b
-	return f
+	return &FleetBuilderFactory{b: b}
 }
 
 // NewFleet ...
@@ -25,11 +23,11 @@ func (f FleetBuilderFactory) NewFleet() *FleetBuilder {
 // FleetBuilder ...
 type FleetBuilder struct {
 	b                Wrapper
-	origin           CelestialID
+	origin           Celestial
 	destination      Coordinate
 	speed            Speed
 	mission          MissionID
-	ships            []Quantifiable
+	ships            ShipsInfos
 	resources        Resources
 	err              error
 	fleet            Fleet
@@ -52,19 +50,7 @@ func NewFleetBuilder(b Wrapper) *FleetBuilder {
 
 // SetOrigin ...
 func (f *FleetBuilder) SetOrigin(v interface{}) *FleetBuilder {
-	var c Celestial
-	if celestial, ok := v.(Celestial); ok {
-		f.origin = celestial.GetID()
-	} else if planet, ok := v.(Planet); ok {
-		f.origin = planet.GetID()
-	} else if moon, ok := v.(Moon); ok {
-		f.origin = moon.GetID()
-	} else {
-		c = f.b.GetCachedCelestial(v)
-		if c != nil {
-			f.origin = c.GetID()
-		}
-	}
+	f.origin = f.b.GetCachedCelestial(v)
 	return f
 }
 
@@ -132,15 +118,13 @@ func (f *FleetBuilder) SetUnionID(unionID int) *FleetBuilder {
 
 // AddShips ...
 func (f *FleetBuilder) AddShips(id ID, nbr int) *FleetBuilder {
-	if id.IsShip() && id != SolarSatelliteID && nbr > 0 {
-		f.ships = append(f.ships, Quantifiable{id, nbr})
-	}
+	f.ships.Set(id, f.ships.ByID(id)+nbr)
 	return f
 }
 
 // SetShips ...
 func (f *FleetBuilder) SetShips(ships ShipsInfos) *FleetBuilder {
-	f.ships = ships.ToQuantifiables()
+	f.ships = ships
 	return f
 }
 
@@ -156,36 +140,32 @@ func (f *FleetBuilder) SetRecallIn(secs int) *FleetBuilder {
 	return f
 }
 
+// FlightTime ...
+func (f *FleetBuilder) FlightTime() (secs, fuel int) {
+	ships := f.ships
+	if f.allShips {
+		ships, _ = f.b.GetShips(f.origin.GetID())
+	}
+	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
+}
+
 // SendNow send the fleet with defined configurations
 func (f *FleetBuilder) SendNow() (Fleet, error) {
 	err := f.b.Tx(func(tx *Prioritize) error {
 
 		// Set all ships
 		if f.allShips {
-			ships, _ := tx.GetShips(f.origin)
-			f.ships = make([]Quantifiable, 0)
-			for _, ship := range Ships {
-				if ship.GetID() == SolarSatelliteID {
-					continue
-				}
-				nbr := ships.ByID(ship.GetID())
-				if nbr > 0 {
-					f.ships = append(f.ships, Quantifiable{ship.GetID(), nbr})
-				}
-			}
+			f.ships, _ = tx.GetShips(f.origin.GetID())
 		}
 
 		payload := f.resources
 		// Send all resources
 		if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
 			// Calculate cargo
-			cargoCapacity := 0
 			techs := tx.GetResearch()
-			for _, ship := range f.ships {
-				cargoCapacity += Objs.ByID(ship.ID).(Ship).GetCargoCapacity(techs) * ship.Nbr
-			}
+			cargoCapacity := f.ships.Cargo(techs)
 
-			planetResources, _ := tx.GetResources(f.origin)
+			planetResources, _ := tx.GetResources(f.origin.GetID())
 			payload.Deuterium = int(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
 			cargoCapacity -= payload.Deuterium
 			payload.Crystal = int(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
@@ -193,7 +173,7 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			payload.Metal = int(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
 		}
 
-		f.fleet, f.err = tx.EnsureFleet(f.origin, f.ships, f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)
+		f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)
 		return f.err
 	})
 	if err != nil {
@@ -205,7 +185,7 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 		if f.recallIn > 0 {
 			go func() {
 				time.Sleep(time.Duration(f.recallIn) * time.Second)
-				f.b.CancelFleet(f.fleet.ID)
+				_ = f.b.CancelFleet(f.fleet.ID)
 			}()
 		}
 
