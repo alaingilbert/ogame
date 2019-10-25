@@ -24,7 +24,15 @@ type Prioritize struct {
 
 // Begin a new transaction. "Done" must be called to release the lock.
 func (b *Prioritize) Begin() *Prioritize {
-	return b.begin("Tx")
+	return b.BeginNamed("Tx")
+}
+
+// BeginNamed begins a new transaction with a name. "Done" must be called to release the lock.
+func (b *Prioritize) BeginNamed(name string) *Prioritize {
+	if name == "" {
+		name = "Tx"
+	}
+	return b.begin(name)
 }
 
 // Done terminate the transaction, release the lock.

@@ -2814,6 +2814,11 @@ func (b *OGame) Begin() *Prioritize {
 	return b.WithPriority(Normal).Begin()
 }
 
+// BeginNamed begins a new transaction with a name. "Done" must be called to release the lock.
+func (b *OGame) BeginNamed(name string) *Prioritize {
+	return b.WithPriority(Normal).BeginNamed(name)
+}
+
 // Tx locks the bot during the transaction and ensure the lock is released afterward
 func (b *OGame) Tx(clb func(tx *Prioritize) error) error {
 	return b.WithPriority(Normal).Tx(clb)
