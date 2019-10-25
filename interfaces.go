@@ -16,6 +16,7 @@ type Wrapper interface {
 	Quiet(bool)
 	Tx(clb func(tx *Prioritize) error) error
 	Begin() *Prioritize
+	BeginNamed(name string) *Prioritize
 	WithPriority(priority int) *Prioritize
 	GetPublicIP() (string, error)
 	OnStateChange(clb func(locked bool, actor string))
