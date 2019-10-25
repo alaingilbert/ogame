@@ -923,6 +923,8 @@ func TestExtractAttacksPhoneDisplay(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack_phone.html")
 	attacks, _ := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, 106734, attacks[0].AttackerID)
+	assert.Equal(t, "", attacks[0].AttackerName, "should not be able to get the name")
 }
 
 func TestExtractAttacksMeAttacking(t *testing.T) {
@@ -944,6 +946,8 @@ func TestExtractAttacksWithShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventList_attack_ships.html")
 	attacks, _ := ExtractAttacks(pageHTMLBytes)
 	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, "hammad", attacks[0].AttackerName)
+	assert.Equal(t, 107088, attacks[0].AttackerID)
 	assert.NotNil(t, attacks[0].Ships)
 	assert.Equal(t, PlanetType, attacks[0].Destination.Type)
 	assert.Equal(t, 197, attacks[0].Ships.LargeCargo)

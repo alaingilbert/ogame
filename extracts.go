@@ -684,7 +684,9 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 		attack := &AttackEvent{}
 		attack.MissionType = missionType
 		if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy || missionType == GroupedAttack {
-			attack.AttackerID, _ = strconv.Atoi(s.Find("a.sendMail").AttrOr("data-playerid", ""))
+			linkSendMail := s.Find("a.sendMail")
+			attack.AttackerID, _ = strconv.Atoi(linkSendMail.AttrOr("data-playerid", ""))
+			attack.AttackerName = linkSendMail.AttrOr("title", "")
 			if attack.AttackerID != 0 {
 				coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
 				attack.Origin = ExtractCoord(coordsOrigin)
