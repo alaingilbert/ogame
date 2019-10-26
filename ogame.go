@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/clockwork"
 	"github.com/pkg/errors"
 	"github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
@@ -187,8 +186,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.logger = log.New(os.Stdout, "", 0)
 
 	b.Universe = universe
-	b.Username = username
-	b.password = password
+	b.SetOGameCredentials(username, password)
 	b.language = lang
 
 	jar, _ := cookiejar.New(nil)
@@ -587,6 +585,12 @@ var DefaultLoginWrapper = func(loginFn func() error) error {
 
 func (b *OGame) wrapLogin() error {
 	return b.loginWrapper(b.login)
+}
+
+// SetOGameCredentials sets ogame credentials for the bot
+func (b *OGame) SetOGameCredentials(username, password string) {
+	b.Username = username
+	b.password = password
 }
 
 // SetLoginWrapper ...
@@ -1671,7 +1675,7 @@ func (b *OGame) getAttacks() (out []AttackEvent, err error) {
 	if err != nil {
 		return
 	}
-	return ExtractAttacks(pageHTML, clockwork.NewRealClock())
+	return ExtractAttacks(pageHTML)
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
