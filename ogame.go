@@ -140,6 +140,8 @@ type Params struct {
 	Lang           string
 	AutoLogin      bool
 	Proxy          string
+	ProxyUsername  string
+	ProxyPassword  string
 	Socks5Address  string
 	Socks5Username string
 	Socks5Password string
@@ -159,7 +161,7 @@ func New(universe, username, password, lang string) (*OGame, error) {
 func NewWithParams(params Params) (*OGame, error) {
 	b := NewNoLogin(params.Universe, params.Username, params.Password, params.Lang)
 	if params.Proxy != "" {
-		if err := b.SetProxy(params.Proxy, "", ""); err != nil {
+		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword); err != nil {
 			return nil, err
 		}
 	}
