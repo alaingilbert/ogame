@@ -126,7 +126,11 @@ func ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error) {
 }
 
 // ExtractAttacks ...
-func ExtractAttacks(pageHTML []byte, clock clockwork.Clock) ([]AttackEvent, error) {
+func ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
+	return extractAttacks(pageHTML, clockwork.NewRealClock())
+}
+
+func extractAttacks(pageHTML []byte, clock clockwork.Clock) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return ExtractAttacksFromDoc(doc, clock)
 }
