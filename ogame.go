@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/clockwork"
 	"github.com/pkg/errors"
 	"github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
@@ -1671,7 +1670,7 @@ func (b *OGame) getAttacks() (out []AttackEvent, err error) {
 	if err != nil {
 		return
 	}
-	return ExtractAttacks(pageHTML, clockwork.NewRealClock())
+	return ExtractAttacks(pageHTML)
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
