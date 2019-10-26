@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/html"
 )
@@ -125,9 +126,9 @@ func ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error) {
 }
 
 // ExtractAttacks ...
-func ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
+func ExtractAttacks(pageHTML []byte, clock clockwork.Clock) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractAttacksFromDoc(doc)
+	return ExtractAttacksFromDoc(doc, clock)
 }
 
 // ExtractOfferOfTheDay ...
@@ -656,7 +657,7 @@ func ExtractResearchFromDoc(doc *goquery.Document) Researches {
 }
 
 // ExtractAttacksFromDoc ...
-func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
+func ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
 	attacks := make([]*AttackEvent, 0)
 	out := make([]AttackEvent, 0)
 	if doc.Find("div#eventListWrap").Size() == 0 {
@@ -737,7 +738,7 @@ func ExtractAttacksFromDoc(doc *goquery.Document) ([]AttackEvent, error) {
 		}
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
-		attack.ArriveIn = int(math.Ceil(time.Until(attack.ArrivalTime).Seconds()))
+		attack.ArriveIn = int(math.Ceil(clock.Until(attack.ArrivalTime).Seconds()))
 
 		if attack.UnionID != 0 {
 			if allianceAttack, ok := allianceAttacks[attack.UnionID]; ok {
