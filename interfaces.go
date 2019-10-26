@@ -8,6 +8,8 @@ import (
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	SetLoginProxy(proxy, username, password string) error
+	SetProxy(proxy, username, password string) error
+	SetSocks5Proxy(proxy, username, password string) error
 	SetLoginWrapper(func(func() error) error)
 	GetClient() *OGameClient
 	Enable()

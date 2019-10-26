@@ -42,6 +42,8 @@ func main() {
 
 ```go
 SetLoginProxy(proxy, username, password string) error
+SetProxy(proxy, username, password string) error
+SetSocks5Proxy(proxy, username, password string) error
 SetLoginWrapper(func(func() error) error)
 GetClient() *OGameClient
 Enable()
