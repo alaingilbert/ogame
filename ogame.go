@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
 	"github.com/pkg/errors"
 	"github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
@@ -139,6 +140,8 @@ type Params struct {
 	Lang           string
 	AutoLogin      bool
 	Proxy          string
+	ProxyUsername  string
+	ProxyPassword  string
 	Socks5Address  string
 	Socks5Username string
 	Socks5Password string
@@ -157,37 +160,21 @@ func New(universe, username, password, lang string) (*OGame, error) {
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
 	b := NewNoLogin(params.Universe, params.Username, params.Password, params.Lang)
-
 	if params.Proxy != "" {
-		proxyURL, err := url.Parse(params.Proxy)
-		if err != nil {
+		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword); err != nil {
 			return nil, err
 		}
-		b.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	}
-
 	if params.Socks5Address != "" {
-		var auth *proxy.Auth
-		if params.Socks5Username != "" || params.Socks5Password != "" {
-			auth = &proxy.Auth{User: params.Socks5Username, Password: params.Socks5Password}
-		}
-		dialer, err := proxy.SOCKS5("tcp", params.Socks5Address, auth, proxy.Direct)
-		if err != nil {
+		if err := b.SetSocks5Proxy(params.Socks5Address, params.Socks5Username, params.Socks5Password); err != nil {
 			return nil, err
 		}
-		httpTransport := &http.Transport{}
-		httpTransport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-			return dialer.Dial(network, addr)
-		}
-		b.Client.Transport = httpTransport
 	}
-
 	if params.AutoLogin {
 		if err := b.Login(); err != nil {
 			return nil, err
 		}
 	}
-
 	return b, nil
 }
 
@@ -265,16 +252,7 @@ func getPhpSessionID(b *OGame, username, password string) (string, error) {
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	var resp *http.Response
-	if b.loginProxyTransport != nil {
-		oldTransport := b.Client.Transport
-		b.Client.Transport = b.loginProxyTransport
-		resp, err = b.Client.Do(req)
-		b.Client.Transport = oldTransport
-	} else {
-		resp, err = b.Client.Do(req)
-	}
-
+	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
 		return "", err
 	}
@@ -514,15 +492,7 @@ func (b *OGame) login() error {
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	b.debug("login to universe")
-	var resp *http.Response
-	if b.loginProxyTransport != nil {
-		oldTransport := b.Client.Transport
-		b.Client.Transport = b.loginProxyTransport
-		resp, err = b.Client.Do(req)
-		b.Client.Transport = oldTransport
-	} else {
-		resp, err = b.Client.Do(req)
-	}
+	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
 		return err
 	}
@@ -624,18 +594,68 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() error) error) {
 	b.loginWrapper = newWrapper
 }
 
-// SetLoginProxy ...
-func (b *OGame) SetLoginProxy(proxy, username, password string) error {
+// execute a request using the login proxy transport if set
+func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Response, err error) {
+	if b.loginProxyTransport != nil {
+		oldTransport := b.Client.Transport
+		b.Client.Transport = b.loginProxyTransport
+		resp, err = b.Client.Do(req)
+		b.Client.Transport = oldTransport
+	} else {
+		resp, err = b.Client.Do(req)
+	}
+	return
+}
+
+// Creates a proxy http transport with optional basic auth
+func getProxyTransport(proxy, username, password string) (*http.Transport, error) {
 	proxyURL, err := url.Parse(proxy)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	t := &http.Transport{Proxy: http.ProxyURL(proxyURL)}
 	if username != "" || password != "" {
 		basicAuth := "Basic " + base64.StdEncoding.EncodeToString([]byte(username+":"+password))
 		t.ProxyConnectHeader = http.Header{"Proxy-Authorization": {basicAuth}}
 	}
-	b.loginProxyTransport = t
+	return t, nil
+}
+
+// SetLoginProxy set the proxy to use for login requests
+func (b *OGame) SetLoginProxy(proxy, username, password string) error {
+	transport, err := getProxyTransport(proxy, username, password)
+	if err != nil {
+		return err
+	}
+	b.loginProxyTransport = transport
+	return nil
+}
+
+// SetProxy this will change the bot http transport object
+func (b *OGame) SetProxy(proxy, username, password string) error {
+	t, err := getProxyTransport(proxy, username, password)
+	if err != nil {
+		return err
+	}
+	b.Client.Transport = t
+	return nil
+}
+
+// SetSocks5Proxy this will change the bot http transport object
+func (b *OGame) SetSocks5Proxy(socks5Address, socks5Username, socks5Password string) error {
+	var auth *proxy.Auth
+	if socks5Username != "" || socks5Password != "" {
+		auth = &proxy.Auth{User: socks5Username, Password: socks5Password}
+	}
+	dialer, err := proxy.SOCKS5("tcp", socks5Address, auth, proxy.Direct)
+	if err != nil {
+		return err
+	}
+	b.Client.Transport = &http.Transport{
+		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+			return dialer.Dial(network, addr)
+		},
+	}
 	return nil
 }
 
@@ -1651,7 +1671,7 @@ func (b *OGame) getAttacks() (out []AttackEvent, err error) {
 	if err != nil {
 		return
 	}
-	return ExtractAttacks(pageHTML)
+	return ExtractAttacks(pageHTML, clockwork.NewRealClock())
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
@@ -2518,16 +2538,11 @@ func (b *OGame) getPublicIP() (string, error) {
 	var res struct {
 		IP string `json:"ip"`
 	}
-	var resp *http.Response
-	var err error
-	if b.loginProxyTransport != nil {
-		oldTransport := b.Client.Transport
-		b.Client.Transport = b.loginProxyTransport
-		resp, err = b.Client.Get("https://jsonip.com/")
-		b.Client.Transport = oldTransport
-	} else {
-		resp, err = b.Client.Get("https://jsonip.com/")
+	req, err := http.NewRequest("GET", "https://jsonip.com/", nil)
+	if err != nil {
+		return "", err
 	}
+	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
 		return "", err
 	}
