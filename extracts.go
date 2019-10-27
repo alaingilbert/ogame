@@ -749,7 +749,7 @@ func ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]Atta
 		}
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
-		attack.ArriveIn = int(math.Ceil(clock.Until(attack.ArrivalTime).Seconds()))
+		attack.ArriveIn = int(clock.Until(attack.ArrivalTime).Seconds())
 
 		if attack.UnionID != 0 {
 			if allianceAttack, ok := allianceAttacks[attack.UnionID]; ok {
