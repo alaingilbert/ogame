@@ -223,7 +223,14 @@ func (b *Prioritize) CancelFleet(fleetID FleetID) error {
 func (b *Prioritize) GetAttacks() ([]AttackEvent, error) {
 	b.begin("GetAttacks")
 	defer b.done()
-	return b.bot.getAttacks()
+	return b.bot.getAttacks(0)
+}
+
+// GetAttacksUsing get enemy fleets attacking you using a specific celestial to make the check
+func (b *Prioritize) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, error) {
+	b.begin("GetAttacksUsing")
+	defer b.done()
+	return b.bot.getAttacks(celestialID)
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
