@@ -1807,6 +1807,13 @@ func TestIsFacilityID(t *testing.T) {
 	assert.False(t, IsFacilityID(int(SmallCargoID)))
 }
 
+func TestExtractEspionageReport_tz(t *testing.T) {
+	clock := clockwork.NewFakeClockAt(time.Date(2019, 10, 26, 17, 26, 4, 0, time.Local))
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_17h26-7Z.html")
+	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, clock.Now(), infos.Date)
+}
+
 func TestExtractEspionageReport_action(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/message_foreign_fleet_sighted.html")
 	infos, _ := extractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
