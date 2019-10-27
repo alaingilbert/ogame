@@ -660,6 +660,11 @@ func ExtractResearchFromDoc(doc *goquery.Document) Researches {
 	return res
 }
 
+// ExtractOGameSessionFromDoc ...
+func ExtractOGameSessionFromDoc(doc *goquery.Document) string {
+	return doc.Find("meta[name=ogame-session]").AttrOr("content", "")
+}
+
 // ExtractAttacksFromDoc ...
 func ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
 	attacks := make([]*AttackEvent, 0)
