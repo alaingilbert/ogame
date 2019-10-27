@@ -669,7 +669,9 @@ func ExtractOGameSessionFromDoc(doc *goquery.Document) string {
 func ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
 	attacks := make([]*AttackEvent, 0)
 	out := make([]AttackEvent, 0)
-	if doc.Find("div#eventListWrap").Size() == 0 {
+	if doc.Find("body").Size() == 1 && ExtractOGameSessionFromDoc(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
+		return out, ErrEventsBoxNotDisplayed
+	} else if doc.Find("div#eventListWrap").Size() == 0 {
 		return out, ErrNotLogged
 	}
 

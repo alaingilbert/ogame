@@ -32,6 +32,9 @@ var ErrFailedExecuteCallback = errors.New("failed to execute callback")
 // ErrDeactivateHidePictures returned when "Hide pictures in reports" is activated
 var ErrDeactivateHidePictures = errors.New("deactivate 'Hide pictures in reports'")
 
+// ErrEventsBoxNotDisplayed returned when trying to get attacks from a full page without event box
+var ErrEventsBoxNotDisplayed = errors.New("eventList box is not displayed")
+
 // Send fleet errors
 var (
 	ErrUnionNotFound                      = errors.New("union not found")
