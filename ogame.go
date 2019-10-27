@@ -1670,8 +1670,12 @@ func (b *OGame) buyOfferOfTheDay() error {
 	return nil
 }
 
-func (b *OGame) getAttacks() (out []AttackEvent, err error) {
-	pageHTML, err := b.getPageContent(url.Values{"page": {"eventList"}, "ajax": {"1"}})
+func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err error) {
+	params := url.Values{"page": {"eventList"}, "ajax": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.Itoa(int(celestialID)))
+	}
+	pageHTML, err := b.getPageContent(params)
 	if err != nil {
 		return
 	}
@@ -3078,6 +3082,11 @@ func (b *OGame) CancelFleet(fleetID FleetID) error {
 // GetAttacks get enemy fleets attacking you
 func (b *OGame) GetAttacks() ([]AttackEvent, error) {
 	return b.WithPriority(Normal).GetAttacks()
+}
+
+// GetAttacksUsing get enemy fleets attacking you using a specific celestial to make the check
+func (b *OGame) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, error) {
+	return b.WithPriority(Normal).GetAttacksUsing(celestialID)
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system

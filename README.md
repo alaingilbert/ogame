@@ -94,6 +94,7 @@ GetFleets() ([]Fleet, Slots)
 GetFleetsFromEventList() []Fleet
 CancelFleet(FleetID) error
 GetAttacks() ([]AttackEvent, error)
+GetAttacksUsing(CelestialID) ([]AttackEvent, error)
 GalaxyInfos(galaxy, system int) (SystemInfos, error)
 GetCachedResearch() Researches
 GetResearch() Researches
