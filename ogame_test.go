@@ -923,6 +923,22 @@ func TestExtractAttacks(t *testing.T) {
 	assert.Equal(t, 14*60, attacks[0].ArriveIn)
 }
 
+func TestExtractAttacksFromFullPage(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_always_events.html")
+	attacks, err := extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, 1, attacks[0].Ships.SmallCargo)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/overview_active.html")
+	attacks, err = extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	assert.EqualError(t, err, ErrEventsBoxNotDisplayed.Error())
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/eventlist_loggedout.html")
+	attacks, err = extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	assert.EqualError(t, err, ErrNotLogged.Error())
+}
+
 func TestExtractAttacksPhoneDisplay(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack_phone.html")
 	attacks, _ := extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())

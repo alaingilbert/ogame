@@ -511,7 +511,7 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
-	b.ogameSession, _ = doc.Find("meta[name=ogame-session]").Attr("content")
+	b.ogameSession = ExtractOGameSessionFromDoc(doc)
 	if b.ogameSession == "" {
 		return errors.New("bad credentials")
 	}
