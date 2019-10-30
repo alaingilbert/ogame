@@ -379,6 +379,26 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 	return acc, server, nil
 }
 
+func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
+	req, err := http.NewRequest("GET", loginLink, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	b.debug("login to universe")
+	resp, err := b.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+	b.bytesUploaded += req.ContentLength
+	return readBody(b, resp)
+}
+
 func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	n := int64(0)
 	defer func() {
@@ -484,28 +504,7 @@ func (b *OGame) login() error {
 	}
 	b.serverURL = res[1]
 
-	req, err := http.NewRequest("GET", loginLink, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	b.debug("login to universe")
-	resp, err := b.doReqWithLoginProxyTransport(req)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-
-	pageHTML, err := readBody(b, resp)
-	if err != nil {
-		return err
-	}
-
-	b.bytesUploaded += req.ContentLength
+	pageHTML, err := execLoginLink(b, loginLink)
 	b.debug("extract information from html")
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
