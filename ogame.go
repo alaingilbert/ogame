@@ -456,39 +456,39 @@ func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, e
 
 // ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
 type ServerData struct {
-	Name                          string  // Europa
-	Number                        int     // 157
-	Language                      string  // ru
-	Timezone                      string  // Europe/Moscow
-	TimezoneOffset                string  // +03:00
-	Domain                        string  // s157-ru.ogame.gameforge.com
-	Version                       string  // 6.8.8-pl2
-	Speed                         int     // 6
-	SpeedFleet                    int     // 6
-	Galaxies                      int     // 4
-	Systems                       int     // 499
-	ACS                           bool    // 1
-	RapidFire                     bool    // 1
-	DefToTF                       bool    // 0
-	DebrisFactor                  float64 // 0.5
-	DebrisFactorDef               float64 // 0
-	RepairFactor                  float64 // 0.7
-	NewbieProtectionLimit         int     // 500000
-	NewbieProtectionHigh          int     // 50000
-	TopScore                      int     // 60259362
-	BonusFields                   int     // 30
-	DonutGalaxy                   bool    // 1
-	DonutSystem                   bool    // 1
-	WfEnabled                     bool    // 1 (WreckField)
-	WfMinimumRessLost             int     // 150000
-	WfMinimumLossPercentage       int     // 5
-	WfBasicPercentageRepairable   int     // 45
-	GlobalDeuteriumSaveFactor     float64 // 0.5
-	Bashlimit                     int     // 0
-	ProbeCargo                    bool    // 5
-	ResearchDurationDivisor       int     // 2
-	DarkMatterNewAcount           int     // 8000
-	CargoHyperspaceTechMultiplier int     // 5
+	Name                          string  `xml:"name"`                          // Europa
+	Number                        int     `xml:"number"`                        // 157
+	Language                      string  `xml:"language"`                      // ru
+	Timezone                      string  `xml:"timezone"`                      // Europe/Moscow
+	TimezoneOffset                string  `xml:"timezoneOffset"`                // +03:00
+	Domain                        string  `xml:"domain"`                        // s157-ru.ogame.gameforge.com
+	Version                       string  `xml:"version"`                       // 6.8.8-pl2
+	Speed                         int     `xml:"speed"`                         // 6
+	SpeedFleet                    int     `xml:"speedFleet"`                    // 6
+	Galaxies                      int     `xml:"galaxies"`                      // 4
+	Systems                       int     `xml:"systems"`                       // 499
+	ACS                           bool    `xml:"aCS"`                           // 1
+	RapidFire                     bool    `xml:"rapidFire"`                     // 1
+	DefToTF                       bool    `xml:"defToTF"`                       // 0
+	DebrisFactor                  float64 `xml:"debrisFactor"`                  // 0.5
+	DebrisFactorDef               float64 `xml:"debrisFactorDef"`               // 0
+	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
+	NewbieProtectionLimit         int     `xml:"newbieProtectionLimit"`         // 500000
+	NewbieProtectionHigh          int     `xml:"newbieProtectionHigh"`          // 50000
+	TopScore                      int     `xml:"topScore"`                      // 60259362
+	BonusFields                   int     `xml:"bonusFields"`                   // 30
+	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
+	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
+	WfEnabled                     bool    `xml:"wfEnabled"`                     // 1 (WreckField)
+	WfMinimumRessLost             int     `xml:"wfMinimumRessLost"`             // 150000
+	WfMinimumLossPercentage       int     `xml:"wfMinimumLossPercentage"`       // 5
+	WfBasicPercentageRepairable   int     `xml:"wfBasicPercentageRepairable"`   // 45
+	GlobalDeuteriumSaveFactor     float64 `xml:"globalDeuteriumSaveFactor"`     // 0.5
+	Bashlimit                     int     `xml:"bashlimit"`                     // 0
+	ProbeCargo                    bool    `xml:"probeCargo"`                    // 5
+	ResearchDurationDivisor       int     `xml:"researchDurationDivisor"`       // 2
+	DarkMatterNewAcount           int     `xml:"darkMatterNewAcount"`           // 8000
+	CargoHyperspaceTechMultiplier int     `xml:"cargoHyperspaceTechMultiplier"` // 5
 }
 
 // gets the server data from xml api
