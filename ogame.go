@@ -563,6 +563,9 @@ func (b *OGame) login() error {
 	b.serverURL = res[1]
 
 	pageHTML, err := execLoginLink(b, loginLink)
+	if err != nil {
+		return err
+	}
 	b.debug("extract information from html")
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
