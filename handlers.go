@@ -109,19 +109,19 @@ func GetUniverseNameHandler(c echo.Context) error {
 // GetUniverseSpeedHandler ...
 func GetUniverseSpeedHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetUniverseSpeed()))
+	return c.JSON(http.StatusOK, SuccessResp(bot.serverData.Speed))
 }
 
 // GetUniverseSpeedFleetHandler ...
 func GetUniverseSpeedFleetHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetUniverseSpeedFleet()))
+	return c.JSON(http.StatusOK, SuccessResp(bot.serverData.SpeedFleet))
 }
 
 // ServerVersionHandler ...
 func ServerVersionHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.ServerVersion()))
+	return c.JSON(http.StatusOK, SuccessResp(bot.serverData.Version))
 }
 
 // ServerTimeHandler ...

@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -57,16 +58,8 @@ type OGame struct {
 	ogameSession          string
 	sessionChatCounter    int
 	server                Server
+	serverData            ServerData
 	location              *time.Location
-	universeSpeed         int
-	universeSize          int
-	nbSystems             int
-	universeSpeedFleet    int
-	researchSpeed         int
-	donutGalaxy           bool
-	donutSystem           bool
-	fleetDeutSaveFactor   float64
-	ogameVersion          string
 	serverURL             string
 	Client                *OGameClient
 	logger                *log.Logger
@@ -379,6 +372,26 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 	return acc, server, nil
 }
 
+func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
+	req, err := http.NewRequest("GET", loginLink, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	b.debug("login to universe")
+	resp, err := b.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+	b.bytesUploaded += req.ContentLength
+	return readBody(b, resp)
+}
+
 func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	n := int64(0)
 	defer func() {
@@ -441,6 +454,71 @@ func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, e
 	return loginLink.URL, nil
 }
 
+// ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
+type ServerData struct {
+	Name                          string  // Europa
+	Number                        int     // 157
+	Language                      string  // ru
+	Timezone                      string  // Europe/Moscow
+	TimezoneOffset                string  // +03:00
+	Domain                        string  // s157-ru.ogame.gameforge.com
+	Version                       string  // 6.8.8-pl2
+	Speed                         int     // 6
+	SpeedFleet                    int     // 6
+	Galaxies                      int     // 4
+	Systems                       int     // 499
+	ACS                           bool    // 1
+	RapidFire                     bool    // 1
+	DefToTF                       bool    // 0
+	DebrisFactor                  float64 // 0.5
+	DebrisFactorDef               float64 // 0
+	RepairFactor                  float64 // 0.7
+	NewbieProtectionLimit         int     // 500000
+	NewbieProtectionHigh          int     // 50000
+	TopScore                      int     // 60259362
+	BonusFields                   int     // 30
+	DonutGalaxy                   bool    // 1
+	DonutSystem                   bool    // 1
+	WfEnabled                     bool    // 1 (WreckField)
+	WfMinimumRessLost             int     // 150000
+	WfMinimumLossPercentage       int     // 5
+	WfBasicPercentageRepairable   int     // 45
+	GlobalDeuteriumSaveFactor     float64 // 0.5
+	Bashlimit                     int     // 0
+	ProbeCargo                    bool    // 5
+	ResearchDurationDivisor       int     // 2
+	DarkMatterNewAcount           int     // 8000
+	CargoHyperspaceTechMultiplier int     // 5
+}
+
+// gets the server data from xml api
+func (b *OGame) getServerData() (ServerData, error) {
+	var serverData ServerData
+	req, err := http.NewRequest("GET", "https://s"+strconv.Itoa(b.server.Number)+"-"+b.server.Language+".ogame.gameforge.com/api/serverData.xml", nil)
+	if err != nil {
+		return serverData, err
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	resp, err := b.Client.Do(req)
+	if err != nil {
+		return serverData, err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+	by, err := readBody(b, resp)
+	if err != nil {
+		return serverData, err
+	}
+	b.bytesUploaded += req.ContentLength
+	if err := xml.Unmarshal(by, &serverData); err != nil {
+		return serverData, err
+	}
+	return serverData, nil
+}
+
 func (b *OGame) login() error {
 	jar, _ := cookiejar.New(nil)
 	b.Client.Jar = jar
@@ -484,28 +562,7 @@ func (b *OGame) login() error {
 	}
 	b.serverURL = res[1]
 
-	req, err := http.NewRequest("GET", loginLink, nil)
-	if err != nil {
-		return err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	b.debug("login to universe")
-	resp, err := b.doReqWithLoginProxyTransport(req)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-
-	pageHTML, err := readBody(b, resp)
-	if err != nil {
-		return err
-	}
-
-	b.bytesUploaded += req.ContentLength
+	pageHTML, err := execLoginLink(b, loginLink)
 	b.debug("extract information from html")
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
@@ -516,24 +573,23 @@ func (b *OGame) login() error {
 		return errors.New("bad credentials")
 	}
 
+	// Get server data
+	start := time.Now()
+	serverData, err := b.getServerData()
+	if err != nil {
+		return err
+	}
+	b.serverData = serverData
+	b.debug("get server data", time.Since(start))
+
 	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
 	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	b.sessionChatCounter = 1
 
 	serverTime, _ := extractServerTime(pageHTML)
 	b.location = serverTime.Location()
-	b.universeSize = server.Settings.UniverseSize
-	b.nbSystems = 499
-	b.universeSpeed, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed]").AttrOr("content", "1"))
-	b.researchSpeed = b.universeSpeed
-	b.universeSpeedFleet, _ = strconv.Atoi(doc.Find("meta[name=ogame-universe-speed-fleet]").AttrOr("content", "1"))
-	b.donutGalaxy, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-galaxy]").AttrOr("content", "1"))
-	b.donutSystem, _ = strconv.ParseBool(doc.Find("meta[name=ogame-donut-system]").AttrOr("content", "1"))
-	b.ogameVersion = doc.Find("meta[name=ogame-version]").AttrOr("content", "")
 
 	b.cacheFullPageInfo("overview", pageHTML)
-
-	b.fleetDeutSaveFactor = ExtractFleetDeutSaveFactor(pageHTML)
 
 	for _, fn := range b.interceptorCallbacks {
 		fn("GET", loginLink, nil, nil, pageHTML)
@@ -1106,19 +1162,19 @@ func (b *OGame) isEnabled() bool {
 }
 
 func (b *OGame) getUniverseSpeed() int {
-	return b.universeSpeed
+	return b.serverData.Speed
 }
 
 func (b *OGame) getUniverseSpeedFleet() int {
-	return b.universeSpeedFleet
+	return b.serverData.SpeedFleet
 }
 
 func (b *OGame) isDonutGalaxy() bool {
-	return b.donutGalaxy
+	return b.serverData.DonutGalaxy
 }
 
 func (b *OGame) isDonutSystem() bool {
-	return b.donutSystem
+	return b.serverData.DonutSystem
 }
 
 func (b *OGame) fetchEventbox() (res eventboxResp, err error) {
@@ -1271,10 +1327,6 @@ func (b *OGame) abandon(v interface{}) error {
 	}
 	_, err := b.postPageContent(url.Values{"page": {"planetGiveup"}}, payload)
 	return err
-}
-
-func (b *OGame) serverVersion() string {
-	return b.ogameVersion
 }
 
 func (b *OGame) serverTime() time.Time {
@@ -1484,7 +1536,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	// Verify that coordinate is in phalanx range
 	phalanxRange := SensorPhalanx.GetRange(phalanxLvl)
 	if moon.Coordinate.Galaxy != coord.Galaxy ||
-		systemDistance(b.nbSystems, moon.Coordinate.System, coord.System, b.donutSystem) > phalanxRange {
+		systemDistance(b.serverData.Systems, moon.Coordinate.System, coord.System, b.serverData.DonutSystem) > phalanxRange {
 		return res, errors.New("coordinate not in phalanx range")
 	}
 
@@ -1686,8 +1738,8 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 	if galaxy < 0 || galaxy > b.server.Settings.UniverseSize {
 		return SystemInfos{}, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
 	}
-	if system < 0 || system > b.nbSystems {
-		return SystemInfos{}, errors.New("system must be within [0, " + strconv.Itoa(b.nbSystems) + "]")
+	if system < 0 || system > b.serverData.Systems {
+		return SystemInfos{}, errors.New("system must be within [0, " + strconv.Itoa(b.serverData.Systems) + "]")
 	}
 	payload := url.Values{
 		"galaxy": {strconv.Itoa(galaxy)},
@@ -2527,7 +2579,7 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	planet, _ := b.getPlanet(planetID)
 	resBuildings, _ := b.getResourcesBuildings(planetID.Celestial())
 	researches := b.getResearch()
-	universeSpeed := b.getUniverseSpeed()
+	universeSpeed := b.serverData.Speed
 	resSettings, _ := b.getResourceSettings(planetID)
 	ratio := productionRatio(planet.Temperature, resBuildings, resSettings, researches.EnergyTechnology)
 	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, planet.Temperature, ratio)
@@ -2536,7 +2588,7 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 
 func (b *OGame) getResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
 	resSettings ResourceSettings, temp Temperature) Resources {
-	universeSpeed := b.getUniverseSpeed()
+	universeSpeed := b.serverData.Speed
 	ratio := productionRatio(temp, resBuildings, resSettings, researches.EnergyTechnology)
 	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, temp, ratio)
 	return productions
@@ -2852,6 +2904,11 @@ func (b *OGame) GetServer() Server {
 	return b.server
 }
 
+// GetServerData get ogame server data information that the bot is connected to
+func (b *OGame) GetServerData() ServerData {
+	return b.serverData
+}
+
 // ServerURL get the ogame server specific url
 func (b *OGame) ServerURL() string {
 	return b.serverURL
@@ -2898,22 +2955,22 @@ func (b *OGame) GetUsername() string {
 
 // GetResearchSpeed gets the research speed
 func (b *OGame) GetResearchSpeed() int {
-	return b.researchSpeed
+	return b.serverData.ResearchDurationDivisor
 }
 
-// SetResearchSpeed sets the research speed
+// Deprecated: SetResearchSpeed sets the research speed
 func (b *OGame) SetResearchSpeed(newSpeed int) {
-	b.researchSpeed = newSpeed
+	b.serverData.ResearchDurationDivisor = newSpeed
 }
 
 // GetNbSystems gets the number of systems
 func (b *OGame) GetNbSystems() int {
-	return b.nbSystems
+	return b.serverData.Systems
 }
 
-// SetNbSystems sets the number of speed
+// Deprecated: SetNbSystems sets the number of speed
 func (b *OGame) SetNbSystems(newNbSystems int) {
-	b.nbSystems = newNbSystems
+	b.serverData.Systems = newNbSystems
 }
 
 // GetUniverseSpeed shortcut to get ogame universe speed
@@ -2938,7 +2995,7 @@ func (b *OGame) IsDonutSystem() bool {
 
 // FleetDeutSaveFactor returns the fleet deut save factor
 func (b *OGame) FleetDeutSaveFactor() float64 {
-	return b.fleetDeutSaveFactor
+	return b.serverData.GlobalDeuteriumSaveFactor
 }
 
 // GetAlliancePageContent gets the html for a specific alliance page
@@ -3035,7 +3092,7 @@ func (b *OGame) GetCelestial(v interface{}) (Celestial, error) {
 
 // ServerVersion returns OGame version
 func (b *OGame) ServerVersion() string {
-	return b.serverVersion()
+	return b.serverData.Version
 }
 
 // ServerTime returns server time
@@ -3271,7 +3328,7 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination Coordinate) int {
-	return Distance(origin, destination, b.universeSize, b.nbSystems, b.donutGalaxy, b.donutSystem)
+	return Distance(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy, b.serverData.DonutSystem)
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received

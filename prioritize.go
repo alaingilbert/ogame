@@ -481,8 +481,9 @@ func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, shi
 	b.begin("FlightTime")
 	defer b.done()
 	researches := b.bot.getCachedResearch()
-	return calcFlightTime(origin, destination, b.bot.universeSize, b.bot.nbSystems, b.bot.donutGalaxy, b.bot.donutSystem, b.bot.fleetDeutSaveFactor,
-		float64(speed)/10, b.bot.universeSpeedFleet, ships, researches)
+	return calcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
+		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
+		float64(speed)/10, b.bot.serverData.SpeedFleet, ships, researches)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
