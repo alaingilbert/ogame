@@ -28,6 +28,7 @@ type Wrapper interface {
 	GetSession() string
 	AddAccount(number int, lang string) (NewAccount, error)
 	GetServer() Server
+	GetServerData() ServerData
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
 	GetLanguage() string
