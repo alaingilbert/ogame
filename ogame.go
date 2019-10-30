@@ -485,7 +485,7 @@ type ServerData struct {
 	WfBasicPercentageRepairable   int     `xml:"wfBasicPercentageRepairable"`   // 45
 	GlobalDeuteriumSaveFactor     float64 `xml:"globalDeuteriumSaveFactor"`     // 0.5
 	Bashlimit                     int     `xml:"bashlimit"`                     // 0
-	ProbeCargo                    bool    `xml:"probeCargo"`                    // 5
+	ProbeCargo                    int     `xml:"probeCargo"`                    // 5
 	ResearchDurationDivisor       int     `xml:"researchDurationDivisor"`       // 2
 	DarkMatterNewAcount           int     `xml:"darkMatterNewAcount"`           // 8000
 	CargoHyperspaceTechMultiplier int     `xml:"cargoHyperspaceTechMultiplier"` // 5
