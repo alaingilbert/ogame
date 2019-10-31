@@ -53,6 +53,9 @@ func (s ShipsInfos) HasShips() bool {
 func (s ShipsInfos) Speed(techs Researches) int {
 	minSpeed := math.MaxInt32
 	for _, ship := range Ships {
+		if ship.GetID() == SolarSatelliteID {
+			continue
+		}
 		nbr := s.ByID(ship.GetID())
 		if nbr > 0 {
 			shipSpeed := ship.GetSpeed(techs)

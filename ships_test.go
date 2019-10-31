@@ -108,3 +108,42 @@ func TestShipsInfos_String(t *testing.T) {
 		"Solar Satellite: 14"
 	assert.Equal(t, expected, s.String())
 }
+
+func TestShipsInfos_Equal(t *testing.T) {
+	ships := ShipsInfos{SmallCargo: 2, LargeCargo: 3}
+	assert.True(t, ships.Equal(ShipsInfos{SmallCargo: 2, LargeCargo: 3}))
+	assert.False(t, ships.Equal(ShipsInfos{SmallCargo: 2, LargeCargo: 3, EspionageProbe: 4}))
+}
+
+func TestShipsInfos_FleetCost(t *testing.T) {
+	assert.Equal(t, Resources{Metal: 22000, Crystal: 22000}, ShipsInfos{SmallCargo: 2, LargeCargo: 3}.FleetCost())
+}
+
+func TestShipsInfos_Has(t *testing.T) {
+	ships := ShipsInfos{SmallCargo: 2, LargeCargo: 3}
+	assert.True(t, ships.Has(ShipsInfos{SmallCargo: 1, LargeCargo: 2}))
+	assert.True(t, ships.Has(ShipsInfos{SmallCargo: 2, LargeCargo: 3}))
+	assert.False(t, ships.Has(ShipsInfos{SmallCargo: 2, LargeCargo: 4}))
+	assert.True(t, ships.Has(ShipsInfos{SmallCargo: 2}))
+}
+
+func TestShipsInfos_HasShips(t *testing.T) {
+	assert.True(t, ShipsInfos{SmallCargo: 2, LargeCargo: 3}.HasShips())
+	assert.False(t, ShipsInfos{}.HasShips())
+	assert.True(t, ShipsInfos{SolarSatellite: 1}.HasShips())
+}
+
+func TestShipsInfos_ToQuantifiables(t *testing.T) {
+	assert.Equal(t, []Quantifiable{{SmallCargoID, 1}, {LargeCargoID, 2}}, ShipsInfos{SmallCargo: 1, LargeCargo: 2}.ToQuantifiables())
+}
+
+func TestShipsInfos_Speed(t *testing.T) {
+	assert.Equal(t, 20250, ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}))
+	assert.Equal(t, 20250, ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}))
+}
+
+func TestShipsInfos_ToPtr(t *testing.T) {
+	ships := ShipsInfos{SmallCargo: 2, LargeCargo: 3}
+	shipsPtr := ships.ToPtr()
+	assert.Equal(t, &ships, shipsPtr)
+}
