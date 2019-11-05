@@ -2172,23 +2172,24 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	availableShips := ExtractFleet1ShipsFromDoc(fleet1Doc)
 
+	atLeastOneShipSelected := false
 	if !ensure {
-		atLeastOneShipSelected := false
 		for _, ship := range ships {
 			if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
 				atLeastOneShipSelected = true
 				break
 			}
 		}
-		if !atLeastOneShipSelected {
-			return Fleet{}, ErrNoShipSelected
-		}
 	} else {
 		for _, ship := range ships {
 			if ship.Nbr > availableShips.ByID(ship.ID) {
 				return Fleet{}, ErrNotEnoughShips
 			}
+			atLeastOneShipSelected = true
 		}
+	}
+	if !atLeastOneShipSelected {
+		return Fleet{}, ErrNoShipSelected
 	}
 
 	payload := ExtractHiddenFieldsFromDoc(fleet1Doc)
