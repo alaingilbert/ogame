@@ -80,3 +80,13 @@ func TestString(t *testing.T) {
 	assert.Equal(t, "[1|2|3]", Resources{Metal: 1, Crystal: 2, Deuterium: 3}.String())
 	assert.Equal(t, "[1,000,000|2,000,000|3,000,000]", Resources{Metal: 1000000, Crystal: 2000000, Deuterium: 3000000}.String())
 }
+
+func TestResourcesDetails_Available(t *testing.T) {
+	d := ResourcesDetails{}
+	d.Metal.Available = 1
+	d.Crystal.Available = 2
+	d.Deuterium.Available = 3
+	d.Energy.Available = 4
+	d.Darkmatter.Available = 5
+	assert.Equal(t, Resources{1, 2, 3, 4, 5}, d.Available())
+}
