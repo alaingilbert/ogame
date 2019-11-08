@@ -309,7 +309,6 @@ func extractDefenseFromDocV6(doc *goquery.Document) (DefensesInfos, error) {
 	res.LargeShieldDome = getNbr(doc, "defense408")
 	res.AntiBallisticMissiles = getNbr(doc, "defense502")
 	res.InterplanetaryMissiles = getNbr(doc, "defense503")
-
 	return res, nil
 }
 

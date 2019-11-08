@@ -319,6 +319,21 @@ func TestExtractDefense(t *testing.T) {
 	assert.Equal(t, 8, defense.InterplanetaryMissiles)
 }
 
+func TestExtractDefenseV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/defenses.html")
+	defense, _ := NewExtractorV7().ExtractDefense(pageHTMLBytes)
+	assert.Equal(t, 0, defense.RocketLauncher)
+	assert.Equal(t, 2, defense.LightLaser)
+	assert.Equal(t, 0, defense.HeavyLaser)
+	assert.Equal(t, 0, defense.GaussCannon)
+	assert.Equal(t, 0, defense.IonCannon)
+	assert.Equal(t, 0, defense.PlasmaTurret)
+	assert.Equal(t, 0, defense.SmallShieldDome)
+	assert.Equal(t, 0, defense.LargeShieldDome)
+	assert.Equal(t, 0, defense.AntiBallisticMissiles)
+	assert.Equal(t, 0, defense.InterplanetaryMissiles)
+}
+
 func TestProductionRatio(t *testing.T) {
 	ratio := productionRatio(
 		Temperature{-23, 17},
