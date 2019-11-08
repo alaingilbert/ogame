@@ -305,6 +305,12 @@ func (e ExtractorV6) ExtractFacilities(pageHTML []byte) (Facilities, error) {
 	return e.ExtractFacilitiesFromDoc(doc)
 }
 
+// ExtractFacilities ...
+func (e ExtractorV7) ExtractFacilities(pageHTML []byte) (Facilities, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractFacilitiesFromDoc(doc)
+}
+
 // ExtractResearch ...
 func (e ExtractorV6) ExtractResearch(pageHTML []byte) Researches {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -484,6 +490,11 @@ func (e ExtractorV6) ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, err
 // ExtractFacilitiesFromDoc ...
 func (e ExtractorV6) ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
 	return extractFacilitiesFromDocV6(doc)
+}
+
+// ExtractFacilitiesFromDoc ...
+func (e ExtractorV7) ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
+	return extractFacilitiesFromDocV7(doc)
 }
 
 // ExtractResearchFromDoc ...

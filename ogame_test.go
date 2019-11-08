@@ -281,6 +281,19 @@ func TestExtractFacilities(t *testing.T) {
 	assert.Equal(t, 3, res.SpaceDock)
 }
 
+func TestExtractFacilitiesV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/facilities.html")
+	res, _ := NewExtractorV7().ExtractFacilities(pageHTMLBytes)
+	assert.Equal(t, 3, res.RoboticsFactory)
+	assert.Equal(t, 7, res.Shipyard)
+	assert.Equal(t, 6, res.ResearchLab)
+	assert.Equal(t, 0, res.AllianceDepot)
+	assert.Equal(t, 0, res.MissileSilo)
+	assert.Equal(t, 0, res.NaniteFactory)
+	assert.Equal(t, 0, res.Terraformer)
+	assert.Equal(t, 0, res.SpaceDock)
+}
+
 func TestExtractMoonFacilities(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/moon_facilities.html")
 	res, _ := NewExtractorV6().ExtractFacilities(pageHTMLBytes)
