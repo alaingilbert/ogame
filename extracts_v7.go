@@ -85,3 +85,17 @@ func extractShipsFromDocV7(doc *goquery.Document) (ShipsInfos, error) {
 	res.Crawler = getNbrV7(doc, "resbuggy")
 	return res, nil
 }
+
+func extractResourcesBuildingsFromDocV7(doc *goquery.Document) (ResourcesBuildings, error) {
+	res := ResourcesBuildings{}
+	res.MetalMine = getNbrV7(doc, "metalMine")
+	res.CrystalMine = getNbrV7(doc, "crystalMine")
+	res.DeuteriumSynthesizer = getNbrV7(doc, "deuteriumSynthesizer")
+	res.SolarPlant = getNbrV7(doc, "solarPlant")
+	res.FusionReactor = getNbrV7(doc, "fusionPlant")
+	res.SolarSatellite = getNbrV7(doc, "solarSatellite")
+	res.MetalStorage = getNbrV7(doc, "metalStorage")
+	res.CrystalStorage = getNbrV7(doc, "crystalStorage")
+	res.DeuteriumTank = getNbrV7(doc, "deuteriumStorage")
+	return res, nil
+}

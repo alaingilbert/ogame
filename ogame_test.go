@@ -289,6 +289,20 @@ func TestExtractResourcesBuildings(t *testing.T) {
 	assert.Equal(t, 3, res.DeuteriumTank)
 }
 
+func TestExtractResourcesBuildingsV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/supplies.html")
+	res, _ := NewExtractorV7().ExtractResourcesBuildings(pageHTMLBytes)
+	assert.Equal(t, 2, res.MetalMine)
+	assert.Equal(t, 1, res.CrystalMine)
+	assert.Equal(t, 2, res.DeuteriumSynthesizer)
+	assert.Equal(t, 3, res.SolarPlant)
+	assert.Equal(t, 0, res.FusionReactor)
+	assert.Equal(t, 0, res.SolarSatellite)
+	assert.Equal(t, 2, res.MetalStorage)
+	assert.Equal(t, 3, res.CrystalStorage)
+	assert.Equal(t, 1, res.DeuteriumTank)
+}
+
 func TestExtractFacilities(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/facility_inconstruction.html")
 	res, _ := NewExtractorV6().ExtractFacilities(pageHTMLBytes)
