@@ -603,7 +603,7 @@ func (b *OGame) login() error {
 	_, _ = b.getPageContent(url.Values{"page": {"preferences"}}) // Will update preferences cached values
 
 	// Extract chat host and port
-	m := regexp.MustCompile(`var nodeUrl="https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js";`).FindSubmatch(pageHTML)
+	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(pageHTML)
 	chatHost := string(m[1])
 	chatPort := string(m[2])
 
