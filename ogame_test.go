@@ -716,6 +716,14 @@ func TestExtractShips(t *testing.T) {
 	assert.Equal(t, 700, ships.Cruiser)
 }
 
+func TestExtractShipsV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/shipyard.html")
+	ships, _ := NewExtractorV7().ExtractShips(pageHTMLBytes)
+	assert.Equal(t, 6, ships.SmallCargo)
+	assert.Equal(t, 1, ships.ColonyShip)
+	assert.Equal(t, 9, ships.Crawler)
+}
+
 func TestExtractShipsMillions(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_millions_ships.html")
 	ships, _ := NewExtractorV6().ExtractShips(pageHTMLBytes)

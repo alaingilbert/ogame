@@ -63,3 +63,25 @@ func extractResearchFromDocV7(doc *goquery.Document) Researches {
 	res.ArmourTechnology = getNbrV7(doc, "armorTechnology")
 	return res
 }
+
+func extractShipsFromDocV7(doc *goquery.Document) (ShipsInfos, error) {
+	res := ShipsInfos{}
+	res.LightFighter = getNbrV7(doc, "fighterLight")
+	res.HeavyFighter = getNbrV7(doc, "fighterHeavy")
+	res.Cruiser = getNbrV7(doc, "cruiser")
+	res.Battleship = getNbrV7(doc, "battleship")
+	res.Battlecruiser = getNbrV7(doc, "interceptor")
+	res.Bomber = getNbrV7(doc, "bomber")
+	res.Destroyer = getNbrV7(doc, "destroyer")
+	res.Deathstar = getNbrV7(doc, "deathstar")
+	res.Reaper = getNbrV7(doc, "reaper")
+	res.Pathfinder = getNbrV7(doc, "explorer")
+	res.SmallCargo = getNbrV7(doc, "transporterSmall")
+	res.LargeCargo = getNbrV7(doc, "transporterLarge")
+	res.ColonyShip = getNbrV7(doc, "colonyShip")
+	res.Recycler = getNbrV7(doc, "recycler")
+	res.EspionageProbe = getNbrV7(doc, "espionageProbe")
+	res.SolarSatellite = getNbrV7(doc, "solarSatellite")
+	res.Crawler = getNbrV7(doc, "resbuggy")
+	return res, nil
+}
