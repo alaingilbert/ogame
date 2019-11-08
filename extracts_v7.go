@@ -41,3 +41,25 @@ func extractDefenseFromDocV7(doc *goquery.Document) (DefensesInfos, error) {
 	res.InterplanetaryMissiles = getNbrV7(doc, "missileInterplanetary")
 	return res, nil
 }
+
+func extractResearchFromDocV7(doc *goquery.Document) Researches {
+	doc.Find("span.textlabel").Remove()
+	res := Researches{}
+	res.EnergyTechnology = getNbrV7(doc, "energyTechnology")
+	res.LaserTechnology = getNbrV7(doc, "laserTechnology")
+	res.IonTechnology = getNbrV7(doc, "ionTechnology")
+	res.HyperspaceTechnology = getNbrV7(doc, "hyperspaceTechnology")
+	res.PlasmaTechnology = getNbrV7(doc, "plasmaTechnology")
+	res.CombustionDrive = getNbrV7(doc, "combustionDriveTechnology")
+	res.ImpulseDrive = getNbrV7(doc, "impulseDriveTechnology")
+	res.HyperspaceDrive = getNbrV7(doc, "hyperspaceDriveTechnology")
+	res.EspionageTechnology = getNbrV7(doc, "espionageTechnology")
+	res.ComputerTechnology = getNbrV7(doc, "computerTechnology")
+	res.Astrophysics = getNbrV7(doc, "astrophysicsTechnology")
+	res.IntergalacticResearchNetwork = getNbrV7(doc, "researchNetworkTechnology")
+	res.GravitonTechnology = getNbrV7(doc, "gravitonTechnology")
+	res.WeaponsTechnology = getNbrV7(doc, "weaponsTechnology")
+	res.ShieldingTechnology = getNbrV7(doc, "shieldingTechnology")
+	res.ArmourTechnology = getNbrV7(doc, "armorTechnology")
+	return res
+}

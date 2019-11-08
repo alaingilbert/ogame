@@ -28,6 +28,12 @@ func (e ExtractorV7) ExtractFacilities(pageHTML []byte) (Facilities, error) {
 	return e.ExtractFacilitiesFromDoc(doc)
 }
 
+// ExtractResearch ...
+func (e ExtractorV7) ExtractResearch(pageHTML []byte) Researches {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractResearchFromDoc(doc)
+}
+
 // ExtractDefenseFromDoc ...
 func (e ExtractorV7) ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
 	return extractDefenseFromDocV7(doc)
@@ -36,4 +42,9 @@ func (e ExtractorV7) ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos
 // ExtractFacilitiesFromDoc ...
 func (e ExtractorV7) ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
 	return extractFacilitiesFromDocV7(doc)
+}
+
+// ExtractResearchFromDoc ...
+func (e ExtractorV7) ExtractResearchFromDoc(doc *goquery.Document) Researches {
+	return extractResearchFromDocV7(doc)
 }
