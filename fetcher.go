@@ -22,17 +22,18 @@ const (
 	FetchResourcesPage   = "fetchResources"
 )
 
+var pageV7Mapping = map[string]string{
+	DefensePage:   "defenses",
+	ResourcesPage: "supplies",
+	StationPage:   "facilities",
+	Fleet1Page:    "fleetdispatch",
+}
+
 func (b *OGame) getPage(page string, celestialID CelestialID) ([]byte, error) {
 	vals := url.Values{"page": {page}}
 	if b.serverData.Version[0] == '7' {
-		if page == DefensePage {
-			page = "defenses"
-		} else if page == ResourcesPage {
-			page = "supplies"
-		} else if page == StationPage {
-			page = "facilities"
-		} else if page == Fleet1Page {
-			page = "fleetdispatch"
+		if newPage, ok := pageV7Mapping[page]; ok {
+			page = newPage
 		}
 		vals = url.Values{"page": {"ingame"}, "component": {page}}
 	}

@@ -1008,7 +1008,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 			return err
 		}
 
-		if (page != "logout" && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
+		if (page != LogoutPage && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
 			(page == "eventList" && !bytes.Contains(pageHTMLBytes, []byte("eventListWrap"))) ||
 			(page == "fetchEventbox" && !canParseEventBox(pageHTMLBytes)) {
 			b.error("Err not logged on page : ", page)
