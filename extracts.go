@@ -9,7 +9,8 @@ import (
 	"github.com/alaingilbert/clockwork"
 )
 
-type extractor interface {
+// Extractor ...
+type Extractor interface {
 	ExtractIsInVacation(pageHTML []byte) bool
 	ExtractPlanets(pageHTML []byte, b *OGame) []Planet
 	ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error)
@@ -17,583 +18,702 @@ type extractor interface {
 	ExtractMoons(pageHTML []byte, b *OGame) []Moon
 	ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error)
 	ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error)
+	ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error)
+	ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error)
+	ExtractServerTime(pageHTML []byte) (time.Time, error)
+	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
+	ExtractIPM(pageHTML []byte) (duration, max int, token string)
+	ExtractFleets(pageHTML []byte) (res []Fleet)
+	ExtractSlots(pageHTML []byte) Slots
+	ExtractOgameTimestamp(pageHTML []byte) int64
+	ExtractResources(pageHTML []byte) Resources
+	ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails
+	ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error)
+	ExtractAttacks(pageHTML []byte) ([]AttackEvent, error)
+	ExtractOfferOfTheDay(pageHTML []byte) (int, string, PlanetResources, Multiplier, error)
+	ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error)
+	ExtractDefense(pageHTML []byte) (DefensesInfos, error)
+	ExtractShips(pageHTML []byte) (ShipsInfos, error)
+	ExtractFacilities(pageHTML []byte) (Facilities, error)
+	ExtractResearch(pageHTML []byte) Researches
+	ExtractProduction(pageHTML []byte) ([]Quantifiable, error)
+	ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int, error)
+	ExtractFleet1Ships(pageHTML []byte) ShipsInfos
+	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int)
+	ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int)
+	ExtractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error)
+	ExtractResourcesProductions(pageHTML []byte) (Resources, error)
+	ExtractPreferences(pageHTML []byte) Preferences
+	ExtractSpioAnz(pageHTML []byte) int
+	ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool
+	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
+	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
+	ExtractBodyIDFromDoc(doc *goquery.Document) string
+	ExtractIsInVacationFromDoc(doc *goquery.Document) bool
+	ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet
+	ExtractPlanetByIDFromDoc(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error)
+	ExtractCelestialByIDFromDoc(doc *goquery.Document, b *OGame, celestialID CelestialID) (Celestial, error)
+	ExtractPlanetByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Planet, error)
+	ExtractOgameTimestampFromDoc(doc *goquery.Document) int64
+	ExtractResourcesFromDoc(doc *goquery.Document) Resources
+	ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails
+	ExtractPlanetFromDoc(doc *goquery.Document, v interface{}, b *OGame) (Planet, error)
+	ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon
+	ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Moon, error)
+	ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error)
+	ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error)
+	ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error)
+	ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Celestial, error)
+	ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error)
+	ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error)
+	ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error)
+	ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error)
+	ExtractResearchFromDoc(doc *goquery.Document) Researches
+	ExtractOGameSessionFromDoc(doc *goquery.Document) string
+	ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error)
+	ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int, importToken string, planetResources PlanetResources, multiplier Multiplier, err error)
+	ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
+	ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
+	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos)
+	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int)
+	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int)
+	ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error)
+	ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error)
+	ExtractPreferencesFromDoc(doc *goquery.Document) Preferences
+	ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error)
+	ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet
+	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int, token string)
+	ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet)
+	ExtractSlotsFromDoc(doc *goquery.Document) Slots
+	ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error)
+	ExtractSpioAnzFromDoc(doc *goquery.Document) int
+	ExtractDisableChatBarFromDoc(doc *goquery.Document) bool
+	ExtractDisableOutlawWarningFromDoc(doc *goquery.Document) bool
+	ExtractMobileVersionFromDoc(doc *goquery.Document) bool
+	ExtractShowOldDropDownsFromDoc(doc *goquery.Document) bool
+	ExtractActivateAutofocusFromDoc(doc *goquery.Document) bool
+	ExtractEventsShowFromDoc(doc *goquery.Document) int
+	ExtractSortSettingFromDoc(doc *goquery.Document) int
+	ExtractSortOrderFromDoc(doc *goquery.Document) int
+	ExtractShowDetailOverlayFromDoc(doc *goquery.Document) bool
+	ExtractAnimatedSlidersFromDoc(doc *goquery.Document) bool
+	ExtractAnimatedOverviewFromDoc(doc *goquery.Document) bool
+	ExtractPopupsNoticesFromDoc(doc *goquery.Document) bool
+	ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool
+	ExtractSpioReportPicturesFromDoc(doc *goquery.Document) bool
+	ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int
+	ExtractAuctioneerNotificationsFromDoc(doc *goquery.Document) bool
+	ExtractEconomyNotificationsFromDoc(doc *goquery.Document) bool
+	ExtractShowActivityMinutesFromDoc(doc *goquery.Document) bool
+	ExtractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool
+	ExtractNotifBuildListFromDoc(doc *goquery.Document) bool
+	ExtractNotifFriendlyFleetActivitiesFromDoc(doc *goquery.Document) bool
+	ExtractNotifHostileFleetActivitiesFromDoc(doc *goquery.Document) bool
+	ExtractNotifForeignEspionageFromDoc(doc *goquery.Document) bool
+	ExtractNotifAllianceBroadcastsFromDoc(doc *goquery.Document) bool
+	ExtractNotifAllianceMessagesFromDoc(doc *goquery.Document) bool
+	ExtractNotifAuctionsFromDoc(doc *goquery.Document) bool
+	ExtractNotifAccountFromDoc(doc *goquery.Document) bool
+	ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error)
+	ExtractPlanetID(pageHTML []byte) (CelestialID, error)
+	ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int
+	ExtractOGameTimestampFromBytes(pageHTML []byte) int64
+	ExtractPlanetType(pageHTML []byte) (CelestialType, error)
+	ExtractAjaxChatToken(pageHTML []byte) (string, error)
+	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
+	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
+	ExtractCoord(v string) (coord Coordinate)
+	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error)
+	ExtractPhalanx(pageHTML []byte) ([]Fleet, error)
+	ExtractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int)
+	ExtractFederation(pageHTML []byte) url.Values
+	ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
+	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
+	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int, err error)
+	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int, err error)
 }
 
+// ExtractorV6 ...
+type ExtractorV6 struct {
+}
+
+// NewExtractorV6 ...
+func NewExtractorV6() *ExtractorV6 {
+	return &ExtractorV6{}
+}
+
+// ExtractorV7 ...
+type ExtractorV7 struct {
+	ExtractorV6
+}
+
+// NewExtractorV7 ...
+func NewExtractorV7() *ExtractorV7 {
+	return &ExtractorV7{}
+}
+
+// Compile time checks to ensure type satisfies Extractor interface
+var _ Extractor = ExtractorV6{}
+var _ Extractor = (*ExtractorV6)(nil)
+var _ Extractor = ExtractorV7{}
+var _ Extractor = (*ExtractorV7)(nil)
+
 // ExtractIsInVacation ...
-func ExtractIsInVacation(pageHTML []byte) bool {
+func (e ExtractorV6) ExtractIsInVacation(pageHTML []byte) bool {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractIsInVacationFromDoc(doc)
+	return e.ExtractIsInVacationFromDoc(doc)
 }
 
 // ExtractPlanets ...
-func ExtractPlanets(pageHTML []byte, b *OGame) []Planet {
+func (e ExtractorV6) ExtractPlanets(pageHTML []byte, b *OGame) []Planet {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractPlanetsFromDoc(doc, b)
+	return e.ExtractPlanetsFromDoc(doc, b)
 }
 
 // ExtractPlanet ...
-func ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error) {
+func (e ExtractorV6) ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractPlanetFromDoc(doc, v, b)
+	return e.ExtractPlanetFromDoc(doc, v, b)
 }
 
 // ExtractPlanetByCoord ...
-func ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error) {
+func (e ExtractorV6) ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractPlanetByCoordFromDoc(doc, b, coord)
+	return e.ExtractPlanetByCoordFromDoc(doc, b, coord)
 }
 
 // ExtractMoons ...
-func ExtractMoons(pageHTML []byte, b *OGame) []Moon {
+func (e ExtractorV6) ExtractMoons(pageHTML []byte, b *OGame) []Moon {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractMoonsFromDoc(doc, b)
+	return e.ExtractMoonsFromDoc(doc, b)
 }
 
 // ExtractMoon ...
-func ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error) {
+func (e ExtractorV6) ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractMoonFromDoc(doc, b, v)
+	return e.ExtractMoonFromDoc(doc, b, v)
 }
 
 // ExtractMoonByCoord ...
-func ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error) {
+func (e ExtractorV6) ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractMoonByCoordFromDoc(doc, b, coord)
+	return e.ExtractMoonByCoordFromDoc(doc, b, coord)
 }
 
 // ExtractCelestials ...
-func ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error) {
+func (e ExtractorV6) ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractCelestialsFromDoc(doc, b)
+	return e.ExtractCelestialsFromDoc(doc, b)
 }
 
 // ExtractCelestial ...
-func ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error) {
+func (e ExtractorV6) ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractCelestialFromDoc(doc, b, v)
+	return e.ExtractCelestialFromDoc(doc, b, v)
 }
 
-func extractServerTime(pageHTML []byte) (time.Time, error) {
+func (e ExtractorV6) ExtractServerTime(pageHTML []byte) (time.Time, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return extractServerTimeFromDoc(doc)
+	return e.ExtractServerTimeFromDoc(doc)
 }
 
 // ExtractFleetsFromEventList ...
-func ExtractFleetsFromEventList(pageHTML []byte) []Fleet {
+func (e ExtractorV6) ExtractFleetsFromEventList(pageHTML []byte) []Fleet {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractFleetsFromEventListFromDoc(doc)
+	return e.ExtractFleetsFromEventListFromDoc(doc)
 }
 
 // ExtractIPM ...
-func ExtractIPM(pageHTML []byte) (duration, max int, token string) {
+func (e ExtractorV6) ExtractIPM(pageHTML []byte) (duration, max int, token string) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractIPMFromDoc(doc)
+	return e.ExtractIPMFromDoc(doc)
 }
 
 // ExtractFleets ...
-func ExtractFleets(pageHTML []byte) (res []Fleet) {
+func (e ExtractorV6) ExtractFleets(pageHTML []byte) (res []Fleet) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractFleetsFromDoc(doc)
+	return e.ExtractFleetsFromDoc(doc)
 }
 
 // ExtractSlots ...
-func ExtractSlots(pageHTML []byte) Slots {
+func (e ExtractorV6) ExtractSlots(pageHTML []byte) Slots {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractSlotsFromDoc(doc)
+	return e.ExtractSlotsFromDoc(doc)
 }
 
 // ExtractOgameTimestamp ...
-func ExtractOgameTimestamp(pageHTML []byte) int64 {
+func (e ExtractorV6) ExtractOgameTimestamp(pageHTML []byte) int64 {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractOgameTimestampFromDoc(doc)
+	return e.ExtractOgameTimestampFromDoc(doc)
 }
 
 // ExtractResources ...
-func ExtractResources(pageHTML []byte) Resources {
+func (e ExtractorV6) ExtractResources(pageHTML []byte) Resources {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractResourcesFromDoc(doc)
+	return e.ExtractResourcesFromDoc(doc)
 }
 
 // ExtractResourcesDetailsFromFullPage ...
-func ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails {
+func (e ExtractorV6) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractResourcesDetailsFromFullPageFromDoc(doc)
+	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc)
 }
 
 // ExtractResourceSettings ...
-func ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error) {
+func (e ExtractorV6) ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractResourceSettingsFromDoc(doc)
+	return e.ExtractResourceSettingsFromDoc(doc)
 }
 
 // ExtractAttacks ...
-func ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
-	return extractAttacks(pageHTML, clockwork.NewRealClock())
+func (e ExtractorV6) ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
+	return e.extractAttacks(pageHTML, clockwork.NewRealClock())
 }
 
-func extractAttacks(pageHTML []byte, clock clockwork.Clock) ([]AttackEvent, error) {
+func (e ExtractorV6) extractAttacks(pageHTML []byte, clock clockwork.Clock) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractAttacksFromDoc(doc, clock)
+	return e.ExtractAttacksFromDoc(doc, clock)
 }
 
 // ExtractOfferOfTheDay ...
-func ExtractOfferOfTheDay(pageHTML []byte) (int, string, PlanetResources, Multiplier, error) {
+func (e ExtractorV6) ExtractOfferOfTheDay(pageHTML []byte) (int, string, PlanetResources, Multiplier, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractOfferOfTheDayFromDoc(doc)
+	return e.ExtractOfferOfTheDayFromDoc(doc)
 }
 
 // ExtractResourcesBuildings ...
-func ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
+func (e ExtractorV6) ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractResourcesBuildingsFromDoc(doc)
+	return e.ExtractResourcesBuildingsFromDoc(doc)
 }
 
 // ExtractDefense ...
-func ExtractDefense(pageHTML []byte) (DefensesInfos, error) {
+func (e ExtractorV6) ExtractDefense(pageHTML []byte) (DefensesInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractDefenseFromDoc(doc)
+	return e.ExtractDefenseFromDoc(doc)
 }
 
 // ExtractShips ...
-func ExtractShips(pageHTML []byte) (ShipsInfos, error) {
+func (e ExtractorV6) ExtractShips(pageHTML []byte) (ShipsInfos, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractShipsFromDoc(doc)
+	return e.ExtractShipsFromDoc(doc)
 }
 
 // ExtractFacilities ...
-func ExtractFacilities(pageHTML []byte) (Facilities, error) {
+func (e ExtractorV6) ExtractFacilities(pageHTML []byte) (Facilities, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractFacilitiesFromDoc(doc)
+	return e.ExtractFacilitiesFromDoc(doc)
 }
 
 // ExtractResearch ...
-func ExtractResearch(pageHTML []byte) Researches {
+func (e ExtractorV6) ExtractResearch(pageHTML []byte) Researches {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractResearchFromDoc(doc)
+	return e.ExtractResearchFromDoc(doc)
 }
 
 // ExtractProduction extracts ships/defenses production from the shipyard page
-func ExtractProduction(pageHTML []byte) ([]Quantifiable, error) {
+func (e ExtractorV6) ExtractProduction(pageHTML []byte) ([]Quantifiable, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractProductionFromDoc(doc)
+	return e.ExtractProductionFromDoc(doc)
 }
 
 // ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
-func ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int, error) {
+func (e ExtractorV6) ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	shipSumCountdown := ExtractOverviewShipSumCountdownFromBytes(pageHTML)
-	production, err := ExtractOverviewProductionFromDoc(doc)
+	shipSumCountdown := e.ExtractOverviewShipSumCountdownFromBytes(pageHTML)
+	production, err := e.ExtractOverviewProductionFromDoc(doc)
 	return production, shipSumCountdown, err
 }
 
 // ExtractFleet1Ships ...
-func ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
+func (e ExtractorV6) ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractFleet1ShipsFromDoc(doc)
+	return e.ExtractFleet1ShipsFromDoc(doc)
 }
 
-func extractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int) {
+// ExtractEspionageReportMessageIDs ...
+func (e ExtractorV6) ExtractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return extractEspionageReportMessageIDsFromDoc(doc)
+	return e.ExtractEspionageReportMessageIDsFromDoc(doc)
 }
 
-func extractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int) {
+// ExtractCombatReportMessagesSummary ...
+func (e ExtractorV6) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return extractCombatReportMessagesFromDoc(doc)
+	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
 
-func extractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
+// ExtractEspionageReport ...
+func (e ExtractorV6) ExtractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return extractEspionageReportFromDoc(doc, location)
+	return e.ExtractEspionageReportFromDoc(doc, location)
 }
 
 // ExtractResourcesProductions ...
-func ExtractResourcesProductions(pageHTML []byte) (Resources, error) {
+func (e ExtractorV6) ExtractResourcesProductions(pageHTML []byte) (Resources, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractResourcesProductionsFromDoc(doc)
+	return e.ExtractResourcesProductionsFromDoc(doc)
 }
 
 // ExtractPreferences ...
-func ExtractPreferences(pageHTML []byte) Preferences {
+func (e ExtractorV6) ExtractPreferences(pageHTML []byte) Preferences {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractPreferencesFromDoc(doc)
+	return e.ExtractPreferencesFromDoc(doc)
 }
 
 // ExtractSpioAnz ...
-func ExtractSpioAnz(pageHTML []byte) int {
+func (e ExtractorV6) ExtractSpioAnz(pageHTML []byte) int {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractSpioAnzFromDoc(doc)
+	return e.ExtractSpioAnzFromDoc(doc)
 }
 
 // ExtractNbProbes ...
-func ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool {
+func (e ExtractorV6) ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractShowActivityMinutesFromDoc(doc)
+	return e.ExtractShowActivityMinutesFromDoc(doc)
 }
 
 // ExtractHiddenFields utils function to extract hidden input from a page
-func ExtractHiddenFields(pageHTML []byte) (fields url.Values) {
+func (e ExtractorV6) ExtractHiddenFields(pageHTML []byte) (fields url.Values) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return ExtractHiddenFieldsFromDoc(doc)
+	return e.ExtractHiddenFieldsFromDoc(doc)
 }
 
 // <Extract from doc> ---------------------------------------------------------
 
 // ExtractHiddenFieldsFromDoc utils function to extract hidden input from a page
-func ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values {
+func (e ExtractorV6) ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values {
 	return extractHiddenFieldsFromDocV6(doc)
 }
 
 // ExtractBodyIDFromDoc ...
-func ExtractBodyIDFromDoc(doc *goquery.Document) string {
+func (e ExtractorV6) ExtractBodyIDFromDoc(doc *goquery.Document) string {
 	return extractBodyIDFromDocV6(doc)
 }
 
 // ExtractIsInVacationFromDoc ...
-func ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
 	return extractIsInVacationFromDocV6(doc)
 }
 
 // ExtractPlanetsFromDoc ...
-func ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet {
+func (e ExtractorV6) ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet {
 	return extractPlanetsFromDocV6(doc, b)
 }
 
 // ExtractPlanetByIDFromDoc ...
-func ExtractPlanetByIDFromDoc(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error) {
+func (e ExtractorV6) ExtractPlanetByIDFromDoc(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error) {
 	return extractPlanetByIDFromDocV6(doc, b, planetID)
 }
 
 // ExtractCelestialByIDFromDoc ...
-func ExtractCelestialByIDFromDoc(doc *goquery.Document, b *OGame, celestialID CelestialID) (Celestial, error) {
+func (e ExtractorV6) ExtractCelestialByIDFromDoc(doc *goquery.Document, b *OGame, celestialID CelestialID) (Celestial, error) {
 	return extractCelestialByIDFromDocV6(doc, b, celestialID)
 }
 
 // ExtractPlanetByCoordFromDoc ...
-func ExtractPlanetByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Planet, error) {
+func (e ExtractorV6) ExtractPlanetByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Planet, error) {
 	return extractPlanetByCoordFromDocV6(doc, b, coord)
 }
 
 // ExtractOgameTimestampFromDoc ...
-func ExtractOgameTimestampFromDoc(doc *goquery.Document) int64 {
+func (e ExtractorV6) ExtractOgameTimestampFromDoc(doc *goquery.Document) int64 {
 	return extractOgameTimestampFromDocV6(doc)
 }
 
 // ExtractResourcesFromDoc ...
-func ExtractResourcesFromDoc(doc *goquery.Document) Resources {
+func (e ExtractorV6) ExtractResourcesFromDoc(doc *goquery.Document) Resources {
 	return extractResourcesFromDocV6(doc)
 }
 
 // ExtractResourcesDetailsFromFullPageFromDoc ...
-func ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails {
+func (e ExtractorV6) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails {
 	return extractResourcesDetailsFromFullPageFromDocV6(doc)
 }
 
 // ExtractPlanetFromDoc ...
-func ExtractPlanetFromDoc(doc *goquery.Document, v interface{}, b *OGame) (Planet, error) {
+func (e ExtractorV6) ExtractPlanetFromDoc(doc *goquery.Document, v interface{}, b *OGame) (Planet, error) {
 	return extractPlanetFromDocV6(doc, v, b)
 }
 
 // ExtractMoonsFromDoc ...
-func ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon {
+func (e ExtractorV6) ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon {
 	return extractMoonsFromDocV6(doc, b)
 }
 
 // ExtractMoonFromDoc ...
-func ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Moon, error) {
+func (e ExtractorV6) ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Moon, error) {
 	return extractMoonFromDocV6(doc, b, v)
 }
 
 // ExtractMoonByCoordFromDoc ...
-func ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error) {
+func (e ExtractorV6) ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error) {
 	return extractMoonByCoordFromDocV6(doc, b, coord)
 }
 
 // ExtractMoonByIDFromDoc ...
-func ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error) {
+func (e ExtractorV6) ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error) {
 	return extractMoonByIDFromDocV6(doc, b, moonID)
 }
 
 // ExtractCelestialsFromDoc ...
-func ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error) {
+func (e ExtractorV6) ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error) {
 	return extractCelestialsFromDocV6(doc, b)
 }
 
 // ExtractCelestialFromDoc ...
-func ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Celestial, error) {
+func (e ExtractorV6) ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Celestial, error) {
 	return extractCelestialFromDocV6(doc, b, v)
 }
 
 // ExtractResourcesBuildingsFromDoc ...
-func ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error) {
+func (e ExtractorV6) ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error) {
 	return extractResourcesBuildingsFromDocV6(doc)
 }
 
 // ExtractDefenseFromDoc ...
-func ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
+func (e ExtractorV6) ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
 	return extractDefenseFromDocV6(doc)
 }
 
 // ExtractShipsFromDoc ...
-func ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error) {
+func (e ExtractorV6) ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error) {
 	return extractShipsFromDocV6(doc)
 }
 
 // ExtractFacilitiesFromDoc ...
-func ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
+func (e ExtractorV6) ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
 	return extractFacilitiesFromDocV6(doc)
 }
 
 // ExtractResearchFromDoc ...
-func ExtractResearchFromDoc(doc *goquery.Document) Researches {
+func (e ExtractorV6) ExtractResearchFromDoc(doc *goquery.Document) Researches {
 	return extractResearchFromDocV6(doc)
 }
 
 // ExtractOGameSessionFromDoc ...
-func ExtractOGameSessionFromDoc(doc *goquery.Document) string {
+func (e ExtractorV6) ExtractOGameSessionFromDoc(doc *goquery.Document) string {
 	return extractOGameSessionFromDocV6(doc)
 }
 
 // ExtractAttacksFromDoc ...
-func ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
+func (e ExtractorV6) ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
 	return extractAttacksFromDocV6(doc, clock)
 }
 
-type planetResource struct {
-	Input struct {
-		Metal     int
-		Crystal   int
-		Deuterium int
-	}
-	Output struct {
-		Metal     int
-		Crystal   int
-		Deuterium int
-	}
-	IsMoon        bool
-	ImageFileName string
-	Name          string
-	OtherPlanet   string
-}
-
-type PlanetResources map[CelestialID]planetResource
-
-type Multiplier struct {
-	Metal     float64
-	Crystal   float64
-	Deuterium float64
-	Honor     float64
-}
-
 // ExtractOfferOfTheDayFromDoc ...
-func ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int, importToken string, planetResources PlanetResources, multiplier Multiplier, err error) {
+func (e ExtractorV6) ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int, importToken string, planetResources PlanetResources, multiplier Multiplier, err error) {
 	return extractOfferOfTheDayFromDocV6(doc)
 }
 
 // ExtractProductionFromDoc extracts ships/defenses production from the shipyard page
-func ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
+func (e ExtractorV6) ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
 	return extractProductionFromDocV6(doc)
 }
 
 // ExtractOverviewProductionFromDoc extracts ships/defenses (partial) production from the overview page
-func ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
+func (e ExtractorV6) ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
 	return extractOverviewProductionFromDocV6(doc)
 }
 
 // ExtractFleet1ShipsFromDoc ...
-func ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos) {
+func (e ExtractorV6) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos) {
 	return extractFleet1ShipsFromDocV6(doc)
 }
 
-func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int) {
+// ExtractEspionageReportMessageIDsFromDoc ...
+func (e ExtractorV6) ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int) {
 	return extractEspionageReportMessageIDsFromDocV6(doc)
 }
 
-func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int) {
+// ExtractCombatReportMessagesFromDoc ...
+func (e ExtractorV6) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int) {
 	return extractCombatReportMessagesFromDocV6(doc)
 }
 
-func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
+// ExtractEspionageReportFromDoc ...
+func (e ExtractorV6) ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	return extractEspionageReportFromDocV6(doc, location)
 }
 
 // ExtractResourcesProductionsFromDoc ...
-func ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error) {
+func (e ExtractorV6) ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error) {
 	return extractResourcesProductionsFromDocV6(doc)
 }
 
 // ExtractPreferencesFromDoc ...
-func ExtractPreferencesFromDoc(doc *goquery.Document) Preferences {
+func (e ExtractorV6) ExtractPreferencesFromDoc(doc *goquery.Document) Preferences {
 	return extractPreferencesFromDocV6(doc)
 }
 
 // ExtractResourceSettingsFromDoc ...
-func ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error) {
+func (e ExtractorV6) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error) {
 	return extractResourceSettingsFromDocV6(doc)
 }
 
 // ExtractFleetsFromEventListFromDoc ...
-func ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet {
+func (e ExtractorV6) ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet {
 	return extractFleetsFromEventListFromDocV6(doc)
 }
 
 // ExtractIPMFromDoc ...
-func ExtractIPMFromDoc(doc *goquery.Document) (duration, max int, token string) {
+func (e ExtractorV6) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int, token string) {
 	return extractIPMFromDocV6(doc)
 }
 
 // ExtractFleetsFromDoc ...
-func ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
+func (e ExtractorV6) ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
 	return extractFleetsFromDocV6(doc)
 }
 
 // ExtractSlotsFromDoc extract fleet slots from page "fleet1"
 // page "movement" redirect to "fleet1" when there is no fleet
-func ExtractSlotsFromDoc(doc *goquery.Document) Slots {
+func (e ExtractorV6) ExtractSlotsFromDoc(doc *goquery.Document) Slots {
 	return extractSlotsFromDocV6(doc)
 }
 
-func extractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
+// ExtractServerTimeFromDoc ...
+func (e ExtractorV6) ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
 	return extractServerTimeFromDocV6(doc)
 }
 
 // ExtractSpioAnzFromDoc ...
-func ExtractSpioAnzFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractSpioAnzFromDoc(doc *goquery.Document) int {
 	return extractSpioAnzFromDocV6(doc)
 }
 
 // ExtractDisableChatBarFromDoc ...
-func ExtractDisableChatBarFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractDisableChatBarFromDoc(doc *goquery.Document) bool {
 	return extractDisableChatBarFromDocV6(doc)
 }
 
 // ExtractDisableOutlawWarningFromDoc ...
-func ExtractDisableOutlawWarningFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractDisableOutlawWarningFromDoc(doc *goquery.Document) bool {
 	return extractDisableOutlawWarningFromDocV6(doc)
 }
 
 // ExtractMobileVersionFromDoc ...
-func ExtractMobileVersionFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractMobileVersionFromDoc(doc *goquery.Document) bool {
 	return extractMobileVersionFromDocV6(doc)
 }
 
 // ExtractShowOldDropDownsFromDoc ...
-func ExtractShowOldDropDownsFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractShowOldDropDownsFromDoc(doc *goquery.Document) bool {
 	return extractShowOldDropDownsFromDocV6(doc)
 }
 
 // ExtractActivateAutofocusFromDoc ...
-func ExtractActivateAutofocusFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractActivateAutofocusFromDoc(doc *goquery.Document) bool {
 	return extractActivateAutofocusFromDocV6(doc)
 }
 
 // ExtractEventsShowFromDoc ...
-func ExtractEventsShowFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractEventsShowFromDoc(doc *goquery.Document) int {
 	return extractEventsShowFromDocV6(doc)
 }
 
 // ExtractSortSettingFromDoc ...
-func ExtractSortSettingFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractSortSettingFromDoc(doc *goquery.Document) int {
 	return extractSortSettingFromDocV6(doc)
 }
 
 // ExtractSortOrderFromDoc ...
-func ExtractSortOrderFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractSortOrderFromDoc(doc *goquery.Document) int {
 	return extractSortOrderFromDocV6(doc)
 }
 
 // ExtractShowDetailOverlayFromDoc ...
-func ExtractShowDetailOverlayFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractShowDetailOverlayFromDoc(doc *goquery.Document) bool {
 	return extractShowDetailOverlayFromDocV6(doc)
 }
 
 // ExtractAnimatedSlidersFromDoc ...
-func ExtractAnimatedSlidersFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractAnimatedSlidersFromDoc(doc *goquery.Document) bool {
 	return extractAnimatedSlidersFromDocV6(doc)
 }
 
 // ExtractAnimatedOverviewFromDoc ...
-func ExtractAnimatedOverviewFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractAnimatedOverviewFromDoc(doc *goquery.Document) bool {
 	return extractAnimatedOverviewFromDocV6(doc)
 }
 
 // ExtractPopupsNoticesFromDoc ...
-func ExtractPopupsNoticesFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractPopupsNoticesFromDoc(doc *goquery.Document) bool {
 	return extractPopupsNoticesFromDocV6(doc)
 }
 
 // ExtractPopopsCombatreportFromDoc ...
-func ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool {
 	return extractPopopsCombatreportFromDocV6(doc)
 }
 
 // ExtractSpioReportPicturesFromDoc ...
-func ExtractSpioReportPicturesFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractSpioReportPicturesFromDoc(doc *goquery.Document) bool {
 	return extractSpioReportPicturesFromDocV6(doc)
 }
 
 // ExtractMsgResultsPerPageFromDoc ...
-func ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int {
 	return extractMsgResultsPerPageFromDocV6(doc)
 }
 
 // ExtractAuctioneerNotificationsFromDoc ...
-func ExtractAuctioneerNotificationsFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractAuctioneerNotificationsFromDoc(doc *goquery.Document) bool {
 	return extractAuctioneerNotificationsFromDocV6(doc)
 }
 
 // ExtractEconomyNotificationsFromDoc ...
-func ExtractEconomyNotificationsFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractEconomyNotificationsFromDoc(doc *goquery.Document) bool {
 	return extractEconomyNotificationsFromDocV6(doc)
 }
 
 // ExtractShowActivityMinutesFromDoc ...
-func ExtractShowActivityMinutesFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractShowActivityMinutesFromDoc(doc *goquery.Document) bool {
 	return extractShowActivityMinutesFromDocV6(doc)
 }
 
 // ExtractPreserveSystemOnPlanetChangeFromDoc ...
-func ExtractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool {
 	return extractPreserveSystemOnPlanetChangeFromDocV6(doc)
 }
 
 // ExtractNotifBuildListFromDoc ...
-func ExtractNotifBuildListFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractNotifBuildListFromDoc(doc *goquery.Document) bool {
 	return extractNotifBuildListFromDocV6(doc)
 }
 
 // ExtractNotifFriendlyFleetActivitiesFromDoc ...
-func ExtractNotifFriendlyFleetActivitiesFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractNotifFriendlyFleetActivitiesFromDoc(doc *goquery.Document) bool {
 	return extractNotifFriendlyFleetActivitiesFromDocV6(doc)
 }
 
 // ExtractNotifHostileFleetActivitiesFromDoc ...
-func ExtractNotifHostileFleetActivitiesFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractNotifHostileFleetActivitiesFromDoc(doc *goquery.Document) bool {
 	return extractNotifHostileFleetActivitiesFromDocV6(doc)
 }
 
 // ExtractNotifForeignEspionageFromDoc ...
-func ExtractNotifForeignEspionageFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractNotifForeignEspionageFromDoc(doc *goquery.Document) bool {
 	return extractNotifForeignEspionageFromDocV6(doc)
 }
 
 // ExtractNotifAllianceBroadcastsFromDoc ...
-func ExtractNotifAllianceBroadcastsFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractNotifAllianceBroadcastsFromDoc(doc *goquery.Document) bool {
 	return extractNotifAllianceBroadcastsFromDocV6(doc)
 }
 
 // ExtractNotifAllianceMessagesFromDoc ...
-func ExtractNotifAllianceMessagesFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractNotifAllianceMessagesFromDoc(doc *goquery.Document) bool {
 	return extractNotifAllianceMessagesFromDocV6(doc)
 }
 
 // ExtractNotifAuctionsFromDoc ...
-func ExtractNotifAuctionsFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractNotifAuctionsFromDoc(doc *goquery.Document) bool {
 	return extractNotifAuctionsFromDocV6(doc)
 }
 
 // ExtractNotifAccountFromDoc ...
-func ExtractNotifAccountFromDoc(doc *goquery.Document) bool {
+func (e ExtractorV6) ExtractNotifAccountFromDoc(doc *goquery.Document) bool {
 	return extractNotifAccountFromDocV6(doc)
 }
 
@@ -602,86 +722,89 @@ func ExtractNotifAccountFromDoc(doc *goquery.Document) bool {
 // <Works with []byte only> ---------------------------------------------------
 
 // ExtractPlanetCoordinate extracts planet coordinate from html page
-func ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error) {
+func (e ExtractorV6) ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error) {
 	return extractPlanetCoordinateV6(pageHTML)
 }
 
 // ExtractPlanetID extracts planet id from html page
-func ExtractPlanetID(pageHTML []byte) (CelestialID, error) {
+func (e ExtractorV6) ExtractPlanetID(pageHTML []byte) (CelestialID, error) {
 	return extractPlanetIDV6(pageHTML)
 }
 
 // ExtractOverviewShipSumCountdownFromBytes ...
-func ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int {
+func (e ExtractorV6) ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int {
 	return extractOverviewShipSumCountdownFromBytesV6(pageHTML)
 }
 
 // ExtractOGameTimestampFromBytes extracts ogame timestamp from an html page
-func ExtractOGameTimestampFromBytes(pageHTML []byte) int64 {
+func (e ExtractorV6) ExtractOGameTimestampFromBytes(pageHTML []byte) int64 {
 	return extractOGameTimestampFromBytesV6(pageHTML)
 }
 
 // ExtractPlanetType extracts planet type from html page
-func ExtractPlanetType(pageHTML []byte) (CelestialType, error) {
+func (e ExtractorV6) ExtractPlanetType(pageHTML []byte) (CelestialType, error) {
 	return extractPlanetTypeV6(pageHTML)
 }
 
 // ExtractAjaxChatToken ...
-func ExtractAjaxChatToken(pageHTML []byte) (string, error) {
+func (e ExtractorV6) ExtractAjaxChatToken(pageHTML []byte) (string, error) {
 	return extractAjaxChatTokenV6(pageHTML)
 }
 
 // ExtractUserInfos ...
-func ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
+func (e ExtractorV6) ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error) {
 	return extractUserInfosV6(pageHTML, lang)
 }
 
-func ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
+func (e ExtractorV6) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV6(pageHTML)
 }
 
 // </Works with []byte only> --------------------------------------------------
 
 // ExtractCoord ...
-func ExtractCoord(v string) (coord Coordinate) {
+func (e ExtractorV6) ExtractCoord(v string) (coord Coordinate) {
 	return extractCoordV6(v)
 }
 
 // ExtractGalaxyInfos ...
-func ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
+func (e ExtractorV6) ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
 	return extractGalaxyInfosV6(pageHTML, botPlayerName, botPlayerID, botPlayerRank)
 }
 
-func extractPhalanx(pageHTML []byte) ([]Fleet, error) {
+// ExtractPhalanx ...
+func (e ExtractorV6) ExtractPhalanx(pageHTML []byte) ([]Fleet, error) {
 	return extractPhalanxV6(pageHTML)
 }
 
-// Return the available ships to send, form token, possible moon IDs and wait time (if any)
+// ExtractJumpGate return the available ships to send, form token, possible moon IDs and wait time (if any)
 // given a jump gate popup html.
-func extractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
+func (e ExtractorV6) ExtractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
 	return extractJumpGateV6(pageHTML)
 }
 
 // ExtractFederation ...
-func ExtractFederation(pageHTML []byte) url.Values {
+func (e ExtractorV6) ExtractFederation(pageHTML []byte) url.Values {
 	return extractFederationV6(pageHTML)
 }
 
 // ExtractConstructions ...
-func ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
+func (e ExtractorV6) ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
 	return extractConstructionsV6(pageHTML)
 }
 
 // ExtractFleetDeutSaveFactor extract fleet deut save factor
-func ExtractFleetDeutSaveFactor(pageHTML []byte) float64 {
+func (e ExtractorV6) ExtractFleetDeutSaveFactor(pageHTML []byte) float64 {
 	return extractFleetDeutSaveFactorV6(pageHTML)
 }
 
-func extractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int, err error) {
+// ExtractCancelBuildingInfos ...
+func (e ExtractorV6) ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int, err error) {
 	return extractCancelBuildingInfosV6(pageHTML)
 }
 
-func extractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int, err error) {
+// ExtractCancelResearchInfos ...
+func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int, err error) {
 	return extractCancelResearchInfosV6(pageHTML)
 }
 
