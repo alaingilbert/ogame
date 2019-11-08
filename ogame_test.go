@@ -2140,6 +2140,24 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, 612, fuel)
 }
 
+func TestExtractFleetSlot_FleetDispatch_V7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/fleetdispatch.html")
+	s := NewExtractorV7().ExtractSlots(pageHTMLBytes)
+	assert.Equal(t, 0, s.InUse)
+	assert.Equal(t, 4, s.Total)
+	assert.Equal(t, 0, s.ExpInUse)
+	assert.Equal(t, 1, s.ExpTotal)
+}
+
+func TestExtractFleetSlotV7_movement(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/movement.html")
+	s := NewExtractorV6().ExtractSlots(pageHTMLBytes)
+	assert.Equal(t, 1, s.InUse)
+	assert.Equal(t, 2, s.Total)
+	assert.Equal(t, 0, s.ExpInUse)
+	assert.Equal(t, 1, s.ExpTotal)
+}
+
 func TestExtractFleetSlot_fleet1(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleet1.html")
 	s := NewExtractorV6().ExtractSlots(pageHTMLBytes)

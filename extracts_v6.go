@@ -105,7 +105,15 @@ func extractHiddenFieldsFromDocV6(doc *goquery.Document) url.Values {
 }
 
 func extractBodyIDFromDocV6(doc *goquery.Document) string {
-	return doc.Find("body").AttrOr("id", "")
+	bodyID := doc.Find("body").AttrOr("id", "")
+	if bodyID == "ingamepage" {
+		pageHTML, _ := doc.Html()
+		m := regexp.MustCompile(`var currentPage = "([^"]+)";`).FindStringSubmatch(pageHTML)
+		if len(m) == 2 {
+			return m[1]
+		}
+	}
+	return bodyID
 }
 
 func extractCelestialByIDFromDocV6(doc *goquery.Document, b *OGame, celestialID CelestialID) (Celestial, error) {
@@ -1188,7 +1196,7 @@ func extractSlotsFromDocV6(doc *goquery.Document) Slots {
 		slots.Total = ParseInt(doc.Find("span.fleetSlots > span.all").Text())
 		slots.ExpInUse = ParseInt(doc.Find("span.expSlots > span.current").Text())
 		slots.ExpTotal = ParseInt(doc.Find("span.expSlots > span.all").Text())
-	} else if page == "fleet1" {
+	} else if page == "fleet1" || page == "fleetdispatch" {
 		r := regexp.MustCompile(`(\d+)/(\d+)`)
 		txt := doc.Find("div#slots>div").Eq(0).Text()
 		m := r.FindStringSubmatch(txt)
