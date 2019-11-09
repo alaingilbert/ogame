@@ -50,12 +50,11 @@ func ServerVersion() *C.char {
 
 //export IsUnderAttack
 func IsUnderAttack() (isUnderAttack C.int, errorMsg *C.char) {
-	var err error
-	isUnderAttack, err = bot.IsUnderAttack()
+	isUnderAttackBool, err := bot.IsUnderAttack()
 	if err != nil {
 		return C.int(0), C.CString(err.Error())
 	}
-	if isUnderAttack {
+	if isUnderAttackBool {
 		return C.int(1), errorMsg
 	}
 	return C.int(0), errorMsg
