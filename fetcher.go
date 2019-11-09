@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	// V6 full pages
 	OverviewPage         = "overview"
 	PreferencesPage      = "preferences"
 	ResourceSettingsPage = "resourceSettings"
@@ -20,13 +21,52 @@ const (
 	Fleet1Page           = "fleet1"
 	JumpgatelayerPage    = "jumpgatelayer"
 	FetchResourcesPage   = "fetchResources"
+	TraderOverviewPage   = "traderOverview"
+	GalaxyPage           = "galaxy"
+	AlliancePage         = "alliance"
+	PremiumPage          = "premium"
+	ShopPage             = "shop"
+	RewardsPage          = "rewards"
+	HighscorePage        = "highscore"
+	BuddiesPage          = "buddies"
+	MessagesPage         = "messages"
+	ChatPage             = "chat"
+
+	// V6 ajax pages
+	FetchEventboxAjaxPage      = "fetchEventbox"
+	FetchResourcesAjaxPage     = "fetchResources"
+	GalaxyContentAjaxPage      = "galaxyContent"
+	EventListAjaxPage          = "eventList"
+	AjaxChatAjaxPage           = "ajaxChat"
+	NoticesAjaxPage            = "notices"
+	RepairlayerAjaxPage        = "repairlayer"
+	TechtreeAjaxPage           = "techtree"
+	PhalanxAjaxPage            = "phalanx"
+	ShareReportOverlayAjaxPage = "shareReportOverlay"
+	JumpgatelayerAjaxPage      = "jumpgatelayer"
+	FederationlayerAjaxPage    = "federationlayer"
+	UnionchangeAjaxPage        = "unionchange"
+	ChangenickAjaxPage         = "changenick"
+	PlanetlayerAjaxPage        = "planetlayer"
+	TraderlayerAjaxPage        = "traderlayer"
+	PlanetRenameAjaxPage       = "planetRename"
+	RightmenuAjaxPage          = "rightmenu"
+	AllianceOverviewAjaxPage   = "allianceOverview"
+	SupportAjaxPage            = "support"
+	BuffActivationAjaxPage     = "buffActivation"
+
+	// V7 pages
+	DefensesPage      = "defenses"
+	SuppliesPage      = "supplies"
+	FacilitiesPage    = "facilities"
+	FleetdispatchPage = "fleetdispatch"
 )
 
 var pageV7Mapping = map[string]string{
-	DefensePage:   "defenses",
-	ResourcesPage: "supplies",
-	StationPage:   "facilities",
-	Fleet1Page:    "fleetdispatch",
+	DefensePage:   DefensesPage,
+	ResourcesPage: SuppliesPage,
+	StationPage:   FacilitiesPage,
+	Fleet1Page:    FleetdispatchPage,
 }
 
 func (b *OGame) getPage(page string, celestialID CelestialID) ([]byte, error) {

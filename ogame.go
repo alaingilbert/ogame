@@ -879,53 +879,53 @@ func isLogged(pageHTML []byte) bool {
 // IsKnowFullPage ...
 func IsKnowFullPage(vals url.Values) bool {
 	page := vals.Get("page")
-	return page == "overview" ||
-		page == "resources" ||
-		page == "station" ||
-		page == "traderOverview" ||
-		page == "research" ||
-		page == "shipyard" ||
-		page == "defense" ||
-		page == "fleet1" ||
-		page == "galaxy" ||
-		page == "alliance" ||
-		page == "premium" ||
-		page == "shop" ||
-		page == "rewards" ||
-		page == "resourceSettings" ||
-		page == "movement" ||
-		page == "highscore" ||
-		page == "buddies" ||
-		page == "preferences" ||
-		page == "messages" ||
-		page == "chat"
+	return page == OverviewPage ||
+		page == ResourcesPage ||
+		page == StationPage ||
+		page == TraderOverviewPage ||
+		page == ResearchPage ||
+		page == ShipyardPage ||
+		page == DefensePage ||
+		page == Fleet1Page ||
+		page == GalaxyPage ||
+		page == AlliancePage ||
+		page == PremiumPage ||
+		page == ShopPage ||
+		page == RewardsPage ||
+		page == ResourceSettingsPage ||
+		page == MovementPage ||
+		page == HighscorePage ||
+		page == BuddiesPage ||
+		page == PreferencesPage ||
+		page == MessagesPage ||
+		page == ChatPage
 }
 
 // IsAjaxPage either the requested page is a partial/ajax page
 func IsAjaxPage(vals url.Values) bool {
 	page := vals.Get("page")
 	ajax := vals.Get("ajax")
-	return page == "fetchEventbox" ||
-		page == "fetchResources" ||
-		page == "galaxyContent" ||
-		page == "eventList" ||
-		page == "ajaxChat" ||
-		page == "notices" ||
-		page == "repairlayer" ||
-		page == "techtree" ||
-		page == "phalanx" ||
-		page == "shareReportOverlay" ||
-		page == "jumpgatelayer" ||
-		page == "federationlayer" ||
-		page == "unionchange" ||
-		page == "changenick" ||
-		page == "planetlayer" ||
-		page == "traderlayer" ||
-		page == "planetRename" ||
-		page == "rightmenu" ||
-		page == "allianceOverview" ||
-		page == "support" ||
-		page == "buffActivation" ||
+	return page == FetchEventboxAjaxPage ||
+		page == FetchResourcesAjaxPage ||
+		page == GalaxyContentAjaxPage ||
+		page == EventListAjaxPage ||
+		page == AjaxChatAjaxPage ||
+		page == NoticesAjaxPage ||
+		page == RepairlayerAjaxPage ||
+		page == TechtreeAjaxPage ||
+		page == PhalanxAjaxPage ||
+		page == ShareReportOverlayAjaxPage ||
+		page == JumpgatelayerAjaxPage ||
+		page == FederationlayerAjaxPage ||
+		page == UnionchangeAjaxPage ||
+		page == ChangenickAjaxPage ||
+		page == PlanetlayerAjaxPage ||
+		page == TraderlayerAjaxPage ||
+		page == PlanetRenameAjaxPage ||
+		page == RightmenuAjaxPage ||
+		page == AllianceOverviewAjaxPage ||
+		page == SupportAjaxPage ||
+		page == BuffActivationAjaxPage ||
 		ajax == "1"
 }
 
