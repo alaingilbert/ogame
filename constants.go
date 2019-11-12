@@ -143,6 +143,9 @@ const (
 	DestroyerID                    ID = 213
 	DeathstarID                    ID = 214
 	BattlecruiserID                ID = 215
+	CrawlerID                      ID = 217
+	ReaperID                       ID = 218
+	PathfinderID                   ID = 219
 	EspionageTechnologyID          ID = 106 // Research
 	ComputerTechnologyID           ID = 108
 	WeaponsTechnologyID            ID = 109

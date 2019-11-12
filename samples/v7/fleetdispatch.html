@@ -1,0 +1,2618 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bermuda OGame</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript">
+        /**
+         * This is only currently needed in a separate file in libraries because
+         * the javascript files are loaded alphabetically from files and we need to
+         * ensure that our namespace object is loaded before all other ogame specific
+         * javascript code
+         */
+
+        /*
+         * global javascript namespace for ogame
+         */
+        var ogame = ogame || {};
+    </script>
+    <meta name="ogame-session" content="0a724276a3ddbe9949f62bdae48d71c1a16adf20"/>
+    <meta name="ogame-version" content="7.0.0-rc19"/>
+    <meta name="ogame-timestamp" content="1571187287"/>
+    <meta name="ogame-universe" content="s801-en.ogame.gameforge.com"/>
+    <meta name="ogame-universe-name" content="Bermuda"/>
+    <meta name="ogame-universe-speed" content="4"/>
+    <meta name="ogame-universe-speed-fleet" content="4"/>
+    <meta name="ogame-language" content="en"/>
+    <meta name="ogame-donut-galaxy" content="1"/>
+    <meta name="ogame-donut-system" content="1"/>
+    <meta name="ogame-player-id" content="118523"/>
+    <meta name="ogame-player-name" content="Governor Meridian"/>
+    <meta name="ogame-planet-id" content="33795776"/>
+    <meta name="ogame-planet-name" content="Homeworld"/>
+    <meta name="ogame-planet-coordinates" content="9:297:12"/>
+    <meta name="ogame-planet-type" content="planet"/>
+
+
+    <script type="text/javascript">
+        var ajaxEventboxURI = 'https://s801-en.ogame.gameforge.com/game/index.php?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+        var ajaxResourceboxURI = 'https://s801-en.ogame.gameforge.com/game/index.php?page=fetchResources&ajax=1';
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne6/215ab306a69a767a9e3eba0c8c316f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5c/0b90f4a098facd7e4d173ab7a27a6c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5f/17ac5fdee7660406fdd73307c07a82.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn3f/7ea99c73d22beea35a52bd6f7cb422.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc3/e97fcbb510366478af1860d20864c1.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn57/17590ed4605715033324741da78485.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/68ffdf60813686a9fe1d99a1cc334c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn8e/9a111b0209f44edde46ca7dd9d303c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn0e/b6730dfc1efc9c613317ae60328bb4.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn83/8dd7f65a860fb527b1f58d44f7ed23.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn07/d2cfcc4e1ddfd63aac037a4f507138.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn2c/0b4c19043f087a2c10ded10d951b95.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc7/a61659f9db877536599b792d2fdb63.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn03/f6de7d24819951074b5e1ae613e68a.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn80/cab8721c76db9f6606ca93faeddbac.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/55d667f3f50d381767948507c45e5b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4b/da5d31cd0a99fc43fbbd9a06b52899.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdneb/210581d261b626ce77bac2ad4983f2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn64/1b773fe4ce9c6ea5a8be3204caa002.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/541e9161c385e847711f7a6d2e2a41.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn96/3c3d20ad4845ddc678c00dd8fdbe5e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn89/707f831c581ae267014f3f2fbcd020.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdned/5f2222407a222a97f4f5e974366355.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn35/fe33689d32e93aeb383b075270cf4f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnbb/945e53d91e3a8a358dae502e894453.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5d/4c00ba0389df4cdabed9385769f003.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn6c/ade34cb360f17762d348553a2de857.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna8/535876019e29f700c52e026519c566.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnab/c4669ba58ee728ac1bc7610f1f6a30.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn69/96d24bb94430f3ee33c668531a4a93.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4e/b3e7c83d744b0a3903907e04de184b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd8/7b75126fa68d03f92fbb77226f9132.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn45/f320115669b7611bda327a51918fd2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/7c49c94686cc0b20c3de6f2921575e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc4/c480ff9537d079d4795ec3c6c700d2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn02/067b06cf4b9f3d797556c798b6948d.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/50618794bb4987f392e23fcde41666.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnba/efcc85e086a1b970342e189a5608e1.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn42/493edb4927596c5a7a22435cfc280f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5e/a75bc4f176c8c4fd1548860b945708.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn40/c912ca07743ac211966f9e7e9ad128.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/b17884a364a3dc34841c44edae9d03.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn12/58641190a9641e4f2951c707820722.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdndd/eaf138d8da5d08e6de288958d6b08b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/75cd503d09c4df72ffcf5aff436858.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn06/c288674318e1f4be6fa9fe688317f2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb3/de2acb879dfae8191ad4c1de8f8fcf.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb0/a524432bb87f4b191503be58bf4e38.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn19/6cd7cf97c8b9f95caf0bcc3dfea028.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn77/12a5cc5c45e7ab337d83b2071be37f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn97/1d9ada655a9a5ead96c0cb7e2373f5.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn56/09292a38db7a327b5a161fa1fc0223.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn9d/118e2dff48b6c15a636568e5742c5f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn52/cf9dddbab8f81b0ea5b80e90954267.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn38/36483f5ec8a719f7392723e53838fa.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn36/2c8857695a51fe4b86e99a2eb955d2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/a4fccc0fefb259779456dc294521f6.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn63/7a32b02637324e1ee393271cb87566.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4a/12a6d45c2c88eb8328de7724e1c048.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4a/4b31423d3e4862041353c7d4c8d0fa.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn51/9cb53f20d1f836516d0c1a294bf3fc.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne9/6a6d5fc4fff8ae65cacfe4680fb636.css"/>
+
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnbc/f456eeff847e9e343593f596e3cbf9.js'> </script>
+
+
+
+
+
+    <script type="text/javascript">
+        var eventboxLoca    = {"mission":"Mission","missions":"Missions","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"own","neutral":"friendly","hostile":"hostile","nextEvent":"Next","nextEventText":"Type"};
+        var eventlistLink   = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&ajax=1";
+        var changeSettingsLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=changeSettings";
+        var changeSettingsToken = "106d25d26736ddd76e537cf7d6746c80";
+        var redirectLogoutLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=logout";
+        var redirectOverviewLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+        var redirectSpaceDockLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=facilities&openTech=36";
+        var constants   = {"espionage":6,"missleattack":10,"language":"en","name":"801"};
+        var currentPage = "fleetdispatch";
+        var changeNickLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ajax&component=changenick&asJson=1";
+    </script>
+
+    <script type="text/javascript">
+        var playerId = 118523;
+        var playerName = "Governor Meridian";
+        var player = {"playerId":118523,"name":"Governor Meridian","hasCommander":true,"hasAPassword":true};
+        var session = "0a724276a3ddbe9949f62bdae48d71c1a16adf20";
+        var vacation = 0;
+        var hasAPassword = true;
+        var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"More Options","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+        var itemNames = {"090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Bronze Crystal Booster","e254352ac599de4dd1f20f0719df0a070c623ca8":"Bronze Deuterium Booster","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Bronze Metal Booster","67d6041bc0206d1ec7ce667e51f9d7ba73314604":"Discoverer","a521c40c620a2dd22c1bb1e9db722c4c15e42eb1":"Collector","cf37caa096aac5127ec3fe67c2606075fcc652a8":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Bronze Crystal Booster","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Silver Crystal Booster","118d34e685b5d1472267696d1010a393a59aed03":"Gold Crystal Booster","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Gold","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID Silver","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Bronze Deuterium Booster","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Silver Deuterium Booster","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Gold Deuterium Booster","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Gold","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN Silver","de922af379061263a56d7204d1c395cefcfb7d75":"Bronze Metal Booster","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Silver Metal Booster","05294270032e5dc968672425ab5611998c409166":"Gold Metal Booster","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Bronze Moon Fields","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Gold Moon Fields","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"Silver Moon Fields","485a6d5624d9de836d3eb52b181b13423f795770":"Bronze M.O.O.N.S.","45d6660308689c65d97f3c27327b0b31f880ae75":"Gold M.O.O.N.S.","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"Silver M.O.O.N.S.","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Gold","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON Silver","16768164989dffd819a373613b5e1a52e226a5b0":"Bronze Planet Fields","04e58444d6d0beb57b3e998edc34c60f8318825a":"Gold Planet Fields","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Silver Planet Fields"};
+        var isMobile = false;
+        var isMobileApp = false;
+        var bbcodePreviewUrl = "https://s801-en.ogame.gameforge.com/game/index.php?page=bbcodePreview";
+        var ogameUrl = "https:\/\/s801-en.ogame.gameforge.com";
+        var startpageUrl = "https:\/\/pioneers.ogame.gameforge.com";
+        var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+        var popupWindows = [];
+        var showOutlawWarning = true;
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"};
+        var overlayWidth = 770;
+        var overlayHeight = 600;
+        var serverTime = new Date(2019, 9, 16, 1, 54, 47);
+        var localTime = new Date();
+        var timeDiff = serverTime - localTime;
+
+        var nodePort = 19135
+        var nodeUrl = "https:\/\/s801-en.ogame.gameforge.com:19135\/socket.io\/socket.io.js"
+        var nodeParams = {"port":19135,"secure":true}
+
+        var miniFleetToken = "e1a8e939ff1b0588dbb63c0383f17480";
+        var miniFleetLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=minifleet&ajax=1";
+
+        var jumpGateLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=jumpgatelayer";
+        var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Use jumpgate"};
+
+        var timerHandler = new TimerHandler();
+
+        $(document).ready(
+            function(){
+                initOverlays();
+            }
+        );
+    </script>
+</head>
+<body id="ingamepage" class="no-touch ">
+
+<div id="siteHeader">
+</div>
+
+<div id="pageContent">
+    <div id="top">
+        <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+        <div id='resourcesbarcomponent'
+             class=""
+        >
+            <ul id="resources">
+                <li id="metal_box"
+                    class="metal  tooltipHTML"
+                    title="Metal:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;1&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;40.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+164&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;139&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon metal"></div>
+                    <span class="value">
+                    <span id="resources_metal" class="">1</span>
+                </span>
+                </li>
+                <li id="crystal_box"
+                    class="crystal  tooltipHTML"
+                    title="Crystal:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;75.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+73&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;63&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon crystal"></div>
+                    <span class="value">
+                    <span id="resources_crystal" class="">0</span>
+                </span>
+                </li>
+                <li id="deuterium_box"
+                    class="deuterium  tooltipHTML"
+                    title="Deuterium:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;1&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;20.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+20&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;32&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon deuterium"></div>
+                    <span class="value">
+                    <span id="resources_deuterium" class="">1</span>
+                </span>
+                </li>
+                <li id="energy_box"
+                    class="energy  tooltipHTML"
+                    title="Energy:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-454&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+79&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Consumption:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-533&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon energy"></div>
+                    <span class="value">
+                    <span id="resources_energy" class=" overmark">-454</span>
+                </span>
+                </li>
+                <li id="darkmatter_box"
+                    class="darkmatter  tooltipHTML"
+                    title="Dark Matter|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;9.848.523&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Purchased:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Found:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;9.848.523&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    data-tooltip-button="Purchase Dark Matter"
+                >
+                    <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=payment"
+                       class="overlay">
+                        <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif">
+                        <div class="resourceIcon darkmatter"></div>
+                    </a>
+                    <span class="value">
+                    <span id="resources_darkmatter" class="overlay">9.848.523</span>
+                </span>
+                </li>
+            </ul>
+            <script type="text/javascript">
+                var isMobile = false;
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+
+                (function($) {
+                    reloadResources({"metal":{"tooltip":"Metal:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">1<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">40.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+164<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">139<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":1,"amountFormatted":"1","max":40000,"production":0.045720286016589,"classes":"","classesListItem":""},"crystal":{"tooltip":"Crystal:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">75.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+73<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">63<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":0,"amountFormatted":"0","max":75000,"production":0.020425466101586,"classes":"","classesListItem":""},"deuterium":{"tooltip":"Deuterium:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">1<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">20.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+20<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">32<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":1,"amountFormatted":"1","max":20000,"production":0.0057663400422051,"classes":"","classesListItem":""},"energy":{"tooltip":"Energy:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"overmark\">-454<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+79<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"overmark\">-533<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":-454,"amountFormatted":"-454","classes":" overmark","classesListItem":""},"darkmatter":{"tooltip":"Dark Matter|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">9.848.523<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Purchased:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Found:<\/th>\n                <td><span class=\"\">9.848.523<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":9848523,"amountFormatted":"9.848.523","classes":"overlay","classesListItem":"","link":"https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}});
+                })(jQuery);
+            </script>
+        </div>
+        <div id='commandercomponent'
+             class=""
+        >
+            <div id="characterclass" class="fleft">
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=characterclassselection"
+                   class="tooltipHTML js_hideTipOnMobile"
+                   title="Your class: Collector|+25% mine production&lt;br&gt;+25% speed for Transporters&lt;br&gt;+25% cargo bay for Transporters&lt;br&gt;+2 fleet slots&lt;br&gt;+2 offers">
+                    <div class="sprite characterclass medium miner"></div>
+                </a>
+            </div>
+            <div id="officers" class="one  fright">
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=2"
+                   class="tooltipHTML  on shortTime commander js_hideTipOnMobile "
+                   title="Hire Commander|Still active for more than 2 days"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=3"
+                   class="tooltipHTML    admiral js_hideTipOnMobile "
+                   title="Hire Admiral|Max. fleet slots +2,
+Max. expeditions +1,
+Improved fleet escape rate"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=4"
+                   class="tooltipHTML    engineer js_hideTipOnMobile "
+                   title="Hire Engineer|Halves losses to defences, +10% energy production"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=5"
+                   class="tooltipHTML    geologist js_hideTipOnMobile "
+                   title="Hire Geologist|+10% mine production"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=6"
+                   class="tooltipHTML    technocrat js_hideTipOnMobile "
+                   title="Hire Technocrat|+2 espionage levels, 25% less research time"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+            </div>
+        </div>
+        <div id='notificationbarcomponent'
+             class=""
+        >
+            <div id="message-wrapper">
+                <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=messages"
+                   title="6 unread message(s)"
+                >
+                    <span class="new_msg_count totalMessages news "
+                          data-new-messages="6"
+                    >
+                6
+            </span>
+                </a>
+                <a class=" comm_menu chat tooltip js_hideTipOnMobile"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=chat"
+                   title="6 unread message(s)"
+                >
+        <span class="new_msg_count totalChatMessages noMessage"
+              data-new-messages="0">
+            0
+        </span>
+                </a>
+                <div id="messages_collapsed">
+                    <div id="eventboxFilled" class="eventToggle" style="display: none;">
+                        <a id="js_eventDetailsClosed"
+                           class="tooltipRight js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="More details"
+                        ></a>
+                        <a id="js_eventDetailsOpen"
+                           class="tooltipRight open js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="Less detail"
+                        ></a>
+                    </div>
+                    <div id="eventboxLoading"
+                         class="textCenter textBeefy"
+                         style="display: block;"
+                    >
+                        <img height="16"
+                             width="16"
+                             alt="ajax spinner"
+                             src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"
+                        />
+                        load...
+                    </div>
+                    <div id="eventboxBlank"
+                         class="textCenter"
+                         style="display: none;"
+                    >
+                        No fleet movement
+                    </div>
+                </div>
+                <div id="attack_alert"
+                     class="tooltip noAttack"
+                     title=""
+                >
+                    <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"
+                    ></a>
+                </div>
+            </div>
+        </div>
+        <div id='headerbarcomponent'
+             class=""
+        >
+            <div id="bar">
+                <ul>
+                    <li id="playerName">
+                        Player:
+
+                        <span class="textBeefy">
+                            <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=changenick"
+                               class="overlay textBeefy"
+                               data-overlay-title="Change player name"
+                               data-overlay-popup-width="400"
+                               data-overlay-popup-height="200"
+                            >Governor Meridian</a>
+                        </span>
+                    </li>
+                    <li>
+                        <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=highscore" accesskey="">Highscore</a>
+                        (1384)
+                    </li>
+                    <li>
+                        <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=notices"
+                           class="overlay" data-overlay-title="My notes"
+                           data-overlay-class="notices"
+                           data-overlay-popup-width="750"
+                           data-overlay-popup-height="480"
+                           accesskey="">
+                            Notes</a>
+                    </li>
+                    <li>
+                        <a class=""
+                           accesskey=""
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=buddies"
+                        >
+                            Buddies</a>
+                    </li>
+                    <li><a class="overlay"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=search&amp;ajax=1"
+                           data-overlay-title="Search Universe"
+                           data-overlay-close="__default closeSearch"
+                           data-overlay-class="search"
+                           accesskey="">Search</a>
+                    </li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=preferences" accesskey="">Options</a></li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=support" target="_blank">Support</a></li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=logout">Log out</a></li>
+                    <li class="OGameClock">16.10.2019 <span>01:54:47</span></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div id="left">
+        <div id='mainmenucomponent'></div>
+        <div id='tutorialiconcomponent'
+             class=""
+        >
+            <div id="helper">
+                <a class="highlight tooltip tooltipClose"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=tutorial&amp;displayNew=1"
+                   title="Tutorial overview&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=rewards&quot;&gt;Rewards&lt;/a&gt;">?</a>
+            </div>
+        </div>
+        <div id='toolbarcomponent'
+             class=""
+        >
+            <div id="links">
+                <ul id="menuTable" class="leftmenu">
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=rewards"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Rewards">
+                            <div class="menuImage overview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Overview</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=resourceSettings"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Resource settings">
+                            <div class="menuImage resources  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Resources</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Jump Gate">
+                            <div class="menuImage station  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Facilities</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage marketplace  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Marketplace</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=traderOverview#page=traderResources&amp;animation=false"
+                                                                               class="trader tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Resource Market">
+                            <div class="menuImage traderOverview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=traderOverview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Merchant</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all"
+                                                                               class="overlay tooltipRight js_hideTipOnMobile "
+                                                                               target="_blank"
+                                                                               title="Technology">
+                            <div class="menuImage research  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Research</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage shipyard  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shipyard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage defense  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Defence</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Fleet movement">
+                            <div class="menuImage fleet1 active 
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton  selected"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Fleet</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage galaxy  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Galaxy</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage empire  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=empire"
+                           accesskey=""
+                           target="_blank"
+                        >
+                            <span class="textlabel">Empire</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage alliance  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=alliance"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Alliance</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage premium  "></span>
+                                    </span>
+                        <a class="menubutton premiumHighligt officers"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Recruit Officers</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Inventory">
+                            <div class="menuImage shop  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=shop"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shop</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage   "></span>
+                                    </span>
+                        <a class="menubutton overlay"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=feedback&amp;ajax=1"
+                           target="_self"
+                           data-overlay-title="Feedback"
+                        >
+                            <span class="textlabel">Feedback</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage   "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://www.stomt.com/ogame"
+                           target="_blank"
+                        >
+                            <span class="textlabel">Stomt</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="toolLinksWrapper">
+                    <ul id="menuTableTools" class="leftmenu"></ul>
+                </div>
+                <br class="clearfloat"/>
+            </div>
+        </div>
+        <div id='advicebarcomponent'
+             class=""
+        >
+            <div class="adviceWrapper">
+
+                <div id="advice-bar">
+
+
+
+
+                </div>
+                <div id="banner_skyscraper" name="banner_skyscraper">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="middle">
+        <div id='eventlistcomponent'
+             class=""
+        >
+            <div id="eventboxContent"
+                 style="display: none;">
+                <div id="eventListWrap">
+                    <div id="eventHeader">
+                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
+                        </a>
+                        <h2>Events</h2>
+                    </div>
+                    <table id="eventContent">
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div id="eventFooter"></div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var timeDelta = 1571187287000 - (new Date()).getTime();
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+                (function($) {
+                })(jQuery);
+            </script>
+
+
+        </div>
+        <div id='fleetdispatchcomponent'
+             class="maincontent"
+        >
+            <script type="text/javascript">
+                var fleetSendingToken = "1e56189d01a25722d7599e1cc87d5ac5";
+
+                var checkTargetUrl = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=fleetdispatch&action=checkTarget&ajax=1&asJson=1"
+                var sendFleetUrl = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=fleetdispatch&action=sendFleet&ajax=1&asJson=1"
+
+                var FLEET_DEUTERIUM_SAVE_FACTOR = 1;
+                var maxNumberOfPlanets = 3;
+                var shipsData = {"204":{"id":204,"name":"Light Fighter","baseFuelConsumption":20,"baseFuelCapacity":50,"baseCargoCapacity":50,"fuelConsumption":0,"baseSpeed":12500,"speed":18750,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"205":{"id":205,"name":"Heavy Fighter","baseFuelConsumption":75,"baseFuelCapacity":100,"baseCargoCapacity":100,"fuelConsumption":0,"baseSpeed":10000,"speed":18000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"206":{"id":206,"name":"Cruiser","baseFuelConsumption":300,"baseFuelCapacity":800,"baseCargoCapacity":800,"fuelConsumption":0,"baseSpeed":15000,"speed":27000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"207":{"id":207,"name":"Battleship","baseFuelConsumption":500,"baseFuelCapacity":1500,"baseCargoCapacity":1500,"fuelConsumption":0,"baseSpeed":10000,"speed":10000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"215":{"id":215,"name":"Battlecruiser","baseFuelConsumption":250,"baseFuelCapacity":750,"baseCargoCapacity":750,"fuelConsumption":0,"baseSpeed":10000,"speed":10000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"211":{"id":211,"name":"Bomber","baseFuelConsumption":700,"baseFuelCapacity":500,"baseCargoCapacity":500,"fuelConsumption":0,"baseSpeed":4000,"speed":7200,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"213":{"id":213,"name":"Destroyer","baseFuelConsumption":1000,"baseFuelCapacity":2000,"baseCargoCapacity":2000,"fuelConsumption":0,"baseSpeed":5000,"speed":5000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"214":{"id":214,"name":"Deathstar","baseFuelConsumption":1,"baseFuelCapacity":1000000,"baseCargoCapacity":1000000,"fuelConsumption":0,"baseSpeed":100,"speed":100,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"218":{"id":218,"name":"Reaper","baseFuelConsumption":900,"baseFuelCapacity":10000,"baseCargoCapacity":10000,"fuelConsumption":0,"baseSpeed":7000,"speed":7000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":2},"219":{"id":219,"name":"Pathfinder","baseFuelConsumption":300,"baseFuelCapacity":10000,"baseCargoCapacity":10000,"fuelConsumption":0,"baseSpeed":12000,"speed":12000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":3},"202":{"id":202,"name":"Small Cargo","baseFuelConsumption":10,"baseFuelCapacity":5000,"baseCargoCapacity":6250,"fuelConsumption":0,"baseSpeed":5000,"speed":8750,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"203":{"id":203,"name":"Large Cargo","baseFuelConsumption":50,"baseFuelCapacity":25000,"baseCargoCapacity":31250,"fuelConsumption":0,"baseSpeed":7500,"speed":13125,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"208":{"id":208,"name":"Colony Ship","baseFuelConsumption":1000,"baseFuelCapacity":7500,"baseCargoCapacity":7500,"fuelConsumption":0,"baseSpeed":2500,"speed":4500,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"209":{"id":209,"name":"Recycler","baseFuelConsumption":300,"baseFuelCapacity":20000,"baseCargoCapacity":20000,"fuelConsumption":0,"baseSpeed":2000,"speed":3000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"210":{"id":210,"name":"Espionage Probe","baseFuelConsumption":1,"baseFuelCapacity":5,"baseCargoCapacity":0,"fuelConsumption":0,"baseSpeed":100000000,"speed":150000000,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0},"217":{"id":217,"name":"Crawler","baseFuelConsumption":0,"baseFuelCapacity":0,"baseCargoCapacity":0,"fuelConsumption":0,"baseSpeed":0,"speed":0,"cargoCapacity":0,"fuelCapacity":0,"number":0,"recycleMode":0}};
+
+                var speed = 100
+
+                var PLAYER_ID_SPACE = 99999;
+                var PLAYER_ID_LEGOR = 1;
+                var DONUT_GALAXY = 1;
+                var DONUT_SYSTEM = 1;
+                var MAX_GALAXY = 9;
+                var MAX_SYSTEM = 499;
+                var MAX_POSITION = 16;
+                var SPEEDFAKTOR_FLEET = 4;
+                var PLANETTYPE_PLANET = 1;
+                var PLANETTYPE_DEBRIS = 2;
+                var PLANETTYPE_MOON = 3;
+                var MAX_NUMBER_OF_PLANETS = 3;
+                var COLONIZATION_ENABLED = true;
+
+                var missions = {"MISSION_NONE":0,"MISSION_ATTACK":1,"MISSION_UNIONATTACK":2,"MISSION_TRANSPORT":3,"MISSION_DEPLOY":4,"MISSION_HOLD":5,"MISSION_ESPIONAGE":6,"MISSION_COLONIZE":7,"MISSION_RECYCLE":8,"MISSION_DESTROY":9,"MISSION_MISSILEATTACK":10,"MISSION_EXPEDITION":15};
+                var orderNames = {"15":"Expedition","7":"Colonisation","8":"Recycle debris field","3":"Transport","4":"Deployment","6":"Espionage","5":"ACS Defend","1":"Attack","2":"ACS Attack","9":"Moon Destruction"};
+                var orderDescriptions = {"1":"Attacks the fleet and defence of your opponent.","2":"Honourable battles can become dishonourable battles if strong players enter through ACS. The attacker`s sum of total military points in comparison to the defender`s sum of total military points is the decisive factor here.","3":"Transports your resources to other planets.","4":"Sends your fleet permanently to another planet of your empire.","5":"Defend the planet of your team-mate.","6":"Spy the worlds of foreign emperors.","7":"Colonizes a new planet.","8":"Send your recyclers to a debris field to collect the resources floating around there.","9":"Destroys the moon of your enemy.","15":"Send your ships into the final frontier of space to encounter thrilling quests."};
+
+                var currentPlanet = {"galaxy":9,"system":297,"position":12,"type":1,"name":"Homeworld"};
+                var targetPlanet = {"galaxy":9,"system":297,"position":12,"type":1,"name":"Homeworld"};
+                var shipsOnPlanet = [{"id":202,"name":"Small Cargo","baseFuelConsumption":10,"baseFuelCapacity":5000,"baseCargoCapacity":6250,"fuelConsumption":60,"baseSpeed":5000,"speed":8750,"cargoCapacity":37500,"fuelCapacity":30000,"number":6,"recycleMode":0},{"id":208,"name":"Colony Ship","baseFuelConsumption":1000,"baseFuelCapacity":7500,"baseCargoCapacity":7500,"fuelConsumption":1000,"baseSpeed":2500,"speed":4500,"cargoCapacity":7500,"fuelCapacity":7500,"number":1,"recycleMode":0}];
+                var planets = [{"galaxy":9,"system":297,"position":12,"type":1,"name":"Homeworld"},{"galaxy":9,"system":297,"position":9,"type":1,"name":"Colony"}];
+                var standardFleets = [];
+                var unions = [];
+
+                var mission = 0;
+                var unionID = 0;
+                var speed = 10;
+
+                var missionHold = 5;
+                var missionExpedition = 15;
+
+                var holdingTime = 1;
+                var expeditionTime = 0;
+
+                var metalOnPlanet = 1;
+                var crystalOnPlanet = 0;
+                var deuteriumOnPlanet = 1;
+
+                var fleetCount = 0;
+                var maxFleetCount = 4;
+                var expeditionCount = 0;
+                var maxExpeditionCount = 1;
+
+                var warningsEnabled = true;
+
+                var playerId = 118523;
+                var hasAdmiral = false;
+                var hasCommander = true;
+                var isOnVacation = false;
+
+                var moveInProgress = false;
+                var planetCount = 2;
+                var explorationCount = 1;
+
+                var apiCommonData = [["coords","9:297:12"],["characterClassId",1]];
+                var apiTechData = [[109,0],[110,0],[111,4],[115,5],[117,4],[118,0],[114,0]];
+                var apiDefenseData = [[402,2]];
+
+                var loca = {"LOCA_FLEET_TITLE_MOVEMENTS":"To fleet movement","LOCA_FLEET_MOVEMENT":"Fleet movement","LOCA_FLEET_EDIT_STANDARTFLEET":"Edit standard fleets","LOCA_FLEET_STANDARD":"Standard fleets","LOCA_FLEET_HEADLINE_ONE":"Fleet Dispatch I","LOCA_FLEET_TOOLTIPP_SLOTS":"Used\/Total fleet slots","LOCA_FLEET_FLEETSLOTS":"Fleets","LOCA_FLEET_NO_FREE_SLOTS":"No fleet slots available","LOCA_FLEETSENDING_NO_TARGET":"You have to select a valid target.","LOCA_FLEET_TOOLTIPP_EXP_SLOTS":"Used\/Total expedition slots","LOCA_FLEET_EXPEDITIONS":"Expeditions","LOCA_ALL_NEVER":"Never","LOCA_FLEET_SEND_NOTAVAILABLE":"Fleet dispatch impossible","LOCA_FLEET_NO_SHIPS_ON_PLANET":"There are no ships on this planet.","LOCA_SHIPYARD_HEADLINE_BATTLESHIPS":"Combat ships","LOCA_SHIPYARD_HEADLINE_CIVILSHIPS":"Civil ships","LOCA_FLEET_SELECT_SHIPS_ALL":"Select all ships","LOCA_FLEET_SELECTION_RESET":"Reset choice","LOCA_API_FLEET_DATA":"This data can be entered into a compatible combat simulator:","LOCA_ALL_BUTTON_FORWARD":"Next","LOCA_FLEET_NO_SELECTION":"Nothing has been selected","LOCA_ALL_TACTICAL_RETREAT":"Tactical retreat","LOCA_FLEET1_TACTICAL_RETREAT_CONSUMPTION_TOOLTIP":"Show Deuterium usage per tactical retreat","LOCA_FLEET_FUEL_CONSUMPTION":"Deuterium consumption","LOCA_FLEET_ERROR_OWN_VACATION":"No fleets can be sent from vacation mode!","LOCA_FLEET_HEADLINE_TWO":"Fleet Dispatch II","LOCA_FLEET_TAKEOFF_PLACE":"Take off location","LOCA_FLEET_TARGET_PLACE":"Destination","LOCA_ALL_PLANET":"Planet","LOCA_ALL_MOON":"Moon","LOCA_FLEET_COORDINATES":"Coordinates","LOCA_FLEET_DISTANCE":"Distance","LOCA_FLEET_DEBRIS":"debris field","LOCA_FLEET_SHORTLINKS":"Shortcuts","LOCA_FLEET_FIGHT_ASSOCIATION":"Combat forces","LOCA_FLEET_BRIEFING":"Briefing","LOCA_FLEET_DURATION_ONEWAY":"Duration of flight (one way)","LOCA_FLEET_SPEED":"Speed:","LOCA_FLEET_SPEED_MAX_SHORT":"max.","LOCA_FLEET_ARRIVAL":"Arrival","LOCA_FLEET_TIME_CLOCK":"Clock","LOCA_FLEET_RETURN":"Return","LOCA_FLEET_HOLD_FREE":"Empty cargobays","LOCA_ALL_BUTTON_BACK":"Back","LOCA_FLEET_PLANET_UNHABITATED":"Uninhabited planet","LOCA_FLEET_NO_DEBIRS_FIELD":"No debris field","LOCA_FLEET_PLAYER_UMODE":"Player in vacation mode","LOCA_FLEET_ADMIN":"Admin or GM","LOCA_ALL_NOOBSECURE":"Noob protection","LOCA_GALAXY_ERROR_STRONG":"This planet can not be attacked as the player is to strong!","LOCA_FLEET_NO_MOON":"No moon available.","LOCA_FLEET_NO_RECYCLER":"No recycler available.","LOCA_ALL_NO_EVENT":"There are currently no events running.","LOCA_PLANETMOVE_ERROR_ALREADY_RESERVED":"This planet has already been reserved for a relocation.","LOCA_FLEET_ERROR_TARGET_MSG":"Fleets can not be sent to this target.","LOCA_FLEETSENDING_NOT_ENOUGH_FOIL":"Not enough deuterium!","LOCA_FLEET_HEADLINE_THREE":"Fleet Dispatch III","LOCA_FLEET_TARGET_FOR_MISSION":"Select mission for target","LOCA_FLEET_MISSION":"Mission","LOCA_FLEET_RESOURCE_LOAD":"Load resources","LOCA_FLEET_SELECTION_NOT_AVAILABLE":"You cannot start this mission.","LOCA_FLEET_RETREAT_AFTER_DEFENDER_RETREAT_TOOLTIP":"If this option is activated, your fleet will also withdraw without a fight if your opponent flees.","LOCA_FLEET_RETREAT_AFTER_DEFENDER_RETREAT":"Return upon retreat by defenders","LOCA_FLEET_TARGET":"Target","LOCA_FLEET_DURATION_FEDERATION":"Flight Duration (fleet union)","LOCA_ALL_TIME_HOUR":"h","LOCA_FLEET_HOLD_TIME":"Hold time","LOCA_FLEET_EXPEDITION_TIME":"Duration of expedition","LOCA_ALL_METAL":"Metal","LOCA_ALL_CRYSTAL":"Crystal","LOCA_ALL_DEUTERIUM":"Deuterium","LOCA_FLEET_LOAD_ROOM":"cargo bay","LOCA_FLEET_CARGO_SPACE":"Available space \/ Max. cargo space","LOCA_FLEET_SEND":"Send fleet","LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_PLANETMOVE_BREAKUP_WARNING":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No","LOCA_ALL_NOTICE":"Reference","LOCA_FLEETSENDING_MAX_PLANET_WARNING":"Attention! No further planets may be colonised at the moment. Two levels of astrotechnology research are necessary for each new colony. Do you still want to send your fleet?","LOCA_ALL_PLAYER":"Player","LOCA_FLEET_RESOURCES_ALL_LOAD":"Load all resources","LOCA_FLEET_RESOURCES_ALL":"all resources","LOCA_NETWORK_USERNAME":"Players Name","LOCA_EVENTH_ENEMY_INFINITELY_SPACE":"deep space"};
+                var locadyn = {"locaAllOutlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","localBashWarning":"In this universe, 0 attacks are permitted within a 24-hour period. This attack would probably exceed this limit. Do you really wish to launch it?","locaOfficerbonusTooltipp":"+ 2 Fleet slots because of Admiral"};
+                var errorCodeMap = {"601":"An error has occurred","602":"Error, there is no moon","603":"Error, player can`t be approached because of newbie protection","604":"Player is too strong to be attacked","605":"Error, player is in vacation mode","606":"No fleets can be sent from vacation mode!","610":"Error, not enough ships available, send maximum number:","611":"Error, no ships available","612":"Error, no free fleet slots available","613":"Error, you don`t have enough deuterium","614":"Error, there is no planet there","615":"Error, not enough cargo capacity","616":"Multi-alarm","617":"Admin or GM","618":"Attack ban until 01.01.1970 01:00:00"};
+
+                var fleetDispatcher = null;
+
+                $(function(){
+                    fleetDispatcher = new FleetDispatcher(window);
+                    fleetDispatcher.init();
+
+
+                });
+            </script>
+
+            <div id="fleet1">
+                <div id="inhalt">
+                    <div id="zeuch666" style="display:none;">
+                        <div id="sftcontainer">
+                            <div id="fleetzOverview">
+                                <table id="fleetTemplates" class="list">
+                                    <tr class="separator">
+                                        <th class="textCenter fleet_id">#</th>
+                                        <th class="fleet_name">Name</th>
+                                        <th class="fleet_actions">Actions</th>
+                                        <th class="textCenter fleet_id">#</th>
+                                        <th class="fleet_name">Name</th>
+                                        <th class="fleet_actions">Actions</th>
+                                    </tr>
+                                    <tr>
+                                        <td class="textBeefy textCenter">
+                                            1
+                                        </td>
+                                        <td class="textCenter fleetDesc">
+                                            <div class="fleetDescCont js_hideTipOnMobile "
+                                            >
+                                                --- <span class="undermark">free</span> ---
+                                            </div>
+                                        </td>
+                                        <td class="textCenter actions">
+                                        </td>
+
+                                        <td class="textBeefy textCenter">
+                                            2
+                                        </td>
+                                        <td class="textCenter fleetDesc">
+                                            <div class="fleetDescCont js_hideTipOnMobile "
+                                            >
+                                                --- <span class="undermark">free</span> ---
+                                            </div>
+                                        </td>
+                                        <td class="textCenter actions">
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td colspan="3"></td>
+
+                                    </tr>
+                                </table>
+                                <a href="javascript: void(0);"
+                                   class="btn_blue float_right overlay"
+                                   id="addNewTpl"
+                                   onClick='setShipsFleet({"202":0,"203":0,"204":0,"205":0,"206":0,"207":0,"208":0,"209":0,"210":0,"211":0,"212":0,"213":0,"214":0,"215":0,"218":0,"219":0}, "", 0)'
+                                   data-overlay-inline="#fleetTemplatesEdit"
+                                   data-overlay-title="Add new template"
+                                >
+                                    Add new template
+                                </a>
+                                <br class="clearfloat" />
+                            </div><!-- #fleetzOverview -->
+                            <div id="fleetTemplatesEdit"
+                                 style="display:none;"
+                            >
+                                <form method="POST"
+                                      action="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch"
+                                      name="submit_std"
+                                      id="submit_std"
+                                      value="1"
+                                >
+                                    <input type="hidden" name="open_std" value="1">
+                                    <input type="hidden" name="template_id" id="template_id" value="0">
+                                    <input type="hidden" name="mode" value="save">
+                                    <label class="fleet_tpl_name">Name</label>
+                                    <input size="20"
+                                           maxlength="30"
+                                           type="text"
+                                           class="w200 textinput"
+                                           name="template_name"
+                                           id='template_name'
+                                    />
+                                    <table cellpadding="0" cellspacing="0" class="list ship_selection_table" id="mail">
+                                        <tr>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech204"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Light Fighter"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Light Fighter
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship204"
+                                                       name="ship[204]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech205"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Heavy Fighter"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Heavy Fighter
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship205"
+                                                       name="ship[205]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech206"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Cruiser"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Cruiser
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship206"
+                                                       name="ship[206]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech207"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Battleship"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Battleship
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship207"
+                                                       name="ship[207]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech215"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Battlecruiser"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Battlecruiser
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship215"
+                                                       name="ship[215]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech211"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Bomber"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Bomber
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship211"
+                                                       name="ship[211]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech213"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Destroyer"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Destroyer
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship213"
+                                                       name="ship[213]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech214"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Deathstar"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Deathstar
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship214"
+                                                       name="ship[214]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech218"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Reaper"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Reaper
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship218"
+                                                       name="ship[218]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech219"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Pathfinder"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Pathfinder
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship219"
+                                                       name="ship[219]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech202"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Small Cargo"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Small Cargo
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship202"
+                                                       name="ship[202]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech203"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Large Cargo"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Large Cargo
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship203"
+                                                       name="ship[203]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech208"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Colony Ship"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Colony Ship
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship208"
+                                                       name="ship[208]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech209"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Recycler"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Recycler
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship209"
+                                                       name="ship[209]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="ship_txt_row textLeft images">
+                                                <div class="shipImage float_left">
+                                                    <img class="tech210"
+                                                         width="28"
+                                                         height="28"
+                                                         alt="Espionage Probe"
+                                                         src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                    />
+                                                </div>
+                                                <p>
+                                                    Espionage Probe
+                                                </p>
+                                            </td>
+                                            <td class="ship_input_row shipValue">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="textRight textinput"
+                                                       size="3"
+                                                       id="ship210"
+                                                       name="ship[210]"
+                                                       onfocus="clearInput(this);"
+                                                       onblur="checkIntInput(this, 0, null);"
+                                                       onkeyup="checkIntInput(this, 0, null);"
+                                                />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" class="textRight name">
+                                                <a href="javascript: void(0);"
+                                                   class="tooltip js_hideTipOnMobile standardFleetReset float_right icon_link"
+                                                   title="Delete template/input"
+                                                >
+                                                    <span class="icon icon_trash"></span>
+                                                </a>
+                                                <a href="javascript: void(0);"
+                                                   class="tooltip js_hideTipOnMobile standardFleetSubmit float_right icon_link"
+                                                   title="Save template"
+                                                >
+                                                    <span class="icon icon_checkmark"></span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div><!-- #fleetTemplatesEdit -->
+                        </div>
+                        <script type="text/javascript">
+                            (function($) {
+                                initStandardFleet();
+                            })(jQuery);
+                        </script>
+                    </div>
+
+                    <div id="planet" class="planet-header ">
+                        <h2>Fleet Dispatch I - Homeworld</h2>
+                        <a class="toggleHeader" data-name="fleet1">
+                            <img alt="" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22" />
+                        </a>
+                    </div>
+                    <div class="fleetStatus">
+                        <div id="slots" class="fleft">
+                            <div class="fleft">
+                                            <span class="tooltip advice "
+                                                  title="Used/Total fleet slots"
+                                            ><span>Fleets:</span>0/4</span>
+                            </div>
+                            <div class="fleft">
+                                        <span class="tooltip advice "
+                                              title="Used/Total expedition slots"
+                                        >
+                            <span>Expeditions:</span>
+                            0/1
+                        </span>
+                            </div>
+                        </div>
+
+                        <br class="clearfloat"/>
+                    </div>
+                    <div class="fleetStatus">
+                        <div id="slots" class="fleft">
+                            <div class="fleft tactical_retreat">
+                                <a title="Tactical retreat|Fleets are able to automatically retreat if they are attacked by a superior force five times stronger than themselves. The crucial factor in this are the attacker`s fleet points in comparison to your fleet points. Defence facilities are not considered.&lt;br /&gt;&lt;br /&gt;
+Civil ships only count 25%, solar satellites and espionage probes are not considered. &lt;br /&gt;&lt;br /&gt;
+Select the option *never* if you would like to deactivate the automatic retreat.&lt;br /&gt;&lt;br /&gt;
+Held fleets are in principle not able to retreat. Death Stars, Espionage Probes and Solar Satellites are also unable to retreat.&lt;br /&gt;&lt;br /&gt;
+Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.&lt;br /&gt;&lt;br /&gt;
+The `tactical retreat` option ends with 500.000 points."
+                                   href="javascript:void(0);"
+                                   class="tooltipHTML tooltipRight help"
+                                ></a>
+                                <form class="fleft" name="tacticalRetreat" method="POST" action="">
+                            <span class="tooltipHTML tooltipRight"
+                                  title="Tactical retreat|Fleets are able to automatically retreat if they are attacked by a superior force five times stronger than themselves. The crucial factor in this are the attacker`s fleet points in comparison to your fleet points. Defence facilities are not considered.&lt;br /&gt;&lt;br /&gt;
+Civil ships only count 25%, solar satellites and espionage probes are not considered. &lt;br /&gt;&lt;br /&gt;
+Select the option *never* if you would like to deactivate the automatic retreat.&lt;br /&gt;&lt;br /&gt;
+Held fleets are in principle not able to retreat. Death Stars, Espionage Probes and Solar Satellites are also unable to retreat.&lt;br /&gt;&lt;br /&gt;
+Use the Admiral to enable your fleets to retreat from forces three times bigger than your own.&lt;br /&gt;&lt;br /&gt;
+The `tactical retreat` option ends with 500.000 points."
+                            >
+                                Tactical retreat:
+                            </span>
+                                    <input onclick="ajaxFormSubmit('tacticalRetreat', 'https://s801-en.ogame.gameforge.com/game/index.php?page=tacticalRetreat&amp;tacticalRetreatState=0');"
+
+                                           type="radio"
+                                           name="tacticalRetreat"
+                                           value="0"
+                                    />
+                                    Never
+                                    <input onclick="ajaxFormSubmit('tacticalRetreat', 'https://s801-en.ogame.gameforge.com/game/index.php?page=tacticalRetreat&amp;tacticalRetreatState=5');"
+                                           checked=&quot;checked&quot;
+                                           type="radio"
+                                           name="tacticalRetreat"
+                                           value="5"
+                                    /> 5:1
+                                    <input type="radio"
+                                           disabled="disabled"
+                                           name="tacticalRetreat"
+                                    />
+                                    <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=3"
+                                       class="disabled tooltipHTML"
+                                       title="Tactical retreat|Use the Admiral to enable your fleets to retreat from forces three times bigger than your own."
+                                    >
+                                        3:1
+                                    </a>
+                                </form>
+                            </div>
+                            <div class="fleft tooltip"
+                                 title="Show Deuterium usage per tactical retreat"
+                            >
+                        <span>
+                            Deuterium consumption:
+                        </span>
+                                182
+                            </div>
+                            <br class="clearfloat"/>
+                        </div>                <br class="clearfloat"/>
+                    </div>
+                    <div class="c-left"></div>
+                    <div class="c-right"></div>
+                    <div id="buttonz">
+                        <div class="content">
+                            <form name="shipsChosen"
+                                  id="shipsChosen"
+                                  method="post"
+                                  action="https://s801-en.ogame.gameforge.com/game/index.php?page=fleet2"
+                            >
+                                <div id="technologies">
+                                    <div id="battleships">
+                                        <div class="header"><h2>Combat ships</h2></div>
+                                        <ul id="military" class="iconsUNUSED">
+
+
+
+
+                                            <li class="technology fighterLight interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="204"
+                                                data-status="off"
+                                                aria-label="Light Fighter"
+                                                title="Light Fighter (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small fighterLight">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="fighterLight"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology fighterHeavy interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="205"
+                                                data-status="off"
+                                                aria-label="Heavy Fighter"
+                                                title="Heavy Fighter (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small fighterHeavy">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="fighterHeavy"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology cruiser interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="206"
+                                                data-status="off"
+                                                aria-label="Cruiser"
+                                                title="Cruiser (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small cruiser">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="cruiser"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology battleship interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="207"
+                                                data-status="off"
+                                                aria-label="Battleship"
+                                                title="Battleship (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small battleship">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="battleship"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology interceptor interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="215"
+                                                data-status="off"
+                                                aria-label="Battlecruiser"
+                                                title="Battlecruiser (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small interceptor">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="interceptor"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology bomber interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="211"
+                                                data-status="off"
+                                                aria-label="Bomber"
+                                                title="Bomber (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small bomber">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="bomber"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology destroyer interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="213"
+                                                data-status="off"
+                                                aria-label="Destroyer"
+                                                title="Destroyer (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small destroyer">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="destroyer"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology deathstar interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="214"
+                                                data-status="off"
+                                                aria-label="Deathstar"
+                                                title="Deathstar (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small deathstar">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="deathstar"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology reaper interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="218"
+                                                data-status="off"
+                                                aria-label="Reaper"
+                                                title="Reaper (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small reaper">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="reaper"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology explorer interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="219"
+                                                data-status="off"
+                                                aria-label="Pathfinder"
+                                                title="Pathfinder (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small explorer">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="explorer"
+                                                       disabled
+                                                >
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div id="civilships">
+                                        <div class="header"><h2>Civil ships</h2></div>
+                                        <ul id="civil" class="iconsUNUSED">
+
+
+
+
+                                            <li class="technology transporterSmall interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="202"
+                                                data-status="on"
+                                                aria-label="Small Cargo"
+                                                title="Small Cargo (6)"
+                                            >
+
+    <span class="icon sprite sprite_small small transporterSmall">
+        
+        
+        
+                    <span class="amount"
+                          data-value="6"
+                          data-bonus="0"
+                    >
+                <span>6</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="transporterSmall"
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology transporterLarge interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="203"
+                                                data-status="off"
+                                                aria-label="Large Cargo"
+                                                title="Large Cargo (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small transporterLarge">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="transporterLarge"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology colonyShip interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="208"
+                                                data-status="on"
+                                                aria-label="Colony Ship"
+                                                title="Colony Ship (1)"
+                                            >
+
+    <span class="icon sprite sprite_small small colonyShip">
+        
+        
+        
+                    <span class="amount"
+                          data-value="1"
+                          data-bonus="0"
+                    >
+                <span>1</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="colonyShip"
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology recycler interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="209"
+                                                data-status="off"
+                                                aria-label="Recycler"
+                                                title="Recycler (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small recycler">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="recycler"
+                                                       disabled
+                                                >
+
+                                            </li>
+
+
+
+
+                                            <li class="technology espionageProbe interactive hasDetails tooltip js_hideTipOnMobile"
+                                                data-technology="210"
+                                                data-status="off"
+                                                aria-label="Espionage Probe"
+                                                title="Espionage Probe (0)"
+                                            >
+
+    <span class="icon sprite sprite_small small espionageProbe">
+        
+        
+        
+                    <span class="amount"
+                          data-value="0"
+                          data-bonus="0"
+                    >
+                <span>0</span> <span class="bonus"></span>
+            </span>
+            </span>
+
+                                                <input type="number"
+                                                       name="espionageProbe"
+                                                       disabled
+                                                >
+
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="clearfloat"></div>
+                            <div id="allornone" style="position:relative">
+                                <div class="allornonewrap">
+                                    <div class="secondcol fleft">
+                                <span class="send_all">
+                                    <a id="sendall"
+                                       class="tooltip js_hideTipOnMobile"
+                                       title="Select all ships"
+                                    >
+                                        <img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" />
+                                    </a>
+                                </span>
+                                        <span class="send_none">
+                                    <a id="resetall"
+                                       class="tooltip js_hideTipOnMobile"
+                                       title="Reset choice"
+                                    >
+                                        <img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" />
+                                    </a>
+                                </span>
+                                        <div class="clearfloat"></div>
+                                    </div>                                                             <div class="firstcol fleft">
+                                        <a id="combatunits"
+                                           class="overlay dark_highlight_tablet"
+                                           data-overlay-inline="#zeuch666"
+                                           data-overlay-title="Edit standard fleets"
+                                        >
+                                            <span class="icon icon_combatunits"></span>
+                                            Standard fleets
+                                        </a>
+                                        <select class="combatunits" size="1"
+                                                id="standardfleet">
+                                            <option>-</option>
+                                        </select>
+                                    </div>
+                                    <span class="show_fleet_apikey tooltipCustom js_hideTipOnMobile"
+                                          title="This data can be entered into a compatible combat simulator:<br/><input id='FLEETAPI' value='coords;9:297:12|characterClassId;1|109;0|110;0|111;4|115;5|117;4|118;0|114;0|402;2' readonly onclick='select()' style='width: 360px;'></input>"
+                                    >
+                            </span>
+                                    <a id="continueToFleet2" class="continue off" href="" >
+                                        <span>Next</span>
+                                    </a>
+                                    <div class="clearfloat"></div>
+                                    <p class="info">
+                                        Nothing has been selected
+                                    </p>
+                                </div>                    </div>                    <div class="footer"></div>
+                        </div>            </div>
+                </div>
+            </div>
+            <div id="fleet2" style="display: none;">
+                <form name="details" method="post" action="https://s801-en.ogame.gameforge.com/game/index.php?page=fleet3">
+                    <input name="type" id="type" type="hidden" value="1" />
+                    <input name="mission" type="hidden" value="0" />
+                    <input name="union" type="hidden" value="0" />
+
+                    <div id="inhalt">
+                        <div id="planet" class="planet-header ">
+                            <h2>Fleet Dispatch II - Homeworld</h2>
+                            <a class="toggleHeader" data-name="fleet2">
+                                <img alt="" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22" />
+                            </a>
+                        </div>
+                        <div class="c-left shortCorner"></div>
+                        <div class="c-right shortCorner"></div>
+                        <div id="buttonz">
+                            <div class="header"></div>
+                            <div class="content">
+                                <div class="ajax_loading">
+                                    <div class="ajax_loading_overlay">
+                                        <div class="ajax_loading_indicator"></div>
+                                    </div>
+                                </div>
+                                <table cellpadding="0" cellspacing="0" id="mission">
+                                    <tr>
+                                        <th>Take off location:</th>
+                                        <th></th>
+                                        <th>Destination:</th>
+                                        <th></th>
+                                    </tr>
+                                    <tr>
+                                        <td id="start" class="border5px">
+                                            <div class="planetname">Homeworld</div>
+                                            <div class="target">
+                                                <a class="planet_source_selected">
+                                                    <span class="textlabel">Planet</span>
+                                                </a>
+                                                <a class="moon_source">
+                                                    <span class="textlabel">Moon</span>
+                                                </a>
+                                                <br class="clearfloat" />
+                                            </div>
+                                            <div class="coords">
+                                                Coordinates:
+                                                <span style="color: #ffffff; font-weight: bold;">9:297:12</span>
+                                            </div>
+                                        </td>
+                                        <td id="distance">
+                                            <div id="distanceValue">-</div>
+                                            <div class="coords">Distance</div>
+                                        </td>
+                                        <td id="target" class="border5px">
+                                            <div class="planetname" id="targetPlanetName">
+                                                Homeworld
+                                            </div>
+                                            <div class="target">
+                                                <a class="planet_selected"
+                                                   href=""
+                                                   id="pbutton"
+                                                >
+                                                    <span class="textlabel">Planet</span>
+                                                </a>
+                                                <a class="moon"
+                                                   href=""
+                                                   id="mbutton"
+                                                >
+                                                    <span class="textlabel">Moon</span>
+                                                </a>
+                                                <a class="debris"
+                                                   href=""
+                                                   id="dbutton"
+                                                >
+                                                    <span class="textlabel">debris field</span>
+                                                </a>
+                                                <br class="clearfloat" />
+                                            </div>
+                                            <div class="coords">
+                                                Coordinates:
+                                                <br />
+                                                <input name="galaxy"
+                                                       id="galaxy"
+                                                       type="text"
+                                                       pattern="[0-9]*"
+                                                       class="galaxy hideNumberSpin"
+                                                       size="1"
+                                                       value="9"
+                                                />
+                                                <input name="system"
+                                                       id="system"
+                                                       type="text"
+                                                       pattern="[0-9]*"
+                                                       class="system hideNumberSpin"
+                                                       size="3"
+                                                       value="297"
+                                                />
+                                                <input name="position"
+                                                       id="position"
+                                                       type="text"
+                                                       pattern="[0-9]*"
+                                                       class="planet hideNumberSpin"
+                                                       size="2"
+                                                       value="12"
+                                                />
+                                            </div>
+                                        </td>
+                                        <td id="shortcuts">
+                                            <div>
+                                                <span id="shortlinks tips">Shortcuts:</span>
+                                                <div class="glow">
+                                                    <select size="1" class="planets" id="slbox">
+                                                        <option value="-">-</option>
+                                                        <option value="9#297#9#1#Colony"
+                                                                data-html-prepend="&lt;figure class=&quot;planetIcon planet tooltip js_hideTipOnMobile&quot; title=&quot;Planet&quot;&gt;&lt;/figure&gt;"
+                                                        >
+                                                            Colony[9:297:9]
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div style="padding-top: 12px;">
+                                                <span id="combatunits tips">Combat forces:</span>
+                                                <div class="glow">
+                                                    <select size="1"
+                                                            class="combatunits"
+                                                            id="aksbox"
+                                                            name="acsValues"
+                                                    >
+                                                        <option value="-">-</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="briefing border5px">
+                                    <h2>Briefing</h2>
+                                    <ul id="fleetBriefingPart1" class="fleetBriefing">
+                                        <li>
+                                            Duration of flight (one way):
+                                            <span class="value" id="duration">-</span>
+                                        </li>
+                                        <li>
+                                            Deuterium consumption:
+                                            <span class="value"><span id="consumption" >-</span></span>
+                                        </li>
+                                        <li>
+                                            <input type="hidden" name="speed" id="speed" value="10" />
+                                            Speed: (max. <span id="maxspeed"></span>):
+                                            <div id="speedPercentage" class="percentageBar" float:left;" value="10" steps="10" stepSize="10" minValue="1"></div>
+                                <div id="percentStatus" style="float:left; font-size:12px; margin-left:5px;"></div>
+                                <script>
+                                    $('.percentSelector').bind('click', function(){
+                                        var callback = $(this).attr('onpercentchange');
+                                        var x = eval(callback);
+                                        x($(this).attr("percent"));
+                                    });
+                                </script>
+                                </li>
+                                </ul>
+                                <ul id="fleetBriefingPart1_2" class="fleetBriefing">
+                                    <li>
+                                        Arrival: <span class="value"><span id="arrivalTime">-</span> Clock</span>
+                                    </li>
+                                    <li>
+                                        Return: <span class="value"><span id="returnTime">-</span> Clock</span>
+                                    </li>
+                                    <li>
+                                        Empty cargobays: <span class="value" id="storage">-</span>
+                                    </li>
+                                </ul>
+                                <div id="steps">
+                                    <a id="continueToFleet3" class="continue off" href="">
+                                        <span>Next</span>
+                                    </a>
+                                    <a id="backToFleet1" class="back" href="">
+                                        <span style="font-size:12px; text-transform:uppercase;">Back</span>
+                                    </a>
+                                    <br class="clearfloat" />
+                                </div>
+                            </div>
+                            <div class="footer"></div>
+                        </div>            </div>        </div>    </form>
+        </div>
+        <div id="fleet3" style="display: none;">
+            <div id="inhalt">
+                <div id="planet" class="planet-header ">
+                    <h2>Fleet Dispatch III - Homeworld</h2>
+                    <a class="toggleHeader" data-name="fleet3">
+                        <img alt="" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22" />
+                    </a>
+                </div>
+                <div class="c-left"></div>
+                <div class="c-right"></div>
+                <div>
+                    <div class="fleetStatus" id="statusBarFleet3">
+                        <ul>
+                            <li><span class="title">Mission:</span> <span class="missionName">---</span></li>
+                            <li><span class="title">Target:</span> <span class="targetName"></span></li>
+                            <li><span class="title">Players Name:</span> <span class="targetPlayerName"></span></li>
+                        </ul>
+                    </div>
+                    <div id="buttonz">
+                        <div class="header">
+                            <h2>Select mission for target:</h2>
+                        </div>
+                        <div class="content">
+
+                            <ul id="missions">
+                                <li id="button15" class="off">
+                                    <a id='missionButton15' href="" data-mission="15">
+                                        <span class="textlabel">Expedition</span>
+                                    </a>
+                                </li>
+                                <li id="button7" class="off">
+                                    <a id='missionButton7' href="" data-mission="7">
+                                        <span class="textlabel">Colonisation</span>
+                                    </a>
+                                </li>
+                                <li id="button8" class="off">
+                                    <a id='missionButton8' href="" data-mission="8">
+                                        <span class="textlabel">Recycle debris field</span>
+                                    </a>
+                                </li>
+                                <li id="button3" class="off">
+                                    <a id='missionButton3' href="" data-mission="3">
+                                        <span class="textlabel">Transport</span>
+                                    </a>
+                                </li>
+                                <li id="button4" class="off">
+                                    <a id='missionButton4' href="" data-mission="4">
+                                        <span class="textlabel">Deployment</span>
+                                    </a>
+                                </li>
+                                <li id="button6" class="off">
+                                    <a id='missionButton6' href="" data-mission="6">
+                                        <span class="textlabel">Espionage</span>
+                                    </a>
+                                </li>
+                                <li id="button5" class="off">
+                                    <a id='missionButton5' href="" data-mission="5">
+                                        <span class="textlabel">ACS Defend</span>
+                                    </a>
+                                </li>
+                                <li id="button1" class="off">
+                                    <a id='missionButton1' href="" data-mission="1">
+                                        <span class="textlabel">Attack</span>
+                                    </a>
+                                </li>
+                                <li id="button2" class="off">
+                                    <a id='missionButton2' href="" data-mission="2">
+                                        <span class="textlabel">ACS Attack</span>
+                                    </a>
+                                </li>
+                                <li id="button9" class="off">
+                                    <a id='missionButton9' href="" data-mission="9">
+                                        <span class="textlabel">Moon Destruction</span>
+                                    </a>
+                                </li>
+                            </ul>
+                            <div id="missionNameWrapper">
+                                Mission:
+                                <span id="missionName" class="missionName"></span>
+                                <p class="mission_description">&nbsp;</p>
+                            </div>
+                            <div class="footer"></div>
+                        </div>            </div>            <div id="sendfleet">
+                        <div class="header">
+                            <h2>
+                                <span class="h_half_w">Briefing</span>
+                                <span class="h_half_w">Load resources</span>
+                            </h2>
+                        </div>
+                        <div class="content">
+                            <div class="briefing_overlay">You cannot start this mission.</div>
+                            <form name="sendForm" method="post" action="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement">
+                                <div id="wrap">
+                                    <div id="roundup" class="border5px">
+                                        <ul>
+                                            <li id="fightAfterRetreat"
+                                                style="display: none;"
+                                            >
+                                    <span class="tooltip advice"
+                                          title="If this option is activated, your fleet will also withdraw without a fight if your opponent flees."
+                                    >Return upon retreat by defenders:</span>
+                                                <span class="value"
+                                                      style="vertical-align: middle;"
+                                                >
+                                        <input type="checkbox"
+                                               name="retreatAfterDefenderRetreat"
+                                               value="1"
+                                        />
+                                    </span>
+                                            </li>
+                                            <li>
+                                                Target:
+                                                <span id="targetPlanet" class="value" title=""></span>
+                                            </li>
+                                            <li id="aks" style="display: none" data-arrival-time="">
+                                                Flight Duration (fleet union):
+                                                <span class="value"><span id="durationAKS"></span> h</span>
+                                            </li>
+                                            <li>
+                                                Duration of flight (one way):
+                                                <span class="value" id="duration">h</span>
+                                            </li>
+                                            <li>
+                                                Arrival:
+                                                <span class="value"><span id="arrivalTime"></span> Clock</span>
+                                            </li>
+                                            <li>
+                                                Return:
+                                                <span class="value"><span id="returnTime"></span> Clock</span>
+                                            </li>
+                                            <li id="holdtimeline">
+                                                Hold time:
+                                                <select name="holdingtime" id="holdingtime">
+                                                    <option value="0" >0</option>
+                                                    <option value="1" selected=&#039;selected&#039;>1</option>
+                                                    <option value="2" >2</option>
+                                                    <option value="4" >4</option>
+                                                    <option value="8" >8</option>
+                                                    <option value="16" >16</option>
+                                                    <option value="32" >32</option>
+                                                </select>
+                                            </li>
+                                            <li id="expeditiontimeline">
+                                                Duration of expedition:
+                                                <select name="expeditiontime" id="expeditiontime">
+                                                    <option value="1" >1</option>
+                                                    <option value="2" >2</option>
+                                                    <option value="3" >3</option>
+                                                </select>
+                                                <span class="value">h</span>
+                                            </li>
+                                            <li>
+                                                Deuterium consumption:
+                                                <span class="value">
+                                        <span id="consumption"></span>
+                                    </span>
+                                            </li>
+                                        </ul>
+                                        <br class="clearfloat" />
+                                    </div>
+                                    <input name="galaxy" type="hidden" value="9" />
+                                    <input name="system" type="hidden" value="297" />
+                                    <input name="position" type="hidden" value="12" />
+                                    <input name="type" type="hidden" value="1" />
+                                    <input name="mission" type="hidden" value="0" />
+                                    <input name="union2" type="hidden" value="0" />
+                                    <input name="holdingOrExpTime" id="holdingOrExpTime" type="hidden" value="0" />
+                                    <input name="speed" type="hidden" value="10" />
+                                    <input name="acsValues" type="hidden" value="" />
+                                    <input name="prioMetal" type="hidden" value="1" />
+                                    <input name="prioCrystal" type="hidden" value="2" />
+                                    <input name="prioDeuterium" type="hidden" value="3" />
+
+
+                                    <div id="resources" class="border5px">
+                                        <div class="res_wrap border3px">
+                                            <div class="resourceIcon metal tooltip"
+                                                 title="Metal"
+                                            ></div>
+                                            <div class="res">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="checkThousandSeparator hideNumberSpin"
+                                                       name="metal"
+                                                       tabindex="1"
+                                                       id="metal"
+                                                       value="0"
+                                                />
+                                                <a id="selectMinMetal" class="min">
+                                                    <img src="https://gf2.geo.gfsrv.net/cdn10/45494a6e18d52e5c60c8fb56dfbcc4.gif" />
+                                                </a>
+                                                <a id="selectMaxMetal" class="max">
+                                                    <img src="https://gf3.geo.gfsrv.net/cdnea/fa0c8ee62604e3af52e6ef297faf3c.gif" />
+                                                </a>
+
+                                            </div>
+                                        </div>
+                                        <div class="res_wrap border3px">
+                                            <div class="resourceIcon crystal tooltip"
+                                                 title="Crystal"
+                                            ></div>
+                                            <div class="res">
+                                                <input type="text" pattern="[0-9,.]*"
+                                                       class="checkThousandSeparator hideNumberSpin"
+                                                       name="crystal"
+                                                       id="crystal"
+                                                       value="0"
+                                                       tabindex="2"
+                                                />
+                                                <a id="selectMinCrystal" class="min">
+                                                    <img src="https://gf2.geo.gfsrv.net/cdn10/45494a6e18d52e5c60c8fb56dfbcc4.gif" />
+                                                </a>
+                                                <a id="selectMaxCrystal" class="max">
+                                                    <img src="https://gf3.geo.gfsrv.net/cdnea/fa0c8ee62604e3af52e6ef297faf3c.gif" />
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="res_wrap border3px">
+                                            <div class="resourceIcon deuterium tooltip"
+                                                 title="Deuterium"
+                                            ></div>
+                                            <div class="res">
+                                                <input type="text"
+                                                       pattern="[0-9,.]*"
+                                                       class="checkThousandSeparator hideNumberSpin"
+                                                       name="deuterium"
+                                                       id="deuterium"
+                                                       value="0"
+                                                       tabindex="3"
+                                                />
+                                                <a id="selectMinDeuterium" class="min">
+                                                    <img src="https://gf2.geo.gfsrv.net/cdn10/45494a6e18d52e5c60c8fb56dfbcc4.gif" />
+                                                </a>
+                                                <a id="selectMaxDeuterium" class="max">
+                                                    <img src="https://gf3.geo.gfsrv.net/cdnea/fa0c8ee62604e3af52e6ef297faf3c.gif" />
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div id="loadAllResources">
+                                            <a id="allresources">
+                                                <img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                                     width="32"
+                                                     height="32"
+                                                />
+                                            </a>
+                                            all resources
+                                        </div>
+                                        <div id="loadRoom">
+                                            cargo bay:
+                                            <!-- <div id="capbg">
+                                                <div id="thebar"></div>
+                                            </div> -->
+                                            <div class="fleft bar_container"
+                                                 data-current-amount="0"
+                                                 data-capacity="0"
+                                            >
+                                                <div class="filllevel_bar"></div>
+                                                <!-- <div class="premium_bar"></div> -->
+                                            </div>
+                                            <div class="tooltip"
+                                                 title="Available space / Max. cargo space"
+                                            >
+                                                <span id="remainingresources"></span> / <span id="maxresources"></span>
+                                            </div>
+                                        </div>
+                                    </div>                    </div>                    <br class="clearfloat" />
+                                <div id="naviActions">
+                                    <a id="backToFleet2" class="back" href="">
+                                        <span style="font-size:12px; text-transform:uppercase;">Back</span>
+                                    </a>
+                                    <a id="sendFleet" class="off" href="">
+                                        <span style="padding-top:9px;">Send fleet</span>
+                                    </a>
+                                    <br class="clearfloat" />
+                                </div>
+                            </form>
+                            <div class="footer"></div>
+                        </div>        </div>            <div class="ajax_loading">
+                        <div class="ajax_loading_overlay">
+                            <div class="ajax_loading_indicator"></div>
+                        </div>
+                    </div>
+                </div>
+            </div></div>
+    </div>
+</div>
+<div id="right">
+    <div id='planetbarcomponent'
+         class=""
+    >
+        <div id="rechts">
+            <div id="norm">
+                <div id="myWorlds">
+                    <div id="countColonies">
+                        <p class="textCenter">
+                            <span>2/3</span> Planets
+                        </p>
+                    </div>
+                    <div id="planetList"
+                    >
+                        <div class="smallplanet  hightlightPlanet "
+                             id="planet-33795776">
+                            <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33795776"
+                               data-link="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33795776"
+                               title="&lt;b&gt;Homeworld [9:297:12]&lt;/b&gt;&lt;br/&gt;12.800km (30/163)&lt;br&gt;-34°C to 6°C&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33795776&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33795776&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33795776&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33795776&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33795776&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33795776&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33795776&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33795776&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33795776&amp;galaxy=9&amp;system=297&amp;position=12&quot;&gt;Galaxy&lt;/a&gt;"
+                               class="planetlink active tooltipRight tooltipClose js_hideTipOnMobile"
+                            >
+                                <img class="planetPic js_replace2x"
+                                     alt="Homeworld"
+                                     src="https://gf1.geo.gfsrv.net/cdnf8/a4d04bab6b59a122743a718b650b44.png"
+                                     width="48"
+                                     height ="48"
+                                />
+                                <span class="planet-name ">Homeworld</span>
+                                <span class="planet-koords ">[9:297:12]</span>
+                            </a>
+                        </div>
+                        <div class="smallplanet   "
+                             id="planet-33796125">
+                            <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33796125"
+                               data-link="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33796125"
+                               title="&lt;b&gt;Colony [9:297:9]&lt;/b&gt;&lt;br/&gt;13.336km (0/177)&lt;br&gt;-1°C to 39°C&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33796125&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33796125&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33796125&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33796125&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33796125&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33796125&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33796125&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33796125&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33796125&amp;galaxy=9&amp;system=297&amp;position=9&quot;&gt;Galaxy&lt;/a&gt;"
+                               class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                            >
+                                <img class="planetPic js_replace2x"
+                                     alt="Colony"
+                                     src="https://gf2.geo.gfsrv.net/cdn4d/8364738978d2ae944edceb119d8c51.png"
+                                     width="48"
+                                     height ="48"
+                                />
+                                <span class="planet-name ">Colony</span>
+                                <span class="planet-koords ">[9:297:9]</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div id="bottom">
+    <div id='errorboxcomponent'
+         class=""
+    >
+        <div id="decisionTB" style="display:none;">
+            <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxDecisionContent">-</span>
+                    <div class="response">
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+                        </div>
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+
+        <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+            <div>
+                <span id="fadeBoxStyle" class="success"></span>
+                <p id="fadeBoxContent"></p>
+            </div>
+        </div>
+
+        <div id="notifyTB" style="display:none;">
+            <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxNotifyContent">-</span>
+                    <div class="response">
+                        <div>
+                            <a href="javascript:void(0);" class="ok">
+                                <span id="errorBoxNotifyOk">.</span>
+                            </a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    initIndex();
+
+</script>
+<div id='chatbarcomponent'
+     class=""
+>
+    <script type="text/javascript">
+        var bigChatLink = 'https://s801-en.ogame.gameforge.com/game/index.php?page=chat';
+        var ajaxChatToken = "12837dbf4eec106402001690ad172aaf"
+        var chatUrl = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ajaxChat"
+        var chatUrlLoadMoreMessages = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=chatGetAdditionalMessages"
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"}
+
+        var visibleChats = {"players":[],"associations":[]};
+
+        (function($) {
+            ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box'); //list in chat bar
+            ogame.chat.showPlayerList('#sideBar'); // list in chat
+
+            var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
+
+            function initChatAsync() {
+                if (ogame.chat.isLoadingPlayerList === false && ogame.chat.playerList !== null) {
+                    clearInterval(initChatAsyncInterval);
+                    ogame.chat.initChatBar(118523);
+                    ogame.chat.initChat(118523, false);
+                    ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+                }
+            }
+        })(jQuery);
+    </script>
+    <div id="chatBar">
+        <ul class="chat_bar_list">
+            <li id="chatBarPlayerList" class="chat_bar_pl_list_item">
+                <div class="cb_playerlist_box" style="display:none">
+                </div>
+                <span class="onlineCount">0 Contact(s) online</span>
+            </li>
+        </ul><!-- END Chat Bar List -->
+
+        <script type="text/javascript">
+
+        </script>
+    </div>
+</div>
+<div id="siteFooter">
+    <div class="content" style="font-size:10px">
+        <div class="fleft textLeft">
+            <a class="tooltip js_hideTipOnMobile overlay" href="https://s801-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=changelog&amp;ajax=1" data-overlay-class="popupWidthFixed" data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes" title="Patch notes">7.0.0-rc19</a>
+            <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. All rights reserved.</a>
+        </div>
+        <div class="fright textRight">
+            <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
+            <a href="http://board.origin.ogame.gameforge.com/" target="_blank">Board</a>|
+            <a class="overlay"
+               href="https://s801-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=rules&amp;ajax=1"
+               data-overlay-iframe="true"
+               data-iframe-width="450"
+               data-overlay-title="Rules"
+            >Rules</a>|
+            <a href="https://agbserver.gameforge.com/rewrite.php?locale=en&amp;type=imprint&amp;product=ogame" target="_blank">Legal</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

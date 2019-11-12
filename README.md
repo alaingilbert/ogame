@@ -41,6 +41,8 @@ func main() {
 ### Available methods
 
 ```go
+IsV7() bool
+GetExtractor() Extractor
 SetLoginProxy(proxy, username, password string) error
 SetProxy(proxy, username, password string) error
 SetSocks5Proxy(proxy, username, password string) error

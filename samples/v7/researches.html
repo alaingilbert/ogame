@@ -1,0 +1,1211 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bermuda OGame</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript">
+        /**
+         * This is only currently needed in a separate file in libraries because
+         * the javascript files are loaded alphabetically from files and we need to
+         * ensure that our namespace object is loaded before all other ogame specific
+         * javascript code
+         */
+
+        /*
+         * global javascript namespace for ogame
+         */
+        var ogame = ogame || {};
+    </script>
+    <meta name="ogame-session" content="0a724276a3ddbe9949f62bdae48d71c1a16adf20"/>
+    <meta name="ogame-version" content="7.0.0-rc19"/>
+    <meta name="ogame-timestamp" content="1571187216"/>
+    <meta name="ogame-universe" content="s801-en.ogame.gameforge.com"/>
+    <meta name="ogame-universe-name" content="Bermuda"/>
+    <meta name="ogame-universe-speed" content="4"/>
+    <meta name="ogame-universe-speed-fleet" content="4"/>
+    <meta name="ogame-language" content="en"/>
+    <meta name="ogame-donut-galaxy" content="1"/>
+    <meta name="ogame-donut-system" content="1"/>
+    <meta name="ogame-player-id" content="118523"/>
+    <meta name="ogame-player-name" content="Governor Meridian"/>
+    <meta name="ogame-planet-id" content="33795776"/>
+    <meta name="ogame-planet-name" content="Homeworld"/>
+    <meta name="ogame-planet-coordinates" content="9:297:12"/>
+    <meta name="ogame-planet-type" content="planet"/>
+
+
+    <script type="text/javascript">
+        var ajaxEventboxURI = 'https://s801-en.ogame.gameforge.com/game/index.php?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+        var ajaxResourceboxURI = 'https://s801-en.ogame.gameforge.com/game/index.php?page=fetchResources&ajax=1';
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne6/215ab306a69a767a9e3eba0c8c316f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5c/0b90f4a098facd7e4d173ab7a27a6c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5f/17ac5fdee7660406fdd73307c07a82.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn3f/7ea99c73d22beea35a52bd6f7cb422.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc3/e97fcbb510366478af1860d20864c1.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn57/17590ed4605715033324741da78485.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/68ffdf60813686a9fe1d99a1cc334c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn8e/9a111b0209f44edde46ca7dd9d303c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn0e/b6730dfc1efc9c613317ae60328bb4.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn83/8dd7f65a860fb527b1f58d44f7ed23.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn07/d2cfcc4e1ddfd63aac037a4f507138.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn2c/0b4c19043f087a2c10ded10d951b95.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc7/a61659f9db877536599b792d2fdb63.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn03/f6de7d24819951074b5e1ae613e68a.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn80/cab8721c76db9f6606ca93faeddbac.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/55d667f3f50d381767948507c45e5b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4b/da5d31cd0a99fc43fbbd9a06b52899.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdneb/210581d261b626ce77bac2ad4983f2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn64/1b773fe4ce9c6ea5a8be3204caa002.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/541e9161c385e847711f7a6d2e2a41.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn96/3c3d20ad4845ddc678c00dd8fdbe5e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn89/707f831c581ae267014f3f2fbcd020.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdned/5f2222407a222a97f4f5e974366355.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn35/fe33689d32e93aeb383b075270cf4f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnbb/945e53d91e3a8a358dae502e894453.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5d/4c00ba0389df4cdabed9385769f003.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn6c/ade34cb360f17762d348553a2de857.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna8/535876019e29f700c52e026519c566.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnab/c4669ba58ee728ac1bc7610f1f6a30.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn69/96d24bb94430f3ee33c668531a4a93.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4e/b3e7c83d744b0a3903907e04de184b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd8/7b75126fa68d03f92fbb77226f9132.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn45/f320115669b7611bda327a51918fd2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/7c49c94686cc0b20c3de6f2921575e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc4/c480ff9537d079d4795ec3c6c700d2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn02/067b06cf4b9f3d797556c798b6948d.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/50618794bb4987f392e23fcde41666.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnba/efcc85e086a1b970342e189a5608e1.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn42/493edb4927596c5a7a22435cfc280f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5e/a75bc4f176c8c4fd1548860b945708.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn40/c912ca07743ac211966f9e7e9ad128.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/b17884a364a3dc34841c44edae9d03.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn12/58641190a9641e4f2951c707820722.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdndd/eaf138d8da5d08e6de288958d6b08b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/75cd503d09c4df72ffcf5aff436858.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn06/c288674318e1f4be6fa9fe688317f2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb3/de2acb879dfae8191ad4c1de8f8fcf.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb0/a524432bb87f4b191503be58bf4e38.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn19/6cd7cf97c8b9f95caf0bcc3dfea028.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn77/12a5cc5c45e7ab337d83b2071be37f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn97/1d9ada655a9a5ead96c0cb7e2373f5.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn56/09292a38db7a327b5a161fa1fc0223.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn9d/118e2dff48b6c15a636568e5742c5f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn52/cf9dddbab8f81b0ea5b80e90954267.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn38/36483f5ec8a719f7392723e53838fa.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn36/2c8857695a51fe4b86e99a2eb955d2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/a4fccc0fefb259779456dc294521f6.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn63/7a32b02637324e1ee393271cb87566.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4a/12a6d45c2c88eb8328de7724e1c048.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4a/4b31423d3e4862041353c7d4c8d0fa.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn51/9cb53f20d1f836516d0c1a294bf3fc.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne9/6a6d5fc4fff8ae65cacfe4680fb636.css"/>
+
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnbc/f456eeff847e9e343593f596e3cbf9.js'> </script>
+
+
+
+
+
+    <script type="text/javascript">
+        var eventboxLoca    = {"mission":"Mission","missions":"Missions","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"own","neutral":"friendly","hostile":"hostile","nextEvent":"Next","nextEventText":"Type"};
+        var eventlistLink   = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&ajax=1";
+        var changeSettingsLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=changeSettings";
+        var changeSettingsToken = "106d25d26736ddd76e537cf7d6746c80";
+        var redirectLogoutLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=logout";
+        var redirectOverviewLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+        var redirectSpaceDockLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=facilities&openTech=36";
+        var constants   = {"espionage":6,"missleattack":10,"language":"en","name":"801"};
+        var currentPage = "research";
+        var changeNickLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ajax&component=changenick&asJson=1";
+    </script>
+
+    <script type="text/javascript">
+        var playerId = 118523;
+        var playerName = "Governor Meridian";
+        var player = {"playerId":118523,"name":"Governor Meridian","hasCommander":true,"hasAPassword":true};
+        var session = "0a724276a3ddbe9949f62bdae48d71c1a16adf20";
+        var vacation = 0;
+        var hasAPassword = true;
+        var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"More Options","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+        var itemNames = {"090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Bronze Crystal Booster","e254352ac599de4dd1f20f0719df0a070c623ca8":"Bronze Deuterium Booster","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Bronze Metal Booster","67d6041bc0206d1ec7ce667e51f9d7ba73314604":"Discoverer","a521c40c620a2dd22c1bb1e9db722c4c15e42eb1":"Collector","cf37caa096aac5127ec3fe67c2606075fcc652a8":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Bronze Crystal Booster","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Silver Crystal Booster","118d34e685b5d1472267696d1010a393a59aed03":"Gold Crystal Booster","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Gold","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID Silver","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Bronze Deuterium Booster","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Silver Deuterium Booster","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Gold Deuterium Booster","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Gold","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN Silver","de922af379061263a56d7204d1c395cefcfb7d75":"Bronze Metal Booster","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Silver Metal Booster","05294270032e5dc968672425ab5611998c409166":"Gold Metal Booster","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Bronze Moon Fields","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Gold Moon Fields","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"Silver Moon Fields","485a6d5624d9de836d3eb52b181b13423f795770":"Bronze M.O.O.N.S.","45d6660308689c65d97f3c27327b0b31f880ae75":"Gold M.O.O.N.S.","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"Silver M.O.O.N.S.","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Gold","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON Silver","16768164989dffd819a373613b5e1a52e226a5b0":"Bronze Planet Fields","04e58444d6d0beb57b3e998edc34c60f8318825a":"Gold Planet Fields","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Silver Planet Fields"};
+        var isMobile = false;
+        var isMobileApp = false;
+        var bbcodePreviewUrl = "https://s801-en.ogame.gameforge.com/game/index.php?page=bbcodePreview";
+        var ogameUrl = "https:\/\/s801-en.ogame.gameforge.com";
+        var startpageUrl = "https:\/\/pioneers.ogame.gameforge.com";
+        var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+        var popupWindows = [];
+        var showOutlawWarning = true;
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"};
+        var overlayWidth = 770;
+        var overlayHeight = 600;
+        var serverTime = new Date(2019, 9, 16, 1, 53, 36);
+        var localTime = new Date();
+        var timeDiff = serverTime - localTime;
+
+        var nodePort = 19135
+        var nodeUrl = "https:\/\/s801-en.ogame.gameforge.com:19135\/socket.io\/socket.io.js"
+        var nodeParams = {"port":19135,"secure":true}
+
+        var miniFleetToken = "e1a8e939ff1b0588dbb63c0383f17480";
+        var miniFleetLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=minifleet&ajax=1";
+
+        var jumpGateLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=jumpgatelayer";
+        var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Use jumpgate"};
+
+        var timerHandler = new TimerHandler();
+
+        $(document).ready(
+            function(){
+                initOverlays();
+            }
+        );
+    </script>
+</head>
+<body id="ingamepage" class="no-touch ">
+
+<div id="siteHeader">
+</div>
+
+<div id="pageContent">
+    <div id="top">
+        <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+        <div id='resourcesbarcomponent'
+             class=""
+        >
+            <ul id="resources">
+                <li id="metal_box"
+                    class="metal  tooltipHTML"
+                    title="Metal:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;9&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;40.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+164&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;139&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon metal"></div>
+                    <span class="value">
+                    <span id="resources_metal" class="">9</span>
+                </span>
+                </li>
+                <li id="crystal_box"
+                    class="crystal  tooltipHTML"
+                    title="Crystal:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;4&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;75.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+73&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;63&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon crystal"></div>
+                    <span class="value">
+                    <span id="resources_crystal" class="">4</span>
+                </span>
+                </li>
+                <li id="deuterium_box"
+                    class="deuterium  tooltipHTML"
+                    title="Deuterium:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;1&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;20.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+20&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;32&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon deuterium"></div>
+                    <span class="value">
+                    <span id="resources_deuterium" class="">1</span>
+                </span>
+                </li>
+                <li id="energy_box"
+                    class="energy  tooltipHTML"
+                    title="Energy:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-454&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+79&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Consumption:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-533&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon energy"></div>
+                    <span class="value">
+                    <span id="resources_energy" class=" overmark">-454</span>
+                </span>
+                </li>
+                <li id="darkmatter_box"
+                    class="darkmatter  tooltipHTML"
+                    title="Dark Matter|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;9.850.523&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Purchased:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Found:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;9.850.523&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    data-tooltip-button="Purchase Dark Matter"
+                >
+                    <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=payment"
+                       class="overlay">
+                        <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif">
+                        <div class="resourceIcon darkmatter"></div>
+                    </a>
+                    <span class="value">
+                    <span id="resources_darkmatter" class="overlay">9.850.523</span>
+                </span>
+                </li>
+            </ul>
+            <script type="text/javascript">
+                var isMobile = false;
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+
+                (function($) {
+                    reloadResources({"metal":{"tooltip":"Metal:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">9<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">40.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+164<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">139<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":9,"amountFormatted":"9","max":40000,"production":0.045720286016589,"classes":"","classesListItem":""},"crystal":{"tooltip":"Crystal:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">4<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">75.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+73<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">63<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":4,"amountFormatted":"4","max":75000,"production":0.020425466101586,"classes":"","classesListItem":""},"deuterium":{"tooltip":"Deuterium:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">1<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">20.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+20<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">32<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":1,"amountFormatted":"1","max":20000,"production":0.0057663400422051,"classes":"","classesListItem":""},"energy":{"tooltip":"Energy:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"overmark\">-454<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+79<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"overmark\">-533<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":-454,"amountFormatted":"-454","classes":" overmark","classesListItem":""},"darkmatter":{"tooltip":"Dark Matter|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">9.850.523<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Purchased:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Found:<\/th>\n                <td><span class=\"\">9.850.523<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":9850523,"amountFormatted":"9.850.523","classes":"overlay","classesListItem":"","link":"https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}});
+                })(jQuery);
+            </script>
+        </div>
+        <div id='commandercomponent'
+             class=""
+        >
+            <div id="characterclass" class="fleft">
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=characterclassselection"
+                   class="tooltipHTML js_hideTipOnMobile"
+                   title="Your class: Collector|+25% mine production&lt;br&gt;+25% speed for Transporters&lt;br&gt;+25% cargo bay for Transporters&lt;br&gt;+2 fleet slots&lt;br&gt;+2 offers">
+                    <div class="sprite characterclass medium miner"></div>
+                </a>
+            </div>
+            <div id="officers" class="one  fright">
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=2"
+                   class="tooltipHTML  on shortTime commander js_hideTipOnMobile "
+                   title="Hire Commander|Still active for more than 2 days"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=3"
+                   class="tooltipHTML    admiral js_hideTipOnMobile "
+                   title="Hire Admiral|Max. fleet slots +2,
+Max. expeditions +1,
+Improved fleet escape rate"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=4"
+                   class="tooltipHTML    engineer js_hideTipOnMobile "
+                   title="Hire Engineer|Halves losses to defences, +10% energy production"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=5"
+                   class="tooltipHTML    geologist js_hideTipOnMobile "
+                   title="Hire Geologist|+10% mine production"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=6"
+                   class="tooltipHTML    technocrat js_hideTipOnMobile "
+                   title="Hire Technocrat|+2 espionage levels, 25% less research time"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+            </div>
+        </div>
+        <div id='notificationbarcomponent'
+             class=""
+        >
+            <div id="message-wrapper">
+                <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=messages"
+                   title="6 unread message(s)"
+                >
+                    <span class="new_msg_count totalMessages news "
+                          data-new-messages="6"
+                    >
+                6
+            </span>
+                </a>
+                <a class=" comm_menu chat tooltip js_hideTipOnMobile"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=chat"
+                   title="6 unread message(s)"
+                >
+        <span class="new_msg_count totalChatMessages noMessage"
+              data-new-messages="0">
+            0
+        </span>
+                </a>
+                <div id="messages_collapsed">
+                    <div id="eventboxFilled" class="eventToggle" style="display: none;">
+                        <a id="js_eventDetailsClosed"
+                           class="tooltipRight js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="More details"
+                        ></a>
+                        <a id="js_eventDetailsOpen"
+                           class="tooltipRight open js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="Less detail"
+                        ></a>
+                    </div>
+                    <div id="eventboxLoading"
+                         class="textCenter textBeefy"
+                         style="display: block;"
+                    >
+                        <img height="16"
+                             width="16"
+                             alt="ajax spinner"
+                             src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"
+                        />
+                        load...
+                    </div>
+                    <div id="eventboxBlank"
+                         class="textCenter"
+                         style="display: none;"
+                    >
+                        No fleet movement
+                    </div>
+                </div>
+                <div id="attack_alert"
+                     class="tooltip noAttack"
+                     title=""
+                >
+                    <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"
+                    ></a>
+                </div>
+            </div>
+        </div>
+        <div id='headerbarcomponent'
+             class=""
+        >
+            <div id="bar">
+                <ul>
+                    <li id="playerName">
+                        Player:
+
+                        <span class="textBeefy">
+                            <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=changenick"
+                               class="overlay textBeefy"
+                               data-overlay-title="Change player name"
+                               data-overlay-popup-width="400"
+                               data-overlay-popup-height="200"
+                            >Governor Meridian</a>
+                        </span>
+                    </li>
+                    <li>
+                        <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=highscore" accesskey="">Highscore</a>
+                        (1384)
+                    </li>
+                    <li>
+                        <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=notices"
+                           class="overlay" data-overlay-title="My notes"
+                           data-overlay-class="notices"
+                           data-overlay-popup-width="750"
+                           data-overlay-popup-height="480"
+                           accesskey="">
+                            Notes</a>
+                    </li>
+                    <li>
+                        <a class=""
+                           accesskey=""
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=buddies"
+                        >
+                            Buddies</a>
+                    </li>
+                    <li><a class="overlay"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=search&amp;ajax=1"
+                           data-overlay-title="Search Universe"
+                           data-overlay-close="__default closeSearch"
+                           data-overlay-class="search"
+                           accesskey="">Search</a>
+                    </li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=preferences" accesskey="">Options</a></li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=support" target="_blank">Support</a></li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=logout">Log out</a></li>
+                    <li class="OGameClock">16.10.2019 <span>01:53:36</span></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div id="left">
+        <div id='mainmenucomponent'></div>
+        <div id='tutorialiconcomponent'
+             class=""
+        >
+            <div id="helper">
+                <a class="highlight tooltip tooltipClose"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=tutorial&amp;displayNew=1"
+                   title="Tutorial overview&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=rewards&quot;&gt;Rewards&lt;/a&gt;">?</a>
+            </div>
+        </div>
+        <div id='toolbarcomponent'
+             class=""
+        >
+            <div id="links">
+                <ul id="menuTable" class="leftmenu">
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=rewards"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Rewards">
+                            <div class="menuImage overview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Overview</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=resourceSettings"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Resource settings">
+                            <div class="menuImage resources  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Resources</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Jump Gate">
+                            <div class="menuImage station  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Facilities</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage marketplace  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Marketplace</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=traderOverview#page=traderResources&amp;animation=false"
+                                                                               class="trader tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Resource Market">
+                            <div class="menuImage traderOverview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=traderOverview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Merchant</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all"
+                                                                               class="overlay tooltipRight js_hideTipOnMobile "
+                                                                               target="_blank"
+                                                                               title="Technology">
+                            <div class="menuImage research active 
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton  selected"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Research</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage shipyard  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shipyard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage defense  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Defence</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Fleet movement">
+                            <div class="menuImage fleet1  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Fleet</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage galaxy  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Galaxy</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage empire  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=empire"
+                           accesskey=""
+                           target="_blank"
+                        >
+                            <span class="textlabel">Empire</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage alliance  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=alliance"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Alliance</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage premium  "></span>
+                                    </span>
+                        <a class="menubutton premiumHighligt officers"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Recruit Officers</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Inventory">
+                            <div class="menuImage shop  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=shop"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shop</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage   "></span>
+                                    </span>
+                        <a class="menubutton overlay"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=feedback&amp;ajax=1"
+                           target="_self"
+                           data-overlay-title="Feedback"
+                        >
+                            <span class="textlabel">Feedback</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage   "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://www.stomt.com/ogame"
+                           target="_blank"
+                        >
+                            <span class="textlabel">Stomt</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="toolLinksWrapper">
+                    <ul id="menuTableTools" class="leftmenu"></ul>
+                </div>
+                <br class="clearfloat"/>
+            </div>
+        </div>
+        <div id='advicebarcomponent'
+             class=""
+        >
+            <div class="adviceWrapper">
+
+                <div id="advice-bar">
+
+
+
+
+                </div>
+                <div id="banner_skyscraper" name="banner_skyscraper">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="middle">
+        <div id='eventlistcomponent'
+             class=""
+        >
+            <div id="eventboxContent"
+                 style="display: none;">
+                <div id="eventListWrap">
+                    <div id="eventHeader">
+                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
+                        </a>
+                        <h2>Events</h2>
+                    </div>
+                    <table id="eventContent">
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div id="eventFooter"></div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var timeDelta = 1571187216000 - (new Date()).getTime();
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+                (function($) {
+                })(jQuery);
+            </script>
+
+
+        </div>
+        <div id='researchcomponent'
+             class="maincontent"
+        >
+            <div id="research">
+                <header id="planet" data-anchor="technologyDetails">
+                    <h2>Research - Homeworld</h2>
+                </header>
+                <div id="technologydetails_wrapper">
+                    <div id="technologydetails_content" ></div>
+                </div>
+
+                <div id="technologies">
+                    <div id="technologies_basic">
+                        <h3>Basic research</h3>
+                        <ul class="icons">
+                            <li class="technology energyTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                data-technology="113"
+                                data-status="disabled"
+                                aria-label="Energy Technology"
+                                title="Energy Technology&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small energyTechnology"><span class="level"
+                                                                                                 data-value="2"
+                                                                                                 data-bonus="0"
+                                    ><span>2</span><span class="bonus"></span></span></span></li><li class="technology laserTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="120"
+                                                                                                     data-status="disabled"
+                                                                                                     aria-label="Laser Technology"
+                                                                                                     title="Laser Technology&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small laserTechnology"><span class="level"
+                                                                                                data-value="4"
+                                                                                                data-bonus="0"
+                                    ><span>4</span><span class="bonus"></span></span></span></li><li class="technology ionTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="121"
+                                                                                                     data-status="off"
+                                                                                                     aria-label="Ion Technology"
+                                                                                                     title="Ion Technology&lt;br/&gt;Requirements are not met"
+                            ><span class="icon sprite sprite_small small ionTechnology"><span class="level"
+                                                                                              data-value="0"
+                                                                                              data-bonus="0"
+                                    ><span>0</span><span class="bonus"></span></span></span></li><li class="technology hyperspaceTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="114"
+                                                                                                     data-status="off"
+                                                                                                     aria-label="Hyperspace Technology"
+                                                                                                     title="Hyperspace Technology&lt;br/&gt;Requirements are not met"
+                            ><span class="icon sprite sprite_small small hyperspaceTechnology"><span class="level"
+                                                                                                     data-value="0"
+                                                                                                     data-bonus="0"
+                                    ><span>0</span><span class="bonus"></span></span></span></li><li class="technology plasmaTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="122"
+                                                                                                     data-status="off"
+                                                                                                     aria-label="Plasma Technology"
+                                                                                                     title="Plasma Technology&lt;br/&gt;Requirements are not met"
+                            ><span class="icon sprite sprite_small small plasmaTechnology"><span class="level"
+                                                                                                 data-value="0"
+                                                                                                 data-bonus="0"
+                                    ><span>0</span><span class="bonus"></span></span></span></li>            </ul>
+                    </div>
+                    <div id="technologies_drive">
+                        <h3>Drive research</h3>
+                        <ul class="icons">
+                            <li class="technology combustionDriveTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                data-technology="115"
+                                data-status="disabled"
+                                aria-label="Combustion Drive"
+                                title="Combustion Drive&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small combustionDriveTechnology"><span class="level"
+                                                                                                          data-value="5"
+                                                                                                          data-bonus="0"
+                                    ><span>5</span><span class="bonus"></span></span></span></li><li class="technology impulseDriveTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="117"
+                                                                                                     data-status="disabled"
+                                                                                                     aria-label="Impulse Drive"
+                                                                                                     title="Impulse Drive&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small impulseDriveTechnology"><span class="level"
+                                                                                                       data-value="4"
+                                                                                                       data-bonus="0"
+                                    ><span>4</span><span class="bonus"></span></span></span></li><li class="technology hyperspaceDriveTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="118"
+                                                                                                     data-status="off"
+                                                                                                     aria-label="Hyperspace Drive"
+                                                                                                     title="Hyperspace Drive&lt;br/&gt;Requirements are not met"
+                            ><span class="icon sprite sprite_small small hyperspaceDriveTechnology"><span class="level"
+                                                                                                          data-value="0"
+                                                                                                          data-bonus="0"
+                                    ><span>0</span><span class="bonus"></span></span></span></li>            </ul>
+                    </div>
+                    <div id="technologies_advanced">
+                        <h3>Advanced researches</h3>
+                        <ul class="icons">
+                            <li class="technology espionageTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                data-technology="106"
+                                data-status="disabled"
+                                aria-label="Espionage Technology"
+                                title="Espionage Technology&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small espionageTechnology"><span class="level"
+                                                                                                    data-value="4"
+                                                                                                    data-bonus="0"
+                                    ><span>4</span><span class="bonus"></span></span></span></li><li class="technology computerTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="108"
+                                                                                                     data-status="disabled"
+                                                                                                     aria-label="Computer Technology"
+                                                                                                     title="Computer Technology&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small computerTechnology"><span class="level"
+                                                                                                   data-value="1"
+                                                                                                   data-bonus="0"
+                                    ><span>1</span><span class="bonus"></span></span></span></li><li class="technology astrophysicsTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="124"
+                                                                                                     data-status="disabled"
+                                                                                                     aria-label="Astrophysics"
+                                                                                                     title="Astrophysics&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small astrophysicsTechnology"><span class="level"
+                                                                                                       data-value="3"
+                                                                                                       data-bonus="0"
+                                    ><span>3</span><span class="bonus"></span></span></span></li><li class="technology researchNetworkTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="123"
+                                                                                                     data-status="off"
+                                                                                                     aria-label="Intergalactic Research Network"
+                                                                                                     title="Intergalactic Research Network&lt;br/&gt;Requirements are not met"
+                            ><span class="icon sprite sprite_small small researchNetworkTechnology"><span class="level"
+                                                                                                          data-value="0"
+                                                                                                          data-bonus="0"
+                                    ><span>0</span><span class="bonus"></span></span></span></li><li class="technology gravitonTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="199"
+                                                                                                     data-status="off"
+                                                                                                     aria-label="Graviton Technology"
+                                                                                                     title="Graviton Technology&lt;br/&gt;Requirements are not met"
+                            ><span class="icon sprite sprite_small small gravitonTechnology"><span class="level"
+                                                                                                   data-value="0"
+                                                                                                   data-bonus="0"
+                                    ><span>0</span><span class="bonus"></span></span></span></li>            </ul>
+                    </div>
+                    <div id="technologies_combat">
+                        <h3>Combat research</h3>
+                        <ul class="icons">
+                            <li class="technology weaponsTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                data-technology="109"
+                                data-status="disabled"
+                                aria-label="Weapons Technology"
+                                title="Weapons Technology&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small weaponsTechnology"><span class="level"
+                                                                                                  data-value="0"
+                                                                                                  data-bonus="0"
+                                    ><span>0</span><span class="bonus"></span></span></span></li><li class="technology shieldingTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="110"
+                                                                                                     data-status="off"
+                                                                                                     aria-label="Shielding Technology"
+                                                                                                     title="Shielding Technology&lt;br/&gt;Requirements are not met"
+                            ><span class="icon sprite sprite_small small shieldingTechnology"><span class="level"
+                                                                                                    data-value="0"
+                                                                                                    data-bonus="0"
+                                    ><span>0</span><span class="bonus"></span></span></span></li><li class="technology armorTechnology  hasDetails tooltip js_hideTipOnMobile"
+                                                                                                     data-technology="111"
+                                                                                                     data-status="disabled"
+                                                                                                     aria-label="Armour Technology"
+                                                                                                     title="Armour Technology&lt;br/&gt;Not enough resources!"
+                            ><span class="icon sprite sprite_small small armorTechnology"><span class="level"
+                                                                                                data-value="4"
+                                                                                                data-bonus="0"
+                                    ><span>4</span><span class="bonus"></span></span></span></li>            </ul>
+                    </div>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                var LOCA_PLANETMOVE_BREAKUP_WARNING = 'Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?';
+                var LOCA_ALL_NETWORK_ATTENTION = 'Caution';
+                var LOCA_ALL_YES = 'yes';
+                var LOCA_ALL_NO = 'No';
+
+                var planetMoveInProgress = false;
+                var lastBuildingSlot = {"showWarning":false,"slotWarning":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item (e.g. <a href=\"https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=shop#page=shop&amp;category=dc9ec90e5a2163cc063b8bb3e9fe392782f565c8&amp;item=04e58444d6d0beb57b3e998edc34c60f8318825a\" target=\"_parent\" title=\"Gold Planet Fields|+15 additional fields on a planet.&lt;br \/&gt;&lt;br \/&gt; Duration: Permanent&lt;br \/&gt;&lt;br \/&gt; Price: 300.000 Dark Matter&lt;br \/&gt; In Inventory: 0\" class=\"tooltipHTML itemLink\">Gold Planet Fields<\/a>) to obtain more slots. Are you sure you want to build this building?"};
+                var urlQueueAdd = 'https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&component=research&modus=1&token=0cab6e30c3229d5f3802a2df0634286e';
+            </script>
+        </div>
+        <div id='productionboxresearchcomponent'
+             class="productionboxresearch injectedComponent parent research"
+        >
+            <div class="content-box-s">
+                <div class="header">
+                    <h3>Research</h3>
+                </div>
+                <div class="content">
+                    <table cellspacing="0" cellpadding="0" class="construction active">
+                        <tbody>
+                        <tr>
+                            <td colspan="2" class="idle">
+                                <a class="tooltip js_hideTipOnMobile "
+                                   title="There is no research done at the moment. Click here to get to your research lab."
+                                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+                                >
+                                    There is no research in progress at the moment.
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer"></div>
+            </div>
+            <script type="text/javascript">
+
+                $(function() {
+                });
+            </script>
+        </div>
+        <div id='technologydetailscomponent'
+             class="technologydetails injectedComponent parent research"
+        >
+            <script type="text/javascript">
+                var loca = {"LOCA_ALL_NOTICE":"Reference","LOCA_ALL_NETWORK_ATTENTION":"Caution","locaDemolishStructureQuestion":"Really downgrade TECHNOLOGY_NAME by one level?","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+
+                var upgradeEndpoint = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=research&modus=1&token=0cab6e30c3229d5f3802a2df0634286e&type=TECHNOLOGY_ID&menge=AMOUNT";
+                var downgradeEndpoint = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=research&modus=3&token=4a74965c91d0b9ddf2186d23d077baad&type=TECHNOLOGY_ID";
+                var cancelBuildingEndpoint = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=research&modus=2&token=428bf6550fbf5a546d06c8f18d01f142&type=TECHNOLOGY_ID&listid=PRIORITY";
+                var cancelResearchEndpoint = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=research&modus=2&token=428bf6550fbf5a546d06c8f18d01f142&type=TECHNOLOGY_ID&listid=PRIORITY";
+                var technologyDetailsEndpoint = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=technologydetails&ajax=1&ajax=1&action=getDetails";
+                var selectCharacterClassEndpoint = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=selectClass&ajax=1&asJson=1";
+                var deselectCharacterClassEndpoint = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=deselectClass&ajax=1&asJson=1";
+
+                var technologyDetails = new TechnologyDetails({
+                    upgradeEndpoint: upgradeEndpoint,
+                    downgradeEndpoint: downgradeEndpoint,
+                    cancelBuildingEndpoint: cancelBuildingEndpoint,
+                    cancelResearchEndpoint: cancelResearchEndpoint,
+                    technologyDetailsEndpoint: technologyDetailsEndpoint,
+                    selectCharacterClassEndpoint: selectCharacterClassEndpoint,
+                    deselectCharacterClassEndpoint: deselectCharacterClassEndpoint,
+                    loca: loca
+                })
+                technologyDetails.init()
+
+            </script>
+        </div>
+    </div>
+    <div id="right">
+        <div id='planetbarcomponent'
+             class=""
+        >
+            <div id="rechts">
+                <div id="norm">
+                    <div id="myWorlds">
+                        <div id="countColonies">
+                            <p class="textCenter">
+                                <span>2/3</span> Planets
+                            </p>
+                        </div>
+                        <div id="planetList"
+                        >
+                            <div class="smallplanet  hightlightPlanet "
+                                 id="planet-33795776">
+                                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33795776"
+                                   data-link="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33795776"
+                                   title="&lt;b&gt;Homeworld [9:297:12]&lt;/b&gt;&lt;br/&gt;12.800km (30/163)&lt;br&gt;-34°C to 6°C&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33795776&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33795776&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33795776&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33795776&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33795776&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33795776&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33795776&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33795776&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33795776&amp;galaxy=9&amp;system=297&amp;position=12&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink active tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Homeworld"
+                                         src="https://gf1.geo.gfsrv.net/cdnf8/a4d04bab6b59a122743a718b650b44.png"
+                                         width="48"
+                                         height ="48"
+                                    />
+                                    <span class="planet-name ">Homeworld</span>
+                                    <span class="planet-koords ">[9:297:12]</span>
+                                </a>
+                            </div>
+                            <div class="smallplanet   "
+                                 id="planet-33796125">
+                                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33796125"
+                                   data-link="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33796125"
+                                   title="&lt;b&gt;Colony [9:297:9]&lt;/b&gt;&lt;br/&gt;13.336km (0/177)&lt;br&gt;-1°C to 39°C&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33796125&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33796125&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33796125&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33796125&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33796125&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33796125&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33796125&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33796125&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33796125&amp;galaxy=9&amp;system=297&amp;position=9&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf2.geo.gfsrv.net/cdn4d/8364738978d2ae944edceb119d8c51.png"
+                                         width="48"
+                                         height ="48"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[9:297:9]</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="bottom">
+    <div id='errorboxcomponent'
+         class=""
+    >
+        <div id="decisionTB" style="display:none;">
+            <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxDecisionContent">-</span>
+                    <div class="response">
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+                        </div>
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+
+        <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+            <div>
+                <span id="fadeBoxStyle" class="success"></span>
+                <p id="fadeBoxContent"></p>
+            </div>
+        </div>
+
+        <div id="notifyTB" style="display:none;">
+            <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxNotifyContent">-</span>
+                    <div class="response">
+                        <div>
+                            <a href="javascript:void(0);" class="ok">
+                                <span id="errorBoxNotifyOk">.</span>
+                            </a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    initIndex();
+
+</script>
+<div id='chatbarcomponent'
+     class=""
+>
+    <script type="text/javascript">
+        var bigChatLink = 'https://s801-en.ogame.gameforge.com/game/index.php?page=chat';
+        var ajaxChatToken = "12837dbf4eec106402001690ad172aaf"
+        var chatUrl = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ajaxChat"
+        var chatUrlLoadMoreMessages = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=chatGetAdditionalMessages"
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"}
+
+        var visibleChats = {"players":[],"associations":[]};
+
+        (function($) {
+            ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box'); //list in chat bar
+            ogame.chat.showPlayerList('#sideBar'); // list in chat
+
+            var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
+
+            function initChatAsync() {
+                if (ogame.chat.isLoadingPlayerList === false && ogame.chat.playerList !== null) {
+                    clearInterval(initChatAsyncInterval);
+                    ogame.chat.initChatBar(118523);
+                    ogame.chat.initChat(118523, false);
+                    ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+                }
+            }
+        })(jQuery);
+    </script>
+    <div id="chatBar">
+        <ul class="chat_bar_list">
+            <li id="chatBarPlayerList" class="chat_bar_pl_list_item">
+                <div class="cb_playerlist_box" style="display:none">
+                </div>
+                <span class="onlineCount">0 Contact(s) online</span>
+            </li>
+        </ul><!-- END Chat Bar List -->
+
+        <script type="text/javascript">
+
+        </script>
+    </div>
+</div>
+<div id="siteFooter">
+    <div class="content" style="font-size:10px">
+        <div class="fleft textLeft">
+            <a class="tooltip js_hideTipOnMobile overlay" href="https://s801-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=changelog&amp;ajax=1" data-overlay-class="popupWidthFixed" data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes" title="Patch notes">7.0.0-rc19</a>
+            <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. All rights reserved.</a>
+        </div>
+        <div class="fright textRight">
+            <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
+            <a href="http://board.origin.ogame.gameforge.com/" target="_blank">Board</a>|
+            <a class="overlay"
+               href="https://s801-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=rules&amp;ajax=1"
+               data-overlay-iframe="true"
+               data-iframe-width="450"
+               data-overlay-title="Rules"
+            >Rules</a>|
+            <a href="https://agbserver.gameforge.com/rewrite.php?locale=en&amp;type=imprint&amp;product=ogame" target="_blank">Legal</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
