@@ -1903,8 +1903,21 @@ func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, error) {
 	return b.extractor.ExtractProduction(pageHTML)
 }
 
+func (b *OGame) IsV7() bool {
+	return b.ServerVersion()[0] == '7'
+}
+
 func getToken(b *OGame, page string, celestialID CelestialID) (string, error) {
 	pageHTML, _ := b.getPage(page, celestialID)
+	if b.IsV7() {
+		rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
+		m := rgx.FindSubmatch(pageHTML)
+		if len(m) != 2 {
+			return "", errors.New("unable to find form token")
+		}
+		return string(m[1]), nil
+	}
+
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
 		return "", err
@@ -1961,6 +1974,13 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 }
 
 func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
+	if b.IsV7() {
+		return b.buildV7(celestialID, id, nbr)
+	}
+	return b.buildV6(celestialID, id, nbr)
+}
+
+func (b *OGame) buildV6(celestialID CelestialID, id ID, nbr int) error {
 	var page string
 	if id.IsDefense() {
 		page = "defense"
@@ -2009,6 +2029,61 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int) error {
 	}
 
 	_, err := b.postPageContent(url.Values{"page": {page}, "cp": {strconv.Itoa(int(celestialID))}}, payload)
+	return err
+}
+
+func (b *OGame) buildV7(celestialID CelestialID, id ID, nbr int) error {
+	var page string
+	if id.IsDefense() {
+		page = DefensesPage
+	} else if id.IsShip() {
+		page = ShipyardPage
+	} else if id.IsBuilding() {
+		page = SuppliesPage
+	} else if id.IsTech() {
+		page = ResearchPage
+	} else {
+		return errors.New("invalid id " + id.String())
+	}
+	vals := url.Values{
+		"page":      {"ingame"},
+		"component": {page},
+		"modus":     {"1"},
+		"type":      {strconv.Itoa(int(id))},
+		"cp":        {strconv.Itoa(int(celestialID))},
+	}
+
+	// Techs don't have a token
+	if !id.IsTech() {
+		token, err := getToken(b, page, celestialID)
+		if err != nil {
+			return err
+		}
+		vals.Add("token", token)
+	}
+
+	if id.IsDefense() || id.IsShip() {
+		maximumNbr := 99999
+		var err error
+		var token string
+		for nbr > 0 {
+			tmp := int(math.Min(float64(nbr), float64(maximumNbr)))
+			vals.Set("menge", strconv.Itoa(tmp))
+			_, err = b.getPageContent(vals)
+			if err != nil {
+				break
+			}
+			token, err = getToken(b, page, celestialID)
+			if err != nil {
+				break
+			}
+			vals.Set("token", token)
+			nbr -= maximumNbr
+		}
+		return err
+	}
+
+	_, err := b.getPageContent(vals)
 	return err
 }
 
