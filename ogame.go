@@ -1903,6 +1903,7 @@ func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, error) {
 	return b.extractor.ExtractProduction(pageHTML)
 }
 
+// IsV7 ...
 func (b *OGame) IsV7() bool {
 	return b.ServerVersion()[0] == '7'
 }
