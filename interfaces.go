@@ -7,6 +7,7 @@ import (
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
+	GetExtractor() Extractor
 	SetOGameCredentials(username, password string)
 	SetLoginProxy(proxy, username, password string) error
 	SetProxy(proxy, username, password string) error
