@@ -110,6 +110,12 @@ func (o ID) String() string {
 		res += "Deathstar"
 	case BattlecruiserID:
 		res += "Battlecruiser"
+	case CrawlerID:
+		res += "Crawler"
+	case ReaperID:
+		res += "Reaper"
+	case PathfinderID:
+		res += "Pathfinder"
 	case EspionageTechnologyID:
 		res += "EspionageTechnology"
 	case ComputerTechnologyID:
@@ -232,5 +238,8 @@ func (o ID) IsShip() bool {
 		o == SolarSatelliteID ||
 		o == DestroyerID ||
 		o == DeathstarID ||
-		o == BattlecruiserID
+		o == BattlecruiserID ||
+		o == CrawlerID ||
+		o == ReaperID ||
+		o == PathfinderID
 }
