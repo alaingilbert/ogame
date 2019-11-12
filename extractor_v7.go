@@ -46,6 +46,10 @@ func (e ExtractorV7) ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildi
 	return e.ExtractResourcesBuildingsFromDoc(doc)
 }
 
+func (e ExtractorV7) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
+	return extractResourcesDetailsV7(pageHTML)
+}
+
 // ExtractDefenseFromDoc ...
 func (e ExtractorV7) ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
 	return extractDefenseFromDocV7(doc)

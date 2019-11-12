@@ -71,7 +71,7 @@ var pageV7Mapping = map[string]string{
 
 func (b *OGame) getPage(page string, celestialID CelestialID) ([]byte, error) {
 	vals := url.Values{"page": {page}}
-	if b.serverData.Version[0] == '7' {
+	if b.serverData.Version[0] == '7' && page != FetchResourcesPage {
 		if newPage, ok := pageV7Mapping[page]; ok {
 			page = newPage
 		}

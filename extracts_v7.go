@@ -1,7 +1,9 @@
 package ogame
 
 import (
+	"encoding/json"
 	"strconv"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -98,4 +100,75 @@ func extractResourcesBuildingsFromDocV7(doc *goquery.Document) (ResourcesBuildin
 	res.CrystalStorage = getNbrV7(doc, "crystalStorage")
 	res.DeuteriumTank = getNbrV7(doc, "deuteriumStorage")
 	return res, nil
+}
+
+type resourcesRespV7 struct {
+	Metal struct {
+		ActualFormat string
+		Actual       int
+		Max          int
+		Production   float64
+		Tooltip      string
+		Class        string
+	}
+	Crystal struct {
+		ActualFormat string
+		Actual       int
+		Max          int
+		Production   float64
+		Tooltip      string
+		Class        string
+	}
+	Deuterium struct {
+		ActualFormat string
+		Actual       int
+		Max          int
+		Production   float64
+		Tooltip      string
+		Class        string
+	}
+	Energy struct {
+		ActualFormat string
+		Actual       int
+		Tooltip      string
+		Class        string
+	}
+	Darkmatter struct {
+		ActualFormat string
+		Actual       int
+		String       string
+		Tooltip      string
+	}
+	HonorScore int
+}
+
+func extractResourcesDetailsV7(pageHTML []byte) (out ResourcesDetails, err error) {
+	var res resourcesRespV7
+	if err = json.Unmarshal(pageHTML, &res); err != nil {
+		if isLogged(pageHTML) {
+			return out, ErrInvalidPlanetID
+		}
+		return
+	}
+	out.Metal.Available = res.Metal.Actual
+	out.Metal.StorageCapacity = res.Metal.Max
+	out.Crystal.Available = res.Crystal.Actual
+	out.Crystal.StorageCapacity = res.Crystal.Max
+	out.Deuterium.Available = res.Deuterium.Actual
+	out.Deuterium.StorageCapacity = res.Deuterium.Max
+	out.Energy.Available = res.Energy.Actual
+	out.Darkmatter.Available = res.Darkmatter.Actual
+	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Metal.Tooltip))
+	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Crystal.Tooltip))
+	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Deuterium.Tooltip))
+	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Darkmatter.Tooltip))
+	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Energy.Tooltip))
+	out.Metal.CurrentProduction = ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Crystal.CurrentProduction = ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Deuterium.CurrentProduction = ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Energy.CurrentProduction = ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	return
 }
