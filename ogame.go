@@ -1905,7 +1905,7 @@ func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, error) {
 
 // IsV7 ...
 func (b *OGame) IsV7() bool {
-	return b.ServerVersion()[0] == '7'
+	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '7'
 }
 
 func getToken(b *OGame, page string, celestialID CelestialID) (string, error) {
