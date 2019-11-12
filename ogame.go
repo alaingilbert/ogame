@@ -657,6 +657,11 @@ func (b *OGame) wrapLogin() error {
 	return b.loginWrapper(b.login)
 }
 
+// GetExtractor gets extractor object
+func (b *OGame) GetExtractor() Extractor {
+	return b.extractor
+}
+
 // SetOGameCredentials sets ogame credentials for the bot
 func (b *OGame) SetOGameCredentials(username, password string) {
 	b.Username = username
