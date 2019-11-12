@@ -1718,6 +1718,14 @@ func TestGetConstructions(t *testing.T) {
 	assert.Equal(t, 927, researchCountdown)
 }
 
+func TestGetConstructionsV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview_supplies_in_construction.html")
+	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 0, 15, 10, 0, time.Local))
+	buildingID, buildingCountdown, _, _ := extractConstructionsV7(pageHTMLBytes, clock)
+	assert.Equal(t, MetalMineID, buildingID)
+	assert.Equal(t, 62, buildingCountdown)
+}
+
 func TestExtractFleetsFromEventList(t *testing.T) {
 	//pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_test.html")
 	//fleets := NewExtractorV6().ExtractFleetsFromEventList(pageHTMLBytes)
