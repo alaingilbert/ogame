@@ -4,6 +4,7 @@ import (
 	"bytes"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
 )
 
 // ExtractorV7 ...
@@ -48,6 +49,11 @@ func (e ExtractorV7) ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildi
 
 func (e ExtractorV7) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV7(pageHTML)
+}
+
+// ExtractConstructions ...
+func (e ExtractorV7) ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
+	return extractConstructionsV7(pageHTML, clockwork.NewRealClock())
 }
 
 // ExtractDefenseFromDoc ...
