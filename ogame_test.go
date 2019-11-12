@@ -177,6 +177,26 @@ func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 	assert.Equal(t, 25000, res.Darkmatter.Found)
 }
 
+func TestExtractResourcesDetailsFromFullPageV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview2.html")
+	res := NewExtractorV6().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	assert.Equal(t, 36800, res.Metal.Available)
+	assert.Equal(t, 396, res.Metal.CurrentProduction)
+	assert.Equal(t, 40000, res.Metal.StorageCapacity)
+	assert.Equal(t, 56524, res.Crystal.Available)
+	assert.Equal(t, 143, res.Crystal.CurrentProduction)
+	assert.Equal(t, 75000, res.Crystal.StorageCapacity)
+	assert.Equal(t, 18401, res.Deuterium.Available)
+	assert.Equal(t, 128, res.Deuterium.CurrentProduction)
+	assert.Equal(t, 20000, res.Deuterium.StorageCapacity)
+	assert.Equal(t, -4, res.Energy.Available)
+	assert.Equal(t, 79, res.Energy.CurrentProduction)
+	assert.Equal(t, -83, res.Energy.Consumption)
+	assert.Equal(t, 19348523, res.Darkmatter.Available)
+	assert.Equal(t, 0, res.Darkmatter.Purchased)
+	assert.Equal(t, 19348523, res.Darkmatter.Found)
+}
+
 func TestExtractPhalanx(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
 	res, err := NewExtractorV6().ExtractPhalanx(pageHTMLBytes)
@@ -2216,4 +2236,28 @@ func TestGetResourcesDetails(t *testing.T) {
 	assert.Equal(t, 28500, res.Darkmatter.Available)
 	assert.Equal(t, 0, res.Darkmatter.Purchased)
 	assert.Equal(t, 28500, res.Darkmatter.Found)
+}
+
+func TestGetResourcesDetailsV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/fetchResources.html")
+	res, _ := NewExtractorV7().ExtractResourcesDetails(pageHTMLBytes)
+	assert.Equal(t, 415, res.Metal.Available)
+	assert.Equal(t, 10000, res.Metal.StorageCapacity)
+	assert.Equal(t, 150, res.Metal.CurrentProduction)
+
+	assert.Equal(t, 501, res.Crystal.Available)
+	assert.Equal(t, 10000, res.Crystal.StorageCapacity)
+	assert.Equal(t, 75, res.Crystal.CurrentProduction)
+
+	assert.Equal(t, 73, res.Deuterium.Available)
+	assert.Equal(t, 10000, res.Deuterium.StorageCapacity)
+	assert.Equal(t, 66, res.Deuterium.CurrentProduction)
+
+	assert.Equal(t, 0, res.Energy.Available)
+	assert.Equal(t, 22, res.Energy.CurrentProduction)
+	assert.Equal(t, -22, res.Energy.Consumption)
+
+	assert.Equal(t, 8000, res.Darkmatter.Available)
+	assert.Equal(t, 0, res.Darkmatter.Purchased)
+	assert.Equal(t, 8000, res.Darkmatter.Found)
 }
