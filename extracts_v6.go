@@ -1435,7 +1435,7 @@ func extractAjaxChatTokenV6(pageHTML []byte) (string, error) {
 func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	playerIDRgx := regexp.MustCompile(`<meta name="ogame-player-id" content="(\d+)"/>`)
 	playerNameRgx := regexp.MustCompile(`<meta name="ogame-player-name" content="([^"]+)"/>`)
-	txtContent := regexp.MustCompile(`textContent\[7]="([^"]+)"`)
+	txtContent := regexp.MustCompile(`textContent\[7]\s?=\s?"([^"]+)"`)
 	playerIDGroups := playerIDRgx.FindSubmatch(pageHTML)
 	playerNameGroups := playerNameRgx.FindSubmatch(pageHTML)
 	subHTMLGroups := txtContent.FindSubmatch(pageHTML)
@@ -1506,7 +1506,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		res.Rank = ParseInt(string(infos[3]))
 		res.Total = ParseInt(string(infos[2]))
 	}
-	honourPointsRgx := regexp.MustCompile(`textContent\[9]="([^"]+)"`)
+	honourPointsRgx := regexp.MustCompile(`textContent\[9]\s?=\s?"([^"]+)"`)
 	honourPointsGroups := honourPointsRgx.FindSubmatch(pageHTML)
 	if len(honourPointsGroups) < 2 {
 		return UserInfos{}, errors.New("cannot find honour points")

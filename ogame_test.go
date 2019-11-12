@@ -1260,6 +1260,15 @@ func TestExtractGalaxyInfosMoonActivity15(t *testing.T) {
 	assert.Equal(t, 15, infos.Position(11).Moon.Activity)
 }
 
+func TestExtractUserInfosV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "en")
+	assert.Equal(t, 538, infos.Points)
+	assert.Equal(t, 1402, infos.Rank)
+	assert.Equal(t, 3179, infos.Total)
+	assert.Equal(t, "Governor Meridian", infos.PlayerName)
+}
+
 func TestExtractUserInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "en")
