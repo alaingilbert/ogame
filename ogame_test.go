@@ -1720,10 +1720,12 @@ func TestGetConstructions(t *testing.T) {
 
 func TestGetConstructionsV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview_supplies_in_construction.html")
-	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 0, 15, 10, 0, time.Local))
-	buildingID, buildingCountdown, _, _ := extractConstructionsV7(pageHTMLBytes, clock)
+	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 1, 6, 43, 0, time.Local))
+	buildingID, buildingCountdown, researchID, researchCountdown := extractConstructionsV7(pageHTMLBytes, clock)
 	assert.Equal(t, MetalMineID, buildingID)
 	assert.Equal(t, 62, buildingCountdown)
+	assert.Equal(t, EnergyTechnologyID, researchID)
+	assert.Equal(t, 271, researchCountdown)
 }
 
 func TestExtractFleetsFromEventList(t *testing.T) {

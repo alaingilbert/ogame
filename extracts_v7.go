@@ -2,11 +2,9 @@ package ogame
 
 import (
 	"encoding/json"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -180,17 +178,15 @@ func extractResourcesDetailsV7(pageHTML []byte) (out ResourcesDetails, err error
 func extractConstructionsV7(pageHTML []byte, clock clockwork.Clock) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		fmt.Println(toInt(buildingCountdownMatch[1]), time.Now().Unix())
 		buildingCountdown = int(int64(toInt(buildingCountdownMatch[1])) - clock.Now().Unix())
 		buildingIDInt := toInt(regexp.MustCompile(`onclick="cancelbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
 		buildingID = ID(buildingIDInt)
 	}
-	// TODO: fix research
-	//researchCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("researchCountdown"\),(\d+),`).FindSubmatch(pageHTML)
-	//if len(researchCountdownMatch) > 0 {
-	//	researchCountdown = toInt(researchCountdownMatch[1])
-	//	researchIDInt := toInt(regexp.MustCompile(`onclick="cancelResearch\((\d+),`).FindSubmatch(pageHTML)[1])
-	//	researchID = ID(researchIDInt)
-	//}
+	researchCountdownMatch := regexp.MustCompile(`var restTimeresearch = (\d+) -`).FindSubmatch(pageHTML)
+	if len(researchCountdownMatch) > 0 {
+		researchCountdown = int(int64(toInt(researchCountdownMatch[1])) - clock.Now().Unix())
+		researchIDInt := toInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
+		researchID = ID(researchIDInt)
+	}
 	return
 }
