@@ -918,6 +918,9 @@ func IsKnowFullPage(vals url.Values) bool {
 // IsAjaxPage either the requested page is a partial/ajax page
 func IsAjaxPage(vals url.Values) bool {
 	page := vals.Get("page")
+	if page == "ingame" {
+		page = vals.Get("component")
+	}
 	ajax := vals.Get("ajax")
 	return page == FetchEventboxAjaxPage ||
 		page == FetchResourcesAjaxPage ||
@@ -1014,6 +1017,9 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	page := vals.Get("page")
+	if page == "ingame" {
+		page = vals.Get("component")
+	}
 	var pageHTMLBytes []byte
 
 	if err := b.withRetry(func() (err error) {

@@ -1430,7 +1430,7 @@ func extractPlanetTypeV6(pageHTML []byte) (CelestialType, error) {
 }
 
 func extractAjaxChatTokenV6(pageHTML []byte) (string, error) {
-	r1 := regexp.MustCompile(`ajaxChatToken='(\w+)'`)
+	r1 := regexp.MustCompile(`ajaxChatToken\s?=\s?['"](\w+)['"]`)
 	m1 := r1.FindSubmatch(pageHTML)
 	if len(m1) < 2 {
 		return "", errors.New("unable to find token")
