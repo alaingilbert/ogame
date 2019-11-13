@@ -190,3 +190,24 @@ func extractConstructionsV7(pageHTML []byte, clock clockwork.Clock) (buildingID 
 	}
 	return
 }
+
+func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ShipsInfos) {
+	onclick := doc.Find("div#fleetdispatchcomponent")
+	h, _ := onclick.Html()
+	matches := regexp.MustCompile(`var shipsOnPlanet = ([^;]+);`).FindStringSubmatch(h)
+	if len(matches) == 0 {
+		return
+	}
+	m := matches[1]
+	var res []struct {
+		ID     int `json:"id"`
+		Number int `json:"number"`
+	}
+	if err := json.Unmarshal([]byte(m), &res); err != nil {
+		return
+	}
+	for _, obj := range res {
+		s.Set(ID(obj.ID), obj.Number)
+	}
+	return
+}

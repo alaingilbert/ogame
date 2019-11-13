@@ -56,6 +56,17 @@ func (e ExtractorV7) ExtractConstructions(pageHTML []byte) (buildingID ID, build
 	return extractConstructionsV7(pageHTML, clockwork.NewRealClock())
 }
 
+// ExtractFleet1Ships ...
+func (e ExtractorV7) ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractFleet1ShipsFromDoc(doc)
+}
+
+// ExtractFleet1ShipsFromDoc ...
+func (e ExtractorV7) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos) {
+	return extractFleet1ShipsFromDocV7(doc)
+}
+
 // ExtractDefenseFromDoc ...
 func (e ExtractorV7) ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error) {
 	return extractDefenseFromDocV7(doc)
