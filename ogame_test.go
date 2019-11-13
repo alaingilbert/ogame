@@ -1742,6 +1742,21 @@ func TestExtractIPM(t *testing.T) {
 	assert.Equal(t, 15, duration)
 }
 
+func TestExtractFleetV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/movement.html")
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 1, len(fleets))
+	assert.Equal(t, 1010, fleets[0].ArriveIn)
+	assert.Equal(t, 2030, fleets[0].BackIn)
+	assert.Equal(t, Coordinate{9, 297, 12, PlanetType}, fleets[0].Origin)
+	assert.Equal(t, Coordinate{9, 297, 9, PlanetType}, fleets[0].Destination)
+	assert.Equal(t, Transport, fleets[0].Mission)
+	assert.Equal(t, false, fleets[0].ReturnFlight)
+	assert.Equal(t, FleetID(4218727), fleets[0].ID)
+	assert.Equal(t, 2, fleets[0].Ships.SmallCargo)
+	assert.Equal(t, Resources{}, fleets[0].Resources)
+}
+
 func TestExtractFleet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_1.html")
 	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)

@@ -1110,7 +1110,7 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int, token string
 
 func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 	res = make([]Fleet, 0)
-	script := doc.Find("div#content script").Text()
+	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
 		originText := s.Find("span.originCoords a").Text()
 		origin := extractCoordV6(originText)
@@ -1130,8 +1130,15 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 
 		id, _ := strconv.Atoi(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"))
 
+		timerID := s.Find("span.timer").AttrOr("id", "")
+		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
+		var arriveIn int
+		if len(m) == 2 {
+			arriveIn, _ = strconv.Atoi(string(m[1]))
+		}
+
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
-		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
+		m = regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
 		var backIn int
 		if len(m) == 2 {
 			backIn, _ = strconv.Atoi(string(m[1]))
@@ -1168,11 +1175,11 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
 		if !returnFlight {
-			fleet.ArriveIn = secs
+			fleet.ArriveIn = arriveIn
 			fleet.BackIn = backIn
 		} else {
 			fleet.ArriveIn = -1
-			fleet.BackIn = secs
+			fleet.BackIn = arriveIn
 		}
 
 		for i := 1; i < trs.Size()-5; i++ {
