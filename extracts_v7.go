@@ -2,10 +2,12 @@ package ogame
 
 import (
 	"encoding/json"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
 )
 
 func getNbrV7(doc *goquery.Document, name string) int {
@@ -170,5 +172,42 @@ func extractResourcesDetailsV7(pageHTML []byte) (out ResourcesDetails, err error
 	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	return
+}
+
+func extractConstructionsV7(pageHTML []byte, clock clockwork.Clock) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
+	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
+	if len(buildingCountdownMatch) > 0 {
+		buildingCountdown = int(int64(toInt(buildingCountdownMatch[1])) - clock.Now().Unix())
+		buildingIDInt := toInt(regexp.MustCompile(`onclick="cancelbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
+		buildingID = ID(buildingIDInt)
+	}
+	researchCountdownMatch := regexp.MustCompile(`var restTimeresearch = (\d+) -`).FindSubmatch(pageHTML)
+	if len(researchCountdownMatch) > 0 {
+		researchCountdown = int(int64(toInt(researchCountdownMatch[1])) - clock.Now().Unix())
+		researchIDInt := toInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
+		researchID = ID(researchIDInt)
+	}
+	return
+}
+
+func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ShipsInfos) {
+	onclick := doc.Find("div#fleetdispatchcomponent")
+	h, _ := onclick.Html()
+	matches := regexp.MustCompile(`var shipsOnPlanet = ([^;]+);`).FindStringSubmatch(h)
+	if len(matches) == 0 {
+		return
+	}
+	m := matches[1]
+	var res []struct {
+		ID     int `json:"id"`
+		Number int `json:"number"`
+	}
+	if err := json.Unmarshal([]byte(m), &res); err != nil {
+		return
+	}
+	for _, obj := range res {
+		s.Set(ID(obj.ID), obj.Number)
+	}
 	return
 }
