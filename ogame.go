@@ -1776,6 +1776,9 @@ func (b *OGame) buyOfferOfTheDay() error {
 
 func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err error) {
 	params := url.Values{"page": {"eventList"}, "ajax": {"1"}}
+	if b.IsV7() {
+		params = url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
+	}
 	if celestialID != 0 {
 		params.Set("cp", strconv.Itoa(int(celestialID)))
 	}
