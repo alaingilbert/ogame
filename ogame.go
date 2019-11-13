@@ -893,6 +893,9 @@ func isLogged(pageHTML []byte) bool {
 // IsKnowFullPage ...
 func IsKnowFullPage(vals url.Values) bool {
 	page := vals.Get("page")
+	if page == "ingame" {
+		page = vals.Get("component")
+	}
 	return page == OverviewPage ||
 		page == ResourcesPage ||
 		page == StationPage ||
@@ -912,7 +915,12 @@ func IsKnowFullPage(vals url.Values) bool {
 		page == BuddiesPage ||
 		page == PreferencesPage ||
 		page == MessagesPage ||
-		page == ChatPage
+		page == ChatPage ||
+
+		page == DefensesPage ||
+		page == SuppliesPage ||
+		page == FacilitiesPage ||
+		page == FleetdispatchPage
 }
 
 // IsAjaxPage either the requested page is a partial/ajax page
