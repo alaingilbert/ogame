@@ -918,6 +918,9 @@ func IsKnowFullPage(vals url.Values) bool {
 // IsAjaxPage either the requested page is a partial/ajax page
 func IsAjaxPage(vals url.Values) bool {
 	page := vals.Get("page")
+	if page == "ingame" {
+		page = vals.Get("component")
+	}
 	ajax := vals.Get("ajax")
 	return page == FetchEventboxAjaxPage ||
 		page == FetchResourcesAjaxPage ||
@@ -1014,6 +1017,9 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	page := vals.Get("page")
+	if page == "ingame" {
+		page = vals.Get("component")
+	}
 	var pageHTMLBytes []byte
 
 	if err := b.withRetry(func() (err error) {
@@ -2238,6 +2244,250 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int, priority I
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime, unionID int, ensure bool) (Fleet, error) {
+	if b.IsV7() {
+		return b.sendFleetV7(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
+	}
+	return b.sendFleetV6(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
+}
+
+type CheckTargetResponse struct {
+	Status string `json:"status"`
+	Orders struct {
+		Num1  bool `json:"1"` // Might be noob protection
+		Num2  bool `json:"2"`
+		Num3  bool `json:"3"`
+		Num4  bool `json:"4"`
+		Num5  bool `json:"5"`
+		Num6  bool `json:"6"`
+		Num7  bool `json:"7"`
+		Num8  bool `json:"8"`
+		Num9  bool `json:"9"`
+		Num15 bool `json:"15"`
+	} `json:"orders"`
+	TargetInhabited           bool   `json:"targetInhabited"`
+	TargetIsStrong            bool   `json:"targetIsStrong"`
+	TargetIsOutlaw            bool   `json:"targetIsOutlaw"`
+	TargetIsBuddyOrAllyMember bool   `json:"targetIsBuddyOrAllyMember"`
+	TargetPlayerID            int    `json:"targetPlayerId"`
+	TargetPlayerName          string `json:"targetPlayerName"`
+	TargetPlayerColorClass    string `json:"targetPlayerColorClass"`
+	TargetPlayerRankIcon      string `json:"targetPlayerRankIcon"`
+	PlayerIsOutlaw            bool   `json:"playerIsOutlaw"`
+	TargetPlanet              struct {
+		Galaxy   int    `json:"galaxy"`
+		System   int    `json:"system"`
+		Position int    `json:"position"`
+		Type     int    `json:"type"`
+		Name     string `json:"name"`
+	} `json:"targetPlanet"`
+	TargetOk   bool          `json:"targetOk"`
+	Components []interface{} `json:"components"`
+}
+
+func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+	mission MissionID, resources Resources, expeditiontime, unionID int, ensure bool) (Fleet, error) {
+
+	// Get existing fleet, so we can ensure new fleet ID is greater
+	initialFleets, slots := b.getFleets()
+	maxInitialFleetID := FleetID(0)
+	for _, f := range initialFleets {
+		if f.ID > maxInitialFleetID {
+			maxInitialFleetID = f.ID
+		}
+	}
+
+	if slots.InUse == slots.Total {
+		return Fleet{}, ErrAllSlotsInUse
+	}
+
+	if mission == Expedition {
+		if slots.ExpInUse == slots.ExpTotal {
+			return Fleet{}, ErrAllSlotsInUse
+		}
+	}
+
+	// Page 1 : get to fleet page
+	pageHTML, err := b.getPage(Fleet1Page, celestialID)
+	if err != nil {
+		return Fleet{}, err
+	}
+
+	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
+	if fleet1BodyID != FleetdispatchPage {
+		now := time.Now().Unix()
+		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
+		return Fleet{}, ErrInvalidPlanetID
+	}
+
+	if b.extractor.ExtractIsInVacationFromDoc(fleet1Doc) {
+		return Fleet{}, ErrAccountInVacationMode
+	}
+
+	// Ensure we're not trying to attack/spy ourselves
+	destinationIsMyOwnPlanet := false
+	myCelestials, _ := b.extractor.ExtractCelestialsFromDoc(fleet1Doc, b)
+	for _, c := range myCelestials {
+		if c.GetCoordinate().Equal(where) && c.GetID() == celestialID {
+			return Fleet{}, errors.New("origin and destination are the same")
+		}
+		if c.GetCoordinate().Equal(where) {
+			destinationIsMyOwnPlanet = true
+			break
+		}
+	}
+	if destinationIsMyOwnPlanet {
+		switch mission {
+		case Spy:
+			return Fleet{}, errors.New("you cannot spy yourself")
+		case Attack:
+			return Fleet{}, errors.New("you cannot attack yourself")
+		}
+	}
+
+	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
+
+	atLeastOneShipSelected := false
+	if !ensure {
+		for _, ship := range ships {
+			if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
+				atLeastOneShipSelected = true
+				break
+			}
+		}
+	} else {
+		for _, ship := range ships {
+			if ship.Nbr > availableShips.ByID(ship.ID) {
+				return Fleet{}, ErrNotEnoughShips
+			}
+			atLeastOneShipSelected = true
+		}
+	}
+	if !atLeastOneShipSelected {
+		return Fleet{}, ErrNoShipSelected
+	}
+
+	payload := b.extractor.ExtractHiddenFieldsFromDoc(fleet1Doc)
+	for _, s := range ships {
+		if s.Nbr > 0 {
+			payload.Set("am"+strconv.Itoa(int(s.ID)), strconv.Itoa(s.Nbr))
+		}
+	}
+
+	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
+	if len(tokenM) != 2 {
+		return Fleet{}, errors.New("token not found")
+	}
+
+	payload.Set("token", string(tokenM[1]))
+	payload.Set("galaxy", strconv.Itoa(where.Galaxy))
+	payload.Set("system", strconv.Itoa(where.System))
+	payload.Set("position", strconv.Itoa(where.Position))
+	if mission == RecycleDebrisField {
+		where.Type = DebrisType // Send to debris field
+	} else if mission == Colonize || mission == Expedition {
+		where.Type = PlanetType
+	}
+	payload.Set("type", strconv.Itoa(int(where.Type)))
+	payload.Set("union", "0")
+
+	//if unionID != 0 {
+	//	found := false
+	//	fleet2Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
+	//		acsValues := s.AttrOr("value", "")
+	//		m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
+	//		if len(m) == 2 {
+	//			optUnionID, _ := strconv.Atoi(m[1])
+	//			if unionID == optUnionID {
+	//				found = true
+	//				payload.Add("acsValues", acsValues)
+	//				payload.Add("union", m[1])
+	//				mission = GroupedAttack
+	//			}
+	//		}
+	//	})
+	//	if !found {
+	//		return Fleet{}, ErrUnionNotFound
+	//	}
+	//}
+
+	// Check
+	by1, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+	if err != nil {
+		b.error(err.Error())
+		return Fleet{}, err
+	}
+	var checkRes CheckTargetResponse
+	if err := json.Unmarshal(by1, &checkRes); err != nil {
+		b.error(err.Error())
+		return Fleet{}, err
+	}
+
+	if !checkRes.TargetOk {
+		return Fleet{}, errors.New("target is not ok")
+	}
+
+	// Page 3 : select coord, mission, speed
+	payload.Set("speed", strconv.Itoa(int(speed)))
+
+	var finalShips ShipsInfos
+	for k, v := range payload {
+		var shipID int
+		if n, err := fmt.Sscanf(k, "am%d", &shipID); err == nil && n == 1 {
+			nbr, _ := strconv.Atoi(v[0])
+			finalShips.Set(ID(shipID), nbr)
+		}
+	}
+	payload.Set("crystal", strconv.Itoa(resources.Crystal))
+	payload.Set("deuterium", strconv.Itoa(resources.Deuterium))
+	payload.Set("metal", strconv.Itoa(resources.Metal))
+	payload.Set("mission", strconv.Itoa(int(mission)))
+	if mission == Expedition {
+		payload.Set("expeditiontime", strconv.Itoa(expeditiontime))
+	}
+
+	// Page 4 : send the fleet
+	_, _ = b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"sendFleet"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+
+	// Page 5
+	movementHTML, _ := b.getPage(MovementPage, CelestialID(0))
+	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
+	originCoords, _ := b.extractor.ExtractPlanetCoordinate(movementHTML)
+	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc)
+	if len(fleets) > 0 {
+		max := Fleet{}
+		for i, fleet := range fleets {
+			if fleet.ID > max.ID &&
+				fleet.Origin.Equal(originCoords) &&
+				fleet.Destination.Equal(where) &&
+				fleet.Mission == mission &&
+				!fleet.ReturnFlight {
+				max = fleets[i]
+			}
+		}
+		if max.ID > maxInitialFleetID {
+			return max, nil
+		}
+	}
+
+	slots = b.extractor.ExtractSlotsFromDoc(movementDoc)
+	if slots.InUse == slots.Total {
+		return Fleet{}, ErrAllSlotsInUse
+	}
+
+	if mission == Expedition {
+		if slots.ExpInUse == slots.ExpTotal {
+			return Fleet{}, ErrAllSlotsInUse
+		}
+	}
+
+	now := time.Now().Unix()
+	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID, ", ts: ", now)
+	return Fleet{}, errors.New("could not find new fleet ID")
+}
+
+func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime, unionID int, ensure bool) (Fleet, error) {
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
