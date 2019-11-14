@@ -295,6 +295,27 @@ func TestExtractResearchV7(t *testing.T) {
 	assert.Equal(t, 4, res.ArmourTechnology)
 }
 
+func TestExtractResearchV7_2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/researches2.html")
+	res := NewExtractorV7().ExtractResearch(pageHTMLBytes)
+	assert.Equal(t, 1, res.EnergyTechnology)
+	assert.Equal(t, 0, res.LaserTechnology)
+	assert.Equal(t, 0, res.IonTechnology)
+	assert.Equal(t, 0, res.HyperspaceTechnology)
+	assert.Equal(t, 0, res.PlasmaTechnology)
+	assert.Equal(t, 3, res.CombustionDrive)
+	assert.Equal(t, 1, res.ImpulseDrive)
+	assert.Equal(t, 0, res.HyperspaceDrive)
+	assert.Equal(t, 0, res.EspionageTechnology)
+	assert.Equal(t, 1, res.ComputerTechnology)
+	assert.Equal(t, 0, res.Astrophysics)
+	assert.Equal(t, 0, res.IntergalacticResearchNetwork)
+	assert.Equal(t, 0, res.GravitonTechnology)
+	assert.Equal(t, 0, res.WeaponsTechnology)
+	assert.Equal(t, 0, res.ShieldingTechnology)
+	assert.Equal(t, 0, res.ArmourTechnology)
+}
+
 func TestExtractResourcesBuildings(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_inconstruction.html")
 	res, _ := NewExtractorV6().ExtractResourcesBuildings(pageHTMLBytes)
