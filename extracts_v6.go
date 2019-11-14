@@ -1468,6 +1468,8 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Plass ([\d.]+) av ([\d.]+)\)`)
 	case "hr":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Mjesto ([\d.]+) od ([\d.]+)\)`)
+	case "gr":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u039a\\u03b1\\u03c4\\u03ac\\u03c4\\u03b1\\u03be\\u03b7 ([\d.]+) \\u03b1\\u03c0\\u03cc ([\d.]+)\)`)
 	case "tw":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) \u4eba\u4e2d\u7684\u7b2c ([\d.]+) \u4f4d\)`)
 	case "cz":
@@ -1879,7 +1881,7 @@ func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error
 	}
 
 	txt := goquery.NewDocumentFromNode(root).Text()
-	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|至|a|～|do|ile|tot|og|до|až|til)\s*([-\d]+).+C`)
+	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|至|a|～|do|ile|tot|og|до|až|til|έως)\s*([-\d]+).+C`)
 	m := planetInfosRgx.FindStringSubmatch(txt)
 	if len(m) < 10 {
 		return Planet{}, errors.New("failed to parse planet infos: " + txt)
