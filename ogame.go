@@ -1815,7 +1815,11 @@ func (b *OGame) galaxyInfos(galaxy, system int) (SystemInfos, error) {
 		"system": {strconv.Itoa(system)},
 	}
 	var res SystemInfos
-	pageHTML, err := b.postPageContent(url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}, payload)
+	vals := url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}
+	if b.IsV7() {
+		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
+	}
+	pageHTML, err := b.postPageContent(vals, payload)
 	if err != nil {
 		return res, err
 	}
