@@ -593,6 +593,34 @@ func TestExtractPlanet_hr(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_no(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/no/overview.html")
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33624646), &OGame{language: "no"})
+	assert.Equal(t, "Hjemmeverden", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, -24, planet.Temperature.Min)
+	assert.Equal(t, 16, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 188, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33624646), planet.ID)
+	assert.Equal(t, Coordinate{1, 99, 10, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_gr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33629206), &OGame{language: "gr"})
+	assert.Equal(t, "Κύριος Πλανήτης", planet.Name)
+	assert.Equal(t, 12800, planet.Diameter)
+	assert.Equal(t, 37, planet.Temperature.Min)
+	assert.Equal(t, 77, planet.Temperature.Max)
+	assert.Equal(t, 0, planet.Fields.Built)
+	assert.Equal(t, 193, planet.Fields.Total)
+	assert.Equal(t, PlanetID(33629206), planet.ID)
+	assert.Equal(t, Coordinate{1, 182, 6, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_mx(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/mx/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33624669), &OGame{language: "mx"})
@@ -1309,6 +1337,22 @@ func TestExtractUserInfos_hr(t *testing.T) {
 	assert.Equal(t, 0, infos.Points)
 	assert.Equal(t, 214, infos.Rank)
 	assert.Equal(t, 252, infos.Total)
+}
+
+func TestExtractUserInfos_no(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/no/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "no")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 49, infos.Rank)
+	assert.Equal(t, 50, infos.Total)
+}
+
+func TestExtractUserInfos_gr(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "gr")
+	assert.Equal(t, 0, infos.Points)
+	assert.Equal(t, 162, infos.Rank)
+	assert.Equal(t, 163, infos.Total)
 }
 
 func TestExtractUserInfos_mx(t *testing.T) {

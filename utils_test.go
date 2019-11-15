@@ -102,6 +102,22 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, EspionageProbeID, name2id("Sonde za špijunažu"))
 	assert.Equal(t, SolarSatelliteID, name2id("Solarni satelit"))
 
+	// no
+	assert.Equal(t, LightFighterID, name2id("Lett Jeger"))
+	assert.Equal(t, HeavyFighterID, name2id("Tung Jeger"))
+	assert.Equal(t, CruiserID, name2id("Krysser"))
+	assert.Equal(t, BattleshipID, name2id("Slagskip"))
+	assert.Equal(t, BattlecruiserID, name2id("Slagkrysser"))
+	assert.Equal(t, BomberID, name2id("Bomber"))
+	assert.Equal(t, DestroyerID, name2id("Destroyer"))
+	assert.Equal(t, DeathstarID, name2id("Døds stjerne"))
+	assert.Equal(t, SmallCargoID, name2id("Lite Lasteskip"))
+	assert.Equal(t, LargeCargoID, name2id("Stort Lasteskip"))
+	assert.Equal(t, ColonyShipID, name2id("Koloni Skip"))
+	assert.Equal(t, RecyclerID, name2id("Resirkulerer"))
+	assert.Equal(t, EspionageProbeID, name2id("Spionasjesonde"))
+	assert.Equal(t, SolarSatelliteID, name2id("Solar Satelitt"))
+
 	// it
 	assert.Equal(t, LightFighterID, name2id("Caccia Leggero"))
 	assert.Equal(t, HeavyFighterID, name2id("Caccia Pesante"))
@@ -229,6 +245,22 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Переработчик"))
 	assert.Equal(t, EspionageProbeID, name2id("Шпионский зонд"))
 	assert.Equal(t, SolarSatelliteID, name2id("Солнечный спутник"))
+
+	// gr
+	assert.Equal(t, LightFighterID, name2id("Ελαφρύ Μαχητικό"))
+	assert.Equal(t, HeavyFighterID, name2id("Βαρύ Μαχητικό"))
+	assert.Equal(t, CruiserID, name2id("Καταδιωκτικό"))
+	assert.Equal(t, BattleshipID, name2id("Καταδρομικό"))
+	assert.Equal(t, BattlecruiserID, name2id("Θωρηκτό Αναχαίτισης"))
+	assert.Equal(t, BomberID, name2id("Βομβαρδιστικό"))
+	assert.Equal(t, DestroyerID, name2id("Destroyer"))
+	assert.Equal(t, DeathstarID, name2id("Deathstar"))
+	assert.Equal(t, SmallCargoID, name2id("Μικρό Μεταγωγικό"))
+	assert.Equal(t, LargeCargoID, name2id("Μεγάλο Μεταγωγικό"))
+	assert.Equal(t, ColonyShipID, name2id("Σκάφος Αποικιοποίησης"))
+	assert.Equal(t, RecyclerID, name2id("Ανακυκλωτής"))
+	assert.Equal(t, EspionageProbeID, name2id("Κατασκοπευτικό Στέλεχος"))
+	assert.Equal(t, SolarSatelliteID, name2id("Ηλιακοί Συλλέκτες"))
 
 	// jp
 	assert.Equal(t, LightFighterID, name2id("軽戦闘機"))

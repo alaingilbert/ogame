@@ -86,7 +86,7 @@ func ParseCoord(str string) (coord Coordinate, err error) {
 func name2id(name string) ID {
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	name, _, _ = transform.String(t, name)
-	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シ]+")
+	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シα-ωΑ-Ω]+")
 	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
 	nameMap := map[string]ID{
 		// en
@@ -104,6 +104,33 @@ func name2id(name string) ID {
 		"recycler":       RecyclerID,
 		"espionageprobe": EspionageProbeID,
 		"solarsatellite": SolarSatelliteID,
+
+		// gr
+		"ελαφρυμαχητικο":         LightFighterID,
+		"βαρυμαχητικο":           HeavyFighterID,
+		"καταδιωκτικο":           CruiserID,
+		"καταδρομικο":            BattleshipID,
+		"θωρηκτοαναχαιτισης":     BattlecruiserID,
+		"βομβαρδιστικο":          BomberID,
+		"μικρομεταγωγικο":        SmallCargoID,
+		"μεγαλομεταγωγικο":       LargeCargoID,
+		"σκαφοςαποικιοποιησης":   ColonyShipID,
+		"ανακυκλωτης":            RecyclerID,
+		"κατασκοπευτικοστελεχος": EspionageProbeID,
+		"ηλιακοισυλλεκτες":       SolarSatelliteID,
+
+		// no
+		"lettjeger":      LightFighterID,
+		"tungjeger":      HeavyFighterID,
+		"krysser":        CruiserID,
+		"slagskip":       BattleshipID,
+		"slagkrysser":    BattlecruiserID,
+		"litelasteskip":  SmallCargoID,
+		"stortlasteskip": LargeCargoID,
+		"koloniskip":     ColonyShipID,
+		"resirkulerer":   RecyclerID,
+		"spionasjesonde": EspionageProbeID,
+		"solarsatelitt":  SolarSatelliteID,
 
 		// tw
 		"輕型戰鬥機": LightFighterID,
