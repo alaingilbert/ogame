@@ -11,6 +11,11 @@ import (
 )
 
 func getNbrV7(doc *goquery.Document, name string) int {
+	val, _ := strconv.Atoi(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"))
+	return val
+}
+
+func getNbrV7Ships(doc *goquery.Document, name string) int {
 	val, _ := strconv.Atoi(doc.Find("span."+name+" span").First().AttrOr("data-value", "0"))
 	return val
 }
@@ -33,16 +38,16 @@ func extractFacilitiesFromDocV7(doc *goquery.Document) (Facilities, error) {
 
 func extractDefenseFromDocV7(doc *goquery.Document) (DefensesInfos, error) {
 	res := DefensesInfos{}
-	res.RocketLauncher = getNbrV7(doc, "rocketLauncher")
-	res.LightLaser = getNbrV7(doc, "laserCannonLight")
-	res.HeavyLaser = getNbrV7(doc, "laserCannonHeavy")
-	res.GaussCannon = getNbrV7(doc, "gaussCannon")
-	res.IonCannon = getNbrV7(doc, "ionCannon")
-	res.PlasmaTurret = getNbrV7(doc, "plasmaCannon")
-	res.SmallShieldDome = getNbrV7(doc, "shieldDomeSmall")
-	res.LargeShieldDome = getNbrV7(doc, "shieldDomeLarge")
-	res.AntiBallisticMissiles = getNbrV7(doc, "missileInterceptor")
-	res.InterplanetaryMissiles = getNbrV7(doc, "missileInterplanetary")
+	res.RocketLauncher = getNbrV7Ships(doc, "rocketLauncher")
+	res.LightLaser = getNbrV7Ships(doc, "laserCannonLight")
+	res.HeavyLaser = getNbrV7Ships(doc, "laserCannonHeavy")
+	res.GaussCannon = getNbrV7Ships(doc, "gaussCannon")
+	res.IonCannon = getNbrV7Ships(doc, "ionCannon")
+	res.PlasmaTurret = getNbrV7Ships(doc, "plasmaCannon")
+	res.SmallShieldDome = getNbrV7Ships(doc, "shieldDomeSmall")
+	res.LargeShieldDome = getNbrV7Ships(doc, "shieldDomeLarge")
+	res.AntiBallisticMissiles = getNbrV7Ships(doc, "missileInterceptor")
+	res.InterplanetaryMissiles = getNbrV7Ships(doc, "missileInterplanetary")
 	return res, nil
 }
 
@@ -70,23 +75,23 @@ func extractResearchFromDocV7(doc *goquery.Document) Researches {
 
 func extractShipsFromDocV7(doc *goquery.Document) (ShipsInfos, error) {
 	res := ShipsInfos{}
-	res.LightFighter = getNbrV7(doc, "fighterLight")
-	res.HeavyFighter = getNbrV7(doc, "fighterHeavy")
-	res.Cruiser = getNbrV7(doc, "cruiser")
-	res.Battleship = getNbrV7(doc, "battleship")
-	res.Battlecruiser = getNbrV7(doc, "interceptor")
-	res.Bomber = getNbrV7(doc, "bomber")
-	res.Destroyer = getNbrV7(doc, "destroyer")
-	res.Deathstar = getNbrV7(doc, "deathstar")
-	res.Reaper = getNbrV7(doc, "reaper")
-	res.Pathfinder = getNbrV7(doc, "explorer")
-	res.SmallCargo = getNbrV7(doc, "transporterSmall")
-	res.LargeCargo = getNbrV7(doc, "transporterLarge")
-	res.ColonyShip = getNbrV7(doc, "colonyShip")
-	res.Recycler = getNbrV7(doc, "recycler")
-	res.EspionageProbe = getNbrV7(doc, "espionageProbe")
-	res.SolarSatellite = getNbrV7(doc, "solarSatellite")
-	res.Crawler = getNbrV7(doc, "resbuggy")
+	res.LightFighter = getNbrV7Ships(doc, "fighterLight")
+	res.HeavyFighter = getNbrV7Ships(doc, "fighterHeavy")
+	res.Cruiser = getNbrV7Ships(doc, "cruiser")
+	res.Battleship = getNbrV7Ships(doc, "battleship")
+	res.Battlecruiser = getNbrV7Ships(doc, "interceptor")
+	res.Bomber = getNbrV7Ships(doc, "bomber")
+	res.Destroyer = getNbrV7Ships(doc, "destroyer")
+	res.Deathstar = getNbrV7Ships(doc, "deathstar")
+	res.Reaper = getNbrV7Ships(doc, "reaper")
+	res.Pathfinder = getNbrV7Ships(doc, "explorer")
+	res.SmallCargo = getNbrV7Ships(doc, "transporterSmall")
+	res.LargeCargo = getNbrV7Ships(doc, "transporterLarge")
+	res.ColonyShip = getNbrV7Ships(doc, "colonyShip")
+	res.Recycler = getNbrV7Ships(doc, "recycler")
+	res.EspionageProbe = getNbrV7Ships(doc, "espionageProbe")
+	res.SolarSatellite = getNbrV7Ships(doc, "solarSatellite")
+	res.Crawler = getNbrV7Ships(doc, "resbuggy")
 	return res, nil
 }
 
