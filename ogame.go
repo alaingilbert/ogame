@@ -2447,7 +2447,10 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	payload.Set("metal", strconv.Itoa(resources.Metal))
 	payload.Set("mission", strconv.Itoa(int(mission)))
 	if mission == Expedition {
-		payload.Set("expeditiontime", strconv.Itoa(expeditiontime))
+		if expeditiontime <= 0 {
+			expeditiontime = 1
+		}
+		payload.Set("holdingtime", strconv.Itoa(expeditiontime))
 	}
 
 	// Page 4 : send the fleet
