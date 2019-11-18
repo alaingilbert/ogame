@@ -2442,21 +2442,15 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 
 	// Page 3 : select coord, mission, speed
 	payload.Set("speed", strconv.Itoa(int(speed)))
-
-	var finalShips ShipsInfos
-	for k, v := range payload {
-		var shipID int
-		if n, err := fmt.Sscanf(k, "am%d", &shipID); err == nil && n == 1 {
-			nbr, _ := strconv.Atoi(v[0])
-			finalShips.Set(ID(shipID), nbr)
-		}
-	}
 	payload.Set("crystal", strconv.Itoa(resources.Crystal))
 	payload.Set("deuterium", strconv.Itoa(resources.Deuterium))
 	payload.Set("metal", strconv.Itoa(resources.Metal))
 	payload.Set("mission", strconv.Itoa(int(mission)))
 	if mission == Expedition {
-		payload.Set("expeditiontime", strconv.Itoa(expeditiontime))
+		if expeditiontime <= 0 {
+			expeditiontime = 1
+		}
+		payload.Set("holdingtime", strconv.Itoa(expeditiontime))
 	}
 
 	// Page 4 : send the fleet
