@@ -2758,8 +2758,11 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 	}
 	// finalCargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
 	baseCargo := finalShips.Cargo(Researches{}, b.GetServer().Settings.EspionageProbeRaids == 1)
+	if b.GetServer().Settings.EspionageProbeRaids != 1 {
+		baseCargo += finalShips.EspionageProbe * EspionageProbe.BaseCargoCapacity
+	}
 	if deutConsumption > baseCargo {
-		return Fleet{}, fmt.Errorf("not enough cargo capacity, avail: %d, need: %d", baseCargo, deutConsumption)
+		return Fleet{}, fmt.Errorf("not enough cargo capacity for fuel, avail: %d, need: %d", baseCargo, deutConsumption)
 	}
 	payload.Add("crystal", strconv.Itoa(resources.Crystal))
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))
