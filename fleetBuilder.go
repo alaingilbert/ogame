@@ -1,7 +1,7 @@
 package ogame
 
 import (
-	"math"
+	"ogb/pkg/utils"
 	"time"
 )
 
@@ -166,11 +166,11 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			cargoCapacity := f.ships.Cargo(techs)
 
 			planetResources, _ := tx.GetResources(f.origin.GetID())
-			payload.Deuterium = int(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
+			payload.Deuterium = utils.MinInt(cargoCapacity, planetResources.Deuterium)
 			cargoCapacity -= payload.Deuterium
-			payload.Crystal = int(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
+			payload.Crystal = utils.MinInt(cargoCapacity, planetResources.Crystal)
 			cargoCapacity -= payload.Crystal
-			payload.Metal = int(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
+			payload.Metal = utils.MinInt(cargoCapacity, planetResources.Metal)
 		}
 
 		f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)
