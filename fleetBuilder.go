@@ -162,10 +162,12 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 		// Send all resources
 		if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
 			// Calculate cargo
+			_, fuel := tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
 			techs := tx.GetResearch()
-			cargoCapacity := f.ships.Cargo(techs)
-
+			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1)
+			cargoCapacity -= fuel + 10
 			planetResources, _ := tx.GetResources(f.origin.GetID())
+			planetResources.Deuterium -= fuel + 10
 			payload.Deuterium = utils.MinInt(cargoCapacity, planetResources.Deuterium)
 			cargoCapacity -= payload.Deuterium
 			payload.Crystal = utils.MinInt(cargoCapacity, planetResources.Crystal)
