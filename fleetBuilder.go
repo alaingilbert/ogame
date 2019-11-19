@@ -1,7 +1,7 @@
 package ogame
 
 import (
-	"math"
+	"ogb/pkg/utils"
 	"time"
 )
 
@@ -162,15 +162,17 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 		// Send all resources
 		if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
 			// Calculate cargo
+			_, fuel := tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
 			techs := tx.GetResearch()
-			cargoCapacity := f.ships.Cargo(techs)
-
+			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1)
+			cargoCapacity -= fuel + 10
 			planetResources, _ := tx.GetResources(f.origin.GetID())
-			payload.Deuterium = int(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
+			planetResources.Deuterium -= fuel + 10
+			payload.Deuterium = utils.MinInt(cargoCapacity, planetResources.Deuterium)
 			cargoCapacity -= payload.Deuterium
-			payload.Crystal = int(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
+			payload.Crystal = utils.MinInt(cargoCapacity, planetResources.Crystal)
 			cargoCapacity -= payload.Crystal
-			payload.Metal = int(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
+			payload.Metal = utils.MinInt(cargoCapacity, planetResources.Metal)
 		}
 
 		f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)
