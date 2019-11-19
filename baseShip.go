@@ -10,7 +10,10 @@ type BaseShip struct {
 }
 
 // GetCargoCapacity returns ship cargo capacity
-func (b BaseShip) GetCargoCapacity(techs Researches) int {
+func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids bool) int {
+	if b.GetID() == EspionageProbeID && !probeRaids {
+		return 0
+	}
 	return b.BaseCargoCapacity + int(float64(b.BaseCargoCapacity*techs.HyperspaceTechnology)*0.05)
 }
 
