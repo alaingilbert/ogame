@@ -16,7 +16,7 @@ func TestShipsInfos_Cargo(t *testing.T) {
 		LargeCargo: 2,
 	}
 	techs := Researches{}
-	assert.Equal(t, 60000, ships.Cargo(techs))
+	assert.Equal(t, 60000, ships.Cargo(techs, false))
 }
 
 func TestShipsInfos_FleetValue(t *testing.T) {
