@@ -930,6 +930,12 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 					report.Deathstar = level
 				case Battlecruiser.ID:
 					report.Battlecruiser = level
+				case Crawler.ID:
+					report.Crawler = level
+				case Reaper.ID:
+					report.Reaper = level
+				case Pathfinder.ID:
+					report.Pathfinder = level
 				}
 				return true
 			})
