@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"bytes"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -68,6 +69,12 @@ func (e ExtractorV7) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]Comb
 	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
 
+// ExtractEspionageReport ...
+func (e ExtractorV7) ExtractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractEspionageReportFromDoc(doc, location)
+}
+
 // ExtractFleet1ShipsFromDoc ...
 func (e ExtractorV7) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos) {
 	return extractFleet1ShipsFromDocV7(doc)
@@ -101,4 +108,9 @@ func (e ExtractorV7) ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (Re
 // ExtractCombatReportMessagesFromDoc ...
 func (e ExtractorV7) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int) {
 	return extractCombatReportMessagesFromDocV7(doc)
+}
+
+// ExtractEspionageReportFromDoc ...
+func (e ExtractorV7) ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
+	return extractEspionageReportFromDocV7(doc, location)
 }
