@@ -2130,6 +2130,13 @@ func TestExtractEspionageReport1(t *testing.T) {
 	assert.Equal(t, 1, *infos.Bomber)
 }
 
+func TestExtractEspionageReportV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/spy_report.html")
+	infos, _ := NewExtractorV7().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 15, infos.LastActivity)
+	assert.Equal(t, 7, *infos.SmallCargo)
+}
+
 func TestExtractEspionageReportThousands(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_thousand_units.html")
 	infos, _ := NewExtractorV6().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
