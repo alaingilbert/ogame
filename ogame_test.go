@@ -848,6 +848,12 @@ func TestExtractEspionageReportMessageIDsLootPercentage(t *testing.T) {
 	assert.Equal(t, 0.5, msgs[2].LootPercentage)
 }
 
+func TestExtractCombatReportMessagesV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/combat_reports_msgs.html")
+	msgs, _ := NewExtractorV7().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 10, len(msgs))
+}
+
 func TestExtractCombatReportMessages(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
 	msgs, _ := NewExtractorV6().ExtractCombatReportMessagesSummary(pageHTMLBytes)
