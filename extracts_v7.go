@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -215,4 +216,55 @@ func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ShipsInfos) {
 		s.Set(ID(obj.ID), obj.Number)
 	}
 	return
+}
+
+func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReportSummary, int) {
+	msgs := make([]CombatReportSummary, 0)
+	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
+	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
+		if idStr, exists := s.Attr("data-msg-id"); exists {
+			if id, err := strconv.Atoi(idStr); err == nil {
+				report := CombatReportSummary{ID: id}
+				report.Destination = extractCoordV6(s.Find("div.msg_head a").Text())
+				if s.Find("div.msg_head figure").HasClass("planet") {
+					report.Destination.Type = PlanetType
+				} else if s.Find("div.msg_head figure").HasClass("moon") {
+					report.Destination.Type = MoonType
+				} else {
+					report.Destination.Type = PlanetType
+				}
+				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
+				m := regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
+				if len(m) == 4 {
+					report.Metal = ParseInt(m[1])
+					report.Crystal = ParseInt(m[2])
+					report.Deuterium = ParseInt(m[3])
+				}
+				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
+				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
+				if len(m) == 2 {
+					report.Loot = ParseInt(m[1])
+				}
+				msgDate, _ := time.Parse("02.01.2006 15:04:05", s.Find("span.msg_date").Text())
+				report.CreatedAt = msgDate
+
+				link := s.Find("div.msg_actions a span.icon_attack").Parent().AttrOr("href", "")
+				m = regexp.MustCompile(`page=ingame&component=fleetdispatch&galaxy=(\d+)&system=(\d+)&position=(\d+)&type=(\d+)&`).FindStringSubmatch(link)
+				if len(m) != 5 {
+					return
+				}
+				galaxy, _ := strconv.Atoi(m[1])
+				system, _ := strconv.Atoi(m[2])
+				position, _ := strconv.Atoi(m[3])
+				planetType, _ := strconv.Atoi(m[4])
+				report.Origin = &Coordinate{galaxy, system, position, CelestialType(planetType)}
+				if report.Origin.Equal(report.Destination) {
+					report.Origin = nil
+				}
+
+				msgs = append(msgs, report)
+			}
+		}
+	})
+	return msgs, nbPage
 }
