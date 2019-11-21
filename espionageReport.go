@@ -77,6 +77,9 @@ type EspionageReport struct {
 	ColonyShip                   *int
 	Recycler                     *int
 	EspionageProbe               *int
+	Crawler                      *int
+	Reaper                       *int
+	Pathfinder                   *int
 	Coordinate                   Coordinate
 	Type                         EspionageReportType
 	Date                         time.Time

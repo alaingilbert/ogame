@@ -2,15 +2,22 @@ package ogame
 
 import (
 	"encoding/json"
+	"errors"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 )
 
 func getNbrV7(doc *goquery.Document, name string) int {
+	val, _ := strconv.Atoi(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"))
+	return val
+}
+
+func getNbrV7Ships(doc *goquery.Document, name string) int {
 	val, _ := strconv.Atoi(doc.Find("span."+name+" span").First().AttrOr("data-value", "0"))
 	return val
 }
@@ -33,16 +40,16 @@ func extractFacilitiesFromDocV7(doc *goquery.Document) (Facilities, error) {
 
 func extractDefenseFromDocV7(doc *goquery.Document) (DefensesInfos, error) {
 	res := DefensesInfos{}
-	res.RocketLauncher = getNbrV7(doc, "rocketLauncher")
-	res.LightLaser = getNbrV7(doc, "laserCannonLight")
-	res.HeavyLaser = getNbrV7(doc, "laserCannonHeavy")
-	res.GaussCannon = getNbrV7(doc, "gaussCannon")
-	res.IonCannon = getNbrV7(doc, "ionCannon")
-	res.PlasmaTurret = getNbrV7(doc, "plasmaCannon")
-	res.SmallShieldDome = getNbrV7(doc, "shieldDomeSmall")
-	res.LargeShieldDome = getNbrV7(doc, "shieldDomeLarge")
-	res.AntiBallisticMissiles = getNbrV7(doc, "missileInterceptor")
-	res.InterplanetaryMissiles = getNbrV7(doc, "missileInterplanetary")
+	res.RocketLauncher = getNbrV7Ships(doc, "rocketLauncher")
+	res.LightLaser = getNbrV7Ships(doc, "laserCannonLight")
+	res.HeavyLaser = getNbrV7Ships(doc, "laserCannonHeavy")
+	res.GaussCannon = getNbrV7Ships(doc, "gaussCannon")
+	res.IonCannon = getNbrV7Ships(doc, "ionCannon")
+	res.PlasmaTurret = getNbrV7Ships(doc, "plasmaCannon")
+	res.SmallShieldDome = getNbrV7Ships(doc, "shieldDomeSmall")
+	res.LargeShieldDome = getNbrV7Ships(doc, "shieldDomeLarge")
+	res.AntiBallisticMissiles = getNbrV7Ships(doc, "missileInterceptor")
+	res.InterplanetaryMissiles = getNbrV7Ships(doc, "missileInterplanetary")
 	return res, nil
 }
 
@@ -70,23 +77,23 @@ func extractResearchFromDocV7(doc *goquery.Document) Researches {
 
 func extractShipsFromDocV7(doc *goquery.Document) (ShipsInfos, error) {
 	res := ShipsInfos{}
-	res.LightFighter = getNbrV7(doc, "fighterLight")
-	res.HeavyFighter = getNbrV7(doc, "fighterHeavy")
-	res.Cruiser = getNbrV7(doc, "cruiser")
-	res.Battleship = getNbrV7(doc, "battleship")
-	res.Battlecruiser = getNbrV7(doc, "interceptor")
-	res.Bomber = getNbrV7(doc, "bomber")
-	res.Destroyer = getNbrV7(doc, "destroyer")
-	res.Deathstar = getNbrV7(doc, "deathstar")
-	res.Reaper = getNbrV7(doc, "reaper")
-	res.Pathfinder = getNbrV7(doc, "explorer")
-	res.SmallCargo = getNbrV7(doc, "transporterSmall")
-	res.LargeCargo = getNbrV7(doc, "transporterLarge")
-	res.ColonyShip = getNbrV7(doc, "colonyShip")
-	res.Recycler = getNbrV7(doc, "recycler")
-	res.EspionageProbe = getNbrV7(doc, "espionageProbe")
-	res.SolarSatellite = getNbrV7(doc, "solarSatellite")
-	res.Crawler = getNbrV7(doc, "resbuggy")
+	res.LightFighter = getNbrV7Ships(doc, "fighterLight")
+	res.HeavyFighter = getNbrV7Ships(doc, "fighterHeavy")
+	res.Cruiser = getNbrV7Ships(doc, "cruiser")
+	res.Battleship = getNbrV7Ships(doc, "battleship")
+	res.Battlecruiser = getNbrV7Ships(doc, "interceptor")
+	res.Bomber = getNbrV7Ships(doc, "bomber")
+	res.Destroyer = getNbrV7Ships(doc, "destroyer")
+	res.Deathstar = getNbrV7Ships(doc, "deathstar")
+	res.Reaper = getNbrV7Ships(doc, "reaper")
+	res.Pathfinder = getNbrV7Ships(doc, "explorer")
+	res.SmallCargo = getNbrV7Ships(doc, "transporterSmall")
+	res.LargeCargo = getNbrV7Ships(doc, "transporterLarge")
+	res.ColonyShip = getNbrV7Ships(doc, "colonyShip")
+	res.Recycler = getNbrV7Ships(doc, "recycler")
+	res.EspionageProbe = getNbrV7Ships(doc, "espionageProbe")
+	res.SolarSatellite = getNbrV7Ships(doc, "solarSatellite")
+	res.Crawler = getNbrV7Ships(doc, "resbuggy")
 	return res, nil
 }
 
@@ -210,4 +217,333 @@ func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ShipsInfos) {
 		s.Set(ID(obj.ID), obj.Number)
 	}
 	return
+}
+
+func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReportSummary, int) {
+	msgs := make([]CombatReportSummary, 0)
+	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
+	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
+		if idStr, exists := s.Attr("data-msg-id"); exists {
+			if id, err := strconv.Atoi(idStr); err == nil {
+				report := CombatReportSummary{ID: id}
+				report.Destination = extractCoordV6(s.Find("div.msg_head a").Text())
+				if s.Find("div.msg_head figure").HasClass("planet") {
+					report.Destination.Type = PlanetType
+				} else if s.Find("div.msg_head figure").HasClass("moon") {
+					report.Destination.Type = MoonType
+				} else {
+					report.Destination.Type = PlanetType
+				}
+				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
+				m := regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
+				if len(m) == 4 {
+					report.Metal = ParseInt(m[1])
+					report.Crystal = ParseInt(m[2])
+					report.Deuterium = ParseInt(m[3])
+				}
+				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
+				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
+				if len(m) == 2 {
+					report.Loot = ParseInt(m[1])
+				}
+				msgDate, _ := time.Parse("02.01.2006 15:04:05", s.Find("span.msg_date").Text())
+				report.CreatedAt = msgDate
+
+				link := s.Find("div.msg_actions a span.icon_attack").Parent().AttrOr("href", "")
+				m = regexp.MustCompile(`page=ingame&component=fleetdispatch&galaxy=(\d+)&system=(\d+)&position=(\d+)&type=(\d+)&`).FindStringSubmatch(link)
+				if len(m) != 5 {
+					return
+				}
+				galaxy, _ := strconv.Atoi(m[1])
+				system, _ := strconv.Atoi(m[2])
+				position, _ := strconv.Atoi(m[3])
+				planetType, _ := strconv.Atoi(m[4])
+				report.Origin = &Coordinate{galaxy, system, position, CelestialType(planetType)}
+				if report.Origin.Equal(report.Destination) {
+					report.Origin = nil
+				}
+
+				msgs = append(msgs, report)
+			}
+		}
+	})
+	return msgs, nbPage
+}
+
+func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
+	report := EspionageReport{}
+	report.ID, _ = strconv.Atoi(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
+	spanLink := doc.Find("span.msg_title a").First()
+	txt := spanLink.Text()
+	figure := spanLink.Find("figure").First()
+	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
+	m := r.FindStringSubmatch(txt)
+	if len(m) == 5 {
+		report.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
+		report.Coordinate.System, _ = strconv.Atoi(m[3])
+		report.Coordinate.Position, _ = strconv.Atoi(m[4])
+	} else {
+		return report, errors.New("failed to extract coordinate")
+	}
+	if figure.HasClass("planet") {
+		report.Coordinate.Type = PlanetType
+	} else if figure.HasClass("moon") {
+		report.Coordinate.Type = MoonType
+	}
+	messageType := Report
+	if doc.Find("span.espionageDefText").Size() > 0 {
+		messageType = Action
+	}
+	report.Type = messageType
+	msgDateRaw := doc.Find("span.msg_date").Text()
+	msgDate, _ := time.ParseInLocation("02.01.2006 15:04:05", msgDateRaw, location)
+	report.Date = msgDate.In(time.Local)
+
+	username := doc.Find("div.detail_txt").First().Find("span span").First().Text()
+	username = strings.TrimSpace(username)
+	split := strings.Split(username, "(i")
+	if len(split) > 0 {
+		report.Username = strings.TrimSpace(split[0])
+	}
+
+	// Bandit, Starlord
+	banditstarlord := doc.Find("div.detail_txt").First().Find("span")
+	if banditstarlord.HasClass("honorRank") {
+		report.IsBandit = banditstarlord.HasClass("rank_bandit1") || banditstarlord.HasClass("rank_bandit2") || banditstarlord.HasClass("rank_bandit3")
+		report.IsStarlord = banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3")
+	}
+
+	// IsInactive, IsLongInactive
+	inactive := doc.Find("div.detail_txt").First().Find("span")
+	if inactive.HasClass("status_abbr_longinactive") {
+		report.IsInactive = true
+		report.IsLongInactive = true
+	} else if inactive.HasClass("status_abbr_inactive") {
+		report.IsInactive = true
+	}
+
+	// APIKey
+	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
+	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
+
+	// Inactivity timer
+	activity := doc.Find("div.detail_txt").Eq(2).Find("font")
+	if len(activity.Text()) == 2 {
+		report.LastActivity = ParseInt(activity.Text())
+	}
+
+	// CounterEspionage
+	ceTxt := doc.Find("div.detail_txt").Eq(2).Text()
+	m1 := regexp.MustCompile(`(\d+)%`).FindStringSubmatch(ceTxt)
+	if len(m1) == 2 {
+		report.CounterEspionage, _ = strconv.Atoi(m1[1])
+	}
+
+	hasError := false
+	doc.Find("ul.detail_list").Each(func(i int, s *goquery.Selection) {
+		dataType := s.AttrOr("data-type", "")
+		if dataType == "resources" {
+			report.Metal = ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
+			report.Crystal = ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
+			report.Deuterium = ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
+			report.Energy = ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
+		} else if dataType == "buildings" {
+			report.HasBuildings = s.Find("li.detail_list_fail").Size() == 0
+			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+				img := s2.Find("img")
+				if img.Size() == 0 {
+					hasError = true
+					return false
+				}
+				imgClass := img.AttrOr("class", "")
+				r := regexp.MustCompile(`building(\d+)`)
+				buildingID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
+				l := ParseInt(s2.Find("span.fright").Text())
+				level := &l
+				switch ID(buildingID) {
+				case MetalMine.ID:
+					report.MetalMine = level
+				case CrystalMine.ID:
+					report.CrystalMine = level
+				case DeuteriumSynthesizer.ID:
+					report.DeuteriumSynthesizer = level
+				case SolarPlant.ID:
+					report.SolarPlant = level
+				case FusionReactor.ID:
+					report.FusionReactor = level
+				case MetalStorage.ID:
+					report.MetalStorage = level
+				case CrystalStorage.ID:
+					report.CrystalStorage = level
+				case DeuteriumTank.ID:
+					report.DeuteriumTank = level
+				case AllianceDepot.ID:
+					report.AllianceDepot = level
+				case RoboticsFactory.ID:
+					report.RoboticsFactory = level
+				case Shipyard.ID:
+					report.Shipyard = level
+				case ResearchLab.ID:
+					report.ResearchLab = level
+				case MissileSilo.ID:
+					report.MissileSilo = level
+				case NaniteFactory.ID:
+					report.NaniteFactory = level
+				case Terraformer.ID:
+					report.Terraformer = level
+				case SpaceDock.ID:
+					report.SpaceDock = level
+				case LunarBase.ID:
+					report.LunarBase = level
+				case SensorPhalanx.ID:
+					report.SensorPhalanx = level
+				case JumpGate.ID:
+					report.JumpGate = level
+				}
+				return true
+			})
+		} else if dataType == "research" {
+			report.HasResearches = s.Find("li.detail_list_fail").Size() == 0
+			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+				img := s2.Find("img")
+				if img.Size() == 0 {
+					hasError = true
+					return false
+				}
+				imgClass := img.AttrOr("class", "")
+				r := regexp.MustCompile(`research(\d+)`)
+				researchID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
+				l := ParseInt(s2.Find("span.fright").Text())
+				level := &l
+				switch ID(researchID) {
+				case EspionageTechnology.ID:
+					report.EspionageTechnology = level
+				case ComputerTechnology.ID:
+					report.ComputerTechnology = level
+				case WeaponsTechnology.ID:
+					report.WeaponsTechnology = level
+				case ShieldingTechnology.ID:
+					report.ShieldingTechnology = level
+				case ArmourTechnology.ID:
+					report.ArmourTechnology = level
+				case EnergyTechnology.ID:
+					report.EnergyTechnology = level
+				case HyperspaceTechnology.ID:
+					report.HyperspaceTechnology = level
+				case CombustionDrive.ID:
+					report.CombustionDrive = level
+				case ImpulseDrive.ID:
+					report.ImpulseDrive = level
+				case HyperspaceDrive.ID:
+					report.HyperspaceDrive = level
+				case LaserTechnology.ID:
+					report.LaserTechnology = level
+				case IonTechnology.ID:
+					report.IonTechnology = level
+				case PlasmaTechnology.ID:
+					report.PlasmaTechnology = level
+				case IntergalacticResearchNetwork.ID:
+					report.IntergalacticResearchNetwork = level
+				case Astrophysics.ID:
+					report.Astrophysics = level
+				case GravitonTechnology.ID:
+					report.GravitonTechnology = level
+				}
+				return true
+			})
+		} else if dataType == "ships" {
+			report.HasFleet = s.Find("li.detail_list_fail").Size() == 0
+			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+				img := s2.Find("img")
+				if img.Size() == 0 {
+					hasError = true
+					return false
+				}
+				imgClass := img.AttrOr("class", "")
+				r := regexp.MustCompile(`tech(\d+)`)
+				shipID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
+				l := ParseInt(s2.Find("span.fright").Text())
+				level := &l
+				switch ID(shipID) {
+				case SmallCargo.ID:
+					report.SmallCargo = level
+				case LargeCargo.ID:
+					report.LargeCargo = level
+				case LightFighter.ID:
+					report.LightFighter = level
+				case HeavyFighter.ID:
+					report.HeavyFighter = level
+				case Cruiser.ID:
+					report.Cruiser = level
+				case Battleship.ID:
+					report.Battleship = level
+				case ColonyShip.ID:
+					report.ColonyShip = level
+				case Recycler.ID:
+					report.Recycler = level
+				case EspionageProbe.ID:
+					report.EspionageProbe = level
+				case Bomber.ID:
+					report.Bomber = level
+				case SolarSatellite.ID:
+					report.SolarSatellite = level
+				case Destroyer.ID:
+					report.Destroyer = level
+				case Deathstar.ID:
+					report.Deathstar = level
+				case Battlecruiser.ID:
+					report.Battlecruiser = level
+				case Crawler.ID:
+					report.Crawler = level
+				case Reaper.ID:
+					report.Reaper = level
+				case Pathfinder.ID:
+					report.Pathfinder = level
+				}
+				return true
+			})
+		} else if dataType == "defense" {
+			report.HasDefenses = s.Find("li.detail_list_fail").Size() == 0
+			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+				img := s2.Find("img")
+				if img.Size() == 0 {
+					hasError = true
+					return false
+				}
+				imgClass := img.AttrOr("class", "")
+				r := regexp.MustCompile(`defense(\d+)`)
+				defenceID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
+				l := ParseInt(s2.Find("span.fright").Text())
+				level := &l
+				switch ID(defenceID) {
+				case RocketLauncher.ID:
+					report.RocketLauncher = level
+				case LightLaser.ID:
+					report.LightLaser = level
+				case HeavyLaser.ID:
+					report.HeavyLaser = level
+				case GaussCannon.ID:
+					report.GaussCannon = level
+				case IonCannon.ID:
+					report.IonCannon = level
+				case PlasmaTurret.ID:
+					report.PlasmaTurret = level
+				case SmallShieldDome.ID:
+					report.SmallShieldDome = level
+				case LargeShieldDome.ID:
+					report.LargeShieldDome = level
+				case AntiBallisticMissiles.ID:
+					report.AntiBallisticMissiles = level
+				case InterplanetaryMissiles.ID:
+					report.InterplanetaryMissiles = level
+				}
+				return true
+			})
+		}
+	})
+	if hasError {
+		return report, ErrDeactivateHidePictures
+	}
+	return report, nil
 }

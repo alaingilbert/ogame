@@ -1025,7 +1025,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	page := vals.Get("page")
-	if page == "ingame" {
+	if page == "ingame" || (page == "componentOnly" && vals.Get("component") == "fetchEventbox") {
 		page = vals.Get("component")
 	}
 	var pageHTMLBytes []byte
@@ -2266,7 +2266,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 type CheckTargetResponse struct {
 	Status string `json:"status"`
 	Orders struct {
-		Num1  bool `json:"1"` // Might be noob protection
+		Num1  bool `json:"1"`
 		Num2  bool `json:"2"`
 		Num3  bool `json:"3"`
 		Num4  bool `json:"4"`
@@ -2442,25 +2442,48 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 
 	// Page 3 : select coord, mission, speed
 	payload.Set("speed", strconv.Itoa(int(speed)))
-
-	var finalShips ShipsInfos
-	for k, v := range payload {
-		var shipID int
-		if n, err := fmt.Sscanf(k, "am%d", &shipID); err == nil && n == 1 {
-			nbr, _ := strconv.Atoi(v[0])
-			finalShips.Set(ID(shipID), nbr)
-		}
-	}
 	payload.Set("crystal", strconv.Itoa(resources.Crystal))
 	payload.Set("deuterium", strconv.Itoa(resources.Deuterium))
 	payload.Set("metal", strconv.Itoa(resources.Metal))
 	payload.Set("mission", strconv.Itoa(int(mission)))
 	if mission == Expedition {
-		payload.Set("expeditiontime", strconv.Itoa(expeditiontime))
+		if expeditiontime <= 0 {
+			expeditiontime = 1
+		}
+		payload.Set("holdingtime", strconv.Itoa(expeditiontime))
 	}
 
 	// Page 4 : send the fleet
-	_, _ = b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"sendFleet"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+	res, _ := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"sendFleet"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+	// {"success":true,"message":"Your fleet has been successfully sent.","redirectUrl":"https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=fleetdispatch","components":[]}
+	// Insufficient resources. (4060)
+	// {"success":false,"errors":[{"message":"Not enough cargo space!","error":4029}],"fleetSendingToken":"b4786751c6d5e64e56d8eb94807fbf88","components":[]}
+	// {"success":false,"errors":[{"message":"Fleet launch failure: The fleet could not be launched. Please try again later.","error":4047}],"fleetSendingToken":"1507c7228b206b4a298dec1d34a5a207","components":[]} // bad token I think
+	// {"success":false,"errors":[{"message":"Recyclers must be sent to recycle this debris field!","error":4013}],"fleetSendingToken":"b826ff8c3d4e04066c28d10399b32ab8","components":[]}
+	// {"success":false,"errors":[{"message":"Error, no ships available","error":4059}],"fleetSendingToken":"b369e37ce34bb64e3a59fa26bd8d5602","components":[]}
+	// {"success":false,"errors":[{"message":"You have to select a valid target.","error":4049}],"fleetSendingToken":"19218f446d0985dfd79e03c3ec008514","components":[]} // colonize debris field
+	// {"success":false,"errors":[{"message":"Planet is already inhabited!","error":4053}],"fleetSendingToken":"3281f9ad5b4cba6c0c26a24d3577bd4c","components":[]}
+	// {"success":false,"errors":[{"message":"Colony ships must be sent to colonise this planet!","error":4038}],"fleetSendingToken":"8700c275a055c59ca276a7f66c81b205","components":[]}
+	// fetch("https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&action=sendFleet&ajax=1&asJson=1", {"credentials":"include","headers":{"content-type":"application/x-www-form-urlencoded; charset=UTF-8","sec-fetch-mode":"cors","sec-fetch-site":"same-origin","x-requested-with":"XMLHttpRequest"},"body":"token=414847e59344881d5c71303023735ab8&am209=1&am202=10&galaxy=9&system=297&position=7&type=2&metal=0&crystal=0&deuterium=0&prioMetal=1&prioCrystal=2&prioDeuterium=3&mission=8&speed=1&retreatAfterDefenderRetreat=0&union=0&holdingtime=0","method":"POST","mode":"cors"}).then(res => res.json()).then(r => console.log(r));
+
+	var resStruct struct {
+		Success           bool          `json:"success"`
+		Message           string        `json:"message"`
+		FleetSendingToken string        `json:"fleetSendingToken"`
+		Components        []interface{} `json:"components"`
+		RedirectUrl       string        `json:"redirectUrl"`
+		Errors            []struct {
+			Message string `json:"message"`
+			Error   int    `json:"error"`
+		} `json:"errors"`
+	}
+	if err := json.Unmarshal(res, &resStruct); err != nil {
+		return Fleet{}, errors.New("failed to unmarshal response: " + err.Error())
+	}
+
+	if len(resStruct.Errors) > 0 {
+		return Fleet{}, errors.New(resStruct.Errors[0].Message + " (" + strconv.Itoa(resStruct.Errors[0].Error) + ")")
+	}
 
 	// Page 5
 	movementHTML, _ := b.getPage(MovementPage, CelestialID(0))
@@ -2734,12 +2757,12 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumption)
 	}
 	// finalCargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
-	baseCargo := finalShips.Cargo(Researches{})
+	baseCargo := finalShips.Cargo(Researches{}, b.GetServer().Settings.EspionageProbeRaids == 1)
 	if b.GetServer().Settings.EspionageProbeRaids != 1 {
 		baseCargo += finalShips.EspionageProbe * EspionageProbe.BaseCargoCapacity
 	}
 	if deutConsumption > baseCargo {
-		return Fleet{}, fmt.Errorf("not enough cargo capacity, avail: %d, need: %d", baseCargo, deutConsumption)
+		return Fleet{}, fmt.Errorf("not enough cargo capacity for fuel, avail: %d, need: %d", baseCargo, deutConsumption)
 	}
 	payload.Add("crystal", strconv.Itoa(resources.Crystal))
 	payload.Add("deuterium", strconv.Itoa(resources.Deuterium))

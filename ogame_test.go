@@ -295,6 +295,27 @@ func TestExtractResearchV7(t *testing.T) {
 	assert.Equal(t, 4, res.ArmourTechnology)
 }
 
+func TestExtractResearchV7_2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/researches2.html")
+	res := NewExtractorV7().ExtractResearch(pageHTMLBytes)
+	assert.Equal(t, 1, res.EnergyTechnology)
+	assert.Equal(t, 0, res.LaserTechnology)
+	assert.Equal(t, 0, res.IonTechnology)
+	assert.Equal(t, 0, res.HyperspaceTechnology)
+	assert.Equal(t, 0, res.PlasmaTechnology)
+	assert.Equal(t, 3, res.CombustionDrive)
+	assert.Equal(t, 1, res.ImpulseDrive)
+	assert.Equal(t, 0, res.HyperspaceDrive)
+	assert.Equal(t, 0, res.EspionageTechnology)
+	assert.Equal(t, 1, res.ComputerTechnology)
+	assert.Equal(t, 0, res.Astrophysics)
+	assert.Equal(t, 0, res.IntergalacticResearchNetwork)
+	assert.Equal(t, 0, res.GravitonTechnology)
+	assert.Equal(t, 0, res.WeaponsTechnology)
+	assert.Equal(t, 0, res.ShieldingTechnology)
+	assert.Equal(t, 0, res.ArmourTechnology)
+}
+
 func TestExtractResourcesBuildings(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_inconstruction.html")
 	res, _ := NewExtractorV6().ExtractResourcesBuildings(pageHTMLBytes)
@@ -825,6 +846,12 @@ func TestExtractEspionageReportMessageIDsLootPercentage(t *testing.T) {
 	assert.Equal(t, 1.0, msgs[0].LootPercentage)
 	assert.Equal(t, 0.5, msgs[1].LootPercentage)
 	assert.Equal(t, 0.5, msgs[2].LootPercentage)
+}
+
+func TestExtractCombatReportMessagesV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/combat_reports_msgs.html")
+	msgs, _ := NewExtractorV7().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 10, len(msgs))
 }
 
 func TestExtractCombatReportMessages(t *testing.T) {
@@ -2101,6 +2128,13 @@ func TestExtractEspionageReport1(t *testing.T) {
 	infos, _ := NewExtractorV6().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, 2, *infos.Battleship)
 	assert.Equal(t, 1, *infos.Bomber)
+}
+
+func TestExtractEspionageReportV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/spy_report.html")
+	infos, _ := NewExtractorV7().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 15, infos.LastActivity)
+	assert.Equal(t, 7, *infos.SmallCargo)
 }
 
 func TestExtractEspionageReportThousands(t *testing.T) {
