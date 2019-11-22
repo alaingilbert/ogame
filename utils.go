@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"errors"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -89,7 +88,6 @@ func name2id(name string) ID {
 	name, _, _ = transform.String(t, name)
 	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シα-ωΑ-Ω]+")
 	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
-	fmt.Println(processedString)
 	nameMap := map[string]ID{
 		// en
 		"lightfighter":   LightFighterID,
