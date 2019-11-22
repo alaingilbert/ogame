@@ -277,4 +277,20 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("残骸回収船"))
 	assert.Equal(t, EspionageProbeID, name2id("偵察機"))
 	assert.Equal(t, SolarSatelliteID, name2id("ソーラーサテライト"))
+
+	// sk
+	assert.Equal(t, LightFighterID, name2id("Ľahký stíhač"))
+	assert.Equal(t, HeavyFighterID, name2id("Ťažký stíhač"))
+	assert.Equal(t, CruiserID, name2id("Krížnik"))
+	assert.Equal(t, BattleshipID, name2id("Bojová loď"))
+	assert.Equal(t, BattlecruiserID, name2id("Bojový krížnik"))
+	assert.Equal(t, BomberID, name2id("Bombardér"))
+	assert.Equal(t, DestroyerID, name2id("Devastátor"))
+	assert.Equal(t, DeathstarID, name2id("Hviezda smrti"))
+	assert.Equal(t, SmallCargoID, name2id("Malý transportér"))
+	assert.Equal(t, LargeCargoID, name2id("Veľký transportér"))
+	assert.Equal(t, ColonyShipID, name2id("Kolonizačná loď"))
+	assert.Equal(t, RecyclerID, name2id("Recyklátor"))
+	assert.Equal(t, EspionageProbeID, name2id("Špionážna sonda"))
+	assert.Equal(t, SolarSatelliteID, name2id("Solárny satelit"))
 }
