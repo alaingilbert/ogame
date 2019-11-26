@@ -1027,7 +1027,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	page := vals.Get("page")
 	if page == "ingame" ||
 		(page == "componentOnly" && vals.Get("component") == "fetchEventbox") ||
-		(page == "componentOnly" && vals.Get("component") == "eventList") {
+		(page == "componentOnly" && vals.Get("component") == "eventList" && vals.Get("action") != "fetchEventBox") {
 		page = vals.Get("component")
 	}
 	var pageHTMLBytes []byte
