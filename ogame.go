@@ -1025,7 +1025,9 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	page := vals.Get("page")
-	if page == "ingame" || (page == "componentOnly" && vals.Get("component") == "fetchEventbox") {
+	if page == "ingame" ||
+		(page == "componentOnly" && vals.Get("component") == "fetchEventbox") ||
+		(page == "componentOnly" && vals.Get("component") == "eventList") {
 		page = vals.Get("component")
 	}
 	var pageHTMLBytes []byte
