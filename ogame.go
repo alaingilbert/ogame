@@ -1074,6 +1074,9 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	page := vals.Get("page")
+	if page == "ingame" {
+		page = vals.Get("component")
+	}
 	var pageHTMLBytes []byte
 
 	if err := b.withRetry(func() (err error) {
