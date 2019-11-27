@@ -2411,25 +2411,25 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	payload.Set("type", strconv.Itoa(int(where.Type)))
 	payload.Set("union", "0")
 
-	//if unionID != 0 {
-	//	found := false
-	//	fleet2Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
-	//		acsValues := s.AttrOr("value", "")
-	//		m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
-	//		if len(m) == 2 {
-	//			optUnionID, _ := strconv.Atoi(m[1])
-	//			if unionID == optUnionID {
-	//				found = true
-	//				payload.Add("acsValues", acsValues)
-	//				payload.Add("union", m[1])
-	//				mission = GroupedAttack
-	//			}
-	//		}
-	//	})
-	//	if !found {
-	//		return Fleet{}, ErrUnionNotFound
-	//	}
-	//}
+	if unionID != 0 {
+		found := false
+		fleet1Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
+			acsValues := s.AttrOr("value", "")
+			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
+			if len(m) == 2 {
+				optUnionID, _ := strconv.Atoi(m[1])
+				if unionID == optUnionID {
+					found = true
+					payload.Add("acsValues", acsValues)
+					payload.Add("union", m[1])
+					mission = GroupedAttack
+				}
+			}
+		})
+		if !found {
+			return Fleet{}, ErrUnionNotFound
+		}
+	}
 
 	// Check
 	by1, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
