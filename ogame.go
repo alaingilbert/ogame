@@ -2363,6 +2363,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		}
 	}
 
+	availableResources := b.extractor.ExtractResourcesFromDoc(fleet1Doc)
 	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
 
 	atLeastOneShipSelected := false
@@ -2443,6 +2444,16 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 
 	if !checkRes.TargetOk {
 		return Fleet{}, errors.New("target is not ok")
+	}
+
+	_, fuel := calcFlightTime(b.getCachedCelestial(celestialID).GetCoordinate(), where, b.serverData.Galaxies, b.serverData.Systems,
+		b.serverData.DonutGalaxy, b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor,
+		float64(speed)/10, b.serverData.SpeedFleet, ShipsInfos{}.FromQuantifiables(ships), b.getCachedResearch())
+	fuel += 1
+
+	// Ensure we keep fuel for the fleet
+	if resources.Deuterium+fuel > availableResources.Deuterium {
+		resources.Deuterium = int(math.Max(float64(availableResources.Deuterium-fuel), 0))
 	}
 
 	// Page 3 : select coord, mission, speed
