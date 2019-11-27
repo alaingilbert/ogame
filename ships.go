@@ -86,6 +86,14 @@ func (s ShipsInfos) ToQuantifiables() []Quantifiable {
 	return out
 }
 
+// FromQuantifiables convert an array of Quantifiable to a ShipsInfos
+func (s ShipsInfos) FromQuantifiables(in []Quantifiable) (out ShipsInfos) {
+	for _, item := range in {
+		out.Set(item.ID, item.Nbr)
+	}
+	return
+}
+
 // Cargo returns the total cargo of the ships
 func (s ShipsInfos) Cargo(techs Researches, probeRaids bool) (out int) {
 	for _, ship := range Ships {
