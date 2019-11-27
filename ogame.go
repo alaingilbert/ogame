@@ -2368,10 +2368,11 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 
 	atLeastOneShipSelected := false
 	if !ensure {
-		for _, ship := range ships {
-			if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
+		for i := range ships {
+			avail := availableShips.ByID(ships[i].ID)
+			ships[i].Nbr = int(math.Min(float64(ships[i].Nbr), float64(avail)))
+			if ships[i].Nbr > 0 {
 				atLeastOneShipSelected = true
-				break
 			}
 		}
 	} else {
