@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"regexp"
 	"testing"
@@ -1805,12 +1806,28 @@ func TestCancel(t *testing.T) {
 	assert.Equal(t, 2099434, listID)
 }
 
+func TestCancelV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview_cancels.html")
+	token, techID, listID, _ := NewExtractorV7().ExtractCancelBuildingInfos(pageHTMLBytes)
+	assert.Equal(t, "cf00a76b307f5cabf867af0d61ad1991", token)
+	assert.Equal(t, 23, techID)
+	assert.Equal(t, 1336041, listID)
+}
+
 func TestCancelResearch(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_active_queue2.html")
 	token, techID, listID, _ := NewExtractorV6().ExtractCancelResearchInfos(pageHTMLBytes)
 	assert.Equal(t, "fff7488e4809150cd16e3fa8fa14db37", token)
 	assert.Equal(t, 120, techID)
 	assert.Equal(t, 1769925, listID)
+}
+func TestCancelResearchV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview_cancels.html")
+	token, techID, listID, err := NewExtractorV7().ExtractCancelResearchInfos(pageHTMLBytes)
+	fmt.Println(err)
+	assert.Equal(t, "9d44b41d8136dffadab759749508105e", token)
+	assert.Equal(t, 124, techID)
+	assert.Equal(t, 1324883, listID)
 }
 
 func TestGetConstructions(t *testing.T) {

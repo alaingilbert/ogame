@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"regexp"
@@ -546,4 +547,44 @@ func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Locat
 		return report, ErrDeactivateHidePictures
 	}
 	return report, nil
+}
+
+func extractCancelBuildingInfosV7(pageHTML []byte) (token string, techID, listID int, err error) {
+	r1 := regexp.MustCompile(`cancelLinkbuilding[^?]+\?page=ingame&component=overview&modus=2&token=(\w+)&action=cancel`)
+	m1 := r1.FindSubmatch(pageHTML)
+	if len(m1) < 2 {
+		return "", 0, 0, errors.New("unable to find token")
+	}
+	token = string(m1[1])
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	t := doc.Find("table.construction").Eq(0)
+	a, _ := t.Find("a.abortNow").Attr("onclick")
+	r := regexp.MustCompile(`cancelbuilding\((\d+),\s?(\d+),`)
+	m := r.FindStringSubmatch(a)
+	if len(m) < 3 {
+		return "", 0, 0, errors.New("unable to find techid/listid")
+	}
+	techID, _ = strconv.Atoi(m[1])
+	listID, _ = strconv.Atoi(m[2])
+	return
+}
+
+func extractCancelResearchInfosV7(pageHTML []byte) (token string, techID, listID int, err error) {
+	r1 := regexp.MustCompile(`cancelLinkresearch[^?]+\?page=ingame&component=overview&modus=2&token=(\w+)&action=cancel`)
+	m1 := r1.FindSubmatch(pageHTML)
+	if len(m1) < 2 {
+		return "", 0, 0, errors.New("unable to find token")
+	}
+	token = string(m1[1])
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	t := doc.Find("table.construction").Eq(1)
+	a, _ := t.Find("a.abortNow").Attr("onclick")
+	r := regexp.MustCompile(`cancelresearch\((\d+),\s?(\d+),`)
+	m := r.FindStringSubmatch(a)
+	if len(m) < 3 {
+		return "", 0, 0, errors.New("unable to find techid/listid")
+	}
+	techID, _ = strconv.Atoi(m[1])
+	listID, _ = strconv.Atoi(m[2])
+	return
 }

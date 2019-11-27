@@ -2162,8 +2162,13 @@ func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, i
 }
 
 func (b *OGame) cancel(token string, techID, listID int) error {
-	_, _ = b.getPageContent(url.Values{"page": {"overview"}, "modus": {"2"}, "token": {token},
-		"techid": {strconv.Itoa(techID)}, "listid": {strconv.Itoa(listID)}})
+	if b.IsV7() {
+		_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"overview"}, "modus": {"2"}, "token": {token},
+			"type": {strconv.Itoa(techID)}, "listid": {strconv.Itoa(listID)}, "action": {"cancel"}})
+	} else {
+		_, _ = b.getPageContent(url.Values{"page": {"overview"}, "modus": {"2"}, "token": {token},
+			"techid": {strconv.Itoa(techID)}, "listid": {strconv.Itoa(listID)}})
+	}
 	return nil
 }
 

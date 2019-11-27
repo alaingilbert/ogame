@@ -114,3 +114,13 @@ func (e ExtractorV7) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) (
 func (e ExtractorV7) ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	return extractEspionageReportFromDocV7(doc, location)
 }
+
+// ExtractCancelBuildingInfos ...
+func (e ExtractorV7) ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int, err error) {
+	return extractCancelBuildingInfosV7(pageHTML)
+}
+
+// ExtractCancelResearchInfos ...
+func (e ExtractorV7) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int, err error) {
+	return extractCancelResearchInfosV7(pageHTML)
+}
