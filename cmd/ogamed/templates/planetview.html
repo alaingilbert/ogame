@@ -1,0 +1,50 @@
+{{define "planetview"}}
+{{$root := .}}
+
+{{$root.Planet.Name}}
+<table>
+<tr><th>Resources Details</th></tr>
+	<tr>
+		<td>{{.ResourcesDetails.Metal.Available}}</td>
+		<td>{{.ResourcesDetails.Metal.CurrentProduction}}</td>
+		<td>{{.ResourcesDetails.Metal.StorageCapacity}}</td>
+	</tr>
+	<tr>
+		<td>{{.ResourcesDetails.Crystal.Available}}</td>
+		<td>{{.ResourcesDetails.Crystal.CurrentProduction}}</td>
+		<td>{{.ResourcesDetails.Crystal.StorageCapacity}}</td>
+	</tr>
+	<tr>
+		<td>{{.ResourcesDetails.Deuterium.Available}}</td>
+		<td>{{.ResourcesDetails.Deuterium.CurrentProduction}}</td>
+		<td>{{.ResourcesDetails.Deuterium.StorageCapacity}}</td>
+	</tr>
+		<tr>
+		<td>{{.ResourcesDetails.Energy.Available}}</td>
+		<td>{{.ResourcesDetails.Energy.CurrentProduction}}</td>
+		<td>{{.ResourcesDetails.Energy.Consumption}}</td>
+		
+	</tr>
+</table>
+
+<table>
+<tr><th>Buildings</th></tr>
+	{{range $index, $element := .Buildings}}
+	<tr>
+		<td>{{$element.GetName}}</td>
+		<td>Level: {{$level := $element.GetLevel $.ResourcesBuildings.Lazy $.Facilities.Lazy $.Technology.Lazy}} {{$level}}</td>
+		{{$next := add $level 1}}
+		<td>Price: {{$element.GetPrice $next }}</td>
+		{{if $element.IsAvailable $root.Planet.GetType $root.ResourcesBuildings.Lazy $root.Facilities.Lazy $root.Technology.Lazy 1}}
+		<td><a href="?id={{$element.GetID.Int}}&nbr=1">add Queue</a> </td>
+		{{end}}
+		
+	</tr>
+	{{end}}
+</table>
+
+<table>
+<tr><th>Queue</th></tr>
+	{{.ConstructionQueue}}
+</table>
+{{end}}
