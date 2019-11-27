@@ -2849,6 +2849,7 @@ type CombatReportSummary struct {
 	Metal        int
 	Crystal      int
 	Deuterium    int
+	DebrisField  int
 	CreatedAt    time.Time
 }
 
