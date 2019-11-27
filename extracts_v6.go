@@ -677,6 +677,8 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 					report.Crystal = ParseInt(m[2])
 					report.Deuterium = ParseInt(m[3])
 				}
+				debrisFieldTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(2).AttrOr("title", "0")
+				report.DebrisField = ParseInt(debrisFieldTitle)
 				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
 				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
 				if len(m) == 2 {

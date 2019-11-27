@@ -883,6 +883,9 @@ func TestExtractCombatReportAttackingMessages(t *testing.T) {
 	assert.Equal(t, 74495, msgs[0].Metal)
 	assert.Equal(t, 88280, msgs[0].Crystal)
 	assert.Equal(t, 21572, msgs[0].Deuterium)
+	assert.Equal(t, 3500, msgs[0].DebrisField)
+	assert.Equal(t, 25200, msgs[1].DebrisField)
+	assert.Equal(t, 0, msgs[2].DebrisField)
 	assert.Equal(t, "08.09.2018 09:33:18", msgs[0].CreatedAt.Format("02.01.2006 15:04:05"))
 }
 

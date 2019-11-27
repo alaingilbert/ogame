@@ -2363,14 +2363,16 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		}
 	}
 
+	availableResources := b.extractor.ExtractResourcesFromDoc(fleet1Doc)
 	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
 
 	atLeastOneShipSelected := false
 	if !ensure {
-		for _, ship := range ships {
-			if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
+		for i := range ships {
+			avail := availableShips.ByID(ships[i].ID)
+			ships[i].Nbr = int(math.Min(float64(ships[i].Nbr), float64(avail)))
+			if ships[i].Nbr > 0 {
 				atLeastOneShipSelected = true
-				break
 			}
 		}
 	} else {
@@ -2409,25 +2411,25 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	payload.Set("type", strconv.Itoa(int(where.Type)))
 	payload.Set("union", "0")
 
-	//if unionID != 0 {
-	//	found := false
-	//	fleet2Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
-	//		acsValues := s.AttrOr("value", "")
-	//		m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
-	//		if len(m) == 2 {
-	//			optUnionID, _ := strconv.Atoi(m[1])
-	//			if unionID == optUnionID {
-	//				found = true
-	//				payload.Add("acsValues", acsValues)
-	//				payload.Add("union", m[1])
-	//				mission = GroupedAttack
-	//			}
-	//		}
-	//	})
-	//	if !found {
-	//		return Fleet{}, ErrUnionNotFound
-	//	}
-	//}
+	if unionID != 0 {
+		found := false
+		fleet1Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
+			acsValues := s.AttrOr("value", "")
+			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
+			if len(m) == 2 {
+				optUnionID, _ := strconv.Atoi(m[1])
+				if unionID == optUnionID {
+					found = true
+					payload.Add("acsValues", acsValues)
+					payload.Add("union", m[1])
+					mission = GroupedAttack
+				}
+			}
+		})
+		if !found {
+			return Fleet{}, ErrUnionNotFound
+		}
+	}
 
 	// Check
 	by1, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
@@ -2443,6 +2445,16 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 
 	if !checkRes.TargetOk {
 		return Fleet{}, errors.New("target is not ok")
+	}
+
+	_, fuel := calcFlightTime(b.getCachedCelestial(celestialID).GetCoordinate(), where, b.serverData.Galaxies, b.serverData.Systems,
+		b.serverData.DonutGalaxy, b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor,
+		float64(speed)/10, b.serverData.SpeedFleet, ShipsInfos{}.FromQuantifiables(ships), b.getCachedResearch())
+	fuel += 1
+
+	// Ensure we keep fuel for the fleet
+	if resources.Deuterium+fuel > availableResources.Deuterium {
+		resources.Deuterium = int(math.Max(float64(availableResources.Deuterium-fuel), 0))
 	}
 
 	// Page 3 : select coord, mission, speed
@@ -2837,6 +2849,7 @@ type CombatReportSummary struct {
 	Metal        int
 	Crystal      int
 	Deuterium    int
+	DebrisField  int
 	CreatedAt    time.Time
 }
 
