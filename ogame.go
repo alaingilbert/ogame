@@ -2456,6 +2456,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		b.serverData.DonutGalaxy, b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor,
 		float64(speed)/10, b.serverData.SpeedFleet, ShipsInfos{}.FromQuantifiables(ships), b.getCachedResearch())
 	fuel += 1
+	fuel *= 2
 
 	// Ensure we keep fuel for the fleet
 	if resources.Deuterium+fuel > availableResources.Deuterium {
