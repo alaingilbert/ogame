@@ -869,6 +869,12 @@ func TestExtractCombatReportMessagesV7(t *testing.T) {
 	assert.Equal(t, 10, len(msgs))
 }
 
+func TestExtractCombatReportMessagesV7_Debris(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/combat_reports_debris.html")
+	msgs, _ := NewExtractorV7().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 2400, msgs[0].DebrisField)
+}
+
 func TestExtractCombatReportMessages(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
 	msgs, _ := NewExtractorV6().ExtractCombatReportMessagesSummary(pageHTMLBytes)
