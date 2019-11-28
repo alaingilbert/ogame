@@ -822,6 +822,12 @@ func TestExtractShipsV7(t *testing.T) {
 	assert.Equal(t, 9, ships.Crawler)
 }
 
+func TestExtractShipsV7_build(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/shipyard_build.html")
+	ships, _ := NewExtractorV7().ExtractShips(pageHTMLBytes)
+	assert.Equal(t, 33, ships.Cruiser)
+}
+
 func TestExtractShipsV7_fleetdispatch(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/fleetdispatch.html")
 	ships := NewExtractorV7().ExtractFleet1Ships(pageHTMLBytes)
@@ -869,6 +875,12 @@ func TestExtractCombatReportMessagesV7(t *testing.T) {
 	assert.Equal(t, 10, len(msgs))
 }
 
+func TestExtractCombatReportMessagesV7_Debris(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/combat_reports_debris.html")
+	msgs, _ := NewExtractorV7().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 2400, msgs[0].DebrisField)
+}
+
 func TestExtractCombatReportMessages(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
 	msgs, _ := NewExtractorV6().ExtractCombatReportMessagesSummary(pageHTMLBytes)
@@ -903,6 +915,18 @@ func TestExtractResourcesProductions(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_settings.html")
 	prods, _ := NewExtractorV6().ExtractResourcesProductions(pageHTMLBytes)
 	assert.Equal(t, Resources{Metal: 10352, Crystal: 5104, Deuterium: 1282, Energy: -52}, prods)
+}
+
+func TestExtractResourceSettings(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_settings.html")
+	settings, _ := NewExtractorV6().ExtractResourceSettings(pageHTMLBytes)
+	assert.Equal(t, ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 0, SolarSatellite: 100}, settings)
+}
+
+func TestExtractResourceSettingsV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/resource_settings.html")
+	settings, _ := NewExtractorV7().ExtractResourceSettings(pageHTMLBytes)
+	assert.Equal(t, ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 0, SolarSatellite: 0, Crawler: 0}, settings)
 }
 
 func TestExtractNbProbes(t *testing.T) {

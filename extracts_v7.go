@@ -19,7 +19,7 @@ func getNbrV7(doc *goquery.Document, name string) int {
 }
 
 func getNbrV7Ships(doc *goquery.Document, name string) int {
-	val, _ := strconv.Atoi(doc.Find("span."+name+" span").First().AttrOr("data-value", "0"))
+	val, _ := strconv.Atoi(doc.Find("span."+name+" span.amount").First().AttrOr("data-value", "0"))
 	return val
 }
 
@@ -242,6 +242,8 @@ func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReport
 					report.Crystal = ParseInt(m[2])
 					report.Deuterium = ParseInt(m[3])
 				}
+				debrisFieldTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(2).AttrOr("title", "0")
+				report.DebrisField = ParseInt(debrisFieldTitle)
 				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
 				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
 				if len(m) == 2 {
@@ -587,4 +589,34 @@ func extractCancelResearchInfosV7(pageHTML []byte) (token string, techID, listID
 	techID, _ = strconv.Atoi(m[1])
 	listID, _ = strconv.Atoi(m[2])
 	return
+}
+
+func extractResourceSettingsFromDocV7(doc *goquery.Document) (ResourceSettings, error) {
+	bodyID := extractBodyIDFromDocV6(doc)
+	if bodyID == "overview" {
+		return ResourceSettings{}, ErrInvalidPlanetID
+	}
+	vals := make([]int, 0)
+	doc.Find("option").Each(func(i int, s *goquery.Selection) {
+		_, selectedExists := s.Attr("selected")
+		if selectedExists {
+			a, _ := s.Attr("value")
+			val, _ := strconv.Atoi(a)
+			vals = append(vals, val)
+		}
+	})
+	if len(vals) != 7 {
+		return ResourceSettings{}, errors.New("failed to find all resource settings")
+	}
+
+	res := ResourceSettings{}
+	res.MetalMine = vals[0]
+	res.CrystalMine = vals[1]
+	res.DeuteriumSynthesizer = vals[2]
+	res.SolarPlant = vals[3]
+	res.FusionReactor = vals[4]
+	res.SolarSatellite = vals[5]
+	res.Crawler = vals[6]
+
+	return res, nil
 }
