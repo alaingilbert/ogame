@@ -19,7 +19,7 @@ func getNbrV7(doc *goquery.Document, name string) int {
 }
 
 func getNbrV7Ships(doc *goquery.Document, name string) int {
-	val, _ := strconv.Atoi(doc.Find("span."+name+" span").First().AttrOr("data-value", "0"))
+	val, _ := strconv.Atoi(doc.Find("span."+name+" span.amount").First().AttrOr("data-value", "0"))
 	return val
 }
 
@@ -242,6 +242,8 @@ func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReport
 					report.Crystal = ParseInt(m[2])
 					report.Deuterium = ParseInt(m[3])
 				}
+				debrisFieldTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(2).AttrOr("title", "0")
+				report.DebrisField = ParseInt(debrisFieldTitle)
 				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
 				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
 				if len(m) == 2 {

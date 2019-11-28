@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"errors"
 	"math"
 	"time"
 )
@@ -152,6 +153,10 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int) {
 // SendNow send the fleet with defined configurations
 func (f *FleetBuilder) SendNow() (Fleet, error) {
 	err := f.b.Tx(func(tx *Prioritize) error {
+
+		if f.origin == nil {
+			return errors.New("invalid origin")
+		}
 
 		// Set all ships
 		if f.allShips {
