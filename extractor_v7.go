@@ -42,6 +42,12 @@ func (e ExtractorV7) ExtractShips(pageHTML []byte) (ShipsInfos, error) {
 	return e.ExtractShipsFromDoc(doc)
 }
 
+// ExtractResourceSettings ...
+func (e ExtractorV7) ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractResourceSettingsFromDoc(doc)
+}
+
 // ExtractResourcesBuildings ...
 func (e ExtractorV7) ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -78,6 +84,11 @@ func (e ExtractorV7) ExtractEspionageReport(pageHTML []byte, location *time.Loca
 // ExtractFleet1ShipsFromDoc ...
 func (e ExtractorV7) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos) {
 	return extractFleet1ShipsFromDocV7(doc)
+}
+
+// ExtractResourceSettingsFromDoc ...
+func (e ExtractorV7) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error) {
+	return extractResourceSettingsFromDocV7(doc)
 }
 
 // ExtractDefenseFromDoc ...

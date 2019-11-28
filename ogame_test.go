@@ -917,6 +917,18 @@ func TestExtractResourcesProductions(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 10352, Crystal: 5104, Deuterium: 1282, Energy: -52}, prods)
 }
 
+func TestExtractResourceSettings(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/resource_settings.html")
+	settings, _ := NewExtractorV6().ExtractResourceSettings(pageHTMLBytes)
+	assert.Equal(t, ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 0, SolarSatellite: 100}, settings)
+}
+
+func TestExtractResourceSettingsV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/resource_settings.html")
+	settings, _ := NewExtractorV7().ExtractResourceSettings(pageHTMLBytes)
+	assert.Equal(t, ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 0, SolarSatellite: 0, Crawler: 0}, settings)
+}
+
 func TestExtractNbProbes(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences.html")
 	probes := NewExtractorV6().ExtractSpioAnz(pageHTMLBytes)

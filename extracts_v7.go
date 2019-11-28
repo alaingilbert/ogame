@@ -590,3 +590,33 @@ func extractCancelResearchInfosV7(pageHTML []byte) (token string, techID, listID
 	listID, _ = strconv.Atoi(m[2])
 	return
 }
+
+func extractResourceSettingsFromDocV7(doc *goquery.Document) (ResourceSettings, error) {
+	bodyID := extractBodyIDFromDocV6(doc)
+	if bodyID == "overview" {
+		return ResourceSettings{}, ErrInvalidPlanetID
+	}
+	vals := make([]int, 0)
+	doc.Find("option").Each(func(i int, s *goquery.Selection) {
+		_, selectedExists := s.Attr("selected")
+		if selectedExists {
+			a, _ := s.Attr("value")
+			val, _ := strconv.Atoi(a)
+			vals = append(vals, val)
+		}
+	})
+	if len(vals) != 7 {
+		return ResourceSettings{}, errors.New("failed to find all resource settings")
+	}
+
+	res := ResourceSettings{}
+	res.MetalMine = vals[0]
+	res.CrystalMine = vals[1]
+	res.DeuteriumSynthesizer = vals[2]
+	res.SolarPlant = vals[3]
+	res.FusionReactor = vals[4]
+	res.SolarSatellite = vals[5]
+	res.Crawler = vals[6]
+
+	return res, nil
+}
