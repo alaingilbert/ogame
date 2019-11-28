@@ -19,7 +19,7 @@ func getNbrV7(doc *goquery.Document, name string) int {
 }
 
 func getNbrV7Ships(doc *goquery.Document, name string) int {
-	val, _ := strconv.Atoi(doc.Find("span."+name+" span").First().AttrOr("data-value", "0"))
+	val, _ := strconv.Atoi(doc.Find("span."+name+" span.amount").First().AttrOr("data-value", "0"))
 	return val
 }
 
