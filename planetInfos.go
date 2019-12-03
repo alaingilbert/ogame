@@ -4,9 +4,14 @@ import "encoding/json"
 
 // SystemInfos planets information for a specific system
 type SystemInfos struct {
-	galaxy  int
-	system  int
-	planets [15]*PlanetInfos
+	galaxy           int
+	system           int
+	planets          [15]*PlanetInfos
+	ExpeditionDebris struct {
+		Metal             int
+		Crystal           int
+		PathfindersNeeded int
+	}
 }
 
 // Galaxy returns galaxy info
@@ -37,13 +42,21 @@ func (s SystemInfos) Each(clb func(planetInfo *PlanetInfos)) {
 // MarshalJSON export private fields to json for ogamed
 func (s SystemInfos) MarshalJSON() ([]byte, error) {
 	var tmp struct {
-		Galaxy  int
-		System  int
-		Planets [15]*PlanetInfos
+		Galaxy           int
+		System           int
+		Planets          [15]*PlanetInfos
+		ExpeditionDebris struct {
+			Metal             int
+			Crystal           int
+			PathfindersNeeded int
+		}
 	}
 	tmp.Galaxy = s.galaxy
 	tmp.System = s.system
 	tmp.Planets = s.planets
+	tmp.ExpeditionDebris.Metal = s.ExpeditionDebris.Metal
+	tmp.ExpeditionDebris.Crystal = s.ExpeditionDebris.Crystal
+	tmp.ExpeditionDebris.PathfindersNeeded = s.ExpeditionDebris.PathfindersNeeded
 	return json.Marshal(tmp)
 }
 
