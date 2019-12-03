@@ -39,6 +39,6 @@ func TestSystemInfos_MarshalJSON(t *testing.T) {
 		`"Administrator":false,"Inactive":false,"Vacation":false,"StrongPlayer":false,"Newbie":false,` +
 		`"HonorableTarget":false,"Banned":false,"Debris":{"Metal":1,"Crystal":2,"RecyclersNeeded":3},"Moon":null,` +
 		`"Player":{"ID":1,"Name":"player name","Rank":2,"IsBandit":false,"IsStarlord":false},"Alliance":null},` +
-		`null,null,null,null,null,null,null,null,null,null,null,null,null]}`
+		`null,null,null,null,null,null,null,null,null,null,null,null,null],"ExpeditionDebris":{"Metal":0,"Crystal":0,"PathfindersNeeded":0}}`
 	assert.Equal(t, expected, string(by))
 }

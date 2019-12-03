@@ -1690,6 +1690,18 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			res.planets[i] = planetInfos
 		}
 	})
+
+	debris16Div := doc.Find("div#debris16")
+	if debris16Div.Size() > 0 {
+		lis := debris16Div.Find("ul.ListLinks li")
+		metalTxt := lis.First().Text()
+		crystalTxt := lis.Eq(1).Text()
+		pathfindersTxt := lis.Eq(2).Text()
+		res.ExpeditionDebris.Metal = ParseInt(prefixedNumRgx.FindStringSubmatch(metalTxt)[1])
+		res.ExpeditionDebris.Crystal = ParseInt(prefixedNumRgx.FindStringSubmatch(crystalTxt)[1])
+		res.ExpeditionDebris.PathfindersNeeded = ParseInt(prefixedNumRgx.FindStringSubmatch(pathfindersTxt)[1])
+	}
+
 	return res, nil
 }
 
