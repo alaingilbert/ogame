@@ -1313,6 +1313,24 @@ func TestExtractGalaxyInfos_banned(t *testing.T) {
 	assert.Equal(t, false, infos.Position(9).Banned)
 }
 
+func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_debris16.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, infos.ExpeditionDebris.Metal)
+	assert.Equal(t, 2300, infos.ExpeditionDebris.Crystal)
+	assert.Equal(t, 1, infos.ExpeditionDebris.PathfindersNeeded)
+}
+
+func TestExtractGalaxyV7NoExpeditionDebris(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_no_debris16.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, infos.ExpeditionDebris.Metal)
+	assert.Equal(t, 0, infos.ExpeditionDebris.Crystal)
+	assert.Equal(t, 0, infos.ExpeditionDebris.PathfindersNeeded)
+}
+
 func TestExtractGalaxyInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_ajax.html")
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
