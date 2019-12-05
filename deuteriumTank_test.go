@@ -18,10 +18,10 @@ func TestDeuteriumTankCost(t *testing.T) {
 
 func TestDeuteriumTankCapacity(t *testing.T) {
 	dt := newDeuteriumTank()
-	assert.Equal(t, 10000, dt.Capacity(0))
-	assert.Equal(t, 20000, dt.Capacity(1))
-	assert.Equal(t, 40000, dt.Capacity(2))
-	assert.Equal(t, 75000, dt.Capacity(3))
-	assert.Equal(t, 140000, dt.Capacity(4))
-	assert.Equal(t, 255000, dt.Capacity(5))
+	assert.Equal(t, int64(10000), dt.Capacity(0))
+	assert.Equal(t, int64(20000), dt.Capacity(1))
+	assert.Equal(t, int64(40000), dt.Capacity(2))
+	assert.Equal(t, int64(75000), dt.Capacity(3))
+	assert.Equal(t, int64(140000), dt.Capacity(4))
+	assert.Equal(t, int64(255000), dt.Capacity(5))
 }

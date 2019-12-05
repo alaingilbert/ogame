@@ -18,7 +18,7 @@ func (b BaseTechnology) ConstructionTime(level, universeSpeed int64, facilities 
 	researchLabLvl := float64(facilities.ResearchLab)
 	hours := (metalCost + crystalCost) / (1000 * (1 + researchLabLvl) * float64(universeSpeed))
 	secs := math.Max(1, hours*3600)
-	return time.Duration(int(math.Floor(secs))) * time.Second
+	return time.Duration(int64(math.Floor(secs))) * time.Second
 }
 
 // GetLevel returns current level of a technology

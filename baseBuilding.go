@@ -23,7 +23,7 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Fa
 		secs = secs * (2 / (7 - (float64(level) - 1)))
 	}
 	secs = math.Max(1, secs)
-	return time.Duration(int(math.Floor(secs))) * time.Second
+	return time.Duration(int64(math.Floor(secs))) * time.Second
 }
 
 // GetLevel returns current level of a building
