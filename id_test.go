@@ -12,7 +12,7 @@ func TestID_IsSet(t *testing.T) {
 }
 
 func TestID_Int(t *testing.T) {
-	assert.Equal(t, 34, AllianceDepotID.Int())
+	assert.Equal(t, int64(34), AllianceDepotID.Int64())
 }
 
 func TestID_String(t *testing.T) {

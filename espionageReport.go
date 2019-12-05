@@ -5,10 +5,10 @@ import "time"
 // EspionageReport detailed espionage report
 type EspionageReport struct {
 	Resources
-	ID                           int
+	ID                           int64
 	Username                     string
-	LastActivity                 int
-	CounterEspionage             int
+	LastActivity                 int64
+	CounterEspionage             int64
 	APIKey                       string
 	HasFleet                     bool
 	HasDefenses                  bool
@@ -18,68 +18,68 @@ type EspionageReport struct {
 	IsStarlord                   bool
 	IsInactive                   bool
 	IsLongInactive               bool
-	MetalMine                    *int // ResourcesBuildings
-	CrystalMine                  *int
-	DeuteriumSynthesizer         *int
-	SolarPlant                   *int
-	FusionReactor                *int
-	SolarSatellite               *int
-	MetalStorage                 *int
-	CrystalStorage               *int
-	DeuteriumTank                *int
-	RoboticsFactory              *int // Facilities
-	Shipyard                     *int
-	ResearchLab                  *int
-	AllianceDepot                *int
-	MissileSilo                  *int
-	NaniteFactory                *int
-	Terraformer                  *int
-	SpaceDock                    *int
-	LunarBase                    *int
-	SensorPhalanx                *int
-	JumpGate                     *int
-	EnergyTechnology             *int // Researches
-	LaserTechnology              *int
-	IonTechnology                *int
-	HyperspaceTechnology         *int
-	PlasmaTechnology             *int
-	CombustionDrive              *int
-	ImpulseDrive                 *int
-	HyperspaceDrive              *int
-	EspionageTechnology          *int
-	ComputerTechnology           *int
-	Astrophysics                 *int
-	IntergalacticResearchNetwork *int
-	GravitonTechnology           *int
-	WeaponsTechnology            *int
-	ShieldingTechnology          *int
-	ArmourTechnology             *int
-	RocketLauncher               *int // Defenses
-	LightLaser                   *int
-	HeavyLaser                   *int
-	GaussCannon                  *int
-	IonCannon                    *int
-	PlasmaTurret                 *int
-	SmallShieldDome              *int
-	LargeShieldDome              *int
-	AntiBallisticMissiles        *int
-	InterplanetaryMissiles       *int
-	LightFighter                 *int // Fleets
-	HeavyFighter                 *int
-	Cruiser                      *int
-	Battleship                   *int
-	Battlecruiser                *int
-	Bomber                       *int
-	Destroyer                    *int
-	Deathstar                    *int
-	SmallCargo                   *int
-	LargeCargo                   *int
-	ColonyShip                   *int
-	Recycler                     *int
-	EspionageProbe               *int
-	Crawler                      *int
-	Reaper                       *int
-	Pathfinder                   *int
+	MetalMine                    *int64 // ResourcesBuildings
+	CrystalMine                  *int64
+	DeuteriumSynthesizer         *int64
+	SolarPlant                   *int64
+	FusionReactor                *int64
+	SolarSatellite               *int64
+	MetalStorage                 *int64
+	CrystalStorage               *int64
+	DeuteriumTank                *int64
+	RoboticsFactory              *int64 // Facilities
+	Shipyard                     *int64
+	ResearchLab                  *int64
+	AllianceDepot                *int64
+	MissileSilo                  *int64
+	NaniteFactory                *int64
+	Terraformer                  *int64
+	SpaceDock                    *int64
+	LunarBase                    *int64
+	SensorPhalanx                *int64
+	JumpGate                     *int64
+	EnergyTechnology             *int64 // Researches
+	LaserTechnology              *int64
+	IonTechnology                *int64
+	HyperspaceTechnology         *int64
+	PlasmaTechnology             *int64
+	CombustionDrive              *int64
+	ImpulseDrive                 *int64
+	HyperspaceDrive              *int64
+	EspionageTechnology          *int64
+	ComputerTechnology           *int64
+	Astrophysics                 *int64
+	IntergalacticResearchNetwork *int64
+	GravitonTechnology           *int64
+	WeaponsTechnology            *int64
+	ShieldingTechnology          *int64
+	ArmourTechnology             *int64
+	RocketLauncher               *int64 // Defenses
+	LightLaser                   *int64
+	HeavyLaser                   *int64
+	GaussCannon                  *int64
+	IonCannon                    *int64
+	PlasmaTurret                 *int64
+	SmallShieldDome              *int64
+	LargeShieldDome              *int64
+	AntiBallisticMissiles        *int64
+	InterplanetaryMissiles       *int64
+	LightFighter                 *int64 // Fleets
+	HeavyFighter                 *int64
+	Cruiser                      *int64
+	Battleship                   *int64
+	Battlecruiser                *int64
+	Bomber                       *int64
+	Destroyer                    *int64
+	Deathstar                    *int64
+	SmallCargo                   *int64
+	LargeCargo                   *int64
+	ColonyShip                   *int64
+	Recycler                     *int64
+	EspionageProbe               *int64
+	Crawler                      *int64
+	Reaper                       *int64
+	Pathfinder                   *int64
 	Coordinate                   Coordinate
 	Type                         EspionageReportType
 	Date                         time.Time
@@ -103,8 +103,8 @@ func (r EspionageReport) PlunderRatio(characterClass int) float64 {
 func (r EspionageReport) Loot(characterClass int) Resources {
 	plunderRatio := r.PlunderRatio(characterClass)
 	return Resources{
-		Metal:     int(float64(r.Metal) * plunderRatio),
-		Crystal:   int(float64(r.Crystal) * plunderRatio),
-		Deuterium: int(float64(r.Deuterium) * plunderRatio),
+		Metal:     int64(float64(r.Metal) * plunderRatio),
+		Crystal:   int64(float64(r.Crystal) * plunderRatio),
+		Deuterium: int64(float64(r.Deuterium) * plunderRatio),
 	}
 }

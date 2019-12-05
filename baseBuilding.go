@@ -11,8 +11,8 @@ type BaseBuilding struct {
 }
 
 // ConstructionTime returns the duration it takes to build given level
-func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Facilities) time.Duration {
-	price := b.GetPrice(level)
+func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Facilities) time.Duration {
+	price := b.GetPrice(int64(level))
 	metalCost := float64(price.Metal)
 	crystalCost := float64(price.Crystal)
 	roboticLvl := float64(facilities.RoboticsFactory)
@@ -27,7 +27,7 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int, facilities Faci
 }
 
 // GetLevel returns current level of a building
-func (b BaseBuilding) GetLevel(lazyResourcesBuildings LazyResourcesBuildings, lazyFacilities LazyFacilities, _ LazyResearches) int {
+func (b BaseBuilding) GetLevel(lazyResourcesBuildings LazyResourcesBuildings, lazyFacilities LazyFacilities, _ LazyResearches) int64 {
 	if b.ID.IsResourceBuilding() {
 		return lazyResourcesBuildings().ByID(b.ID)
 	} else if b.ID.IsFacility() {

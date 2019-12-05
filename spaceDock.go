@@ -12,14 +12,14 @@ func newSpaceDock() *spaceDock {
 	b.ID = SpaceDockID
 	b.IncreaseFactor = 5
 	b.BaseCost = Resources{Metal: 200, Deuterium: 50, Energy: 50}
-	b.Requirements = map[ID]int{ShipyardID: 2}
+	b.Requirements = map[ID]int64{ShipyardID: 2}
 	return b
 }
 
 // GetPrice returns the price to build the given level
-func (b spaceDock) GetPrice(level int) Resources {
-	tmp := func(baseCost int, increaseFactor float64, level int) int {
-		return int(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)))
+func (b spaceDock) GetPrice(level int64) Resources {
+	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
+		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)))
 	}
 	return Resources{
 		Metal:     tmp(b.BaseCost.Metal, b.IncreaseFactor, level),

@@ -8,18 +8,18 @@ import (
 
 func TestCruiser_RapidfireAgainst(t *testing.T) {
 	c := newCruiser()
-	assert.Equal(t, map[ID]int{EspionageProbeID: 5, SolarSatelliteID: 5, LightFighterID: 6, RocketLauncherID: 10}, c.GetRapidfireAgainst())
+	assert.Equal(t, map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5, LightFighterID: 6, RocketLauncherID: 10}, c.GetRapidfireAgainst())
 }
 
 func TestCruiser_GetCargoCapacity(t *testing.T) {
 	c := newCruiser()
-	assert.Equal(t, 800, c.GetCargoCapacity(Researches{HyperspaceTechnology: 0}, false))
-	assert.Equal(t, 1120, c.GetCargoCapacity(Researches{HyperspaceTechnology: 8}, false))
+	assert.Equal(t, int64(800), c.GetCargoCapacity(Researches{HyperspaceTechnology: 0}, false))
+	assert.Equal(t, int64(1120), c.GetCargoCapacity(Researches{HyperspaceTechnology: 8}, false))
 }
 
 func TestCruiser_GetFuelConsumption(t *testing.T) {
 	c := newCruiser()
-	assert.Equal(t, 300, c.GetFuelConsumption())
+	assert.Equal(t, int64(300), c.GetFuelConsumption())
 }
 
 func TestCruiser_GetPrice(t *testing.T) {

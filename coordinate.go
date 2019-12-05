@@ -7,9 +7,9 @@ import (
 
 // Coordinate represent an ogame coordinate
 type Coordinate struct {
-	Galaxy   int
-	System   int
-	Position int
+	Galaxy   int64
+	System   int64
+	Position int64
 	Type     CelestialType
 }
 

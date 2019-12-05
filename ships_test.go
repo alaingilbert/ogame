@@ -7,7 +7,7 @@ import (
 )
 
 func TestByID(t *testing.T) {
-	assert.Equal(t, 0, ShipsInfos{}.ByID(123456))
+	assert.Equal(t, int64(0), ShipsInfos{}.ByID(123456))
 }
 
 func TestShipsInfos_Cargo(t *testing.T) {
@@ -16,7 +16,7 @@ func TestShipsInfos_Cargo(t *testing.T) {
 		LargeCargo: 2,
 	}
 	techs := Researches{}
-	assert.Equal(t, 60000, ships.Cargo(techs, false))
+	assert.Equal(t, int64(60000), ships.Cargo(techs, false))
 }
 
 func TestShipsInfos_FleetValue(t *testing.T) {
@@ -24,7 +24,7 @@ func TestShipsInfos_FleetValue(t *testing.T) {
 		SmallCargo: 2,
 		LargeCargo: 2,
 	}
-	assert.Equal(t, 32000, ships.FleetValue())
+	assert.Equal(t, int64(32000), ships.FleetValue())
 }
 
 func TestShipsInfos_Add(t *testing.T) {
@@ -60,8 +60,8 @@ func TestShipsInfos_Add(t *testing.T) {
 		EspionageProbe: 13,
 		SolarSatellite: 14,
 	})
-	assert.Equal(t, 2, s1.LightFighter)
-	assert.Equal(t, 4, s1.HeavyFighter)
+	assert.Equal(t, int64(2), s1.LightFighter)
+	assert.Equal(t, int64(4), s1.HeavyFighter)
 }
 
 func TestSet(t *testing.T) {
@@ -69,9 +69,9 @@ func TestSet(t *testing.T) {
 	s.Set(BattleshipID, 1)
 	s.Set(DeathstarID, 2)
 	s.Set(SolarSatelliteID, 4)
-	assert.Equal(t, 1, s.ByID(BattleshipID))
-	assert.Equal(t, 2, s.ByID(DeathstarID))
-	assert.Equal(t, 4, s.ByID(SolarSatelliteID))
+	assert.Equal(t, int64(1), s.ByID(BattleshipID))
+	assert.Equal(t, int64(2), s.ByID(DeathstarID))
+	assert.Equal(t, int64(4), s.ByID(SolarSatelliteID))
 }
 
 func TestShipsInfos_String(t *testing.T) {
@@ -144,8 +144,8 @@ func TestShipsInfos_ToQuantifiables(t *testing.T) {
 }
 
 func TestShipsInfos_Speed(t *testing.T) {
-	assert.Equal(t, 20250, ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}))
-	assert.Equal(t, 20250, ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}))
+	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}))
+	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}))
 }
 
 func TestShipsInfos_ToPtr(t *testing.T) {

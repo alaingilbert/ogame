@@ -14,9 +14,9 @@ func newRecycler() *recycler {
 	s.BaseCargoCapacity = 20000
 	s.BaseSpeed = 2000
 	s.FuelConsumption = 300
-	s.RapidfireFrom = map[ID]int{DeathstarID: 250}
-	s.RapidfireAgainst = map[ID]int{EspionageProbeID: 5, SolarSatelliteID: 5}
+	s.RapidfireFrom = map[ID]int64{DeathstarID: 250}
+	s.RapidfireAgainst = map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5}
 	s.Price = Resources{Metal: 10000, Crystal: 6000, Deuterium: 2000}
-	s.Requirements = map[ID]int{ShipyardID: 4, CombustionDriveID: 6, ShieldingTechnologyID: 2}
+	s.Requirements = map[ID]int64{ShipyardID: 4, CombustionDriveID: 6, ShieldingTechnologyID: 2}
 	return s
 }

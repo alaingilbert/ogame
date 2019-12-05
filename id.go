@@ -3,16 +3,16 @@ package ogame
 import "strconv"
 
 // ID represent an ogame id
-type ID int
+type ID int64
 
 // IsSet returns either or not the id is set to a value different than 0
 func (o ID) IsSet() bool {
-	return o.Int() != 0
+	return o.Int64() != 0
 }
 
 // Int returns an integer value of the id
-func (o ID) Int() int {
-	return int(o)
+func (o ID) Int64() int64 {
+	return int64(o)
 }
 
 func (o ID) String() string {
@@ -149,7 +149,7 @@ func (o ID) String() string {
 	case GravitonTechnologyID:
 		res += "GravitonTechnology"
 	default:
-		res += "Invalid(" + strconv.Itoa(int(o)) + ")"
+		res += "Invalid(" + strconv.FormatInt(int64(o), 10) + ")"
 	}
 	return res
 }

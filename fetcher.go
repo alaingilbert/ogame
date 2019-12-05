@@ -78,7 +78,7 @@ func (b *OGame) getPage(page string, celestialID CelestialID) ([]byte, error) {
 		vals = url.Values{"page": {"ingame"}, "component": {page}}
 	}
 	if celestialID != 0 {
-		vals.Add("cp", strconv.Itoa(int(celestialID)))
+		vals.Add("cp", strconv.FormatInt(int64(celestialID), 10))
 	}
 	return b.getPageContent(vals)
 }

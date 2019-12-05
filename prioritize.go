@@ -185,14 +185,14 @@ func (b *Prioritize) GetUserInfos() UserInfos {
 }
 
 // SendMessage sends a message to playerID
-func (b *Prioritize) SendMessage(playerID int, message string) error {
+func (b *Prioritize) SendMessage(playerID int64, message string) error {
 	b.begin("SendMessage")
 	defer b.done()
 	return b.bot.sendMessage(playerID, message, true)
 }
 
 // SendMessageAlliance sends a message to associationID
-func (b *Prioritize) SendMessageAlliance(associationID int, message string) error {
+func (b *Prioritize) SendMessageAlliance(associationID int64, message string) error {
 	b.begin("SendMessageAlliance")
 	defer b.done()
 	return b.bot.sendMessage(associationID, message, false)
@@ -234,7 +234,7 @@ func (b *Prioritize) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, er
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
-func (b *Prioritize) GalaxyInfos(galaxy, system int) (SystemInfos, error) {
+func (b *Prioritize) GalaxyInfos(galaxy, system int64) (SystemInfos, error) {
 	b.begin("GalaxyInfos")
 	defer b.done()
 	return b.bot.galaxyInfos(galaxy, system)
@@ -313,7 +313,7 @@ func (b *Prioritize) GetSlots() Slots {
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
-func (b *Prioritize) Build(celestialID CelestialID, id ID, nbr int) error {
+func (b *Prioritize) Build(celestialID CelestialID, id ID, nbr int64) error {
 	b.begin("Build")
 	defer b.done()
 	return b.bot.build(celestialID, id, nbr)
@@ -334,7 +334,7 @@ func (b *Prioritize) BuildCancelable(celestialID CelestialID, id ID) error {
 }
 
 // BuildProduction builds any line production ogame objects (ship, defence)
-func (b *Prioritize) BuildProduction(celestialID CelestialID, id ID, nbr int) error {
+func (b *Prioritize) BuildProduction(celestialID CelestialID, id ID, nbr int64) error {
 	b.begin("BuildProduction")
 	defer b.done()
 	return b.bot.buildProduction(celestialID, id, nbr)
@@ -348,21 +348,21 @@ func (b *Prioritize) BuildBuilding(celestialID CelestialID, buildingID ID) error
 }
 
 // BuildDefense builds a defense unit
-func (b *Prioritize) BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error {
+func (b *Prioritize) BuildDefense(celestialID CelestialID, defenseID ID, nbr int64) error {
 	b.begin("BuildDefense")
 	defer b.done()
 	return b.bot.buildDefense(celestialID, defenseID, nbr)
 }
 
 // BuildShips builds a ship unit
-func (b *Prioritize) BuildShips(celestialID CelestialID, shipID ID, nbr int) error {
+func (b *Prioritize) BuildShips(celestialID CelestialID, shipID ID, nbr int64) error {
 	b.begin("BuildShips")
 	defer b.done()
 	return b.bot.buildShips(celestialID, shipID, nbr)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *Prioritize) ConstructionsBeingBuilt(celestialID CelestialID) (ID, int, ID, int) {
+func (b *Prioritize) ConstructionsBeingBuilt(celestialID CelestialID) (ID, int64, ID, int64) {
 	b.begin("ConstructionsBeingBuilt")
 	defer b.done()
 	return b.bot.constructionsBeingBuilt(celestialID)
@@ -405,7 +405,7 @@ func (b *Prioritize) GetResourcesDetails(celestialID CelestialID) (ResourcesDeta
 
 // SendFleet sends a fleet
 func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
 	b.begin("SendFleet")
 	defer b.done()
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, false)
@@ -413,14 +413,14 @@ func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, sp
 
 // EnsureFleet either sends all the requested ships or fail
 func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
 	b.begin("EnsureFleet")
 	defer b.done()
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, true)
 }
 
 // SendIPM sends IPM
-func (b *Prioritize) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
+func (b *Prioritize) SendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
 	b.begin("SendIPM")
 	defer b.done()
 	return b.bot.sendIPM(planetID, coord, nbr, priority)
@@ -448,14 +448,14 @@ func (b *Prioritize) GetEspionageReportMessages() ([]EspionageReportSummary, err
 }
 
 // GetEspionageReport gets a detailed espionage report
-func (b *Prioritize) GetEspionageReport(msgID int) (EspionageReport, error) {
+func (b *Prioritize) GetEspionageReport(msgID int64) (EspionageReport, error) {
 	b.begin("GetEspionageReport")
 	defer b.done()
 	return b.bot.getEspionageReport(msgID)
 }
 
 // DeleteMessage deletes a message from the mail box
-func (b *Prioritize) DeleteMessage(msgID int) error {
+func (b *Prioritize) DeleteMessage(msgID int64) error {
 	b.begin("DeleteMessage")
 	defer b.done()
 	return b.bot.deleteMessage(msgID)
@@ -477,7 +477,7 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuilding
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
+func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64) {
 	b.begin("FlightTime")
 	defer b.done()
 	researches := b.bot.getCachedResearch()
@@ -518,7 +518,7 @@ func (b *Prioritize) BuyOfferOfTheDay() error {
 }
 
 // CreateUnion creates a union
-func (b *Prioritize) CreateUnion(fleet Fleet) (int, error) {
+func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
 	b.begin("CreateUnion")
 	defer b.done()
 	return b.bot.createUnion(fleet)

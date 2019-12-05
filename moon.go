@@ -16,7 +16,7 @@ type Moon struct {
 	ID         MoonID
 	Img        string
 	Name       string
-	Diameter   int
+	Diameter   int64
 	Coordinate Coordinate
 	Fields     Fields
 }
@@ -53,7 +53,7 @@ func (m Moon) GetProduction() ([]Quantifiable, error) {
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (m Moon) ConstructionsBeingBuilt() (ID, int, ID, int) {
+func (m Moon) ConstructionsBeingBuilt() (ID, int64, ID, int64) {
 	return m.ogame.ConstructionsBeingBuilt(CelestialID(m.ID))
 }
 
@@ -73,7 +73,7 @@ func (m Moon) GetShips() (ShipsInfos, error) {
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
-func (m Moon) Build(id ID, nbr int) error {
+func (m Moon) Build(id ID, nbr int64) error {
 	return m.ogame.Build(CelestialID(m.ID), id, nbr)
 }
 
@@ -88,7 +88,7 @@ func (m Moon) BuildTechnology(technologyID ID) error {
 }
 
 // BuildDefense builds a defense unit
-func (m Moon) BuildDefense(defenseID ID, nbr int) error {
+func (m Moon) BuildDefense(defenseID ID, nbr int64) error {
 	return m.ogame.BuildDefense(CelestialID(m.ID), defenseID, nbr)
 }
 
@@ -109,13 +109,13 @@ func (m Moon) CancelResearch() error {
 
 // SendFleet sends a fleet
 func (m Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
 	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (m Moon) EnsureFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error) {
+	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
 	return m.ogame.EnsureFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
