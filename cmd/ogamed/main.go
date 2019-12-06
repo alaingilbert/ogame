@@ -60,6 +60,42 @@ func main() {
 			Value:   8080,
 			EnvVars: []string{"OGAMED_PORT"},
 		},
+		&cli.BoolFlag{
+			Name:    "auto-login",
+			Usage:   "Login when process starts",
+			Value:   true,
+			EnvVars: []string{"OGAMED_AUTO_LOGIN"},
+		},
+		&cli.StringFlag{
+			Name:    "proxy",
+			Usage:   "Proxy address",
+			Value:   "",
+			EnvVars: []string{"OGAMED_PROXY"},
+		},
+		&cli.StringFlag{
+			Name:    "socks5-proxy",
+			Usage:   "Socks5 proxy address",
+			Value:   "",
+			EnvVars: []string{"OGAMED_SOCKS5_PROXY"},
+		},
+		&cli.StringFlag{
+			Name:    "proxy-username",
+			Usage:   "Proxy username",
+			Value:   "",
+			EnvVars: []string{"OGAMED_PROXY_USERNAME"},
+		},
+		&cli.StringFlag{
+			Name:    "proxy-password",
+			Usage:   "Proxy password",
+			Value:   "",
+			EnvVars: []string{"OGAMED_PROXY_PASSWORD"},
+		},
+		&cli.StringFlag{
+			Name:    "lobby",
+			Usage:   "Lobby to use (lobby | lobby-pioneers)",
+			Value:   "lobby",
+			EnvVars: []string{"OGAMED_PROXY_PASSWORD"},
+		},
 	}
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
@@ -72,9 +108,28 @@ func start(c *cli.Context) error {
 	username := c.String("username")
 	password := c.String("password")
 	language := c.String("language")
+	autoLogin := c.Bool("auto-login")
 	host := c.String("host")
 	port := c.Int("port")
-	bot, err := ogame.New(universe, username, password, language)
+	proxyAddr := c.String("proxy")
+	socks5ProxyAddr := c.String("socks5-proxy")
+	proxyUsername := c.String("proxy-username")
+	proxyPassword := c.String("proxy-password")
+	lobby := c.String("lobby")
+	bot, err := ogame.NewWithParams(ogame.Params{
+		Universe:       universe,
+		Username:       username,
+		Password:       password,
+		Lang:           language,
+		AutoLogin:      autoLogin,
+		Proxy:          proxyAddr,
+		ProxyUsername:  proxyUsername,
+		ProxyPassword:  proxyPassword,
+		Socks5Address:  socks5ProxyAddr,
+		Socks5Username: proxyUsername,
+		Socks5Password: proxyPassword,
+		Lobby:          lobby,
+	})
 	if err != nil {
 		return err
 	}
