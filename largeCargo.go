@@ -14,9 +14,9 @@ func newLargeCargo() *largeCargo {
 	s.BaseCargoCapacity = 25000
 	s.BaseSpeed = 7500
 	s.FuelConsumption = 50
-	s.RapidfireFrom = map[ID]int{BattlecruiserID: 3, DeathstarID: 250}
-	s.RapidfireAgainst = map[ID]int{EspionageProbeID: 5, SolarSatelliteID: 5}
+	s.RapidfireFrom = map[ID]int64{BattlecruiserID: 3, DeathstarID: 250}
+	s.RapidfireAgainst = map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5}
 	s.Price = Resources{Metal: 6000, Crystal: 6000}
-	s.Requirements = map[ID]int{ShipyardID: 4, CombustionDriveID: 6}
+	s.Requirements = map[ID]int64{ShipyardID: 4, CombustionDriveID: 6}
 	return s
 }

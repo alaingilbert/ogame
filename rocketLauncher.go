@@ -12,7 +12,7 @@ func newRocketLauncher() *rocketLauncher {
 	d.StructuralIntegrity = 2000
 	d.ShieldPower = 20
 	d.WeaponPower = 80
-	d.RapidfireFrom = map[ID]int{BomberID: 20, CruiserID: 10, DeathstarID: 200}
-	d.Requirements = map[ID]int{ShipyardID: 1}
+	d.RapidfireFrom = map[ID]int64{BomberID: 20, CruiserID: 10, DeathstarID: 200}
+	d.Requirements = map[ID]int64{ShipyardID: 1}
 	return d
 }

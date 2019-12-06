@@ -2,10 +2,10 @@ package ogame
 
 // UserInfos returns the player's information
 type UserInfos struct {
-	PlayerID     int
+	PlayerID     int64
 	PlayerName   string
-	Points       int
-	Rank         int
-	Total        int
-	HonourPoints int
+	Points       int64
+	Rank         int64
+	Total        int64
+	HonourPoints int64
 }

@@ -20,18 +20,18 @@ func TestFacilities_ByID(t *testing.T) {
 		SensorPhalanx:   10,
 		JumpGate:        11,
 	}
-	assert.Equal(t, 1, f.ByID(RoboticsFactoryID))
-	assert.Equal(t, 2, f.ByID(ShipyardID))
-	assert.Equal(t, 3, f.ByID(ResearchLabID))
-	assert.Equal(t, 4, f.ByID(AllianceDepotID))
-	assert.Equal(t, 5, f.ByID(MissileSiloID))
-	assert.Equal(t, 6, f.ByID(NaniteFactoryID))
-	assert.Equal(t, 7, f.ByID(TerraformerID))
-	assert.Equal(t, 8, f.ByID(SpaceDockID))
-	assert.Equal(t, 9, f.ByID(LunarBaseID))
-	assert.Equal(t, 10, f.ByID(SensorPhalanxID))
-	assert.Equal(t, 11, f.ByID(JumpGateID))
-	assert.Equal(t, 0, f.ByID(ID(12345)))
+	assert.Equal(t, int64(1), f.ByID(RoboticsFactoryID))
+	assert.Equal(t, int64(2), f.ByID(ShipyardID))
+	assert.Equal(t, int64(3), f.ByID(ResearchLabID))
+	assert.Equal(t, int64(4), f.ByID(AllianceDepotID))
+	assert.Equal(t, int64(5), f.ByID(MissileSiloID))
+	assert.Equal(t, int64(6), f.ByID(NaniteFactoryID))
+	assert.Equal(t, int64(7), f.ByID(TerraformerID))
+	assert.Equal(t, int64(8), f.ByID(SpaceDockID))
+	assert.Equal(t, int64(9), f.ByID(LunarBaseID))
+	assert.Equal(t, int64(10), f.ByID(SensorPhalanxID))
+	assert.Equal(t, int64(11), f.ByID(JumpGateID))
+	assert.Equal(t, int64(0), f.ByID(ID(12345)))
 }
 
 func TestFacilities_String(t *testing.T) {

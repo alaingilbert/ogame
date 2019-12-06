@@ -11,21 +11,21 @@ type AttackEvent struct {
 	Origin       Coordinate
 	Destination  Coordinate
 	ArrivalTime  time.Time
-	ArriveIn     int
+	ArriveIn     int64
 	AttackerName string
-	AttackerID   int
-	UnionID      int
-	Missiles     int
+	AttackerID   int64
+	UnionID      int64
+	Missiles     int64
 	Ships        *ShipsInfos
 }
 
 func (a AttackEvent) String() string {
 	return "" +
-		"Mission Type: " + strconv.Itoa(int(a.MissionType)) + "\n" +
+		"Mission Type: " + strconv.FormatInt(int64(a.MissionType), 10) + "\n" +
 		"      Origin: " + a.Origin.String() + "\n" +
 		" Destination: " + a.Destination.String() + "\n" +
 		" ArrivalTime: " + a.ArrivalTime.String() + "\n" +
-		"  AttackerID: " + strconv.Itoa(a.AttackerID) + "\n" +
-		"     UnionID: " + strconv.Itoa(a.UnionID) + "\n" +
-		"    Missiles: " + strconv.Itoa(a.Missiles)
+		"  AttackerID: " + strconv.FormatInt(a.AttackerID, 10) + "\n" +
+		"     UnionID: " + strconv.FormatInt(a.UnionID, 10) + "\n" +
+		"    Missiles: " + strconv.FormatInt(a.Missiles, 10)
 }

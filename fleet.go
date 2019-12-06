@@ -9,8 +9,8 @@ type Fleet struct {
 	Origin         Coordinate
 	Destination    Coordinate
 	Ships          ShipsInfos
-	ArriveIn       int
-	BackIn         int
-	UnionID        int
-	TargetPlanetID int
+	ArriveIn       int64
+	BackIn         int64
+	UnionID        int64
+	TargetPlanetID int64
 }

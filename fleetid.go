@@ -3,8 +3,8 @@ package ogame
 import "strconv"
 
 // FleetID represent a fleet id
-type FleetID int
+type FleetID int64
 
 func (f FleetID) String() string {
-	return strconv.Itoa(int(f))
+	return strconv.FormatInt(int64(f), 10)
 }

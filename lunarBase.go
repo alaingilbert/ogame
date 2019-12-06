@@ -10,6 +10,6 @@ func newLunarBase() *lunarBase {
 	b.ID = LunarBaseID
 	b.IncreaseFactor = 2
 	b.BaseCost = Resources{Metal: 20000, Crystal: 40000, Deuterium: 20000}
-	b.Requirements = map[ID]int{}
+	b.Requirements = map[ID]int64{}
 	return b
 }

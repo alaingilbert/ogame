@@ -4,20 +4,20 @@ import "strconv"
 
 // DefensesInfos represent a planet defenses information
 type DefensesInfos struct {
-	RocketLauncher         int
-	LightLaser             int
-	HeavyLaser             int
-	GaussCannon            int
-	IonCannon              int
-	PlasmaTurret           int
-	SmallShieldDome        int
-	LargeShieldDome        int
-	AntiBallisticMissiles  int
-	InterplanetaryMissiles int
+	RocketLauncher         int64
+	LightLaser             int64
+	HeavyLaser             int64
+	GaussCannon            int64
+	IonCannon              int64
+	PlasmaTurret           int64
+	SmallShieldDome        int64
+	LargeShieldDome        int64
+	AntiBallisticMissiles  int64
+	InterplanetaryMissiles int64
 }
 
 // AttackableValue returns the value of the defenses that can be attacked
-func (d DefensesInfos) AttackableValue() int {
+func (d DefensesInfos) AttackableValue() int64 {
 	val := d.RocketLauncher * RocketLauncher.Price.Total()
 	val += d.LightLaser * LightLaser.Price.Total()
 	val += d.HeavyLaser * HeavyLaser.Price.Total()
@@ -31,20 +31,20 @@ func (d DefensesInfos) AttackableValue() int {
 
 func (d DefensesInfos) String() string {
 	return "\n" +
-		"        Rocket Launcher: " + strconv.Itoa(d.RocketLauncher) + "\n" +
-		"            Light Laser: " + strconv.Itoa(d.LightLaser) + "\n" +
-		"            Heavy Laser: " + strconv.Itoa(d.HeavyLaser) + "\n" +
-		"           Gauss Cannon: " + strconv.Itoa(d.GaussCannon) + "\n" +
-		"             Ion Cannon: " + strconv.Itoa(d.IonCannon) + "\n" +
-		"          Plasma Turret: " + strconv.Itoa(d.PlasmaTurret) + "\n" +
-		"      Small Shield Dome: " + strconv.Itoa(d.SmallShieldDome) + "\n" +
-		"      Large Shield Dome: " + strconv.Itoa(d.LargeShieldDome) + "\n" +
-		"Anti Ballistic Missiles: " + strconv.Itoa(d.AntiBallisticMissiles) + "\n" +
-		"Interplanetary Missiles: " + strconv.Itoa(d.InterplanetaryMissiles)
+		"        Rocket Launcher: " + strconv.FormatInt(d.RocketLauncher, 10) + "\n" +
+		"            Light Laser: " + strconv.FormatInt(d.LightLaser, 10) + "\n" +
+		"            Heavy Laser: " + strconv.FormatInt(d.HeavyLaser, 10) + "\n" +
+		"           Gauss Cannon: " + strconv.FormatInt(d.GaussCannon, 10) + "\n" +
+		"             Ion Cannon: " + strconv.FormatInt(d.IonCannon, 10) + "\n" +
+		"          Plasma Turret: " + strconv.FormatInt(d.PlasmaTurret, 10) + "\n" +
+		"      Small Shield Dome: " + strconv.FormatInt(d.SmallShieldDome, 10) + "\n" +
+		"      Large Shield Dome: " + strconv.FormatInt(d.LargeShieldDome, 10) + "\n" +
+		"Anti Ballistic Missiles: " + strconv.FormatInt(d.AntiBallisticMissiles, 10) + "\n" +
+		"Interplanetary Missiles: " + strconv.FormatInt(d.InterplanetaryMissiles, 10)
 }
 
 // ByID get number of defenses by defense id
-func (d DefensesInfos) ByID(id ID) int {
+func (d DefensesInfos) ByID(id ID) int64 {
 	switch id {
 	case RocketLauncherID:
 		return d.RocketLauncher
@@ -72,7 +72,7 @@ func (d DefensesInfos) ByID(id ID) int {
 }
 
 // Set sets the defenses value using the defense id
-func (d *DefensesInfos) Set(id ID, val int) {
+func (d *DefensesInfos) Set(id ID, val int64) {
 	switch id {
 	case RocketLauncherID:
 		d.RocketLauncher = val

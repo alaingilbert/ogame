@@ -12,6 +12,6 @@ func newAntiBallisticMissiles() *antiBallisticMissiles {
 	d.StructuralIntegrity = 8000
 	d.ShieldPower = 1
 	d.WeaponPower = 1
-	d.Requirements = map[ID]int{MissileSiloID: 2}
+	d.Requirements = map[ID]int64{MissileSiloID: 2}
 	return d
 }

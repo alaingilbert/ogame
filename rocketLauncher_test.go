@@ -20,7 +20,7 @@ func TestRocketLauncher_GetName(t *testing.T) {
 
 func TestRocketLauncher_GetRequirements(t *testing.T) {
 	rl := newRocketLauncher()
-	assert.Equal(t, map[ID]int{ShipyardID: 1}, rl.GetRequirements())
+	assert.Equal(t, map[ID]int64{ShipyardID: 1}, rl.GetRequirements())
 }
 
 func TestRocketLauncher_GetPrice(t *testing.T) {
@@ -31,7 +31,7 @@ func TestRocketLauncher_GetPrice(t *testing.T) {
 
 func TestRocketLauncher_GetRapidfireFrom(t *testing.T) {
 	rl := newRocketLauncher()
-	assert.Equal(t, map[ID]int{CruiserID: 10, BomberID: 20, DeathstarID: 200}, rl.GetRapidfireFrom())
+	assert.Equal(t, map[ID]int64{CruiserID: 10, BomberID: 20, DeathstarID: 200}, rl.GetRapidfireFrom())
 }
 
 func TestRocketLauncher_GetStructuralIntegrity(t *testing.T) {

@@ -4,22 +4,22 @@ import "strconv"
 
 // ResourceSettings represent a planet resource settings
 type ResourceSettings struct {
-	MetalMine            int
-	CrystalMine          int
-	DeuteriumSynthesizer int
-	SolarPlant           int
-	FusionReactor        int
-	SolarSatellite       int
-	Crawler              int
+	MetalMine            int64
+	CrystalMine          int64
+	DeuteriumSynthesizer int64
+	SolarPlant           int64
+	FusionReactor        int64
+	SolarSatellite       int64
+	Crawler              int64
 }
 
 func (r ResourceSettings) String() string {
 	return "\n" +
-		"           Metal Mine: " + strconv.Itoa(r.MetalMine) + "\n" +
-		"         Crystal Mine: " + strconv.Itoa(r.CrystalMine) + "\n" +
-		"Deuterium Synthesizer: " + strconv.Itoa(r.DeuteriumSynthesizer) + "\n" +
-		"          Solar Plant: " + strconv.Itoa(r.SolarPlant) + "\n" +
-		"       Fusion Reactor: " + strconv.Itoa(r.FusionReactor) + "\n" +
-		"      Solar Satellite: " + strconv.Itoa(r.SolarSatellite) + "\n" +
-		"              Crawler: " + strconv.Itoa(r.Crawler)
+		"           Metal Mine: " + strconv.FormatInt(r.MetalMine, 10) + "\n" +
+		"         Crystal Mine: " + strconv.FormatInt(r.CrystalMine, 10) + "\n" +
+		"Deuterium Synthesizer: " + strconv.FormatInt(r.DeuteriumSynthesizer, 10) + "\n" +
+		"          Solar Plant: " + strconv.FormatInt(r.SolarPlant, 10) + "\n" +
+		"       Fusion Reactor: " + strconv.FormatInt(r.FusionReactor, 10) + "\n" +
+		"      Solar Satellite: " + strconv.FormatInt(r.SolarSatellite, 10) + "\n" +
+		"              Crawler: " + strconv.FormatInt(r.Crawler, 10)
 }

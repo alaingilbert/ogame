@@ -401,7 +401,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		return out, ErrNotLogged
 	}
 
-	allianceAttacks := make(map[int]*AttackEvent)
+	allianceAttacks := make(map[int64]*AttackEvent)
 
 	tmp := func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")
@@ -412,8 +412,8 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		if !isHostile {
 			return
 		}
-		missionTypeInt, _ := strconv.Atoi(s.AttrOr("data-mission-type", ""))
-		arrivalTimeInt, _ := strconv.Atoi(s.AttrOr("data-arrival-time", ""))
+		missionTypeInt, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
+		arrivalTimeInt, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 		missionType := MissionID(missionTypeInt)
 		if missionType != Attack && missionType != GroupedAttack && missionType != Destroy &&
 			missionType != MissileAttack && missionType != Spy {
@@ -423,7 +423,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		attack.MissionType = missionType
 		if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy || missionType == GroupedAttack {
 			linkSendMail := s.Find("a.sendMail")
-			attack.AttackerID, _ = strconv.Atoi(linkSendMail.AttrOr("data-playerid", ""))
+			attack.AttackerID, _ = strconv.ParseInt(linkSendMail.AttrOr("data-playerid", ""), 10, 64)
 			attack.AttackerName = linkSendMail.AttrOr("title", "")
 			if attack.AttackerID != 0 {
 				coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
@@ -463,7 +463,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		for _, c := range classesArr {
 			m := rgx.FindStringSubmatch(c)
 			if len(m) == 2 {
-				attack.UnionID, _ = strconv.Atoi(m[1])
+				attack.UnionID, _ = strconv.ParseInt(m[1], 10, 64)
 			}
 		}
 
@@ -475,7 +475,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		}
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
-		attack.ArriveIn = int(clock.Until(attack.ArrivalTime).Seconds())
+		attack.ArriveIn = int64(clock.Until(attack.ArrivalTime).Seconds())
 
 		if attack.UnionID != 0 {
 			if allianceAttack, ok := allianceAttacks[attack.UnionID]; ok {
@@ -507,7 +507,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 	return out, nil
 }
 
-func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int, importToken string, planetResources PlanetResources, multiplier Multiplier, err error) {
+func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importToken string, planetResources PlanetResources, multiplier Multiplier, err error) {
 	s := doc.Find("div.js_import_price")
 	if s.Size() == 0 {
 		err = errors.New("failed to extract offer of the day price")
@@ -548,9 +548,9 @@ func extractProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, error) {
 	if len(m) == 0 {
 		return []Quantifiable{}, nil
 	}
-	idInt, _ := strconv.Atoi(m[1])
+	idInt, _ := strconv.ParseInt(m[1], 10, 64)
 	activeID := ID(idInt)
-	activeNbr, _ := strconv.Atoi(active.Find("div.shipSumCount").Text())
+	activeNbr, _ := strconv.ParseInt(active.Find("div.shipSumCount").Text(), 10, 64)
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	doc.Find("div#pqueue ul li").Each(func(i int, s *goquery.Selection) {
 		link := s.Find("a")
@@ -563,13 +563,13 @@ func extractProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, error) {
 			} else {
 				src := s.Find("img").AttrOr("src", "")
 				if strings.HasSuffix(src, "fb4e438cabd12ef1b0500a0f41abc1.jpg") {
-					itemIDstr = strconv.Itoa(int(AntiBallisticMissilesID))
+					itemIDstr = strconv.FormatInt(int64(AntiBallisticMissilesID), 10)
 				} else if strings.HasSuffix(src, "36221e9493458b9fcc776bf350983e.jpg") {
-					itemIDstr = strconv.Itoa(int(InterplanetaryMissilesID))
+					itemIDstr = strconv.FormatInt(int64(InterplanetaryMissilesID), 10)
 				}
 			}
 		}
-		itemID, _ := strconv.Atoi(itemIDstr)
+		itemID, _ := strconv.ParseInt(itemIDstr, 10, 64)
 		itemNbr := ParseInt(s.Find("span.number").Text())
 		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
 	})
@@ -584,9 +584,9 @@ func extractOverviewProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, 
 	if len(m) == 0 {
 		return []Quantifiable{}, nil
 	}
-	idInt, _ := strconv.Atoi(m[1])
+	idInt, _ := strconv.ParseInt(m[1], 10, 64)
 	activeID := ID(idInt)
-	activeNbr, _ := strconv.Atoi(active.Find("div.shipSumCount").Text())
+	activeNbr, _ := strconv.ParseInt(active.Find("div.shipSumCount").Text(), 10, 64)
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
 		link := s.Find("a")
@@ -595,7 +595,7 @@ func extractOverviewProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, 
 		if len(m) == 0 {
 			return
 		}
-		idInt, _ := strconv.Atoi(m[1])
+		idInt, _ := strconv.ParseInt(m[1], 10, 64)
 		activeID := ID(idInt)
 		activeNbr := ParseInt(link.Text())
 		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
@@ -610,7 +610,7 @@ func extractFleet1ShipsFromDocV6(doc *goquery.Document) (s ShipsInfos) {
 		return
 	}
 	m := matches[1]
-	var res map[ID]int
+	var res map[ID]int64
 	if err := json.Unmarshal([]byte(m), &res); err != nil {
 		return
 	}
@@ -620,12 +620,12 @@ func extractFleet1ShipsFromDocV6(doc *goquery.Document) (s ShipsInfos) {
 	return
 }
 
-func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]EspionageReportSummary, int) {
+func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]EspionageReportSummary, int64) {
 	msgs := make([]EspionageReportSummary, 0)
-	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
+	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := strconv.Atoi(idStr); err == nil {
+			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
 				messageType := Report
 				if s.Find("span.espionageDefText").Size() > 0 {
 					messageType = Action
@@ -655,12 +655,12 @@ func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]Espiona
 	return msgs, nbPage
 }
 
-func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReportSummary, int) {
+func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReportSummary, int64) {
 	msgs := make([]CombatReportSummary, 0)
-	nbPage, _ := strconv.Atoi(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
+	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := strconv.Atoi(idStr); err == nil {
+			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
 				report := CombatReportSummary{ID: id}
 				report.Destination = extractCoordV6(s.Find("div.msg_head a").Text())
 				if s.Find("div.msg_head figure").HasClass("planet") {
@@ -692,10 +692,10 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 				if len(m) != 5 {
 					return
 				}
-				galaxy, _ := strconv.Atoi(m[1])
-				system, _ := strconv.Atoi(m[2])
-				position, _ := strconv.Atoi(m[3])
-				planetType, _ := strconv.Atoi(m[4])
+				galaxy, _ := strconv.ParseInt(m[1], 10, 64)
+				system, _ := strconv.ParseInt(m[2], 10, 64)
+				position, _ := strconv.ParseInt(m[3], 10, 64)
+				planetType, _ := strconv.ParseInt(m[4], 10, 64)
 				report.Origin = &Coordinate{galaxy, system, position, CelestialType(planetType)}
 				if report.Origin.Equal(report.Destination) {
 					report.Origin = nil
@@ -710,16 +710,16 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 
 func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
-	report.ID, _ = strconv.Atoi(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
+	report.ID, _ = strconv.ParseInt(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"), 10, 64)
 	spanLink := doc.Find("span.msg_title a").First()
 	txt := spanLink.Text()
 	figure := spanLink.Find("figure").First()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
 	if len(m) == 5 {
-		report.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
-		report.Coordinate.System, _ = strconv.Atoi(m[3])
-		report.Coordinate.Position, _ = strconv.Atoi(m[4])
+		report.Coordinate.Galaxy, _ = strconv.ParseInt(m[2], 10, 64)
+		report.Coordinate.System, _ = strconv.ParseInt(m[3], 10, 64)
+		report.Coordinate.Position, _ = strconv.ParseInt(m[4], 10, 64)
 	} else {
 		return report, errors.New("failed to extract coordinate")
 	}
@@ -775,7 +775,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 	ceTxt := doc.Find("div.detail_txt").Eq(1).Text()
 	m1 := regexp.MustCompile(`(\d+)%`).FindStringSubmatch(ceTxt)
 	if len(m1) == 2 {
-		report.CounterEspionage, _ = strconv.Atoi(m1[1])
+		report.CounterEspionage, _ = strconv.ParseInt(m1[1], 10, 64)
 	}
 
 	hasError := false
@@ -796,7 +796,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
-				buildingID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
+				buildingID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
@@ -851,7 +851,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
-				researchID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
+				researchID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
@@ -900,7 +900,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
-				shipID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
+				shipID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
@@ -945,7 +945,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
-				defenceID, _ := strconv.Atoi(r.FindStringSubmatch(imgClass)[1])
+				defenceID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
@@ -1032,12 +1032,12 @@ func extractResourceSettingsFromDocV6(doc *goquery.Document) (ResourceSettings, 
 	if bodyID == "overview" {
 		return ResourceSettings{}, ErrInvalidPlanetID
 	}
-	vals := make([]int, 0)
+	vals := make([]int64, 0)
 	doc.Find("option").Each(func(i int, s *goquery.Selection) {
 		_, selectedExists := s.Attr("selected")
 		if selectedExists {
 			a, _ := s.Attr("value")
-			val, _ := strconv.Atoi(a)
+			val, _ := strconv.ParseInt(a, 10, 64)
 			vals = append(vals, val)
 		}
 	})
@@ -1103,9 +1103,9 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 	return res
 }
 
-func extractIPMFromDocV6(doc *goquery.Document) (duration, max int, token string) {
-	duration, _ = strconv.Atoi(doc.Find("span#timer").AttrOr("data-duration", "0"))
-	max, _ = strconv.Atoi(doc.Find("input[name=anz]").AttrOr("data-max", "0"))
+func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token string) {
+	duration, _ = strconv.ParseInt(doc.Find("span#timer").AttrOr("data-duration", "0"), 10, 64)
+	max, _ = strconv.ParseInt(doc.Find("input[name=anz]").AttrOr("data-max", "0"), 10, 64)
 	token = doc.Find("input[name=token]").AttrOr("value", "")
 	return
 }
@@ -1130,26 +1130,26 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 			dest.Type = DebrisType
 		}
 
-		id, _ := strconv.Atoi(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"))
+		id, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"), 10, 64)
 
 		timerID := s.Find("span.timer").AttrOr("id", "")
 		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
-		var arriveIn int
+		var arriveIn int64
 		if len(m) == 2 {
-			arriveIn, _ = strconv.Atoi(string(m[1]))
+			arriveIn, _ = strconv.ParseInt(string(m[1]), 10, 64)
 		}
 
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
 		m = regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
-		var backIn int
+		var backIn int64
 		if len(m) == 2 {
-			backIn, _ = strconv.Atoi(string(m[1]))
+			backIn, _ = strconv.ParseInt(string(m[1]), 10, 64)
 		}
 
-		missionType, _ := strconv.Atoi(s.AttrOr("data-mission-type", ""))
+		missionType, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
 		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
-		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", ""))
-		ogameTimestamp, _ := strconv.Atoi(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
+		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
+		ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
 		secs := arrivalTime - ogameTimestamp
 		if secs < 0 {
 			secs = 0
@@ -1164,8 +1164,8 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
 		fedAttackURL, _ := url.Parse(fedAttackHref)
 		fedAttackQuery := fedAttackURL.Query()
-		targetPlanetID, _ := strconv.Atoi(fedAttackQuery.Get("target"))
-		unionID, _ := strconv.Atoi(fedAttackQuery.Get("union"))
+		targetPlanetID, _ := strconv.ParseInt(fedAttackQuery.Get("target"), 10, 64)
+		unionID, _ := strconv.ParseInt(fedAttackQuery.Get("union"), 10, 64)
 
 		fleet := Fleet{}
 		fleet.ID = FleetID(id)
@@ -1210,14 +1210,14 @@ func extractSlotsFromDocV6(doc *goquery.Document) Slots {
 		txt := doc.Find("div#slots>div").Eq(0).Text()
 		m := r.FindStringSubmatch(txt)
 		if len(m) == 3 {
-			slots.InUse, _ = strconv.Atoi(m[1])
-			slots.Total, _ = strconv.Atoi(m[2])
+			slots.InUse, _ = strconv.ParseInt(m[1], 10, 64)
+			slots.Total, _ = strconv.ParseInt(m[2], 10, 64)
 		}
 		txt = doc.Find("div#slots>div").Eq(1).Text()
 		m = r.FindStringSubmatch(txt)
 		if len(m) == 3 {
-			slots.ExpInUse, _ = strconv.Atoi(m[1])
-			slots.ExpTotal, _ = strconv.Atoi(m[2])
+			slots.ExpInUse, _ = strconv.ParseInt(m[1], 10, 64)
+			slots.ExpTotal, _ = strconv.ParseInt(m[2], 10, 64)
 		}
 	}
 	return slots
@@ -1239,8 +1239,8 @@ func extractServerTimeFromDocV6(doc *goquery.Document) (time.Time, error) {
 	return serverTime, nil
 }
 
-func extractSpioAnzFromDocV6(doc *goquery.Document) int {
-	out, _ := strconv.Atoi(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
+func extractSpioAnzFromDocV6(doc *goquery.Document) int64 {
+	out, _ := strconv.ParseInt(doc.Find("input[name=spio_anz]").AttrOr("value", "1"), 10, 64)
 	return out
 }
 
@@ -1269,18 +1269,18 @@ func extractActivateAutofocusFromDocV6(doc *goquery.Document) bool {
 	return exists
 }
 
-func extractEventsShowFromDocV6(doc *goquery.Document) int {
-	val, _ := strconv.Atoi(doc.Find("select[name=eventsShow] option[selected]").AttrOr("value", "1"))
+func extractEventsShowFromDocV6(doc *goquery.Document) int64 {
+	val, _ := strconv.ParseInt(doc.Find("select[name=eventsShow] option[selected]").AttrOr("value", "1"), 10, 64)
 	return val
 }
 
-func extractSortSettingFromDocV6(doc *goquery.Document) int {
-	val, _ := strconv.Atoi(doc.Find("select#sortSetting option[selected]").AttrOr("value", "0"))
+func extractSortSettingFromDocV6(doc *goquery.Document) int64 {
+	val, _ := strconv.ParseInt(doc.Find("select#sortSetting option[selected]").AttrOr("value", "0"), 10, 64)
 	return val
 }
 
-func extractSortOrderFromDocV6(doc *goquery.Document) int {
-	val, _ := strconv.Atoi(doc.Find("select#sortOrder option[selected]").AttrOr("value", "0"))
+func extractSortOrderFromDocV6(doc *goquery.Document) int64 {
+	val, _ := strconv.ParseInt(doc.Find("select#sortOrder option[selected]").AttrOr("value", "0"), 10, 64)
 	return val
 }
 
@@ -1314,8 +1314,8 @@ func extractSpioReportPicturesFromDocV6(doc *goquery.Document) bool {
 	return exists
 }
 
-func extractMsgResultsPerPageFromDocV6(doc *goquery.Document) int {
-	val, _ := strconv.Atoi(doc.Find("select[name=msgResultsPerPage] option[selected]").AttrOr("value", "10"))
+func extractMsgResultsPerPageFromDocV6(doc *goquery.Document) int64 {
+	val, _ := strconv.ParseInt(doc.Find("select[name=msgResultsPerPage] option[selected]").AttrOr("value", "10"), 10, 64)
 	return val
 }
 
@@ -1384,9 +1384,9 @@ func extractPlanetCoordinateV6(pageHTML []byte) (Coordinate, error) {
 	if len(m) == 0 {
 		return Coordinate{}, errors.New("planet coordinate not found")
 	}
-	galaxy, _ := strconv.Atoi(string(m[1]))
-	system, _ := strconv.Atoi(string(m[2]))
-	position, _ := strconv.Atoi(string(m[3]))
+	galaxy, _ := strconv.ParseInt(string(m[1]), 10, 64)
+	system, _ := strconv.ParseInt(string(m[2]), 10, 64)
+	position, _ := strconv.ParseInt(string(m[3]), 10, 64)
 	planetType, _ := extractPlanetTypeV6(pageHTML)
 	return Coordinate{galaxy, system, position, planetType}, nil
 }
@@ -1396,15 +1396,15 @@ func extractPlanetIDV6(pageHTML []byte) (CelestialID, error) {
 	if len(m) == 0 {
 		return 0, errors.New("planet id not found")
 	}
-	planetID, _ := strconv.Atoi(string(m[1]))
+	planetID, _ := strconv.ParseInt(string(m[1]), 10, 64)
 	return CelestialID(planetID), nil
 }
 
-func extractOverviewShipSumCountdownFromBytesV6(pageHTML []byte) int {
-	shipSumCountdown := 0
+func extractOverviewShipSumCountdownFromBytesV6(pageHTML []byte) int64 {
+	var shipSumCountdown int64
 	shipSumCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\('shipSumCount7'\),\d+,\d+,(\d+),`).FindSubmatch(pageHTML)
 	if len(shipSumCountdownMatch) > 0 {
-		shipSumCountdown = toInt(shipSumCountdownMatch[1])
+		shipSumCountdown = int64(toInt(shipSumCountdownMatch[1]))
 	}
 	return shipSumCountdown
 }
@@ -1458,7 +1458,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		return UserInfos{}, errors.New("cannot find sub html")
 	}
 	res := UserInfos{}
-	res.PlayerID = toInt(playerIDGroups[1])
+	res.PlayerID = int64(toInt(playerIDGroups[1]))
 	res.PlayerName = string(playerNameGroups[1])
 	html2 := subHTMLGroups[1]
 
@@ -1565,24 +1565,24 @@ func extractCoordV6(v string) (coord Coordinate) {
 	coordRgx := regexp.MustCompile(`\[(\d+):(\d+):(\d+)]`)
 	m := coordRgx.FindStringSubmatch(v)
 	if len(m) == 4 {
-		coord.Galaxy, _ = strconv.Atoi(m[1])
-		coord.System, _ = strconv.Atoi(m[2])
-		coord.Position, _ = strconv.Atoi(m[3])
+		coord.Galaxy, _ = strconv.ParseInt(m[1], 10, 64)
+		coord.System, _ = strconv.ParseInt(m[2], 10, 64)
+		coord.Position, _ = strconv.ParseInt(m[3], 10, 64)
 	}
 	return
 }
 
-func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
+func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error) {
 	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
 
-	extractActivity := func(activityDiv *goquery.Selection) int {
-		activity := 0
+	extractActivity := func(activityDiv *goquery.Selection) int64 {
+		var activity int64
 		if activityDiv != nil {
 			activityDivClass := activityDiv.AttrOr("class", "")
 			if strings.Contains(activityDivClass, "minute15") {
 				activity = 15
 			} else if strings.Contains(activityDivClass, "showMinutes") {
-				activity, _ = strconv.Atoi(strings.TrimSpace(activityDiv.Text()))
+				activity, _ = strconv.ParseInt(strings.TrimSpace(activityDiv.Text()), 10, 64)
 			}
 		}
 		return activity
@@ -1614,10 +1614,10 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			recyclersTxt := s.Find("div#debris" + position + " ul.ListLinks li").Eq(2).Text()
 
 			planetInfos := new(PlanetInfos)
-			planetInfos.ID, _ = strconv.Atoi(s.Find("td.colonized").AttrOr("data-planet-id", ""))
+			planetInfos.ID, _ = strconv.ParseInt(s.Find("td.colonized").AttrOr("data-planet-id", ""), 10, 64)
 
-			moonID, _ := strconv.Atoi(s.Find("td.moon").AttrOr("data-moon-id", ""))
-			moonSize, _ := strconv.Atoi(strings.Split(s.Find("td.moon span#moonsize").Text(), " ")[0])
+			moonID, _ := strconv.ParseInt(s.Find("td.moon").AttrOr("data-moon-id", ""), 10, 64)
+			moonSize, _ := strconv.ParseInt(strings.Split(s.Find("td.moon span#moonsize").Text(), " ")[0], 10, 64)
 			if moonID > 0 {
 				planetInfos.Moon = new(MoonInfos)
 				planetInfos.Moon.ID = moonID
@@ -1630,8 +1630,8 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 				longID, _ := allianceSpan.Attr("rel")
 				planetInfos.Alliance = new(AllianceInfos)
 				planetInfos.Alliance.Name = allianceSpan.Find("h1").Text()
-				planetInfos.Alliance.ID, _ = strconv.Atoi(strings.TrimPrefix(longID, "alliance"))
-				planetInfos.Alliance.Rank, _ = strconv.Atoi(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text())
+				planetInfos.Alliance.ID, _ = strconv.ParseInt(strings.TrimPrefix(longID, "alliance"), 10, 64)
+				planetInfos.Alliance.Rank, _ = strconv.ParseInt(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text(), 10, 64)
 				planetInfos.Alliance.Member = ParseInt(prefixedNumRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
 			}
 
@@ -1657,16 +1657,16 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			planetInfos.Coordinate = extractCoordV6(coordsRaw)
 			planetInfos.Coordinate.Type = PlanetType
 
-			var playerID int
+			var playerID int64
 			var playerName string
-			var playerRank int
+			var playerRank int64
 			if len(tooltips.Nodes) > 1 {
 				tooltips.Each(func(i int, s *goquery.Selection) {
 					idAttr, _ := s.Attr("id")
 					if strings.HasPrefix(idAttr, "player") {
-						playerID, _ = strconv.Atoi(regexp.MustCompile(`player(\d+)`).FindStringSubmatch(idAttr)[1])
+						playerID, _ = strconv.ParseInt(regexp.MustCompile(`player(\d+)`).FindStringSubmatch(idAttr)[1], 10, 64)
 						playerName = s.Find("h1").Find("span").Text()
-						playerRank, _ = strconv.Atoi(s.Find("li.rank").Find("a").Text())
+						playerRank, _ = strconv.ParseInt(s.Find("li.rank").Find("a").Text(), 10, 64)
 					}
 				})
 			}
@@ -1707,7 +1707,7 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 
 func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 	res := make([]Fleet, 0)
-	ogameTimestamp := 0
+	var ogameTimestamp int64
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
 	if eventFleet.Size() == 0 {
@@ -1723,13 +1723,13 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 
 	m := regexp.MustCompile(`var mytime = ([0-9]+)`).FindSubmatch(pageHTML)
 	if len(m) > 0 {
-		ogameTimestamp, _ = strconv.Atoi(string(m[1]))
+		ogameTimestamp, _ = strconv.ParseInt(string(m[1]), 10, 64)
 	}
 
 	eventFleet.Each(func(i int, s *goquery.Selection) {
-		mission, _ := strconv.Atoi(s.AttrOr("data-mission-type", "0"))
+		mission, _ := strconv.ParseInt(s.AttrOr("data-mission-type", "0"), 10, 64)
 		returning, _ := strconv.ParseBool(s.AttrOr("data-return-flight", "false"))
-		arrivalTime, _ := strconv.Atoi(s.AttrOr("data-arrival-time", "0"))
+		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", "0"), 10, 64)
 		arriveIn := arrivalTime - ogameTimestamp
 		if arriveIn < 0 {
 			arriveIn = 0
@@ -1773,17 +1773,17 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 	return res, nil
 }
 
-func extractJumpGateV6(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
+func extractJumpGateV6(pageHTML []byte) (ShipsInfos, string, []MoonID, int64) {
 	m := regexp.MustCompile(`\$\("#cooldown"\), (\d+),`).FindSubmatch(pageHTML)
 	ships := ShipsInfos{}
 	var destinations []MoonID
 	if len(m) > 0 {
-		waitTime := toInt(m[1])
+		waitTime := int64(toInt(m[1]))
 		return ships, "", destinations, waitTime
 	}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	for _, s := range Ships {
-		ships.Set(s.GetID(), ParseInt(doc.Find("input#ship_"+strconv.Itoa(int(s.GetID()))).AttrOr("rel", "0")))
+		ships.Set(s.GetID(), ParseInt(doc.Find("input#ship_"+strconv.FormatInt(int64(s.GetID()), 10)).AttrOr("rel", "0")))
 	}
 	token := doc.Find("input[name=token]").AttrOr("value", "")
 
@@ -1808,16 +1808,16 @@ func extractFederationV6(pageHTML []byte) url.Values {
 	return payload
 }
 
-func extractConstructionsV6(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
+func extractConstructionsV6(pageHTML []byte) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64) {
 	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		buildingCountdown = toInt(buildingCountdownMatch[1])
+		buildingCountdown = int64(toInt(buildingCountdownMatch[1]))
 		buildingIDInt := toInt(regexp.MustCompile(`onclick="cancelProduction\((\d+),`).FindSubmatch(pageHTML)[1])
 		buildingID = ID(buildingIDInt)
 	}
 	researchCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("researchCountdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(researchCountdownMatch) > 0 {
-		researchCountdown = toInt(researchCountdownMatch[1])
+		researchCountdown = int64(toInt(researchCountdownMatch[1]))
 		researchIDInt := toInt(regexp.MustCompile(`onclick="cancelResearch\((\d+),`).FindSubmatch(pageHTML)[1])
 		researchID = ID(researchIDInt)
 	}
@@ -1833,7 +1833,7 @@ func extractFleetDeutSaveFactorV6(pageHTML []byte) float64 {
 	return factor
 }
 
-func extractCancelBuildingInfosV6(pageHTML []byte) (token string, techID, listID int, err error) {
+func extractCancelBuildingInfosV6(pageHTML []byte) (token string, techID, listID int64, err error) {
 	r1 := regexp.MustCompile(`page=overview&modus=2&token=(\w+)&techid="\+cancelProduction_id\+"&listid="\+production_listid`)
 	m1 := r1.FindSubmatch(pageHTML)
 	if len(m1) < 2 {
@@ -1848,12 +1848,12 @@ func extractCancelBuildingInfosV6(pageHTML []byte) (token string, techID, listID
 	if len(m) < 3 {
 		return "", 0, 0, errors.New("unable to find techid/listid")
 	}
-	techID, _ = strconv.Atoi(m[1])
-	listID, _ = strconv.Atoi(m[2])
+	techID, _ = strconv.ParseInt(m[1], 10, 64)
+	listID, _ = strconv.ParseInt(m[2], 10, 64)
 	return
 }
 
-func extractCancelResearchInfosV6(pageHTML []byte) (token string, techID, listID int, err error) {
+func extractCancelResearchInfosV6(pageHTML []byte) (token string, techID, listID int64, err error) {
 	r1 := regexp.MustCompile(`page=overview&modus=2&token=(\w+)"\+"&techid="\+id\+"&listid="\+listId`)
 	m1 := r1.FindSubmatch(pageHTML)
 	if len(m1) < 2 {
@@ -1868,24 +1868,24 @@ func extractCancelResearchInfosV6(pageHTML []byte) (token string, techID, listID
 	if len(m) < 3 {
 		return "", 0, 0, errors.New("unable to find techid/listid")
 	}
-	techID, _ = strconv.Atoi(m[1])
-	listID, _ = strconv.Atoi(m[2])
+	techID, _ = strconv.ParseInt(m[1], 10, 64)
+	listID, _ = strconv.ParseInt(m[2], 10, 64)
 	return
 }
 
-func extractUniverseSpeedV6(pageHTML []byte) int {
+func extractUniverseSpeedV6(pageHTML []byte) int64 {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	spans := doc.Find("span.undermark")
 	level := ParseInt(spans.Eq(0).Text())
 	val := ParseInt(spans.Eq(1).Text())
-	metalProduction := int(math.Floor(30 * float64(level) * math.Pow(1.1, float64(level))))
+	metalProduction := int64(math.Floor(30 * float64(level) * math.Pow(1.1, float64(level))))
 	universeSpeed := val / metalProduction
 	return universeSpeed
 }
 
 func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error) {
 	el, _ := s.Attr("id")
-	id, err := strconv.Atoi(strings.TrimPrefix(el, "planet-"))
+	id, err := strconv.ParseInt(strings.TrimPrefix(el, "planet-"), 10, 64)
 	if err != nil {
 		return Planet{}, err
 	}
@@ -1908,15 +1908,15 @@ func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error
 	res.Img = s.Find("img.planetPic").AttrOr("src", "")
 	res.ID = PlanetID(id)
 	res.Name = m[1]
-	res.Coordinate.Galaxy, _ = strconv.Atoi(m[2])
-	res.Coordinate.System, _ = strconv.Atoi(m[3])
-	res.Coordinate.Position, _ = strconv.Atoi(m[4])
+	res.Coordinate.Galaxy, _ = strconv.ParseInt(m[2], 10, 64)
+	res.Coordinate.System, _ = strconv.ParseInt(m[3], 10, 64)
+	res.Coordinate.Position, _ = strconv.ParseInt(m[4], 10, 64)
 	res.Coordinate.Type = PlanetType
 	res.Diameter = ParseInt(m[5])
-	res.Fields.Built, _ = strconv.Atoi(m[6])
-	res.Fields.Total, _ = strconv.Atoi(m[7])
-	res.Temperature.Min, _ = strconv.Atoi(m[8])
-	res.Temperature.Max, _ = strconv.Atoi(m[9])
+	res.Fields.Built, _ = strconv.ParseInt(m[6], 10, 64)
+	res.Fields.Total, _ = strconv.ParseInt(m[7], 10, 64)
+	res.Temperature.Min, _ = strconv.ParseInt(m[8], 10, 64)
+	res.Temperature.Max, _ = strconv.ParseInt(m[9], 10, 64)
 
 	res.Moon, _ = extractMoonFromPlanetSelectionV6(s, b)
 
@@ -1938,7 +1938,7 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 		return Moon{}, errors.New("no moon found")
 	}
 	m := regexp.MustCompile(`&cp=(\d+)`).FindStringSubmatch(href)
-	id, _ := strconv.Atoi(m[1])
+	id, _ := strconv.ParseInt(m[1], 10, 64)
 	title, _ := moonLink.Attr("title")
 	root, err := html.Parse(strings.NewReader(title))
 	if err != nil {
@@ -1954,13 +1954,13 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	moon.ogame = b
 	moon.ID = MoonID(id)
 	moon.Name = mm[1]
-	moon.Coordinate.Galaxy, _ = strconv.Atoi(mm[2])
-	moon.Coordinate.System, _ = strconv.Atoi(mm[3])
-	moon.Coordinate.Position, _ = strconv.Atoi(mm[4])
+	moon.Coordinate.Galaxy, _ = strconv.ParseInt(mm[2], 10, 64)
+	moon.Coordinate.System, _ = strconv.ParseInt(mm[3], 10, 64)
+	moon.Coordinate.Position, _ = strconv.ParseInt(mm[4], 10, 64)
 	moon.Coordinate.Type = MoonType
 	moon.Diameter = ParseInt(mm[5])
-	moon.Fields.Built, _ = strconv.Atoi(mm[6])
-	moon.Fields.Total, _ = strconv.Atoi(mm[7])
+	moon.Fields.Built, _ = strconv.ParseInt(mm[6], 10, 64)
+	moon.Fields.Total, _ = strconv.ParseInt(mm[7], 10, 64)
 	moon.Img = moonLink.Find("img.icon-moon").AttrOr("src", "")
 	return moon, nil
 }

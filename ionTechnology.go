@@ -10,6 +10,6 @@ func newIonTechnology() *ionTechnology {
 	b.ID = IonTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 1000, Crystal: 300, Deuterium: 100}
-	b.Requirements = map[ID]int{ResearchLabID: 4, EnergyTechnologyID: 4, LaserTechnologyID: 5}
+	b.Requirements = map[ID]int64{ResearchLabID: 4, EnergyTechnologyID: 4, LaserTechnologyID: 5}
 	return b
 }

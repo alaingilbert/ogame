@@ -12,6 +12,6 @@ func newInterplanetaryMissiles() *interplanetaryMissiles {
 	d.StructuralIntegrity = 15000
 	d.ShieldPower = 1
 	d.WeaponPower = 12000
-	d.Requirements = map[ID]int{MissileSiloID: 4, ImpulseDriveID: 1}
+	d.Requirements = map[ID]int64{MissileSiloID: 4, ImpulseDriveID: 1}
 	return d
 }
