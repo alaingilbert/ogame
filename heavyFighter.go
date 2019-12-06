@@ -14,9 +14,9 @@ func newHeavyFighter() *heavyFighter {
 	s.BaseCargoCapacity = 100
 	s.BaseSpeed = 10000
 	s.FuelConsumption = 75
-	s.RapidfireFrom = map[ID]int{BattlecruiserID: 4, DeathstarID: 100}
-	s.RapidfireAgainst = map[ID]int{EspionageProbeID: 5, SolarSatelliteID: 5, SmallCargoID: 3}
+	s.RapidfireFrom = map[ID]int64{BattlecruiserID: 4, DeathstarID: 100}
+	s.RapidfireAgainst = map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5, SmallCargoID: 3}
 	s.Price = Resources{Metal: 6000, Crystal: 4000}
-	s.Requirements = map[ID]int{ShipyardID: 3, ImpulseDriveID: 2, ArmourTechnologyID: 2}
+	s.Requirements = map[ID]int64{ShipyardID: 3, ImpulseDriveID: 2, ArmourTechnologyID: 2}
 	return s
 }

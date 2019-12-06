@@ -59,7 +59,7 @@ func (e ExtractorV7) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDeta
 }
 
 // ExtractConstructions ...
-func (e ExtractorV7) ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
+func (e ExtractorV7) ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64) {
 	return extractConstructionsV7(pageHTML, clockwork.NewRealClock())
 }
 
@@ -70,7 +70,7 @@ func (e ExtractorV7) ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 }
 
 // ExtractCombatReportMessagesSummary ...
-func (e ExtractorV7) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int) {
+func (e ExtractorV7) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int64) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
@@ -117,7 +117,7 @@ func (e ExtractorV7) ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (Re
 }
 
 // ExtractCombatReportMessagesFromDoc ...
-func (e ExtractorV7) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int) {
+func (e ExtractorV7) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int64) {
 	return extractCombatReportMessagesFromDocV7(doc)
 }
 
@@ -127,11 +127,11 @@ func (e ExtractorV7) ExtractEspionageReportFromDoc(doc *goquery.Document, locati
 }
 
 // ExtractCancelBuildingInfos ...
-func (e ExtractorV7) ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int, err error) {
+func (e ExtractorV7) ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return extractCancelBuildingInfosV7(pageHTML)
 }
 
 // ExtractCancelResearchInfos ...
-func (e ExtractorV7) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int, err error) {
+func (e ExtractorV7) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return extractCancelResearchInfosV7(pageHTML)
 }

@@ -35,7 +35,7 @@ func TestDefence_String(t *testing.T) {
 
 func TestDefence_AttackableValue(t *testing.T) {
 	r := DefensesInfos{RocketLauncher: 2}
-	assert.Equal(t, 4000, r.AttackableValue())
+	assert.Equal(t, int64(4000), r.AttackableValue())
 	r = DefensesInfos{RocketLauncher: 2, LightLaser: 4}
-	assert.Equal(t, 12000, r.AttackableValue())
+	assert.Equal(t, int64(12000), r.AttackableValue())
 }

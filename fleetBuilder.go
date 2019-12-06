@@ -32,10 +32,10 @@ type FleetBuilder struct {
 	resources        Resources
 	err              error
 	fleet            Fleet
-	expeditiontime   int
-	unionID          int
+	expeditiontime   int64
+	unionID          int64
 	allShips         bool
-	recallIn         int
+	recallIn         int64
 	successCallbacks []func(Fleet)
 	errorCallbacks   []func(error)
 }
@@ -106,19 +106,19 @@ func (f *FleetBuilder) SetMission(mission MissionID) *FleetBuilder {
 }
 
 // SetDuration set expedition duration
-func (f *FleetBuilder) SetDuration(expeditiontime int) *FleetBuilder {
+func (f *FleetBuilder) SetDuration(expeditiontime int64) *FleetBuilder {
 	f.expeditiontime = expeditiontime
 	return f
 }
 
 // SetUnionID set union id to join
-func (f *FleetBuilder) SetUnionID(unionID int) *FleetBuilder {
+func (f *FleetBuilder) SetUnionID(unionID int64) *FleetBuilder {
 	f.unionID = unionID
 	return f
 }
 
 // AddShips ...
-func (f *FleetBuilder) AddShips(id ID, nbr int) *FleetBuilder {
+func (f *FleetBuilder) AddShips(id ID, nbr int64) *FleetBuilder {
 	f.ships.Set(id, f.ships.ByID(id)+nbr)
 	return f
 }
@@ -136,13 +136,13 @@ func (f *FleetBuilder) SetAllShips() *FleetBuilder {
 }
 
 // SetRecallIn ...
-func (f *FleetBuilder) SetRecallIn(secs int) *FleetBuilder {
+func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 	f.recallIn = secs
 	return f
 }
 
 // FlightTime ...
-func (f *FleetBuilder) FlightTime() (secs, fuel int) {
+func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 	ships := f.ships
 	if f.allShips {
 		ships, _ = f.b.GetShips(f.origin.GetID())
@@ -172,11 +172,11 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1)
 			planetResources, _ := tx.GetResources(f.origin.GetID())
 			planetResources.Deuterium -= fuel + 10
-			payload.Deuterium = int(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
+			payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
 			cargoCapacity -= payload.Deuterium
-			payload.Crystal = int(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
+			payload.Crystal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
 			cargoCapacity -= payload.Crystal
-			payload.Metal = int(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
+			payload.Metal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
 		}
 
 		f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)

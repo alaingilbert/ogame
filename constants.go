@@ -30,16 +30,16 @@ func (m MissionID) String() string {
 	case Expedition:
 		return "Expedition"
 	default:
-		return strconv.Itoa(int(m))
+		return strconv.FormatInt(int64(m), 10)
 	}
 }
 
 // Speed represent a fleet speed
 type Speed int
 
-// Int returns an integer value of the speed
-func (s Speed) Int() int {
-	return int(s)
+// Int64 returns an integer value of the speed
+func (s Speed) Int64() int64 {
+	return int64(s)
 }
 
 func (s Speed) String() string {
@@ -65,12 +65,12 @@ func (s Speed) String() string {
 	case HundredPercent:
 		return "100%"
 	default:
-		return strconv.Itoa(int(s))
+		return strconv.FormatInt(int64(s), 10)
 	}
 }
 
 // CelestialType destination type might be planet/moon/debris
-type CelestialType int
+type CelestialType int64
 
 func (d CelestialType) String() string {
 	switch d {
@@ -81,13 +81,13 @@ func (d CelestialType) String() string {
 	case DebrisType:
 		return "debris"
 	default:
-		return strconv.Itoa(int(d))
+		return strconv.FormatInt(int64(d), 10)
 	}
 }
 
 // Int returns an integer value of the CelestialType
-func (d CelestialType) Int() int {
-	return int(d)
+func (d CelestialType) Int64() int64 {
+	return int64(d)
 }
 
 // OGame constants

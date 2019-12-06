@@ -12,6 +12,6 @@ func TestFields_HasFieldAvailable(t *testing.T) {
 }
 
 func TestTemperature_Mean(t *testing.T) {
-	assert.Equal(t, 5, Temperature{Min: 0, Max: 10}.Mean())
-	assert.Equal(t, 0, Temperature{Min: -10, Max: 10}.Mean())
+	assert.Equal(t, int64(5), Temperature{Min: 0, Max: 10}.Mean())
+	assert.Equal(t, int64(0), Temperature{Min: -10, Max: 10}.Mean())
 }

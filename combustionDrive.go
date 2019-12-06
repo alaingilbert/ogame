@@ -10,6 +10,6 @@ func newCombustionDrive() *combustionDrive {
 	b.ID = CombustionDriveID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 400, Deuterium: 600}
-	b.Requirements = map[ID]int{EnergyTechnologyID: 1}
+	b.Requirements = map[ID]int64{EnergyTechnologyID: 1}
 	return b
 }

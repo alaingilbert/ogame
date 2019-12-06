@@ -84,7 +84,7 @@ func (e ExtractorV6) ExtractFleetsFromEventList(pageHTML []byte) []Fleet {
 }
 
 // ExtractIPM ...
-func (e ExtractorV6) ExtractIPM(pageHTML []byte) (duration, max int, token string) {
+func (e ExtractorV6) ExtractIPM(pageHTML []byte) (duration, max int64, token string) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractIPMFromDoc(doc)
 }
@@ -136,7 +136,7 @@ func (e ExtractorV6) extractAttacks(pageHTML []byte, clock clockwork.Clock) ([]A
 }
 
 // ExtractOfferOfTheDay ...
-func (e ExtractorV6) ExtractOfferOfTheDay(pageHTML []byte) (int, string, PlanetResources, Multiplier, error) {
+func (e ExtractorV6) ExtractOfferOfTheDay(pageHTML []byte) (int64, string, PlanetResources, Multiplier, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractOfferOfTheDayFromDoc(doc)
 }
@@ -178,7 +178,7 @@ func (e ExtractorV6) ExtractProduction(pageHTML []byte) ([]Quantifiable, error) 
 }
 
 // ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
-func (e ExtractorV6) ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int, error) {
+func (e ExtractorV6) ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	shipSumCountdown := e.ExtractOverviewShipSumCountdownFromBytes(pageHTML)
 	production, err := e.ExtractOverviewProductionFromDoc(doc)
@@ -192,13 +192,13 @@ func (e ExtractorV6) ExtractFleet1Ships(pageHTML []byte) ShipsInfos {
 }
 
 // ExtractEspionageReportMessageIDs ...
-func (e ExtractorV6) ExtractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int) {
+func (e ExtractorV6) ExtractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int64) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractEspionageReportMessageIDsFromDoc(doc)
 }
 
 // ExtractCombatReportMessagesSummary ...
-func (e ExtractorV6) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int) {
+func (e ExtractorV6) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int64) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
@@ -222,7 +222,7 @@ func (e ExtractorV6) ExtractPreferences(pageHTML []byte) Preferences {
 }
 
 // ExtractSpioAnz ...
-func (e ExtractorV6) ExtractSpioAnz(pageHTML []byte) int {
+func (e ExtractorV6) ExtractSpioAnz(pageHTML []byte) int64 {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractSpioAnzFromDoc(doc)
 }
@@ -362,7 +362,7 @@ func (e ExtractorV6) ExtractAttacksFromDoc(doc *goquery.Document, clock clockwor
 }
 
 // ExtractOfferOfTheDayFromDoc ...
-func (e ExtractorV6) ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int, importToken string, planetResources PlanetResources, multiplier Multiplier, err error) {
+func (e ExtractorV6) ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources PlanetResources, multiplier Multiplier, err error) {
 	return extractOfferOfTheDayFromDocV6(doc)
 }
 
@@ -382,12 +382,12 @@ func (e ExtractorV6) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsIn
 }
 
 // ExtractEspionageReportMessageIDsFromDoc ...
-func (e ExtractorV6) ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int) {
+func (e ExtractorV6) ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int64) {
 	return extractEspionageReportMessageIDsFromDocV6(doc)
 }
 
 // ExtractCombatReportMessagesFromDoc ...
-func (e ExtractorV6) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int) {
+func (e ExtractorV6) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int64) {
 	return extractCombatReportMessagesFromDocV6(doc)
 }
 
@@ -417,7 +417,7 @@ func (e ExtractorV6) ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []
 }
 
 // ExtractIPMFromDoc ...
-func (e ExtractorV6) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int, token string) {
+func (e ExtractorV6) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
 	return extractIPMFromDocV6(doc)
 }
 
@@ -438,7 +438,7 @@ func (e ExtractorV6) ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time,
 }
 
 // ExtractSpioAnzFromDoc ...
-func (e ExtractorV6) ExtractSpioAnzFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractSpioAnzFromDoc(doc *goquery.Document) int64 {
 	return extractSpioAnzFromDocV6(doc)
 }
 
@@ -468,17 +468,17 @@ func (e ExtractorV6) ExtractActivateAutofocusFromDoc(doc *goquery.Document) bool
 }
 
 // ExtractEventsShowFromDoc ...
-func (e ExtractorV6) ExtractEventsShowFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractEventsShowFromDoc(doc *goquery.Document) int64 {
 	return extractEventsShowFromDocV6(doc)
 }
 
 // ExtractSortSettingFromDoc ...
-func (e ExtractorV6) ExtractSortSettingFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractSortSettingFromDoc(doc *goquery.Document) int64 {
 	return extractSortSettingFromDocV6(doc)
 }
 
 // ExtractSortOrderFromDoc ...
-func (e ExtractorV6) ExtractSortOrderFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractSortOrderFromDoc(doc *goquery.Document) int64 {
 	return extractSortOrderFromDocV6(doc)
 }
 
@@ -513,7 +513,7 @@ func (e ExtractorV6) ExtractSpioReportPicturesFromDoc(doc *goquery.Document) boo
 }
 
 // ExtractMsgResultsPerPageFromDoc ...
-func (e ExtractorV6) ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int {
+func (e ExtractorV6) ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int64 {
 	return extractMsgResultsPerPageFromDocV6(doc)
 }
 
@@ -592,7 +592,7 @@ func (e ExtractorV6) ExtractPlanetID(pageHTML []byte) (CelestialID, error) {
 }
 
 // ExtractOverviewShipSumCountdownFromBytes ...
-func (e ExtractorV6) ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int {
+func (e ExtractorV6) ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
 	return extractOverviewShipSumCountdownFromBytesV6(pageHTML)
 }
 
@@ -628,7 +628,7 @@ func (e ExtractorV6) ExtractCoord(v string) (coord Coordinate) {
 }
 
 // ExtractGalaxyInfos ...
-func (e ExtractorV6) ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int) (SystemInfos, error) {
+func (e ExtractorV6) ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error) {
 	return extractGalaxyInfosV6(pageHTML, botPlayerName, botPlayerID, botPlayerRank)
 }
 
@@ -639,7 +639,7 @@ func (e ExtractorV6) ExtractPhalanx(pageHTML []byte) ([]Fleet, error) {
 
 // ExtractJumpGate return the available ships to send, form token, possible moon IDs and wait time (if any)
 // given a jump gate popup html.
-func (e ExtractorV6) ExtractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int) {
+func (e ExtractorV6) ExtractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int64) {
 	return extractJumpGateV6(pageHTML)
 }
 
@@ -649,7 +649,7 @@ func (e ExtractorV6) ExtractFederation(pageHTML []byte) url.Values {
 }
 
 // ExtractConstructions ...
-func (e ExtractorV6) ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int) {
+func (e ExtractorV6) ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64) {
 	return extractConstructionsV6(pageHTML)
 }
 
@@ -659,11 +659,11 @@ func (e ExtractorV6) ExtractFleetDeutSaveFactor(pageHTML []byte) float64 {
 }
 
 // ExtractCancelBuildingInfos ...
-func (e ExtractorV6) ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int, err error) {
+func (e ExtractorV6) ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return extractCancelBuildingInfosV6(pageHTML)
 }
 
 // ExtractCancelResearchInfos ...
-func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int, err error) {
+func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return extractCancelResearchInfosV6(pageHTML)
 }
