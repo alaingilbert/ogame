@@ -43,6 +43,7 @@ func main() {
 ```go
 IsV7() bool
 GetExtractor() Extractor
+SetOGameCredentials(username, password string)
 SetLoginProxy(proxy, username, password string) error
 SetProxy(proxy, username, password string) error
 SetSocks5Proxy(proxy, username, password string) error
@@ -63,6 +64,7 @@ IsLocked() bool
 GetSession() string
 AddAccount(number int, lang string) (NewAccount, error)
 GetServer() Server
+GetServerData() ServerData
 SetUserAgent(newUserAgent string)
 ServerURL() string
 GetLanguage() string
@@ -75,12 +77,12 @@ IsLoggedIn() bool
 IsConnected() bool
 GetUsername() string
 GetUniverseName() string
-GetUniverseSpeed() int
-GetUniverseSpeedFleet() int
-GetResearchSpeed() int
-SetResearchSpeed(int)
-GetNbSystems() int
-SetNbSystems(int)
+GetUniverseSpeed() int64
+GetUniverseSpeedFleet() int64
+GetResearchSpeed() int64
+SetResearchSpeed(int64)
+GetNbSystems() int64
+SetNbSystems(int64)
 IsDonutGalaxy() bool
 IsDonutSystem() bool
 FleetDeutSaveFactor() float64
@@ -89,15 +91,15 @@ ServerTime() time.Time
 Location() *time.Location
 IsUnderAttack() (bool, error)
 GetUserInfos() UserInfos
-SendMessage(playerID int, message string) error
-SendMessageAlliance(associationID int, message string) error
+SendMessage(playerID int64, message string) error
+SendMessageAlliance(associationID int64, message string) error
 ReconnectChat() bool
 GetFleets() ([]Fleet, Slots)
 GetFleetsFromEventList() []Fleet
 CancelFleet(FleetID) error
 GetAttacks() ([]AttackEvent, error)
 GetAttacksUsing(CelestialID) ([]AttackEvent, error)
-GalaxyInfos(galaxy, system int) (SystemInfos, error)
+GalaxyInfos(galaxy, system int64) (SystemInfos, error)
 GetCachedResearch() Researches
 GetResearch() Researches
 GetCachedPlanets() []Planet
@@ -116,12 +118,12 @@ GetCelestials() ([]Celestial, error)
 Abandon(interface{}) error
 GetEspionageReportMessages() ([]EspionageReportSummary, error)
 GetEspionageReportFor(Coordinate) (EspionageReport, error)
-GetEspionageReport(msgID int) (EspionageReport, error)
+GetEspionageReport(msgID int64) (EspionageReport, error)
 GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 //GetCombatReport(msgID int) (CombatReport, error)
-DeleteMessage(msgID int) error
-Distance(origin, destination Coordinate) int
-FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int)
+DeleteMessage(msgID int64) error
+Distance(origin, destination Coordinate) int64
+FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
 RegisterChatCallback(func(ChatMsg))
 RegisterAuctioneerCallback(func([]byte))
 RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
@@ -129,22 +131,22 @@ GetSlots() Slots
 BuyOfferOfTheDay() error
 BytesDownloaded() int64
 BytesUploaded() int64
-CreateUnion(fleet Fleet) (int, error)
+CreateUnion(fleet Fleet) (int64, error)
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
 GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error)
-EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int) (Fleet, error)
-Build(celestialID CelestialID, id ID, nbr int) error
+SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error)
+EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error)
+Build(celestialID CelestialID, id ID, nbr int64) error
 BuildCancelable(CelestialID, ID) error
-BuildProduction(celestialID CelestialID, id ID, nbr int) error
+BuildProduction(celestialID CelestialID, id ID, nbr int64) error
 BuildBuilding(celestialID CelestialID, buildingID ID) error
-BuildDefense(celestialID CelestialID, defenseID ID, nbr int) error
-BuildShips(celestialID CelestialID, shipID ID, nbr int) error
+BuildDefense(celestialID CelestialID, defenseID ID, nbr int64) error
+BuildShips(celestialID CelestialID, shipID ID, nbr int64) error
 CancelBuilding(CelestialID) error
 TearDown(celestialID CelestialID, id ID) error
-ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int, researchID ID, researchCountdown int)
+ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
 GetProduction(CelestialID) ([]Quantifiable, error)
 GetFacilities(CelestialID) (Facilities, error)
 GetDefense(CelestialID) (DefensesInfos, error)
@@ -156,7 +158,7 @@ BuildTechnology(celestialID CelestialID, technologyID ID) error
 // Planet specific functions
 GetResourceSettings(PlanetID) (ResourceSettings, error)
 SetResourceSettings(PlanetID, ResourceSettings) error
-SendIPM(PlanetID, Coordinate, int, ID) (int, error)
+SendIPM(PlanetID, Coordinate, int64, ID) (int64, error)
 //GetResourcesProductionRatio(PlanetID) (float64, error)
 GetResourcesProductions(PlanetID) (Resources, error)
 GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources

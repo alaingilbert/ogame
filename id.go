@@ -10,8 +10,15 @@ func (o ID) IsSet() bool {
 	return o.Int64() != 0
 }
 
-// Int returns an integer value of the id
+// Int64 returns an integer value of the id
 func (o ID) Int64() int64 {
+	o.Int()
+	return int64(o)
+}
+
+// Int returns an integer value of the id
+// Deprecated: backward compatibility
+func (o ID) Int() int64 {
 	return int64(o)
 }
 
