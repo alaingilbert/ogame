@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Leda OGame</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript">
+        /**
+         * This is only currently needed in a separate file in libraries because
+         * the javascript files are loaded alphabetically from files and we need to
+         * ensure that our namespace object is loaded before all other ogame specific
+         * javascript code
+         */
+
+        /*
+         * global javascript namespace for ogame
+         */
+        var ogame = ogame || {};
+    </script>
+
+    <script type="text/javascript">
+        var ajaxEventboxURI = 'https://s164-en.ogame.gameforge.com/game/index.php?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+        var ajaxResourceboxURI = 'https://s164-en.ogame.gameforge.com/game/index.php?page=fetchResources&ajax=1';
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn73/08eb392f25c7c5511fb632e809d55b.css
+"/>
+
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn21/1e9c79648262306b5970b9fd1a5c8d.js'> </script>
+
+
+
+    <script type="text/javascript">
+        var eventboxLoca    = {"mission":"Mission","missions":"Missions","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"own","neutral":"friendly","hostile":"hostile","nextEvent":"Next","nextEventText":"Type"};
+        var eventlistLink   = 'https://s164-en.ogame.gameforge.com/game/index.php?page=componentOnly&component=eventList&ajax=1';
+        var changeSettingsLink = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=changeSettings";
+        var changeSettingsToken = "613ed73a7dde348755b9e42cbac05a32";
+        var redirectLogoutLink = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=logout";
+        var redirectOverviewLink = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+        var redirectSpaceDockLink = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=facilities&openTech=36";
+
+        var currentPage = "overview";
+        var changeNickLink = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=ajax&component=changenick&asJson=1";
+    </script>
+
+    <script type="text/javascript">
+        var playerId = 102174;
+        var playerName = "Admiral Castor";
+        var player = {"playerId":102174,"name":"Admiral Castor","hasCommander":false,"hasAPassword":true};
+        var session = "c1626ce8228ac5986e3808a7d42d4afc764c1b68";
+        var vacation = 0;
+        var hasAPassword = true;
+        var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"More Options","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+        var itemNames = {"090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Bronze Crystal Booster","e254352ac599de4dd1f20f0719df0a070c623ca8":"Bronze Deuterium Booster","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Bronze Metal Booster","2dd05cc4c0e185fce2e712112dc44932027aee98":"Discoverer","9374c79a24b84c4331f0d26526ef6c2d33319a6e":"Collector","77eff880829027daf23b755e14820a60c4c6fd93":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Bronze Crystal Booster","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Silver Crystal Booster","118d34e685b5d1472267696d1010a393a59aed03":"Gold Crystal Booster","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Gold","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID Silver","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Bronze Deuterium Booster","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Silver Deuterium Booster","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Gold Deuterium Booster","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Gold","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN Silver","de922af379061263a56d7204d1c395cefcfb7d75":"Bronze Metal Booster","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Silver Metal Booster","05294270032e5dc968672425ab5611998c409166":"Gold Metal Booster","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Bronze Moon Fields","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Gold Moon Fields","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"Silver Moon Fields","485a6d5624d9de836d3eb52b181b13423f795770":"Bronze M.O.O.N.S.","45d6660308689c65d97f3c27327b0b31f880ae75":"Gold M.O.O.N.S.","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"Silver M.O.O.N.S.","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Gold","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON Silver","16768164989dffd819a373613b5e1a52e226a5b0":"Bronze Planet Fields","04e58444d6d0beb57b3e998edc34c60f8318825a":"Gold Planet Fields","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Silver Planet Fields"};
+        var isMobile = true;
+        var isMobileApp = false;
+        var bbcodePreviewUrl = "https://s164-en.ogame.gameforge.com/game/index.php?page=bbcodePreview";
+        var ogameUrl = "https:\/\/s164-en.ogame.gameforge.com";
+        var startpageUrl = "https:\/\/en.ogame.gameforge.com";
+        var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter?","activateItemQuestion":"Do you want to activate the #characterClassName# class?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+        var popupWindows = [];
+        var showOutlawWarning = true;
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"};
+        var overlayWidth = 770;
+        var overlayHeight = 600;
+        var serverTime = new Date(2019, 11, 9, 9, 54, 33);
+        var localTime = new Date();
+        var timeDiff = serverTime - localTime;
+
+        var nodePort = 20004
+        var nodeUrl = "https:\/\/s164-en.ogame.gameforge.com:20004\/socket.io\/socket.io.js"
+        var nodeParams = {"port":20004,"secure":true}
+
+        var miniFleetToken = "baa6c915eac3393957cd2d5d45dadcfd";
+        var miniFleetLink = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=minifleet&ajax=1";
+
+        var jumpGateLink = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=jumpgatelayer";
+        var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Use jumpgate"};
+
+        var timerHandler = new TimerHandler();
+
+        $(document).ready(
+            function(){
+                initOverlays();
+            }
+        );
+    </script>
+</head>
+<body id="ingamepage">
+
+<div id="siteHeader">
+</div>
+
+<div id="pageContent">
+    <div id="top">
+        <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+        <div id='resourcesbarcomponent'
+             class=""
+        >
+            <ul id="resources">
+                <li id="metal_box"
+                    class="metal  tooltipHTML"
+                    title="Metal:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;5.168&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;1.590.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+20.859&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;78.009&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon metal"></div>
+                    <span class="value">
+                    <span id="resources_metal" data-raw="5168" class="">5.168</span>
+                </span>
+                </li>
+                <li id="crystal_box"
+                    class="crystal  tooltipHTML"
+                    title="Crystal:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;274.593&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;865.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+9.203&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;30.085&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon crystal"></div>
+                    <span class="value">
+                    <span id="resources_crystal" data-raw="274593" class="">274.593</span>
+                </span>
+                </li>
+                <li id="deuterium_box"
+                    class="deuterium  tooltipHTML"
+                    title="Deuterium:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;554.465&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;2.920.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+5.476&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;23.209&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon deuterium"></div>
+                    <span class="value">
+                    <span id="resources_deuterium" data-raw="554465" class="">554.465</span>
+                </span>
+                </li>
+                <li id="energy_box"
+                    class="energy  tooltipHTML"
+                    title="Energy:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-3.961&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+4.118&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Consumption:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-8.079&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon energy"></div>
+                    <span class="value">
+                    <span id="resources_energy" data-raw="-3961" class=" overmark">-3.961</span>
+                </span>
+                </li>
+                <li id="darkmatter_box"
+                    class="darkmatter dark_highlight_tablet overlay tooltipHTML"
+                    title="Dark Matter|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;8.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Purchased:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Found:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;8.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    data-tooltip-button="Purchase Dark Matter"
+                >
+                    <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=payment"
+                       class="overlay">
+                        <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif">
+                        <div class="resourceIcon darkmatter"></div>
+                    </a>
+                    <span class="value">
+                    <span id="resources_darkmatter" data-raw="8000" class="overlay">8.000</span>
+                </span>
+                </li>
+            </ul>
+            <script type="text/javascript">
+                var isMobile = true;
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter?","activateItemQuestion":"Do you want to activate the #characterClassName# class?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+
+                (function($) {
+                    reloadResources({"metal":{"tooltip":"Metal:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">5.168<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">1.590.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+20.859<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">78.009<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":5168,"amountFormatted":"5.168","max":1590000,"production":5.7943842747315,"classes":"","classesListItem":""},"crystal":{"tooltip":"Crystal:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">274.593<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">865.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+9.203<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"middlemark\">30.085<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":274593,"amountFormatted":"274.593","max":865000,"production":2.5563899891351,"classes":"","classesListItem":""},"deuterium":{"tooltip":"Deuterium:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">554.465<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">2.920.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+5.476<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"middlemark\">23.209<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":554465,"amountFormatted":"554.465","max":2920000,"production":1.5213623110671,"classes":"","classesListItem":""},"energy":{"tooltip":"Energy:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"overmark\">-3.961<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+4.118<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"overmark\">-8.079<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":-3961,"amountFormatted":"-3.961","classes":" overmark","classesListItem":""},"darkmatter":{"tooltip":"Dark Matter|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">8.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Purchased:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Found:<\/th>\n                <td><span class=\"\">8.000<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":8000,"amountFormatted":"8.000","classes":"overlay","classesListItem":"dark_highlight_tablet overlay","link":"https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}});
+                })(jQuery);
+            </script>
+        </div>
+        <div id='commandercomponent'
+             class=""
+        >
+            <div id="characterclass" class="fleft">
+                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=characterclassselection"
+                   class="tooltipHTML js_hideTipOnMobile"
+                   title="Your class: Discoverer|-25% research time&lt;br&gt;+400% gain on successful expeditions&lt;br&gt;+10% larger planets on colonisation&lt;br&gt;Debris fields created on expeditions will be visible in the Galaxy view.&lt;br&gt;+2 expeditions&lt;br&gt;+20% phalanx range&lt;br&gt;75% loot from inactive players">
+                    <div class="sprite characterclass medium explorer"></div>
+                </a>
+            </div>
+            <div id="officers" class="  fright">
+                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=2"
+                   class="tooltipHTML   commander js_hideTipOnMobile "
+                   title="Hire Commander|+40 favourites, building queue, empire view, shortcuts, transport scanner, advertisement free* &lt;span style=&quot;font-size:10px;line-height:10px;&quot;&gt;(*excludes: game related references)&lt;/span&gt;"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=3"
+                   class="tooltipHTML    admiral js_hideTipOnMobile "
+                   title="Hire Admiral|Max. fleet slots +2,
+Max. expeditions +1,
+Improved fleet escape rate"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=4"
+                   class="tooltipHTML    engineer js_hideTipOnMobile "
+                   title="Hire Engineer|Halves losses to defences, +10% energy production"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=5"
+                   class="tooltipHTML    geologist js_hideTipOnMobile "
+                   title="Hire Geologist|+10% mine production"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=6"
+                   class="tooltipHTML    technocrat js_hideTipOnMobile "
+                   title="Hire Technocrat|+2 espionage levels, 25% less research time"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+            </div>
+        </div>
+        <div id='notificationbarcomponent'
+             class=""
+        >
+            <div id="message-wrapper">
+                <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+                   href="https://s164-en.ogame.gameforge.com/game/index.php?page=messages"
+                   title="202 unread message(s)"
+                >
+                    <span class="new_msg_count totalMessages news "
+                          data-new-messages="202"
+                    >
+                202
+            </span>
+                </a>
+                <a class=" comm_menu chat tooltip js_hideTipOnMobile"
+                   href="https://s164-en.ogame.gameforge.com/game/index.php?page=chat"
+                   title="202 unread message(s)"
+                >
+        <span class="new_msg_count totalChatMessages noMessage"
+              data-new-messages="0">
+            0
+        </span>
+                </a>
+                <div id="messages_collapsed">
+                    <div id="eventboxFilled" class="eventToggle" style="display: none;">
+                        <a id="js_eventDetailsClosed"
+                           class="tooltipRight js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="More details"
+                        ></a>
+                        <a id="js_eventDetailsOpen"
+                           class="tooltipRight open js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="Less detail"
+                        ></a>
+                    </div>
+                    <div id="eventboxLoading"
+                         class="textCenter textBeefy"
+                         style="display: block;"
+                    >
+                        <img height="16"
+                             width="16"
+                             alt="ajax spinner"
+                             src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"
+                        />
+                        load...
+                    </div>
+                    <div id="eventboxBlank"
+                         class="textCenter"
+                         style="display: none;"
+                    >
+                        No fleet movement
+                    </div>
+                </div>
+                <div id="attack_alert"
+                     class="tooltip noAttack"
+                     title=""
+                >
+                    <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"
+                    ></a>
+                </div>
+            </div>
+        </div>
+        <div id='headerbarcomponent'
+             class=""
+        >
+            <div id="bar">
+                <ul>
+                    <li class="OGameClock">09.12.2019 <span>09:54:33</span></li>
+                    <li id="playerName">
+                        Player:
+
+                        <span class="textBeefy">
+                            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=changenick"
+                               class="overlay textBeefy"
+                               data-overlay-title="Change player name"
+                               data-overlay-popup-width="400"
+                               data-overlay-popup-height="200"
+                            >Admiral Castor</a>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div id="left">
+        <div id='mainmenucomponent'></div>
+        <div id='tutorialiconcomponent'
+             class=""
+        >
+            <div id="helper">
+                <a class="highlight tooltip tooltipClose"
+                   href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=tutorial&amp;displayNew=1"
+                   title="Tutorial overview&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=rewards&quot;&gt;Rewards&lt;/a&gt;">?</a>
+            </div>
+        </div>
+        <div id='toolbarcomponent'
+             class=""
+        >
+            <div id="links">
+                <ul id="menuTable" class="leftmenu">
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=rewards"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Rewards">
+                            <div class="menuImage overview
+                                                                overview_claimable
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton  selected"
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Overview</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=resourceSettings"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Resource settings">
+                            <div class="menuImage resources
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Resources</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;openTech=36"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Space Dock">
+                            <div class="menuImage station
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Facilities</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage marketplace"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Marketplace</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=traderOverview#page=traderResources&amp;animation=false"
+                                               class="trader tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Resource Market">
+                            <div class="menuImage traderOverview
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=traderOverview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Merchant</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all"
+                                               class="overlay tooltipRight js_hideTipOnMobile "
+                                               target="_blank"
+                                               title="Technology">
+                            <div class="menuImage research
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Research</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage shipyard"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shipyard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage defense"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Defence</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Fleet movement">
+                            <div class="menuImage fleet1
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Fleet</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage galaxy"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Galaxy</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage alliance"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=alliance"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Alliance</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage premium"></div>
+                                    </span>
+                        <a class="menubutton premiumHighligt officers"
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=premium"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Recruit Officers</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Inventory">
+                            <div class="menuImage shop
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=shop"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shop</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="second_menu">
+                    <li>
+                        <a class="menu_item buddies "
+                           accesskey=""
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=buddies&amp;action=9">
+                <span class="icon_caption">
+                    Buddies
+                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item score"
+                           accesskey=""
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=highscore">
+                <span class="icon_caption">
+                    Highscore
+                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item tutorial highlight tooltip" href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=tutorial&amp;displayNew=1">
+                            <span class="icon_caption">Tutorial</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item search overlay"
+                           accesskey=""
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=search&amp;ajax=1"
+                           data-overlay-title="Search Universe"
+                           data-overlay-close="__default closeSearch"
+                           data-overlay-class="search">
+                            <span class="icon_caption">Search</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item pref"
+                           accesskey=""
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=preferences">
+                            <span class="icon_caption">Options</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item notes overlay"
+                           accesskey=""
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=notices"
+                           data-overlay-title="My notes"
+                           data-overlay-class="notices">
+                            <span class="icon_caption">Notes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item rules overlay"
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=standalone&component=rules&ajax=1"
+                           data-overlay-title="Rules"
+                           data-overlay-iframe="true"
+                           data-iframe-width="450">
+                            <span class="icon_caption">Rules</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item logout"
+                           href="https://s164-en.ogame.gameforge.com/game/index.php?page=logout">
+                            <span class="icon_caption">Log out</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="toolLinksWrapper">
+                    <ul id="menuTableTools" class="leftmenu"></ul>
+                </div>
+                <br class="clearfloat"/>
+            </div>
+        </div>
+        <div id='advicebarcomponent'
+             class=""
+        >
+            <div class="adviceWrapper">
+
+                <div id="advice-bar">
+
+
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="middle">
+        <div id='eventlistcomponent'
+             class=""
+        >
+            <div id="eventboxContent"
+                 style="display: none;">
+                <div id="eventListWrap">
+                    <div id="eventHeader">
+                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
+                        </a>
+                        <h2>Events</h2>
+                    </div>
+                    <table id="eventContent">
+                        <tbody>
+                        <tr class="eventFleet" id="eventRow-3343994"
+                            data-mission-type="3"
+                            data-return-flight="true"
+                            data-arrival-time="1575886043"
+                        >
+                            <td class="countDown">
+        <span id="counter-eventlist-3343994" class="friendly textBeefy">
+            load...
+        </span>
+                                <br/>
+                                <span>10:07:23 Clock</span>
+                            </td>
+                            <td class="missionFleet">
+    <span class="dark_highlight_tablet">
+        <span class="icon icon_transport float_left"></span>
+        Transport (R)
+        <br/>
+        Own fleet
+    </span>
+                            </td>
+                            <td class="coordsOrigin">
+                                <a class="dark_highlight_tablet" href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=432" target="_top">
+                                    <figure class="planetIcon planet"></figure>Homeworld<br/>
+                                    [1:432:6]
+                                </a>
+                            </td>
+                            <td class="detailsFleet">
+            <span class="dark_highlight_tablet tooltip tooltipRight tooltipClose"
+                  title="&lt;div class=&quot;htmlTooltip&quot;&gt;
+    &lt;h1&gt;Fleet details:&lt;/h1&gt;
+    &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
+            &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
+            &lt;tr&gt;
+                &lt;th colspan=&quot;2&quot;&gt;Ships:&lt;/th&gt;
+            &lt;/tr&gt;
+                                                &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Small Cargo:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;15&lt;/td&gt;
+                    &lt;/tr&gt;
+                                                        &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;&amp;nbsp;&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;th colspan=&quot;2&quot;&gt;Shipment:&lt;/th&gt;
+                &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Metal:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Crystal:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Deuterium:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+    &lt;/div&gt;
+" data-federation-user-id="0">
+            <span class="icon_movement_reserve float_left"></span>
+                            <span class="ship_count">15</span>
+                    </span>
+                            </td>
+                            <td class="destCoords">
+                                <a class="dark_highlight_tablet" href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=432" target="_top">
+                                    <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Colony<br/>
+                                    [1:432:5]
+                                </a>
+                            </td>
+                            <td class="sendProbe">
+                            </td>
+                            <td class="sendMail">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div id="eventFooter"></div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var timeDelta = 1575885273000 - (new Date()).getTime();
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter?","activateItemQuestion":"Do you want to activate the #characterClassName# class?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+                (function($) {
+                    new eventboxCountdown(
+                        $("#counter-eventlist-3343994"),
+                        1575886043 - 1575885273,
+                        $("#eventListWrap"),
+                        "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
+                        [0]
+                    );
+                })(jQuery);
+            </script>
+
+
+        </div>
+        <div id='overviewcomponent'
+             class="maincontent"
+        >
+
+
+            <div id="inhalt">
+                <div id="planet" style="background-image:url(https://gf3.geo.gfsrv.net/cdn5d/c8dd99637fe9a48ca937f034f9141e.jpg);">
+                    <div id="detailWrapper">
+
+                        <div id="header_text">
+                            <h2>
+                                <a href="javascript:void(0);" class="openPlanetRenameGiveupBox">
+                                    <p class="planetNameOverview">Overview -</p>
+                                    <span id="planetNameHeader">
+                            Homeworld
+                        </span>
+                                    <img class="hinted tooltip"
+                                         title="Abandon/Rename Planet"
+                                         src="https://gf3.geo.gfsrv.net/cdne7/1f57d944fff38ee51d49c027f574ef.gif"
+                                         width="16"
+                                         height="16"
+                                    />
+                                </a>
+                            </h2>
+                        </div>
+                        <div id="detail" class="detail_screen">
+                            <div id="techDetailLoading"></div>
+                        </div>
+                        <div id="planetdata">
+
+                            <div class="overlay"></div>
+                            <div id="planetDetails">
+                                <table cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td class="desc" >
+                                            <span id="diameterField"></span>
+                                        </td>
+                                        <td class="data">
+                                            <span id="diameterContentField"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="desc">
+                                            <span id="temperatureField"></span>
+                                        </td>
+                                        <td class="data">
+                                            <span id="temperatureContentField"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="desc">
+                                            <span id="positionField"></span>
+                                        </td>
+                                        <td class="data">
+                                            <span id="positionContentField"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="desc">
+                                            <span id="scoreField"></span></td>
+                                        <td class="data">
+                                            <span id="scoreContentField"></span>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="desc">
+                                            <span id="honorField"></span></td>
+                                        <td class="data undermark">
+                                            <span id="honorContentField"></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div id="planetOptions">
+
+                                <div class="planetMoveStart fleft" style="display: inline">
+                                    <a class="tooltipLeft dark_highlight_tablet fleft"
+                                       style="display: inline-block"
+                                       href='https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy'
+                                       title='The relocation allows you to move your planets to another position in a distant system of your choosing.&lt;br /&gt;&lt;br /&gt;
+The actual relocation first takes place 24 hours after activation. In this time, you can use your planets as normal. A countdown shows you how much time remains prior to the relocation.&lt;br /&gt;&lt;br /&gt;
+Once the countdown has run down and the planet is to be moved, none of your fleets that are stationed there can be active. At this time, there should also be nothing in construction, nothing being repaired and nothing researched. If there is a construction task, a repair task or a fleet still active upon the countdown`s expiry, the relocation will be cancelled.&lt;br /&gt;&lt;br /&gt;
+If the relocation is successful, you will be charged 240.000 Dark Matter. The planets, the buildings and the stored resources including moon will be moved immediately. Your fleets travel to the new coordinates automatically with the speed of the slowest ship. The jump gate to a relocated moon is deactivated for 24 hours.'
+                                       data-tooltip-button="To galaxy"
+                                    >
+                                        <span class="planetMoveIcons settings planetMoveDefault icon fleft"></span>
+                                        <span class="planetMoveOverviewMoveLink">Relocate</span>
+                                    </a>
+                                </div>
+
+                                <a class="dark_highlight_tablet float_right openPlanetRenameGiveupBox" href="javascript:void(0);">
+                                    <span class="planetMoveOverviewGivUpLink">Abandon/Rename</span>
+                                    <span class="planetMoveIcons settings planetMoveGiveUp icon"></span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="buffBar" class="sliderWrapper">
+                        <div data-uuid="" data-id="" class="add_item">
+                            <a class="activate_item border3px" href="javascript:void(0);"ref="1"></a>
+                        </div>
+                        <ul class="active_items hidden">
+                            <li>
+                            </li>
+                        </ul>
+                    </div>
+
+
+                </div>
+                <div class="c-left"></div>
+                <div class="c-right"></div>
+                <div id="overviewBottom">
+                    <div class="clearfloat"></div>
+                    <div class="clearfloat"></div>
+                </div>
+            </div>
+            <script type="text/javascript">function openPlanetRenameGiveupBox()
+                {
+                    openOverlay(
+                        "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=planetlayer",
+                        {
+                            'title': "Abandon\/Rename Homeworld",
+                            'class': 'planetRenameOverlay'
+                        }
+                    );
+                }
+
+                var textContent = [];
+
+                textContent[0] = "Diameter:";
+                textContent[1] = "12.800km (<span>143<\/span>\/<span>188<\/span>)";
+                textContent[2] = "Temperature:";
+                textContent[3] = "12\u00b0C to 52\u00b0C";
+                textContent[4] = "Position:";
+                textContent[5] = "<a  href=\"https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=1&system=432&position=6\" >[1:432:6]<\/a>";
+                textContent[6] = "Points:";
+                textContent[7] = "<a href='https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=highscore'>62.633 (Place 717 of 5.884)<\/a>";
+                textContent[8] = "Honour points:";
+                textContent[9] = "34";
+
+                var locaPremium = {"buildingHalfOverlay":"Do you want to reduce the construction time by 50% of the total construction time () for <b>750 Dark Matter<\/b>?","buildingFullOverlay":"Do you want to immediately complete the construction order for <b>750 Dark Matter<\/b>?","shipsHalfOverlay":"Do you want to reduce the construction time by 50% of the total construction time () for <b>750 Dark Matter<\/b>?","shipsFullOverlay":"Do you want to immediately complete the construction order for <b>750 Dark Matter<\/b>?","researchHalfOverlay":"Do you want to reduce the research time by 50% of the total research time () for <b>750 Dark Matter<\/b>?","researchFullOverlay":"Do you want to immediately complete the research order for <b>750 Dark Matter<\/b>?"};
+
+                var loca = loca || {};
+
+                loca = $.extend(
+                    {},
+                    loca,
+                    {"error":"Error","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","notice":"Reference","planetGiveupQuestion":"Are you sure you want to abandon the planet %planetName% %planetCoordinates%?","moonGiveupQuestion":"Are you sure you want to abandon the moon %planetName% %planetCoordinates%?"}
+                );
+
+                function planetRenamed(data)
+                {
+                    var data = $.parseJSON(data);
+
+                    if (data["status"]) {
+                        $("#planetNameHeader").html(data["newName"]);
+                        reloadRightmenu("https://s164-en.ogame.gameforge.com/game/index.php?page=rightmenu&renamed=1&pageToLink=overview");
+                        $(".overlayDiv.planetRenameOverlay").dialog('close');
+                    }
+
+                    errorBoxAsArray(data["errorbox"]);
+                }
+
+                function reloadPage()
+                {
+                    location.href = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+                }
+
+                var demolish_id;
+                var buildUrl;
+
+                function loadDetails(type)
+                {
+                    url = "https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&ajax=1";
+                    if (typeof(detailUrl) != 'undefined') {
+                        url = detailUrl;
+                    }
+                    $.get(
+                        url,
+                        { type: type},
+                        function(data){
+                            $("#detail").html(data);
+                            $("#techDetailLoading").hide();
+                            $("input[type='text']:first", document.forms["form"]).focus();
+                            // When we open any tech details we want a global JS event to catch for custom callbacks
+                            // $(document).trigger("ajaxShowElement",techID); //techID is magically defined by setting data in the .html
+                            $(document).trigger("ajaxShowElement", (typeof techID === 'undefined' ? 0 : techID)); //techID is magically defined by setting data in the .html; not always so we check it and set it to harmless 0 as default. This is used for the repair dock.
+                        }
+                    );
+                }
+
+                function sendBuildRequest(url, ev, showSlotWarning)
+                {
+                    console.debug("sendBuildRequest");
+                    if (ev != undefined) {
+
+                        var keyCode;
+
+                        if (window.event) {
+                            keyCode = window.event.keyCode;
+                        } else if (ev) {
+                            keyCode = ev.which;
+                        } else {
+                            return true;
+                        }
+                        console.debug("KeyCode: " + keyCode);
+                        if (keyCode != 13 || $('#premiumConfirmButton')) {
+                            return true;
+                        }
+                    }
+
+                    function build() {
+                        if (url == null) {
+                            sendForm();
+                        } else {
+                            fastBuild();
+                        }
+                    }
+
+
+                    if (url == null) {
+                        fallBackFunc = sendForm;
+                    } else {
+                        fallBackFunc = build;
+                        buildUrl = url;
+                    }
+
+
+                    if (showSlotWarning) {
+
+
+                        build();
+
+                    } else {
+                        build();
+                    }
+
+                    return false;
+                }
+
+
+                function fastBuild() {
+                    location.href = buildUrl;
+                    return false;
+                }
+
+                function sendForm() {
+                    document.form.submit();
+                    return false;
+                }
+                function demolishBuilding(id,question) {
+                    demolish_id = id;
+                    question += "<br/><br/>" + $("#demolish" + id).html();
+                    errorBoxDecision("Caution",""+question+"","yes","No",demolishStart);
+                }
+
+                function demolishStart()
+                {
+                    window.location.replace("https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&component=overview&modus=3&token=22b4c964568739f1f6799c74abca0d70&type="+demolish_id);
+                }
+
+                gfSlider = new GFSlider(getElementByIdWithCache('detailWrapper'));
+                gfSlider.duration = 1;
+
+                var detailUrl = "https:\/\/s164-en.ogame.gameforge.com\/game\/index.php?page=buffActivation&ajax=1";</script>
+
+            <script type="text/javascript">
+                var animatedOverview = '';
+                var planetMoveLoca = {"askTitle":"Resettle Planet","askCancel":"Are you sure that you wish to cancel this planet relocation? The normal waiting time will thereby be maintained.","yes":"yes","no":"No","success":"The planet relocation was successfully cancelled.","error":"Error"};
+                var planetMoveCooldown = -1575885273;
+
+                //$(function() {
+                //});
+
+                // Reset counters to zero here and not in overview.js because due to LazyLoader, the overview.js is parsed only once
+                // and not everytime the player clicks on the Overview menu link
+                var currentIndex = 0;
+                var currentChar = 0;
+                var linetwo=0;
+
+                //console.debug("foo");
+                initOverview();
+                initType();
+                tabletInitOverviewAdvice();
+
+                $('#planet').find('h2 a').hover(function() {
+                    $('#planet').find('h2 a img').toggleClass('hinted');
+                }, function() {
+                    $('#planet').find('h2 a img').toggleClass('hinted');
+                });
+            </script>
+        </div>
+        <div id='productionboxbuildingcomponent'
+             class="productionboxbuilding injectedComponent parent overview"
+        >
+            <div class="content-box-s">
+                <div class="header">
+                    <h3>Buildings</h3>
+                </div>
+                <div class="content">
+                    <table cellspacing="0" cellpadding="0" class="construction active">
+                        <tbody>
+                        <tr>
+                            <td colspan="2" class="idle">
+                                <a class="tooltip js_hideTipOnMobile dark_highlight"
+                                   title="At the moment there is no building being built on this planet. Click here to get to resources."
+                                   href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies"
+                                >
+                                    No buildings in construction.
+                                    <br/>
+                                    (To resources)
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer"></div>
+            </div>
+            <script type="text/javascript">
+
+                $(function() {
+                });
+            </script>
+        </div>
+        <div id='productionboxresearchcomponent'
+             class="productionboxresearch injectedComponent parent overview"
+        >
+            <div class="content-box-s">
+                <div class="header">
+                    <h3>Research</h3>
+                </div>
+                <div class="content">
+                    <table cellspacing="0" cellpadding="0" class="construction active">
+                        <tbody>
+                        <tr>
+                            <td colspan="2" class="idle">
+                                <a class="tooltip js_hideTipOnMobile dark_highlight"
+                                   title="There is no research done at the moment. Click here to get to your research lab."
+                                   href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+                                >
+                                    There is no research in progress at the moment.
+                                    <br/>
+                                    (To research)
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer"></div>
+            </div>
+            <script type="text/javascript">
+
+                $(function() {
+                });
+            </script>
+        </div>
+        <div id='productionboxshipyardcomponent'
+             class="productionboxshipyard injectedComponent parent overview"
+        >
+            <div class="content-box-s">
+                <div class="header">
+                    <h3>Shipyard</h3>
+                </div>
+                <div class="content">
+                    <table cellspacing="0" cellpadding="0" class="construction active">
+                        <tbody>
+                        <tr>
+                            <td colspan="2" class="idle">
+                                <a class="tooltip js_hideTipOnMobile dark_highlight"
+                                   title="At the moment there are no ships or defence being built on this planet. Click here to get to the shipyard."
+                                   href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+                                >
+                                    No ships/defence in construction.
+                                    <br/>
+                                    (To shipyard)
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer"></div>
+            </div>
+            <script type="text/javascript">
+
+                $(function() {
+                });
+            </script>
+        </div>
+    </div>
+    <div id="right">
+        <div id='planetbarcomponent'
+             class=""
+        >
+            <div id="rechts">
+                <div id="cutty">
+                    <div id="myPlanets">
+                        <div id="countColonies">
+                            <p class="textCenter">
+                                <span>5/6</span> Planets
+                            </p>
+                        </div>
+                        <div id="planetList"
+                        >
+                            <div class="smallplanet smaller" id="planet-33622497">
+                                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33622497"
+                                   title="&lt;b&gt;Homeworld [1:432:6]&lt;/b&gt;&lt;br/&gt;12.800km (143/188)&lt;br&gt;12°C to 52°C&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33622497&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33622497&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33622497&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33622497&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33622497&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33622497&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33622497&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33622497&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33622497&amp;galaxy=1&amp;system=432&amp;position=6&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink active tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Homeworld"
+                                         src="https://gf3.geo.gfsrv.net/cdnb3/2038df184fbef224615e2559f815a4.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Homeworld</span>
+                                    <span class="planet-koords ">[1:432:6]</span>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller" id="planet-33634270">
+                                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33634270"
+                                   title="&lt;b&gt;Colony [1:432:5]&lt;/b&gt;&lt;br/&gt;14.498km (113/235)&lt;br&gt;39°C to 79°C&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33634270&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33634270&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33634270&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33634270&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33634270&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33634270&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33634270&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33634270&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33634270&amp;galaxy=1&amp;system=432&amp;position=5&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf2.geo.gfsrv.net/cdn48/5e88fbb0a762dd6e169bd916948263.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[1:432:5]</span>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller" id="planet-33639151">
+                                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33639151"
+                                   title="&lt;b&gt;Colony [1:432:4]&lt;/b&gt;&lt;br/&gt;14.444km (117/233)&lt;br&gt;60°C to 100°C&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33639151&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33639151&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33639151&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33639151&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33639151&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33639151&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33639151&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33639151&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33639151&amp;galaxy=1&amp;system=432&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf2.geo.gfsrv.net/cdn7a/ca5a968aa62c0441a62334221eaa74.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[1:432:4]</span>
+                                </a>
+                                <a class="constructionIcon tooltip js_hideTipOnMobile"
+                                   href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33639151"
+                                   title="Metal Storage"
+                                >
+                                    <span class="icon12px icon_wrench"></span>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller" id="planet-33642417">
+                                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33642417"
+                                   title="&lt;b&gt;Colony [1:431:4]&lt;/b&gt;&lt;br/&gt;14.092km (108/223)&lt;br&gt;58°C to 98°C&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33642417&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33642417&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33642417&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33642417&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33642417&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33642417&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33642417&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33642417&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33642417&amp;galaxy=1&amp;system=431&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf1.geo.gfsrv.net/cdnf7/6177c65f05d9039be190b926a43f91.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[1:431:4]</span>
+                                </a>
+                                <a class="constructionIcon tooltip js_hideTipOnMobile"
+                                   href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33642417"
+                                   title="Metal Mine"
+                                >
+                                    <span class="icon12px icon_wrench"></span>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller" id="planet-33656571">
+                                <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33656571"
+                                   title="&lt;b&gt;Colony [1:432:14]&lt;/b&gt;&lt;br/&gt;13.401km (104/204)&lt;br&gt;-105°C to -65°C&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33656571&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33656571&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33656571&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33656571&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33656571&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33656571&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33656571&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33656571&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s164-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33656571&amp;galaxy=1&amp;system=432&amp;position=14&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf1.geo.gfsrv.net/cdnc4/e4be5926248e1e5402de26bfeb6965.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[1:432:14]</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div id="bottom">
+    <div id='errorboxcomponent'
+         class=""
+    >
+        <div id="decisionTB" style="display:none;">
+            <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxDecisionContent">-</span>
+                    <div class="response">
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+                        </div>
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+
+        <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+            <div>
+                <span id="fadeBoxStyle" class="success"></span>
+                <p id="fadeBoxContent"></p>
+            </div>
+        </div>
+
+        <div id="notifyTB" style="display:none;">
+            <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxNotifyContent">-</span>
+                    <div class="response">
+                        <div>
+                            <a href="javascript:void(0);" class="ok">
+                                <span id="errorBoxNotifyOk">.</span>
+                            </a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    initBuffBar();
+
+    initIndex();
+
+</script>
+<div id="siteFooter">
+    <div class="content" style="font-size:10px">
+        <div class="fleft textLeft">
+            <a href="https://s164-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=changelog&amp;ajax=1" class="tooltip js_hideTipOnMobile" title="Patch notes">7.0.0-rc38.4</a>
+            <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. All rights reserved.</a>
+        </div>
+        <div class="fright textRight">
+            <a class="overlay"
+               href="https://s164-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=rules&amp;ajax=1"
+               data-overlay-iframe="true"
+               data-iframe-width="450"
+               data-overlay-title="Rules"
+            >Rules</a>|
+            <a href="https://agbserver.gameforge.com/rewrite.php?locale=en&amp;type=imprint&amp;product=ogame" target="_blank">Legal</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
