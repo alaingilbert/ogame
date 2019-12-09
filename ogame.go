@@ -887,7 +887,8 @@ func (b *OGame) logout() {
 }
 
 func isLogged(pageHTML []byte) bool {
-	return len(regexp.MustCompile(`<meta name="ogame-session" content="\w+"/>`).FindSubmatch(pageHTML)) == 1
+	return len(regexp.MustCompile(`<meta name="ogame-session" content="\w+"/>`).FindSubmatch(pageHTML)) == 1 ||
+		len(regexp.MustCompile(`var session = "\w+"`).FindSubmatch(pageHTML)) == 1
 }
 
 // IsKnowFullPage ...
