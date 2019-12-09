@@ -1322,6 +1322,15 @@ func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
 	assert.Equal(t, int64(1), infos.ExpeditionDebris.PathfindersNeeded)
 }
 
+func TestExtractGalaxyV7IgnoredPlayer(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_ignored_player.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(33637068), infos.Position(7).ID)
+	assert.Equal(t, int64(102418), infos.Position(7).Player.ID)
+	assert.Equal(t, "Procurator Serpentis", infos.Position(7).Player.Name)
+}
+
 func TestExtractGalaxyV7NoExpeditionDebris(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_no_debris16.html")
 	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)

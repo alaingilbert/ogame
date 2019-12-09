@@ -42,6 +42,12 @@ func (s Speed) Int64() int64 {
 	return int64(s)
 }
 
+// Int returns an integer value of the speed
+// Deprecated: backward compatibility
+func (s Speed) Int() int64 {
+	return int64(s)
+}
+
 func (s Speed) String() string {
 	switch s {
 	case TenPercent:
@@ -85,8 +91,14 @@ func (d CelestialType) String() string {
 	}
 }
 
-// Int returns an integer value of the CelestialType
+// Int64 returns an integer value of the CelestialType
 func (d CelestialType) Int64() int64 {
+	return int64(d)
+}
+
+// Int returns an integer value of the CelestialType
+// Deprecated: backward compatibility
+func (d CelestialType) Int() int64 {
 	return int64(d)
 }
 
