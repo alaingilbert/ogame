@@ -1914,6 +1914,22 @@ func TestExtractIPM(t *testing.T) {
 	assert.Equal(t, int64(15), duration)
 }
 
+func TestExtractFleetV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement.html")
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 1, len(fleets))
+	assert.Equal(t, int64(8271), fleets[0].ArriveIn)
+	assert.Equal(t, int64(16545), fleets[0].BackIn)
+	assert.Equal(t, Coordinate{1, 432, 6, PlanetType}, fleets[0].Origin)
+	assert.Equal(t, Coordinate{1, 432, 5, PlanetType}, fleets[0].Destination)
+	assert.Equal(t, Transport, fleets[0].Mission)
+	assert.Equal(t, false, fleets[0].ReturnFlight)
+	assert.Equal(t, FleetID(1674510), fleets[0].ID)
+	assert.Equal(t, int64(250), fleets[0].Ships.SmallCargo)
+	assert.Equal(t, int64(2), fleets[0].Ships.Pathfinder)
+	assert.Equal(t, Resources{}, fleets[0].Resources)
+}
+
 func TestExtractFleetV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/movement.html")
 	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
@@ -2467,7 +2483,7 @@ func TestGetResourcesDetailsV7(t *testing.T) {
 }
 
 func TestGetResourcesDetailsV71(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/fetchResources.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/fetchResources.html")
 	res, _ := NewExtractorV71().ExtractResourcesDetails(pageHTMLBytes)
 	assert.Equal(t, int64(260120), res.Metal.Available)
 	assert.Equal(t, int64(470000), res.Metal.StorageCapacity)
