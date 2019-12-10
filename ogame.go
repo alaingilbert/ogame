@@ -27,6 +27,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
@@ -592,8 +593,14 @@ func (b *OGame) login() error {
 	b.serverData = serverData
 	b.debug("get server data", time.Since(start))
 
-	if b.serverData.Version[0] == '7' {
-		b.extractor = NewExtractorV7()
+	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
+		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
+			b.extractor = NewExtractorV71()
+		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.0.0-rc0"))) {
+			b.extractor = NewExtractorV7()
+		}
+	} else {
+		b.error("failed to parse ogame version: " + err.Error())
 	}
 
 	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
