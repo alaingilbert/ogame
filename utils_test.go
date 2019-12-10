@@ -69,6 +69,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recyklátor"))
 	assert.Equal(t, EspionageProbeID, name2id("Špionážní sonda"))
 	assert.Equal(t, SolarSatelliteID, name2id("Solární satelit"))
+	assert.Equal(t, CrawlerID, name2id("Crawler"))
+	assert.Equal(t, ReaperID, name2id("Rozparovač"))
+	assert.Equal(t, PathfinderID, name2id("Průzkumník"))
 
 	// mx
 	assert.Equal(t, LightFighterID, name2id("Cazador ligero"))
@@ -85,6 +88,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Reciclador"))
 	assert.Equal(t, EspionageProbeID, name2id("Sonda de espionaje"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satélite solar"))
+	assert.Equal(t, CrawlerID, name2id("Taladrador"))
+	assert.Equal(t, ReaperID, name2id("Segador"))
+	assert.Equal(t, PathfinderID, name2id("Explorador"))
 
 	// hr
 	assert.Equal(t, LightFighterID, name2id("Mali lovac"))
@@ -101,6 +107,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recikler"))
 	assert.Equal(t, EspionageProbeID, name2id("Sonde za špijunažu"))
 	assert.Equal(t, SolarSatelliteID, name2id("Solarni satelit"))
+	assert.Equal(t, CrawlerID, name2id("Puzavac"))
+	assert.Equal(t, ReaperID, name2id("Žetelac"))
+	assert.Equal(t, PathfinderID, name2id("Krčilac"))
 
 	// no
 	assert.Equal(t, LightFighterID, name2id("Lett Jeger"))
@@ -117,6 +126,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Resirkulerer"))
 	assert.Equal(t, EspionageProbeID, name2id("Spionasjesonde"))
 	assert.Equal(t, SolarSatelliteID, name2id("Solar Satelitt"))
+	assert.Equal(t, CrawlerID, name2id("Crawler"))
+	assert.Equal(t, ReaperID, name2id("Reaper"))
+	assert.Equal(t, PathfinderID, name2id("Pathfinder"))
 
 	// it
 	assert.Equal(t, LightFighterID, name2id("Caccia Leggero"))
@@ -133,6 +145,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Riciclatrici"))
 	assert.Equal(t, EspionageProbeID, name2id("Sonda spia"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satellite Solare"))
+	assert.Equal(t, CrawlerID, name2id("Crawler"))
+	assert.Equal(t, ReaperID, name2id("Reaper"))
+	assert.Equal(t, PathfinderID, name2id("Pathfinder"))
 
 	// pl
 	assert.Equal(t, LightFighterID, name2id("Lekki myśliwiec"))
@@ -149,6 +164,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recykler"))
 	assert.Equal(t, EspionageProbeID, name2id("Sonda szpiegowska"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satelita słoneczny"))
+	assert.Equal(t, CrawlerID, name2id("Pełzacz"))
+	assert.Equal(t, ReaperID, name2id("Rozpruwacz"))
+	assert.Equal(t, PathfinderID, name2id("Pionier"))
 
 	// tr
 	assert.Equal(t, LightFighterID, name2id("Hafif Avcı"))
@@ -165,6 +183,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Geri Dönüsümcü"))
 	assert.Equal(t, EspionageProbeID, name2id("Casus Sondasi"))
 	assert.Equal(t, SolarSatelliteID, name2id("Solar Uydu"))
+	assert.Equal(t, CrawlerID, name2id("Paletli"))
+	assert.Equal(t, ReaperID, name2id("Azrail"))
+	assert.Equal(t, PathfinderID, name2id("Rehber"))
 
 	// ar
 	assert.Equal(t, LightFighterID, name2id("Cazador ligero"))
@@ -181,6 +202,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Reciclador"))
 	assert.Equal(t, EspionageProbeID, name2id("Sonda de espionaje"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satélite solar"))
+	assert.Equal(t, CrawlerID, name2id("Taladrador"))
+	assert.Equal(t, ReaperID, name2id("Segador"))
+	assert.Equal(t, PathfinderID, name2id("Explorador"))
 
 	//pt
 	assert.Equal(t, LightFighterID, name2id("Caça Ligeiro"))
@@ -197,6 +221,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Reciclador"))
 	assert.Equal(t, EspionageProbeID, name2id("Sonda de Espionagem"))
 	assert.Equal(t, SolarSatelliteID, name2id("Satélite Solar"))
+	assert.Equal(t, CrawlerID, name2id("Rastejador"))
+	assert.Equal(t, ReaperID, name2id("Ceifeira"))
+	assert.Equal(t, PathfinderID, name2id("Exploradora"))
 
 	//nl
 	assert.Equal(t, LightFighterID, name2id("Licht gevechtsschip"))
@@ -213,6 +240,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recycler"))
 	assert.Equal(t, EspionageProbeID, name2id("Spionagesonde"))
 	assert.Equal(t, SolarSatelliteID, name2id("Zonne-energiesatelliet"))
+	assert.Equal(t, CrawlerID, name2id("Kruiper"))
+	assert.Equal(t, ReaperID, name2id("Hein"))
+	assert.Equal(t, PathfinderID, name2id("Padvinder"))
 
 	//dk
 	assert.Equal(t, LightFighterID, name2id("Lille Jæger"))
@@ -229,6 +259,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recycler"))
 	assert.Equal(t, EspionageProbeID, name2id("Spionagesonde"))
 	assert.Equal(t, SolarSatelliteID, name2id("Solarsatellit"))
+	assert.Equal(t, CrawlerID, name2id("Kravler"))
+	assert.Equal(t, ReaperID, name2id("Reaper"))
+	assert.Equal(t, PathfinderID, name2id("Stifinder"))
 
 	// ru
 	assert.Equal(t, LightFighterID, name2id("Лёгкий истребитель"))
@@ -245,6 +278,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Переработчик"))
 	assert.Equal(t, EspionageProbeID, name2id("Шпионский зонд"))
 	assert.Equal(t, SolarSatelliteID, name2id("Солнечный спутник"))
+	assert.Equal(t, CrawlerID, name2id("Гусеничник"))
+	assert.Equal(t, ReaperID, name2id("Жнец"))
+	assert.Equal(t, PathfinderID, name2id("Первопроходец"))
 
 	// gr
 	assert.Equal(t, LightFighterID, name2id("Ελαφρύ Μαχητικό"))
@@ -261,6 +297,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Ανακυκλωτής"))
 	assert.Equal(t, EspionageProbeID, name2id("Κατασκοπευτικό Στέλεχος"))
 	assert.Equal(t, SolarSatelliteID, name2id("Ηλιακοί Συλλέκτες"))
+	assert.Equal(t, CrawlerID, name2id("Crawler"))
+	assert.Equal(t, ReaperID, name2id("Reaper"))
+	assert.Equal(t, PathfinderID, name2id("Pathfinder"))
 
 	// jp
 	assert.Equal(t, LightFighterID, name2id("軽戦闘機"))
@@ -277,6 +316,9 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("残骸回収船"))
 	assert.Equal(t, EspionageProbeID, name2id("偵察機"))
 	assert.Equal(t, SolarSatelliteID, name2id("ソーラーサテライト"))
+	assert.Equal(t, CrawlerID, name2id("クローラー"))
+	assert.Equal(t, ReaperID, name2id("リーパー"))
+	assert.Equal(t, PathfinderID, name2id("パスファインダー"))
 
 	// sk
 	assert.Equal(t, LightFighterID, name2id("Ľahký stíhač"))
@@ -293,4 +335,7 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, name2id("Recyklátor"))
 	assert.Equal(t, EspionageProbeID, name2id("Špionážna sonda"))
 	assert.Equal(t, SolarSatelliteID, name2id("Solárny satelit"))
+	assert.Equal(t, CrawlerID, name2id("Vrták"))
+	assert.Equal(t, ReaperID, name2id("Kosa"))
+	assert.Equal(t, PathfinderID, name2id("Prieskumník"))
 }

@@ -104,6 +104,9 @@ func name2id(name string) ID {
 		"recycler":       RecyclerID,
 		"espionageprobe": EspionageProbeID,
 		"solarsatellite": SolarSatelliteID,
+		"crawler":        CrawlerID,
+		"reaper":         ReaperID,
+		"pathfinder":     PathfinderID,
 
 		// sk
 		"lahkystihac":    LightFighterID,
@@ -115,6 +118,9 @@ func name2id(name string) ID {
 		"kolonizacnalod": ColonyShipID,
 		"spionaznasonda": EspionageProbeID,
 		"solarnysatelit": SolarSatelliteID,
+		"vrtak":          CrawlerID,
+		"kosa":           ReaperID,
+		"prieskumnik":    PathfinderID,
 
 		// gr
 		"ελαφρυμαχητικο":         LightFighterID,
@@ -171,9 +177,15 @@ func name2id(name string) ID {
 		"kolonijalnibrod":   ColonyShipID,
 		"recikler":          RecyclerID,
 		"sondezaspijunazu":  EspionageProbeID,
+		"puzavac":           CrawlerID,
+		"zetelac":           ReaperID,
+		"krcilac":           PathfinderID,
 
 		// mx
 		"navedelacolonia": ColonyShipID,
+		"taladrador":      CrawlerID,
+		"segador":         ReaperID,
+		"explorador":      PathfinderID,
 
 		// cz
 		"lehkystihac":      LightFighterID,
@@ -190,6 +202,8 @@ func name2id(name string) ID {
 		"recyklator":       RecyclerID,
 		"spionaznisonda":   EspionageProbeID,
 		"solarnisatelit":   SolarSatelliteID,
+		"rozparovac":       ReaperID,
+		"pruzkumnik":       PathfinderID,
 
 		// it
 		"caccialeggero":           LightFighterID,
@@ -222,6 +236,10 @@ func name2id(name string) ID {
 		"solarsatellit":      SolarSatelliteID,
 		// "bomber":             BomberID,
 		// "recycler":           RecyclerID,
+
+		// dk
+		"kravler":   CrawlerID,
+		"stifinder": PathfinderID,
 
 		// es
 		"cazadorligero":      LightFighterID,
@@ -286,6 +304,9 @@ func name2id(name string) ID {
 		"残骸回収船":     RecyclerID,
 		"偵察機":       EspionageProbeID,
 		"ソーラーサテライト": SolarSatelliteID,
+		"ローラー":      CrawlerID,
+		"ーー":        ReaperID,
+		"スイター":      PathfinderID,
 
 		// pl
 		"lekkimysliwiec":      LightFighterID,
@@ -302,6 +323,9 @@ func name2id(name string) ID {
 		"recykler":            RecyclerID,
 		"sondaszpiegowska":    EspionageProbeID,
 		"satelitasoneczny":    SolarSatelliteID,
+		"pezacz":              CrawlerID,
+		"rozpruwacz":          ReaperID,
+		"pionier":             PathfinderID,
 
 		// tr
 		"hafifavc":           LightFighterID,
@@ -318,10 +342,16 @@ func name2id(name string) ID {
 		"geridonusumcu":      RecyclerID,
 		"casussondasi":       EspionageProbeID,
 		"solaruydu":          SolarSatelliteID,
+		"paletli":            CrawlerID,
+		"azrail":             ReaperID,
+		"rehber":             PathfinderID,
 
 		// pt
 		"interceptor":       BattlecruiserID,
 		"navedecolonizacao": ColonyShipID,
+		"rastejador":        CrawlerID,
+		"ceifeira":          ReaperID,
+		"exploradora":       PathfinderID,
 
 		// nl
 		"lichtgevechtsschip": LightFighterID,
@@ -338,6 +368,9 @@ func name2id(name string) ID {
 		//"recycler":      RecyclerID,
 		//"spionagesonde":       EspionageProbeID,
 		"zonneenergiesatelliet": SolarSatelliteID,
+		"kruiper":               CrawlerID,
+		"hein":                  ReaperID,
+		"padvinder":             PathfinderID,
 
 		//dk
 		"lillejger": LightFighterID,
@@ -370,6 +403,9 @@ func name2id(name string) ID {
 		"переработчик":       RecyclerID,
 		"шпионскиизонд":      EspionageProbeID,
 		"солнечныиспутник":   SolarSatelliteID,
+		"гусеничник":         CrawlerID,
+		"жнец":               ReaperID,
+		"первопроходец":      PathfinderID,
 	}
 	return nameMap[processedString]
 }
