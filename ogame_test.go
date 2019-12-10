@@ -2465,3 +2465,27 @@ func TestGetResourcesDetailsV7(t *testing.T) {
 	assert.Equal(t, int64(0), res.Darkmatter.Purchased)
 	assert.Equal(t, int64(8000), res.Darkmatter.Found)
 }
+
+func TestGetResourcesDetailsV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/fetchResources.html")
+	res, _ := NewExtractorV71().ExtractResourcesDetails(pageHTMLBytes)
+	assert.Equal(t, int64(260120), res.Metal.Available)
+	assert.Equal(t, int64(470000), res.Metal.StorageCapacity)
+	assert.Equal(t, int64(13915), res.Metal.CurrentProduction)
+
+	assert.Equal(t, int64(95684), res.Crystal.Available)
+	assert.Equal(t, int64(255000), res.Crystal.StorageCapacity)
+	assert.Equal(t, int64(5984), res.Crystal.CurrentProduction)
+
+	assert.Equal(t, int64(140000), res.Deuterium.Available)
+	assert.Equal(t, int64(140000), res.Deuterium.StorageCapacity)
+	assert.Equal(t, int64(0), res.Deuterium.CurrentProduction)
+
+	assert.Equal(t, int64(-1865), res.Energy.Available)
+	assert.Equal(t, int64(2690), res.Energy.CurrentProduction)
+	assert.Equal(t, int64(-4555), res.Energy.Consumption)
+
+	assert.Equal(t, int64(8000), res.Darkmatter.Available)
+	assert.Equal(t, int64(0), res.Darkmatter.Purchased)
+	assert.Equal(t, int64(8000), res.Darkmatter.Found)
+}
