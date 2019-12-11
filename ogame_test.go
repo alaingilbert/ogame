@@ -869,6 +869,14 @@ func TestExtractEspionageReportMessageIDsLootPercentage(t *testing.T) {
 	assert.Equal(t, 0.5, msgs[2].LootPercentage)
 }
 
+func TestV71ExtractEspionageReportMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages_loot_percentage.html")
+	msgs, _ := NewExtractorV71().ExtractEspionageReportMessageIDs(pageHTMLBytes)
+	assert.Equal(t, 1.0, msgs[0].LootPercentage)
+	assert.Equal(t, 0.5, msgs[1].LootPercentage)
+	assert.Equal(t, 0.5, msgs[2].LootPercentage)
+}
+
 func TestExtractCombatReportMessagesV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/combat_reports_msgs.html")
 	msgs, _ := NewExtractorV7().ExtractCombatReportMessagesSummary(pageHTMLBytes)
@@ -2244,6 +2252,14 @@ func TestExtractEspionageReportV7(t *testing.T) {
 	infos, _ := NewExtractorV7().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, int64(15), infos.LastActivity)
 	assert.Equal(t, int64(7), *infos.SmallCargo)
+}
+
+func TestExtractEspionageReportV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report.html")
+	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, int64(66331), infos.Metal)
+	assert.Equal(t, int64(58452), infos.Crystal)
+	assert.Equal(t, int64(0), infos.Deuterium)
 }
 
 func TestExtractEspionageReportThousands(t *testing.T) {
