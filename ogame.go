@@ -1702,7 +1702,7 @@ type planetResource struct {
 	IsMoon        bool
 	ImageFileName string
 	Name          string
-	OtherPlanet   string
+	// OtherPlanet   string // can be null or apparently number (cannot unmarshal number into Go struct field planetResource.OtherPlanet of type string)
 }
 
 type PlanetResources map[CelestialID]planetResource
