@@ -21,11 +21,6 @@ func (b BaseShip) GetFuelConsumption() int64 {
 	return b.FuelConsumption
 }
 
-// GetRapidfireAgainst returns which ships/defenses we have rapid fire against
-func (b BaseShip) GetRapidfireAgainst() map[ID]int64 {
-	return b.RapidfireAgainst
-}
-
 // GetSpeed returns speed of the ship
 func (b BaseShip) GetSpeed(techs Researches) int64 {
 	var techDriveLvl int64 = 0
