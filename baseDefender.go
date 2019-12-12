@@ -12,6 +12,7 @@ type BaseDefender struct {
 	ShieldPower         int64
 	WeaponPower         int64
 	RapidfireFrom       map[ID]int64
+	RapidfireAgainst    map[ID]int64
 	Price               Resources
 }
 
