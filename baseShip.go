@@ -6,7 +6,6 @@ type BaseShip struct {
 	BaseCargoCapacity int64
 	BaseSpeed         int64
 	FuelConsumption   int64
-	RapidfireAgainst  map[ID]int64
 }
 
 // GetCargoCapacity returns ship cargo capacity
