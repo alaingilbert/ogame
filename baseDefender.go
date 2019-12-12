@@ -36,6 +36,11 @@ func (b BaseDefender) GetRapidfireFrom() map[ID]int64 {
 	return b.RapidfireFrom
 }
 
+// GetRapidfireAgainst returns which ships/defenses we have rapid fire against
+func (b BaseDefender) GetRapidfireAgainst() map[ID]int64 {
+	return b.RapidfireAgainst
+}
+
 // ConstructionTime returns the duration it takes to build nbr defender units
 func (b BaseDefender) ConstructionTime(nbr, universeSpeed int64, facilities Facilities) time.Duration {
 	shipyardLvl := float64(facilities.Shipyard)
