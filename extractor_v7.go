@@ -81,6 +81,24 @@ func (e ExtractorV7) ExtractEspionageReport(pageHTML []byte, location *time.Loca
 	return e.ExtractEspionageReportFromDoc(doc, location)
 }
 
+// ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
+func (e ExtractorV7) ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int64, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	shipSumCountdown := e.ExtractOverviewShipSumCountdownFromBytes(pageHTML)
+	production, err := e.ExtractOverviewProductionFromDoc(doc)
+	return production, shipSumCountdown, err
+}
+
+// ExtractOverviewShipSumCountdownFromBytes ...
+func (e ExtractorV7) ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
+	return extractOverviewShipSumCountdownFromBytesV7(pageHTML)
+}
+
+// ExtractOverviewProductionFromDoc extracts ships/defenses (partial) production from the overview page
+func (e ExtractorV7) ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
+	return extractOverviewProductionFromDocV7(doc)
+}
+
 // ExtractFleet1ShipsFromDoc ...
 func (e ExtractorV7) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos) {
 	return extractFleet1ShipsFromDocV7(doc)

@@ -2068,6 +2068,21 @@ func TestExtractOverviewProduction(t *testing.T) {
 	assert.Equal(t, int64(6), prods[5].Nbr)
 }
 
+func TestV71ExtractOverviewProduction(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/overview_shipyard_queue.html")
+	prods, countdown, _ := NewExtractorV7().ExtractOverviewProduction(pageHTMLBytes)
+	assert.Equal(t, 4, len(prods))
+	assert.Equal(t, int64(542), countdown)
+	assert.Equal(t, GaussCannonID, prods[0].ID)
+	assert.Equal(t, int64(2), prods[0].Nbr)
+	assert.Equal(t, RocketLauncherID, prods[1].ID)
+	assert.Equal(t, int64(2), prods[1].Nbr)
+	assert.Equal(t, SmallShieldDomeID, prods[2].ID)
+	assert.Equal(t, int64(1), prods[2].Nbr)
+	assert.Equal(t, LightLaserID, prods[3].ID)
+	assert.Equal(t, int64(3), prods[3].Nbr)
+}
+
 func TestExtractProduction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_queue.html")
 	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
