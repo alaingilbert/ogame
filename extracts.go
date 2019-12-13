@@ -35,7 +35,7 @@ type Extractor interface {
 	ExtractShips(pageHTML []byte) (ShipsInfos, error)
 	ExtractFacilities(pageHTML []byte) (Facilities, error)
 	ExtractResearch(pageHTML []byte) Researches
-	ExtractProduction(pageHTML []byte) ([]Quantifiable, error)
+	ExtractProduction(pageHTML []byte) ([]Quantifiable, int64, error)
 	ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int64, error)
 	ExtractFleet1Ships(pageHTML []byte) ShipsInfos
 	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int64)

@@ -31,3 +31,16 @@ func (e ExtractorV71) ExtractEspionageReport(pageHTML []byte, location *time.Loc
 func (e ExtractorV71) ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	return extractEspionageReportFromDocV71(doc, location)
 }
+
+// ExtractProduction extracts ships/defenses production from the shipyard page
+func (e ExtractorV71) ExtractProduction(pageHTML []byte) ([]Quantifiable, int64, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	shipSumCountdown := e.ExtractOverviewShipSumCountdownFromBytes(pageHTML)
+	production, err := e.ExtractProductionFromDoc(doc)
+	return production, shipSumCountdown, err
+}
+
+// ExtractProductionFromDoc extracts ships/defenses production from the shipyard page
+func (e ExtractorV71) ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
+	return extractProductionFromDocV71(doc)
+}

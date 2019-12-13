@@ -2083,17 +2083,34 @@ func TestV71ExtractOverviewProduction(t *testing.T) {
 	assert.Equal(t, int64(3), prods[3].Nbr)
 }
 
+func TestExtractV71Production(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/shipyard_queue.html")
+	prods, secs, _ := NewExtractorV71().ExtractProduction(pageHTMLBytes)
+	assert.Equal(t, 4, len(prods))
+	assert.Equal(t, int64(977), secs)
+	assert.Equal(t, SmallCargoID, prods[0].ID)
+	assert.Equal(t, int64(12), prods[0].Nbr)
+	assert.Equal(t, SmallCargoID, prods[1].ID)
+	assert.Equal(t, int64(5), prods[1].Nbr)
+	assert.Equal(t, LargeCargoID, prods[2].ID)
+	assert.Equal(t, int64(3), prods[2].Nbr)
+	assert.Equal(t, SmallCargoID, prods[3].ID)
+	assert.Equal(t, int64(5), prods[3].Nbr)
+}
+
 func TestExtractProduction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_queue.html")
-	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
 	assert.Equal(t, 20, len(prods))
+	assert.Equal(t, int64(16254), secs)
 	assert.Equal(t, LargeCargoID, prods[0].ID)
 	assert.Equal(t, int64(4), prods[0].Nbr)
 }
 
 func TestExtractProduction2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_queue2.html")
-	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	assert.Equal(t, int64(7082), secs)
 	assert.Equal(t, BattlecruiserID, prods[0].ID)
 	assert.Equal(t, int64(18), prods[0].Nbr)
 	assert.Equal(t, PlasmaTurretID, prods[1].ID)
@@ -2106,8 +2123,9 @@ func TestExtractProduction2(t *testing.T) {
 
 func TestExtractProductionWithABM(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/production_with_abm.html")
-	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
 	assert.Equal(t, 4, len(prods))
+	assert.Equal(t, int64(220), secs)
 	assert.Equal(t, DeathstarID, prods[0].ID)
 	assert.Equal(t, int64(1), prods[0].Nbr)
 	assert.Equal(t, AntiBallisticMissilesID, prods[1].ID)
@@ -2118,8 +2136,9 @@ func TestExtractProductionWithABM(t *testing.T) {
 
 func TestExtractDKProductionWithABM(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/dk/production_with_abm.html")
-	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
 	assert.Equal(t, 2, len(prods))
+	assert.Equal(t, int64(641), secs)
 	assert.Equal(t, AntiBallisticMissilesID, prods[0].ID)
 	assert.Equal(t, int64(1), prods[0].Nbr)
 	assert.Equal(t, AntiBallisticMissilesID, prods[1].ID)

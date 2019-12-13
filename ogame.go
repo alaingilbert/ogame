@@ -1932,7 +1932,7 @@ func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
 	return b.extractor.ExtractFacilities(pageHTML)
 }
 
-func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, error) {
+func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
 	pageHTML, _ := b.getPage(ShipyardPage, celestialID)
 	return b.extractor.ExtractProduction(pageHTML)
 }
@@ -3633,7 +3633,7 @@ func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
+func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
 	return b.WithPriority(Normal).GetProduction(celestialID)
 }
 

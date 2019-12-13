@@ -459,3 +459,29 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	}
 	return report, nil
 }
+
+func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) {
+	res := make([]Quantifiable, 0)
+	active := doc.Find("table.construction")
+	href, _ := active.Find("td a").Attr("href")
+	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
+	if len(m) == 0 {
+		return []Quantifiable{}, nil
+	}
+	idInt, _ := strconv.ParseInt(m[1], 10, 64)
+	activeID := ID(idInt)
+	activeNbr, _ := strconv.ParseInt(active.Find("div.shipSumCount").Text(), 10, 64)
+	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
+	doc.Find("table.queue td").Each(func(i int, s *goquery.Selection) {
+		link := s.Find("img")
+		alt := link.AttrOr("alt", "")
+		m := regexp.MustCompile(`techId_(\d+)`).FindStringSubmatch(alt)
+		if len(m) == 0 {
+			return
+		}
+		itemID, _ := strconv.ParseInt(m[1], 10, 64)
+		itemNbr := ParseInt(s.Text())
+		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
+	})
+	return res, nil
+}
