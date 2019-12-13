@@ -869,6 +869,14 @@ func TestExtractEspionageReportMessageIDsLootPercentage(t *testing.T) {
 	assert.Equal(t, 0.5, msgs[2].LootPercentage)
 }
 
+func TestV71ExtractEspionageReportMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages_loot_percentage.html")
+	msgs, _ := NewExtractorV71().ExtractEspionageReportMessageIDs(pageHTMLBytes)
+	assert.Equal(t, 1.0, msgs[0].LootPercentage)
+	assert.Equal(t, 0.5, msgs[1].LootPercentage)
+	assert.Equal(t, 0.5, msgs[2].LootPercentage)
+}
+
 func TestExtractCombatReportMessagesV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/combat_reports_msgs.html")
 	msgs, _ := NewExtractorV7().ExtractCombatReportMessagesSummary(pageHTMLBytes)
@@ -1914,6 +1922,22 @@ func TestExtractIPM(t *testing.T) {
 	assert.Equal(t, int64(15), duration)
 }
 
+func TestExtractFleetV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement.html")
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 1, len(fleets))
+	assert.Equal(t, int64(8271), fleets[0].ArriveIn)
+	assert.Equal(t, int64(16545), fleets[0].BackIn)
+	assert.Equal(t, Coordinate{1, 432, 6, PlanetType}, fleets[0].Origin)
+	assert.Equal(t, Coordinate{1, 432, 5, PlanetType}, fleets[0].Destination)
+	assert.Equal(t, Transport, fleets[0].Mission)
+	assert.Equal(t, false, fleets[0].ReturnFlight)
+	assert.Equal(t, FleetID(1674510), fleets[0].ID)
+	assert.Equal(t, int64(250), fleets[0].Ships.SmallCargo)
+	assert.Equal(t, int64(2), fleets[0].Ships.Pathfinder)
+	assert.Equal(t, Resources{}, fleets[0].Resources)
+}
+
 func TestExtractFleetV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/movement.html")
 	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
@@ -2042,6 +2066,21 @@ func TestExtractOverviewProduction(t *testing.T) {
 	assert.Equal(t, int64(5), prods[4].Nbr)
 	assert.Equal(t, HeavyFighterID, prods[5].ID)
 	assert.Equal(t, int64(6), prods[5].Nbr)
+}
+
+func TestV71ExtractOverviewProduction(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/overview_shipyard_queue.html")
+	prods, countdown, _ := NewExtractorV7().ExtractOverviewProduction(pageHTMLBytes)
+	assert.Equal(t, 4, len(prods))
+	assert.Equal(t, int64(542), countdown)
+	assert.Equal(t, GaussCannonID, prods[0].ID)
+	assert.Equal(t, int64(2), prods[0].Nbr)
+	assert.Equal(t, RocketLauncherID, prods[1].ID)
+	assert.Equal(t, int64(2), prods[1].Nbr)
+	assert.Equal(t, SmallShieldDomeID, prods[2].ID)
+	assert.Equal(t, int64(1), prods[2].Nbr)
+	assert.Equal(t, LightLaserID, prods[3].ID)
+	assert.Equal(t, int64(3), prods[3].Nbr)
 }
 
 func TestExtractProduction(t *testing.T) {
@@ -2228,6 +2267,14 @@ func TestExtractEspionageReportV7(t *testing.T) {
 	infos, _ := NewExtractorV7().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, int64(15), infos.LastActivity)
 	assert.Equal(t, int64(7), *infos.SmallCargo)
+}
+
+func TestExtractEspionageReportV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report.html")
+	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, int64(66331), infos.Metal)
+	assert.Equal(t, int64(58452), infos.Crystal)
+	assert.Equal(t, int64(0), infos.Deuterium)
 }
 
 func TestExtractEspionageReportThousands(t *testing.T) {
@@ -2460,6 +2507,30 @@ func TestGetResourcesDetailsV7(t *testing.T) {
 	assert.Equal(t, int64(0), res.Energy.Available)
 	assert.Equal(t, int64(22), res.Energy.CurrentProduction)
 	assert.Equal(t, int64(-22), res.Energy.Consumption)
+
+	assert.Equal(t, int64(8000), res.Darkmatter.Available)
+	assert.Equal(t, int64(0), res.Darkmatter.Purchased)
+	assert.Equal(t, int64(8000), res.Darkmatter.Found)
+}
+
+func TestGetResourcesDetailsV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/fetchResources.html")
+	res, _ := NewExtractorV71().ExtractResourcesDetails(pageHTMLBytes)
+	assert.Equal(t, int64(260120), res.Metal.Available)
+	assert.Equal(t, int64(470000), res.Metal.StorageCapacity)
+	assert.Equal(t, int64(13915), res.Metal.CurrentProduction)
+
+	assert.Equal(t, int64(95684), res.Crystal.Available)
+	assert.Equal(t, int64(255000), res.Crystal.StorageCapacity)
+	assert.Equal(t, int64(5984), res.Crystal.CurrentProduction)
+
+	assert.Equal(t, int64(140000), res.Deuterium.Available)
+	assert.Equal(t, int64(140000), res.Deuterium.StorageCapacity)
+	assert.Equal(t, int64(0), res.Deuterium.CurrentProduction)
+
+	assert.Equal(t, int64(-1865), res.Energy.Available)
+	assert.Equal(t, int64(2690), res.Energy.CurrentProduction)
+	assert.Equal(t, int64(-4555), res.Energy.Consumption)
 
 	assert.Equal(t, int64(8000), res.Darkmatter.Available)
 	assert.Equal(t, int64(0), res.Darkmatter.Purchased)

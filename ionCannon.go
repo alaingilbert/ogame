@@ -13,6 +13,7 @@ func newIonCannon() *ionCannon {
 	d.ShieldPower = 500
 	d.WeaponPower = 150
 	d.RapidfireFrom = map[ID]int64{BomberID: 10, DeathstarID: 100}
+	d.RapidfireAgainst = map[ID]int64{ReaperID: 2}
 	d.Requirements = map[ID]int64{ShipyardID: 4, IonTechnologyID: 4}
 	return d
 }

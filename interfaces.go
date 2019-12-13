@@ -168,6 +168,7 @@ type DefenderObj interface {
 	GetShieldPower(Researches) int64
 	GetWeaponPower(Researches) int64
 	GetRapidfireFrom() map[ID]int64
+	GetRapidfireAgainst() map[ID]int64
 }
 
 // Ship interface implemented by all ships units
@@ -176,7 +177,6 @@ type Ship interface {
 	GetCargoCapacity(techs Researches, probeRaids bool) int64
 	GetSpeed(Researches) int64
 	GetFuelConsumption() int64
-	GetRapidfireAgainst() map[ID]int64
 }
 
 // Defense interface implemented by all defenses units

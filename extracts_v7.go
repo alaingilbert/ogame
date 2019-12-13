@@ -620,3 +620,39 @@ func extractResourceSettingsFromDocV7(doc *goquery.Document) (ResourceSettings, 
 
 	return res, nil
 }
+
+func extractOverviewProductionFromDocV7(doc *goquery.Document) ([]Quantifiable, error) {
+	res := make([]Quantifiable, 0)
+	active := doc.Find("table.construction").Eq(2)
+	href, _ := active.Find("td a").Attr("href")
+	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
+	if len(m) == 0 {
+		return []Quantifiable{}, nil
+	}
+	idInt, _ := strconv.ParseInt(m[1], 10, 64)
+	activeID := ID(idInt)
+	activeNbr, _ := strconv.ParseInt(active.Find("div.shipSumCount").Text(), 10, 64)
+	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
+	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
+		img := s.Find("img")
+		alt := img.AttrOr("alt", "")
+		m := regexp.MustCompile(`techId_(\d+)`).FindStringSubmatch(alt)
+		if len(m) == 0 {
+			return
+		}
+		idInt, _ := strconv.ParseInt(m[1], 10, 64)
+		activeID := ID(idInt)
+		activeNbr := ParseInt(s.Text())
+		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
+	})
+	return res, nil
+}
+
+func extractOverviewShipSumCountdownFromBytesV7(pageHTML []byte) int64 {
+	var shipSumCountdown int64
+	shipSumCountdownMatch := regexp.MustCompile(`var restTimeship2 = (\d+);`).FindSubmatch(pageHTML)
+	if len(shipSumCountdownMatch) > 0 {
+		shipSumCountdown = int64(toInt(shipSumCountdownMatch[1]))
+	}
+	return shipSumCountdown
+}

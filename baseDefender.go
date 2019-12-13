@@ -12,6 +12,7 @@ type BaseDefender struct {
 	ShieldPower         int64
 	WeaponPower         int64
 	RapidfireFrom       map[ID]int64
+	RapidfireAgainst    map[ID]int64
 	Price               Resources
 }
 
@@ -33,6 +34,11 @@ func (b BaseDefender) GetWeaponPower(researches Researches) int64 {
 // GetRapidfireFrom returns which ships have rapid fire against the defender unit
 func (b BaseDefender) GetRapidfireFrom() map[ID]int64 {
 	return b.RapidfireFrom
+}
+
+// GetRapidfireAgainst returns which ships/defenses we have rapid fire against
+func (b BaseDefender) GetRapidfireAgainst() map[ID]int64 {
+	return b.RapidfireAgainst
 }
 
 // ConstructionTime returns the duration it takes to build nbr defender units

@@ -6,7 +6,6 @@ type BaseShip struct {
 	BaseCargoCapacity int64
 	BaseSpeed         int64
 	FuelConsumption   int64
-	RapidfireAgainst  map[ID]int64
 }
 
 // GetCargoCapacity returns ship cargo capacity
@@ -20,11 +19,6 @@ func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids bool) int64 {
 // GetFuelConsumption returns ship fuel consumption
 func (b BaseShip) GetFuelConsumption() int64 {
 	return b.FuelConsumption
-}
-
-// GetRapidfireAgainst returns which ships/defenses we have rapid fire against
-func (b BaseShip) GetRapidfireAgainst() map[ID]int64 {
-	return b.RapidfireAgainst
 }
 
 // GetSpeed returns speed of the ship
