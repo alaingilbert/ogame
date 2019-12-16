@@ -66,7 +66,7 @@ func RangeStructer(args ...interface{}) []interface{} {
 	return out
 }
 
-func add(x int, y int) int {
+func add(x int64, y int64) int64 {
 	return x + y
 }
 
