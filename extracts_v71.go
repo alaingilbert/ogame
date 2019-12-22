@@ -460,6 +460,15 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	return report, nil
 }
 
+func extractFacilitiesFromDocV71(doc *goquery.Document) (Facilities, error) {
+	res, err := extractFacilitiesFromDocV7(doc)
+	if err != nil {
+		return Facilities{}, err
+	}
+	res.LunarBase = getNbrV7(doc, "moonbase")
+	return res, nil
+}
+
 func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) {
 	res := make([]Quantifiable, 0)
 	active := doc.Find("table.construction")
