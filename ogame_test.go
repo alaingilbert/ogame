@@ -1119,11 +1119,11 @@ func TestExtractOfferOfTheDayPrice(t *testing.T) {
 }
 
 func TestExtractAttacks(t *testing.T) {
-	clock := clockwork.NewFakeClockAt(time.Date(2016, 8, 23, 10, 48, 13, 0, time.Local))
+	clock := clockwork.NewFakeClockAt(time.Date(2016, 8, 23, 17, 48, 13, 0, time.UTC))
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clock)
 	assert.Equal(t, 1, len(attacks))
-	assert.Equal(t, clock.Now().Add(14*time.Minute), attacks[0].ArrivalTime)
+	assert.Equal(t, clock.Now().Add(14*time.Minute), attacks[0].ArrivalTime.UTC())
 	assert.Equal(t, int64(14*60), attacks[0].ArriveIn)
 }
 
@@ -1900,7 +1900,7 @@ func TestGetConstructions(t *testing.T) {
 
 func TestGetConstructionsV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview_supplies_in_construction.html")
-	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 1, 6, 43, 0, time.Local))
+	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 9, 6, 43, 0, time.UTC))
 	buildingID, buildingCountdown, researchID, researchCountdown := extractConstructionsV7(pageHTMLBytes, clock)
 	assert.Equal(t, MetalMineID, buildingID)
 	assert.Equal(t, int64(62), buildingCountdown)
@@ -2179,10 +2179,10 @@ func TestIsFacilityID(t *testing.T) {
 }
 
 func TestExtractEspionageReport_tz(t *testing.T) {
-	clock := clockwork.NewFakeClockAt(time.Date(2019, 10, 26, 17, 26, 4, 0, time.Local))
+	clock := clockwork.NewFakeClockAt(time.Date(2019, 10, 27, 0, 26, 4, 0, time.UTC))
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_17h26-7Z.html")
 	infos, _ := NewExtractorV6().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
-	assert.Equal(t, clock.Now(), infos.Date)
+	assert.Equal(t, clock.Now(), infos.Date.UTC())
 }
 
 func TestExtractEspionageReport_action(t *testing.T) {
