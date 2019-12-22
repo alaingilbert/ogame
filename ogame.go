@@ -2219,14 +2219,26 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if priority != 0 && (!priority.IsDefense() || priority == AntiBallisticMissilesID || priority == InterplanetaryMissilesID) {
 		return 0, errors.New("invalid target id")
 	}
-	pageHTML, err := b.getPageContent(url.Values{
+	vals := url.Values{
 		"page":       {"missileattacklayer"},
 		"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
 		"system":     {strconv.FormatInt(coord.System, 10)},
 		"position":   {strconv.FormatInt(coord.Position, 10)},
 		"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
 		"cp":         {strconv.FormatInt(int64(planetID), 10)},
-	})
+	}
+	if b.IsV7() {
+		vals = url.Values{
+			"page":       {"ajax"},
+			"component":  {"missileattacklayer"},
+			"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
+			"system":     {strconv.FormatInt(coord.System, 10)},
+			"position":   {strconv.FormatInt(coord.Position, 10)},
+			"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
+			"cp":         {strconv.FormatInt(int64(planetID), 10)},
+		}
+	}
+	pageHTML, err := b.getPageContent(vals)
 	if err != nil {
 		return 0, err
 	}
@@ -2249,7 +2261,29 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if priority != 0 {
 		payload.Add("pziel", strconv.FormatInt(int64(priority), 10))
 	}
-	by, err := b.postPageContent(url.Values{"page": {"missileattack_execute"}}, payload)
+	params := url.Values{"page": {"missileattack_execute"}}
+	if b.IsV7() {
+		params = url.Values{
+			"page":      {"ajax"},
+			"component": {"missileattacklayer"},
+			"action":    {"sendMissiles"},
+			"ajax":      {"1"},
+			"asJson":    {"1"},
+		}
+		payload = url.Values{
+			"galaxy":               {strconv.FormatInt(coord.Galaxy, 10)},
+			"system":               {strconv.FormatInt(coord.System, 10)},
+			"position":             {strconv.FormatInt(coord.Position, 10)},
+			"type":                 {strconv.FormatInt(int64(coord.Type), 10)},
+			"token":                {token},
+			"missileCount":         {strconv.FormatInt(nbr, 10)},
+			"missilePrimaryTarget": {},
+		}
+		if priority != 0 {
+			payload.Add("missilePrimaryTarget", strconv.FormatInt(int64(priority), 10))
+		}
+	}
+	by, err := b.postPageContent(params, payload)
 	if err != nil {
 		return 0, err
 	}
@@ -2268,7 +2302,6 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if resp.ErrorBox.Failed == 1 {
 		return 0, errors.New(resp.ErrorBox.Text)
 	}
-	fmt.Println(string(by))
 
 	return duration, nil
 }
