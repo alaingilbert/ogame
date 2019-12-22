@@ -381,6 +381,16 @@ func TestExtractMoonFacilities(t *testing.T) {
 	assert.Equal(t, int64(5), res.JumpGate)
 }
 
+func TestExtractMoonFacilitiesV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/moon_facilities.html")
+	res, _ := NewExtractorV71().ExtractFacilities(pageHTMLBytes)
+	assert.Equal(t, int64(10), res.RoboticsFactory)
+	assert.Equal(t, int64(1), res.Shipyard)
+	assert.Equal(t, int64(10), res.LunarBase)
+	assert.Equal(t, int64(6), res.SensorPhalanx)
+	assert.Equal(t, int64(1), res.JumpGate)
+}
+
 func TestExtractDefense(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/defence.html")
 	defense, _ := NewExtractorV6().ExtractDefense(pageHTMLBytes)

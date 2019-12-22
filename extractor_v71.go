@@ -17,6 +17,17 @@ func NewExtractorV71() *ExtractorV71 {
 	return &ExtractorV71{}
 }
 
+// ExtractFacilitiesFromDoc ...
+func (e ExtractorV71) ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
+	return extractFacilitiesFromDocV71(doc)
+}
+
+// ExtractFacilities ...
+func (e ExtractorV71) ExtractFacilities(pageHTML []byte) (Facilities, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractFacilitiesFromDoc(doc)
+}
+
 func (e ExtractorV71) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV71(pageHTML)
 }
