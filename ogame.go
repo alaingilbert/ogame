@@ -2409,7 +2409,6 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		}
 	}
 
-	availableResources := b.extractor.ExtractResourcesFromDoc(fleet1Doc)
 	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
 
 	atLeastOneShipSelected := false
