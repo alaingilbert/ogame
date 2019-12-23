@@ -2493,17 +2493,6 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		return Fleet{}, errors.New("target is not ok")
 	}
 
-	_, fuel := calcFlightTime(b.getCachedCelestial(celestialID).GetCoordinate(), where, b.serverData.Galaxies, b.serverData.Systems,
-		b.serverData.DonutGalaxy, b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, b.serverData.SpeedFleet, ShipsInfos{}.FromQuantifiables(ships), b.getCachedResearch())
-	fuel += 1
-	fuel *= 2
-
-	// Ensure we keep fuel for the fleet
-	if resources.Deuterium+fuel > availableResources.Deuterium {
-		resources.Deuterium = int64(math.Max(float64(availableResources.Deuterium-fuel), 0))
-	}
-
 	// Page 3 : select coord, mission, speed
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
 	payload.Set("crystal", strconv.FormatInt(resources.Crystal, 10))
