@@ -75,6 +75,17 @@ func (e ExtractorV7) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]Comb
 	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
 
+// ExtractIPM ...
+func (e ExtractorV7) ExtractIPM(pageHTML []byte) (duration, max int64, token string) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractIPMFromDoc(doc)
+}
+
+// ExtractIPMFromDoc ...
+func (e ExtractorV7) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
+	return extractIPMFromDocV7(doc)
+}
+
 // ExtractEspionageReport ...
 func (e ExtractorV7) ExtractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))

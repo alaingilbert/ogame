@@ -17,6 +17,17 @@ func NewExtractorV71() *ExtractorV71 {
 	return &ExtractorV71{}
 }
 
+// ExtractFacilitiesFromDoc ...
+func (e ExtractorV71) ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
+	return extractFacilitiesFromDocV71(doc)
+}
+
+// ExtractFacilities ...
+func (e ExtractorV71) ExtractFacilities(pageHTML []byte) (Facilities, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractFacilitiesFromDoc(doc)
+}
+
 func (e ExtractorV71) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV71(pageHTML)
 }
@@ -30,4 +41,17 @@ func (e ExtractorV71) ExtractEspionageReport(pageHTML []byte, location *time.Loc
 // ExtractEspionageReportFromDoc ...
 func (e ExtractorV71) ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	return extractEspionageReportFromDocV71(doc, location)
+}
+
+// ExtractProduction extracts ships/defenses production from the shipyard page
+func (e ExtractorV71) ExtractProduction(pageHTML []byte) ([]Quantifiable, int64, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	shipSumCountdown := e.ExtractOverviewShipSumCountdownFromBytes(pageHTML)
+	production, err := e.ExtractProductionFromDoc(doc)
+	return production, shipSumCountdown, err
+}
+
+// ExtractProductionFromDoc extracts ships/defenses production from the shipyard page
+func (e ExtractorV71) ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
+	return extractProductionFromDocV71(doc)
 }

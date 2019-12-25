@@ -285,7 +285,7 @@ func (b *Prioritize) GetFacilities(celestialID CelestialID) (Facilities, error) 
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (b *Prioritize) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
+func (b *Prioritize) GetProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
 	b.begin("GetProduction")
 	defer b.done()
 	return b.bot.getProduction(celestialID)

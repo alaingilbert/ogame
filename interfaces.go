@@ -113,7 +113,7 @@ type Wrapper interface {
 	CancelBuilding(CelestialID) error
 	TearDown(celestialID CelestialID, id ID) error
 	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
-	GetProduction(CelestialID) ([]Quantifiable, error)
+	GetProduction(CelestialID) ([]Quantifiable, int64, error)
 	GetFacilities(CelestialID) (Facilities, error)
 	GetDefense(CelestialID) (DefensesInfos, error)
 	GetShips(CelestialID) (ShipsInfos, error)
@@ -200,7 +200,7 @@ type Celestial interface {
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int64) error
 	ConstructionsBeingBuilt() (ID, int64, ID, int64)
-	GetProduction() ([]Quantifiable, error)
+	GetProduction() ([]Quantifiable, int64, error)
 	GetResourcesBuildings() (ResourcesBuildings, error)
 	Build(id ID, nbr int64) error
 	BuildBuilding(buildingID ID) error
