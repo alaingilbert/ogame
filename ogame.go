@@ -2217,7 +2217,7 @@ func (b *OGame) getResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 
 func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
 	if priority != 0 && (!priority.IsDefense() || priority == AntiBallisticMissilesID || priority == InterplanetaryMissilesID) {
-		return 0, errors.New("invalid target id")
+		return 0, errors.New("invalid defense target id")
 	}
 	vals := url.Values{
 		"page":       {"missileattacklayer"},
