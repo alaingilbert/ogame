@@ -2492,11 +2492,24 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		return Fleet{}, errors.New("target is not ok")
 	}
 
+	cargo := ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1)
+	newResources := Resources{}
+	if resources.Total() > cargo {
+		newResources.Deuterium = int64(math.Min(float64(resources.Deuterium), float64(cargo)))
+		cargo -= newResources.Deuterium
+		newResources.Crystal = int64(math.Min(float64(resources.Crystal), float64(cargo)))
+		cargo -= newResources.Crystal
+		newResources.Metal = int64(math.Min(float64(resources.Metal), float64(cargo)))
+		cargo -= newResources.Metal
+	} else {
+		newResources = resources
+	}
+
 	// Page 3 : select coord, mission, speed
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
-	payload.Set("crystal", strconv.FormatInt(resources.Crystal, 10))
-	payload.Set("deuterium", strconv.FormatInt(resources.Deuterium, 10))
-	payload.Set("metal", strconv.FormatInt(resources.Metal, 10))
+	payload.Set("crystal", strconv.FormatInt(newResources.Crystal, 10))
+	payload.Set("deuterium", strconv.FormatInt(newResources.Deuterium, 10))
+	payload.Set("metal", strconv.FormatInt(newResources.Metal, 10))
 	payload.Set("mission", strconv.FormatInt(int64(mission), 10))
 	if mission == Expedition {
 		if expeditiontime <= 0 {
