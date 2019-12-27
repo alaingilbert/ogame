@@ -99,7 +99,7 @@ func getFromGame(c echo.Context) error {
 
 	byteArray := bot.GetPageContent(vals)
 
-	//bytes.Replace(byteArray, []byte("s107-nl.ogame.gameforge.com"), []byte("localhost:4567"), -1)
+	//bytes.Replace(byteArray, []byte("s1-en.ogame.gameforge.com"), []byte("localhost:4567"), -1)
 
 	// Replace "s107-nl.ogame.gameforge.com" with "gemini.example.com"
 	html := string(byteArray)
@@ -111,14 +111,14 @@ func getFromGame(c echo.Context) error {
 	html = strings.Replace(html, "<meta name=\"ogame-universe\" content=\""+c.Request().Host+"\"/>", "<meta name=\"ogame-universe\" content=\""+strings.Replace(bot.ServerURL(), "https://", "", -1)+"\"/>", -1)
 	html = strings.Replace(html, "https", "http", -1)
 
-	//html = strings.Replace(html, "s107-nl.ogame.gameforge.com", "127.0.0.1:8080", -1)
+	//html = strings.Replace(html, "s1-en.ogame.gameforge.com", "127.0.0.1:8080", -1)
 	//	html = strings.Replace(html, "\"/cdn", "\"https://s107-nl.ogame.gameforge.com/cdn", -1)
 
-	// Todo: 15jan2019:
+	// Todo: 12/15/2019:
 	// https://gf1.geo.gfsrv.net/cdn
 	// https://gf2.geo.gfsrv.net/cdn
 	// https://gf3.geo.gfsrv.net/cdn
-	// Nieuwe Nginx URL aanmaken met caching
+	// Nginx URL caching
 
 	return c.HTML(http.StatusOK, html)
 }
@@ -148,7 +148,7 @@ func postToGame(c echo.Context) error {
 	// Perform the post to the library
 	byteArray := bot.PostPageContent(vals, payload)
 
-	// Replace "s107-nl.ogame.gameforge.com" with "gemini.example.com"
+	// Replace "s1-en.ogame.gameforge.com" with "bot1.local"
 	html := string(byteArray)
 	html = strings.Replace(html, localserverurl, c.Request().Host, -1)
 	html = strings.Replace(html, "https", "http", -1)
