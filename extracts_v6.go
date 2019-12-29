@@ -1702,6 +1702,16 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 		res.ExpeditionDebris.PathfindersNeeded = ParseInt(prefixedNumRgx.FindStringSubmatch(pathfindersTxt)[1])
 	}
 
+	debris17Div := doc.Find("div#debris17")
+	if debris17Div.Size() > 0 {
+		lis := debris17Div.Find("ul.ListLinks li")
+		darkmatterTxt := lis.First().Text()
+		darkmatterMatches := prefixedNumRgx.FindStringSubmatch(darkmatterTxt)
+		if len(darkmatterMatches) == 2 {
+			res.Events.Darkmatter = ParseInt(darkmatterMatches[1])
+		}
+	}
+
 	return res, nil
 }
 
