@@ -2219,8 +2219,20 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if priority != 0 && (!priority.IsDefense() || priority == AntiBallisticMissilesID || priority == InterplanetaryMissilesID) {
 		return 0, errors.New("invalid target id")
 	}
+
+	// pageHTML, err := b.getPageContent(url.Values{
+		// "page":       {"missileattacklayer"},
+		// "galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
+		// "system":     {strconv.FormatInt(coord.System, 10)},
+		// "position":   {strconv.FormatInt(coord.Position, 10)},
+		// "planetType": {strconv.FormatInt(int64(coord.Type), 10)},
+		// "cp":         {strconv.FormatInt(int64(planetID), 10)},
+	// })
+
+	// OgameV7
 	pageHTML, err := b.getPageContent(url.Values{
-		"page":       {"missileattacklayer"},
+		"page":       {"ajax"},
+		"component":  {"missileattacklayer"},
 		"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
 		"system":     {strconv.FormatInt(coord.System, 10)},
 		"position":   {strconv.FormatInt(coord.Position, 10)},
@@ -2237,30 +2249,53 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if nbr > max {
 		nbr = max
 	}
+
+	// OgameV6
+	// payload := url.Values{
+		// "galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
+		// "system":     {strconv.FormatInt(coord.System, 10)},
+		// "position":   {strconv.FormatInt(coord.Position, 10)},
+		// "planetType": {strconv.FormatInt(int64(coord.Type), 10)},
+		// "token":      {token},
+		// "anz":        {strconv.FormatInt(nbr, 10)},
+		// "pziel":      {},
+	// }
+
+	// OgameV7
 	payload := url.Values{
-		"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
-		"system":     {strconv.FormatInt(coord.System, 10)},
-		"position":   {strconv.FormatInt(coord.Position, 10)},
-		"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
-		"token":      {token},
-		"anz":        {strconv.FormatInt(nbr, 10)},
-		"pziel":      {},
+		"galaxy":                {strconv.FormatInt(coord.Galaxy, 10)},
+		"system":                {strconv.FormatInt(coord.System, 10)},
+		"position":              {strconv.FormatInt(coord.Position, 10)},
+		"type":                  {strconv.FormatInt(int64(coord.Type), 10)},
+		"token":                 {token},
+		"missileCount":          {strconv.FormatInt(nbr, 10)},
+		"missilePrimaryTarget":  {strconv.FormatInt(int64(priority), 10)},
 	}
+
 	if priority != 0 {
 		payload.Add("pziel", strconv.FormatInt(int64(priority), 10))
 	}
-	by, err := b.postPageContent(url.Values{"page": {"missileattack_execute"}}, payload)
+	by, err := b.postPageContent(url.Values{
+		"page": {"ajax"},
+		"component": {"missileattacklayer"},
+		"action": {"sendMissiles"},
+		"ajax": {"1"},
+		"asJson": {"1"},
+		}, payload) // OgameV7
 	if err != nil {
 		return 0, err
 	}
-	// {"status":false,"errorbox":{"type":"fadeBox","text":"Target doesn`t exist!","failed":1}}
+	// {"status":false,"errorbox":{"type":"fadeBox","text":"Target doesn`t exist!","failed":1}} // OgameV6
+	// {"status":true,"rockets":0,"errorbox":{"type":"fadeBox","text":"25 raketten zijn gelanceerd!","failed":0},"components":[]} // OgameV7
 	var resp struct {
 		Status   bool
+		Rockets int64
 		ErrorBox struct {
 			Type   string
 			Text   string
 			Failed int
 		}
+		// components??
 	}
 	if err := json.Unmarshal(by, &resp); err != nil {
 		return 0, err

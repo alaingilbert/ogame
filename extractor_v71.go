@@ -31,3 +31,14 @@ func (e ExtractorV71) ExtractEspionageReport(pageHTML []byte, location *time.Loc
 func (e ExtractorV71) ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	return extractEspionageReportFromDocV71(doc, location)
 }
+
+// ExtractIPM ...
+func (e ExtractorV71) ExtractIPM(pageHTML []byte) (duration int64, max int64, token string) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractIPMFromDoc(doc)
+}
+
+// ExtractIPMFromDoc ...
+func (e ExtractorV71) ExtractIPMFromDoc(doc *goquery.Document) (duration int64, max int64, token string) {
+	return extractIPMFromDocV71(doc)
+}

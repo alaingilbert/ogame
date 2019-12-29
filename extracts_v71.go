@@ -459,3 +459,16 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	}
 	return report, nil
 }
+
+func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	duration_float, err := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
+
+	duration = int64(math.Ceil(duration_float))
+	log.Print(duration_float, err)
+
+	max, _ = strconv.ParseInt(doc.Find("input#missileCount").AttrOr("data-max", "0"), 10, 64)
+	token = doc.Find("input[name=token]").AttrOr("value", "")
+	return
+}
