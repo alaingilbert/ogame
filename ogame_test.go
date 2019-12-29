@@ -2574,7 +2574,7 @@ func TestGetResourcesDetailsV71(t *testing.T) {
 }
 
 func TestExtractIPMV71(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/ipm_missile_launch.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/nl/ipm_missile_launch.html")
 	duration, max, token := NewExtractorV71().ExtractIPM(pageHTMLBytes)
 	assert.Equal(t, "95b68270230217f7e9a813e4a4beb20e", token)
 	assert.Equal(t, int64(25), max)
