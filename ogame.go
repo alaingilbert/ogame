@@ -1630,16 +1630,16 @@ func moonIDInSlice(needle MoonID, haystack []MoonID) bool {
 	return false
 }
 
-func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfos) error {
+func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfos) (bool, int64, error) {
 	pageHTML, _ := b.getPage(JumpgatelayerPage, originMoonID.Celestial())
 	availShips, token, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
 	if wait > 0 {
-		return fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
+		return false, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
 	}
 
 	// Validate destination moon id
 	if !moonIDInSlice(destMoonID, dests) {
-		return errors.New("destination moon id invalid")
+		return false, 0, errors.New("destination moon id invalid")
 	}
 
 	payload := url.Values{"token": {token}, "zm": {strconv.FormatInt(int64(destMoonID), 10)}}
@@ -1654,9 +1654,9 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	}
 
 	if _, err := b.postPageContent(url.Values{"page": {"jumpgate_execute"}}, payload); err != nil {
-		return err
+		return false, 0, err
 	}
-	return nil
+	return true, 0, nil
 }
 
 func (b *OGame) createUnion(fleet Fleet) (int64, error) {
@@ -3843,7 +3843,7 @@ func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) 
 }
 
 // JumpGate sends ships through a jump gate.
-func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
+func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) (success bool, rechargeCountdown int64, err error) {
 	return b.WithPriority(Normal).JumpGate(origin, dest, ships)
 }
 

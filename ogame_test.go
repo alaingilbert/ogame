@@ -1331,6 +1331,13 @@ func TestExtractGalaxyInfos_banned(t *testing.T) {
 	assert.Equal(t, false, infos.Position(9).Banned)
 }
 
+func TestExtractGalaxyV7ExpeditionDebrisDM(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/fr/galaxy_darkmatter_df.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(3137), infos.Events.Darkmatter)
+}
+
 func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_debris16.html")
 	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
