@@ -5,8 +5,9 @@ int main() {
   char* universe = getenv("UNIVERSE");
   char* username = getenv("USERNAME");
   char* password = getenv("PASSWORD");
+  char* language = getenv("LANGUAGE");
   char* error_msg;
-  error_msg = OGame(universe, username, password);
+  error_msg = OGame(universe, username, password, language);
   if (error_msg) {
     printf("Error: %s\n", error_msg);
     exit(1);
@@ -17,8 +18,8 @@ int main() {
     printf("Error: %s\n", p.r11);
   }
 
-  int is_under_attack = IsUnderAttack();
-  if (is_under_attack == 1) {
+  struct IsUnderAttack_return pp = IsUnderAttack();
+  if (pp.r0 == 1) {
     printf("Attack detected\n");
   } else {
     printf("No attack detected\n");

@@ -48,7 +48,7 @@ func (m Moon) GetFields() Fields {
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (m Moon) GetProduction() ([]Quantifiable, error) {
+func (m Moon) GetProduction() ([]Quantifiable, int64, error) {
 	return m.ogame.GetProduction(m.ID.Celestial())
 }
 

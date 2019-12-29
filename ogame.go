@@ -1630,16 +1630,16 @@ func moonIDInSlice(needle MoonID, haystack []MoonID) bool {
 	return false
 }
 
-func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfos) error {
+func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfos) (bool, int64, error) {
 	pageHTML, _ := b.getPage(JumpgatelayerPage, originMoonID.Celestial())
 	availShips, token, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
 	if wait > 0 {
-		return fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
+		return false, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
 	}
 
 	// Validate destination moon id
 	if !moonIDInSlice(destMoonID, dests) {
-		return errors.New("destination moon id invalid")
+		return false, 0, errors.New("destination moon id invalid")
 	}
 
 	payload := url.Values{"token": {token}, "zm": {strconv.FormatInt(int64(destMoonID), 10)}}
@@ -1654,9 +1654,9 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	}
 
 	if _, err := b.postPageContent(url.Values{"page": {"jumpgate_execute"}}, payload); err != nil {
-		return err
+		return false, 0, err
 	}
-	return nil
+	return true, 0, nil
 }
 
 func (b *OGame) createUnion(fleet Fleet) (int64, error) {
@@ -1932,7 +1932,7 @@ func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
 	return b.extractor.ExtractFacilities(pageHTML)
 }
 
-func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, error) {
+func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
 	pageHTML, _ := b.getPage(ShipyardPage, celestialID)
 	return b.extractor.ExtractProduction(pageHTML)
 }
@@ -2217,28 +2217,28 @@ func (b *OGame) getResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 
 func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
 	if priority != 0 && (!priority.IsDefense() || priority == AntiBallisticMissilesID || priority == InterplanetaryMissilesID) {
-		return 0, errors.New("invalid target id")
+		return 0, errors.New("invalid defense target id")
 	}
-
-	// pageHTML, err := b.getPageContent(url.Values{
-		// "page":       {"missileattacklayer"},
-		// "galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
-		// "system":     {strconv.FormatInt(coord.System, 10)},
-		// "position":   {strconv.FormatInt(coord.Position, 10)},
-		// "planetType": {strconv.FormatInt(int64(coord.Type), 10)},
-		// "cp":         {strconv.FormatInt(int64(planetID), 10)},
-	// })
-
-	// OgameV7
-	pageHTML, err := b.getPageContent(url.Values{
-		"page":       {"ajax"},
-		"component":  {"missileattacklayer"},
+	vals := url.Values{
+		"page":       {"missileattacklayer"},
 		"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
 		"system":     {strconv.FormatInt(coord.System, 10)},
 		"position":   {strconv.FormatInt(coord.Position, 10)},
 		"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
 		"cp":         {strconv.FormatInt(int64(planetID), 10)},
-	})
+	}
+	if b.IsV7() {
+		vals = url.Values{
+			"page":       {"ajax"},
+			"component":  {"missileattacklayer"},
+			"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
+			"system":     {strconv.FormatInt(coord.System, 10)},
+			"position":   {strconv.FormatInt(coord.Position, 10)},
+			"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
+			"cp":         {strconv.FormatInt(int64(planetID), 10)},
+		}
+	}
+	pageHTML, err := b.getPageContent(vals)
 	if err != nil {
 		return 0, err
 	}
@@ -2249,39 +2249,41 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if nbr > max {
 		nbr = max
 	}
-
-	// OgameV6
-	// payload := url.Values{
-		// "galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
-		// "system":     {strconv.FormatInt(coord.System, 10)},
-		// "position":   {strconv.FormatInt(coord.Position, 10)},
-		// "planetType": {strconv.FormatInt(int64(coord.Type), 10)},
-		// "token":      {token},
-		// "anz":        {strconv.FormatInt(nbr, 10)},
-		// "pziel":      {},
-	// }
-
-	// OgameV7
 	payload := url.Values{
-		"galaxy":                {strconv.FormatInt(coord.Galaxy, 10)},
-		"system":                {strconv.FormatInt(coord.System, 10)},
-		"position":              {strconv.FormatInt(coord.Position, 10)},
-		"type":                  {strconv.FormatInt(int64(coord.Type), 10)},
-		"token":                 {token},
-		"missileCount":          {strconv.FormatInt(nbr, 10)},
-		"missilePrimaryTarget":  {strconv.FormatInt(int64(priority), 10)},
+		"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
+		"system":     {strconv.FormatInt(coord.System, 10)},
+		"position":   {strconv.FormatInt(coord.Position, 10)},
+		"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
+		"token":      {token},
+		"anz":        {strconv.FormatInt(nbr, 10)},
+		"pziel":      {},
 	}
-
 	if priority != 0 {
 		payload.Add("pziel", strconv.FormatInt(int64(priority), 10))
 	}
-	by, err := b.postPageContent(url.Values{
-		"page": {"ajax"},
-		"component": {"missileattacklayer"},
-		"action": {"sendMissiles"},
-		"ajax": {"1"},
-		"asJson": {"1"},
-		}, payload) // OgameV7
+	params := url.Values{"page": {"missileattack_execute"}}
+	if b.IsV7() {
+		params = url.Values{
+			"page":      {"ajax"},
+			"component": {"missileattacklayer"},
+			"action":    {"sendMissiles"},
+			"ajax":      {"1"},
+			"asJson":    {"1"},
+		}
+		payload = url.Values{
+			"galaxy":               {strconv.FormatInt(coord.Galaxy, 10)},
+			"system":               {strconv.FormatInt(coord.System, 10)},
+			"position":             {strconv.FormatInt(coord.Position, 10)},
+			"type":                 {strconv.FormatInt(int64(coord.Type), 10)},
+			"token":                {token},
+			"missileCount":         {strconv.FormatInt(nbr, 10)},
+			"missilePrimaryTarget": {},
+		}
+		if priority != 0 {
+			payload.Add("missilePrimaryTarget", strconv.FormatInt(int64(priority), 10))
+		}
+	}
+	by, err := b.postPageContent(params, payload)
 	if err != nil {
 		return 0, err
 	}
@@ -2303,7 +2305,6 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if resp.ErrorBox.Failed == 1 {
 		return 0, errors.New(resp.ErrorBox.Text)
 	}
-	fmt.Println(string(by))
 
 	return duration, nil
 }
@@ -2411,7 +2412,6 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		}
 	}
 
-	availableResources := b.extractor.ExtractResourcesFromDoc(fleet1Doc)
 	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
 
 	atLeastOneShipSelected := false
@@ -2495,22 +2495,24 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		return Fleet{}, errors.New("target is not ok")
 	}
 
-	_, fuel := calcFlightTime(b.getCachedCelestial(celestialID).GetCoordinate(), where, b.serverData.Galaxies, b.serverData.Systems,
-		b.serverData.DonutGalaxy, b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, b.serverData.SpeedFleet, ShipsInfos{}.FromQuantifiables(ships), b.getCachedResearch())
-	fuel += 1
-	fuel *= 2
-
-	// Ensure we keep fuel for the fleet
-	if resources.Deuterium+fuel > availableResources.Deuterium {
-		resources.Deuterium = int64(math.Max(float64(availableResources.Deuterium-fuel), 0))
+	cargo := ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1)
+	newResources := Resources{}
+	if resources.Total() > cargo {
+		newResources.Deuterium = int64(math.Min(float64(resources.Deuterium), float64(cargo)))
+		cargo -= newResources.Deuterium
+		newResources.Crystal = int64(math.Min(float64(resources.Crystal), float64(cargo)))
+		cargo -= newResources.Crystal
+		newResources.Metal = int64(math.Min(float64(resources.Metal), float64(cargo)))
+		cargo -= newResources.Metal
+	} else {
+		newResources = resources
 	}
 
 	// Page 3 : select coord, mission, speed
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
-	payload.Set("crystal", strconv.FormatInt(resources.Crystal, 10))
-	payload.Set("deuterium", strconv.FormatInt(resources.Deuterium, 10))
-	payload.Set("metal", strconv.FormatInt(resources.Metal, 10))
+	payload.Set("crystal", strconv.FormatInt(newResources.Crystal, 10))
+	payload.Set("deuterium", strconv.FormatInt(newResources.Deuterium, 10))
+	payload.Set("metal", strconv.FormatInt(newResources.Metal, 10))
 	payload.Set("mission", strconv.FormatInt(int64(mission), 10))
 	if mission == Expedition {
 		if expeditiontime <= 0 {
@@ -3668,7 +3670,7 @@ func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
+func (b *OGame) GetProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
 	return b.WithPriority(Normal).GetProduction(celestialID)
 }
 
@@ -3844,7 +3846,7 @@ func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) 
 }
 
 // JumpGate sends ships through a jump gate.
-func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
+func (b *OGame) JumpGate(origin, dest MoonID, ships ShipsInfos) (success bool, rechargeCountdown int64, err error) {
 	return b.WithPriority(Normal).JumpGate(origin, dest, ships)
 }
 

@@ -13,7 +13,7 @@ func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids bool) int64 {
 	if b.GetID() == EspionageProbeID && !probeRaids {
 		return 0
 	}
-	return b.BaseCargoCapacity + int64(float64(b.BaseCargoCapacity*int64(techs.HyperspaceTechnology))*0.05)
+	return b.BaseCargoCapacity + int64(float64(b.BaseCargoCapacity*techs.HyperspaceTechnology)*0.05)
 }
 
 // GetFuelConsumption returns ship fuel consumption
