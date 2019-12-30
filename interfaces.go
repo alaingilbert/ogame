@@ -99,6 +99,7 @@ type Wrapper interface {
 	BytesDownloaded() int64
 	BytesUploaded() int64
 	CreateUnion(fleet Fleet) (int64, error)
+	GetEmpire(nbr int64) (interface{}, error)
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)

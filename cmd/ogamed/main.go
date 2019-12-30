@@ -152,6 +152,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
 	e.GET("/bot/language", ogame.GetLanguageHandler)
+	e.GET("/bot/empire/type/:typeID", ogame.GetEmpireHandler)
 	e.POST("/bot/page-content", ogame.PageContentHandler)
 	e.GET("/bot/login", ogame.LoginHandler)
 	e.GET("/bot/logout", ogame.LogoutHandler)
@@ -198,7 +199,6 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/cancel-research", ogame.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", ogame.GetResourcesHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
-	e.GET("/bot/empire/type/:typeID", ogame.GetEmpireHandler)
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 
 	return e.Start(host + ":" + strconv.Itoa(port))

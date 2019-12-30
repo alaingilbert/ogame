@@ -1977,22 +1977,15 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 
 func extractEmpire(html string, nbr int64) (interface{}, error) {
 	if nbr > 1 {
-		return "", errors.New("Invalid number for Empire page")
+		return nil, errors.New("invalid number for Empire page")
 	}
-
-	// Regex : `createImperiumHtml\("#mainWrapper",\s"#loading",\s(.*),\s0\s\);`
-
-	m := regexp.MustCompile(`createImperiumHtml\("#mainWrapper",\s"#loading",\s(.*),\s\d\s\);`).FindStringSubmatch(html)
-
+	m := regexp.MustCompile(`createImperiumHtml\("#mainWrapper",\s"#loading",\s(.*),\s\d+\s\);`).FindStringSubmatch(html)
 	if len(m) != 2 {
-		return "", errors.New("Regexp for Empire JSON did not match anything")
+		return nil, errors.New("regexp for Empire JSON did not match anything")
 	}
-
-	var empirejson interface{}
-
-	if err := json.Unmarshal([]byte(m[1]), &empirejson); err != nil {
-		return "", err
+	var empireJSON interface{}
+	if err := json.Unmarshal([]byte(m[1]), &empireJSON); err != nil {
+		return nil, err
 	}
-
-	return empirejson, nil
+	return empireJSON, nil
 }
