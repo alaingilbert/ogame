@@ -667,3 +667,8 @@ func (e ExtractorV6) ExtractCancelBuildingInfos(pageHTML []byte) (token string, 
 func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return extractCancelResearchInfosV6(pageHTML)
 }
+
+// ExtractEmpire ...
+func (e ExtractorV6) ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error) {
+	return extractEmpire(string(pageHTML), nbr)
+}

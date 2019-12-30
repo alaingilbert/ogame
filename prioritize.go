@@ -523,3 +523,11 @@ func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
 	defer b.done()
 	return b.bot.createUnion(fleet)
 }
+
+// GetEmpire retrieves JSON from Empire page (Commander only).
+func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
+	b.begin("GetEmpire")
+	defer b.done()
+	return b.bot.getEmpire(nbr)
+}
+

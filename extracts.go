@@ -130,6 +130,7 @@ type Extractor interface {
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
+	ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error)
 }
 
 // Compile time checks to ensure type satisfies Extractor interface
