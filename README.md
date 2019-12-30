@@ -240,5 +240,5 @@ POST /bot/planets/:planetID/cancel-research
 GET  /bot/planets/:planetID/resources
 POST /bot/planets/:planetID/send-fleet
 POST /bot/planets/:planetID/send-ipm
-GET  /bot/planets/:planetID/teardown/:ogameID
+POST /bot/planets/:planetID/teardown/:ogameID
 ```
