@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"math"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -458,4 +459,47 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 		return report, ErrDeactivateHidePictures
 	}
 	return report, nil
+}
+
+func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
+	duration_float, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
+	duration = int64(math.Ceil(duration_float))
+	max, _ = strconv.ParseInt(doc.Find("input#missileCount").AttrOr("data-max", "0"), 10, 64)
+	token = doc.Find("input[name=token]").AttrOr("value", "")
+	return
+}
+
+func extractFacilitiesFromDocV71(doc *goquery.Document) (Facilities, error) {
+	res, err := extractFacilitiesFromDocV7(doc)
+	if err != nil {
+		return Facilities{}, err
+	}
+	res.LunarBase = getNbrV7(doc, "moonbase")
+	return res, nil
+}
+
+func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) {
+	res := make([]Quantifiable, 0)
+	active := doc.Find("table.construction")
+	href, _ := active.Find("td a").Attr("href")
+	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
+	if len(m) == 0 {
+		return []Quantifiable{}, nil
+	}
+	idInt, _ := strconv.ParseInt(m[1], 10, 64)
+	activeID := ID(idInt)
+	activeNbr, _ := strconv.ParseInt(active.Find("div.shipSumCount").Text(), 10, 64)
+	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
+	doc.Find("table.queue td").Each(func(i int, s *goquery.Selection) {
+		link := s.Find("img")
+		alt := link.AttrOr("alt", "")
+		m := regexp.MustCompile(`techId_(\d+)`).FindStringSubmatch(alt)
+		if len(m) == 0 {
+			return
+		}
+		itemID, _ := strconv.ParseInt(m[1], 10, 64)
+		itemNbr := ParseInt(s.Text())
+		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
+	})
+	return res, nil
 }

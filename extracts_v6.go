@@ -1702,6 +1702,16 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 		res.ExpeditionDebris.PathfindersNeeded = ParseInt(prefixedNumRgx.FindStringSubmatch(pathfindersTxt)[1])
 	}
 
+	debris17Div := doc.Find("div#debris17")
+	if debris17Div.Size() > 0 {
+		lis := debris17Div.Find("ul.ListLinks li")
+		darkmatterTxt := lis.First().Text()
+		darkmatterMatches := prefixedNumRgx.FindStringSubmatch(darkmatterTxt)
+		if len(darkmatterMatches) == 2 {
+			res.Events.Darkmatter = ParseInt(darkmatterMatches[1])
+		}
+	}
+
 	return res, nil
 }
 
@@ -1963,4 +1973,19 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	moon.Fields.Total, _ = strconv.ParseInt(mm[7], 10, 64)
 	moon.Img = moonLink.Find("img.icon-moon").AttrOr("src", "")
 	return moon, nil
+}
+
+func extractEmpire(html string, nbr int64) (interface{}, error) {
+	if nbr > 1 {
+		return nil, errors.New("invalid number for Empire page")
+	}
+	m := regexp.MustCompile(`createImperiumHtml\("#mainWrapper",\s"#loading",\s(.*),\s\d+\s\);`).FindStringSubmatch(html)
+	if len(m) != 2 {
+		return nil, errors.New("regexp for Empire JSON did not match anything")
+	}
+	var empireJSON interface{}
+	if err := json.Unmarshal([]byte(m[1]), &empireJSON); err != nil {
+		return nil, err
+	}
+	return empireJSON, nil
 }

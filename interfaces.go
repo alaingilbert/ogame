@@ -88,6 +88,7 @@ type Wrapper interface {
 	GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 	//GetCombatReport(msgID int) (CombatReport, error)
 	DeleteMessage(msgID int64) error
+	DeleteAllMessagesFromTab(tabID int64) error
 	Distance(origin, destination Coordinate) int64
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
 	RegisterChatCallback(func(ChatMsg))
@@ -98,6 +99,7 @@ type Wrapper interface {
 	BytesDownloaded() int64
 	BytesUploaded() int64
 	CreateUnion(fleet Fleet) (int64, error)
+	GetEmpire(nbr int64) (interface{}, error)
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
@@ -113,7 +115,7 @@ type Wrapper interface {
 	CancelBuilding(CelestialID) error
 	TearDown(celestialID CelestialID, id ID) error
 	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
-	GetProduction(CelestialID) ([]Quantifiable, error)
+	GetProduction(CelestialID) ([]Quantifiable, int64, error)
 	GetFacilities(CelestialID) (Facilities, error)
 	GetDefense(CelestialID) (DefensesInfos, error)
 	GetShips(CelestialID) (ShipsInfos, error)
@@ -132,7 +134,7 @@ type Wrapper interface {
 	// Moon specific functions
 	Phalanx(MoonID, Coordinate) ([]Fleet, error)
 	UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
-	JumpGate(origin, dest MoonID, ships ShipsInfos) error
+	JumpGate(origin, dest MoonID, ships ShipsInfos) (bool, int64, error)
 }
 
 // BaseOgameObj base interface for all ogame objects (buildings, technologies, ships, defenses)
@@ -200,7 +202,7 @@ type Celestial interface {
 	GetShips() (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int64) error
 	ConstructionsBeingBuilt() (ID, int64, ID, int64)
-	GetProduction() ([]Quantifiable, error)
+	GetProduction() ([]Quantifiable, int64, error)
 	GetResourcesBuildings() (ResourcesBuildings, error)
 	Build(id ID, nbr int64) error
 	BuildBuilding(buildingID ID) error

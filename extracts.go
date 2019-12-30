@@ -35,7 +35,7 @@ type Extractor interface {
 	ExtractShips(pageHTML []byte) (ShipsInfos, error)
 	ExtractFacilities(pageHTML []byte) (Facilities, error)
 	ExtractResearch(pageHTML []byte) Researches
-	ExtractProduction(pageHTML []byte) ([]Quantifiable, error)
+	ExtractProduction(pageHTML []byte) ([]Quantifiable, int64, error)
 	ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int64, error)
 	ExtractFleet1Ships(pageHTML []byte) ShipsInfos
 	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int64)
@@ -130,6 +130,7 @@ type Extractor interface {
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
+	ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error)
 }
 
 // Compile time checks to ensure type satisfies Extractor interface

@@ -172,9 +172,11 @@ func (e ExtractorV6) ExtractResearch(pageHTML []byte) Researches {
 }
 
 // ExtractProduction extracts ships/defenses production from the shipyard page
-func (e ExtractorV6) ExtractProduction(pageHTML []byte) ([]Quantifiable, error) {
+func (e ExtractorV6) ExtractProduction(pageHTML []byte) ([]Quantifiable, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractProductionFromDoc(doc)
+	shipSumCountdown := e.ExtractOverviewShipSumCountdownFromBytes(pageHTML)
+	production, err := e.ExtractProductionFromDoc(doc)
+	return production, shipSumCountdown, err
 }
 
 // ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
@@ -666,4 +668,9 @@ func (e ExtractorV6) ExtractCancelBuildingInfos(pageHTML []byte) (token string, 
 // ExtractCancelResearchInfos ...
 func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return extractCancelResearchInfosV6(pageHTML)
+}
+
+// ExtractEmpire ...
+func (e ExtractorV6) ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error) {
+	return extractEmpire(string(pageHTML), nbr)
 }

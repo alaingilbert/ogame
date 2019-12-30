@@ -381,6 +381,16 @@ func TestExtractMoonFacilities(t *testing.T) {
 	assert.Equal(t, int64(5), res.JumpGate)
 }
 
+func TestExtractMoonFacilitiesV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/moon_facilities.html")
+	res, _ := NewExtractorV71().ExtractFacilities(pageHTMLBytes)
+	assert.Equal(t, int64(10), res.RoboticsFactory)
+	assert.Equal(t, int64(1), res.Shipyard)
+	assert.Equal(t, int64(10), res.LunarBase)
+	assert.Equal(t, int64(6), res.SensorPhalanx)
+	assert.Equal(t, int64(1), res.JumpGate)
+}
+
 func TestExtractDefense(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/defence.html")
 	defense, _ := NewExtractorV6().ExtractDefense(pageHTMLBytes)
@@ -1119,11 +1129,11 @@ func TestExtractOfferOfTheDayPrice(t *testing.T) {
 }
 
 func TestExtractAttacks(t *testing.T) {
-	clock := clockwork.NewFakeClockAt(time.Date(2016, 8, 23, 10, 48, 13, 0, time.Local))
+	clock := clockwork.NewFakeClockAt(time.Date(2016, 8, 23, 17, 48, 13, 0, time.UTC))
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clock)
 	assert.Equal(t, 1, len(attacks))
-	assert.Equal(t, clock.Now().Add(14*time.Minute), attacks[0].ArrivalTime)
+	assert.Equal(t, clock.Now().Add(14*time.Minute), attacks[0].ArrivalTime.UTC())
 	assert.Equal(t, int64(14*60), attacks[0].ArriveIn)
 }
 
@@ -1319,6 +1329,13 @@ func TestExtractGalaxyInfos_banned(t *testing.T) {
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.Equal(t, true, infos.Position(1).Banned)
 	assert.Equal(t, false, infos.Position(9).Banned)
+}
+
+func TestExtractGalaxyV7ExpeditionDebrisDM(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/fr/galaxy_darkmatter_df.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(3137), infos.Events.Darkmatter)
 }
 
 func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
@@ -1900,7 +1917,7 @@ func TestGetConstructions(t *testing.T) {
 
 func TestGetConstructionsV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview_supplies_in_construction.html")
-	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 1, 6, 43, 0, time.Local))
+	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 9, 6, 43, 0, time.UTC))
 	buildingID, buildingCountdown, researchID, researchCountdown := extractConstructionsV7(pageHTMLBytes, clock)
 	assert.Equal(t, MetalMineID, buildingID)
 	assert.Equal(t, int64(62), buildingCountdown)
@@ -2083,17 +2100,34 @@ func TestV71ExtractOverviewProduction(t *testing.T) {
 	assert.Equal(t, int64(3), prods[3].Nbr)
 }
 
+func TestExtractV71Production(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/shipyard_queue.html")
+	prods, secs, _ := NewExtractorV71().ExtractProduction(pageHTMLBytes)
+	assert.Equal(t, 4, len(prods))
+	assert.Equal(t, int64(977), secs)
+	assert.Equal(t, SmallCargoID, prods[0].ID)
+	assert.Equal(t, int64(12), prods[0].Nbr)
+	assert.Equal(t, SmallCargoID, prods[1].ID)
+	assert.Equal(t, int64(5), prods[1].Nbr)
+	assert.Equal(t, LargeCargoID, prods[2].ID)
+	assert.Equal(t, int64(3), prods[2].Nbr)
+	assert.Equal(t, SmallCargoID, prods[3].ID)
+	assert.Equal(t, int64(5), prods[3].Nbr)
+}
+
 func TestExtractProduction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_queue.html")
-	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
 	assert.Equal(t, 20, len(prods))
+	assert.Equal(t, int64(16254), secs)
 	assert.Equal(t, LargeCargoID, prods[0].ID)
 	assert.Equal(t, int64(4), prods[0].Nbr)
 }
 
 func TestExtractProduction2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_queue2.html")
-	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	assert.Equal(t, int64(7082), secs)
 	assert.Equal(t, BattlecruiserID, prods[0].ID)
 	assert.Equal(t, int64(18), prods[0].Nbr)
 	assert.Equal(t, PlasmaTurretID, prods[1].ID)
@@ -2106,8 +2140,9 @@ func TestExtractProduction2(t *testing.T) {
 
 func TestExtractProductionWithABM(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/production_with_abm.html")
-	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
 	assert.Equal(t, 4, len(prods))
+	assert.Equal(t, int64(220), secs)
 	assert.Equal(t, DeathstarID, prods[0].ID)
 	assert.Equal(t, int64(1), prods[0].Nbr)
 	assert.Equal(t, AntiBallisticMissilesID, prods[1].ID)
@@ -2118,8 +2153,9 @@ func TestExtractProductionWithABM(t *testing.T) {
 
 func TestExtractDKProductionWithABM(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/dk/production_with_abm.html")
-	prods, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
+	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
 	assert.Equal(t, 2, len(prods))
+	assert.Equal(t, int64(641), secs)
 	assert.Equal(t, AntiBallisticMissilesID, prods[0].ID)
 	assert.Equal(t, int64(1), prods[0].Nbr)
 	assert.Equal(t, AntiBallisticMissilesID, prods[1].ID)
@@ -2160,10 +2196,10 @@ func TestIsFacilityID(t *testing.T) {
 }
 
 func TestExtractEspionageReport_tz(t *testing.T) {
-	clock := clockwork.NewFakeClockAt(time.Date(2019, 10, 26, 17, 26, 4, 0, time.Local))
+	clock := clockwork.NewFakeClockAt(time.Date(2019, 10, 27, 0, 26, 4, 0, time.UTC))
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/spy_report_17h26-7Z.html")
 	infos, _ := NewExtractorV6().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
-	assert.Equal(t, clock.Now(), infos.Date)
+	assert.Equal(t, clock.Now(), infos.Date.UTC())
 }
 
 func TestExtractEspionageReport_action(t *testing.T) {
@@ -2535,4 +2571,12 @@ func TestGetResourcesDetailsV71(t *testing.T) {
 	assert.Equal(t, int64(8000), res.Darkmatter.Available)
 	assert.Equal(t, int64(0), res.Darkmatter.Purchased)
 	assert.Equal(t, int64(8000), res.Darkmatter.Found)
+}
+
+func TestExtractIPMV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/nl/ipm_missile_launch.html")
+	duration, max, token := NewExtractorV71().ExtractIPM(pageHTMLBytes)
+	assert.Equal(t, "95b68270230217f7e9a813e4a4beb20e", token)
+	assert.Equal(t, int64(25), max)
+	assert.Equal(t, int64(248), duration)
 }
