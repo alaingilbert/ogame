@@ -80,6 +80,7 @@ type OGame struct {
 	bytesUploaded         int64
 	bytesDownloaded       int64
 	extractor             Extractor
+	APInewhostname string
 }
 
 // Preferences ...
@@ -3822,3 +3823,47 @@ func (b *OGame) BuyOfferOfTheDay() error {
 func (b *OGame) CreateUnion(fleet Fleet) (int64, error) {
 	return b.WithPriority(Normal).CreateUnion(fleet)
 }
+
+// HeadersForPage gets the headers for a specific ogame page
+func (b *OGame) HeadersForPage(url string) (http.Header, error) {
+	return b.WithPriority(Low).HeadersForPage(url)
+}
+
+func (b *OGame) headersForPage(url string) (http.Header, error) {
+        if !b.IsEnabled() {
+                return nil, ErrBotInactive
+        }
+        if !b.IsLoggedIn() {
+                return nil, ErrBotLoggedOut
+        }
+
+        if b.serverURL == "" {
+                err := errors.New("serverURL is empty")
+                b.error(err)
+                return nil, err
+        }
+
+        if !strings.HasPrefix(url, "/") {
+                url = "/" + url
+        }
+
+        finalURL := b.serverURL + url
+
+        req, err := http.NewRequest("HEAD", finalURL, nil)
+        if err != nil {
+                return nil, err
+        }
+
+        resp, err := b.Client.Do(req)
+        if err != nil {
+                return nil, err
+        }
+        defer resp.Body.Close()
+
+        if resp.StatusCode >= 500 {
+                return nil, err
+        }
+
+        return resp.Header, err
+}
+

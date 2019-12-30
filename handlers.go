@@ -765,3 +765,132 @@ func SendFleetHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(fleet))
 }
+
+func GetStaticHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
+
+	url := "https://" + orighostname + c.Request().URL.String()
+
+	resp, err := http.Get(url)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			bot.error(err)
+		}
+	}()
+
+	// Copy the original HTTP headers to our client
+	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		for _, v := range vv {
+			c.Response().Header().Add(k, v)
+		}
+	}
+
+	if strings.Contains(c.Request().URL.String(), ".xml") {
+		body2 := strings.Replace(string(body), orighostname, bot.APInewhostname, -1)
+		return c.XMLBlob(http.StatusOK, []byte(body2))
+	}
+
+	contentType := string(http.DetectContentType(body))
+
+	if strings.Contains(url, ".css") {
+		contentType = "text/css"
+	} else if strings.Contains(url, ".js") {
+		contentType = "text/javascript"
+	} else if strings.Contains(url, ".gif") {
+		contentType = "image/gif"
+	}
+
+	return c.Blob(http.StatusOK, contentType, body)
+}
+
+func GetFromGameHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	vals := url.Values{"page": {"overview"}}
+
+	if len(c.QueryParams()) > 0 {
+		vals = c.QueryParams()
+	}
+
+	pageHTML := bot.GetPageContent(vals)
+
+	html := string(pageHTML)
+
+	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
+
+	html = strings.Replace(html, orighostname, bot.APInewhostname, -1)
+
+	return c.HTML(http.StatusOK, html)
+}
+
+func PostToGameHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	var vals url.Values
+
+	if len(c.QueryParams()) > 0 {
+		vals = c.QueryParams()
+	} else {
+		vals = url.Values{"page": {"overview"}}
+	}
+
+	// Payload
+	payload, _ := c.FormParams()
+
+	// Perform the POST
+	byteArray := bot.PostPageContent(vals, payload)
+
+	html := string(byteArray)
+
+	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
+
+	html = strings.Replace(html, orighostname, bot.APInewhostname, -1)
+
+	return c.HTML(http.StatusOK, html)
+}
+
+func GetStaticHEADHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	url := "/api/" + strings.Join(c.ParamValues(), "") // + "?" + c.QueryString()
+
+	if len(c.QueryString()) > 0 {
+		url = url + "?" + c.QueryString()
+	}
+
+	headers, err := bot.HeadersForPage(url)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+
+	if len(headers) < 1 {
+	     return c.NoContent(http.StatusFailedDependency) // Code: 424
+	}
+
+	// Copy the original HTTP HEAD headers to our client
+	for k, vv := range headers { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		for _, v := range vv {
+			c.Response().Header().Add(k, v)
+		}
+	}
+
+	c.Response().WriteHeader(http.StatusOK)
+
+	log.Print(c.Response().Header())
+
+	return c.NoContent(http.StatusOK)
+}
+
