@@ -1669,7 +1669,12 @@ func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return b.extractor.ExtractEmpire(pageHTMLBytes, nbr)
+
+	// Replace the Ogame hostname with our custom hostname
+	orighostname := "s" + strconv.FormatInt(b.server.Number, 10) + "-" + b.server.Language + ".ogame.gameforge.com"
+	pageHTML := strings.Replace(string(pageHTMLBytes), orighostname, b.APInewhostname, -1)
+
+	return b.extractor.ExtractEmpire([]byte(pageHTML), nbr)
 }
 
 func (b *OGame) createUnion(fleet Fleet) (int64, error) {
