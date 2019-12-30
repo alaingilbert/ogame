@@ -778,29 +778,30 @@ func SendIPMHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
 	galaxy, err := strconv.ParseInt(c.Request().PostFormValue("galaxy"), 10, 64)
-	if err != nil || galaxy < 1 || galaxy > 9 {
+	if err != nil || galaxy < 1 || galaxy > bot.serverData.Galaxies {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
 	}
 	system, err := strconv.ParseInt(c.Request().PostFormValue("system"), 10, 64)
-	if err != nil || system < 1 || system > 499 {
+	if err != nil || system < 1 || system > bot.serverData.Systems {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
 	}
 	position, err := strconv.ParseInt(c.Request().PostFormValue("position"), 10, 64)
 	if err != nil || position < 1 || position > 15 {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
 	}
-	planetType, err := strconv.ParseInt(c.Param("type"), 10, 64)
+	planetTypeInt, err := strconv.ParseInt(c.Param("type"), 10, 64)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-	if planetType != 1 && planetType != 3 { // only accept planet/moon types
+	planetType := CelestialType(planetTypeInt)
+	if planetType != PlanetType && planetType != MoonType { // only accept planet/moon types
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid type"))
 	}
 	priority, _ := strconv.ParseInt(c.Request().PostFormValue("priority"), 10, 64)
 	coord := Coordinate{Type: CelestialType(planetType), Galaxy: galaxy, System: system, Position: position}
-	_, err = bot.SendIPM(PlanetID(planetID), coord, ipmAmount, ID(priority))
+	duration, err := bot.SendIPM(PlanetID(planetID), coord, ipmAmount, ID(priority))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-	return c.JSON(http.StatusOK, SuccessResp(nil))
+	return c.JSON(http.StatusOK, SuccessResp(duration))
 }
