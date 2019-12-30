@@ -3894,3 +3894,26 @@ func (b *OGame) BuyOfferOfTheDay() error {
 func (b *OGame) CreateUnion(fleet Fleet) (int64, error) {
 	return b.WithPriority(Normal).CreateUnion(fleet)
 }
+
+// getEmpire ....
+func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
+	// Valid URLs:
+	// /game/index.php?page=standalone&component=empire&planetType=0
+	// /game/index.php?page=standalone&component=empire&planetType=1
+
+	url := url.Values{"page": {"standalone"}, "component": {"empire"}, "planetType": {strconv.FormatInt(nbr, 10)}}
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	pageHTMLBytes, err := b.getPageContent(url)
+	if err != nil {
+		return "", err
+	}
+
+	return b.extractor.ExtractEmpire([]byte(pageHTMLBytes), nbr)
+}
+
+// GetEmpire ...
+func (b *OGame) GetEmpire(nbr int64) (interface{}, error) {
+	return b.WithPriority(Low).GetEmpire(nbr)
+}
+

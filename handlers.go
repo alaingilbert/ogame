@@ -766,6 +766,26 @@ func SendFleetHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(fleet))
 }
 
+func GetEmpireHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	nbr, err := strconv.ParseInt(c.Param("typeID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+
+	if nbr > 1 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid typeID"))
+	}
+
+	getEmpire, err := bot.GetEmpire(nbr)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(getEmpire))
+}
+
 // DeleteMessageHandler ...
 func DeleteMessageHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
