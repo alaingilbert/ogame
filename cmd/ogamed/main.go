@@ -170,6 +170,12 @@ func start(c *cli.Context) error {
 	e.GET("/bot/espionage-report/:msgid", ogame.GetEspionageReportHandler)
 	e.GET("/bot/espionage-report/:galaxy/:system/:position", ogame.GetEspionageReportForHandler)
 	e.GET("/bot/espionage-report", ogame.GetEspionageReportMessagesHandler)
+
+	// Delete Espionage/Combat/etcetera Reports
+	e.GET("/bot/delete-report/:messageID", ogame.DeleteMessageHandler)
+	e.GET("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
+	e.GET("/bot/delete-all-reports/:tabindex", ogame.DeleteMessagesFromTabHandler)
+
 	e.GET("/bot/attacks", ogame.GetAttacksHandler)
 	e.GET("/bot/galaxy-infos/:galaxy/:system", ogame.GalaxyInfosHandler)
 	e.GET("/bot/get-research", ogame.GetResearchHandler)
@@ -195,9 +201,8 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/cancel-research", ogame.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", ogame.GetResourcesHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
-
-	// AliancePage
 	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
+	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 
 	return e.Start(host + ":" + strconv.Itoa(port))
 }

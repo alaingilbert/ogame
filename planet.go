@@ -64,7 +64,7 @@ func (p Planet) GetFields() Fields {
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (p Planet) GetProduction() ([]Quantifiable, error) {
+func (p Planet) GetProduction() ([]Quantifiable, int64, error) {
 	return p.ogame.GetProduction(p.ID.Celestial())
 }
 

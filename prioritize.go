@@ -285,7 +285,7 @@ func (b *Prioritize) GetFacilities(celestialID CelestialID) (Facilities, error) 
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (b *Prioritize) GetProduction(celestialID CelestialID) ([]Quantifiable, error) {
+func (b *Prioritize) GetProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
 	b.begin("GetProduction")
 	defer b.done()
 	return b.bot.getProduction(celestialID)
@@ -504,7 +504,7 @@ func (b *Prioritize) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, er
 }
 
 // JumpGate sends ships through a jump gate.
-func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
+func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) (bool, int64, error) {
 	b.begin("JumpGate")
 	defer b.done()
 	return b.bot.executeJumpGate(origin, dest, ships)
@@ -522,4 +522,11 @@ func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
 	b.begin("CreateUnion")
 	defer b.done()
 	return b.bot.createUnion(fleet)
+}
+
+// DeleteAllMessagesFromTab ...
+func (b *Prioritize) DeleteAllMessagesFromTab(tabID int64) error {
+	b.begin("DeleteAllMessagesFromTab")
+	defer b.done()
+	return b.bot.deleteAllMessagesFromTab(tabID)
 }

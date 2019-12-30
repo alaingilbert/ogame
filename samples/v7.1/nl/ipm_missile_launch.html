@@ -1,0 +1,128 @@
+
+<div id='missileattacklayer'><div id="rocketattack" data-title="Raketaanval">
+    <form method="post" action="https://s107-nl.ogame.gameforge.com/game/index.php?page=ajax&amp;component=missileattacklayer&amp;action=sendMissiles&amp;ajax=1&amp;asJson=1" id="rocketForm">
+        <input type="hidden" name="galaxy" value="1">
+        <input type="hidden" name="system" value="471">
+        <input type="hidden" name="position" value="12">
+        <input type="hidden" name="type" value="1">
+        <input type='hidden' name='token' value='95b68270230217f7e9a813e4a4beb20e' />
+         <div id="target">Bestemming: <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="planeet"></figure>Hoofdplaneet<span id="position">[1:471:12]</span></div>
+         <div id="flightDuration">Vluchtduur: 4m 7s</div>
+         <div id="arrivalTime">Aankomst: <span id="timer" data-duration="247.5">-</span> Klok</div>
+         <div id="infos">
+            <div id="numberrockets">
+                <ul>
+                    <li class="defense503">
+                        <div class="buildingimg sprite defense small defense503">
+                            <a id="number" href="javascript:void(0);"
+                               class="tooltip js_hideTipOnMobile"
+                               title="Interplanetaire raketten">
+                                <span class="ecke">
+                                    <span class="level">
+                                        25
+                                    </span>
+                                </span>
+                            </a>
+
+                        </div>
+                    </li>
+                </ul>
+                <input type="text" pattern="[0-9]*" name="missileCount" id="missileCount" data-max="25" class="textinput" value="1"/>
+            </div>
+            <div id="priority">
+                primair doel:
+                <ul>
+                                            <li class="defense401">
+                            <div class="buildingimg sprite defense small defense401">
+                                <a href="javascript:void(0)"
+                                   class="tooltip js_hideTipOnMobile"
+                                   ref="401"
+                                   title="Raketlanceerder">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense402">
+                            <div class="buildingimg sprite defense small defense402">
+                                <a href="javascript:void(0)"
+                                   class="tooltip js_hideTipOnMobile"
+                                   ref="402"
+                                   title="Kleine laser">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense403">
+                            <div class="buildingimg sprite defense small defense403">
+                                <a href="javascript:void(0)"
+                                   class="tooltip js_hideTipOnMobile"
+                                   ref="403"
+                                   title="Grote laser">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense405">
+                            <div class="buildingimg sprite defense small defense405">
+                                <a href="javascript:void(0)"
+                                   class="tooltip js_hideTipOnMobile"
+                                   ref="405"
+                                   title="Ionkanon">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense404">
+                            <div class="buildingimg sprite defense small defense404">
+                                <a href="javascript:void(0)"
+                                   class="tooltip js_hideTipOnMobile"
+                                   ref="404"
+                                   title="Gausskanon">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense406">
+                            <div class="buildingimg sprite defense small defense406">
+                                <a href="javascript:void(0)"
+                                   class="tooltip js_hideTipOnMobile"
+                                   ref="406"
+                                   title="Plasmakanon">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense407">
+                            <div class="buildingimg sprite defense small defense407">
+                                <a href="javascript:void(0)"
+                                   class="tooltip js_hideTipOnMobile"
+                                   ref="407"
+                                   title="Kleine planetaire schildkoepel">
+                                </a>
+                            </div>
+
+                        </li>
+                                            <li class="defense408">
+                            <div class="buildingimg sprite defense small defense408">
+                                <a href="javascript:void(0)"
+                                   class="tooltip js_hideTipOnMobile"
+                                   ref="408"
+                                   title="Grote planetaire schildkoepel">
+                                </a>
+                            </div>
+
+                        </li>
+                                    </ul>
+            </div>
+            <div id="noPriorityInfo">Geen voorkeursdoel geselecteerd: random doel</div>
+            <input type="hidden" name="missilePrimaryTarget" id="primaryTarget" value=""/>
+            <input type="submit" class="btn_blue" value="Vuur!"/>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    (function($) {
+        initMissleAttackLayer();
+    })(jQuery);
+</script>
+</div>

@@ -199,6 +199,13 @@ func extractConstructionsV7(pageHTML []byte, clock clockwork.Clock) (buildingID 
 	return
 }
 
+func extractIPMFromDocV7(doc *goquery.Document) (duration, max int64, token string) {
+	duration, _ = strconv.ParseInt(doc.Find("span#timer").AttrOr("data-duration", "0"), 10, 64)
+	max, _ = strconv.ParseInt(doc.Find("input[name=missileCount]").AttrOr("data-max", "0"), 10, 64)
+	token = doc.Find("input[name=token]").AttrOr("value", "")
+	return
+}
+
 func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ShipsInfos) {
 	onclick := doc.Find("div#fleetdispatchcomponent")
 	h, _ := onclick.Html()
