@@ -769,13 +769,9 @@ func SendFleetHandler(c echo.Context) error {
 func GetEmpireHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	log.Print(c.Param("typeID"))
-	log.Print(c.QueryParams())
-	log.Print(c.ParamNames())
-
 	nbr, err := strconv.ParseInt(c.Param("typeID"), 10, 64)
 	if err != nil {
-		log.Print(err)
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
 
 	if nbr > 1 {
@@ -784,7 +780,7 @@ func GetEmpireHandler(c echo.Context) error {
 
 	getEmpire, err := bot.GetEmpire(nbr)
 	if err != nil {
-			return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, SuccessResp(getEmpire))
