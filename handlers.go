@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"io/ioutil"
+	"net/url"
 
 	"github.com/labstack/echo"
 )
@@ -775,12 +777,12 @@ func GetStaticHandler(c echo.Context) error {
 	resp, err := http.Get(url)
 
 	if err != nil {
-		log.Fatalln(err)
+		bot.debug(err)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalln(err)
+		bot.debug(err)
 	}
 
 	defer func() {
@@ -888,8 +890,6 @@ func GetStaticHEADHandler(c echo.Context) error {
 	}
 
 	c.Response().WriteHeader(http.StatusOK)
-
-	log.Print(c.Response().Header())
 
 	return c.NoContent(http.StatusOK)
 }

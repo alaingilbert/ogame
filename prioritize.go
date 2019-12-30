@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"sync/atomic"
 	"time"
+	"net/http"
 )
 
 // Priorities
