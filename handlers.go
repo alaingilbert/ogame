@@ -880,12 +880,9 @@ func TeardownHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogame id"))
 	}
 
-	err = bot.TearDown(CelestialID(planetID), ID(ogameID))
-
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, ErrorResp(400, "Unable to teardown building"))
+	if err = bot.TearDown(CelestialID(planetID), ID(ogameID)); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, SuccessResp(nil))
 }
-
