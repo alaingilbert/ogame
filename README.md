@@ -122,6 +122,7 @@ GetEspionageReport(msgID int64) (EspionageReport, error)
 GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 //GetCombatReport(msgID int) (CombatReport, error)
 DeleteMessage(msgID int64) error
+DeleteAllMessagesFromTab(tabID int64) error
 Distance(origin, destination Coordinate) int64
 FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
 RegisterChatCallback(func(ChatMsg))
@@ -132,6 +133,7 @@ BuyOfferOfTheDay() error
 BytesDownloaded() int64
 BytesUploaded() int64
 CreateUnion(fleet Fleet) (int64, error)
+GetEmpire(nbr int64) (interface{}, error)
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
@@ -147,7 +149,7 @@ BuildShips(celestialID CelestialID, shipID ID, nbr int64) error
 CancelBuilding(CelestialID) error
 TearDown(celestialID CelestialID, id ID) error
 ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
-GetProduction(CelestialID) ([]Quantifiable, error)
+GetProduction(CelestialID) ([]Quantifiable, int64, error)
 GetFacilities(CelestialID) (Facilities, error)
 GetDefense(CelestialID) (DefensesInfos, error)
 GetShips(CelestialID) (ShipsInfos, error)
@@ -166,7 +168,7 @@ GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, T
 // Moon specific functions
 Phalanx(MoonID, Coordinate) ([]Fleet, error)
 UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
-JumpGate(origin, dest MoonID, ships ShipsInfos) error
+JumpGate(origin, dest MoonID, ships ShipsInfos) (bool, int64, error)
 ```
 
 ### Full documentation
