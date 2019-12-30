@@ -152,6 +152,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
 	e.GET("/bot/language", ogame.GetLanguageHandler)
+	e.GET("/bot/empire/type/:typeID", ogame.GetEmpireHandler)
 	e.POST("/bot/page-content", ogame.PageContentHandler)
 	e.GET("/bot/login", ogame.LoginHandler)
 	e.GET("/bot/logout", ogame.LogoutHandler)
@@ -170,12 +171,9 @@ func start(c *cli.Context) error {
 	e.GET("/bot/espionage-report/:msgid", ogame.GetEspionageReportHandler)
 	e.GET("/bot/espionage-report/:galaxy/:system/:position", ogame.GetEspionageReportForHandler)
 	e.GET("/bot/espionage-report", ogame.GetEspionageReportMessagesHandler)
-
-	// Delete Espionage/Combat/etcetera Reports
-	e.GET("/bot/delete-report/:messageID", ogame.DeleteMessageHandler)
-	e.GET("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
-	e.GET("/bot/delete-all-reports/:tabindex", ogame.DeleteMessagesFromTabHandler)
-
+	e.POST("/bot/delete-report/:messageID", ogame.DeleteMessageHandler)
+	e.POST("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
+	e.POST("/bot/delete-all-reports/:tabIndex", ogame.DeleteMessagesFromTabHandler)
 	e.GET("/bot/attacks", ogame.GetAttacksHandler)
 	e.GET("/bot/galaxy-infos/:galaxy/:system", ogame.GalaxyInfosHandler)
 	e.GET("/bot/get-research", ogame.GetResearchHandler)
