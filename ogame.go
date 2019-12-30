@@ -3030,7 +3030,7 @@ func (b *OGame) deleteAllMessagesFromTab(tabID int64) error {
 		tabid: 20 => Espionage
 		tabid: 21 => Combat Reports
 		tabid: 22 => Expeditions
-		tabid: 23 => Unions/Tranport
+		tabid: 23 => Unions/Transport
 		tabid: 24 => Other
 
 		E.g. :
