@@ -571,7 +571,7 @@ func GetProductionHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-	res, err := bot.GetProduction(CelestialID(planetID))
+	res, _, err := bot.GetProduction(CelestialID(planetID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
