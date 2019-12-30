@@ -765,3 +765,53 @@ func SendFleetHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(fleet))
 }
+
+func DeleteMessageHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	messageID, err := strconv.ParseInt(c.Param("messageID"), 10, 64)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid message id"))
+	}
+
+	if err := bot.DeleteMessage(messageID); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(nil))
+}
+
+func DeleteEspionageMessagesHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	if err := bot.DeleteAllMessagesFromTab(20); err != nil { // 20 = Espionage Reports
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "Unable to delete Espionage Reports"))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(nil))
+}
+
+func DeleteMessagesFromTabHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	tabindex, err := strconv.ParseInt(c.Param("tabindex"), 10, 64)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "must provide tabindex"))
+	} else if tabindex < 20 || tabindex > 24 {
+		/*
+			tabid: 20 => Espionage
+			tabid: 21 => Combat Reports
+			tabid: 22 => Expeditions
+			tabid: 23 => Unions/Tranport
+			tabid: 24 => Other
+		*/
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid tabindex provided"))
+	}
+
+	if err = bot.DeleteAllMessagesFromTab(tabindex); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "Unable to delete message from tab " + c.Param("tabindex")))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(nil))
+}
+

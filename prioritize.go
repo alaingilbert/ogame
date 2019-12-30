@@ -523,3 +523,10 @@ func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
 	defer b.done()
 	return b.bot.createUnion(fleet)
 }
+
+// DeleteAllMessagesFromTab ...
+func (b *Prioritize) DeleteAllMessagesFromTab(tabID int64) error {
+	b.begin("DeleteAllMessagesFromTab")
+	defer b.done()
+	return b.bot.deleteAllMessagesFromTab(tabID)
+}
