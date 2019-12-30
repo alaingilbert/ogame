@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"math"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -458,6 +459,14 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 		return report, ErrDeactivateHidePictures
 	}
 	return report, nil
+}
+
+func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
+	duration_float, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
+	duration = int64(math.Ceil(duration_float))
+	max, _ = strconv.ParseInt(doc.Find("input#missileCount").AttrOr("data-max", "0"), 10, 64)
+	token = doc.Find("input[name=token]").AttrOr("value", "")
+	return
 }
 
 func extractFacilitiesFromDocV71(doc *goquery.Document) (Facilities, error) {
