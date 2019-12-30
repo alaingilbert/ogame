@@ -765,3 +765,13 @@ func SendFleetHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(fleet))
 }
+
+func GetAlliancePageContentHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	allianceId := c.QueryParam("allianceId")
+	vals := url.Values{"allianceId": {allianceId}}
+
+	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
+}
+
