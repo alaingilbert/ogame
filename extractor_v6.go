@@ -674,3 +674,9 @@ func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, 
 func (e ExtractorV6) ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error) {
 	return extractEmpire(string(pageHTML), nbr)
 }
+
+// ExtractAuction ...
+func (e ExtractorV6) ExtractAuction(pageHTML []byte) Auction {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractAuctionFromDoc(doc)
+}
