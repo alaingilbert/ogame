@@ -43,6 +43,17 @@ func (e ExtractorV71) ExtractEspionageReportFromDoc(doc *goquery.Document, locat
 	return extractEspionageReportFromDocV71(doc, location)
 }
 
+// ExtractIPM ...
+func (e ExtractorV71) ExtractIPM(pageHTML []byte) (duration int64, max int64, token string) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractIPMFromDoc(doc)
+}
+
+// ExtractIPMFromDoc ...
+func (e ExtractorV71) ExtractIPMFromDoc(doc *goquery.Document) (duration int64, max int64, token string) {
+	return extractIPMFromDocV71(doc)
+}
+
 // ExtractProduction extracts ships/defenses production from the shipyard page
 func (e ExtractorV71) ExtractProduction(pageHTML []byte) ([]Quantifiable, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))

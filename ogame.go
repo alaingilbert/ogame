@@ -2287,14 +2287,17 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if err != nil {
 		return 0, err
 	}
-	// {"status":false,"errorbox":{"type":"fadeBox","text":"Target doesn`t exist!","failed":1}}
+	// {"status":false,"errorbox":{"type":"fadeBox","text":"Target doesn`t exist!","failed":1}} // OgameV6
+	// {"status":true,"rockets":0,"errorbox":{"type":"fadeBox","text":"25 raketten zijn gelanceerd!","failed":0},"components":[]} // OgameV7
 	var resp struct {
 		Status   bool
+		Rockets int64
 		ErrorBox struct {
 			Type   string
 			Text   string
 			Failed int
 		}
+		// components??
 	}
 	if err := json.Unmarshal(by, &resp); err != nil {
 		return 0, err
