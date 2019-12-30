@@ -798,7 +798,7 @@ func SendIPMHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid type"))
 	}
 	priority, _ := strconv.ParseInt(c.Request().PostFormValue("priority"), 10, 64)
-	coord := Coordinate{Type: CelestialType(planetType), Galaxy: galaxy, System: system, Position: position}
+	coord := Coordinate{Type: planetType, Galaxy: galaxy, System: system, Position: position}
 	duration, err := bot.SendIPM(PlanetID(planetID), coord, ipmAmount, ID(priority))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
