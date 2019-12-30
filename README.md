@@ -209,6 +209,9 @@ GET  /bot/user-infos
 POST /bot/send-message
 GET  /bot/fleets
 POST /bot/fleets/:fleetID/cancel
+POST /bot/delete-report/:messageID
+POST /bot/delete-all-espionage-reports
+POST /bot/delete-all-reports/:tabIndex
 GET  /bot/attacks
 GET  /bot/galaxy-infos/:galaxy/:system
 GET  /bot/get-research
@@ -234,4 +237,5 @@ POST /bot/planets/:planetID/cancel-building
 POST /bot/planets/:planetID/cancel-research
 GET  /bot/planets/:planetID/resources
 POST /bot/planets/:planetID/send-fleet
+POST /bot/planets/:planetID/send-ipm
 ```

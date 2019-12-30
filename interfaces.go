@@ -88,6 +88,7 @@ type Wrapper interface {
 	GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 	//GetCombatReport(msgID int) (CombatReport, error)
 	DeleteMessage(msgID int64) error
+	DeleteAllMessagesFromTab(tabID int64) error
 	Distance(origin, destination Coordinate) int64
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
 	RegisterChatCallback(func(ChatMsg))

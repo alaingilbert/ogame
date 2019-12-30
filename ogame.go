@@ -2287,14 +2287,17 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if err != nil {
 		return 0, err
 	}
-	// {"status":false,"errorbox":{"type":"fadeBox","text":"Target doesn`t exist!","failed":1}}
+	// {"status":false,"errorbox":{"type":"fadeBox","text":"Target doesn`t exist!","failed":1}} // OgameV6
+	// {"status":true,"rockets":0,"errorbox":{"type":"fadeBox","text":"25 raketten zijn gelanceerd!","failed":0},"components":[]} // OgameV7
 	var resp struct {
 		Status   bool
+		Rockets  int64
 		ErrorBox struct {
 			Type   string
 			Text   string
 			Failed int
 		}
+		// components??
 	}
 	if err := json.Unmarshal(by, &resp); err != nil {
 		return 0, err
@@ -3017,6 +3020,36 @@ func (b *OGame) deleteMessage(msgID int64) error {
 		return errors.New("unable to find message id " + strconv.FormatInt(msgID, 10))
 	}
 	return nil
+}
+
+func (b *OGame) deleteAllMessagesFromTab(tabID int64) error {
+	/*
+		Request URL: https://$ogame/game/index.php?page=messages
+		Request Method: POST
+
+		tabid: 20 => Espionage
+		tabid: 21 => Combat Reports
+		tabid: 22 => Expeditions
+		tabid: 23 => Unions/Transport
+		tabid: 24 => Other
+
+		E.g. :
+
+		tabid=24&messageId=-1&action=103&ajax=1
+
+		tabid: 24
+		messageId: -1
+		action: 103
+		ajax: 1
+	*/
+	payload := url.Values{
+		"tabid":     {strconv.FormatInt(tabID, 10)},
+		"messageId": {strconv.FormatInt(-1, 10)},
+		"action":    {"103"},
+		"ajax":      {"1"},
+	}
+	_, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
+	return err
 }
 
 func energyProduced(temp Temperature, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology int64) int64 {
@@ -3791,6 +3824,11 @@ func (b *OGame) GetEspionageReport(msgID int64) (EspionageReport, error) {
 // DeleteMessage deletes a message from the mail box
 func (b *OGame) DeleteMessage(msgID int64) error {
 	return b.WithPriority(Normal).DeleteMessage(msgID)
+}
+
+// DeleteAllMessagesFromTab deletes all messages from a tab in the mail box
+func (b *OGame) DeleteAllMessagesFromTab(tabID int64) error {
+	return b.WithPriority(Normal).DeleteAllMessagesFromTab(tabID)
 }
 
 // GetResourcesProductions gets the planet resources production
