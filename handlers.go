@@ -806,7 +806,7 @@ func DeleteMessagesFromTabHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid tabIndex provided"))
 	}
 	if err := bot.DeleteAllMessagesFromTab(tabIndex); err != nil {
-		return c.JSON(http.StatusBadRequest, ErrorResp(400, "Unable to delete message from tab "+c.Param("tabIndex")))
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "Unable to delete message from tab "+strconv.FormatInt(tabIndex, 10)))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(nil))
 }
