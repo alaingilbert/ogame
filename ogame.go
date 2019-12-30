@@ -3859,3 +3859,43 @@ func (b *OGame) BuyOfferOfTheDay() error {
 func (b *OGame) CreateUnion(fleet Fleet) (int64, error) {
 	return b.WithPriority(Normal).CreateUnion(fleet)
 }
+
+func (b *OGame) deleteAllMessagesFromTab(tabID int64) error {
+	/*
+		Request URL: https://$ogame/game/index.php?page=messages
+		Request Method: POST
+
+		tabid: 20 => Espionage
+		tabid: 21 => Combat Reports
+		tabid: 22 => Expeditions
+		tabid: 23 => Unions/Tranport
+		tabid: 24 => Other
+
+		E.g. :
+
+		tabid=24&messageId=-1&action=103&ajax=1
+
+		tabid: 24
+		messageId: -1
+		action: 103
+		ajax: 1
+	*/
+
+	payload := url.Values{
+		"tabid":     {strconv.FormatInt(tabID, 10)},
+		"messageId": {strconv.FormatInt(-1, 10)},
+		"action":    {"103"},
+		"ajax":      {"1"},
+	}
+
+	if _, err := b.postPageContent(url.Values{"page": {"messages"}}, payload); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DeleteAllMessagesFromTab deletes all message from a tab in the mail box
+func (b *OGame) DeleteAllMessagesFromTab(tabID int64) error {
+	return b.WithPriority(Low).DeleteAllMessagesFromTab(tabID)
+}
