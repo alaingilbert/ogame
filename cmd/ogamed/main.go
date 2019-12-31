@@ -4,10 +4,11 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"text/template"
 
 	"github.com/alaingilbert/ogame"
 	"github.com/labstack/echo"
-	"gopkg.in/urfave/cli.v2"
+	cli "gopkg.in/urfave/cli.v2"
 )
 
 var version = "0.0.0"
@@ -134,6 +135,8 @@ func start(c *cli.Context) error {
 		return err
 	}
 
+	initial(bot)
+
 	e := echo.New()
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
@@ -146,7 +149,20 @@ func start(c *cli.Context) error {
 	})
 	e.HideBanner = true
 	e.HidePort = true
-	e.Debug = false
+	e.Debug = true
+
+	///////////////////////////////////
+	var templateFuncs = template.FuncMap{
+		"add": add,
+	}
+	tmp, _ := template.New("").Funcs(templateFuncs).ParseGlob("templates/*.html")
+
+	t := &Template{
+		templates: tmp,
+	}
+	e.Renderer = t
+	///////////////////////////////////
+
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
@@ -197,5 +213,18 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 
+	e.GET("/game/index.php", getFromGame)
+	e.POST("/game/index.php", postToGame)
+	e.GET("/game/allianceInfo.php", getAlliancePageContent)
+	e.GET("/api/*", getStatic)
+	e.GET("/cdn/*", getStatic)
+	e.GET("/headerCache/*", getStatic)
+	e.GET("/favicon.ico", getStatic)
+	e.GET("/game/sw.js", getStatic)
+
+	e.GET("/planet/:planetID", htmlPlanetView)
+
 	return e.Start(host + ":" + strconv.Itoa(port))
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////
