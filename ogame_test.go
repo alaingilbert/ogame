@@ -1331,6 +1331,13 @@ func TestExtractGalaxyInfos_banned(t *testing.T) {
 	assert.Equal(t, false, infos.Position(9).Banned)
 }
 
+func TestExtractGalaxyV7ExpeditionDebrisDM(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/fr/galaxy_darkmatter_df.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(3137), infos.Events.Darkmatter)
+}
+
 func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_debris16.html")
 	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
@@ -2564,4 +2571,12 @@ func TestGetResourcesDetailsV71(t *testing.T) {
 	assert.Equal(t, int64(8000), res.Darkmatter.Available)
 	assert.Equal(t, int64(0), res.Darkmatter.Purchased)
 	assert.Equal(t, int64(8000), res.Darkmatter.Found)
+}
+
+func TestExtractIPMV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/nl/ipm_missile_launch.html")
+	duration, max, token := NewExtractorV71().ExtractIPM(pageHTMLBytes)
+	assert.Equal(t, "95b68270230217f7e9a813e4a4beb20e", token)
+	assert.Equal(t, int64(25), max)
+	assert.Equal(t, int64(248), duration)
 }

@@ -504,7 +504,7 @@ func (b *Prioritize) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, er
 }
 
 // JumpGate sends ships through a jump gate.
-func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) error {
+func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) (bool, int64, error) {
 	b.begin("JumpGate")
 	defer b.done()
 	return b.bot.executeJumpGate(origin, dest, ships)

@@ -132,7 +132,7 @@ type Wrapper interface {
 	// Moon specific functions
 	Phalanx(MoonID, Coordinate) ([]Fleet, error)
 	UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
-	JumpGate(origin, dest MoonID, ships ShipsInfos) error
+	JumpGate(origin, dest MoonID, ships ShipsInfos) (bool, int64, error)
 }
 
 // BaseOgameObj base interface for all ogame objects (buildings, technologies, ships, defenses)
