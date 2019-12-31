@@ -174,6 +174,11 @@ func start(c *cli.Context) error {
 	e.POST("/bot/delete-report/:messageID", ogame.DeleteMessageHandler)
 	e.POST("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
 	e.POST("/bot/delete-all-reports/:tabIndex", ogame.DeleteMessagesFromTabHandler)
+
+	// Galaxy Espionage
+	e.GET("/bot/planets/:celestialID/espionage/:galaxy/:system/:position/:type/:probecount", ogame.GalaxyEspionageHandler)
+	e.GET("/bot/planets/celestial/:celestialID/espionage/galaxy/:galaxy/system/:system/position/:position/type/:type/probecount/:probecount", ogame.GalaxyEspionageHandler)
+
 	e.GET("/bot/attacks", ogame.GetAttacksHandler)
 	e.GET("/bot/galaxy-infos/:galaxy/:system", ogame.GalaxyInfosHandler)
 	e.GET("/bot/get-research", ogame.GetResearchHandler)

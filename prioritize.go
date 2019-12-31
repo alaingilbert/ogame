@@ -538,3 +538,10 @@ func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
 	return b.bot.getEmpire(nbr)
 }
 
+// GalaxyEspionage starts Espionage missions from Galaxy instead of using SendFleet
+func (b *Prioritize) GalaxyEspionage(celestialID CelestialID, coord Coordinate, probecount int64) (string, error) {
+	b.begin("GalaxyEspionage")
+	defer b.done()
+	return b.bot.galaxyEspionage(celestialID, coord, probecount)
+}
+

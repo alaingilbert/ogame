@@ -864,3 +864,57 @@ func SendIPMHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(duration))
 }
+
+// GalaxyEspionage ...
+func GalaxyEspionageHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	// PlanetID
+	planetID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil || planetID < 0 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+
+	// Galaxy
+	galaxy, err := strconv.ParseInt(c.Param("galaxy"), 10, 64)
+	if err != nil || galaxy < 1 || galaxy > 9 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+	}
+
+	// System
+	system, err := strconv.ParseInt(c.Param("system"), 10, 64)
+	if err != nil || system < 1 || system > 499 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+	}
+
+	// Position
+	position, err := strconv.ParseInt(c.Param("position"), 10, 64)
+	if err != nil || position < 1 || position > 15 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+	}
+
+	// Type
+	planettype, err := strconv.ParseInt(c.Param("type"), 10, 64)
+	if err != nil || planettype < 1 || planettype > 3 || planettype == 2 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid type"))
+	}
+
+	// Probecount
+	probecount, err := strconv.ParseInt(c.Param("probecount"), 10, 64)
+	if err != nil || position < 0 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid probecount"))
+	}
+
+	// --------------------------------------------------------------------------------------
+
+	coord := Coordinate{Type: PlanetType, Galaxy: galaxy, System: system, Position: position}
+	celestialID := CelestialID(planetID)
+
+	espionage, err := bot.GalaxyEspionage(celestialID, coord, probecount)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(espionage))
+}
+
