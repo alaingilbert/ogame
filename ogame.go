@@ -4171,3 +4171,108 @@ func (b *OGame) galaxyEspionage(celestialID CelestialID, coord Coordinate, probe
 	return "", err
 }
 
+func (b *OGame) galaxyEspionage2(celestialID CelestialID, coord Coordinate, probecount int64) (string, error) {
+	if coord.Galaxy < 0 || coord.Galaxy > b.server.Settings.UniverseSize {
+		return "", fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
+	}
+
+	if coord.System < 0 || coord.System > 499 {
+		return "", errors.New("system must be within [0, 499]")
+	}
+
+	if coord.Position < 1 || coord.Position > 15 {
+		return "", errors.New("position must be within [1, 15]")
+	}
+
+	if coord.Type != 1 && coord.Type != 2 {
+		return "", errors.New("celestial-type must be [1, 2]")
+	}
+
+	// Worker code for spygalaxy:
+	spygalaxy := func(celestialID CelestialID, coord Coordinate, probecount int64) (string, error) {
+		var token string
+
+		if len(b.nextMiniFleetToken) > 0 {
+			token = b.nextMiniFleetToken
+		} else { // Generate some random lookalike token
+			timenow := time.Now().String()
+
+			md5sum := md5.New()
+			md5sum.Write([]byte(timenow))
+
+			token = hex.EncodeToString(md5sum.Sum(nil))
+		}
+
+		payload := url.Values{
+			"mission":   {"6"}, // 6 = Espionage
+			"galaxy":    {strconv.FormatInt(coord.Galaxy, 10)},
+			"system":    {strconv.FormatInt(coord.System, 10)},
+			"position":  {strconv.FormatInt(coord.Position, 10)},
+			"type":      {strconv.FormatInt(int64(coord.Type), 10)}, // 1 = planet, 3 = moon
+			"shipCount": {strconv.FormatInt(probecount, 10)}, // Our default ship count, must match ingame settings . TODO: replace with Settings.SpioAnz ?
+			"token":     {token},
+			"speed":     {"10"}, // 100% speed
+		}
+
+		type MiniFleet struct {
+			Response struct {
+				Message     string `json:"message"`
+				Type        *int    `json:"type"`
+				Slots       *int    `json:"slots"`
+				Probes      *int    `json:"probes"`
+				Recyclers   *int    `json:"recyclers"`
+				Missiles    *int    `json:"missiles"`
+				ShipsSent   *int    `json:"shipsSent"`
+				Coordinates *struct {
+					Galaxy   int `json:"galaxy"`
+					System   int `json:"system"`
+					Position int `json:"position"`
+				} `json:"coordinates"`
+				PlanetType *int  `json:"planetType"`
+				Success    bool `json:"success"`
+			} `json:"response"`
+			NewToken string `json:"newToken"`
+		}
+
+		minifleet, err := b.postPageContent(url.Values{"page": {"minifleet"}, "ajax": {"1"}}, payload)
+		time.Sleep(time.Second / 4) // Sleep 0.25 sec
+
+		if err != nil {
+			return "", err
+		}
+
+		var jsonMiniFleet MiniFleet
+		if err := json.Unmarshal(minifleet, &jsonMiniFleet); err != nil {
+			return string(minifleet), err
+		}
+
+		if len(jsonMiniFleet.NewToken) > 0 && b.nextMiniFleetToken != jsonMiniFleet.NewToken {
+			b.nextMiniFleetToken = jsonMiniFleet.NewToken
+		}
+
+		if jsonMiniFleet.Response.Success == false {
+			return "", errors.New(jsonMiniFleet.Response.Message)
+		}
+
+		return jsonMiniFleet.Response.Message, nil
+	}
+
+	return spygalaxy(celestialID, coord, probecount)
+}
+
+func (b *OGame) galaxyEspionageWithFallbackToSendFleet(celestialID CelestialID, coord Coordinate, probecount int64) (string, error) {
+	if galaxyEspionage, err := b.galaxyEspionage2(celestialID, coord, probecount); err != nil {
+		log.Print(err)
+		return galaxyEspionage, err
+	}
+
+	ships := []Quantifiable{Quantifiable{ID: EspionageProbeID, Nbr: probecount}}
+
+	_, err := b.SendFleet(celestialID, ships, HundredPercent, coord, Spy, Resources{}, 0, 0)
+	log.Print(err)
+	return "", err
+}
+
+func (b *OGame) GalaxyEspionageWithFallbackToSendFleet(celestialID CelestialID, coord Coordinate, probecount int64) (string, error) {
+	return b.WithPriority(Normal).GalaxyEspionageWithFallbackToSendFleet(celestialID, coord, probecount)
+}
