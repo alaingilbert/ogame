@@ -1974,3 +1974,18 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	moon.Img = moonLink.Find("img.icon-moon").AttrOr("src", "")
 	return moon, nil
 }
+
+func extractEmpire(html string, nbr int64) (interface{}, error) {
+	if nbr > 1 {
+		return nil, errors.New("invalid number for Empire page")
+	}
+	m := regexp.MustCompile(`createImperiumHtml\("#mainWrapper",\s"#loading",\s(.*),\s\d+\s\);`).FindStringSubmatch(html)
+	if len(m) != 2 {
+		return nil, errors.New("regexp for Empire JSON did not match anything")
+	}
+	var empireJSON interface{}
+	if err := json.Unmarshal([]byte(m[1]), &empireJSON); err != nil {
+		return nil, err
+	}
+	return empireJSON, nil
+}
