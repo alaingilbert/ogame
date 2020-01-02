@@ -461,6 +461,13 @@ func (b *Prioritize) DeleteMessage(msgID int64) error {
 	return b.bot.deleteMessage(msgID)
 }
 
+// DeleteAllMessagesFromTab ...
+func (b *Prioritize) DeleteAllMessagesFromTab(tabID int64) error {
+	b.begin("DeleteAllMessagesFromTab")
+	defer b.done()
+	return b.bot.deleteAllMessagesFromTab(tabID)
+}
+
 // GetResourcesProductions gets the planet resources production
 func (b *Prioritize) GetResourcesProductions(planetID PlanetID) (Resources, error) {
 	b.begin("GetResourcesProductions")
@@ -523,3 +530,11 @@ func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
 	defer b.done()
 	return b.bot.createUnion(fleet)
 }
+
+// GetEmpire retrieves JSON from Empire page (Commander only).
+func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
+	b.begin("GetEmpire")
+	defer b.done()
+	return b.bot.getEmpire(nbr)
+}
+
