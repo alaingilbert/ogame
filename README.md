@@ -240,4 +240,6 @@ POST /bot/planets/:planetID/cancel-research
 GET  /bot/planets/:planetID/resources
 POST /bot/planets/:planetID/send-fleet
 POST /bot/planets/:planetID/send-ipm
+GET  /bot/planets/:celestialID/espionage/:galaxy/:system/:position/:type/:probecount
+GET  /bot/planets/celestial/:celestialID/espionage/galaxy/:galaxy/system/:system/position/:position/type/:type/probecount/:probecount
 ```
