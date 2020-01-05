@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"net/http"
 	"net/url"
 	"sync/atomic"
 	"time"
@@ -531,10 +532,16 @@ func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
 	return b.bot.createUnion(fleet)
 }
 
+// HeadersForPage gets the headers for a specific ogame page
+func (b *Prioritize) HeadersForPage(url string) (http.Header, error) {
+	b.begin("HeadersForPage")
+	defer b.done()
+	return b.bot.headersForPage(url)
+}
+
 // GetEmpire retrieves JSON from Empire page (Commander only).
 func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
 	b.begin("GetEmpire")
 	defer b.done()
 	return b.bot.getEmpire(nbr)
 }
-

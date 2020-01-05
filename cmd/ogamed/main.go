@@ -96,6 +96,12 @@ func main() {
 			Value:   "lobby",
 			EnvVars: []string{"OGAMED_PROXY_PASSWORD"},
 		},
+		&cli.StringFlag{
+			Name:    "api-new-hostname",
+			Usage:   "New Ogame Hostname: someuniverse.example.com",
+			Value:   "",
+			EnvVars: []string{"OGAMED_NEW_HOSTNAME"},
+		},
 	}
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
@@ -116,6 +122,8 @@ func start(c *cli.Context) error {
 	proxyUsername := c.String("proxy-username")
 	proxyPassword := c.String("proxy-password")
 	lobby := c.String("lobby")
+	apiNewHostname := c.String("api-new-hostname")
+
 	bot, err := ogame.NewWithParams(ogame.Params{
 		Universe:       universe,
 		Username:       username,
@@ -129,6 +137,7 @@ func start(c *cli.Context) error {
 		Socks5Username: proxyUsername,
 		Socks5Password: proxyPassword,
 		Lobby:          lobby,
+		APINewHostname: apiNewHostname,
 	})
 	if err != nil {
 		return err
@@ -199,7 +208,29 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/cancel-research", ogame.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", ogame.GetResourcesHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
+	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
+
+	// Get/Post Page Content
+	e.GET("/game/index.php", ogame.GetFromGameHandler)
+	e.POST("/game/index.php", ogame.PostToGameHandler)
+
+	// For AntiGame plugin
+	// Static content
+	e.GET("/cdn/*", ogame.GetStaticHandler)
+	e.GET("/headerCache/*", ogame.GetStaticHandler)
+	e.GET("/favicon.ico", ogame.GetStaticHandler)
+	e.GET("/game/sw.js", ogame.GetStaticHandler)
+
+	// JSON API
+	/*
+		/api/serverData.xml
+		/api/localization.xml
+		/api/players.xml
+		/api/universe.xml
+	*/
+	e.GET("/api/*", ogame.GetStaticHandler)
+	e.HEAD("/api/*", ogame.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
 
 	return e.Start(host + ":" + strconv.Itoa(port))
 }
