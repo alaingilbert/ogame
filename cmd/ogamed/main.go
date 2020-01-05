@@ -210,6 +210,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/cancel-research", ogame.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", ogame.GetResourcesHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
+	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 
 	// Get/Post Page Content

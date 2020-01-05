@@ -768,6 +768,16 @@ func SendFleetHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(fleet))
 }
 
+// GetAlliancePageContentHandler ...
+func GetAlliancePageContentHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	allianceId := c.QueryParam("allianceId")
+	vals := url.Values{"allianceId": {allianceId}}
+
+	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
+}
+
 func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
