@@ -778,12 +778,13 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
 }
 
+// GetStaticHandler ...
 func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	url := bot.serverURL + c.Request().URL.String()
+	newURL := bot.serverURL + c.Request().URL.String()
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(newURL)
 
 	if err != nil {
 		bot.debug(err)
@@ -815,17 +816,18 @@ func GetStaticHandler(c echo.Context) error {
 
 	contentType := string(http.DetectContentType(body))
 
-	if strings.Contains(url, ".css") {
+	if strings.Contains(newURL, ".css") {
 		contentType = "text/css"
-	} else if strings.Contains(url, ".js") {
+	} else if strings.Contains(newURL, ".js") {
 		contentType = "text/javascript"
-	} else if strings.Contains(url, ".gif") {
+	} else if strings.Contains(newURL, ".gif") {
 		contentType = "image/gif"
 	}
 
 	return c.Blob(http.StatusOK, contentType, body)
 }
 
+// GetFromGameHandler ...
 func GetFromGameHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
@@ -844,6 +846,7 @@ func GetFromGameHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, html)
 }
 
+// PostToGameHandler ...
 func PostToGameHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
@@ -868,16 +871,17 @@ func PostToGameHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, html)
 }
 
+// GetStaticHEADHandler ...
 func GetStaticHEADHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	url := "/api/" + strings.Join(c.ParamValues(), "") // + "?" + c.QueryString()
+	newURL := "/api/" + strings.Join(c.ParamValues(), "") // + "?" + c.QueryString()
 
 	if len(c.QueryString()) > 0 {
-		url = url + "?" + c.QueryString()
+		newURL = newURL + "?" + c.QueryString()
 	}
 
-	headers, err := bot.HeadersForPage(url)
+	headers, err := bot.HeadersForPage(newURL)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
