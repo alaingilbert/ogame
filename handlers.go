@@ -800,7 +800,7 @@ func GetStaticHandler(c echo.Context) error {
 	}
 
 	if strings.Contains(c.Request().URL.String(), ".xml") {
-		body2 := strings.Replace(string(body), bot.serverURL, bot.APInewhostname, -1)
+		body2 := strings.Replace(string(body), bot.serverURL, bot.apiNewHostname, -1)
 		return c.XMLBlob(http.StatusOK, []byte(body2))
 	}
 
@@ -825,7 +825,7 @@ func GetFromGameHandler(c echo.Context) error {
 	}
 	pageHTML := bot.GetPageContent(vals)
 	html := string(pageHTML)
-	html = strings.Replace(html, bot.serverURL, bot.APInewhostname, -1)
+	html = strings.Replace(html, bot.serverURL, bot.apiNewHostname, -1)
 	return c.HTML(http.StatusOK, html)
 }
 
@@ -839,7 +839,7 @@ func PostToGameHandler(c echo.Context) error {
 	payload, _ := c.FormParams()
 	byteArray := bot.PostPageContent(vals, payload)
 	html := string(byteArray)
-	html = strings.Replace(html, bot.serverURL, bot.APInewhostname, -1)
+	html = strings.Replace(html, bot.serverURL, bot.apiNewHostname, -1)
 	return c.HTML(http.StatusOK, html)
 }
 

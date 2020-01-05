@@ -122,7 +122,7 @@ func start(c *cli.Context) error {
 	proxyUsername := c.String("proxy-username")
 	proxyPassword := c.String("proxy-password")
 	lobby := c.String("lobby")
-	apinewhostname := c.String("api-new-hostname")
+	apiNewHostname := c.String("api-new-hostname")
 
 	bot, err := ogame.NewWithParams(ogame.Params{
 		Universe:       universe,
@@ -137,10 +137,8 @@ func start(c *cli.Context) error {
 		Socks5Username: proxyUsername,
 		Socks5Password: proxyPassword,
 		Lobby:          lobby,
+		APINewHostname: apiNewHostname,
 	})
-
-	bot.APInewhostname = apinewhostname
-
 	if err != nil {
 		return err
 	}

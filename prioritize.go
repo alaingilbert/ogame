@@ -1,10 +1,10 @@
 package ogame
 
 import (
+	"net/http"
 	"net/url"
 	"sync/atomic"
 	"time"
-	"net/http"
 )
 
 // Priorities
@@ -545,4 +545,3 @@ func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
 	defer b.done()
 	return b.bot.getEmpire(nbr)
 }
-

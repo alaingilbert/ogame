@@ -80,7 +80,7 @@ type OGame struct {
 	bytesUploaded         int64
 	bytesDownloaded       int64
 	extractor             Extractor
-	APInewhostname string
+	apiNewHostname        string
 }
 
 // Preferences ...
@@ -142,6 +142,7 @@ type Params struct {
 	Socks5Username string
 	Socks5Password string
 	Lobby          string
+	APINewHostname string
 }
 
 // New creates a new instance of OGame wrapper.
@@ -158,6 +159,7 @@ func New(universe, username, password, lang string) (*OGame, error) {
 func NewWithParams(params Params) (*OGame, error) {
 	b := NewNoLogin(params.Universe, params.Username, params.Password, params.Lang)
 	b.setOGameLobby(params.Lobby)
+	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
 		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword); err != nil {
 			return nil, err
@@ -1631,6 +1633,44 @@ func moonIDInSlice(needle MoonID, haystack []MoonID) bool {
 	return false
 }
 
+func (b *OGame) headersForPage(url string) (http.Header, error) {
+	if !b.IsEnabled() {
+		return nil, ErrBotInactive
+	}
+	if !b.IsLoggedIn() {
+		return nil, ErrBotLoggedOut
+	}
+
+	if b.serverURL == "" {
+		err := errors.New("serverURL is empty")
+		b.error(err)
+		return nil, err
+	}
+
+	if !strings.HasPrefix(url, "/") {
+		url = "/" + url
+	}
+
+	finalURL := b.serverURL + url
+
+	req, err := http.NewRequest("HEAD", finalURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := b.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 500 {
+		return nil, err
+	}
+
+	return resp.Header, err
+}
+
 func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfos) (bool, int64, error) {
 	pageHTML, _ := b.getPage(JumpgatelayerPage, originMoonID.Celestial())
 	availShips, token, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
@@ -1669,11 +1709,8 @@ func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	// Replace the Ogame hostname with our custom hostname
-	orighostname := "s" + strconv.FormatInt(b.server.Number, 10) + "-" + b.server.Language + ".ogame.gameforge.com"
-	pageHTML := strings.Replace(string(pageHTMLBytes), orighostname, b.APInewhostname, -1)
-
+	pageHTML := strings.Replace(string(pageHTMLBytes), b.serverURL, b.apiNewHostname, -1)
 	return b.extractor.ExtractEmpire([]byte(pageHTML), nbr)
 }
 
@@ -3915,45 +3952,7 @@ func (b *OGame) CreateUnion(fleet Fleet) (int64, error) {
 
 // HeadersForPage gets the headers for a specific ogame page
 func (b *OGame) HeadersForPage(url string) (http.Header, error) {
-	return b.WithPriority(Low).HeadersForPage(url)
-}
-
-func (b *OGame) headersForPage(url string) (http.Header, error) {
-        if !b.IsEnabled() {
-                return nil, ErrBotInactive
-        }
-        if !b.IsLoggedIn() {
-                return nil, ErrBotLoggedOut
-        }
-
-        if b.serverURL == "" {
-                err := errors.New("serverURL is empty")
-                b.error(err)
-                return nil, err
-        }
-
-        if !strings.HasPrefix(url, "/") {
-                url = "/" + url
-        }
-
-        finalURL := b.serverURL + url
-
-        req, err := http.NewRequest("HEAD", finalURL, nil)
-        if err != nil {
-                return nil, err
-        }
-
-        resp, err := b.Client.Do(req)
-        if err != nil {
-                return nil, err
-        }
-        defer resp.Body.Close()
-
-        if resp.StatusCode >= 500 {
-                return nil, err
-        }
-
-        return resp.Header, err
+	return b.WithPriority(Normal).HeadersForPage(url)
 }
 
 // GetEmpire retrieves JSON from Empire page (Commander only).
