@@ -771,10 +771,8 @@ func SendFleetHandler(c echo.Context) error {
 // GetAlliancePageContentHandler ...
 func GetAlliancePageContentHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
 	allianceId := c.QueryParam("allianceId")
 	vals := url.Values{"allianceId": {allianceId}}
-
 	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
 }
 
@@ -783,23 +781,15 @@ func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
 	newURL := bot.serverURL + c.Request().URL.String()
-
 	resp, err := http.Get(newURL)
-
 	if err != nil {
-		bot.debug(err)
+		bot.error(err)
 	}
-
+	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		bot.debug(err)
+		bot.error(err)
 	}
-
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			bot.error(err)
-		}
-	}()
 
 	// Copy the original HTTP headers to our client
 	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
@@ -814,8 +804,7 @@ func GetStaticHandler(c echo.Context) error {
 		return c.XMLBlob(http.StatusOK, []byte(body2))
 	}
 
-	contentType := string(http.DetectContentType(body))
-
+	contentType := http.DetectContentType(body)
 	if strings.Contains(newURL, ".css") {
 		contentType = "text/css"
 	} else if strings.Contains(newURL, ".js") {
@@ -830,66 +819,44 @@ func GetStaticHandler(c echo.Context) error {
 // GetFromGameHandler ...
 func GetFromGameHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
 	vals := url.Values{"page": {"ingame"}, "component": {"overview"}}
-
 	if len(c.QueryParams()) > 0 {
 		vals = c.QueryParams()
 	}
-
 	pageHTML := bot.GetPageContent(vals)
-
 	html := string(pageHTML)
-
 	html = strings.Replace(html, bot.serverURL, bot.APInewhostname, -1)
-
 	return c.HTML(http.StatusOK, html)
 }
 
 // PostToGameHandler ...
 func PostToGameHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
-	var vals url.Values
-
+	vals := url.Values{"page": {"ingame"}, "component": {"overview"}}
 	if len(c.QueryParams()) > 0 {
 		vals = c.QueryParams()
-	} else {
-		vals = url.Values{"page": {"ingame"}, "component": {"overview"}}
 	}
-
-	// Payload
 	payload, _ := c.FormParams()
-
-	// Perform the POST
 	byteArray := bot.PostPageContent(vals, payload)
-
 	html := string(byteArray)
-
 	html = strings.Replace(html, bot.serverURL, bot.APInewhostname, -1)
-
 	return c.HTML(http.StatusOK, html)
 }
 
 // GetStaticHEADHandler ...
 func GetStaticHEADHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
 	newURL := "/api/" + strings.Join(c.ParamValues(), "") // + "?" + c.QueryString()
-
 	if len(c.QueryString()) > 0 {
 		newURL = newURL + "?" + c.QueryString()
 	}
-
 	headers, err := bot.HeadersForPage(newURL)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-
 	if len(headers) < 1 {
 		return c.NoContent(http.StatusFailedDependency)
 	}
-
 	// Copy the original HTTP HEAD headers to our client
 	for k, vv := range headers { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
 		k = http.CanonicalHeaderKey(k)
@@ -897,9 +864,6 @@ func GetStaticHEADHandler(c echo.Context) error {
 			c.Response().Header().Add(k, v)
 		}
 	}
-
-	c.Response().WriteHeader(http.StatusOK)
-
 	return c.NoContent(http.StatusOK)
 }
 
