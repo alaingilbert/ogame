@@ -1,11 +1,11 @@
 package ogame
 
 import (
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
-	"io/ioutil"
-	"net/url"
 
 	"github.com/labstack/echo"
 )
@@ -780,9 +780,8 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 
 func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
 
-	url := "https://" + orighostname + c.Request().URL.String()
+	url := bot.serverURL + c.Request().URL.String()
 
 	resp, err := http.Get(url)
 
@@ -810,7 +809,7 @@ func GetStaticHandler(c echo.Context) error {
 	}
 
 	if strings.Contains(c.Request().URL.String(), ".xml") {
-		body2 := strings.Replace(string(body), orighostname, bot.APInewhostname, -1)
+		body2 := strings.Replace(string(body), bot.serverURL, bot.APInewhostname, -1)
 		return c.XMLBlob(http.StatusOK, []byte(body2))
 	}
 
@@ -830,7 +829,7 @@ func GetStaticHandler(c echo.Context) error {
 func GetFromGameHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	vals := url.Values{"page": {"overview"}}
+	vals := url.Values{"page": {"ingame"}, "component": {"overview"}}
 
 	if len(c.QueryParams()) > 0 {
 		vals = c.QueryParams()
@@ -840,9 +839,7 @@ func GetFromGameHandler(c echo.Context) error {
 
 	html := string(pageHTML)
 
-	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
-
-	html = strings.Replace(html, orighostname, bot.APInewhostname, -1)
+	html = strings.Replace(html, bot.serverURL, bot.APInewhostname, -1)
 
 	return c.HTML(http.StatusOK, html)
 }
@@ -855,7 +852,7 @@ func PostToGameHandler(c echo.Context) error {
 	if len(c.QueryParams()) > 0 {
 		vals = c.QueryParams()
 	} else {
-		vals = url.Values{"page": {"overview"}}
+		vals = url.Values{"page": {"ingame"}, "component": {"overview"}}
 	}
 
 	// Payload
@@ -866,9 +863,7 @@ func PostToGameHandler(c echo.Context) error {
 
 	html := string(byteArray)
 
-	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
-
-	html = strings.Replace(html, orighostname, bot.APInewhostname, -1)
+	html = strings.Replace(html, bot.serverURL, bot.APInewhostname, -1)
 
 	return c.HTML(http.StatusOK, html)
 }
@@ -888,7 +883,7 @@ func GetStaticHEADHandler(c echo.Context) error {
 	}
 
 	if len(headers) < 1 {
-	     return c.NoContent(http.StatusFailedDependency) // Code: 424
+		return c.NoContent(http.StatusFailedDependency)
 	}
 
 	// Copy the original HTTP HEAD headers to our client
