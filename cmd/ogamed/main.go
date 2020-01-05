@@ -98,8 +98,8 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    "api-new-hostname",
-			Usage:   "New Ogame Hostname: someuniverse.example.com",
-			Value:   "",
+			Usage:   "New Ogame Hostname eg: https://someuniverse.example.com",
+			Value:   "http://127.0.0.1:8080",
 			EnvVars: []string{"OGAMED_NEW_HOSTNAME"},
 		},
 	}
