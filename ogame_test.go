@@ -639,6 +639,20 @@ func TestExtractPlanet_no(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_ro(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/ro/overview.html")
+	planet, _ := NewExtractorV71().ExtractPlanet(pageHTMLBytes, PlanetID(33629199), &OGame{language: "ro"})
+	assert.Equal(t, "Planeta Principala", planet.Name)
+	assert.Equal(t, int64(12800), planet.Diameter)
+	assert.Equal(t, int64(31), planet.Temperature.Min)
+	assert.Equal(t, int64(71), planet.Temperature.Max)
+	assert.Equal(t, int64(0), planet.Fields.Built)
+	assert.Equal(t, int64(193), planet.Fields.Total)
+	assert.Equal(t, PlanetID(33629199), planet.ID)
+	assert.Equal(t, Coordinate{1, 185, 4, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_sk(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/sk/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33625241), &OGame{language: "sk"})
@@ -1482,6 +1496,14 @@ func TestExtractUserInfos_gr(t *testing.T) {
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(162), infos.Rank)
 	assert.Equal(t, int64(163), infos.Total)
+}
+
+func TestExtractUserInfos_ro(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/ro/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "ro")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(108), infos.Rank)
+	assert.Equal(t, int64(109), infos.Total)
 }
 
 func TestExtractUserInfos_mx(t *testing.T) {

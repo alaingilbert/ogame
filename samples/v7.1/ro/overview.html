@@ -1,0 +1,1741 @@
+
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <title>Cygnus OGame</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript">
+        /**
+         * This is only currently needed in a separate file in libraries because
+         * the javascript files are loaded alphabetically from files and we need to
+         * ensure that our namespace object is loaded before all other ogame specific
+         * javascript code
+         */
+
+        /*
+         * global javascript namespace for ogame
+         */
+        var ogame = ogame || {};
+    </script>
+    <meta name="ogame-session" content="3e9c73a5910fff213d3b6a43e41a4b3e97f5f7d9"/>
+    <meta name="ogame-version" content="7.1.0-rc16"/>
+    <meta name="ogame-timestamp" content="1578094933"/>
+    <meta name="ogame-universe" content="s129-ro.ogame.gameforge.com"/>
+    <meta name="ogame-universe-name" content="Cygnus"/>
+    <meta name="ogame-universe-speed" content="6"/>
+    <meta name="ogame-universe-speed-fleet" content="6"/>
+    <meta name="ogame-language" content="ro"/>
+    <meta name="ogame-donut-galaxy" content="1"/>
+    <meta name="ogame-donut-system" content="1"/>
+    <meta name="ogame-player-id" content="100862"/>
+    <meta name="ogame-player-name" content="Vice Helix"/>
+    <meta name="ogame-planet-id" content="33629199"/>
+    <meta name="ogame-planet-name" content="Planeta Principala"/>
+    <meta name="ogame-planet-coordinates" content="1:185:4"/>
+    <meta name="ogame-planet-type" content="planet"/>
+
+
+    <script type="text/javascript">
+        var ajaxEventboxURI = 'https://s129-ro.ogame.gameforge.com/game/index.php?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+        var ajaxResourceboxURI = 'https://s129-ro.ogame.gameforge.com/game/index.php?page=fetchResources&ajax=1';
+        var eventboxLoca    = {"mission":"Misiune","missions":"Misiuni","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"proprie","neutral":"prietenoas\u0103","hostile":"ostil\u0103","nextEvent":"Continu\u0103","nextEventText":"Tip"};
+        var eventlistLink   = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&ajax=1";
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne6/215ab306a69a767a9e3eba0c8c316f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5c/0b90f4a098facd7e4d173ab7a27a6c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna6/2a9f7af34971cdfbd971a0d867d0f3.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn3f/7ea99c73d22beea35a52bd6f7cb422.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc3/e97fcbb510366478af1860d20864c1.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn57/17590ed4605715033324741da78485.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/68ffdf60813686a9fe1d99a1cc334c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn8e/9a111b0209f44edde46ca7dd9d303c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn0e/b6730dfc1efc9c613317ae60328bb4.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn50/2fde7afaf29f6878c0b6b9b86449c4.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn07/d2cfcc4e1ddfd63aac037a4f507138.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn2c/0b4c19043f087a2c10ded10d951b95.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc7/a61659f9db877536599b792d2fdb63.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn03/f6de7d24819951074b5e1ae613e68a.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn80/cab8721c76db9f6606ca93faeddbac.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/55d667f3f50d381767948507c45e5b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4b/da5d31cd0a99fc43fbbd9a06b52899.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdneb/210581d261b626ce77bac2ad4983f2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn64/1b773fe4ce9c6ea5a8be3204caa002.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/541e9161c385e847711f7a6d2e2a41.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn96/3c3d20ad4845ddc678c00dd8fdbe5e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn89/707f831c581ae267014f3f2fbcd020.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn8f/8733cf33d028ec6c43ecfc907ec98c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn35/fe33689d32e93aeb383b075270cf4f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4c/6057a87cf3d326e00e8a126731ec5a.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5d/4c00ba0389df4cdabed9385769f003.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn6c/ade34cb360f17762d348553a2de857.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna8/535876019e29f700c52e026519c566.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnab/c4669ba58ee728ac1bc7610f1f6a30.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn69/96d24bb94430f3ee33c668531a4a93.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne3/e08c00e0766ae812db6525bb901205.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd8/7b75126fa68d03f92fbb77226f9132.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn45/f320115669b7611bda327a51918fd2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/7c49c94686cc0b20c3de6f2921575e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc4/c480ff9537d079d4795ec3c6c700d2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd9/20d2b84283d80fc0bad0e8d0b44344.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/50618794bb4987f392e23fcde41666.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnba/efcc85e086a1b970342e189a5608e1.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna8/eb8cc78297093a62bba83be66e204e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnf4/3d9d772413b0c3776bd3b676ea72e9.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5e/a75bc4f176c8c4fd1548860b945708.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn40/c912ca07743ac211966f9e7e9ad128.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/b17884a364a3dc34841c44edae9d03.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn12/58641190a9641e4f2951c707820722.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdndd/eaf138d8da5d08e6de288958d6b08b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/75cd503d09c4df72ffcf5aff436858.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn06/c288674318e1f4be6fa9fe688317f2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb3/de2acb879dfae8191ad4c1de8f8fcf.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb0/a524432bb87f4b191503be58bf4e38.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn19/6cd7cf97c8b9f95caf0bcc3dfea028.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd4/2f68a78f07cf9923e87fbe75c0ce8a.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn39/ed7c303e3f379ed29ac7d363bc9cc2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn56/09292a38db7a327b5a161fa1fc0223.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn7c/23194c6009428df8cac22130e823eb.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd3/4619434ba42d50dde6fb2bae56e371.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn38/36483f5ec8a719f7392723e53838fa.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn36/2c8857695a51fe4b86e99a2eb955d2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/a4fccc0fefb259779456dc294521f6.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn63/7a32b02637324e1ee393271cb87566.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn13/36d28f6019f192739dd5879cc8fd5a.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4a/4b31423d3e4862041353c7d4c8d0fa.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn51/9cb53f20d1f836516d0c1a294bf3fc.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne9/6a6d5fc4fff8ae65cacfe4680fb636.css"/>
+
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn67/fcb375651c0c3542cb6492c9e3341d.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc7/97b54bbd2b148347307f851dd15702.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn04/1bd8fb473b9b768b8f24d50db2ba99.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0a/7454011d277727589dad3da2bbdd35.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf0/c63ad1332c56765a3d6a0692ef2da1.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn9f/8181eafdc5f9430385b2c30ef25b51.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn93/ab249723f51315cc21aa29df993a43.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn5a/83352c8c484520d93fbb80d7e55dd3.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn08/c18b98d9d2d81526f30441aae725f3.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn94/b81647b06d5f606e41f4b4234fb73c.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne7/b615fa36594e4ba18d0b71ca0b39c8.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn56/73217f10a95a494d3ab9535fccaf45.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn87/9a962f64f862267427bea03b98a1d9.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn6b/95fca477ebd6530efdcecff667dfb1.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn49/21a21061b60f907355fd3c06ea0288.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn31/a3cff6708efd0da82bb909a90bb036.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn4a/6a0821e704eba042ebe74781f912d6.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnff/032790954e205b2d4fcb72d484127a.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn09/6b1759b4d8ae0aeb3b4f566299ad46.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn2d/d0f951139e18634a0f55ea69d63723.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnb3/a7e7115215785502490da6c890ee95.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0a/e916181d78437eda6a19bf58ec4e90.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn10/3de5ec70c9081626f7c92363318996.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn43/15b163478fd10066ff77945c20377d.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn4f/8d7b92846cb476632758e9d2ba0f98.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn85/14a05fd59d8bd4ea3afb1d5f0b87f7.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn45/7f8940254df3f2cd3b47b79129a822.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn73/5f7bbb26936705816fe06cada8dada.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn49/422728156f2b26a567b1c04eb5c316.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdna3/9e2c69d1c61882a96f571702189a3e.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdna7/196e6d395aa3c50f2b0e208de96e4e.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn04/d752681870471998887a3a44b551a9.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn86/990cce91f0b6a910a2282cfa915d8e.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0b/31dcdb156245ceb64b302f083afea9.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd8/bf7272e9ec95fc337592a36a8ba27d.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0c/287d9025a7e182e89223908ce25353.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn62/087ddad6623296e02dc745566b7d95.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn53/9983cada674149f7b4f756798fe0ae.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnfd/e41e82e23fc01f9ef0c6f23648d584.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnb5/c2db415a9edd4dc63fc8cef617532d.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn52/10b31d9a2a498e01935e45e51a70bc.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne9/d0302006a4f0298a23bc32cebe8068.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn91/e03623732b682472ccb4cde2878597.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn66/2e99dffa376538611080b179319641.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn40/9d59a24a6690715d0ec9aecdcbac04.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn9f/454060ffd9888f9da041cd2276a337.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnbf/7dea0983ed1dc0149c4f16235ca5e2.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc9/0c635b82780a11afdc27343f426f33.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdncf/1e4a91f9c25f4bdfeb3578acba150f.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn2a/f5f84a2c33484e29339156a358ee9a.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn2e/750b77451ec665077dadca84e88df9.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdndc/d8ca278fb6f548b9d8f2aa10bf310a.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnea/a5e6b0ce0eb367f23eff01a81c1b69.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8d/5aabde910cb9aeb049fe60f2e4f555.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0a/2c59dfe31910ca5d780de126e94d65.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn95/b99728a38d0389b2c7fd61d13dd1c5.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn03/37d2006f1c8f9a5e482889b8cc01f5.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn13/c375d55655e9356b77ef13c068bbad.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn48/d3195b6a7bf2fe4cb45be68ce614d6.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn32/9e2cb5dceab9987cd4bada7f922b06.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn41/90a193bbc9bea36e27541e337e7530.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn7f/b0c1c7542400ec3cd780c146ce6bb5.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn44/e75e3d57c758588a059747a1df3472.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf3/a761c8bf0e6998f493711cdc2d261d.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne5/6f621fc9d0fa80ceb25b80bd6464da.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnca/8c2f0b1a3fc6c9909bb76a334e9c42.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne7/d79110c9ea569c12531cd7a0d94179.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne4/cbfb2c1443541ac50ccc3eae0b594d.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn46/60cd95d4ce5cb91a86861f433773d1.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd0/4b21942c81adba07ff5c3c53a17484.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn36/a884fb205ad84a7dbff177a262fe40.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnfb/72cbaef1d58a5ad487b2e207e31c19.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc0/f81e00921ad2bd31110d26738088a7.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn57/3415be2875706a48863d7ee003c9d6.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd4/1d8cd98f00b204e9800998ecf8427e.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0b/03712425766448174c6684070585b1.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn3d/43bcb77d244938ce6909cd2b6b466b.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnce/87adc249eae8d0b8094ae24b8349b0.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne6/6ba0f0ec48bbf59618c822ebf27f5e.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnaa/49c3d528d0a05d1de38494ba7f516f.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn1a/cc7f7092e2dd5c8d5febfb12bab827.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc4/c601f9d9857206265f2136779632f1.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn3a/dddb815a1073e20cdc5cc0f0332bb1.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8d/04ca3fd1a013c2c88d82f7f23c62ae.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnbb/15b2ac5dd0107da56f9c0b3c6b41af.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnce/ac1149d19f4f5d3145033cb3e7c63c.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn57/c073a108bcb7d4249b55a098fcdc24.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn45/a6dc99c829e6057d47bea18dadca84.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf4/c8c973ec6c1eb02013726eeb5fa3d6.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnaf/33dccd98865c407a5012ff837f6da5.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8a/b922ccf187e6585a1f6b589324d2db.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0a/5d4748aa25e7a9bc17caefbdf666d8.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd4/ed50b027c9d07ddad90f7eb9a85496.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf0/5ec05c9a9b64ef04efc0dfb1fa6efb.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdna7/723d7a24c224b681ffa45c528c6100.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn24/8917c91d99fd24ca55a9f33d27ec6a.js'> </script>
+    <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn39/1fb263e39200702f2411c423e0c26a.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnbf/4200d09306762e743b04a1c04d51fe.js'> </script>
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn52/fb023baf83234816c2445916460c45.js'> </script>
+
+
+
+
+
+    <script type="text/javascript">
+
+        var changeSettingsLink = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=changeSettings";
+        var changeSettingsToken = "857cc90ace818902839af82a34e86798";
+        var redirectLogoutLink = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=logout";
+        var redirectOverviewLink = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+        var redirectSpaceDockLink = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=ingame&component=facilities&openTech=36";
+        var constants   = {"espionage":6,"missleattack":10,"language":"ro","name":"129"};
+        var currentPage = "overview";
+        var changeNickLink = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=ajax&component=changenick&asJson=1";
+    </script>
+
+    <script type="text/javascript">
+        var playerId = 100862;
+        var playerName = "Vice Helix";
+        var player = {"playerId":100862,"name":"Vice Helix","hasCommander":false,"hasAPassword":true};
+        var session = "3e9c73a5910fff213d3b6a43e41a4b3e97f5f7d9";
+        var vacation = 0;
+        var hasAPassword = true;
+        var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Subliniat","stroke":"T\u0103iat","sub":"Subscript","sup":"Superscript","fontColor":"Culoarea fontului","fontSize":"M\u0103rimea fontului","backgroundColor":"Culoare de fundal","backgroundImage":"Imagine de fundal","tooltip":"Tool-tip","alignLeft":"Alineaz\u0103 la st\u00e2nga","alignCenter":"Alineaz\u0103 centrat","alignRight":"Alineaz\u0103 la dreapta","alignJustify":"Justify","block":"Linie","code":"Cod","spoiler":"Mai multe op\u021biuni","moreopts":"","list":"List\u0103","hr":"Linie Orizontal\u0103","picture":"Imagine","link":"Leg\u0103tur\u0103","email":"Email","player":"Juc\u0103tor","item":"Obiect","coordinates":"Coordonate","preview":"Previzualizare","textPlaceHolder":"Text...","playerPlaceHolder":"Numele sau ID-ul juc\u0103torului","itemPlaceHolder":"ID-ul obiectului","coordinatePlaceHolder":"Galaxie:sistem:pozi\u021bie","charsLeft":"Caractere r\u0103mase","colorPicker":{"ok":"Ok","cancel":"Anulare","rgbR":"R","rgbG":"V","rgbB":"A"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repet\u0103 orizontal","repeatY":"Repet\u0103 vertical"}};
+        var itemNames = {"090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Poten\u0163iator Cristal de Bronz","e254352ac599de4dd1f20f0719df0a070c623ca8":"Poten\u0163iator de Bronz pentru Deuteriu","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Poten\u0163iator de bronz pentru Metal","2dd05cc4c0e185fce2e712112dc44932027aee98":"Exploratorul","9374c79a24b84c4331f0d26526ef6c2d33319a6e":"Colec\u021bionarul","77eff880829027daf23b755e14820a60c4c6fd93":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Poten\u0163iator Cristal de Bronz","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Poten\u0163iator Cristal de Argint","118d34e685b5d1472267696d1010a393a59aed03":"Poten\u0163iator Cristal de Aur","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID de Bronz","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID de Aur","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID de Argint","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Poten\u0163iator de Bronz pentru Deuteriu","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Poten\u0163iator de Argint pentru Deuteriu","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Poten\u0163iator de Aur pentru Deuteriu","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN de Bronz","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN de Aur","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN de Argint","de922af379061263a56d7204d1c395cefcfb7d75":"Poten\u0163iator de bronz pentru Metal","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Poten\u0163iator de argint pentru produc\u0163ia de Metal","05294270032e5dc968672425ab5611998c409166":"Poten\u0163iator de Aur pentru Metal","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"C\u00e2mpuri lun\u0103 de bronz","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"C\u00e2mpuri lun\u0103 de aur","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"C\u00e2mpuri lun\u0103 de argint","485a6d5624d9de836d3eb52b181b13423f795770":"M.O.O.N.S. Bronz","45d6660308689c65d97f3c27327b0b31f880ae75":"M.O.O.N.S. aur","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"M.O.O.N.S. argint","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON  de Bronz","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON de Aur","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON de Argint","16768164989dffd819a373613b5e1a52e226a5b0":"Surplus C\u00e2mp Planet\u0103 de Bronz","04e58444d6d0beb57b3e998edc34c60f8318825a":"Surplus C\u00e2mp Planet\u0103 de Aur","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Surplus C\u00e2mp Planet\u0103 de Argint"};
+        var isMobile = false;
+        var isMobileApp = false;
+        var bbcodePreviewUrl = "https://s129-ro.ogame.gameforge.com/game/index.php?page=bbcodePreview";
+        var ogameUrl = "https:\/\/s129-ro.ogame.gameforge.com";
+        var startpageUrl = "https:\/\/ro.ogame.gameforge.com";
+        var LocalizationStrings = {"timeunits":{"short":{"year":"a","month":"m","week":"s","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"gata"},"decimalPoint":".","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Md","question":"Intrebare","error":"Eroare","loading":"se incarca...","notice":"Referinta","yes":"da","no":"Nu","ok":"Ok","attention":"Atentie","outlawWarning":"Esti pe cale sa ataci un jucator mai puternic. Daca faci acest lucru, protectia ta la atacuri va inceta pentru  7 zile si toti jucatorii vor putea sa te atace fara a fi pedepsiti. Esti sigur ca vrei sa continui?","lastSlotWarningMoon":"Construc\u021bia va folosi ultimul c\u00e2mp de construc\u021bie. \u00cembun\u0103t\u0103\u021be\u0219te Baza Lunar\u0103 pentru mai mult spa\u021biu. E\u0219ti sigur c\u0103 dore\u0219ti s\u0103 porne\u0219ti construc\u021bia?","lastSlotWarningPlanet":"Construc\u021bia va folosi ultimul c\u00e2mp de construc\u021bie. \u00cembun\u0103t\u0103\u021be\u0219te Formatorul de Sol pentru mai mult spa\u021biu. E\u0219ti sigur c\u0103 dore\u0219ti s\u0103 porne\u0219ti construc\u021bia?","forcedVacationWarning":"Confirm\u0103 contul t\u0103u de lobby \u0219i-\u021bi vom d\u0103rui Materie \u00centunecat\u0103 \u00een fiecare univers!","planetMoveBreakUpWarning":"Atentie! S-ar putea ca aceasta misiune sa fie inca in desfasurare atunci cand incepe perioada de repozitionare si in acest caz procesul va fi anulat. Vrei sa continui cu misiunea?","moreDetails":"Mai multe detalii","lessDetails":"Mai pu\u0163ine detalii","planetOrder":{"lock":"Blocheaz\u0103 ordinea de sortare","unlock":"Deblocheaz\u0103 ordinea de sortare"},"darkMatter":"Materie \u00centunecat\u0103","errorNotEnoughDM":"Materie Intunecata insuficienta! Vrei sa cumperi acum?","activateItem":{"upgradeItemQuestion":"Dore\u015fti s\u0103 \u00eenlocuie\u015fti articolul existent? Vechiul bonus va fi pierdut dup\u0103 aceast\u0103 ac\u0163iune.","upgradeItemQuestionHeader":"\u00cenlocuie\u015fti articolul?"},"characterClassItem":{"buyAndActivateItemQuestion":"Vrei s\u0103 activezi clasa #characterClassName# pentru #darkmatter# Materie \u00centunecat\u0103? Dac\u0103 faci acest lucru, vei pierde clasa curent\u0103.","activateItemQuestion":"Vrei s\u0103 activezi clasa #characterClassName#? Dac\u0103 faci acest lucru, vei pierde clasa curent\u0103."},"LOCA_ALL_NETWORK_ATTENTION":"Atentie","LOCA_ALL_YES":"da","LOCA_ALL_NO":"Nu"};
+        var popupWindows = [];
+        var showOutlawWarning = true;
+        var chatLoca = {"TEXT_EMPTY":"Unde este mesajul ?","TEXT_TOO_LONG":"Mesajul este prea lung.","SAME_USER":"Nu po\u0163i s\u0103 trimi\u0163i un mesaj c\u0103tre tine \u00eensu\u0163i.","IGNORED_USER":"Acest juc\u0103tor este ignorat.","NO_DATABASE_CONNECTION":"O eroare necunoscut\u0103 a avut loc. Din p\u0103cate ultima ta ac\u0163iune nu a putut fi executat\u0103!","INVALID_PARAMETERS":"O eroare necunoscut\u0103 a avut loc. Din p\u0103cate ultima ta ac\u0163iune nu a putut fi executat\u0103!","SEND_FAILED":"O eroare necunoscut\u0103 a avut loc. Din p\u0103cate ultima ta ac\u0163iune nu a putut fi executat\u0103!","LOCA_ALL_ERROR_NOTACTIVATED":"Aceasta functie este disponibila dupa activarea contului.","X_NEW_CHATS":"#+#  conversa\u021bii necitite","MORE_USERS":"arat\u0103 mai mult"};
+        var overlayWidth = 770;
+        var overlayHeight = 600;
+        var isStandalonePage = false;
+        var serverTime = new Date(2020, 0, 4, 1, 42, 13);
+        var localTime = new Date();
+        var timeDiff = serverTime - localTime;
+
+        var nodePort = 19978
+        var nodeUrl = "https:\/\/s129-ro.ogame.gameforge.com:19978\/socket.io\/socket.io.js"
+        var nodeParams = {"port":19978,"secure":true}
+
+        var miniFleetToken = "695bb4230fa802e1b8436492c12ba625";
+        var miniFleetLink = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=minifleet&ajax=1";
+
+        var jumpGateLink = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=jumpgatelayer";
+        var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Foloseste portal"};
+
+        var timerHandler = new TimerHandler();
+
+        $(document).ready(
+            function(){
+                initOverlays();
+            }
+        );
+    </script>
+</head>
+<body id="ingamepage" class="no-touch no-commander ">
+
+<!-- #MMO:NETBAR# -->
+<div id="pagefoldtarget"></div>
+<script type="text/javascript">
+    var mmoCSS = ' body {margin:0; padding:0;} div.openX_interstitial div.openX_int_closeButton a { text-indent:-4000px; float:right; height:23px; width:23px; display:block; background:transparent url(//gf2.geo.gfsrv.net/cdn14/7618d1159940178a2e53a8be22710a.png) repeat-x; } #mmonetbar { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar .mmosmallbar {width:585px !important;} #mmonetbar .mmosmallbar div.mmoBoxMiddle { width: 290px; } #mmonetbar .mmonewsout {width:800px !important;} #mmonetbar .mmouseronlineout {width:768px !important;} #mmonetbar .mmolangout {width:380px !important;} #mmonetbar .mmolangout .mmoGame { width: 265px; } #mmonetbar #mmoContent.mmoingame { width: 533px; } #mmonetbar #mmoContent.mmoingame .mmoGame { width: auto; } #mmonetbar a { color:#666; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; outline: none; text-decoration:none; white-space:nowrap; } #mmonetbar select { background-color:#091218 !important; border:1px solid #1c2e3a !important; color:#9099a3 !important; font:normal 11px Verdana, Arial, Helvetica, sans-serif; height:18px; margin-top:3px; width:100px; } #mmonetbar .mmoGames select {width:80px;} #mmonetbar option { background-color:#091218 !important; color:#9099a3 !important; } #mmonetbar option:hover { background-color:#132835 !important; } #mmonetbar select#mmoCountry {width:120px;} #mmonetbar .mmoSelectbox { background-color:#091218; float:left; margin:3px 0 0 3px; position:relative; } * html #mmonetbar .mmoSelectbox {position:static;} *+html #mmonetbar .mmoSelectbox {position:static;} #mmonetbar #mmoOneGame {cursor:default; height:14px; margin-top:3px; padding-left:5px; width:80px;} #mmonetbar .label {float:left; font-weight:bold; margin-right:4px; overflow:hidden !important;} #mmonetbar #mmoUsers .label {font-size:10px;} #mmonetbar .mmoBoxLeft, #mmonetbar .mmoBoxRight { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -109px -4px; float:left; width:5px; height:24px; } #mmonetbar .mmoBoxRight {background-position:-126px -4px;} #mmonetbar .mmoBoxMiddle { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -36px; color:#9099a3 !important; float:left; height:24px; line-height:22px; text-align:left; white-space:nowrap; position: relative; z-index: 10000; } #mmonetbar #mmoGames, #mmonetbar #mmoLangs {margin:0px 4px 0 0;} #mmonetbar #mmoNews, #mmonetbar #mmoUsers, #mmonetbar #mmoGame, #mmonetbar .nojsGame {margin:4px 4px 0 0;} #mmonetbar #mmoLogo { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat top left; float:left; display:block; height:32px; width:108px; text-indent: -9999px; position: relative; z-index: 1 } #mmonetbar #mmoNews {float:left; width:252px;} #mmonetbar #mmoNews #mmoNewsContent {text-align:left; width:200px;} #mmonetbar #mmoNews #mmoNewsticker {overflow:hidden; width:240px;} #mmonetbar #mmoNews #mmoNewsticker ul { margin: 0; padding: 0; list-style: none; } #mmonetbar #mmoNews #mmoNewsticker ul li { font:normal 11px/22px Tahoma, Arial, Helvetica, sans-serif !important; color:#9099a3 !important; padding: 0; margin: 0; background: none; display: none; } #mmonetbar #mmoNews #mmoNewsticker ul li.mmoTickShow { display: block; } #mmonetbar #mmoNews #mmoNewsticker ul li a img {border:0;} #mmonetbar #mmoNews #mmoNewsticker ul li a {color:#9099a3 !important;display:block;height:24px;line-height:23px;} #mmonetbar #mmoNews #mmoNewsticker ul li a:hover {text-decoration:underline;} #mmonetbar #mmoUsers {float:left; width:178px;} #mmonetbar #mmoUsers .mmoBoxLeft {width:17px;} #mmonetbar #mmoUsers .mmoBoxMiddle {padding-left:3px; width:150px;} #mmonetbar .mmoGame {display:none; float:left; width:432px;} #mmonetbar .mmoGame #mmoGames {float:left; width:206px;} #mmonetbar .mmoGame #mmoLangs {float:left; margin:0; width:252px;} #mmonetbar .mmoGame label { color:#9099a3 !important; float:left; font-weight:400 !important; line-height:22px; margin:0px; text-align:right !important; width:110px; font-size: 11px !important; } #mmonetbar .nojsGame {display:block; width:470px;} #mmonetbar .nojsGame .mmoBoxMiddle {width:450px;} #mmonetbar .nojsGame .mmoSelectbox {margin:0px 0 0 3px;} *+html #mmonetbar .nojsGame .mmoSelectbox {margin:2px 0 0 3px;} * html #mmonetbar .nojsGame .mmoSelectbox {margin:2px 0 0 3px;} #mmonetbar .nojsGame .mmoGameBtn { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -162px -7px; border:none; cursor:pointer; float:left; height:18px; margin:3px 0 0 7px; padding:0; width:18px; } #mmonetbar .mmoSelectArea { border:1px solid #1c2e3a; color:#9099a3 !important; display:block !important; float:none; font-weight:400 !important; font-size:11px; height:16px; line-height:13px; -moz-box-sizing: content-box; overflow:hidden !important; width:90px; } #mmonetbar #mmoLangSelect .mmoSelectArea {width:129px;} #mmonetbar #mmoLangSelect .mmoOptionsDivVisible {min-width:129px;} #mmonetbar .mmoSelectArea .mmoSelectButton { background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -141px -8px; float:right; width:17px; height:16px; } #mmonetbar .mmoSelectText {cursor:pointer; float:left; overflow:hidden; padding:1px 2px; width:68px;} #mmonetbar #mmoLangSelect .mmoSelectText {width:107px;} #mmonetbar #mmoOneLang {cursor:default; height:14px;} #mmonetbar div.mmoOneLang { background: none; } #mmonetbar div.mmoOneLang #mmoOneLang { border: none; padding: 2px 3px; } #mmonetbar .mmoOptionsDivInvisible, #mmonetbar .mmoOptionsDivVisible { background-color: #091218 !important; border: 1px solid #1c2e3a; position: absolute; min-width:90px; z-index: 3100; } * html #mmonetbar .mmoOptionsDivVisible .highlight {background-color:#132835 !important} #mmonetbar .mmoOptionsDivInvisible {display: none;} #mmonetbar .mmoOptionsDivVisible ul { border:0; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; list-style: none; margin:0; padding:2px; overflow:auto; overflow-x:hidden; } #mmonetbar #mmoLangs .mmoOptionsDivVisible ul {min-width:125px;} #mmonetbar .mmoOptionsDivVisible ul li { background-color: #091218; height:14px; padding:2px 0; } #mmonetbar .mmoOptionsDivVisible a { color: #9099a3 !important; display: block; font-weight:400 !important; height:16px !important; min-width:80px; text-decoration: none; white-space:nowrap; width:100%; } #mmonetbar #mmoContent .mmoLangList a {min-width:102px;} #mmonetbar .mmoOptionsDivVisible li:hover {background-color: #132835;} #mmonetbar .mmoOptionsDivVisible li a:hover {color: #9099a3 !important;} #mmonetbar .mmoOptionsDivVisible li.mmoActive {background-color: #132835 !important;} #mmonetbar .mmoOptionsDivVisible li.mmoActive a {color: #9099a3 !important;} #mmonetbar .mmoOptionsDivVisible ul.mmoListHeight {height:240px} #mmonetbar .mmoOptionsDivVisible ul.mmoLangList.mmoListHeight li {padding-right:15px !important; width:100%;} #mmonetbar #mmoGameSelect ul.mmoListHeight a {min-width:85px;} #mmonetbar #mmoLangSelect ul.mmoListHeight a {min-width:105px;} #mmonetbar #mmoFocus {position:absolute;left:-2000px;top:-2000px;} #mmonetbar #mmoLangs .mmoSelectText span, #mmonetbar #mmoLangs .mmoflag { background: transparent url(//gf3.geo.gfsrv.net/cdn28/71fe874d78b03e38e06a3b471f6224.png) no-repeat; height:14px !important; padding-left:23px; } .mmo_AE {background-position:left 0px !important} .mmo_AR {background-position:left -14px !important} .mmo_BE {background-position:left -28px !important} .mmo_BG {background-position:left -42px !important} .mmo_BR {background-position:left -56px !important} .mmo_BY {background-position:left -70px !important} .mmo_CA {background-position:left -84px !important} .mmo_CH {background-position:left -98px !important} .mmo_CL {background-position:left -112px !important} .mmo_CN {background-position:left -126px !important} .mmo_CO {background-position:left -140px !important} .mmo_CZ {background-position:left -154px !important} .mmo_DE {background-position:left -168px !important} .mmo_DK {background-position:left -182px !important} .mmo_EE {background-position:left -196px !important} .mmo_EG {background-position:left -210px !important} .mmo_EN {background-position:left -224px !important} .mmo_ES {background-position:left -238px !important} .mmo_EU {background-position:left -252px !important} .mmo_FI {background-position:left -266px !important} .mmo_FR {background-position:left -280px !important} .mmo_GR {background-position:left -294px !important} .mmo_HK {background-position:left -308px !important} .mmo_HR {background-position:left -322px !important} .mmo_HU {background-position:left -336px !important} .mmo_ID {background-position:left -350px !important} .mmo_IL {background-position:left -364px !important} .mmo_IN {background-position:left -378px !important} .mmo_INTL {background-position:left -392px !important} .mmo_IR {background-position:left -406px !important} .mmo_IT {background-position:left -420px !important} .mmo_JP {background-position:left -434px !important} .mmo_KE {background-position:left -448px !important} .mmo_KR {background-position:left -462px !important} .mmo_LT {background-position:left -476px !important} .mmo_LV {background-position:left -490px !important} .mmo_ME {background-position:left -504px !important} .mmo_MK {background-position:left -518px !important} .mmo_MX {background-position:left -532px !important} .mmo_NL {background-position:left -546px !important} .mmo_NO {background-position:left -560px !important} .mmo_PE {background-position:left -574px !important} .mmo_PH {background-position:left -588px !important} .mmo_PK {background-position:left -602px !important} .mmo_PL {background-position:left -616px !important} .mmo_PT {background-position:left -630px !important} .mmo_RO {background-position:left -644px !important} .mmo_RS {background-position:left -658px !important} .mmo_RU {background-position:left -672px !important} .mmo_SE {background-position:left -686px !important} .mmo_SI {background-position:left -700px !important} .mmo_SK {background-position:left -714px !important} .mmo_TH {background-position:left -728px !important} .mmo_TR {background-position:left -742px !important} .mmo_TW {background-position:left -756px !important} .mmo_UA {background-position:left -770px !important} .mmo_UK {background-position:left -784px !important} .mmo_US {background-position:left -798px !important} .mmo_VE {background-position:left -812px !important} .mmo_VN {background-position:left -826px !important} .mmo_YU {background-position:left -840px !important} .mmo_ZA {background-position:left -854px !important} .mmo_WW {background-position:left -392px !important} .mmo_AU {background-position:left -868px !important} div#mmonetbar a:active { top: 0; } div#mmoGamesOverviewPanel { width: 582px; position: absolute; top: 0; right: 0; font: 12px Arial, sans-serif; } div#mmoGamesOverviewPanel h4, div#mmoGamesOverviewPanel h5 { margin: 0; font-size: 12px; font-weight: bold; text-align: left; } div#mmoGamesOverviewPanel a { text-decoration: none; } div#mmoGamesOverviewPanel a img { border: none; } div#mmoGamesOverviewToggle { width: 168px; padding: 4px 0 4px 414px; } div#mmoGamesOverviewToggle h4 { height: 18px; position: relative; background: url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -36px; top: 0px; padding: 3px 20px; -moz-box-sizing: content-box; } div#mmoGamesOverviewToggle h4 a { display: block; width: 116px; height: 16px; line-height: 14px; text-align: left; font-weight: normal; outline: none; color: #9099a3 !important; font-size: 11px !important; position: relative; border: 1px solid #1c2e3a; padding: 0 0 0 10px; background: #091218; -moz-box-sizing: content-box; } div#mmoGamesOverviewToggle h4 a.gameCountZero { cursor: default; text-align: center; padding: 0; width: 126px; } div#mmoGamesOverviewToggle h4 a span.mmoNbPseudoSelect_icon { display: block; position: absolute; top: 0; right: 0; width: 17px; height: 16px; background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -141px -8px; } span.iconTriangle { display: block; position: absolute; top: 5px; right: 10px; width: 0px; border: 5px solid transparent; border-bottom-color: #9099a3; } div#mmoGamesOverviewToggle h4 a.toggleHidden { } div#mmoGamesOverviewToggle h4 a.toggleHidden span.iconTriangle { top: 10px; border: 5px solid transparent; border-top-color: #9099a3; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge { display: block; width: 5px; height: 24px; background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -109px -4px; position: absolute; top: 0; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge_left { left: 0; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge_right { right: 0; background-position: -126px -4px; } div#mmoGamesOverviewLists { clear: both; background: #091218; width: 580px; border: 1px solid #1c2e3a; float: left; position: relative; top: 0px; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists h5 { clear: both; width: 544px; margin: 0; padding: 0 18px; height: 27px; line-height: 27px; color: #9099a3; border-bottom: 1px solid #1c2e3a; background: url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -3px; font-family: inherit; -moz-box-sizing: content-box; } #mmoGamesOverviewLists #mmoGamesOverview_featured li { width: auto; } #mmoGamesOverviewLists #mmoGamesOverview_featured span { display: block; width: 560px; height: 180px; margin: 0; } #mmoGamesOverviewLists #mmoGamesOverview_featured span.gameName { display: none; } #mmoGamesOverview_featured img { display: block; } div#mmoGamesOverviewLists ul { margin: 0; padding: 5px 5px; list-style: none; width: 570px; float: left; text-align: left; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists ul li { margin: 0; padding: 0; list-style: none; width: 190px; float: left; background: none; } div#mmoGamesOverviewLists ul li a { display: block; padding: 5px; font-weight: bold; line-height: 1; color: #9099a3 !important; font-size: 11px !important; } div#mmoGamesOverviewLists ul li a:focus, div#mmoGamesOverviewLists ul li a:hover { background-color: #132835; } div#mmoGamesOverviewLists ul li a span.gameImgTarget { display: block; width: 180px; height: 90px; background: none; margin: 0 0 4px 0; } div#mmoGamesOverviewLists ul li a span img { display: block; } div#mmoGamesOverviewLists div#mmoGamesOverviewCountry { width: 20px; height: 14px; position: absolute; top: 6px; right: 12px; background-image: url(//gf3.geo.gfsrv.net/cdn28/71fe874d78b03e38e06a3b471f6224.png); background-repeat: no-repeat; } #mmonetbar div.nojsGame { width: 432px !important; } #mmonetbar div.nojsGame div.mmoBoxMiddle { width: 422px; } #mmonetbar div.nojsGame label { width: 105px; } #pagefoldtarget .nbPF { position: absolute; top: 0; z-index: 999999; text-indent: -9999px; width: 125px; height: 120px; } #pagefoldtarget .nbPFLeft { left: 0px; } #pagefoldtarget .nbPF.nbPFRight { right: 0px; background-position: right 0px } #pagefoldtarget .nbPFDark.nbPFRight { background-image: url(//gf2.geo.gfsrv.net/cdn75/98954a5b65ea8ac2b5472017426515.png); _background-image: url(//gf1.geo.gfsrv.net/cdn9d/ca3b68a0f2fc9b5fd4f4e9acc1aa9f.gif); } #pagefoldtarget .nbPFDark.nbPFLeft { background-image: url(//gf2.geo.gfsrv.net/cdndd/f3329ffdb5f66db6930cd98f547da7.png); _background-image: url(//gf1.geo.gfsrv.net/cdn37/470d765043864d857eb6ffdc30bc4d.gif); } #pagefoldtarget .nbPFLight.nbPFRight { background-image: url(//gf1.geo.gfsrv.net/cdn34/8ae6ba8194f659bc3784e01b457749.png); _background-image: url(//gf2.geo.gfsrv.net/cdn46/2634bb44de90d88b10e3fe8cf940ff.gif); } #pagefoldtarget .nbPFLight.nbPFLeft { background: url(//gf1.geo.gfsrv.net/cdn38/d4718fc349f75778ee051b4cc76824.png) no-repeat; _background-image: url(//gf1.geo.gfsrv.net/cdn01/3dc42ed780058a74a17220804afda1.gif); } #pagefoldtarget .nbPF a{ text-indent: -9999px; display: block; width: 110px; height: 95px; } #pagefoldtarget .nbPF.nbPFRight a{ float:right; } #pagefoldtarget .nbPF.nbPFHover a{ width:358px; height: 320px; } #pagefoldtarget .nbPF.nbPFHover { background-position: left -129px !important; width:400px; height: 400px; } #pagefoldtarget .nbPF.nbPFRight.nbPFHover { background-position: right -129px !important; } ';
+    var mmostyle = document.createElement('style');
+    if (navigator.appName == "Microsoft Internet Explorer") {
+        mmostyle.setAttribute("type", "text/css");
+        mmostyle.styleSheet.cssText = mmoCSS;
+    } else {
+        var mmostyleTxt = document.createTextNode(mmoCSS);
+        mmostyle.type = 'text/css';
+        mmostyle.appendChild(mmostyleTxt);
+    }
+    document.getElementsByTagName('head')[0].appendChild(mmostyle);
+</script>
+
+<noscript>
+    <style type="text/css">
+
+        body {margin:0; padding:0;} #mmonetbar { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar #mmoLogo { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat top left; float:left; display:block; height:32px; width:108px; text-indent: -9999px; } #mmonetbar #mmoNews, #mmonetbar #mmoGame, #mmonetbar #mmoFocus, #pagefoldtarget { display:none !important; }
+    </style>
+</noscript>
+
+<!-- Start Alexa Certify Javascript -->
+<script type="text/javascript">
+    _atrk_opts = { atrk_acct: 'Ezuyi1a8Dy00aI', domain: 'gameforge.com', dynamic: true };
+    (function() {
+        var as = document.createElement('script');
+        as.type = 'text/javascript';
+        as.async = true;
+        as.src = 'https://d31qbv1cthcecs.cloudfront.net/atrk.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(as, s);
+    })();
+</script>
+<noscript><img src="https://d5nxst8fruw4z.cloudfront.net/atrk.gif?account=Ezuyi1a8Dy00aI" style="display:none" height="1" width="1" alt="" /></noscript>
+<!-- End Alexa Certify Javascript -->
+
+<div id="mmonetbar" class="mmoogame">
+    <script type="text/javascript">
+        var mmoActive_select=null;function mmoInitSelect(){if(!document.getElementById)return false;document.getElementById('mmonetbar').style.display='block';document.getElementById('mmoGame').style.display='block';document.getElementById('mmoFocus').onkeyup=function(e){mmo_selid=mmoActive_select.id.replace('mmoOptionsDiv','');var e=e||window.event;if(e.keyCode)var thecode=e.keyCode;else if(e.which)var thecode=e.which;mmoSelectMe(mmo_selid,thecode);}}
+        function mmoSelectMe(selid,thecode){var mmolist=document.getElementById('mmoList'+selid);var mmoitems=mmolist.getElementsByTagName('li');switch(thecode){case 13:mmoShowOptions(selid);window.location=mmoActive_select.url;break;case 38:mmoActive_select.activeit.className='';var minus=((mmoActive_select.activeid-1)<=0)?'0':(mmoActive_select.activeid-1);mmoActive_select=mmoSetActive(selid,minus);break;case 40:mmoActive_select.activeit.className='';var plus=((mmoActive_select.activeid+1)>=mmoitems.length)?(mmoitems.length-1):(mmoActive_select.activeid+1);mmoActive_select=mmoSetActive(selid,plus);break;default:thecode=String.fromCharCode(thecode);var found=false;for(var i=0;i<mmoitems.length;i++){var _a=mmoitems[i].getElementsByTagName('a');if(navigator.appName.indexOf("Explorer")>-1){}
+        else{txtContent=_a[0].textContent;}
+            if(!found&&(thecode.toLowerCase()==txtContent.charAt(0).toLowerCase())){mmoActive_select.activeit.className='';mmoActive_select=mmoSetActive(selid,i);found=true;}}
+            break;}}
+        function mmoSetActive(selid,itemid){mmoActive_select=null;var mmolist=document.getElementById('mmoList'+selid);var mmoitems=mmolist.getElementsByTagName('li');mmoActive_select=document.getElementById('mmoOptionsDiv'+selid);;mmoActive_select.selid=selid;if(itemid!=undefined){var _a=mmoitems[itemid].getElementsByTagName('a');var textVar=document.getElementById("mmoMySelectText"+selid);textVar.innerHTML=_a[0].innerHTML;if(selid==1)textVar.className=_a[0].className;mmoitems[itemid].className='mmoActive';}
+            for(var i=0;i<mmoitems.length;i++){if(mmoitems[i].className=='mmoActive'){mmoActive_select.activeit=mmoitems[i];mmoActive_select.activeid=i;mmoActive_select.url=(mmoitems[i].getElementsByTagName('a'))?mmoitems[i].getElementsByTagName('a')[0].href:null;}}
+            return mmoActive_select;}
+        function mmoShowOptions(g){var _elem=document.getElementById("mmoOptionsDiv"+g);if((mmoActive_select)&&(mmoActive_select!=_elem)){mmoActive_select.className="mmoOptionsDivInvisible";document.getElementById('mmonetbar').focus();}
+            if(_elem.className=="mmoOptionsDivInvisible"){document.getElementById('mmoFocus').focus();mmoActive_select=mmoSetActive(g);if(document.documentElement){document.documentElement.onclick=mmoHideOptions;}else{window.onclick=mmoHideOptions;}
+                _elem.className="mmoOptionsDivVisible";}else if(_elem.className=="mmoOptionsDivVisible"){_elem.className="mmoOptionsDivInvisible";document.getElementById('mmonetbar').focus();}}
+        function mmoHideOptions(e){if(mmoActive_select){if(!e)e=window.event;var _target=(e.target||e.srcElement);if((_target.id.indexOf('mmoOptionsDiv')!=-1))return false;if(mmoisElementBefore(_target,'mmoSelectArea')==0&&(mmoisElementBefore(_target,'mmoOptionsDiv')==0)){mmoActive_select.className="mmoOptionsDivInvisible";mmoActive_select=null;}}else{if(document.documentElement)document.documentElement.onclick=function(){};else window.onclick=null;}}
+        function mmoisElementBefore(_el,_class){var _parent=_el;do _parent=_parent.parentNode;while(_parent&&(_parent.className!=null)&&(_parent.className.indexOf(_class)==-1))
+            return(_parent.className&&(_parent.className.indexOf(_class)!=-1))?1:0;}
+        var ua=navigator.userAgent.toLowerCase();var ie6browser=((ua.indexOf("msie 6")>-1)&&(ua.indexOf("opera")<0))?true:false;function highlight(el,mod){if(ie6browser){if(mod==1&&!el.className.match(/highlight/))el.className=el.className+' highlight';else if(mod==0)el.className=el.className.replace(/highlight/g,'');}}
+        var mmoToggleDisplay={init:function(wrapper){var wrapper=document.getElementById(wrapper);if(!wrapper)return;var headline=wrapper.getElementsByTagName("h4")[0],link=headline.getElementsByTagName("a")[0];if(link.className.indexOf("gameCountZero")!=-1)return false;var panel=document.getElementById(link.hash.substr(1));mmoToggleDisplay.hidePanel(panel,link);link.onclick=function(e){mmoToggleDisplay.loadImages();mmoToggleDisplay.toggle(this,panel);return false;};mmoToggleDisplay.outerClick(wrapper,link,panel);var timeoutID=null,delay=8000;wrapper.onmouseout=function(e){if(!e){var e=window.event;}
+                var reltg=(e.relatedTarget)?e.relatedTarget:e.toElement;if(reltg==wrapper||mmoToggleDisplay.isChildOf(reltg,wrapper)){return;}
+                timeoutID=setTimeout(function(){mmoToggleDisplay.hidePanel(panel,link);},delay);};wrapper.onmouseover=function(e){if(timeoutID){clearTimeout(timeoutID);}};},isChildOf:function(child,parent){while(child&&child!=parent){child=child.parentNode;}
+                if(child==parent){return true;}else{return false;}},hidePanel:function(panel,link){panel.style.display="none";link.className="toggleHidden";},toggle:function(link,panel){panel.style.display=panel.style.display=="none"?"block":"none";link.className=link.className=="toggleHidden"?"":"toggleHidden";},outerClick:function(wrapper,link,panel){document.body.onclick=function(e){if(!e){e=window.event};if(!(mmoToggleDisplay.isChildOf((e.target||e.srcElement),wrapper))&&panel.style.display!="none"){mmoToggleDisplay.toggle(link,panel);}}},loadImages:function(){var script=document.createElement("script");script.type="text/javascript";var jsonGameData_browser='{"ultimatepirates":"\/\/gf3.geo.gfsrv.net\/cdne6\/2352ec3cdb9669f4cda71f663dbfe7.jpg","ikariam":"\/\/gf1.geo.gfsrv.net\/cdnfb\/468d7d51b2103198945d3f644169b7.png","battleknight":"\/\/gf3.geo.gfsrv.net\/cdn88\/1078f8c8b702f6c00bd80540a15de4.png","gladiatus":"\/\/gf2.geo.gfsrv.net\/cdn1d\/0da04cb94431ecf8cba6cc17d07ced.png","bitefight":"\/\/gf1.geo.gfsrv.net\/cdn3f\/d53efd82d430eaa71b708336af9624.png","kingsage":"\/\/gf1.geo.gfsrv.net\/cdncd\/48d4d41c64ce8cd6d180828935ef80.png","legend":"\/\/gf1.geo.gfsrv.net\/cdn96\/a18e9b9eb3b66c3a2c17b7bcd55ab4.png","wildguns":"\/\/gf1.geo.gfsrv.net\/cdn9d\/8ca347af6831c0d9d8228b7c9c1dde.png"}',jsonGameData_client='{"kuf2":"\/\/gf3.geo.gfsrv.net\/cdn85\/0739cb14e7fb49f17a3c7c2b10bfec.jpg","aion":"\/\/gf2.geo.gfsrv.net\/cdn1d\/ff786e5f897d515099f096725a0612.jpg","metin2":"\/\/gf1.geo.gfsrv.net\/cdn31\/42e645397ef450be0886499f765855.jpg","soulworker":"\/\/gf2.geo.gfsrv.net\/cdn77\/ce4887064b0a34580b25528cd3be96.jpg","tera":"\/\/gf2.geo.gfsrv.net\/cdnd0\/23ab25973a20a9560a76bb82916f20.jpg","elsword":"\/\/gf3.geo.gfsrv.net\/cdn28\/f1d511fc6386d1242f9928eac92079.jpg","4story":"\/\/gf1.geo.gfsrv.net\/cdn9f\/35e42e0330b32d00feda51fefb72cd.png","runesofmagic":"\/\/gf1.geo.gfsrv.net\/cdn69\/35877003ccc87e5e1c9d1c31e3f8ae.jpg","wizard101":"\/\/gf3.geo.gfsrv.net\/cdnef\/bb1f7155dee6104ecab03e13158faf.jpg"}',jsonGameData_featured='{"nostale":"\/\/gf2.geo.gfsrv.net\/cdna7\/d89956ac692e57271cd84a6aa2ac60.teaser"}';script.text='';script.text+=' mmoToggleDisplay.callback('+jsonGameData_featured+', "featured");';script.text+=' mmoToggleDisplay.callback('+jsonGameData_client+', "client");';script.text+='mmoToggleDisplay.callback('+jsonGameData_browser+', "browser");';document.getElementsByTagName("head")[0].appendChild(script);mmoToggleDisplay.loadImages=function(){};},callback:function(data,gamesCat){for(var gameName in data){var gameSpan=document.getElementById("gameImgTarget_"+gameName);if(!gameSpan){return false;}
+                var gameImg=document.createElement("img");gameImg.src=""+data[gameName];gameImg.alt="";gameSpan.appendChild(gameImg);}}}    </script>
+    <div id="mmoContent" class="mmosmallbar">
+
+        <a id="mmoLogo" target="_blank" href="http://ro.gameforge.com/games/ogame?kid=5-29833-00133-1105-1011212f" title="Gameforge.com &ndash; Feel free to play">Gameforge.com &ndash; Feel free to play</a>
+
+
+        <div id="mmoGame" class="mmoGame">
+            <div class="mmoBoxLeft"></div>
+            <div class="mmoBoxMiddle">
+
+                <!--<div id="mmoGames"></div>-->
+
+                <div id="mmoLangs">
+                    <label>Alege Țara:</label>
+                    <div id="mmoLangSelect" class="mmoSelectbox">
+                        <div id="mmoSarea1" onclick="mmoShowOptions(1)" class="mmoSelectArea">
+                            <div class="mmoSelectText" id="mmoMySelectContent1">
+                                <div id="mmoMySelectText1" class="mmoflag mmo_RO">Romania</div>                                </div>
+                            <div class="mmoSelectButton"></div>
+                        </div>
+                        <div class="mmoOptionsDivInvisible" id="mmoOptionsDiv1">
+                            <ul class="mmoLangList mmoListHeight" id="mmoList1">
+                                <li><a href="//ar.ogame.gameforge.com/?kid=5-00140-00133-1105-120121d2" target="_blank" rel="nofollow" class="mmoflag mmo_AR">Argentina</a></li>
+                                <li><a href="//br.ogame.gameforge.com/?kid=5-00119-00133-1105-1201211c" target="_blank" rel="nofollow" class="mmoflag mmo_BR">Brasil</a></li>
+                                <li><a href="//dk.ogame.gameforge.com/?kid=5-00120-00133-1105-12012101" target="_blank" rel="nofollow" class="mmoflag mmo_DK">Danmark</a></li>
+                                <li><a href="//de.ogame.gameforge.com/?kid=5-00106-00133-1105-1201219b" target="_blank" rel="nofollow" class="mmoflag mmo_DE">Deutschland</a></li>
+                                <li><a href="//es.ogame.gameforge.com/?kid=5-00109-00133-1105-1201214b" target="_blank" rel="nofollow" class="mmoflag mmo_ES">España</a></li>
+                                <li><a href="//fr.ogame.gameforge.com/?kid=5-00108-00133-1105-120121eb" target="_blank" rel="nofollow" class="mmoflag mmo_FR">France</a></li>
+                                <li><a href="//hr.ogame.gameforge.com/?kid=5-00126-00133-1105-12012145" target="_blank" rel="nofollow" class="mmoflag mmo_HR">Hrvatska</a></li>
+                                <li><a href="//it.ogame.gameforge.com/?kid=5-00110-00133-1105-1201211f" target="_blank" rel="nofollow" class="mmoflag mmo_IT">Italia</a></li>
+                                <li><a href="//hu.ogame.gameforge.com/?kid=5-00132-00133-1105-120121de" target="_blank" rel="nofollow" class="mmoflag mmo_HU">Magyarország</a></li>
+                                <li><a href="//mx.ogame.gameforge.com/?kid=5-00139-00133-1105-120121ed" target="_blank" rel="nofollow" class="mmoflag mmo_MX">México</a></li>
+                                <li><a href="//nl.ogame.gameforge.com/?kid=5-00113-00133-1105-120121f9" target="_blank" rel="nofollow" class="mmoflag mmo_NL">Nederland</a></li>
+                                <li><a href="//no.ogame.gameforge.com/?kid=5-00134-00133-1105-12012167" target="_blank" rel="nofollow" class="mmoflag mmo_NO">Norge</a></li>
+                                <li><a href="//pl.ogame.gameforge.com/?kid=5-00111-00133-1105-1201212e" target="_blank" rel="nofollow" class="mmoflag mmo_PL">Polska</a></li>
+                                <li><a href="//pt.ogame.gameforge.com/?kid=5-00117-00133-1105-120121f5" target="_blank" rel="nofollow" class="mmoflag mmo_PT">Portugal</a></li>
+                                <li class="mmoActive"><a href="//ro.ogame.gameforge.com/?kid=5-00133-00133-1105-120121c1" target="_blank" rel="nofollow" class="mmoflag mmo_RO">Romania</a></li>
+                                <li><a href="//si.ogame.gameforge.com/?kid=5-00160-00133-1105-120121c7" target="_blank" rel="nofollow" class="mmoflag mmo_SI">Slovenija</a></li>
+                                <li><a href="//sk.ogame.gameforge.com/?kid=5-00135-00133-1105-120121d5" target="_blank" rel="nofollow" class="mmoflag mmo_SK">Slovensko</a></li>
+                                <li><a href="//fi.ogame.gameforge.com/?kid=5-00137-00133-1105-12012192" target="_blank" rel="nofollow" class="mmoflag mmo_FI">Suomi</a></li>
+                                <li><a href="//se.ogame.gameforge.com/?kid=5-00123-00133-1105-12012138" target="_blank" rel="nofollow" class="mmoflag mmo_SE">Sverige</a></li>
+                                <li><a href="//tr.ogame.gameforge.com/?kid=5-00114-00133-1105-1201218d" target="_blank" rel="nofollow" class="mmoflag mmo_TR">Türkiye</a></li>
+                                <li><a href="//us.ogame.gameforge.com/?kid=5-00145-00133-1105-1201218b" target="_blank" rel="nofollow" class="mmoflag mmo_US">USA</a></li>
+                                <li><a href="//en.ogame.gameforge.com/?kid=5-00107-00133-1105-12012107" target="_blank" rel="nofollow" class="mmoflag mmo_EN">United Kingdom</a></li>
+                                <li><a href="//cz.ogame.gameforge.com/?kid=5-00131-00133-1105-12012115" target="_blank" rel="nofollow" class="mmoflag mmo_CZ">Česká Republika</a></li>
+                                <li><a href="//gr.ogame.gameforge.com/?kid=5-00127-00133-1105-120121ab" target="_blank" rel="nofollow" class="mmoflag mmo_GR">Ελλάδα</a></li>
+                                <li><a href="//ru.ogame.gameforge.com/?kid=5-00115-00133-1105-12012118" target="_blank" rel="nofollow" class="mmoflag mmo_RU">Российская Федерация</a></li>
+                                <li><a href="//tw.ogame.gameforge.com/?kid=5-00116-00133-1105-120121b5" target="_blank" rel="nofollow" class="mmoflag mmo_TW">台灣</a></li>
+                                <li><a href="//jp.ogame.gameforge.com/?kid=5-00122-00133-1105-1201210e" target="_blank" rel="nofollow" class="mmoflag mmo_JP">日本</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mmoBoxRight"></div>
+
+            <div id="mmoGamesOverviewPanel">
+                <div id="mmoGamesOverviewToggle">
+                    <h4>
+                        <a href="#mmoGamesOverviewLists">Mai multe jocuri<span class="mmoNbPseudoSelect_icon"></span></a>
+                        <span class="mmoNbBoxEdge mmoNbBoxEdge_left"></span>
+                        <span class="mmoNbBoxEdge mmoNbBoxEdge_right"></span>
+                    </h4>
+                </div>
+                <div id="mmoGamesOverviewLists">
+                    <div id="mmoGamesOverviewCountry" class="mmo_RO"></div>
+
+                    <!-- Section: Featured Game -->
+                    <h5>Joc caracteristic</h5>
+                    <ul id="mmoGamesOverview_featured">
+                        <li>
+                            <a href="https://en.nostale.gameforge.com/landing/?kid=5-09133-00133-1105-1202813e" title="Trăiește legenda" target="_blank">
+                                <span id="gameImgTarget_nostale" class="gameImgTarget"></span>
+                                <span class="gameName">NosTale</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Section: Client Games -->
+                    <h5>MMORPG-uri</h5>
+                    <ul id="mmoGamesOverview_client">
+                        <li class="mmoGameIcon mmoGameIcon_kuf2 mmoGameIcon_kuf2_ro">
+                            <a href="https://join.kingdomunderfire2.gameforge.com/en-GB/landing/packages/?kid=5-a9k33-00133-1105-1202819b" title="MMORPG MEETS RTS" target="_blank">
+                                <span id="gameImgTarget_kuf2" class="gameImgTarget"></span>
+                                Kingdom Under Fire 2                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_aion mmoGameIcon_aion_ro">
+                            <a href="https://en.aion.gameforge.com/website/landing/play/?kid=5-62033-00133-1105-12028166" title="Earn your wings" target="_blank">
+                                <span id="gameImgTarget_aion" class="gameImgTarget"></span>
+                                AION Free-to-Play                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_metin2 mmoGameIcon_metin2_ro">
+                            <a href="https://ro.metin2.gameforge.com/landing?kid=5-02033-00133-1105-12028104" title="Ascute-ți mintea și sabia" target="_blank">
+                                <span id="gameImgTarget_metin2" class="gameImgTarget"></span>
+                                Metin2                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_soulworker mmoGameIcon_soulworker_ro">
+                            <a href="https://en.soulworker.gameforge.com/landingpage/freetoplay/?kid=5-a7x33-00133-1105-120281b4" title="Your Soul, Your Weapon" target="_blank">
+                                <span id="gameImgTarget_soulworker" class="gameImgTarget"></span>
+                                SoulWorker                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_tera mmoGameIcon_tera_ro">
+                            <a href="https://en.tera.gameforge.com/landingpage/freetoplay?kid=5-60933-00133-1105-1202815d" title="Master the combat!" target="_blank">
+                                <span id="gameImgTarget_tera" class="gameImgTarget"></span>
+                                TERA                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_elsword mmoGameIcon_elsword_ro">
+                            <a href="https://en.elsword.gameforge.com/landing?kid=5-48833-00133-1105-12028110" title="Monstrii ciudati, eroi faimosi" target="_blank">
+                                <span id="gameImgTarget_elsword" class="gameImgTarget"></span>
+                                Elsword                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_4story mmoGameIcon_4story_ro">
+                            <a href="http://ro.4story.gameforge.com/landing?kid=5-23333-00133-1105-120281fd" title="Pentru lumina adevărului" target="_blank">
+                                <span id="gameImgTarget_4story" class="gameImgTarget"></span>
+                                4Story                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_runesofmagic mmoGameIcon_runesofmagic_ro">
+                            <a href="https://en.runesofmagic.gameforge.com/landing/?kid=5-46833-00133-1105-1202816d" title="THE AWARD WINNING MMORPG" target="_blank">
+                                <span id="gameImgTarget_runesofmagic" class="gameImgTarget"></span>
+                                Runes of Magic                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_wizard101 mmoGameIcon_wizard101_ro">
+                            <a href="http://en.wizard101.gameforge.com?kid=5-47633-00133-1105-120281dd" title="Aventuri captivante, lumi magice!" target="_blank">
+                                <span id="gameImgTarget_wizard101" class="gameImgTarget"></span>
+                                Vrajitor101                                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Section: Browser Games -->
+                    <h5>Jocuri de browser</h5>
+                    <ul id="mmoGamesOverview_browser">
+                        <li class="mmoGameIcon mmoGameIcon_ultimatepirates mmoGameIcon_ultimatepirates_ro">
+                            <a href="https://lobby.ultimatepirates.gameforge.com/?kid=5-a9l33-00133-1105-1202816e" title="Creează un Imperiu Măreț al Piraților" target="_blank">
+                                <span id="gameImgTarget_ultimatepirates" class="gameImgTarget"></span>
+                                Ultimate Pirates                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_ikariam mmoGameIcon_ikariam_ro">
+                            <a href="https://lobby.ikariam.gameforge.com/ro_RO/?kid=5-03833-00133-1105-120281ad" title="Viitorul antichității" target="_blank">
+                                <span id="gameImgTarget_ikariam" class="gameImgTarget"></span>
+                                Ikariam                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_battleknight mmoGameIcon_battleknight_ro">
+                            <a href="https://ro.battleknight.gameforge.com//?kid=5-01933-00133-1105-120281ce" title="Pentru glorie și onoare" target="_blank">
+                                <span id="gameImgTarget_battleknight" class="gameImgTarget"></span>
+                                BattleKnight                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_gladiatus mmoGameIcon_gladiatus_ro">
+                            <a href="https://lobby.gladiatus.gameforge.com/ro_RO/?kid=5-03733-00133-1105-1202816e" title="Sange, praf si glorie!" target="_blank">
+                                <span id="gameImgTarget_gladiatus" class="gameImgTarget"></span>
+                                Gladiatus                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_bitefight mmoGameIcon_bitefight_ro">
+                            <a href="http://ro.bitefight.gameforge.com/?kid=5-00233-00133-1105-12028160" title="Rivalii nopții" target="_blank">
+                                <span id="gameImgTarget_bitefight" class="gameImgTarget"></span>
+                                BiteFight                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_kingsage mmoGameIcon_kingsage_ro">
+                            <a href="https://ro.kingsage.gameforge.com/?kid=5-31133-00133-1105-12028113" title="Trăiască regele!" target="_blank">
+                                <span id="gameImgTarget_kingsage" class="gameImgTarget"></span>
+                                KingsAge                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_legend mmoGameIcon_legend_ro">
+                            <a href="https://ro.tanoth.gameforge.com/?kid=5-20833-00133-1105-120281e6" title="Învinge întunericul" target="_blank">
+                                <span id="gameImgTarget_legend" class="gameImgTarget"></span>
+                                Tanoth                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_wildguns mmoGameIcon_wildguns_ro">
+                            <a href="http://www.wildguns.co.uk/?kid=5-12733-00133-1105-1202811b" title="Cucerește preeria" target="_blank">
+                                <span id="gameImgTarget_wildguns" class="gameImgTarget"></span>
+                                WildGuns                                            </a>
+                        </li>
+                    </ul>
+                </div><!-- /mmoGamesOverviewLists -->
+            </div><!-- /mmoGamesOverviewPanel -->
+        </div><!-- /mmoGame -->
+        <input id="mmoFocus" type="text" size="5" />
+    </div><!-- /mmoContent -->
+</div><!-- /mmonetbar -->
+
+<!-- ogame / ro / ingame / 03.01.2020 23:45 -->
+<script type="text/javascript">
+    mmoInitSelect();
+    mmoToggleDisplay.init("mmoGamesOverviewPanel");
+</script>
+
+
+<!--/* OpenX Interstitial or Floating DHTML Tag v2.8.8 */-->
+<div id="openXHackFoo">
+    <script type='text/javascript'>
+        var HTTP_GET_VARS = new Array();
+        var strGET = document.location.search.substr(1, document.location.search.length);
+        if (strGET != '') {
+            var gArr = strGET.split('&');
+            for (i = 0; i < gArr.length; ++i) {
+                var v = '';
+                var vArr = gArr[i].split('=');
+                if (vArr.length > 1) {
+                    v = vArr[1];
+                }
+                HTTP_GET_VARS[unescape(vArr[0])] = unescape(v);
+            }
+        }
+
+        function GET(v) {
+            if (!HTTP_GET_VARS[v]) {
+                return '';
+            }
+            return HTTP_GET_VARS[v];
+        }
+
+        function openxDetectDeviceOS() {
+            return (function(ua) {
+                if (/iPhone/i.test(ua) || /iPad/.test(ua) || /iPod/.test(ua)) {
+                    return 'ios';
+                }
+                else if (/Android/.test(ua)) {
+                    return 'android';
+                }
+                else if (/Windows Phone OS 7\.0/.test(ua)) {
+                    return 'winphone7';
+                }
+                else if (/BlackBerry/.test(ua)) {
+                    return 'rim';
+                }
+                else {
+                    return 'desktop';
+                }
+            })(navigator.userAgent);
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        if (openxDetectDeviceOS() == 'desktop') {
+            var params = 'zoneid=1333&source=Quelle&cb=INSERT_RANDOM_NUMBER_HERE&layerstyle=simple&align=right&valign=top&padding=2&shifth=30&shiftv=20&closebutton=t&backcolor=778591&bordercolor=FFFFFF';
+            var m3_r = Math.floor(Math.random() * 99999999999);
+            var m3_u = (document.location.protocol == 'https:' ? 'https://ads-delivery.gameforge.com/al.php' : 'http://delivery.ads.gfsrv.net/al.php');
+            params = params.replace(/INSERT_RANDOM_NUMBER_HERE/g, m3_r);
+            params = params + '&zindex=9999999&layerstyle=gameforge';
+            params = params + '&kid=' + escapeHtml(GET('kid'));
+            document.write("<scr" + "ipt type='text/javascript' src='" + m3_u + "?" + params + "'><\/scr" + "ipt>");
+        }
+    </script>
+</div>
+
+<!-- #/MMO:NETBAR# -->
+
+<div id="siteHeader">
+</div>
+
+<div id="pageContent">
+    <div id="top">
+        <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+        <div id='resourcesbarcomponent'
+             class=""
+        >
+            <ul id="resources">
+                <li id="metal_box"
+                    class="metal  tooltipHTML"
+                    title="Metal|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Disponibil:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;500&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Capacitate de stocare:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Productia actuala:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+180&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Capacitate ascunzatoare&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon metal"></div>
+                    <span class="value">
+                    <span id="resources_metal" data-raw="500.5" class="">500.5</span>
+                </span>
+                </li>
+                <li id="crystal_box"
+                    class="crystal  tooltipHTML"
+                    title="Cristal|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Disponibil:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;500&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Capacitate de stocare:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Productia actuala:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+90&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Capacitate ascunzatoare&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon crystal"></div>
+                    <span class="value">
+                    <span id="resources_crystal" data-raw="500.25" class="">500.25</span>
+                </span>
+                </li>
+                <li id="deuterium_box"
+                    class="deuterium  tooltipHTML"
+                    title="Deuteriu|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Disponibil:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Capacitate de stocare:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Productia actuala:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Capacitate ascunzatoare&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon deuterium"></div>
+                    <span class="value">
+                    <span id="resources_deuterium" data-raw="0" class="">0</span>
+                </span>
+                </li>
+                <li id="energy_box"
+                    class="energy  tooltipHTML"
+                    title="Energie|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Disponibil:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Productia actuala:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Consum:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon energy"></div>
+                    <span class="value">
+                    <span id="resources_energy" data-raw="0" class="">0</span>
+                </span>
+                </li>
+                <li id="darkmatter_box"
+                    class="darkmatter  tooltipHTML"
+                    title="Materie Întunecată|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Disponibil:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;8.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Cumpărată:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Găsită:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;8.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    data-tooltip-button="Cumpara Materia Intunecata"
+                >
+                    <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=payment"
+                       class="overlay">
+                        <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif">
+                        <div class="resourceIcon darkmatter"></div>
+                    </a>
+                    <span class="value">
+                    <span id="resources_darkmatter" data-raw="8000" class="overlay">8.000</span>
+                </span>
+                </li>
+            </ul>
+            <script type="text/javascript">
+                var isMobile = false;
+                var LocalizationStrings = {"timeunits":{"short":{"year":"a","month":"m","week":"s","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"gata"},"decimalPoint":".","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Md","question":"Intrebare","error":"Eroare","loading":"se incarca...","notice":"Referinta","yes":"da","no":"Nu","ok":"Ok","attention":"Atentie","outlawWarning":"Esti pe cale sa ataci un jucator mai puternic. Daca faci acest lucru, protectia ta la atacuri va inceta pentru  7 zile si toti jucatorii vor putea sa te atace fara a fi pedepsiti. Esti sigur ca vrei sa continui?","lastSlotWarningMoon":"Construc\u021bia va folosi ultimul c\u00e2mp de construc\u021bie. \u00cembun\u0103t\u0103\u021be\u0219te Baza Lunar\u0103 pentru mai mult spa\u021biu. E\u0219ti sigur c\u0103 dore\u0219ti s\u0103 porne\u0219ti construc\u021bia?","lastSlotWarningPlanet":"Construc\u021bia va folosi ultimul c\u00e2mp de construc\u021bie. \u00cembun\u0103t\u0103\u021be\u0219te Formatorul de Sol pentru mai mult spa\u021biu. E\u0219ti sigur c\u0103 dore\u0219ti s\u0103 porne\u0219ti construc\u021bia?","forcedVacationWarning":"Confirm\u0103 contul t\u0103u de lobby \u0219i-\u021bi vom d\u0103rui Materie \u00centunecat\u0103 \u00een fiecare univers!","planetMoveBreakUpWarning":"Atentie! S-ar putea ca aceasta misiune sa fie inca in desfasurare atunci cand incepe perioada de repozitionare si in acest caz procesul va fi anulat. Vrei sa continui cu misiunea?","moreDetails":"Mai multe detalii","lessDetails":"Mai pu\u0163ine detalii","planetOrder":{"lock":"Blocheaz\u0103 ordinea de sortare","unlock":"Deblocheaz\u0103 ordinea de sortare"},"darkMatter":"Materie \u00centunecat\u0103","errorNotEnoughDM":"Materie Intunecata insuficienta! Vrei sa cumperi acum?","activateItem":{"upgradeItemQuestion":"Dore\u015fti s\u0103 \u00eenlocuie\u015fti articolul existent? Vechiul bonus va fi pierdut dup\u0103 aceast\u0103 ac\u0163iune.","upgradeItemQuestionHeader":"\u00cenlocuie\u015fti articolul?"},"characterClassItem":{"buyAndActivateItemQuestion":"Vrei s\u0103 activezi clasa #characterClassName# pentru #darkmatter# Materie \u00centunecat\u0103? Dac\u0103 faci acest lucru, vei pierde clasa curent\u0103.","activateItemQuestion":"Vrei s\u0103 activezi clasa #characterClassName#? Dac\u0103 faci acest lucru, vei pierde clasa curent\u0103."},"LOCA_ALL_NETWORK_ATTENTION":"Atentie","LOCA_ALL_YES":"da","LOCA_ALL_NO":"Nu"};
+
+                (function($) {
+                    reloadResources({"resources":{"metal":{"amount":500.5,"storage":10000,"tooltip":"Metal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Disponibil:<\/th>\n                <td><span class=\"\">500<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Capacitate de stocare:<\/th>\n                <td><span class=\"\">10.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Productia actuala:<\/th>\n                <td><span class=\"undermark\">+180<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Capacitate ascunzatoare<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"crystal":{"amount":500.25,"storage":10000,"tooltip":"Cristal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Disponibil:<\/th>\n                <td><span class=\"\">500<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Capacitate de stocare:<\/th>\n                <td><span class=\"\">10.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Productia actuala:<\/th>\n                <td><span class=\"undermark\">+90<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Capacitate ascunzatoare<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"deuterium":{"amount":0,"storage":10000,"tooltip":"Deuteriu|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Disponibil:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Capacitate de stocare:<\/th>\n                <td><span class=\"\">10.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Productia actuala:<\/th>\n                <td><span class=\"overmark\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Capacitate ascunzatoare<\/th>\n                <td><span class=\"overermark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"energy":{"amount":0,"tooltip":"Energie|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Disponibil:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Productia actuala:<\/th>\n                <td><span class=\"overmark\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consum:<\/th>\n                <td><span class=\"overmark\">0<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"darkmatter":{"amount":8000,"tooltip":"Materie \u00centunecat\u0103|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Disponibil:<\/th>\n                <td><span class=\"\">8.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Cump\u0103rat\u0103:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>G\u0103sit\u0103:<\/th>\n                <td><span class=\"\">8.000<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":"","classes":"overlay","link":"https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}},"techs":{"1":{"techId":1,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"2":{"techId":2,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"3":{"techId":3,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"4":{"techId":4,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12":{"techId":12,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"212":{"techId":212,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"217":{"techId":217,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}}},"honorScore":0});
+                })(jQuery);
+            </script>
+        </div>
+        <div id='commandercomponent'
+             class=""
+        >
+            <div id="characterclass" class="fleft">
+                <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=characterclassselection"
+                   class="tooltipHTML js_hideTipOnMobile"
+                   title="Selectează clasa|Selectează o clasă pentru a primi bonusurile speciale.">
+                    <div class="sprite characterclass medium none"></div>
+                </a>
+            </div>
+            <div id="officers" class="  fright">
+                <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=2"
+                   class="tooltipHTML   commander js_hideTipOnMobile "
+                   title="Angajeaza Comandantul|+40 favorite, lista de constructie, vederea imperiului, scurtături, vedere transporturi, fără reclame* &lt;span style=&quot;font-size:10px;line-height:10px;&quot;&gt;(*cu excepția anunțurilor despre joc)&lt;/span&gt;"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=3"
+                   class="tooltipHTML    admiral js_hideTipOnMobile "
+                   title="Angajeaza Amiralul|Max. sloturi de flotă +2,
+Rata de evadare a flotei îmbunătăţită."
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=4"
+                   class="tooltipHTML    engineer js_hideTipOnMobile "
+                   title="Angajeaza Inginerul|Injumatateste pierderile la aparare, +10% productie de energie"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=5"
+                   class="tooltipHTML    geologist js_hideTipOnMobile "
+                   title="Angajeaza Geologul|Productia minelor imbunatatita cu 10%"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=6"
+                   class="tooltipHTML    technocrat js_hideTipOnMobile "
+                   title="Angajeaza Tehnocratul|+2 nivel spionaj , 25% mai putin timp de cercetare"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+            </div>
+        </div>
+        <div id='notificationbarcomponent'
+             class=""
+        >
+            <div id="message-wrapper">
+                <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+                   href="https://s129-ro.ogame.gameforge.com/game/index.php?page=messages"
+                   title="1 mesaje necitite"
+                >
+                    <span class="new_msg_count totalMessages news "
+                          data-new-messages="1"
+                    >
+                1
+            </span>
+                </a>
+                <a class=" comm_menu chat tooltip js_hideTipOnMobile"
+                   href="https://s129-ro.ogame.gameforge.com/game/index.php?page=chat"
+                   title="1 mesaje necitite"
+                >
+        <span class="new_msg_count totalChatMessages noMessage"
+              data-new-messages="0">
+            0
+        </span>
+                </a>
+                <div id="messages_collapsed">
+                    <div id="eventboxFilled" class="eventToggle" style="display: none;">
+                        <a id="js_eventDetailsClosed"
+                           class="tooltipRight js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="Mai multe detalii"
+                        ></a>
+                        <a id="js_eventDetailsOpen"
+                           class="tooltipRight open js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="Mai puţine detalii"
+                        ></a>
+                    </div>
+                    <div id="eventboxLoading"
+                         class="textCenter textBeefy"
+                         style="display: block;"
+                    >
+                        <img height="16"
+                             width="16"
+                             alt="ajax spinner"
+                             src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"
+                        />
+                        se incarca...
+                    </div>
+                    <div id="eventboxBlank"
+                         class="textCenter"
+                         style="display: none;"
+                    >
+                        Nici o miscare
+                    </div>
+                </div>
+                <div id="attack_alert"
+                     class="tooltip noAttack"
+                     title=""
+                >
+                    <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"
+                    ></a>
+                </div>
+            </div>
+        </div>
+        <div id='headerbarcomponent'
+             class=""
+        >
+            <div id="bar">
+                <ul>
+                    <li id="playerName">
+                        Jucator:
+
+                        <span class="textBeefy">
+                            <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ajax&amp;component=changenick"
+                               class="overlay textBeefy"
+                               data-overlay-title=""
+                               data-overlay-popup-width="400"
+                               data-overlay-popup-height="200"
+                            >Vice Helix</a>
+                        </span>
+                    </li>
+                    <li>
+                        <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=highscore" accesskey="">Clasament</a>
+                        (108)
+                    </li>
+                    <li>
+                        <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=notices"
+                           class="overlay" data-overlay-title="Notitele mele"
+                           data-overlay-class="notices"
+                           data-overlay-popup-width="750"
+                           data-overlay-popup-height="480"
+                           accesskey="">
+                            Notite</a>
+                    </li>
+                    <li>
+                        <a class=""
+                           accesskey=""
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=buddies"
+                        >
+                            Prieteni</a>
+                    </li>
+                    <li><a class="overlay"
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=search&amp;ajax=1"
+                           data-overlay-title="Cauta in Univers"
+                           data-overlay-close="__default closeSearch"
+                           data-overlay-class="search"
+                           accesskey="">Cauta</a>
+                    </li>
+                    <li><a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=preferences" accesskey="">Optiuni</a></li>
+                    <li><a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=support" target="_blank">Support</a></li>
+                    <li><a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=logout">Deconectare</a></li>
+                    <li class="OGameClock">04.01.2020 <span>01:42:13</span></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div id="left">
+        <div id='mainmenucomponent'></div>
+        <div id='tutorialiconcomponent'
+             class=""
+        >
+            <div id="helper">
+                <a class="tooltip tooltipClose"
+                   href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=tutorial"
+                   title="Vedere Generala a Tutorialului&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=rewards&quot;&gt;&lt;/a&gt;">?</a>
+            </div>
+        </div>
+        <div id='toolbarcomponent'
+             class=""
+        >
+            <div id="links">
+                <ul id="menuTable" class="leftmenu">
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s129-ro.ogame.gameforge.com/game/index.php?page=rewards"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="">
+                            <div class="menuImage overview active 
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton  selected"
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Vedere generala</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s129-ro.ogame.gameforge.com/game/index.php?page=resourceSettings"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Setari Resurse">
+                            <div class="menuImage resources  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Resurse</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Portal de Teleportare">
+                            <div class="menuImage station  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Facilitati</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;tab=overview"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Proprii">
+                            <div class="menuImage marketplace  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Piață</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s129-ro.ogame.gameforge.com/game/index.php?page=traderOverview#page=traderResources&amp;animation=false"
+                                                                               class="trader tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Piaţa de resurse">
+                            <div class="menuImage traderOverview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=traderOverview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Comerciant</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all"
+                                                                               class="overlay tooltipRight js_hideTipOnMobile "
+                                                                               target="_blank"
+                                                                               title="Tehnologii">
+                            <div class="menuImage research  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Cercetari</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage shipyard  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Santier Naval</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage defense  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Aparare</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Miscarea Flotei">
+                            <div class="menuImage fleet1  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Flota</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage galaxy  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Galaxie</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage alliance  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=alliance"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Alianta</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage premium  "></span>
+                                    </span>
+                        <a class="menubutton premiumHighligt officers"
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=premium"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Recruteaza Ofiteri</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s129-ro.ogame.gameforge.com/game/index.php?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Inventar">
+                            <div class="menuImage shop  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=shop"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Magazin</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="toolLinksWrapper">
+                    <ul id="menuTableTools" class="leftmenu"></ul>
+                </div>
+                <br class="clearfloat"/>
+            </div>
+        </div>
+        <div id='advicebarcomponent'
+             class=""
+        >
+            <div class="adviceWrapper">
+
+                <div id="advice-bar">
+
+
+
+
+                </div>
+                <div id="banner_skyscraper" name="banner_skyscraper">
+                    <div>
+                        <a class="tooltipLeft "
+                           title=""
+                           href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy"
+                        >
+                            <img src="https://gf3.geo.gfsrv.net/cdn8c/efa8bd101115bf66e2f0b43c54fb6c.jpg" alt=""/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="middle">
+        <div id='eventlistcomponent'
+             class=""
+        >
+            <div id="eventboxContent"
+                 style="display: none;">
+                <div id="eventListWrap">
+                    <div id="eventHeader">
+                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
+                        </a>
+                        <h2>Evenimente</h2>
+                    </div>
+                    <table id="eventContent">
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div id="eventFooter"></div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var timeDelta = 1578094933000 - (new Date()).getTime();
+                var LocalizationStrings = {"timeunits":{"short":{"year":"a","month":"m","week":"s","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"gata"},"decimalPoint":".","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Md","question":"Intrebare","error":"Eroare","loading":"se incarca...","notice":"Referinta","yes":"da","no":"Nu","ok":"Ok","attention":"Atentie","outlawWarning":"Esti pe cale sa ataci un jucator mai puternic. Daca faci acest lucru, protectia ta la atacuri va inceta pentru  7 zile si toti jucatorii vor putea sa te atace fara a fi pedepsiti. Esti sigur ca vrei sa continui?","lastSlotWarningMoon":"Construc\u021bia va folosi ultimul c\u00e2mp de construc\u021bie. \u00cembun\u0103t\u0103\u021be\u0219te Baza Lunar\u0103 pentru mai mult spa\u021biu. E\u0219ti sigur c\u0103 dore\u0219ti s\u0103 porne\u0219ti construc\u021bia?","lastSlotWarningPlanet":"Construc\u021bia va folosi ultimul c\u00e2mp de construc\u021bie. \u00cembun\u0103t\u0103\u021be\u0219te Formatorul de Sol pentru mai mult spa\u021biu. E\u0219ti sigur c\u0103 dore\u0219ti s\u0103 porne\u0219ti construc\u021bia?","forcedVacationWarning":"Confirm\u0103 contul t\u0103u de lobby \u0219i-\u021bi vom d\u0103rui Materie \u00centunecat\u0103 \u00een fiecare univers!","planetMoveBreakUpWarning":"Atentie! S-ar putea ca aceasta misiune sa fie inca in desfasurare atunci cand incepe perioada de repozitionare si in acest caz procesul va fi anulat. Vrei sa continui cu misiunea?","moreDetails":"Mai multe detalii","lessDetails":"Mai pu\u0163ine detalii","planetOrder":{"lock":"Blocheaz\u0103 ordinea de sortare","unlock":"Deblocheaz\u0103 ordinea de sortare"},"darkMatter":"Materie \u00centunecat\u0103","errorNotEnoughDM":"Materie Intunecata insuficienta! Vrei sa cumperi acum?","activateItem":{"upgradeItemQuestion":"Dore\u015fti s\u0103 \u00eenlocuie\u015fti articolul existent? Vechiul bonus va fi pierdut dup\u0103 aceast\u0103 ac\u0163iune.","upgradeItemQuestionHeader":"\u00cenlocuie\u015fti articolul?"},"characterClassItem":{"buyAndActivateItemQuestion":"Vrei s\u0103 activezi clasa #characterClassName# pentru #darkmatter# Materie \u00centunecat\u0103? Dac\u0103 faci acest lucru, vei pierde clasa curent\u0103.","activateItemQuestion":"Vrei s\u0103 activezi clasa #characterClassName#? Dac\u0103 faci acest lucru, vei pierde clasa curent\u0103."},"LOCA_ALL_NETWORK_ATTENTION":"Atentie","LOCA_ALL_YES":"da","LOCA_ALL_NO":"Nu"};
+                (function($) {
+                })(jQuery);
+            </script>
+
+
+        </div>
+        <div id='overviewcomponent'
+             class="maincontent"
+        >
+
+
+            <div id="inhalt">
+                <div id="planet" style="background-image:url(https://gf3.geo.gfsrv.net/cdn5d/c8dd99637fe9a48ca937f034f9141e.jpg);">
+                    <div id="detailWrapper">
+
+                        <div id="header_text">
+                            <h2>
+                                <a href="javascript:void(0);" class="openPlanetRenameGiveupBox">
+                                    <p class="planetNameOverview">Vedere generala -</p>
+                                    <span id="planetNameHeader">
+                            Planeta Principala
+                        </span>
+                                    <img class="hinted tooltip"
+                                         title="Abandoneaza / Redenumeste Planeta"
+                                         src="https://gf3.geo.gfsrv.net/cdne7/1f57d944fff38ee51d49c027f574ef.gif"
+                                         width="16"
+                                         height="16"
+                                    />
+                                </a>
+                            </h2>
+                        </div>
+                        <div id="detail" class="detail_screen">
+                            <div id="techDetailLoading"></div>
+                        </div>
+                        <div id="planetdata">
+
+                            <div class="overlay"></div>
+                            <div id="planetDetails">
+                                <table cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td class="desc" >
+                                            <span id="diameterField"></span>
+                                        </td>
+                                        <td class="data">
+                                            <span id="diameterContentField"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="desc">
+                                            <span id="temperatureField"></span>
+                                        </td>
+                                        <td class="data">
+                                            <span id="temperatureContentField"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="desc">
+                                            <span id="positionField"></span>
+                                        </td>
+                                        <td class="data">
+                                            <span id="positionContentField"></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="desc">
+                                            <span id="scoreField"></span></td>
+                                        <td class="data">
+                                            <span id="scoreContentField"></span>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="desc">
+                                            <span id="honorField"></span></td>
+                                        <td class="data ">
+                                            <span id="honorContentField"></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div id="planetOptions">
+
+                                <div class="planetMoveStart fleft" style="display: inline">
+                                    <a class="tooltipLeft dark_highlight_tablet fleft"
+                                       style="display: inline-block"
+                                       href='https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy'
+                                       title='Relocarea  îți permite să-ți muți planetele la o altă poziție într-un sistem mai îndepartat, la alegerea ta. &lt;br /&gt;&lt;br /&gt;
+Relocarea are loc la 24 de ore după activare. În tot acest timp poți să-ți folosești planeta normal. O numărătoare inversă îți va arăta cât timp a mai rămas până la relocare. &lt;br /&gt;&lt;br /&gt;
+La momentul în care numărătoarea inversă se apropie de sfârșit și planeta ta a urmează să fie mutată la noua poziție, nu trebuie să ai activă nici una din flotele staționate acolo. La acel moment nu trebuie să ai nimic în construcție, nimic în reparație și nimic în cercetare. Dacă la momentul final al relocării ai ceva în construcție, în reparație,  în cercetare  sau ai o flotă activă, relocarea va fi anulată.&lt;br /&gt;&lt;br /&gt;
+Dacă relocarea are loc cu succes, atunci se va scădea din contul tău  168.000 Materie Întunecată. Planeta, construcțiile și resursele, înclusiv luna vor fi mutate imediat. Flotele staționate acolo vor călători către noile coordonate cu viteza navei  celei mai încete. Portalul de teleportare de pe o lună relocată va fi dezactivat timp de 24 de ore.'
+                                       data-tooltip-button="Spre galaxie"
+                                    >
+                                        <span class="planetMoveIcons settings planetMoveDefault icon fleft"></span>
+                                        <span class="planetMoveOverviewMoveLink">Repozitioneaza</span>
+                                    </a>
+                                </div>
+
+                                <a class="dark_highlight_tablet float_right openPlanetRenameGiveupBox" href="javascript:void(0);">
+                                    <span class="planetMoveOverviewGivUpLink">abandoneaza/redenumeste</span>
+                                    <span class="planetMoveIcons settings planetMoveGiveUp icon"></span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="buffBar" class="sliderWrapper">
+                        <div data-uuid="" data-id="" class="add_item">
+                            <a class="activate_item border3px" href="javascript:void(0);"ref="1"></a>
+                        </div>
+                        <ul class="active_items hidden">
+                            <li>
+                            </li>
+                        </ul>
+                    </div>
+
+
+                </div>
+                <div class="c-left"></div>
+                <div class="c-right"></div>
+                <div id="overviewBottom">
+                    <div class="clearfloat"></div>
+                    <div class="clearfloat"></div>
+                </div>
+            </div>
+            <script type="text/javascript">function openPlanetRenameGiveupBox()
+                {
+                    openOverlay(
+                        "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=planetlayer",
+                        {
+                            'title': "Abandoneaza \/ Redenumeste Planeta Principala",
+                            'class': 'planetRenameOverlay'
+                        }
+                    );
+                }
+
+                var textContent = [];
+
+                textContent[0] = "Diametru:";
+                textContent[1] = "12.800km (<span>0<\/span>\/<span>193<\/span>)";
+                textContent[2] = "Temperatura";
+                textContent[3] = "31\u00b0C la 71\u00b0C";
+                textContent[4] = "Pozitie:";
+                textContent[5] = "<a  href=\"https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=ingame&component=galaxy&galaxy=1&system=185&position=4\" >[1:185:4]<\/a>";
+                textContent[6] = "Puncte:";
+                textContent[7] = "<a href='https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=highscore'>0 (Locul 108 din 109)<\/a>";
+                textContent[8] = "Puncte de onoare:";
+                textContent[9] = "0";
+
+                var locaPremium = {"buildingHalfOverlay":"Vrei s\u0103 reduci cu 50% timpul total de contruc\u0163ie  () pentru <b>750 Materie \u00centunecat\u0103<\/b>?","buildingFullOverlay":"Vrei s\u0103 finalizezi imediat ordinul curent de construc\u0163ie pentru <b>750 Materie \u00centunecat\u0103<\/b>?","shipsHalfOverlay":"Vrei s\u0103 reduci cu  50% timpul total de construc\u0163ie () pentru <b>750 Materie \u00centunecat\u0103<\/b>?","shipsFullOverlay":"Vrei s\u0103 finalizezi imediat ordinul de construc\u0163ie pentru <b>750 Materie \u00centunecat\u0103<\/b>?","researchHalfOverlay":"Vrei s\u0103 reduci cu  50% timpul total de cercetare () pentru <b>750 Materie \u00centunecat\u0103<\/b>?","researchFullOverlay":"Vrei s\u0103 finalizezi ordinul de cercetare pentru <b>750 Materie \u00centunecat\u0103<\/b>?"};
+
+                var loca = loca || {};
+
+                loca = $.extend(
+                    {},
+                    loca,
+                    {"error":"Eroare","errorNotEnoughDM":"Materie Intunecata insuficienta! Vrei sa cumperi acum?","notice":"Referinta","planetGiveupQuestion":"E\u015fti sigur c\u0103 vrei s\u0103 renun\u0163i la planeta %planetName% %planetCoordinates%?","moonGiveupQuestion":"E\u015fti sigur c\u0103 vrei s\u0103 renun\u0163i la luna %planetName% %planetCoordinates%?"}
+                );
+
+                function planetRenamed(data)
+                {
+                    var data = $.parseJSON(data);
+
+                    if (data["status"]) {
+                        $("#planetNameHeader").html(data["newName"]);
+                        reloadRightmenu("https://s129-ro.ogame.gameforge.com/game/index.php?page=rightmenu&renamed=1&pageToLink=overview");
+                        $(".overlayDiv.planetRenameOverlay").dialog('close');
+                    }
+
+                    errorBoxAsArray(data["errorbox"]);
+                }
+
+                function reloadPage()
+                {
+                    location.href = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+                }
+
+                var demolish_id;
+                var buildUrl;
+
+                function loadDetails(type)
+                {
+                    url = "https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&component=overview&ajax=1";
+                    if (typeof(detailUrl) != 'undefined') {
+                        url = detailUrl;
+                    }
+                    $.get(
+                        url,
+                        { type: type},
+                        function(data){
+                            $("#detail").html(data);
+                            $("#techDetailLoading").hide();
+                            $("input[type='text']:first", document.forms["form"]).focus();
+                            // When we open any tech details we want a global JS event to catch for custom callbacks
+                            // $(document).trigger("ajaxShowElement",techID); //techID is magically defined by setting data in the .html
+                            $(document).trigger("ajaxShowElement", (typeof techID === 'undefined' ? 0 : techID)); //techID is magically defined by setting data in the .html; not always so we check it and set it to harmless 0 as default. This is used for the repair dock.
+                        }
+                    );
+                }
+
+                function sendBuildRequest(url, ev, showSlotWarning)
+                {
+                    console.debug("sendBuildRequest");
+                    if (ev != undefined) {
+
+                        var keyCode;
+
+                        if (window.event) {
+                            keyCode = window.event.keyCode;
+                        } else if (ev) {
+                            keyCode = ev.which;
+                        } else {
+                            return true;
+                        }
+                        console.debug("KeyCode: " + keyCode);
+                        if (keyCode != 13 || $('#premiumConfirmButton')) {
+                            return true;
+                        }
+                    }
+
+                    function build() {
+                        if (url == null) {
+                            sendForm();
+                        } else {
+                            fastBuild();
+                        }
+                    }
+
+
+                    if (url == null) {
+                        fallBackFunc = sendForm;
+                    } else {
+                        fallBackFunc = build;
+                        buildUrl = url;
+                    }
+
+
+                    if (showSlotWarning) {
+
+
+                        build();
+
+                    } else {
+                        build();
+                    }
+
+                    return false;
+                }
+
+
+                function fastBuild() {
+                    location.href = buildUrl;
+                    return false;
+                }
+
+                function sendForm() {
+                    document.form.submit();
+                    return false;
+                }
+                function demolishBuilding(id,question) {
+                    demolish_id = id;
+                    question += "<br/><br/>" + $("#demolish" + id).html();
+                    errorBoxDecision("Atentie",""+question+"","da","Nu",demolishStart);
+                }
+
+                function demolishStart()
+                {
+                    window.location.replace("https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&component=overview&modus=3&token=03d1ef028010aa5dd3aca48b664daef0&type="+demolish_id);
+                }
+
+                gfSlider = new GFSlider(getElementByIdWithCache('detailWrapper'));
+
+
+                var detailUrl = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=buffActivation&ajax=1";</script>
+
+            <script type="text/javascript">
+                var animatedOverview = '1';
+                var planetMoveLoca = {"askTitle":"Realocare planeta","askCancel":"Esti sigur ca vrei sa anulezi relocarea acestei planete? Timpul normal de asteptare va fi mentinut.","yes":"da","no":"Nu","success":"Relocarea planetei a fost anulata cu succes.","error":"Eroare"};
+                var planetMoveCooldown = -1578094933;
+
+                //$(function() {
+                //});
+
+                // Reset counters to zero here and not in overview.js because due to LazyLoader, the overview.js is parsed only once
+                // and not everytime the player clicks on the Overview menu link
+                var currentIndex = 0;
+                var currentChar = 0;
+                var linetwo=0;
+
+                //console.debug("foo");
+                initOverview();
+                initType();
+                tabletInitOverviewAdvice();
+
+                $('#planet').find('h2 a').hover(function() {
+                    $('#planet').find('h2 a img').toggleClass('hinted');
+                }, function() {
+                    $('#planet').find('h2 a img').toggleClass('hinted');
+                });
+            </script>
+        </div>
+        <div id='productionboxbuildingcomponent'
+             class="productionboxbuilding injectedComponent parent overview"
+        >
+            <div class="content-box-s">
+                <div class="header">
+                    <h3>Clădiri</h3>
+                </div>
+                <div class="content">
+                    <table cellspacing="0" cellpadding="0" class="construction active">
+                        <tbody>
+                        <tr>
+                            <td colspan="2" class="idle">
+                                <a class="tooltip js_hideTipOnMobile "
+                                   title="In acest moment nu este nici o cladire aflata in constructie pe aceasta planeta. Click aici pentru a accesa meniul Resurse."
+                                   href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies"
+                                >
+                                    Nicio cladire in constructie.
+                                    <br/>
+                                    (Către resurse)
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer"></div>
+            </div>
+            <script type="text/javascript">
+
+                $(function() {
+                });
+            </script>
+        </div>
+        <div id='productionboxresearchcomponent'
+             class="productionboxresearch injectedComponent parent overview"
+        >
+            <div class="content-box-s">
+                <div class="header">
+                    <h3>Cercetari</h3>
+                </div>
+                <div class="content">
+                    <table cellspacing="0" cellpadding="0" class="construction active">
+                        <tbody>
+                        <tr>
+                            <td colspan="2" class="idle">
+                                <a class="tooltip js_hideTipOnMobile "
+                                   title="Nu exista cercetari in curs. Click aici pentru a ajunge la laborator de cercetare."
+                                   href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+                                >
+                                    Nu exista cercetari in curs.
+                                    <br/>
+                                    (Către cercetări)
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer"></div>
+            </div>
+            <script type="text/javascript">
+
+                $(function() {
+                });
+            </script>
+        </div>
+        <div id='productionboxshipyardcomponent'
+             class="productionboxshipyard injectedComponent parent overview"
+        >
+            <div class="content-box-s">
+                <div class="header">
+                    <h3>Santier Naval</h3>
+                </div>
+                <div class="content">
+                    <table cellspacing="0" cellpadding="0" class="construction active">
+                        <tbody>
+                        <tr>
+                            <td colspan="2" class="idle">
+                                <a class="tooltip js_hideTipOnMobile "
+                                   title="In acest moment nu exista nave sau aparare in constructie pe aceasta planeta. Click aici pentru a ajunge la santierul tau naval."
+                                   href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+                                >
+                                    Nicio nava/aparare in constructie.
+                                    <br/>
+                                    (Către şantierul naval)
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer"></div>
+            </div>
+            <script type="text/javascript">
+
+                $(function() {
+                });
+            </script>
+        </div>
+    </div>
+    <div id="right">
+        <div id='planetbarcomponent'
+             class=""
+        >
+            <div id="rechts">
+                <div id="norm">
+                    <div id="myWorlds">
+                        <div id="countColonies">
+                            <p class="textCenter">
+                                <span>1/1</span> Planete
+                            </p>
+                        </div>
+                        <div id="planetList"
+                        >
+                            <div class="smallplanet   "
+                                 id="planet-33629199">
+                                <a href="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33629199"
+                                   data-link="https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33629199"
+                                   title="&lt;b&gt;Planeta Principala [1:185:4]&lt;/b&gt;&lt;br/&gt;12.800km (0/193)&lt;br&gt;31°C la 71°C&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33629199&quot;&gt;Vedere Generala&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33629199&quot;&gt;Resurse&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33629199&quot;&gt;Cercetari&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33629199&quot;&gt;Piață&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33629199&quot;&gt;Facilitati&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33629199&quot;&gt;Santier Naval&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33629199&quot;&gt;Aparare&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33629199&quot;&gt;Flota&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s129-ro.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33629199&amp;galaxy=1&amp;system=185&amp;position=4&quot;&gt;Galaxie&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Planeta Prin..."
+                                         src="https://gf3.geo.gfsrv.net/cdn87/0ffda2f18430e811c30d68b5aa84fb.png"
+                                         width="48"
+                                         height ="48"
+                                    />
+                                    <span class="planet-name ">Planeta Prin...</span>
+                                    <span class="planet-koords ">[1:185:4]</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="bottom">
+    <div id='errorboxcomponent'
+         class=""
+    >
+        <div id="decisionTB" style="display:none;">
+            <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxDecisionContent">-</span>
+                    <div class="response">
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+                        </div>
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+
+        <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+            <div>
+                <span id="fadeBoxStyle" class="success"></span>
+                <p id="fadeBoxContent"></p>
+            </div>
+        </div>
+
+        <div id="notifyTB" style="display:none;">
+            <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxNotifyContent">-</span>
+                    <div class="response">
+                        <div>
+                            <a href="javascript:void(0);" class="ok">
+                                <span id="errorBoxNotifyOk">.</span>
+                            </a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    initBuffBar();
+
+    initIndex();
+
+</script>
+<div id='chatbarcomponent'
+     class=""
+>
+    <script type="text/javascript">
+        var bigChatLink = 'https://s129-ro.ogame.gameforge.com/game/index.php?page=chat';
+        var ajaxChatToken = "60a2572c2fc76deaec53c6cdc395bf1f"
+        var chatUrl = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=ajaxChat"
+        var chatUrlLoadMoreMessages = "https:\/\/s129-ro.ogame.gameforge.com\/game\/index.php?page=chatGetAdditionalMessages"
+        var chatLoca = {"TEXT_EMPTY":"Unde este mesajul ?","TEXT_TOO_LONG":"Mesajul este prea lung.","SAME_USER":"Nu po\u0163i s\u0103 trimi\u0163i un mesaj c\u0103tre tine \u00eensu\u0163i.","IGNORED_USER":"Acest juc\u0103tor este ignorat.","NO_DATABASE_CONNECTION":"O eroare necunoscut\u0103 a avut loc. Din p\u0103cate ultima ta ac\u0163iune nu a putut fi executat\u0103!","INVALID_PARAMETERS":"O eroare necunoscut\u0103 a avut loc. Din p\u0103cate ultima ta ac\u0163iune nu a putut fi executat\u0103!","SEND_FAILED":"O eroare necunoscut\u0103 a avut loc. Din p\u0103cate ultima ta ac\u0163iune nu a putut fi executat\u0103!","LOCA_ALL_ERROR_NOTACTIVATED":"Aceasta functie este disponibila dupa activarea contului.","X_NEW_CHATS":"#+#  conversa\u021bii necitite","MORE_USERS":"arat\u0103 mai mult"}
+
+        var visibleChats = {"players":[],"associations":[]};
+
+        (function($) {
+            ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box'); //list in chat bar
+            ogame.chat.showPlayerList('#sideBar'); // list in chat
+
+            var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
+
+            function initChatAsync() {
+                if (ogame.chat.isLoadingPlayerList === false && ogame.chat.playerList !== null) {
+                    clearInterval(initChatAsyncInterval);
+                    ogame.chat.initChatBar(100862);
+                    ogame.chat.initChat(100862, false);
+                    ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+                }
+            }
+        })(jQuery);
+    </script>
+    <div id="chatBar">
+        <ul class="chat_bar_list">
+            <li id="chatBarPlayerList" class="chat_bar_pl_list_item">
+                <div class="cb_playerlist_box" style="display:none">
+                </div>
+                <span class="onlineCount">0 jucători online</span>
+            </li>
+        </ul><!-- END Chat Bar List -->
+
+        <script type="text/javascript">
+
+        </script>
+    </div>
+</div>
+<div id="siteFooter">
+    <div class="content" style="font-size:10px">
+        <div class="fleft textLeft">
+            <a class="tooltip js_hideTipOnMobile overlay" href="https://s129-ro.ogame.gameforge.com/game/index.php?page=standalone&amp;component=changelog&amp;ajax=1" data-overlay-class="popupWidthFixed" data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Lista modificarilor" title="Lista modificarilor">7.1.0-rc16</a>
+            <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. Toate drepturile rezervate.</a>
+        </div>
+        <div class="fright textRight">
+            <a href="http://wiki.ogame.org/" target="_blank">Ajutor</a>|
+            <a href="https://board.ro.ogame.gameforge.com/" target="_blank">Forum</a>|
+            <a class="overlay"
+               href="https://s129-ro.ogame.gameforge.com/game/index.php?page=standalone&amp;component=rules&amp;ajax=1"
+               data-overlay-iframe="true"
+               data-iframe-width="450"
+               data-overlay-title="Reguli"
+            >Reguli</a>|
+            <a href="https://agbserver.gameforge.com/rewrite.php?locale=ro&amp;type=imprint&amp;product=ogame" target="_blank">Tiparire</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
