@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"bytes"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -776,6 +777,16 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
 }
 
+func replaceHostname(bot *OGame, html []byte) []byte {
+	serverURLBytes := []byte(bot.serverURL)
+	apiNewHostnameBytes := []byte(bot.apiNewHostname)
+	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
+	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
+	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
+	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
+	return html
+}
+
 // GetStaticHandler ...
 func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
@@ -800,8 +811,8 @@ func GetStaticHandler(c echo.Context) error {
 	}
 
 	if strings.Contains(c.Request().URL.String(), ".xml") {
-		body2 := strings.Replace(string(body), bot.serverURL, bot.apiNewHostname, -1)
-		return c.XMLBlob(http.StatusOK, []byte(body2))
+		body = replaceHostname(bot, body)
+		return c.XMLBlob(http.StatusOK, body)
 	}
 
 	contentType := http.DetectContentType(body)
@@ -824,9 +835,8 @@ func GetFromGameHandler(c echo.Context) error {
 		vals = c.QueryParams()
 	}
 	pageHTML := bot.GetPageContent(vals)
-	html := string(pageHTML)
-	html = strings.Replace(html, bot.serverURL, bot.apiNewHostname, -1)
-	return c.HTML(http.StatusOK, html)
+	pageHTML = replaceHostname(bot, pageHTML)
+	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
 // PostToGameHandler ...
@@ -837,10 +847,9 @@ func PostToGameHandler(c echo.Context) error {
 		vals = c.QueryParams()
 	}
 	payload, _ := c.FormParams()
-	byteArray := bot.PostPageContent(vals, payload)
-	html := string(byteArray)
-	html = strings.Replace(html, bot.serverURL, bot.apiNewHostname, -1)
-	return c.HTML(http.StatusOK, html)
+	pageHTML := bot.PostPageContent(vals, payload)
+	pageHTML = replaceHostname(bot, pageHTML)
+	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
 // GetStaticHEADHandler ...
