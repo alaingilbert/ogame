@@ -97,6 +97,12 @@ func main() {
 			Value:   "lobby",
 			EnvVars: []string{"OGAMED_PROXY_PASSWORD"},
 		},
+		&cli.StringFlag{
+			Name:    "api-new-hostname",
+			Usage:   "New Ogame Hostname eg: https://someuniverse.example.com",
+			Value:   "http://127.0.0.1:8080",
+			EnvVars: []string{"OGAMED_NEW_HOSTNAME"},
+		},
 	}
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
@@ -117,6 +123,7 @@ func start(c *cli.Context) error {
 	proxyUsername := c.String("proxy-username")
 	proxyPassword := c.String("proxy-password")
 	lobby := c.String("lobby")
+	apiNewHostname := c.String("api-new-hostname")
 	bot, err := ogame.NewWithParams(ogame.Params{
 		Universe:       universe,
 		Username:       username,
@@ -130,6 +137,7 @@ func start(c *cli.Context) error {
 		Socks5Username: proxyUsername,
 		Socks5Password: proxyPassword,
 		Lobby:          lobby,
+		APINewHostname: apiNewHostname,
 	})
 	if err != nil {
 		return err
@@ -217,14 +225,28 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 
-	e.GET("/game/index.php", getFromGame)
-	e.POST("/game/index.php", postToGame)
+	// Get/Post Page Content
+	e.GET("/game/index.php", ogame.GetFromGameHandler)
+	e.POST("/game/index.php", ogame.PostToGameHandler)
+
+	// For AntiGame plugin
+	// Static content
+	e.GET("/cdn/*", ogame.GetStaticHandler)
+	e.GET("/headerCache/*", ogame.GetStaticHandler)
+	e.GET("/favicon.ico", ogame.GetStaticHandler)
+	e.GET("/game/sw.js", ogame.GetStaticHandler)	
+	
+	// JSON API
+	/*
+		/api/serverData.xml
+		/api/localization.xml
+		/api/players.xml
+		/api/universe.xml
+	*/
+	e.GET("/api/*", ogame.GetStaticHandler)
+	e.HEAD("/api/*", ogame.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
+	
 	e.GET("/game/allianceInfo.php", getAlliancePageContent)
-	e.GET("/api/*", getStatic)
-	e.GET("/cdn/*", getStatic)
-	e.GET("/headerCache/*", getStatic)
-	e.GET("/favicon.ico", getStatic)
-	e.GET("/game/sw.js", getStatic)
 
 	e.GET("/planet/:planetID", htmlPlanetView)
 
