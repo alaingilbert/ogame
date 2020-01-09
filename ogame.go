@@ -81,6 +81,12 @@ type OGame struct {
 	bytesDownloaded       int64
 	extractor             Extractor
 	apiNewHostname        string
+	characterClass        CharacterClass
+	hasCommander          bool
+	hasAdmiral            bool
+	hasEngineer           bool
+	hasGeologist          bool
+	hasTechnocrat         bool
 }
 
 // Preferences ...
@@ -651,6 +657,13 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.Planets = b.extractor.ExtractPlanets(pageHTML, b)
 	b.isVacationModeEnabled = b.extractor.ExtractIsInVacation(pageHTML)
 	b.ajaxChatToken, _ = b.extractor.ExtractAjaxChatToken(pageHTML)
+	b.characterClass, _ = b.extractor.ExtractCharacterClass(pageHTML)
+	b.hasCommander = b.extractor.ExtractCommander(pageHTML)
+	b.hasAdmiral = b.extractor.ExtractAdmiral(pageHTML)
+	b.hasEngineer = b.extractor.ExtractEngineer(pageHTML)
+	b.hasGeologist = b.extractor.ExtractGeologist(pageHTML)
+	b.hasTechnocrat = b.extractor.ExtractTechnocrat(pageHTML)
+
 	if page == "overview" {
 		b.Player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
 	} else if page == "preferences" {

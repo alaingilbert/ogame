@@ -1379,6 +1379,26 @@ func extractNotifAccountFromDocV6(doc *goquery.Document) bool {
 	return exists
 }
 
+func extractCommanderFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.commander").HasClass("on")
+}
+
+func extractAdmiralFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.admiral").HasClass("on")
+}
+
+func extractEngineerFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.engineer").HasClass("on")
+}
+
+func extractGeologistFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.geologist").HasClass("on")
+}
+
+func extractTechnocratFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.technocrat").HasClass("on")
+}
+
 func extractPlanetCoordinateV6(pageHTML []byte) (Coordinate, error) {
 	m := regexp.MustCompile(`<meta name="ogame-planet-coordinates" content="(\d+):(\d+):(\d+)"/>`).FindSubmatch(pageHTML)
 	if len(m) == 0 {
