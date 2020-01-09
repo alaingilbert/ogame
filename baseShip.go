@@ -39,22 +39,13 @@ func (b BaseShip) GetSpeed(techs Researches) int64 {
 		return int64(float64(b.BaseSpeed)+(float64(b.BaseSpeed)*0.2)*float64(techs.ImpulseDrive)) * 2
 	}
 	if minLvl, ok := b.Requirements[CombustionDrive.ID]; ok {
-		techDriveLvl = techs.CombustionDrive
-		if techDriveLvl < minLvl {
-			techDriveLvl = minLvl
-		}
+		techDriveLvl = MaxInt(techs.CombustionDrive, minLvl)
 		return int64(float64(b.BaseSpeed) + (float64(b.BaseSpeed)*0.1)*float64(techDriveLvl))
 	} else if minLvl, ok := b.Requirements[ImpulseDrive.ID]; ok {
-		techDriveLvl = techs.ImpulseDrive
-		if techDriveLvl < minLvl {
-			techDriveLvl = minLvl
-		}
+		techDriveLvl = MaxInt(techs.ImpulseDrive, minLvl)
 		return int64(float64(b.BaseSpeed) + (float64(b.BaseSpeed)*0.2)*float64(techDriveLvl))
 	} else if minLvl, ok := b.Requirements[HyperspaceDrive.ID]; ok {
-		techDriveLvl = techs.HyperspaceDrive
-		if techDriveLvl < minLvl {
-			techDriveLvl = minLvl
-		}
+		techDriveLvl = MaxInt(techs.HyperspaceDrive, minLvl)
 		return int64(float64(b.BaseSpeed) + (float64(b.BaseSpeed)*0.3)*float64(techDriveLvl))
 	}
 	return int64(float64(b.BaseSpeed) + (float64(b.BaseSpeed)*0.2)*float64(techDriveLvl))
