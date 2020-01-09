@@ -2564,7 +2564,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		return Fleet{}, errors.New("target is not ok")
 	}
 
-	cargo := ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1)
+	cargo := ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1, b.characterClass == Collector)
 	newResources := Resources{}
 	if resources.Total() > cargo {
 		newResources.Deuterium = int64(math.Min(float64(resources.Deuterium), float64(cargo)))
@@ -2894,7 +2894,7 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumption)
 	}
 	// finalCargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
-	baseCargo := finalShips.Cargo(Researches{}, b.GetServer().Settings.EspionageProbeRaids == 1)
+	baseCargo := finalShips.Cargo(Researches{}, b.GetServer().Settings.EspionageProbeRaids == 1, b.characterClass == Collector)
 	if b.GetServer().Settings.EspionageProbeRaids != 1 {
 		baseCargo += finalShips.EspionageProbe * EspionageProbe.BaseCargoCapacity
 	}
@@ -3972,4 +3972,9 @@ func (b *OGame) HeadersForPage(url string) (http.Header, error) {
 // GetEmpire retrieves JSON from Empire page (Commander only).
 func (b *OGame) GetEmpire(nbr int64) (interface{}, error) {
 	return b.WithPriority(Normal).GetEmpire(nbr)
+}
+
+// CharacterClass returns the bot character class
+func (b *OGame) CharacterClass() CharacterClass {
+	return b.characterClass
 }

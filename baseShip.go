@@ -9,11 +9,15 @@ type BaseShip struct {
 }
 
 // GetCargoCapacity returns ship cargo capacity
-func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids bool) int64 {
+func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids, isCollector bool) int64 {
 	if b.GetID() == EspionageProbeID && !probeRaids {
 		return 0
 	}
-	return b.BaseCargoCapacity + int64(float64(b.BaseCargoCapacity*techs.HyperspaceTechnology)*0.05)
+	cargo := b.BaseCargoCapacity + int64(float64(b.BaseCargoCapacity*techs.HyperspaceTechnology)*0.05)
+	if isCollector && (b.ID == SmallCargoID || b.ID == LargeCargoID) {
+		cargo += int64(float64(b.BaseCargoCapacity) * 0.25)
+	}
+	return cargo
 }
 
 // GetFuelConsumption returns ship fuel consumption

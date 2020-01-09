@@ -168,7 +168,7 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 		if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
 			// Calculate cargo
 			techs := tx.GetResearch()
-			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1)
+			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
 			planetResources, _ := tx.GetResources(f.origin.GetID())
 			payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
 			cargoCapacity -= payload.Deuterium

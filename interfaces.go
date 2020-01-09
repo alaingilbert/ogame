@@ -102,6 +102,7 @@ type Wrapper interface {
 	CreateUnion(fleet Fleet) (int64, error)
 	GetEmpire(nbr int64) (interface{}, error)
 	HeadersForPage(url string) (http.Header, error)
+	CharacterClass() CharacterClass
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
@@ -178,7 +179,7 @@ type DefenderObj interface {
 // Ship interface implemented by all ships units
 type Ship interface {
 	DefenderObj
-	GetCargoCapacity(techs Researches, probeRaids bool) int64
+	GetCargoCapacity(techs Researches, probeRaids, isCollector bool) int64
 	GetSpeed(techs Researches, isCollector bool) int64
 	GetFuelConsumption() int64
 }

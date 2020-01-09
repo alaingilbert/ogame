@@ -95,9 +95,9 @@ func (s ShipsInfos) FromQuantifiables(in []Quantifiable) (out ShipsInfos) {
 }
 
 // Cargo returns the total cargo of the ships
-func (s ShipsInfos) Cargo(techs Researches, probeRaids bool) (out int64) {
+func (s ShipsInfos) Cargo(techs Researches, probeRaids, isCollector bool) (out int64) {
 	for _, ship := range Ships {
-		out += ship.GetCargoCapacity(techs, probeRaids) * s.ByID(ship.GetID())
+		out += ship.GetCargoCapacity(techs, probeRaids, isCollector) * s.ByID(ship.GetID())
 	}
 	return
 }
