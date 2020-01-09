@@ -654,20 +654,21 @@ func (b *OGame) login() error {
 }
 
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
-	b.Planets = b.extractor.ExtractPlanets(pageHTML, b)
-	b.isVacationModeEnabled = b.extractor.ExtractIsInVacation(pageHTML)
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	b.Planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
+	b.isVacationModeEnabled = b.extractor.ExtractIsInVacationFromDoc(doc)
 	b.ajaxChatToken, _ = b.extractor.ExtractAjaxChatToken(pageHTML)
-	b.characterClass, _ = b.extractor.ExtractCharacterClass(pageHTML)
-	b.hasCommander = b.extractor.ExtractCommander(pageHTML)
-	b.hasAdmiral = b.extractor.ExtractAdmiral(pageHTML)
-	b.hasEngineer = b.extractor.ExtractEngineer(pageHTML)
-	b.hasGeologist = b.extractor.ExtractGeologist(pageHTML)
-	b.hasTechnocrat = b.extractor.ExtractTechnocrat(pageHTML)
+	b.characterClass, _ = b.extractor.ExtractCharacterClassFromDoc(doc)
+	b.hasCommander = b.extractor.ExtractCommanderFromDoc(doc)
+	b.hasAdmiral = b.extractor.ExtractAdmiralFromDoc(doc)
+	b.hasEngineer = b.extractor.ExtractEngineerFromDoc(doc)
+	b.hasGeologist = b.extractor.ExtractGeologistFromDoc(doc)
+	b.hasTechnocrat = b.extractor.ExtractTechnocratFromDoc(doc)
 
 	if page == "overview" {
 		b.Player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
 	} else if page == "preferences" {
-		b.CachedPreferences = b.extractor.ExtractPreferences(pageHTML)
+		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
 	}
 }
 
