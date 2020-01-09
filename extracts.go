@@ -131,6 +131,18 @@ type Extractor interface {
 	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error)
+	ExtractCharacterClass(pageHTML []byte) (CharacterClass, error)
+	ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error)
+	ExtractCommander(pageHTML []byte) bool
+	ExtractAdmiral(pageHTML []byte) bool
+	ExtractEngineer(pageHTML []byte) bool
+	ExtractGeologist(pageHTML []byte) bool
+	ExtractTechnocrat(pageHTML []byte) bool
+	ExtractCommanderFromDoc(doc *goquery.Document) bool
+	ExtractAdmiralFromDoc(doc *goquery.Document) bool
+	ExtractEngineerFromDoc(doc *goquery.Document) bool
+	ExtractGeologistFromDoc(doc *goquery.Document) bool
+	ExtractTechnocratFromDoc(doc *goquery.Document) bool
 }
 
 // Compile time checks to ensure type satisfies Extractor interface

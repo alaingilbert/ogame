@@ -423,3 +423,25 @@ func name2id(name string) ID {
 	}
 	return nameMap[processedString]
 }
+
+// MinInt returns the minimum int64 value
+func MinInt(vals ...int64) int64 {
+	min := vals[0]
+	for _, num := range vals {
+		if num < min {
+			min = num
+		}
+	}
+	return min
+}
+
+// MaxInt returns the minimum int64 value
+func MaxInt(vals ...int64) int64 {
+	max := vals[0]
+	for _, num := range vals {
+		if num > max {
+			max = num
+		}
+	}
+	return max
+}

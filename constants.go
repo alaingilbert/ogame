@@ -102,8 +102,16 @@ func (d CelestialType) Int() int64 {
 	return int64(d)
 }
 
+// CharacterClass ...
+type CharacterClass int64
+
 // OGame constants
 const (
+	NoClass    CharacterClass = 0
+	Collector  CharacterClass = 1
+	General    CharacterClass = 2
+	Discoverer CharacterClass = 3
+
 	PlanetType CelestialType = 1
 	DebrisType CelestialType = 2
 	MoonType   CelestialType = 3

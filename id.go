@@ -250,3 +250,16 @@ func (o ID) IsShip() bool {
 		o == ReaperID ||
 		o == PathfinderID
 }
+
+// IsCombatShip ...
+func (o ID) IsCombatShip() bool {
+	return o == LightFighterID ||
+		o == HeavyFighterID ||
+		o == CruiserID ||
+		o == BattleshipID ||
+		o == BomberID ||
+		o == DestroyerID ||
+		o == DeathstarID ||
+		o == BattlecruiserID ||
+		o == ReaperID
+}
