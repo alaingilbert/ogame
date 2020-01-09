@@ -161,7 +161,7 @@ func start(c *cli.Context) error {
 	tlscertfile := c.String("tls-cert-file")
 
 	basicAuthUsername := c.String("basic-auth-username")
-	basicAuthPassword := c.String("basic-auth-Password")
+	basicAuthPassword := c.String("basic-auth-password")
 
 	bot, err := ogame.NewWithParams(ogame.Params{
 		Universe:       universe,
@@ -193,6 +193,7 @@ func start(c *cli.Context) error {
 		}
 	})
 	if len(basicAuthUsername) > 0 && len(basicAuthPassword) > 0 {
+		log.Println("Enable Basic Auth")
 		e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
 			// Be careful to use constant time comparison to prevent timing attacks
 			if subtle.ConstantTimeCompare([]byte(username), []byte(basicAuthUsername)) == 1 &&
@@ -282,8 +283,10 @@ func start(c *cli.Context) error {
 	e.HEAD("/api/*", ogame.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
 
 	if enableTLS {
+		log.Println("Enable TLS Support")
 		return e.StartTLS(host+":"+strconv.Itoa(port), tlscertfile, tlskeyfile)
 	} else {
+		log.Println("Disable TLS Support")
 		return e.Start(host + ":" + strconv.Itoa(port))
 	}
 }
