@@ -179,7 +179,7 @@ type DefenderObj interface {
 type Ship interface {
 	DefenderObj
 	GetCargoCapacity(techs Researches, probeRaids bool) int64
-	GetSpeed(Researches) int64
+	GetSpeed(techs Researches, isCollector bool) int64
 	GetFuelConsumption() int64
 }
 

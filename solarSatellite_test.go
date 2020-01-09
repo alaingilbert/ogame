@@ -9,7 +9,7 @@ import (
 
 func TestSolarSatelliteSpeed(t *testing.T) {
 	ss := newSolarSatellite()
-	assert.Equal(t, int64(0), ss.GetSpeed(Researches{CombustionDrive: 10, ImpulseDrive: 6}))
+	assert.Equal(t, int64(0), ss.GetSpeed(Researches{CombustionDrive: 10, ImpulseDrive: 6}, false))
 }
 
 func TestSolarSatellite_GetLevel(t *testing.T) {

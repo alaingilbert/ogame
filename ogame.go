@@ -1535,13 +1535,13 @@ func Distance(c1, c2 Coordinate, universeSize, nbSystems int64, donutGalaxy, don
 	return 5
 }
 
-func findSlowestSpeed(ships ShipsInfos, techs Researches) int64 {
+func findSlowestSpeed(ships ShipsInfos, techs Researches, isCollector bool) int64 {
 	var minSpeed int64 = math.MaxInt64
 	for _, ship := range Ships {
 		if ship.GetID() == SolarSatelliteID || ship.GetID() == CrawlerID {
 			continue
 		}
-		shipSpeed := ship.GetSpeed(techs)
+		shipSpeed := ship.GetSpeed(techs, isCollector)
 		if ships.ByID(ship.GetID()) > 0 && shipSpeed < minSpeed {
 			minSpeed = shipSpeed
 		}
@@ -1549,7 +1549,7 @@ func findSlowestSpeed(ships ShipsInfos, techs Researches) int64 {
 	return minSpeed
 }
 
-func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs Researches) (fuel int64) {
+func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs Researches, isCollector bool) (fuel int64) {
 	tmpFn := func(baseFuel, nbr, shipSpeed int64) float64 {
 		tmpSpeed := (35000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
 		return float64(baseFuel*nbr*dist) / 35000 * math.Pow(tmpSpeed/10+1, 2)
@@ -1561,7 +1561,7 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 		}
 		nbr := ships.ByID(ship.GetID())
 		if nbr > 0 {
-			tmpFuel += tmpFn(ship.GetFuelConsumption(), nbr, ship.GetSpeed(techs))
+			tmpFuel += tmpFn(ship.GetFuelConsumption(), nbr, ship.GetSpeed(techs, isCollector))
 		}
 	}
 	fuel = int64(1 + math.Floor(tmpFuel*fleetDeutSaveFactor))
@@ -1569,16 +1569,16 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 }
 
 func calcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
-	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches) (secs, fuel int64) {
+	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, isCollector bool) (secs, fuel int64) {
 	if !ships.HasShips() {
 		return
 	}
 	s := speed
-	v := float64(findSlowestSpeed(ships, techs))
+	v := float64(findSlowestSpeed(ships, techs, isCollector))
 	a := float64(universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	secs = int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
-	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs)
+	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, isCollector)
 	return
 }
 
