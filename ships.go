@@ -53,7 +53,7 @@ func (s ShipsInfos) HasShips() bool {
 }
 
 // Speed returns the speed of the slowest ship
-func (s ShipsInfos) Speed(techs Researches, isCollector bool) int64 {
+func (s ShipsInfos) Speed(techs Researches, isCollector, isGeneral bool) int64 {
 	var minSpeed int64 = math.MaxInt64
 	for _, ship := range Ships {
 		if ship.GetID() == SolarSatelliteID {
@@ -61,7 +61,7 @@ func (s ShipsInfos) Speed(techs Researches, isCollector bool) int64 {
 		}
 		nbr := s.ByID(ship.GetID())
 		if nbr > 0 {
-			shipSpeed := ship.GetSpeed(techs, isCollector)
+			shipSpeed := ship.GetSpeed(techs, isCollector, isGeneral)
 			if shipSpeed < minSpeed {
 				minSpeed = shipSpeed
 			}

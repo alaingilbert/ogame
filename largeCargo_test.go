@@ -8,7 +8,7 @@ import (
 
 func TestLargeCargo_GetSpeed(t *testing.T) {
 	lc := newLargeCargo()
-	assert.Equal(t, int64(12000), lc.GetSpeed(Researches{}, false))
+	assert.Equal(t, int64(12000), lc.GetSpeed(Researches{}, false, false))
 }
 
 func TestLargeCargo_GetCargoCapacity(t *testing.T) {

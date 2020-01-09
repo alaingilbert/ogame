@@ -26,7 +26,7 @@ func (b BaseShip) GetFuelConsumption() int64 {
 }
 
 // GetSpeed returns speed of the ship
-func (b BaseShip) GetSpeed(techs Researches, isCollector bool) int64 {
+func (b BaseShip) GetSpeed(techs Researches, isCollector, isGeneral bool) int64 {
 	techDriveLvl := 0.0
 	driveFactor := 0.2
 	baseSpeed := float64(b.BaseSpeed)
@@ -56,6 +56,8 @@ func (b BaseShip) GetSpeed(techs Researches, isCollector bool) int64 {
 	}
 	speed := baseSpeed + (baseSpeed*driveFactor)*techDriveLvl
 	if isCollector && (b.ID == SmallCargoID || b.ID == LargeCargoID) {
+		speed += baseSpeed
+	} else if isGeneral && (b.ID == RecyclerID || b.ID.IsCombatShip()) {
 		speed += baseSpeed
 	}
 	return int64(speed) * multiplier

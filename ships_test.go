@@ -144,8 +144,8 @@ func TestShipsInfos_ToQuantifiables(t *testing.T) {
 }
 
 func TestShipsInfos_Speed(t *testing.T) {
-	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}, false))
-	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}, false))
+	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}, false, false))
+	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}, false, false))
 }
 
 func TestShipsInfos_ToPtr(t *testing.T) {

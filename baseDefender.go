@@ -42,7 +42,7 @@ func (b BaseDefender) GetRapidfireAgainst() map[ID]int64 {
 }
 
 // ConstructionTime returns the duration it takes to build nbr defender units
-func (b BaseDefender) ConstructionTime(nbr, universeSpeed int64, facilities Facilities) time.Duration {
+func (b BaseDefender) ConstructionTime(nbr, universeSpeed int64, facilities Facilities, hasTechnocrat, isDiscoverer bool) time.Duration {
 	shipyardLvl := float64(facilities.Shipyard)
 	naniteLvl := float64(facilities.NaniteFactory)
 	hours := float64(b.StructuralIntegrity) / (2500 * (1 + shipyardLvl) * float64(universeSpeed) * math.Pow(2, naniteLvl))
