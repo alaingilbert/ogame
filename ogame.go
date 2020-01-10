@@ -1231,6 +1231,18 @@ func (b *OGame) isEnabled() bool {
 	return atomic.LoadInt32(&b.isEnabledAtom) == 1
 }
 
+func (b *OGame) isCollector() bool {
+	return b.characterClass == Collector
+}
+
+func (b *OGame) isGeneral() bool {
+	return b.characterClass == General
+}
+
+func (b *OGame) isDiscoverer() bool {
+	return b.characterClass == Discoverer
+}
+
 func (b *OGame) getUniverseSpeed() int64 {
 	return b.serverData.Speed
 }
