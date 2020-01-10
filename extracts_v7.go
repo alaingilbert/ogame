@@ -663,3 +663,15 @@ func extractOverviewShipSumCountdownFromBytesV7(pageHTML []byte) int64 {
 	}
 	return shipSumCountdown
 }
+
+func extractCharacterClassFromDocV7(doc *goquery.Document) (CharacterClass, error) {
+	characterClassDiv := doc.Find("div#characterclass a div")
+	if characterClassDiv.HasClass("miner") {
+		return Collector, nil
+	} else if characterClassDiv.HasClass("warrior") {
+		return General, nil
+	} else if characterClassDiv.HasClass("explorer") {
+		return Discoverer, nil
+	}
+	return 0, errors.New("character class not found")
+}

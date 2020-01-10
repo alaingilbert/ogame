@@ -86,9 +86,9 @@ type EspionageReport struct {
 }
 
 // PlunderRatio returns the plunder ratio
-func (r EspionageReport) PlunderRatio(characterClass int) float64 {
+func (r EspionageReport) PlunderRatio(characterClass CharacterClass) float64 {
 	plunderRatio := 0.5
-	if r.IsInactive && characterClass == 3 { // explorer
+	if r.IsInactive && characterClass == Discoverer {
 		plunderRatio = 0.75
 	}
 	if r.IsBandit {
@@ -100,7 +100,7 @@ func (r EspionageReport) PlunderRatio(characterClass int) float64 {
 }
 
 // Loot returns the possible loot
-func (r EspionageReport) Loot(characterClass int) Resources {
+func (r EspionageReport) Loot(characterClass CharacterClass) Resources {
 	plunderRatio := r.PlunderRatio(characterClass)
 	return Resources{
 		Metal:     int64(float64(r.Metal) * plunderRatio),

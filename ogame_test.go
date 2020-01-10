@@ -827,7 +827,7 @@ func TestExtractPlanetByCoord_notExists(t *testing.T) {
 }
 
 func TestFindSlowestSpeed(t *testing.T) {
-	assert.Equal(t, int64(8000), findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}))
+	assert.Equal(t, int64(8000), findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}, false, false))
 }
 
 func TestExtractShips(t *testing.T) {
@@ -1147,6 +1147,7 @@ func TestExtractAttacks(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clock)
 	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, "Homeworld", attacks[0].DestinationName)
 	assert.Equal(t, clock.Now().Add(14*time.Minute), attacks[0].ArrivalTime.UTC())
 	assert.Equal(t, int64(14*60), attacks[0].ArriveIn)
 }
@@ -1218,6 +1219,7 @@ func TestExtractAttacksMoon(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, attacks[0].Destination)
 	assert.Equal(t, MoonType, attacks[0].Destination.Type)
 	assert.Equal(t, int64(1), attacks[0].Ships.SmallCargo)
+	assert.Equal(t, "Moon", attacks[0].DestinationName)
 }
 
 func TestExtractAttacksMoonDestruction(t *testing.T) {
@@ -2461,19 +2463,19 @@ func TestDistance(t *testing.T) {
 func TestCalcFlightTime(t *testing.T) {
 	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
 	secs, fuel := calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
-		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7})
+		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7}, NoClass)
 	assert.Equal(t, int64(4966), secs)
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
 	secs, fuel = calcFlightTime(Coordinate{1, 162, 1, PlanetType}, Coordinate{4, 144, 1, PlanetType},
-		6, 499, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10})
+		6, 499, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10}, NoClass)
 	assert.Equal(t, int64(22594), secs)
 	assert.Equal(t, int64(699587), fuel)
 
 	// Test with solar satellite
 	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
-		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15})
+		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, NoClass)
 	assert.Equal(t, int64(651), secs)
 	assert.Equal(t, int64(612), fuel)
 }
@@ -2601,4 +2603,44 @@ func TestExtractIPMV71(t *testing.T) {
 	assert.Equal(t, "95b68270230217f7e9a813e4a4beb20e", token)
 	assert.Equal(t, int64(25), max)
 	assert.Equal(t, int64(248), duration)
+}
+
+func TestFixAttackEvents(t *testing.T) {
+	// Test when moon name matches
+	planets := []Planet{
+		{
+			Coordinate: Coordinate{1, 2, 3, PlanetType},
+			Name:       "My Planet",
+			Moon: &Moon{
+				Name: "VeryLongName Moon",
+			},
+		},
+	}
+	attacks := []AttackEvent{
+		{
+			DestinationName: "VeryLongName Moon",
+			Destination:     Coordinate{1, 2, 3, PlanetType},
+		},
+	}
+	fixAttackEvents(attacks, planets)
+	assert.Equal(t, MoonType, attacks[0].Destination.Type) // Fixed to moon type
+
+	// Test when the moon name doesn't match
+	planets = []Planet{
+		{
+			Coordinate: Coordinate{1, 2, 3, PlanetType},
+			Name:       "My Planet",
+			Moon: &Moon{
+				Name: "VeryLongName Moon",
+			},
+		},
+	}
+	attacks = []AttackEvent{
+		{
+			DestinationName: "My Planet",
+			Destination:     Coordinate{1, 2, 3, PlanetType},
+		},
+	}
+	fixAttackEvents(attacks, planets)
+	assert.Equal(t, PlanetType, attacks[0].Destination.Type) // Did not change
 }

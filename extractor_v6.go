@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"bytes"
+	"errors"
 	"net/url"
 	"time"
 
@@ -239,6 +240,36 @@ func (e ExtractorV6) ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool
 func (e ExtractorV6) ExtractHiddenFields(pageHTML []byte) (fields url.Values) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractHiddenFieldsFromDoc(doc)
+}
+
+// ExtractCommander ...
+func (e ExtractorV6) ExtractCommander(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractCommanderFromDoc(doc)
+}
+
+// ExtractAdmiral ...
+func (e ExtractorV6) ExtractAdmiral(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractAdmiralFromDoc(doc)
+}
+
+// ExtractEngineer ...
+func (e ExtractorV6) ExtractEngineer(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractEngineerFromDoc(doc)
+}
+
+// ExtractGeologist ...
+func (e ExtractorV6) ExtractGeologist(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractGeologistFromDoc(doc)
+}
+
+// ExtractTechnocrat ...
+func (e ExtractorV6) ExtractTechnocrat(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractTechnocratFromDoc(doc)
 }
 
 // <Extract from doc> ---------------------------------------------------------
@@ -579,6 +610,36 @@ func (e ExtractorV6) ExtractNotifAccountFromDoc(doc *goquery.Document) bool {
 	return extractNotifAccountFromDocV6(doc)
 }
 
+// ExtractCharacterClass ...
+func (e ExtractorV6) ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error) {
+	return 0, errors.New("character class not supported in v6")
+}
+
+// ExtractCommanderFromDoc ...
+func (e ExtractorV6) ExtractCommanderFromDoc(doc *goquery.Document) bool {
+	return extractCommanderFromDocV6(doc)
+}
+
+// ExtractAdmiralFromDoc ...
+func (e ExtractorV6) ExtractAdmiralFromDoc(doc *goquery.Document) bool {
+	return extractAdmiralFromDocV6(doc)
+}
+
+// ExtractEngineerFromDoc ...
+func (e ExtractorV6) ExtractEngineerFromDoc(doc *goquery.Document) bool {
+	return extractEngineerFromDocV6(doc)
+}
+
+// ExtractGeologistFromDoc ...
+func (e ExtractorV6) ExtractGeologistFromDoc(doc *goquery.Document) bool {
+	return extractGeologistFromDocV6(doc)
+}
+
+// ExtractTechnocratFromDoc ...
+func (e ExtractorV6) ExtractTechnocratFromDoc(doc *goquery.Document) bool {
+	return extractTechnocratFromDocV6(doc)
+}
+
 // </ Extract from doc> -------------------------------------------------------
 
 // <Works with []byte only> ---------------------------------------------------
@@ -673,4 +734,9 @@ func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, 
 // ExtractEmpire ...
 func (e ExtractorV6) ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error) {
 	return extractEmpire(string(pageHTML), nbr)
+}
+
+// ExtractCharacterClass ...
+func (e ExtractorV6) ExtractCharacterClass(pageHTML []byte) (CharacterClass, error) {
+	return 0, errors.New("character class not supported in v6")
 }

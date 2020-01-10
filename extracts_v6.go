@@ -473,6 +473,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		if s.Find("td.destFleet figure").HasClass("moon") {
 			attack.Destination.Type = MoonType
 		}
+		attack.DestinationName = strings.TrimSpace(s.Find("td.destFleet").Text())
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
 		attack.ArriveIn = int64(clock.Until(attack.ArrivalTime).Seconds())
@@ -1377,6 +1378,26 @@ func extractNotifAuctionsFromDocV6(doc *goquery.Document) bool {
 func extractNotifAccountFromDocV6(doc *goquery.Document) bool {
 	_, exists := doc.Find(`input[name="notifications[account]"]`).Attr("checked")
 	return exists
+}
+
+func extractCommanderFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.commander").HasClass("on")
+}
+
+func extractAdmiralFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.admiral").HasClass("on")
+}
+
+func extractEngineerFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.engineer").HasClass("on")
+}
+
+func extractGeologistFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.geologist").HasClass("on")
+}
+
+func extractTechnocratFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.technocrat").HasClass("on")
 }
 
 func extractPlanetCoordinateV6(pageHTML []byte) (Coordinate, error) {
