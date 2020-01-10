@@ -1188,7 +1188,7 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 		maxRetry--
 		if maxRetry <= 0 {
-			return ErrFailedExecuteCallback
+			return errors.Wrap(err, ErrFailedExecuteCallback.Error())
 		}
 
 		retry(err)
@@ -1229,6 +1229,18 @@ func (b *OGame) disable() {
 
 func (b *OGame) isEnabled() bool {
 	return atomic.LoadInt32(&b.isEnabledAtom) == 1
+}
+
+func (b *OGame) isCollector() bool {
+	return b.characterClass == Collector
+}
+
+func (b *OGame) isGeneral() bool {
+	return b.characterClass == General
+}
+
+func (b *OGame) isDiscoverer() bool {
+	return b.characterClass == Discoverer
 }
 
 func (b *OGame) getUniverseSpeed() int64 {
@@ -2252,19 +2264,28 @@ func (b *OGame) cancel(token string, techID, listID int64) error {
 }
 
 func (b *OGame) cancelBuilding(celestialID CelestialID) error {
-	pageHTML, _ := b.getPage(OverviewPage, celestialID)
+	pageHTML, err := b.getPage(OverviewPage, celestialID)
+	if err != nil {
+		return err
+	}
 	token, techID, listID, _ := b.extractor.ExtractCancelBuildingInfos(pageHTML)
 	return b.cancel(token, techID, listID)
 }
 
 func (b *OGame) cancelResearch(celestialID CelestialID) error {
-	pageHTML, _ := b.getPage(OverviewPage, celestialID)
+	pageHTML, err := b.getPage(OverviewPage, celestialID)
+	if err != nil {
+		return err
+	}
 	token, techID, listID, _ := b.extractor.ExtractCancelResearchInfos(pageHTML)
 	return b.cancel(token, techID, listID)
 }
 
 func (b *OGame) fetchResources(celestialID CelestialID) (ResourcesDetails, error) {
-	pageJSON, _ := b.getPage(FetchResourcesPage, celestialID)
+	pageJSON, err := b.getPage(FetchResourcesPage, celestialID)
+	if err != nil {
+		return ResourcesDetails{}, err
+	}
 	return b.extractor.ExtractResourcesDetails(pageJSON)
 }
 
