@@ -1188,7 +1188,7 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 		maxRetry--
 		if maxRetry <= 0 {
-			return ErrFailedExecuteCallback
+			return errors.Wrap(err, ErrFailedExecuteCallback.Error())
 		}
 
 		retry(err)
