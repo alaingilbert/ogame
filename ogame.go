@@ -1884,6 +1884,23 @@ func (b *OGame) buyOfferOfTheDay() error {
 	return nil
 }
 
+// Hack fix: When moon name is >12, the moon image disappear from the EventsBox
+// and attacks are detected on planet instead.
+func fixAttackEvents(attacks []AttackEvent, planets []Planet) {
+	for i, attack := range attacks {
+		if len(attack.DestinationName) > 12 {
+			for _, planet := range planets {
+				if attack.Destination.Equal(planet.Coordinate) &&
+					planet.Moon != nil &&
+					attack.DestinationName != planet.Name &&
+					attack.DestinationName == planet.Moon.Name {
+					attacks[i].Destination.Type = MoonType
+				}
+			}
+		}
+	}
+}
+
 func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err error) {
 	params := url.Values{"page": {"eventList"}, "ajax": {"1"}}
 	if b.IsV7() {
@@ -1896,7 +1913,13 @@ func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err erro
 	if err != nil {
 		return
 	}
-	return b.extractor.ExtractAttacks(pageHTML)
+	out, err = b.extractor.ExtractAttacks(pageHTML)
+	if err != nil {
+		return
+	}
+	planets := b.GetCachedPlanets()
+	fixAttackEvents(out, planets)
+	return
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int64) (SystemInfos, error) {

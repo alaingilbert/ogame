@@ -2604,3 +2604,43 @@ func TestExtractIPMV71(t *testing.T) {
 	assert.Equal(t, int64(25), max)
 	assert.Equal(t, int64(248), duration)
 }
+
+func TestFixAttackEvents(t *testing.T) {
+	// Test when moon name matches
+	planets := []Planet{
+		{
+			Coordinate: Coordinate{1, 2, 3, PlanetType},
+			Name:       "My Planet",
+			Moon: &Moon{
+				Name: "VeryLongName Moon",
+			},
+		},
+	}
+	attacks := []AttackEvent{
+		{
+			DestinationName: "VeryLongName Moon",
+			Destination:     Coordinate{1, 2, 3, PlanetType},
+		},
+	}
+	fixAttackEvents(attacks, planets)
+	assert.Equal(t, MoonType, attacks[0].Destination.Type) // Fixed to moon type
+
+	// Test when the moon name doesn't match
+	planets = []Planet{
+		{
+			Coordinate: Coordinate{1, 2, 3, PlanetType},
+			Name:       "My Planet",
+			Moon: &Moon{
+				Name: "VeryLongName Moon",
+			},
+		},
+	}
+	attacks = []AttackEvent{
+		{
+			DestinationName: "My Planet",
+			Destination:     Coordinate{1, 2, 3, PlanetType},
+		},
+	}
+	fixAttackEvents(attacks, planets)
+	assert.Equal(t, PlanetType, attacks[0].Destination.Type) // Did not change
+}
