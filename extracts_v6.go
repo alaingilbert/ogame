@@ -473,6 +473,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		if s.Find("td.destFleet figure").HasClass("moon") {
 			attack.Destination.Type = MoonType
 		}
+		attack.DestinationName = strings.TrimSpace(s.Find("td.destFleet").Text())
 
 		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
 		attack.ArriveIn = int64(clock.Until(attack.ArrivalTime).Seconds())

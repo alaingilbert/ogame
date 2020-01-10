@@ -1147,6 +1147,7 @@ func TestExtractAttacks(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clock)
 	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, "Homeworld", attacks[0].DestinationName)
 	assert.Equal(t, clock.Now().Add(14*time.Minute), attacks[0].ArrivalTime.UTC())
 	assert.Equal(t, int64(14*60), attacks[0].ArriveIn)
 }
@@ -1218,6 +1219,7 @@ func TestExtractAttacksMoon(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, attacks[0].Destination)
 	assert.Equal(t, MoonType, attacks[0].Destination.Type)
 	assert.Equal(t, int64(1), attacks[0].Ships.SmallCargo)
+	assert.Equal(t, "Moon", attacks[0].DestinationName)
 }
 
 func TestExtractAttacksMoonDestruction(t *testing.T) {
