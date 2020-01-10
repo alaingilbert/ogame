@@ -12,6 +12,6 @@ func newLargeShieldDome() *largeShieldDome {
 	d.StructuralIntegrity = 100000
 	d.ShieldPower = 10000
 	d.WeaponPower = 1
-	d.Requirements = map[ID]int{ShieldingTechnologyID: 6, ShipyardID: 6}
+	d.Requirements = map[ID]int64{ShieldingTechnologyID: 6, ShipyardID: 6}
 	return d
 }

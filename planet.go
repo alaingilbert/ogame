@@ -4,8 +4,8 @@ import "math"
 
 // Fields planet fields stats
 type Fields struct {
-	Built int
-	Total int
+	Built int64
+	Total int64
 }
 
 // HasFieldAvailable returns either or not we can still build on this planet
@@ -15,13 +15,13 @@ func (f Fields) HasFieldAvailable() bool {
 
 // Temperature planet temperature values
 type Temperature struct {
-	Min int
-	Max int
+	Min int64
+	Max int64
 }
 
 // Mean returns the planet mean temperature
-func (t Temperature) Mean() int {
-	return int(math.Round(float64(t.Min+t.Max) / 2))
+func (t Temperature) Mean() int64 {
+	return int64(math.Round(float64(t.Min+t.Max) / 2))
 }
 
 // Planet ogame planet object
@@ -30,7 +30,7 @@ type Planet struct {
 	Img         string
 	ID          PlanetID
 	Name        string
-	Diameter    int
+	Diameter    int64
 	Coordinate  Coordinate
 	Fields      Fields
 	Temperature Temperature
@@ -64,7 +64,7 @@ func (p Planet) GetFields() Fields {
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (p Planet) GetProduction() ([]Quantifiable, error) {
+func (p Planet) GetProduction() ([]Quantifiable, int64, error) {
 	return p.ogame.GetProduction(p.ID.Celestial())
 }
 
@@ -94,8 +94,13 @@ func (p Planet) GetFacilities() (Facilities, error) {
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
-func (p Planet) Build(id ID, nbr int) error {
+func (p Planet) Build(id ID, nbr int64) error {
 	return p.ogame.Build(CelestialID(p.ID), id, nbr)
+}
+
+// TearDown tears down any ogame building
+func (p Planet) TearDown(buildingID ID) error {
+	return p.ogame.TearDown(CelestialID(p.ID), buildingID)
 }
 
 // BuildCancelable builds any cancelable ogame objects (building, technology)
@@ -109,12 +114,12 @@ func (p Planet) BuildBuilding(buildingID ID) error {
 }
 
 // BuildDefense builds a defense unit
-func (p Planet) BuildDefense(defenseID ID, nbr int) error {
+func (p Planet) BuildDefense(defenseID ID, nbr int64) error {
 	return p.ogame.BuildDefense(CelestialID(p.ID), defenseID, nbr)
 }
 
 // BuildShips builds a ship unit
-func (p *Planet) BuildShips(shipID ID, nbr int) error {
+func (p *Planet) BuildShips(shipID ID, nbr int64) error {
 	return p.ogame.BuildShips(CelestialID(p.ID), shipID, nbr)
 }
 
@@ -128,20 +133,25 @@ func (p Planet) GetResources() (Resources, error) {
 	return p.ogame.GetResources(CelestialID(p.ID))
 }
 
+// GetResourcesDetails gets resources details
+func (p Planet) GetResourcesDetails() (ResourcesDetails, error) {
+	return p.ogame.GetResourcesDetails(CelestialID(p.ID))
+}
+
 // SendFleet sends a fleet
 func (p Planet) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, mission, resources, expeditiontime)
+	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
+	return p.ogame.SendFleet(CelestialID(p.ID), ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (p Planet) EnsureFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return p.ogame.EnsureFleet(CelestialID(p.ID), ships, speed, where, mission, resources, expeditiontime)
+	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
+	return p.ogame.EnsureFleet(CelestialID(p.ID), ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (p Planet) ConstructionsBeingBuilt() (ID, int, ID, int) {
+func (p Planet) ConstructionsBeingBuilt() (ID, int64, ID, int64) {
 	return p.ogame.ConstructionsBeingBuilt(CelestialID(p.ID))
 }
 
@@ -161,11 +171,11 @@ func (p *Planet) GetResourcesProductions() (Resources, error) {
 }
 
 // FlightTime calculate flight time and fuel needed
-func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int) {
+func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64) {
 	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships)
 }
 
 // SendIPM send interplanetary missiles
-func (p *Planet) SendIPM(planetID PlanetID, coord Coordinate, nbr int, priority ID) (int, error) {
+func (p *Planet) SendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
 	return p.ogame.SendIPM(planetID, coord, nbr, priority)
 }

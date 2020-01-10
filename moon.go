@@ -16,7 +16,7 @@ type Moon struct {
 	ID         MoonID
 	Img        string
 	Name       string
-	Diameter   int
+	Diameter   int64
 	Coordinate Coordinate
 	Fields     Fields
 }
@@ -48,12 +48,12 @@ func (m Moon) GetFields() Fields {
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)
-func (m Moon) GetProduction() ([]Quantifiable, error) {
+func (m Moon) GetProduction() ([]Quantifiable, int64, error) {
 	return m.ogame.GetProduction(m.ID.Celestial())
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (m Moon) ConstructionsBeingBuilt() (ID, int, ID, int) {
+func (m Moon) ConstructionsBeingBuilt() (ID, int64, ID, int64) {
 	return m.ogame.ConstructionsBeingBuilt(CelestialID(m.ID))
 }
 
@@ -73,8 +73,13 @@ func (m Moon) GetShips() (ShipsInfos, error) {
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
-func (m Moon) Build(id ID, nbr int) error {
+func (m Moon) Build(id ID, nbr int64) error {
 	return m.ogame.Build(CelestialID(m.ID), id, nbr)
+}
+
+// TearDown tears down any ogame building
+func (m Moon) TearDown(buildingID ID) error {
+	return m.ogame.TearDown(CelestialID(m.ID), buildingID)
 }
 
 // BuildTechnology ensure that we're trying to build a technology
@@ -83,7 +88,7 @@ func (m Moon) BuildTechnology(technologyID ID) error {
 }
 
 // BuildDefense builds a defense unit
-func (m Moon) BuildDefense(defenseID ID, nbr int) error {
+func (m Moon) BuildDefense(defenseID ID, nbr int64) error {
 	return m.ogame.BuildDefense(CelestialID(m.ID), defenseID, nbr)
 }
 
@@ -104,19 +109,24 @@ func (m Moon) CancelResearch() error {
 
 // SendFleet sends a fleet
 func (m Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime)
+	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
+	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (m Moon) EnsureFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime int) (Fleet, error) {
-	return m.ogame.EnsureFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime)
+	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
+	return m.ogame.EnsureFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime, unionID)
 }
 
 // GetResources gets moon resources
 func (m Moon) GetResources() (Resources, error) {
 	return m.ogame.GetResources(CelestialID(m.ID))
+}
+
+// GetResourcesDetails gets resources details
+func (m Moon) GetResourcesDetails() (ResourcesDetails, error) {
+	return m.ogame.GetResourcesDetails(CelestialID(m.ID))
 }
 
 // GetFacilities gets the moon facilities

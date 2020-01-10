@@ -31,15 +31,15 @@ func TestDeuteriumSynthesizerPrice(t *testing.T) {
 
 func TestDeuteriumSynthesizerConstructionTime(t *testing.T) {
 	ds := newDeuteriumSynthesizer()
-	assert.Equal(t, 1845*time.Second, ds.ConstructionTime(9, 6, Facilities{}))
+	assert.Equal(t, 1845*time.Second, ds.ConstructionTime(9, 6, Facilities{}, false, false))
 }
 
 func TestDeuteriumSynthesizer_Production(t *testing.T) {
 	ds := newDeuteriumSynthesizer()
-	assert.Equal(t, 29760, ds.Production(7, (-23+17)/2, 1, 1, 26))
+	assert.Equal(t, int64(29760), ds.Production(7, (-23+17)/2, 1, 1, 26))
 }
 
 func TestDeuteriumSynthesizer_EnergyConsumption(t *testing.T) {
 	ds := newDeuteriumSynthesizer()
-	assert.Equal(t, 6198, ds.EnergyConsumption(26))
+	assert.Equal(t, int64(6198), ds.EnergyConsumption(26))
 }

@@ -18,16 +18,16 @@ func TestResourcesBuildings_ByID(t *testing.T) {
 		CrystalStorage:       8,
 		DeuteriumTank:        9,
 	}
-	assert.Equal(t, 1, r.ByID(MetalMineID))
-	assert.Equal(t, 2, r.ByID(CrystalMineID))
-	assert.Equal(t, 3, r.ByID(DeuteriumSynthesizerID))
-	assert.Equal(t, 4, r.ByID(SolarPlantID))
-	assert.Equal(t, 5, r.ByID(FusionReactorID))
-	assert.Equal(t, 6, r.ByID(SolarSatelliteID))
-	assert.Equal(t, 7, r.ByID(MetalStorageID))
-	assert.Equal(t, 8, r.ByID(CrystalStorageID))
-	assert.Equal(t, 9, r.ByID(DeuteriumTankID))
-	assert.Equal(t, 0, r.ByID(ID(12345)))
+	assert.Equal(t, int64(1), r.ByID(MetalMineID))
+	assert.Equal(t, int64(2), r.ByID(CrystalMineID))
+	assert.Equal(t, int64(3), r.ByID(DeuteriumSynthesizerID))
+	assert.Equal(t, int64(4), r.ByID(SolarPlantID))
+	assert.Equal(t, int64(5), r.ByID(FusionReactorID))
+	assert.Equal(t, int64(6), r.ByID(SolarSatelliteID))
+	assert.Equal(t, int64(7), r.ByID(MetalStorageID))
+	assert.Equal(t, int64(8), r.ByID(CrystalStorageID))
+	assert.Equal(t, int64(9), r.ByID(DeuteriumTankID))
+	assert.Equal(t, int64(0), r.ByID(ID(12345)))
 }
 
 func TestResourcesBuildings_String(t *testing.T) {

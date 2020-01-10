@@ -1,0 +1,1720 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bermuda OGame</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript">
+        /**
+         * This is only currently needed in a separate file in libraries because
+         * the javascript files are loaded alphabetically from files and we need to
+         * ensure that our namespace object is loaded before all other ogame specific
+         * javascript code
+         */
+
+        /*
+         * global javascript namespace for ogame
+         */
+        var ogame = ogame || {};
+    </script>
+    <meta name="ogame-session" content="15d3e7303885e581a84d2282e0d1b1d23196cced"/>
+    <meta name="ogame-version" content="7.0.0-rc33"/>
+    <meta name="ogame-timestamp" content="1573205053"/>
+    <meta name="ogame-universe" content="s801-en.ogame.gameforge.com"/>
+    <meta name="ogame-universe-name" content="Bermuda"/>
+    <meta name="ogame-universe-speed" content="4"/>
+    <meta name="ogame-universe-speed-fleet" content="4"/>
+    <meta name="ogame-language" content="en"/>
+    <meta name="ogame-donut-galaxy" content="1"/>
+    <meta name="ogame-donut-system" content="1"/>
+    <meta name="ogame-player-id" content="118523"/>
+    <meta name="ogame-player-name" content="Governor Meridian"/>
+    <meta name="ogame-planet-id" content="33795776"/>
+    <meta name="ogame-planet-name" content="Homeworld"/>
+    <meta name="ogame-planet-coordinates" content="9:297:12"/>
+    <meta name="ogame-planet-type" content="planet"/>
+
+
+    <script type="text/javascript">
+        var ajaxEventboxURI = 'https://s801-en.ogame.gameforge.com/game/index.php?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+        var ajaxResourceboxURI = 'https://s801-en.ogame.gameforge.com/game/index.php?page=fetchResources&ajax=1';
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne6/215ab306a69a767a9e3eba0c8c316f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5c/0b90f4a098facd7e4d173ab7a27a6c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5f/17ac5fdee7660406fdd73307c07a82.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn3f/7ea99c73d22beea35a52bd6f7cb422.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc3/e97fcbb510366478af1860d20864c1.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn57/17590ed4605715033324741da78485.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/68ffdf60813686a9fe1d99a1cc334c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn8e/9a111b0209f44edde46ca7dd9d303c.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn0e/b6730dfc1efc9c613317ae60328bb4.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn83/8dd7f65a860fb527b1f58d44f7ed23.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn07/d2cfcc4e1ddfd63aac037a4f507138.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn2c/0b4c19043f087a2c10ded10d951b95.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc7/a61659f9db877536599b792d2fdb63.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn03/f6de7d24819951074b5e1ae613e68a.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn80/cab8721c76db9f6606ca93faeddbac.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/55d667f3f50d381767948507c45e5b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4b/da5d31cd0a99fc43fbbd9a06b52899.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdneb/210581d261b626ce77bac2ad4983f2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn64/1b773fe4ce9c6ea5a8be3204caa002.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/541e9161c385e847711f7a6d2e2a41.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn96/3c3d20ad4845ddc678c00dd8fdbe5e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn89/707f831c581ae267014f3f2fbcd020.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdned/5f2222407a222a97f4f5e974366355.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn35/fe33689d32e93aeb383b075270cf4f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4c/6057a87cf3d326e00e8a126731ec5a.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5d/4c00ba0389df4cdabed9385769f003.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn6c/ade34cb360f17762d348553a2de857.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna8/535876019e29f700c52e026519c566.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnab/c4669ba58ee728ac1bc7610f1f6a30.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn69/96d24bb94430f3ee33c668531a4a93.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4e/b3e7c83d744b0a3903907e04de184b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd8/7b75126fa68d03f92fbb77226f9132.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn45/f320115669b7611bda327a51918fd2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/7c49c94686cc0b20c3de6f2921575e.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc4/c480ff9537d079d4795ec3c6c700d2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn02/067b06cf4b9f3d797556c798b6948d.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/50618794bb4987f392e23fcde41666.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnba/efcc85e086a1b970342e189a5608e1.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn42/493edb4927596c5a7a22435cfc280f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5e/a75bc4f176c8c4fd1548860b945708.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn40/c912ca07743ac211966f9e7e9ad128.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/b17884a364a3dc34841c44edae9d03.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn12/58641190a9641e4f2951c707820722.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdndd/eaf138d8da5d08e6de288958d6b08b.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/75cd503d09c4df72ffcf5aff436858.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn06/c288674318e1f4be6fa9fe688317f2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb3/de2acb879dfae8191ad4c1de8f8fcf.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb0/a524432bb87f4b191503be58bf4e38.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn19/6cd7cf97c8b9f95caf0bcc3dfea028.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn77/12a5cc5c45e7ab337d83b2071be37f.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn97/1d9ada655a9a5ead96c0cb7e2373f5.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn56/09292a38db7a327b5a161fa1fc0223.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5d/d6203fc189daae0e68663c871ff8b6.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd3/4619434ba42d50dde6fb2bae56e371.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn38/36483f5ec8a719f7392723e53838fa.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn36/2c8857695a51fe4b86e99a2eb955d2.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/a4fccc0fefb259779456dc294521f6.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn63/7a32b02637324e1ee393271cb87566.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4a/12a6d45c2c88eb8328de7724e1c048.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4a/4b31423d3e4862041353c7d4c8d0fa.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn51/9cb53f20d1f836516d0c1a294bf3fc.css"/>
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne9/6a6d5fc4fff8ae65cacfe4680fb636.css"/>
+
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+    <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdna5/425241d285ac214e580a14956d14ce.js'> </script>
+
+
+
+
+
+    <script type="text/javascript">
+        var eventboxLoca    = {"mission":"Mission","missions":"Missions","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"own","neutral":"friendly","hostile":"hostile","nextEvent":"Next","nextEventText":"Type"};
+        var eventlistLink   = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&ajax=1";
+        var changeSettingsLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=changeSettings";
+        var changeSettingsToken = "b35f2edc49cd691076dc37609c16fe60";
+        var redirectLogoutLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=logout";
+        var redirectOverviewLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+        var redirectSpaceDockLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=facilities&openTech=36";
+        var constants   = {"espionage":6,"missleattack":10,"language":"en","name":"801"};
+        var currentPage = "movement";
+        var changeNickLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ajax&component=changenick&asJson=1";
+    </script>
+
+    <script type="text/javascript">
+        var playerId = 118523;
+        var playerName = "Governor Meridian";
+        var player = {"playerId":118523,"name":"Governor Meridian","hasCommander":false,"hasAPassword":true};
+        var session = "15d3e7303885e581a84d2282e0d1b1d23196cced";
+        var vacation = 0;
+        var hasAPassword = true;
+        var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"More Options","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+        var itemNames = {"090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Bronze Crystal Booster","e254352ac599de4dd1f20f0719df0a070c623ca8":"Bronze Deuterium Booster","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Bronze Metal Booster","67d6041bc0206d1ec7ce667e51f9d7ba73314604":"Discoverer","a521c40c620a2dd22c1bb1e9db722c4c15e42eb1":"Collector","cf37caa096aac5127ec3fe67c2606075fcc652a8":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Bronze Crystal Booster","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Silver Crystal Booster","118d34e685b5d1472267696d1010a393a59aed03":"Gold Crystal Booster","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Gold","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID Silver","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Bronze Deuterium Booster","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Silver Deuterium Booster","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Gold Deuterium Booster","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Gold","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN Silver","de922af379061263a56d7204d1c395cefcfb7d75":"Bronze Metal Booster","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Silver Metal Booster","05294270032e5dc968672425ab5611998c409166":"Gold Metal Booster","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Bronze Moon Fields","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Gold Moon Fields","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"Silver Moon Fields","485a6d5624d9de836d3eb52b181b13423f795770":"Bronze M.O.O.N.S.","45d6660308689c65d97f3c27327b0b31f880ae75":"Gold M.O.O.N.S.","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"Silver M.O.O.N.S.","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Gold","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON Silver","16768164989dffd819a373613b5e1a52e226a5b0":"Bronze Planet Fields","04e58444d6d0beb57b3e998edc34c60f8318825a":"Gold Planet Fields","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Silver Planet Fields"};
+        var isMobile = false;
+        var isMobileApp = false;
+        var bbcodePreviewUrl = "https://s801-en.ogame.gameforge.com/game/index.php?page=bbcodePreview";
+        var ogameUrl = "https:\/\/s801-en.ogame.gameforge.com";
+        var startpageUrl = "https:\/\/pioneers.ogame.gameforge.com";
+        var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter?","activateItemQuestion":"Do you want to activate the #characterClassName# class?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+        var popupWindows = [];
+        var showOutlawWarning = true;
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"};
+        var overlayWidth = 770;
+        var overlayHeight = 600;
+        var serverTime = new Date(2019, 10, 8, 9, 24, 13);
+        var localTime = new Date();
+        var timeDiff = serverTime - localTime;
+
+        var nodePort = 19135
+        var nodeUrl = "https:\/\/s801-en.ogame.gameforge.com:19135\/socket.io\/socket.io.js"
+        var nodeParams = {"port":19135,"secure":true}
+
+        var miniFleetToken = "1eaf6346675ef00889b376776cf31e59";
+        var miniFleetLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=minifleet&ajax=1";
+
+        var jumpGateLink = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=jumpgatelayer";
+        var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Use jumpgate"};
+
+        var timerHandler = new TimerHandler();
+
+        $(document).ready(
+            function(){
+                initOverlays();
+            }
+        );
+    </script>
+</head>
+<body id="ingamepage" class="no-touch no-commander ">
+
+<!-- #MMO:NETBAR# -->
+<div id="pagefoldtarget"></div>
+<script type="text/javascript">
+    var mmoCSS = ' body {margin:0; padding:0;} div.openX_interstitial div.openX_int_closeButton a { text-indent:-4000px; float:right; height:23px; width:23px; display:block; background:transparent url(//gf2.geo.gfsrv.net/cdn14/7618d1159940178a2e53a8be22710a.png) repeat-x; } #mmonetbar { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar .mmosmallbar {width:585px !important;} #mmonetbar .mmosmallbar div.mmoBoxMiddle { width: 290px; } #mmonetbar .mmonewsout {width:800px !important;} #mmonetbar .mmouseronlineout {width:768px !important;} #mmonetbar .mmolangout {width:380px !important;} #mmonetbar .mmolangout .mmoGame { width: 265px; } #mmonetbar #mmoContent.mmoingame { width: 533px; } #mmonetbar #mmoContent.mmoingame .mmoGame { width: auto; } #mmonetbar a { color:#666; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; outline: none; text-decoration:none; white-space:nowrap; } #mmonetbar select { background-color:#091218 !important; border:1px solid #1c2e3a !important; color:#9099a3 !important; font:normal 11px Verdana, Arial, Helvetica, sans-serif; height:18px; margin-top:3px; width:100px; } #mmonetbar .mmoGames select {width:80px;} #mmonetbar option { background-color:#091218 !important; color:#9099a3 !important; } #mmonetbar option:hover { background-color:#132835 !important; } #mmonetbar select#mmoCountry {width:120px;} #mmonetbar .mmoSelectbox { background-color:#091218; float:left; margin:3px 0 0 3px; position:relative; } * html #mmonetbar .mmoSelectbox {position:static;} *+html #mmonetbar .mmoSelectbox {position:static;} #mmonetbar #mmoOneGame {cursor:default; height:14px; margin-top:3px; padding-left:5px; width:80px;} #mmonetbar .label {float:left; font-weight:bold; margin-right:4px; overflow:hidden !important;} #mmonetbar #mmoUsers .label {font-size:10px;} #mmonetbar .mmoBoxLeft, #mmonetbar .mmoBoxRight { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -109px -4px; float:left; width:5px; height:24px; } #mmonetbar .mmoBoxRight {background-position:-126px -4px;} #mmonetbar .mmoBoxMiddle { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -36px; color:#9099a3 !important; float:left; height:24px; line-height:22px; text-align:left; white-space:nowrap; position: relative; z-index: 10000; } #mmonetbar #mmoGames, #mmonetbar #mmoLangs {margin:0px 4px 0 0;} #mmonetbar #mmoNews, #mmonetbar #mmoUsers, #mmonetbar #mmoGame, #mmonetbar .nojsGame {margin:4px 4px 0 0;} #mmonetbar #mmoLogo { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat top left; float:left; display:block; height:32px; width:108px; text-indent: -9999px; position: relative; z-index: 1 } #mmonetbar #mmoNews {float:left; width:252px;} #mmonetbar #mmoNews #mmoNewsContent {text-align:left; width:200px;} #mmonetbar #mmoNews #mmoNewsticker {overflow:hidden; width:240px;} #mmonetbar #mmoNews #mmoNewsticker ul { margin: 0; padding: 0; list-style: none; } #mmonetbar #mmoNews #mmoNewsticker ul li { font:normal 11px/22px Tahoma, Arial, Helvetica, sans-serif !important; color:#9099a3 !important; padding: 0; margin: 0; background: none; display: none; } #mmonetbar #mmoNews #mmoNewsticker ul li.mmoTickShow { display: block; } #mmonetbar #mmoNews #mmoNewsticker ul li a img {border:0;} #mmonetbar #mmoNews #mmoNewsticker ul li a {color:#9099a3 !important;display:block;height:24px;line-height:23px;} #mmonetbar #mmoNews #mmoNewsticker ul li a:hover {text-decoration:underline;} #mmonetbar #mmoUsers {float:left; width:178px;} #mmonetbar #mmoUsers .mmoBoxLeft {width:17px;} #mmonetbar #mmoUsers .mmoBoxMiddle {padding-left:3px; width:150px;} #mmonetbar .mmoGame {display:none; float:left; width:432px;} #mmonetbar .mmoGame #mmoGames {float:left; width:206px;} #mmonetbar .mmoGame #mmoLangs {float:left; margin:0; width:252px;} #mmonetbar .mmoGame label { color:#9099a3 !important; float:left; font-weight:400 !important; line-height:22px; margin:0px; text-align:right !important; width:110px; font-size: 11px !important; } #mmonetbar .nojsGame {display:block; width:470px;} #mmonetbar .nojsGame .mmoBoxMiddle {width:450px;} #mmonetbar .nojsGame .mmoSelectbox {margin:0px 0 0 3px;} *+html #mmonetbar .nojsGame .mmoSelectbox {margin:2px 0 0 3px;} * html #mmonetbar .nojsGame .mmoSelectbox {margin:2px 0 0 3px;} #mmonetbar .nojsGame .mmoGameBtn { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -162px -7px; border:none; cursor:pointer; float:left; height:18px; margin:3px 0 0 7px; padding:0; width:18px; } #mmonetbar .mmoSelectArea { border:1px solid #1c2e3a; color:#9099a3 !important; display:block !important; float:none; font-weight:400 !important; font-size:11px; height:16px; line-height:13px; -moz-box-sizing: content-box; overflow:hidden !important; width:90px; } #mmonetbar #mmoLangSelect .mmoSelectArea {width:129px;} #mmonetbar #mmoLangSelect .mmoOptionsDivVisible {min-width:129px;} #mmonetbar .mmoSelectArea .mmoSelectButton { background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -141px -8px; float:right; width:17px; height:16px; } #mmonetbar .mmoSelectText {cursor:pointer; float:left; overflow:hidden; padding:1px 2px; width:68px;} #mmonetbar #mmoLangSelect .mmoSelectText {width:107px;} #mmonetbar #mmoOneLang {cursor:default; height:14px;} #mmonetbar div.mmoOneLang { background: none; } #mmonetbar div.mmoOneLang #mmoOneLang { border: none; padding: 2px 3px; } #mmonetbar .mmoOptionsDivInvisible, #mmonetbar .mmoOptionsDivVisible { background-color: #091218 !important; border: 1px solid #1c2e3a; position: absolute; min-width:90px; z-index: 3100; } * html #mmonetbar .mmoOptionsDivVisible .highlight {background-color:#132835 !important} #mmonetbar .mmoOptionsDivInvisible {display: none;} #mmonetbar .mmoOptionsDivVisible ul { border:0; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; list-style: none; margin:0; padding:2px; overflow:auto; overflow-x:hidden; } #mmonetbar #mmoLangs .mmoOptionsDivVisible ul {min-width:125px;} #mmonetbar .mmoOptionsDivVisible ul li { background-color: #091218; height:14px; padding:2px 0; } #mmonetbar .mmoOptionsDivVisible a { color: #9099a3 !important; display: block; font-weight:400 !important; height:16px !important; min-width:80px; text-decoration: none; white-space:nowrap; width:100%; } #mmonetbar #mmoContent .mmoLangList a {min-width:102px;} #mmonetbar .mmoOptionsDivVisible li:hover {background-color: #132835;} #mmonetbar .mmoOptionsDivVisible li a:hover {color: #9099a3 !important;} #mmonetbar .mmoOptionsDivVisible li.mmoActive {background-color: #132835 !important;} #mmonetbar .mmoOptionsDivVisible li.mmoActive a {color: #9099a3 !important;} #mmonetbar .mmoOptionsDivVisible ul.mmoListHeight {height:240px} #mmonetbar .mmoOptionsDivVisible ul.mmoLangList.mmoListHeight li {padding-right:15px !important; width:100%;} #mmonetbar #mmoGameSelect ul.mmoListHeight a {min-width:85px;} #mmonetbar #mmoLangSelect ul.mmoListHeight a {min-width:105px;} #mmonetbar #mmoFocus {position:absolute;left:-2000px;top:-2000px;} #mmonetbar #mmoLangs .mmoSelectText span, #mmonetbar #mmoLangs .mmoflag { background: transparent url(//gf3.geo.gfsrv.net/cdn28/71fe874d78b03e38e06a3b471f6224.png) no-repeat; height:14px !important; padding-left:23px; } .mmo_AE {background-position:left 0px !important} .mmo_AR {background-position:left -14px !important} .mmo_BE {background-position:left -28px !important} .mmo_BG {background-position:left -42px !important} .mmo_BR {background-position:left -56px !important} .mmo_BY {background-position:left -70px !important} .mmo_CA {background-position:left -84px !important} .mmo_CH {background-position:left -98px !important} .mmo_CL {background-position:left -112px !important} .mmo_CN {background-position:left -126px !important} .mmo_CO {background-position:left -140px !important} .mmo_CZ {background-position:left -154px !important} .mmo_DE {background-position:left -168px !important} .mmo_DK {background-position:left -182px !important} .mmo_EE {background-position:left -196px !important} .mmo_EG {background-position:left -210px !important} .mmo_EN {background-position:left -224px !important} .mmo_ES {background-position:left -238px !important} .mmo_EU {background-position:left -252px !important} .mmo_FI {background-position:left -266px !important} .mmo_FR {background-position:left -280px !important} .mmo_GR {background-position:left -294px !important} .mmo_HK {background-position:left -308px !important} .mmo_HR {background-position:left -322px !important} .mmo_HU {background-position:left -336px !important} .mmo_ID {background-position:left -350px !important} .mmo_IL {background-position:left -364px !important} .mmo_IN {background-position:left -378px !important} .mmo_INTL {background-position:left -392px !important} .mmo_IR {background-position:left -406px !important} .mmo_IT {background-position:left -420px !important} .mmo_JP {background-position:left -434px !important} .mmo_KE {background-position:left -448px !important} .mmo_KR {background-position:left -462px !important} .mmo_LT {background-position:left -476px !important} .mmo_LV {background-position:left -490px !important} .mmo_ME {background-position:left -504px !important} .mmo_MK {background-position:left -518px !important} .mmo_MX {background-position:left -532px !important} .mmo_NL {background-position:left -546px !important} .mmo_NO {background-position:left -560px !important} .mmo_PE {background-position:left -574px !important} .mmo_PH {background-position:left -588px !important} .mmo_PK {background-position:left -602px !important} .mmo_PL {background-position:left -616px !important} .mmo_PT {background-position:left -630px !important} .mmo_RO {background-position:left -644px !important} .mmo_RS {background-position:left -658px !important} .mmo_RU {background-position:left -672px !important} .mmo_SE {background-position:left -686px !important} .mmo_SI {background-position:left -700px !important} .mmo_SK {background-position:left -714px !important} .mmo_TH {background-position:left -728px !important} .mmo_TR {background-position:left -742px !important} .mmo_TW {background-position:left -756px !important} .mmo_UA {background-position:left -770px !important} .mmo_UK {background-position:left -784px !important} .mmo_US {background-position:left -798px !important} .mmo_VE {background-position:left -812px !important} .mmo_VN {background-position:left -826px !important} .mmo_YU {background-position:left -840px !important} .mmo_ZA {background-position:left -854px !important} .mmo_WW {background-position:left -392px !important} .mmo_AU {background-position:left -868px !important} div#mmonetbar a:active { top: 0; } div#mmoGamesOverviewPanel { width: 582px; position: absolute; top: 0; right: 0; font: 12px Arial, sans-serif; } div#mmoGamesOverviewPanel h4, div#mmoGamesOverviewPanel h5 { margin: 0; font-size: 12px; font-weight: bold; text-align: left; } div#mmoGamesOverviewPanel a { text-decoration: none; } div#mmoGamesOverviewPanel a img { border: none; } div#mmoGamesOverviewToggle { width: 168px; padding: 4px 0 4px 414px; } div#mmoGamesOverviewToggle h4 { height: 18px; position: relative; background: url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -36px; top: 0px; padding: 3px 20px; -moz-box-sizing: content-box; } div#mmoGamesOverviewToggle h4 a { display: block; width: 116px; height: 16px; line-height: 14px; text-align: left; font-weight: normal; outline: none; color: #9099a3 !important; font-size: 11px !important; position: relative; border: 1px solid #1c2e3a; padding: 0 0 0 10px; background: #091218; -moz-box-sizing: content-box; } div#mmoGamesOverviewToggle h4 a.gameCountZero { cursor: default; text-align: center; padding: 0; width: 126px; } div#mmoGamesOverviewToggle h4 a span.mmoNbPseudoSelect_icon { display: block; position: absolute; top: 0; right: 0; width: 17px; height: 16px; background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -141px -8px; } span.iconTriangle { display: block; position: absolute; top: 5px; right: 10px; width: 0px; border: 5px solid transparent; border-bottom-color: #9099a3; } div#mmoGamesOverviewToggle h4 a.toggleHidden { } div#mmoGamesOverviewToggle h4 a.toggleHidden span.iconTriangle { top: 10px; border: 5px solid transparent; border-top-color: #9099a3; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge { display: block; width: 5px; height: 24px; background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -109px -4px; position: absolute; top: 0; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge_left { left: 0; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge_right { right: 0; background-position: -126px -4px; } div#mmoGamesOverviewLists { clear: both; background: #091218; width: 580px; border: 1px solid #1c2e3a; float: left; position: relative; top: 0px; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists h5 { clear: both; width: 544px; margin: 0; padding: 0 18px; height: 27px; line-height: 27px; color: #9099a3; border-bottom: 1px solid #1c2e3a; background: url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -3px; font-family: inherit; -moz-box-sizing: content-box; } #mmoGamesOverviewLists #mmoGamesOverview_featured li { width: auto; } #mmoGamesOverviewLists #mmoGamesOverview_featured span { display: block; width: 560px; height: 180px; margin: 0; } #mmoGamesOverviewLists #mmoGamesOverview_featured span.gameName { display: none; } #mmoGamesOverview_featured img { display: block; } div#mmoGamesOverviewLists ul { margin: 0; padding: 5px 5px; list-style: none; width: 570px; float: left; text-align: left; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists ul li { margin: 0; padding: 0; list-style: none; width: 190px; float: left; background: none; } div#mmoGamesOverviewLists ul li a { display: block; padding: 5px; font-weight: bold; line-height: 1; color: #9099a3 !important; font-size: 11px !important; } div#mmoGamesOverviewLists ul li a:focus, div#mmoGamesOverviewLists ul li a:hover { background-color: #132835; } div#mmoGamesOverviewLists ul li a span.gameImgTarget { display: block; width: 180px; height: 90px; background: none; margin: 0 0 4px 0; } div#mmoGamesOverviewLists ul li a span img { display: block; } div#mmoGamesOverviewLists div#mmoGamesOverviewCountry { width: 20px; height: 14px; position: absolute; top: 6px; right: 12px; background-image: url(//gf3.geo.gfsrv.net/cdn28/71fe874d78b03e38e06a3b471f6224.png); background-repeat: no-repeat; } #mmonetbar div.nojsGame { width: 432px !important; } #mmonetbar div.nojsGame div.mmoBoxMiddle { width: 422px; } #mmonetbar div.nojsGame label { width: 105px; } #pagefoldtarget .nbPF { position: absolute; top: 0; z-index: 999999; text-indent: -9999px; width: 125px; height: 120px; } #pagefoldtarget .nbPFLeft { left: 0px; } #pagefoldtarget .nbPF.nbPFRight { right: 0px; background-position: right 0px } #pagefoldtarget .nbPFDark.nbPFRight { background-image: url(//gf2.geo.gfsrv.net/cdn75/98954a5b65ea8ac2b5472017426515.png); _background-image: url(//gf1.geo.gfsrv.net/cdn9d/ca3b68a0f2fc9b5fd4f4e9acc1aa9f.gif); } #pagefoldtarget .nbPFDark.nbPFLeft { background-image: url(//gf2.geo.gfsrv.net/cdndd/f3329ffdb5f66db6930cd98f547da7.png); _background-image: url(//gf1.geo.gfsrv.net/cdn37/470d765043864d857eb6ffdc30bc4d.gif); } #pagefoldtarget .nbPFLight.nbPFRight { background-image: url(//gf1.geo.gfsrv.net/cdn34/8ae6ba8194f659bc3784e01b457749.png); _background-image: url(//gf2.geo.gfsrv.net/cdn46/2634bb44de90d88b10e3fe8cf940ff.gif); } #pagefoldtarget .nbPFLight.nbPFLeft { background: url(//gf1.geo.gfsrv.net/cdn38/d4718fc349f75778ee051b4cc76824.png) no-repeat; _background-image: url(//gf1.geo.gfsrv.net/cdn01/3dc42ed780058a74a17220804afda1.gif); } #pagefoldtarget .nbPF a{ text-indent: -9999px; display: block; width: 110px; height: 95px; } #pagefoldtarget .nbPF.nbPFRight a{ float:right; } #pagefoldtarget .nbPF.nbPFHover a{ width:358px; height: 320px; } #pagefoldtarget .nbPF.nbPFHover { background-position: left -129px !important; width:400px; height: 400px; } #pagefoldtarget .nbPF.nbPFRight.nbPFHover { background-position: right -129px !important; } ';
+    var mmostyle = document.createElement('style');
+    if (navigator.appName == "Microsoft Internet Explorer") {
+        mmostyle.setAttribute("type", "text/css");
+        mmostyle.styleSheet.cssText = mmoCSS;
+    } else {
+        var mmostyleTxt = document.createTextNode(mmoCSS);
+        mmostyle.type = 'text/css';
+        mmostyle.appendChild(mmostyleTxt);
+    }
+    document.getElementsByTagName('head')[0].appendChild(mmostyle);
+</script>
+
+<noscript>
+    <style type="text/css">
+
+        body {margin:0; padding:0;} #mmonetbar { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar #mmoLogo { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat top left; float:left; display:block; height:32px; width:108px; text-indent: -9999px; } #mmonetbar #mmoNews, #mmonetbar #mmoGame, #mmonetbar #mmoFocus, #pagefoldtarget { display:none !important; }
+    </style>
+</noscript>
+
+<!-- Start Alexa Certify Javascript -->
+<script type="text/javascript">
+    _atrk_opts = { atrk_acct: 'Ezuyi1a8Dy00aI', domain: 'gameforge.com', dynamic: true };
+    (function() {
+        var as = document.createElement('script');
+        as.type = 'text/javascript';
+        as.async = true;
+        as.src = 'https://d31qbv1cthcecs.cloudfront.net/atrk.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(as, s);
+    })();
+</script>
+<noscript><img src="https://d5nxst8fruw4z.cloudfront.net/atrk.gif?account=Ezuyi1a8Dy00aI" style="display:none" height="1" width="1" alt="" /></noscript>
+<!-- End Alexa Certify Javascript -->
+
+<div id="mmonetbar" class="mmoogame">
+    <script type="text/javascript">
+        function mmoEl(name){if(document.getElementById){return document.getElementById(name);}
+        else if(document.all){return document.all[name];}
+        else if(document.layers){return document.layers[name];}
+            return false;}
+        function mmoJump(el){window.location.href=el.options[el.selectedIndex].value;}
+        var mmo_tickDly=3000;var mmo_tickFadeDly=50;var mmo_tickFadeTicks=10;var mmoTickEl=null;var mmoTickItems=null;var mmoTickIdx=0;var mmoTickState=0;var mmoTickFade=1;var mmoTickHalt=false;function mmoTicker(){var f=0;try{mmoTickEl=mmoEl('mmoNewsticker');if(mmoTickEl){mmoTickItems=mmoTickEl.getElementsByTagName("li");if(mmoTickItems){f=1;}}}catch(e){f=0;}
+            if(!f){setTimeout(mmoTicker,10);return;}
+            setTimeout(mmoTicknext,0);}
+        function mmoTicknext(){if(mmoTickHalt){mmoTickAlphaFor(mmoTickEl,100);setTimeout(mmoTicknext,500);return;}
+            if(mmoTickState==0){mmoTickFade=mmoTickFade-1;mmoTickAlpha();if(mmoTickFade<=0){mmoTickState=1;setTimeout(mmoTicknext,0);return;}
+                setTimeout(mmoTicknext,mmo_tickFadeDly);return;}
+            if(mmoTickState==1){mmoTickItems[mmoTickIdx].className="";mmoTickIdx++;if(mmoTickIdx>=mmoTickItems.length)mmoTickIdx=0;mmoTickItems[mmoTickIdx].className="mmoTickShow";setTimeout(mmoTicknext,mmo_tickFadeDly);mmoTickState=2;return;}
+            if(mmoTickState==2){mmoTickFade=mmoTickFade+1;mmoTickAlpha();if(mmoTickFade>=mmo_tickFadeTicks){if(mmoTickItems.length<2)return;mmoTickState=0;setTimeout(mmoTicknext,mmo_tickDly);return;}
+                setTimeout(mmoTicknext,mmo_tickFadeDly);return;}}
+        function mmoTickAlpha(){var a=(100/mmo_tickFadeTicks)*mmoTickFade;mmoTickAlphaFor(mmoTickEl,a);}
+        function mmoTickAlphaFor(el,a){el.style.filter='Alpha(opacity='+a+')';el.style.opacity=a/100;el.style.MozOpacity=a/100;el.style.KhtmlOpacity=a/100;}
+        var mmoActive_select=null;function mmoInitSelect(){if(!document.getElementById)return false;document.getElementById('mmonetbar').style.display='block';document.getElementById('mmoGame').style.display='block';document.getElementById('mmoFocus').onkeyup=function(e){mmo_selid=mmoActive_select.id.replace('mmoOptionsDiv','');var e=e||window.event;if(e.keyCode)var thecode=e.keyCode;else if(e.which)var thecode=e.which;mmoSelectMe(mmo_selid,thecode);}}
+        function mmoSelectMe(selid,thecode){var mmolist=document.getElementById('mmoList'+selid);var mmoitems=mmolist.getElementsByTagName('li');switch(thecode){case 13:mmoShowOptions(selid);window.location=mmoActive_select.url;break;case 38:mmoActive_select.activeit.className='';var minus=((mmoActive_select.activeid-1)<=0)?'0':(mmoActive_select.activeid-1);mmoActive_select=mmoSetActive(selid,minus);break;case 40:mmoActive_select.activeit.className='';var plus=((mmoActive_select.activeid+1)>=mmoitems.length)?(mmoitems.length-1):(mmoActive_select.activeid+1);mmoActive_select=mmoSetActive(selid,plus);break;default:thecode=String.fromCharCode(thecode);var found=false;for(var i=0;i<mmoitems.length;i++){var _a=mmoitems[i].getElementsByTagName('a');if(navigator.appName.indexOf("Explorer")>-1){}
+        else{txtContent=_a[0].textContent;}
+            if(!found&&(thecode.toLowerCase()==txtContent.charAt(0).toLowerCase())){mmoActive_select.activeit.className='';mmoActive_select=mmoSetActive(selid,i);found=true;}}
+            break;}}
+        function mmoSetActive(selid,itemid){mmoActive_select=null;var mmolist=document.getElementById('mmoList'+selid);var mmoitems=mmolist.getElementsByTagName('li');mmoActive_select=document.getElementById('mmoOptionsDiv'+selid);;mmoActive_select.selid=selid;if(itemid!=undefined){var _a=mmoitems[itemid].getElementsByTagName('a');var textVar=document.getElementById("mmoMySelectText"+selid);textVar.innerHTML=_a[0].innerHTML;if(selid==1)textVar.className=_a[0].className;mmoitems[itemid].className='mmoActive';}
+            for(var i=0;i<mmoitems.length;i++){if(mmoitems[i].className=='mmoActive'){mmoActive_select.activeit=mmoitems[i];mmoActive_select.activeid=i;mmoActive_select.url=(mmoitems[i].getElementsByTagName('a'))?mmoitems[i].getElementsByTagName('a')[0].href:null;}}
+            return mmoActive_select;}
+        function mmoShowOptions(g){var _elem=document.getElementById("mmoOptionsDiv"+g);if((mmoActive_select)&&(mmoActive_select!=_elem)){mmoActive_select.className="mmoOptionsDivInvisible";document.getElementById('mmonetbar').focus();}
+            if(_elem.className=="mmoOptionsDivInvisible"){document.getElementById('mmoFocus').focus();mmoActive_select=mmoSetActive(g);if(document.documentElement){document.documentElement.onclick=mmoHideOptions;}else{window.onclick=mmoHideOptions;}
+                _elem.className="mmoOptionsDivVisible";}else if(_elem.className=="mmoOptionsDivVisible"){_elem.className="mmoOptionsDivInvisible";document.getElementById('mmonetbar').focus();}}
+        function mmoHideOptions(e){if(mmoActive_select){if(!e)e=window.event;var _target=(e.target||e.srcElement);if((_target.id.indexOf('mmoOptionsDiv')!=-1))return false;if(mmoisElementBefore(_target,'mmoSelectArea')==0&&(mmoisElementBefore(_target,'mmoOptionsDiv')==0)){mmoActive_select.className="mmoOptionsDivInvisible";mmoActive_select=null;}}else{if(document.documentElement)document.documentElement.onclick=function(){};else window.onclick=null;}}
+        function mmoisElementBefore(_el,_class){var _parent=_el;do _parent=_parent.parentNode;while(_parent&&(_parent.className!=null)&&(_parent.className.indexOf(_class)==-1))
+            return(_parent.className&&(_parent.className.indexOf(_class)!=-1))?1:0;}
+        var ua=navigator.userAgent.toLowerCase();var ie6browser=((ua.indexOf("msie 6")>-1)&&(ua.indexOf("opera")<0))?true:false;function highlight(el,mod){if(ie6browser){if(mod==1&&!el.className.match(/highlight/))el.className=el.className+' highlight';else if(mod==0)el.className=el.className.replace(/highlight/g,'');}}
+        var mmoToggleDisplay={init:function(wrapper){var wrapper=document.getElementById(wrapper);if(!wrapper)return;var headline=wrapper.getElementsByTagName("h4")[0],link=headline.getElementsByTagName("a")[0];if(link.className.indexOf("gameCountZero")!=-1)return false;var panel=document.getElementById(link.hash.substr(1));mmoToggleDisplay.hidePanel(panel,link);link.onclick=function(e){mmoToggleDisplay.loadImages();mmoToggleDisplay.toggle(this,panel);return false;};mmoToggleDisplay.outerClick(wrapper,link,panel);var timeoutID=null,delay=8000;wrapper.onmouseout=function(e){if(!e){var e=window.event;}
+                var reltg=(e.relatedTarget)?e.relatedTarget:e.toElement;if(reltg==wrapper||mmoToggleDisplay.isChildOf(reltg,wrapper)){return;}
+                timeoutID=setTimeout(function(){mmoToggleDisplay.hidePanel(panel,link);},delay);};wrapper.onmouseover=function(e){if(timeoutID){clearTimeout(timeoutID);}};},isChildOf:function(child,parent){while(child&&child!=parent){child=child.parentNode;}
+                if(child==parent){return true;}else{return false;}},hidePanel:function(panel,link){panel.style.display="none";link.className="toggleHidden";},toggle:function(link,panel){panel.style.display=panel.style.display=="none"?"block":"none";link.className=link.className=="toggleHidden"?"":"toggleHidden";},outerClick:function(wrapper,link,panel){document.body.onclick=function(e){if(!e){e=window.event};if(!(mmoToggleDisplay.isChildOf((e.target||e.srcElement),wrapper))&&panel.style.display!="none"){mmoToggleDisplay.toggle(link,panel);}}},loadImages:function(){var script=document.createElement("script");script.type="text/javascript";var jsonGameData_browser='{"ikariam":"\/\/gf1.geo.gfsrv.net\/cdnfb\/468d7d51b2103198945d3f644169b7.png","battleknight":"\/\/gf3.geo.gfsrv.net\/cdn88\/1078f8c8b702f6c00bd80540a15de4.png","gladiatus":"\/\/gf2.geo.gfsrv.net\/cdn1d\/0da04cb94431ecf8cba6cc17d07ced.png","bitefight":"\/\/gf1.geo.gfsrv.net\/cdn3f\/d53efd82d430eaa71b708336af9624.png","kingsage":"\/\/gf1.geo.gfsrv.net\/cdncd\/48d4d41c64ce8cd6d180828935ef80.png","legend":"\/\/gf1.geo.gfsrv.net\/cdn96\/a18e9b9eb3b66c3a2c17b7bcd55ab4.png","wildguns":"\/\/gf1.geo.gfsrv.net\/cdn9d\/8ca347af6831c0d9d8228b7c9c1dde.png"}',jsonGameData_client='{"metin2":"\/\/gf1.geo.gfsrv.net\/cdn31\/42e645397ef450be0886499f765855.jpg","soulworker":"\/\/gf2.geo.gfsrv.net\/cdn77\/ce4887064b0a34580b25528cd3be96.jpg","nostale":"\/\/gf1.geo.gfsrv.net\/cdn9a\/0ccbc48b79644be8a8a66305040f94.jpg","tera":"\/\/gf2.geo.gfsrv.net\/cdnd0\/23ab25973a20a9560a76bb82916f20.jpg","elsword":"\/\/gf3.geo.gfsrv.net\/cdn28\/f1d511fc6386d1242f9928eac92079.jpg","4story":"\/\/gf1.geo.gfsrv.net\/cdn9f\/35e42e0330b32d00feda51fefb72cd.png","runesofmagic":"\/\/gf1.geo.gfsrv.net\/cdn69\/35877003ccc87e5e1c9d1c31e3f8ae.jpg","wizard101":"\/\/gf3.geo.gfsrv.net\/cdnef\/bb1f7155dee6104ecab03e13158faf.jpg"}',jsonGameData_featured='{"aion":"\/\/gf2.geo.gfsrv.net\/cdn48\/963f802a7e0b8494bb50202f761d13.teaser"}';script.text='';script.text+=' mmoToggleDisplay.callback('+jsonGameData_featured+', "featured");';script.text+=' mmoToggleDisplay.callback('+jsonGameData_client+', "client");';script.text+='mmoToggleDisplay.callback('+jsonGameData_browser+', "browser");';document.getElementsByTagName("head")[0].appendChild(script);mmoToggleDisplay.loadImages=function(){};},callback:function(data,gamesCat){for(var gameName in data){var gameSpan=document.getElementById("gameImgTarget_"+gameName);if(!gameSpan){return false;}
+                var gameImg=document.createElement("img");gameImg.src=""+data[gameName];gameImg.alt="";gameSpan.appendChild(gameImg);}}}    </script>
+    <div id="mmoContent" class="mmonewsout">
+
+        <a id="mmoLogo" target="_blank" href="http://en.gameforge.com/games/ogame?kid=5-29807-00107-1105-101121cb" title="Gameforge.com &ndash; Feel free to play">Gameforge.com &ndash; Feel free to play</a>
+
+        <!-- news -->
+        <div id="mmoNews">
+            <div class="mmoBoxLeft"></div>
+            <div class="mmoBoxMiddle" onmouseover="mmoTickHalt=true;" onmouseout="mmoTickHalt=false;">
+                <div class="mmoNewsContent">
+                    <div id="mmoNewsticker">
+                        <ul>
+                            <li class="mmoTickShow"><a target="_blank" href="https://lobby.ultimatepirates.gameforge.com/en_GB/?kid=5-a9l07-47907-1911-02027025">Arrr! Play Ultimate Pirates now</a></li>
+                            <li class=""><a target="_blank" href="https://lobby.ultimatepirates.gameforge.com/en_GB/?kid=5-a9l07-47907-1911-120270f0">Create a Mighty Pirate Empire</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="mmoBoxRight"></div>
+        </div>
+
+        <div id="mmoGame" class="mmoGame">
+            <div class="mmoBoxLeft"></div>
+            <div class="mmoBoxMiddle">
+
+                <!--<div id="mmoGames"></div>-->
+
+                <div id="mmoLangs">
+                    <label>Select country:</label>
+                    <div id="mmoLangSelect" class="mmoSelectbox">
+                        <div id="mmoSarea1" onclick="mmoShowOptions(1)" class="mmoSelectArea">
+                            <div class="mmoSelectText" id="mmoMySelectContent1">
+                                <div id="mmoMySelectText1" class="mmoflag mmo_EN">United Kingdom</div>                                </div>
+                            <div class="mmoSelectButton"></div>
+                        </div>
+                        <div class="mmoOptionsDivInvisible" id="mmoOptionsDiv1">
+                            <ul class="mmoLangList mmoListHeight" id="mmoList1">
+                                <li><a href="//ar.ogame.gameforge.com/?kid=5-00140-00107-1105-1201218a" target="_blank" rel="nofollow" class="mmoflag mmo_AR">Argentina</a></li>
+                                <li><a href="//br.ogame.gameforge.com/?kid=5-00119-00107-1105-120121df" target="_blank" rel="nofollow" class="mmoflag mmo_BR">Brasil</a></li>
+                                <li><a href="//dk.ogame.gameforge.com/?kid=5-00120-00107-1105-120121d3" target="_blank" rel="nofollow" class="mmoflag mmo_DK">Danmark</a></li>
+                                <li><a href="//de.ogame.gameforge.com/?kid=5-00106-00107-1105-12012148" target="_blank" rel="nofollow" class="mmoflag mmo_DE">Deutschland</a></li>
+                                <li><a href="//es.ogame.gameforge.com/?kid=5-00109-00107-1105-12012129" target="_blank" rel="nofollow" class="mmoflag mmo_ES">España</a></li>
+                                <li><a href="//fr.ogame.gameforge.com/?kid=5-00108-00107-1105-120121f9" target="_blank" rel="nofollow" class="mmoflag mmo_FR">France</a></li>
+                                <li><a href="//hr.ogame.gameforge.com/?kid=5-00126-00107-1105-120121da" target="_blank" rel="nofollow" class="mmoflag mmo_HR">Hrvatska</a></li>
+                                <li><a href="//it.ogame.gameforge.com/?kid=5-00110-00107-1105-12012110" target="_blank" rel="nofollow" class="mmoflag mmo_IT">Italia</a></li>
+                                <li><a href="//hu.ogame.gameforge.com/?kid=5-00132-00107-1105-1201212b" target="_blank" rel="nofollow" class="mmoflag mmo_HU">Magyarország</a></li>
+                                <li><a href="//mx.ogame.gameforge.com/?kid=5-00139-00107-1105-12012160" target="_blank" rel="nofollow" class="mmoflag mmo_MX">México</a></li>
+                                <li><a href="//nl.ogame.gameforge.com/?kid=5-00113-00107-1105-12012174" target="_blank" rel="nofollow" class="mmoflag mmo_NL">Nederland</a></li>
+                                <li><a href="//no.ogame.gameforge.com/?kid=5-00134-00107-1105-120121b7" target="_blank" rel="nofollow" class="mmoflag mmo_NO">Norge</a></li>
+                                <li><a href="//pl.ogame.gameforge.com/?kid=5-00111-00107-1105-1201214c" target="_blank" rel="nofollow" class="mmoflag mmo_PL">Polska</a></li>
+                                <li><a href="//pt.ogame.gameforge.com/?kid=5-00117-00107-1105-120121de" target="_blank" rel="nofollow" class="mmoflag mmo_PT">Portugal</a></li>
+                                <li><a href="//ro.ogame.gameforge.com/?kid=5-00133-00107-1105-12012190" target="_blank" rel="nofollow" class="mmoflag mmo_RO">Romania</a></li>
+                                <li><a href="//si.ogame.gameforge.com/?kid=5-00160-00107-1105-12012128" target="_blank" rel="nofollow" class="mmoflag mmo_SI">Slovenija</a></li>
+                                <li><a href="//sk.ogame.gameforge.com/?kid=5-00135-00107-1105-1201219e" target="_blank" rel="nofollow" class="mmoflag mmo_SK">Slovensko</a></li>
+                                <li><a href="//fi.ogame.gameforge.com/?kid=5-00137-00107-1105-12012166" target="_blank" rel="nofollow" class="mmoflag mmo_FI">Suomi</a></li>
+                                <li><a href="//se.ogame.gameforge.com/?kid=5-00123-00107-1105-120121b5" target="_blank" rel="nofollow" class="mmoflag mmo_SE">Sverige</a></li>
+                                <li><a href="//tr.ogame.gameforge.com/?kid=5-00114-00107-1105-120121f6" target="_blank" rel="nofollow" class="mmoflag mmo_TR">Türkiye</a></li>
+                                <li><a href="//us.ogame.gameforge.com/?kid=5-00145-00107-1105-120121c8" target="_blank" rel="nofollow" class="mmoflag mmo_US">USA</a></li>
+                                <li class="mmoActive"><a href="//en.ogame.gameforge.com/?kid=5-00107-00107-1105-1201216c" target="_blank" rel="nofollow" class="mmoflag mmo_EN">United Kingdom</a></li>
+                                <li><a href="//cz.ogame.gameforge.com/?kid=5-00131-00107-1105-12012121" target="_blank" rel="nofollow" class="mmoflag mmo_CZ">Česká Republika</a></li>
+                                <li><a href="//gr.ogame.gameforge.com/?kid=5-00127-00107-1105-12012120" target="_blank" rel="nofollow" class="mmoflag mmo_GR">Ελλάδα</a></li>
+                                <li><a href="//ru.ogame.gameforge.com/?kid=5-00115-00107-1105-120121e9" target="_blank" rel="nofollow" class="mmoflag mmo_RU">Российская Федерация</a></li>
+                                <li><a href="//tw.ogame.gameforge.com/?kid=5-00116-00107-1105-120121de" target="_blank" rel="nofollow" class="mmoflag mmo_TW">台灣</a></li>
+                                <li><a href="//jp.ogame.gameforge.com/?kid=5-00122-00107-1105-1201218e" target="_blank" rel="nofollow" class="mmoflag mmo_JP">日本</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mmoBoxRight"></div>
+
+            <div id="mmoGamesOverviewPanel">
+                <div id="mmoGamesOverviewToggle">
+                    <h4>
+                        <a href="#mmoGamesOverviewLists">More games<span class="mmoNbPseudoSelect_icon"></span></a>
+                        <span class="mmoNbBoxEdge mmoNbBoxEdge_left"></span>
+                        <span class="mmoNbBoxEdge mmoNbBoxEdge_right"></span>
+                    </h4>
+                </div>
+                <div id="mmoGamesOverviewLists">
+                    <div id="mmoGamesOverviewCountry" class="mmo_EN"></div>
+
+                    <!-- Section: Featured Game -->
+                    <h5>Featured game</h5>
+                    <ul id="mmoGamesOverview_featured">
+                        <li>
+                            <a href="https://en.aion.gameforge.com/website/7-0?kid=5-62007-00107-1105-120281ce" title="Earn your wings" target="_blank">
+                                <span id="gameImgTarget_aion" class="gameImgTarget"></span>
+                                <span class="gameName">AION free-to-play</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Section: Client Games -->
+                    <h5>MMORPGs</h5>
+                    <ul id="mmoGamesOverview_client">
+                        <li class="mmoGameIcon mmoGameIcon_metin2 mmoGameIcon_metin2_en">
+                            <a href="https://en.metin2.gameforge.com/landing?kid=5-02007-00107-1105-1202818e" title="Sharpen your blade and your mind" target="_blank">
+                                <span id="gameImgTarget_metin2" class="gameImgTarget"></span>
+                                Metin2                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_soulworker mmoGameIcon_soulworker_en">
+                            <a href="https://en.soulworker.gameforge.com/landingpage/freetoplay?kid=5-a7x07-00107-1105-12028109" title="Your Soul, Your Weapon" target="_blank">
+                                <span id="gameImgTarget_soulworker" class="gameImgTarget"></span>
+                                SoulWorker                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_nostale mmoGameIcon_nostale_en">
+                            <a href="https://en.nostale.gameforge.com/landing/?kid=5-09107-00107-1105-120281fc" title="Live the legend" target="_blank">
+                                <span id="gameImgTarget_nostale" class="gameImgTarget"></span>
+                                NosTale                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_tera mmoGameIcon_tera_en">
+                            <a href="https://en.tera.gameforge.com/landingpage/freetoplay?kid=5-60907-00107-1105-12028128" title="Master the combat!" target="_blank">
+                                <span id="gameImgTarget_tera" class="gameImgTarget"></span>
+                                TERA                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_elsword mmoGameIcon_elsword_en">
+                            <a href="https://en.elsword.gameforge.com/landing?kid=5-48807-00107-1105-12028125" title="Mean monsters, cool heroes" target="_blank">
+                                <span id="gameImgTarget_elsword" class="gameImgTarget"></span>
+                                Elsword                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_4story mmoGameIcon_4story_en">
+                            <a href="http://en.4story.gameforge.com/landing?kid=5-23307-00107-1105-120281a9" title="For the light of truth" target="_blank">
+                                <span id="gameImgTarget_4story" class="gameImgTarget"></span>
+                                4Story                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_runesofmagic mmoGameIcon_runesofmagic_en">
+                            <a href="https://en.runesofmagic.gameforge.com/landing/?kid=5-46807-00107-1105-12028189" title="THE AWARD WINNING MMORPG" target="_blank">
+                                <span id="gameImgTarget_runesofmagic" class="gameImgTarget"></span>
+                                Runes of Magic                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_wizard101 mmoGameIcon_wizard101_en">
+                            <a href="http://en.wizard101.gameforge.com/?kid=5-47607-00107-1105-12028131" title="Captivating adventures, magical worlds!" target="_blank">
+                                <span id="gameImgTarget_wizard101" class="gameImgTarget"></span>
+                                Wizard101                                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Section: Browser Games -->
+                    <h5>Browser games</h5>
+                    <ul id="mmoGamesOverview_browser">
+                        <li class="mmoGameIcon mmoGameIcon_ikariam mmoGameIcon_ikariam_en">
+                            <a href="https://lobby.ikariam.gameforge.com/en_GB/?kid=5-03807-00107-1105-120281cb" title="The future of antiquity" target="_blank">
+                                <span id="gameImgTarget_ikariam" class="gameImgTarget"></span>
+                                Ikariam                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_battleknight mmoGameIcon_battleknight_en">
+                            <a href="https://en.battleknight.gameforge.com//?kid=5-01907-00107-1105-120281cc" title="For honour and glory" target="_blank">
+                                <span id="gameImgTarget_battleknight" class="gameImgTarget"></span>
+                                BattleKnight                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_gladiatus mmoGameIcon_gladiatus_en">
+                            <a href="https://lobby.gladiatus.gameforge.com/en_GB/?kid=5-03707-00107-1105-120281fa" title="Blood, dust and glory" target="_blank">
+                                <span id="gameImgTarget_gladiatus" class="gameImgTarget"></span>
+                                Gladiatus                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_bitefight mmoGameIcon_bitefight_en">
+                            <a href="https://en.bitefight.gameforge.com/?kid=5-00207-00107-1105-1202816a" title="Rivals of the night" target="_blank">
+                                <span id="gameImgTarget_bitefight" class="gameImgTarget"></span>
+                                BiteFight                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_kingsage mmoGameIcon_kingsage_en">
+                            <a href="https://en.kingsage.gameforge.com/?kid=5-31107-00107-1105-12028123" title="Long live the king!" target="_blank">
+                                <span id="gameImgTarget_kingsage" class="gameImgTarget"></span>
+                                KingsAge                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_legend mmoGameIcon_legend_en">
+                            <a href="https://en.tanoth.gameforge.com/?kid=5-20807-00107-1105-12028165" title="Defeat the darkness" target="_blank">
+                                <span id="gameImgTarget_legend" class="gameImgTarget"></span>
+                                Tanoth                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_wildguns mmoGameIcon_wildguns_en">
+                            <a href="http://wildguns.co.uk/?kid=5-12707-00107-1105-12028150" title="Seize the prairie" target="_blank">
+                                <span id="gameImgTarget_wildguns" class="gameImgTarget"></span>
+                                WildGuns                                            </a>
+                        </li>
+                    </ul>
+                </div><!-- /mmoGamesOverviewLists -->
+            </div><!-- /mmoGamesOverviewPanel -->
+        </div><!-- /mmoGame -->
+        <input id="mmoFocus" type="text" size="5" />
+    </div><!-- /mmoContent -->
+</div><!-- /mmonetbar -->
+
+<!-- ogame / en / ingame / 08.11.2019 09:45 -->
+<script type="text/javascript">
+    mmoInitSelect();
+    mmoTicker();    mmoToggleDisplay.init("mmoGamesOverviewPanel");
+</script>
+
+
+<!--/* OpenX Interstitial or Floating DHTML Tag v2.8.8 */-->
+<div id="openXHackFoo">
+    <script type='text/javascript'>
+        var HTTP_GET_VARS = new Array();
+        var strGET = document.location.search.substr(1, document.location.search.length);
+        if (strGET != '') {
+            var gArr = strGET.split('&');
+            for (i = 0; i < gArr.length; ++i) {
+                var v = '';
+                var vArr = gArr[i].split('=');
+                if (vArr.length > 1) {
+                    v = vArr[1];
+                }
+                HTTP_GET_VARS[unescape(vArr[0])] = unescape(v);
+            }
+        }
+
+        function GET(v) {
+            if (!HTTP_GET_VARS[v]) {
+                return '';
+            }
+            return HTTP_GET_VARS[v];
+        }
+
+        function openxDetectDeviceOS() {
+            return (function(ua) {
+                if (/iPhone/i.test(ua) || /iPad/.test(ua) || /iPod/.test(ua)) {
+                    return 'ios';
+                }
+                else if (/Android/.test(ua)) {
+                    return 'android';
+                }
+                else if (/Windows Phone OS 7\.0/.test(ua)) {
+                    return 'winphone7';
+                }
+                else if (/BlackBerry/.test(ua)) {
+                    return 'rim';
+                }
+                else {
+                    return 'desktop';
+                }
+            })(navigator.userAgent);
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        if (openxDetectDeviceOS() == 'desktop') {
+            var params = 'zoneid=1317&source=Quelle&cb=INSERT_RANDOM_NUMBER_HERE&layerstyle=simple&align=right&valign=top&padding=2&shifth=30&shiftv=20&closebutton=t&backcolor=778591&bordercolor=FFFFFF';
+            var m3_r = Math.floor(Math.random() * 99999999999);
+            var m3_u = (document.location.protocol == 'https:' ? 'https://ads-delivery.gameforge.com/al.php' : 'http://delivery.ads.gfsrv.net/al.php');
+            params = params.replace(/INSERT_RANDOM_NUMBER_HERE/g, m3_r);
+            params = params + '&zindex=9999999&layerstyle=gameforge';
+            params = params + '&kid=' + escapeHtml(GET('kid'));
+            document.write("<scr" + "ipt type='text/javascript' src='" + m3_u + "?" + params + "'><\/scr" + "ipt>");
+        }
+    </script>
+</div>
+
+<!-- #/MMO:NETBAR# -->
+
+<div id="siteHeader">
+</div>
+
+<div id="pageContent">
+    <div id="top">
+        <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+        <div id='resourcesbarcomponent'
+             class=""
+        >
+            <ul id="resources">
+                <li id="metal_box"
+                    class="metal  tooltipHTML"
+                    title="Metal:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;37.699&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;40.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+396&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;139&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon metal"></div>
+                    <span class="value">
+                    <span id="resources_metal" data-raw="37699" class="middlemark">37.699</span>
+                </span>
+                </li>
+                <li id="crystal_box"
+                    class="crystal  tooltipHTML"
+                    title="Crystal:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;44.642&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;75.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+143&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;63&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon crystal"></div>
+                    <span class="value">
+                    <span id="resources_crystal" data-raw="44642" class="">44.642</span>
+                </span>
+                </li>
+                <li id="deuterium_box"
+                    class="deuterium  tooltipHTML"
+                    title="Deuterium:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;19.997&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;20.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+128&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;32&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon deuterium"></div>
+                    <span class="value">
+                    <span id="resources_deuterium" data-raw="19997" class="middlemark">19.997</span>
+                </span>
+                </li>
+                <li id="energy_box"
+                    class="energy  tooltipHTML"
+                    title="Energy:|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-4&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+79&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Consumption:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-83&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon energy"></div>
+                    <span class="value">
+                    <span id="resources_energy" data-raw="-4" class=" overmark">-4</span>
+                </span>
+                </li>
+                <li id="darkmatter_box"
+                    class="darkmatter  tooltipHTML"
+                    title="Dark Matter|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;19.348.523&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Purchased:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Found:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;19.348.523&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    data-tooltip-button="Purchase Dark Matter"
+                >
+                    <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=payment"
+                       class="overlay">
+                        <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif">
+                        <div class="resourceIcon darkmatter"></div>
+                    </a>
+                    <span class="value">
+                    <span id="resources_darkmatter" data-raw="19348523" class="overlay">19.348.523</span>
+                </span>
+                </li>
+            </ul>
+            <script type="text/javascript">
+                var isMobile = false;
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter?","activateItemQuestion":"Do you want to activate the #characterClassName# class?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+
+                (function($) {
+                    reloadResources({"metal":{"tooltip":"Metal:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"middlemark\">37.699<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"middlemark\">40.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+396<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"middlemark\">139<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":37699,"amountFormatted":"37.699","max":40000,"production":0.11000669344043,"classes":"middlemark","classesListItem":""},"crystal":{"tooltip":"Crystal:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">44.642<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">75.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+143<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"middlemark\">63<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":44642,"amountFormatted":"44.642","max":75000,"production":0.039933065595716,"classes":"","classesListItem":""},"deuterium":{"tooltip":"Deuterium:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"middlemark\">19.997<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"middlemark\">20.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+128<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"middlemark\">32<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":19997,"amountFormatted":"19.997","max":20000,"production":0.035692771084337,"classes":"middlemark","classesListItem":""},"energy":{"tooltip":"Energy:|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"overmark\">-4<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+79<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"overmark\">-83<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":-4,"amountFormatted":"-4","classes":" overmark","classesListItem":""},"darkmatter":{"tooltip":"Dark Matter|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">19.348.523<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Purchased:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Found:<\/th>\n                <td><span class=\"\">19.348.523<\/span><\/td>\n            <\/tr>\n        <\/table>","amountRaw":19348523,"amountFormatted":"19.348.523","classes":"overlay","classesListItem":"","link":"https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}});
+                })(jQuery);
+            </script>
+        </div>
+        <div id='commandercomponent'
+             class=""
+        >
+            <div id="characterclass" class="fleft">
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=characterclassselection"
+                   class="tooltipHTML js_hideTipOnMobile"
+                   title="Your class: General|+25% speed for combat ships&lt;br&gt;+25% speed for Recyclers&lt;br&gt;-25% deuterium consumption for Recyclers&lt;br&gt;A small chance to immediately destroy a Deathstar once in a battle using a light fighter.&lt;br&gt;+2 combat research levels">
+                    <div class="sprite characterclass medium warrior"></div>
+                </a>
+            </div>
+            <div id="officers" class="  fright">
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=2"
+                   class="tooltipHTML   commander js_hideTipOnMobile "
+                   title="Hire Commander|+40 favourites, building queue, empire view, shortcuts, transport scanner, advertisement free* &lt;span style=&quot;font-size:10px;line-height:10px;&quot;&gt;(*excludes: game related references)&lt;/span&gt;"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=3"
+                   class="tooltipHTML    admiral js_hideTipOnMobile "
+                   title="Hire Admiral|Max. fleet slots +2,
+Max. expeditions +1,
+Improved fleet escape rate"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=4"
+                   class="tooltipHTML    engineer js_hideTipOnMobile "
+                   title="Hire Engineer|Halves losses to defences, +10% energy production"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=5"
+                   class="tooltipHTML    geologist js_hideTipOnMobile "
+                   title="Hire Geologist|+10% mine production"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=6"
+                   class="tooltipHTML    technocrat js_hideTipOnMobile "
+                   title="Hire Technocrat|+2 espionage levels, 25% less research time"
+                >
+                    <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+            </div>
+        </div>
+        <div id='notificationbarcomponent'
+             class=""
+        >
+            <div id="message-wrapper">
+                <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=messages"
+                   title="6 unread message(s)"
+                >
+                    <span class="new_msg_count totalMessages news "
+                          data-new-messages="6"
+                    >
+                6
+            </span>
+                </a>
+                <a class=" comm_menu chat tooltip js_hideTipOnMobile"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=chat"
+                   title="6 unread message(s)"
+                >
+        <span class="new_msg_count totalChatMessages noMessage"
+              data-new-messages="0">
+            0
+        </span>
+                </a>
+                <div id="messages_collapsed">
+                    <div id="eventboxFilled" class="eventToggle" style="display: none;">
+                        <a id="js_eventDetailsClosed"
+                           class="tooltipRight js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="More details"
+                        ></a>
+                        <a id="js_eventDetailsOpen"
+                           class="tooltipRight open js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="Less detail"
+                        ></a>
+                    </div>
+                    <div id="eventboxLoading"
+                         class="textCenter textBeefy"
+                         style="display: block;"
+                    >
+                        <img height="16"
+                             width="16"
+                             alt="ajax spinner"
+                             src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"
+                        />
+                        load...
+                    </div>
+                    <div id="eventboxBlank"
+                         class="textCenter"
+                         style="display: none;"
+                    >
+                        No fleet movement
+                    </div>
+                </div>
+                <div id="attack_alert"
+                     class="tooltip noAttack"
+                     title=""
+                >
+                    <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"
+                    ></a>
+                </div>
+            </div>
+        </div>
+        <div id='headerbarcomponent'
+             class=""
+        >
+            <div id="bar">
+                <ul>
+                    <li id="playerName">
+                        Player:
+
+                        <span class="textBeefy">
+                            <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=changenick"
+                               class="overlay textBeefy"
+                               data-overlay-title="Change player name"
+                               data-overlay-popup-width="400"
+                               data-overlay-popup-height="200"
+                            >Governor Meridian</a>
+                        </span>
+                    </li>
+                    <li>
+                        <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=highscore" accesskey="">Highscore</a>
+                        (2793)
+                    </li>
+                    <li>
+                        <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=notices"
+                           class="overlay" data-overlay-title="My notes"
+                           data-overlay-class="notices"
+                           data-overlay-popup-width="750"
+                           data-overlay-popup-height="480"
+                           accesskey="">
+                            Notes</a>
+                    </li>
+                    <li>
+                        <a class=""
+                           accesskey=""
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=buddies"
+                        >
+                            Buddies</a>
+                    </li>
+                    <li><a class="overlay"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=search&amp;ajax=1"
+                           data-overlay-title="Search Universe"
+                           data-overlay-close="__default closeSearch"
+                           data-overlay-class="search"
+                           accesskey="">Search</a>
+                    </li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=preferences" accesskey="">Options</a></li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=support" target="_blank">Support</a></li>
+                    <li><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=logout">Log out</a></li>
+                    <li class="OGameClock">08.11.2019 <span>09:24:13</span></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div id="left">
+        <div id='mainmenucomponent'></div>
+        <div id='tutorialiconcomponent'
+             class=""
+        >
+            <div id="helper">
+                <a class="highlight tooltip tooltipClose"
+                   href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=tutorial&amp;displayNew=1"
+                   title="Tutorial overview&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=rewards&quot;&gt;Rewards&lt;/a&gt;">?</a>
+            </div>
+        </div>
+        <div id='toolbarcomponent'
+             class=""
+        >
+            <div id="links">
+                <ul id="menuTable" class="leftmenu">
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=rewards"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Rewards">
+                            <div class="menuImage overview
+                                                                overview_claimable
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Overview</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=resourceSettings"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Resource settings">
+                            <div class="menuImage resources
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Resources</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Jump Gate">
+                            <div class="menuImage station
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Facilities</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage marketplace  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Marketplace</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=traderOverview#page=traderResources&amp;animation=false"
+                                                                               class="trader tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Resource Market">
+                            <div class="menuImage traderOverview
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=traderOverview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Merchant</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all"
+                                                                               class="overlay tooltipRight js_hideTipOnMobile "
+                                                                               target="_blank"
+                                                                               title="Technology">
+                            <div class="menuImage research
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Research</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage shipyard  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shipyard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage defense  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Defence</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Fleet movement">
+                            <div class="menuImage fleet1 active
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton  selected"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Fleet</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage galaxy  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Galaxy</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage alliance  "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=alliance"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Alliance</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage premium  "></span>
+                                    </span>
+                        <a class="menubutton premiumHighligt officers"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=premium"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Recruit Officers</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s801-en.ogame.gameforge.com/game/index.php?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Inventory">
+                            <div class="menuImage shop
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=shop"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shop</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage   "></span>
+                                    </span>
+                        <a class="menubutton overlay"
+                           href="https://s801-en.ogame.gameforge.com/game/index.php?page=feedback&amp;ajax=1"
+                           target="_self"
+                           data-overlay-title="Feedback"
+                        >
+                            <span class="textlabel">Feedback</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage   "></span>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://www.stomt.com/ogame"
+                           target="_blank"
+                        >
+                            <span class="textlabel">Stomt</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="toolLinksWrapper">
+                    <ul id="menuTableTools" class="leftmenu"></ul>
+                </div>
+                <br class="clearfloat"/>
+            </div>
+        </div>
+        <div id='advicebarcomponent'
+             class=""
+        >
+            <div class="adviceWrapper">
+
+                <div id="advice-bar">
+
+
+
+
+                </div>
+                <div id="banner_skyscraper" name="banner_skyscraper">
+                    <iframe id="ENIOG160" name="ENIOG160" src="https://ads-delivery.gameforge.com/afr.php?n=ENIOG160&zoneid=348&target=_blank&cb=1573205053&os=desktop&kid=&al=0&aa=24&lp=999&hs=2793&ui=118523" frameborder="0" scrolling="no" width="160" height="600" allowtransparency="true">
+                        <a href="https://ads-delivery.gameforge.com/ck.php?n=ENIOG160&cb=1573205053" target="_blank">
+                            <img src="https://ads-delivery.gameforge.com/avw.php?zoneid=348&cb=1573205053&n=ENIOG160" border="0" alt=""/>
+                        </a>
+                    </iframe>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="middle">
+        <div id='eventlistcomponent'
+             class=""
+        >
+            <div id="eventboxContent"
+                 style="display: none;">
+                <div id="eventListWrap">
+                    <div id="eventHeader">
+                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
+                        </a>
+                        <h2>Events</h2>
+                    </div>
+                    <table id="eventContent">
+                        <tbody>
+
+                        <tr class="eventFleet" id=""
+                            data-mission-type="3"
+                            data-return-flight="false"
+                            data-arrival-time="1573206063"
+                        >
+                            <td class="countDown">
+        <span id="counter-eventlist-1213835" class="friendly textBeefy">
+                            load...
+                    </span>
+                            </td>
+                            <td class="arrivalTime">09:41:03 Clock</td>
+
+                            <td class="missionFleet">
+                                <img src="https://gf1.geo.gfsrv.net/cdn38/2af2939219d8227a11a50ff4df7b51.gif"
+                                     class="tooltipHTML"
+                                     title="Own fleet | Transport"
+                                     alt=""
+                                />
+                            </td>
+
+                            <td class="originFleet">
+                                <figure class="planetIcon planet"></figure>Homeworld
+                            </td>
+                            <td class="coordsOrigin">
+                                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=9&amp;system=297" target="_top">
+                                    [9:297:12]
+                                </a>
+                            </td>
+
+                            <td class="detailsFleet">
+                                <span>2</span>
+                            </td>
+
+                            <td class="icon_movement">
+                    <span class="tooltip tooltipRight tooltipClose"
+                          title="&lt;div class=&quot;htmlTooltip&quot;&gt;
+    &lt;h1&gt;Fleet details:&lt;/h1&gt;
+    &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
+            &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
+            &lt;tr&gt;
+                &lt;th colspan=&quot;2&quot;&gt;Ships:&lt;/th&gt;
+            &lt;/tr&gt;
+                                                &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Small Cargo:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;2&lt;/td&gt;
+                    &lt;/tr&gt;
+                                                        &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;&amp;nbsp;&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;th colspan=&quot;2&quot;&gt;Shipment:&lt;/th&gt;
+                &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Metal:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Crystal:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Deuterium:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+    &lt;/div&gt;
+" data-federation-user-id="0">
+                &nbsp;
+            </span>
+                            </td>
+
+                            <td class="destFleet">
+                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Colony
+                            </td>
+
+                            <td class="destCoords">
+                                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=9&amp;system=297" target="_top">
+                                    [9:297:9]
+                                </a>
+                            </td>
+
+                            <td class="sendProbe">
+                            </td>
+                            <td class="sendMail">
+                            </td>
+                        </tr>
+
+
+                        <tr class="eventFleet" id=""
+                            data-mission-type="3"
+                            data-return-flight="true"
+                            data-arrival-time="1573207083"
+                        >
+                            <td class="countDown">
+        <span id="counter-eventlist-1213836" class="friendly textBeefy">
+                            load...
+                    </span>
+                            </td>
+                            <td class="arrivalTime">09:58:03 Clock</td>
+
+                            <td class="missionFleet">
+                                <img src="https://gf1.geo.gfsrv.net/cdn38/2af2939219d8227a11a50ff4df7b51.gif"
+                                     class="tooltipHTML"
+                                     title="Own fleet | Transport (R)"
+                                     alt=""
+                                />
+                            </td>
+
+                            <td class="originFleet">
+                                <figure class="planetIcon planet"></figure>Homeworld
+                            </td>
+                            <td class="coordsOrigin">
+                                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=9&amp;system=297" target="_top">
+                                    [9:297:12]
+                                </a>
+                            </td>
+
+                            <td class="detailsFleet">
+                                <span>2</span>
+                            </td>
+
+                            <td class="icon_movement_reserve">
+                    <span class="tooltip tooltipRight tooltipClose"
+                          title="&lt;div class=&quot;htmlTooltip&quot;&gt;
+    &lt;h1&gt;Fleet details:&lt;/h1&gt;
+    &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
+            &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
+            &lt;tr&gt;
+                &lt;th colspan=&quot;2&quot;&gt;Ships:&lt;/th&gt;
+            &lt;/tr&gt;
+                                                &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Small Cargo:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;2&lt;/td&gt;
+                    &lt;/tr&gt;
+                                                        &lt;tr&gt;
+                    &lt;td colspan=&quot;2&quot;&gt;&amp;nbsp;&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;th colspan=&quot;2&quot;&gt;Shipment:&lt;/th&gt;
+                &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Metal:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Crystal:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td&gt;Deuterium:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+    &lt;/div&gt;
+" data-federation-user-id="0">
+                &nbsp;
+            </span>
+                            </td>
+
+                            <td class="destFleet">
+                                <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Colony
+                            </td>
+
+                            <td class="destCoords">
+                                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=9&amp;system=297" target="_top">
+                                    [9:297:9]
+                                </a>
+                            </td>
+
+                            <td class="sendProbe">
+                            </td>
+                            <td class="sendMail">
+                            </td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                    <div id="eventFooter"></div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var timeDelta = 1573205053000 - (new Date()).getTime();
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter?","activateItemQuestion":"Do you want to activate the #characterClassName# class?"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+                (function($) {
+                    new eventboxCountdown(
+                        $("#counter-eventlist-1213835"),
+                        1573206063 - 1573205053,
+                        $("#eventListWrap"),
+                        "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
+                        [1213835,1213836]
+                    );
+                    new eventboxCountdown(
+                        $("#counter-eventlist-1213836"),
+                        1573207083 - 1573205053,
+                        $("#eventListWrap"),
+                        "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
+                        [1213835,1213836]
+                    );
+                })(jQuery);
+            </script>
+
+
+        </div>
+        <div id='movementcomponent'
+             class="maincontent"
+        >
+            <div id="movement">
+                <div id="inhalt">
+                    <header id="planet" class="planet-header ">
+                        <h2>Fleet movement - Homeworld</h2>
+                        <a class="toggleHeader" data-name="movement">
+                            <img alt="" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22" />
+                        </a>
+                    </header>
+                    <div class="c-left"></div>
+                    <div class="c-right"></div>
+                    <div class="fleetStatus">
+            <span class="reload">
+                <a class="dark_highlight_tablet" href="javascript:void(0);" onClick="reloadPage();">
+                    <span class="icon icon_reload"></span>
+                    <span>Reload</span>
+                </a>
+            </span>
+                        <span class="fleetSlots">
+                Fleets: <span class="current">1</span> / <span class="all">2</span>
+            </span>
+                        <span class="expSlots">
+                Expeditions: <span class="current">0</span> / <span class="all">1</span>
+            </span>
+                        <span class="closeAll">
+                <a href="javascript:void(0);">
+                    <img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" />
+                </a>
+            </span>
+                    </div>
+                    <div id="fleet4218727" class="fleetDetails detailsOpened"
+                         data-mission-type="3"
+                         data-return-flight=""
+                         data-arrival-time="1573207083"
+                    >
+                        <span class="timer tooltip" title="08.11.2019 09:41:03" id="timer_4218727">load...</span>
+                        <span class="absTime">09:41:03  Clock</span>
+                        <span class="mission neutral textBeefy">Transport</span>
+                        <span class="allianceName"></span>
+                        <span class="originData">
+                    <span class="originCoords tooltip" title="Governor Meridian"><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=9&system=297">[9:297:12]</a></span>
+                    <span class="originPlanet">
+                                                    <figure class="planetIcon planet"></figure>Homeworld
+                                            </span>
+                </span>
+                        <span class="marker01"></span>
+                        <span class="marker02"></span>
+                        <span class="fleetDetailButton">
+                    <a href="#bl4218727"
+                       rel="bl4218727"
+                       title="Fleet details"
+                       class="tooltipRel tooltipClose fleet_icon_forward">
+                    </a>
+                </span>
+                        <span class="reversal reversal_time" ref="4218727">
+                        <a class="icon_link tooltipHTML" href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement&amp;return=4218727" title="Recall:| 08.11.2019&lt;br&gt;09:24:23">
+                            <img src="https://gf2.geo.gfsrv.net/cdna2/89624964d4b06356842188dba05b1b.gif" height="16" width="16" />
+                        </a>
+                    </span>
+                        <span class="starStreak">
+                    <div style="position: relative;">
+                        <div class="origin fixed">
+                            <img class="tooltipHTML" height="30" width="30" src="https://gf3.geo.gfsrv.net/cdne5/6288b290083d24d97f4f16de36ac8a.png" title="Start time:| 08.11.2019&lt;br&gt;09:24:03" alt=""/>
+                        </div>
+
+                        <div class="route fixed">
+
+                            <a href="#bl4218727"
+                               rel="bl4218727"
+                               title="Fleet details"
+                               class="tooltipRel tooltipClose basic2 fleet_icon_forward"
+                               id="route_4218727"></a>
+
+                            <div style="display:none;" id="bl4218727">
+                                <div class="htmlTooltip">
+    <h1>Fleet details:</h1>
+    <div class="splitLine"></div>
+    <table cellpadding="0" cellspacing="0" class="fleetinfo">
+        <tr>
+            <th colspan="2">Ships:</th>
+        </tr>
+                <tr>
+            <td>Small Cargo:</td>
+            <td class="value">
+                            2                        </td>
+        </tr>
+                <tr>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+            <th colspan="2">Shipment:</th>
+        </tr>
+        <tr>
+            <td>Metal:</td>
+            <td class="value">
+                0            </td>
+        </tr>
+        <tr>
+            <td>Crystal:</td>
+            <td class="value">
+                0            </td>
+        </tr>
+        <tr>
+            <td>Deuterium:</td>
+            <td class="value">
+                0            </td>
+        </tr>
+    </table>
+</div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="destination fixed">
+                            <img class="tooltipHTML" height="30" width="30" src="https://gf1.geo.gfsrv.net/cdn07/66f44c7a5a76f653320c621afcd0c7.png" title="Time of arrival:| 08.11.2019<br>09:41:03" alt=""/>
+                        </div>
+                    </div>
+                </span><!-- Starstreak -->
+                        <span class="destinationData">
+                                            <span class="destinationPlanet">
+                            <span>
+                                                                                                            <figure class="planetIcon planet"></figure>Colony
+                                                                                                </span>
+                        </span>
+
+                                            <span class="destinationCoords tooltip" title=""><a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=9&system=297">[9:297:9]</a></span>
+                                    </span>
+                        <span class="nextTimer tooltip" title="08.11.2019 09:58:03" id="timerNext_4218727">load...</span>
+                        <span class="nextabsTime">09:58:03 Clock</span>
+                        <span class="nextMission friendly textBeefy">Return</span>
+
+                        <span class="openDetails">
+                    <a href="javascript:void(0);" class="openCloseDetails" data-mission-id="4218727" data-end-time="1573206063">
+                                                    <img src="https://gf3.geo.gfsrv.net/cdnb6/577565fadab7780b0997a76d0dca9b.gif" height="16" width="16" />
+                                            </a>
+                </span>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                function unionEdit(response)
+                {
+                    var data = $.parseJSON(response);
+                    errorBoxAsArray(data["errorbox"]);
+
+                    $("#federation_" + data["fleetID"]).children().attr("href", "https://s801-en.ogame.gameforge.com/game/index.php?page=federationlayer&ajax=1&union=" + data["unionID"] + "&fleet=" + data["fleetID"] + "&target=" + data["targetID"]);
+                    $("#FederationLayer").parent().dialog('close');
+                }
+
+                function reloadPage()
+                {
+                    openParentLocation("https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=movement");
+                }
+
+                var currentMovementTabExtensionStates = JSON.parse("{\"4218727\":[1,1573206063]}");
+                var showInfos = 1;
+
+                $(document).ready(function() {
+                    var movementLoca = "{\"callBack\":\"Recall\"}";
+
+                    if (showInfos == 0) {
+                        showInfos = 1;
+                        $(".closeAll").children().removeClass('all_open').addClass('all_closed');
+                    } else {
+                        showInfos = 0;
+                        $(".closeAll").children().removeClass('all_closed').addClass('all_open');
+                    }
+
+
+                    new reloadCountdown(
+                        getElementByIdWithCache("timer_4218727"),
+                        1010,
+                        "https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&component=movement"
+                    );
+
+                    new movementImageCountdown(
+                        getElementByIdWithCache("route_4218727"),
+                        1010,
+                        1020,
+                        0,
+                        0,
+                        274
+                    );
+
+                    new simpleCountdown(
+                        getElementByIdWithCache("timerNext_4218727"),
+                        2030
+                    );
+
+                    new recallShipCountdown(
+                        4218727,
+                        1573205063
+                    )
+
+
+                    initMovement();
+                });
+            </script>
+        </div>
+    </div>
+    <div id="right">
+        <div id='planetbarcomponent'
+             class=""
+        >
+            <div id="rechts">
+                <div id="norm">
+                    <div id="myWorlds">
+                        <div id="countColonies">
+                            <p class="textCenter">
+                                <span>2/3</span> Planets
+                            </p>
+                        </div>
+                        <div id="planetList"
+                        >
+                            <div class="smallplanet  hightlightPlanet "
+                                 id="planet-33795776">
+                                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement&amp;cp=33795776"
+                                   data-link="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement&amp;cp=33795776"
+                                   title="&lt;b&gt;Homeworld [9:297:12]&lt;/b&gt;&lt;br/&gt;12.800km (30/163)&lt;br&gt;-34°C to 6°C&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33795776&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33795776&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33795776&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33795776&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33795776&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33795776&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33795776&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33795776&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33795776&amp;galaxy=9&amp;system=297&amp;position=12&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink active tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Homeworld"
+                                         src="https://gf1.geo.gfsrv.net/cdnf8/a4d04bab6b59a122743a718b650b44.png"
+                                         width="48"
+                                         height ="48"
+                                    />
+                                    <span class="planet-name ">Homeworld</span>
+                                    <span class="planet-koords ">[9:297:12]</span>
+                                </a>
+                            </div>
+                            <div class="smallplanet   "
+                                 id="planet-33796125">
+                                <a href="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement&amp;cp=33796125"
+                                   data-link="https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement&amp;cp=33796125"
+                                   title="&lt;b&gt;Colony [9:297:9]&lt;/b&gt;&lt;br/&gt;13.336km (0/177)&lt;br&gt;-1°C to 39°C&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33796125&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33796125&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33796125&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=marketplace&amp;cp=33796125&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33796125&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33796125&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33796125&quot;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33796125&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33796125&amp;galaxy=9&amp;system=297&amp;position=9&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf2.geo.gfsrv.net/cdn4d/8364738978d2ae944edceb119d8c51.png"
+                                         width="48"
+                                         height ="48"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[9:297:9]</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="bottom">
+    <div id='errorboxcomponent'
+         class=""
+    >
+        <div id="decisionTB" style="display:none;">
+            <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxDecisionContent">-</span>
+                    <div class="response">
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+                        </div>
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+
+        <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+            <div>
+                <span id="fadeBoxStyle" class="success"></span>
+                <p id="fadeBoxContent"></p>
+            </div>
+        </div>
+
+        <div id="notifyTB" style="display:none;">
+            <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxNotifyContent">-</span>
+                    <div class="response">
+                        <div>
+                            <a href="javascript:void(0);" class="ok">
+                                <span id="errorBoxNotifyOk">.</span>
+                            </a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    initIndex();
+
+</script>
+<div id='chatbarcomponent'
+     class=""
+>
+    <script type="text/javascript">
+        var bigChatLink = 'https://s801-en.ogame.gameforge.com/game/index.php?page=chat';
+        var ajaxChatToken = "bd9f9473145b8f411ad40c0f195e852f"
+        var chatUrl = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ajaxChat"
+        var chatUrlLoadMoreMessages = "https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=chatGetAdditionalMessages"
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"}
+
+        var visibleChats = {"players":[{"partnerName":"Bandit Transit","partnerId":118522,"partnerPlanet":"33795774","new":"1","unreadCounter":0,"text":"hi ?","time":"2019-11-08 04:56:34","timestamp":"1573188994","allianceName":null,"allianceTag":null,"allianceId":null,"highscorePosition":"3810","showState":"1"}],"associations":[]};
+
+        (function($) {
+            ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box'); //list in chat bar
+            ogame.chat.showPlayerList('#sideBar'); // list in chat
+
+            var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
+
+            function initChatAsync() {
+                if (ogame.chat.isLoadingPlayerList === false && ogame.chat.playerList !== null) {
+                    clearInterval(initChatAsyncInterval);
+                    ogame.chat.initChatBar(118523);
+                    ogame.chat.initChat(118523, false);
+                    ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+                }
+            }
+        })(jQuery);
+    </script>
+    <div id="chatBar">
+        <ul class="chat_bar_list">
+            <li id="chatBarPlayerList" class="chat_bar_pl_list_item">
+                <div class="cb_playerlist_box" style="display:block">
+                </div>
+                <span class="onlineCount">0 Contact(s) online</span>
+            </li>
+
+            <li class="chat_bar_list_item " style="display:none;" data-playerid="118522">
+                <div class="chat_box" data-playerid="118522" style="display:none;">
+                    <div class="chat_box_title">
+                        <span class="icon icon_close fright"></span>
+                        <span class="icon icon_maximize fright"></span>
+                    </div>
+                    <div class="chat_box_ctn">
+                        <ul class="chat clearfix" data-foreign-player-id="118522">
+                            <li class="chat_msg odd" data-chat-id="111295">
+                                <div class="msg_head">
+                                    <span class="msg_date fright">04:56:34</span>
+                                    <span class="msg_title blue_txt new ">Governor Meridian</span>
+                                </div>
+                                <span class="msg_content">hi ?</span>
+                                <div class="speechbubble_arrow"></div>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <textarea name="text" class="chat_box_textarea"></textarea>
+                </div><!-- END Chat Box -->
+                <span class="playerstatus disallowed"></span>
+                <span class="chatstatus cs_new fleft"></span>
+                <span class="cb_playername" data-playerid="118522"> Bandit Transit</span>
+                <span class="new_msg_count noMessage" data-playerId="118522" data-new-messages="0">0</span>
+                <span class="icon icon_close fright"></span>
+            </li>
+        </ul><!-- END Chat Bar List -->
+
+        <script type="text/javascript">
+
+        </script>
+    </div>
+</div>
+<div id="siteFooter">
+    <div class="content" style="font-size:10px">
+        <div class="fleft textLeft">
+            <a class="tooltip js_hideTipOnMobile overlay" href="https://s801-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=changelog&amp;ajax=1" data-overlay-class="popupWidthFixed" data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes" title="Patch notes">7.0.0-rc33</a>
+            <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. All rights reserved.</a>
+        </div>
+        <div class="fright textRight">
+            <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
+            <a href="http://board.origin.ogame.gameforge.com/" target="_blank">Board</a>|
+            <a class="overlay"
+               href="https://s801-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=rules&amp;ajax=1"
+               data-overlay-iframe="true"
+               data-iframe-width="450"
+               data-overlay-title="Rules"
+            >Rules</a>|
+            <a href="https://agbserver.gameforge.com/rewrite.php?locale=en&amp;type=imprint&amp;product=ogame" target="_blank">Legal</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

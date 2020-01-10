@@ -3,16 +3,23 @@ package ogame
 import "strconv"
 
 // ID represent an ogame id
-type ID int
+type ID int64
 
 // IsSet returns either or not the id is set to a value different than 0
 func (o ID) IsSet() bool {
-	return o.Int() != 0
+	return o.Int64() != 0
+}
+
+// Int64 returns an integer value of the id
+func (o ID) Int64() int64 {
+	o.Int()
+	return int64(o)
 }
 
 // Int returns an integer value of the id
-func (o ID) Int() int {
-	return int(o)
+// Deprecated: backward compatibility
+func (o ID) Int() int64 {
+	return int64(o)
 }
 
 func (o ID) String() string {
@@ -110,6 +117,12 @@ func (o ID) String() string {
 		res += "Deathstar"
 	case BattlecruiserID:
 		res += "Battlecruiser"
+	case CrawlerID:
+		res += "Crawler"
+	case ReaperID:
+		res += "Reaper"
+	case PathfinderID:
+		res += "Pathfinder"
 	case EspionageTechnologyID:
 		res += "EspionageTechnology"
 	case ComputerTechnologyID:
@@ -143,7 +156,7 @@ func (o ID) String() string {
 	case GravitonTechnologyID:
 		res += "GravitonTechnology"
 	default:
-		res += "Invalid(" + strconv.Itoa(int(o)) + ")"
+		res += "Invalid(" + strconv.FormatInt(int64(o), 10) + ")"
 	}
 	return res
 }
@@ -232,5 +245,21 @@ func (o ID) IsShip() bool {
 		o == SolarSatelliteID ||
 		o == DestroyerID ||
 		o == DeathstarID ||
-		o == BattlecruiserID
+		o == BattlecruiserID ||
+		o == CrawlerID ||
+		o == ReaperID ||
+		o == PathfinderID
+}
+
+// IsCombatShip ...
+func (o ID) IsCombatShip() bool {
+	return o == LightFighterID ||
+		o == HeavyFighterID ||
+		o == CruiserID ||
+		o == BattleshipID ||
+		o == BomberID ||
+		o == DestroyerID ||
+		o == DeathstarID ||
+		o == BattlecruiserID ||
+		o == ReaperID
 }

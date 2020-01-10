@@ -2,21 +2,29 @@ package ogame
 
 import "strconv"
 
+// LazyResourcesBuildings ...
+type LazyResourcesBuildings func() ResourcesBuildings
+
 // ResourcesBuildings represent a planet resource buildings
 type ResourcesBuildings struct {
-	MetalMine            int
-	CrystalMine          int
-	DeuteriumSynthesizer int
-	SolarPlant           int
-	FusionReactor        int
-	SolarSatellite       int
-	MetalStorage         int
-	CrystalStorage       int
-	DeuteriumTank        int
+	MetalMine            int64
+	CrystalMine          int64
+	DeuteriumSynthesizer int64
+	SolarPlant           int64
+	FusionReactor        int64
+	SolarSatellite       int64
+	MetalStorage         int64
+	CrystalStorage       int64
+	DeuteriumTank        int64
+}
+
+// Lazy returns a function that return self
+func (r ResourcesBuildings) Lazy() LazyResourcesBuildings {
+	return func() ResourcesBuildings { return r }
 }
 
 // ByID gets the resource building level from a building id
-func (r ResourcesBuildings) ByID(id ID) int {
+func (r ResourcesBuildings) ByID(id ID) int64 {
 	if id == MetalMine.ID {
 		return r.MetalMine
 	} else if id == CrystalMine.ID {
@@ -41,13 +49,13 @@ func (r ResourcesBuildings) ByID(id ID) int {
 
 func (r ResourcesBuildings) String() string {
 	return "\n" +
-		"           Metal Mine: " + strconv.Itoa(r.MetalMine) + "\n" +
-		"         Crystal Mine: " + strconv.Itoa(r.CrystalMine) + "\n" +
-		"Deuterium Synthesizer: " + strconv.Itoa(r.DeuteriumSynthesizer) + "\n" +
-		"          Solar Plant: " + strconv.Itoa(r.SolarPlant) + "\n" +
-		"       Fusion Reactor: " + strconv.Itoa(r.FusionReactor) + "\n" +
-		"      Solar Satellite: " + strconv.Itoa(r.SolarSatellite) + "\n" +
-		"        Metal Storage: " + strconv.Itoa(r.MetalStorage) + "\n" +
-		"      Crystal Storage: " + strconv.Itoa(r.CrystalStorage) + "\n" +
-		"       Deuterium Tank: " + strconv.Itoa(r.DeuteriumTank)
+		"           Metal Mine: " + strconv.FormatInt(r.MetalMine, 10) + "\n" +
+		"         Crystal Mine: " + strconv.FormatInt(r.CrystalMine, 10) + "\n" +
+		"Deuterium Synthesizer: " + strconv.FormatInt(r.DeuteriumSynthesizer, 10) + "\n" +
+		"          Solar Plant: " + strconv.FormatInt(r.SolarPlant, 10) + "\n" +
+		"       Fusion Reactor: " + strconv.FormatInt(r.FusionReactor, 10) + "\n" +
+		"      Solar Satellite: " + strconv.FormatInt(r.SolarSatellite, 10) + "\n" +
+		"        Metal Storage: " + strconv.FormatInt(r.MetalStorage, 10) + "\n" +
+		"      Crystal Storage: " + strconv.FormatInt(r.CrystalStorage, 10) + "\n" +
+		"       Deuterium Tank: " + strconv.FormatInt(r.DeuteriumTank, 10)
 }

@@ -13,11 +13,11 @@ import (
 )
 
 // ParseInt ...
-func ParseInt(val string) int {
+func ParseInt(val string) int64 {
 	val = strings.Replace(val, ".", "", -1)
 	val = strings.Replace(val, ",", "", -1)
 	val = strings.TrimSpace(val)
-	res, _ := strconv.Atoi(val)
+	res, _ := strconv.ParseInt(val, 10, 64)
 	return res
 }
 
@@ -29,32 +29,32 @@ func toInt(buf []byte) (n int) {
 }
 
 // IsDefenseID helper returns if an integer is a defense id
-func IsDefenseID(id int) bool {
+func IsDefenseID(id int64) bool {
 	return ID(id).IsDefense()
 }
 
 // IsShipID helper returns if an integer is a ship id
-func IsShipID(id int) bool {
+func IsShipID(id int64) bool {
 	return ID(id).IsShip()
 }
 
 // IsTechID helper returns if an integer is a tech id
-func IsTechID(id int) bool {
+func IsTechID(id int64) bool {
 	return ID(id).IsTech()
 }
 
 // IsBuildingID helper returns if an integer is a building id
-func IsBuildingID(id int) bool {
+func IsBuildingID(id int64) bool {
 	return ID(id).IsBuilding()
 }
 
 // IsResourceBuildingID helper returns if an integer is a resource defense id
-func IsResourceBuildingID(id int) bool {
+func IsResourceBuildingID(id int64) bool {
 	return ID(id).IsResourceBuilding()
 }
 
 // IsFacilityID helper returns if an integer is a facility id
-func IsFacilityID(id int) bool {
+func IsFacilityID(id int64) bool {
 	return ID(id).IsFacility()
 }
 
@@ -62,16 +62,16 @@ func IsFacilityID(id int) bool {
 func ParseCoord(str string) (coord Coordinate, err error) {
 	m := regexp.MustCompile(`^\[?(([PMD]):)?(\d{1,3}):(\d{1,3}):(\d{1,3})]?$`).FindStringSubmatch(str)
 	if len(m) == 5 {
-		galaxy, _ := strconv.Atoi(m[2])
-		system, _ := strconv.Atoi(m[3])
-		position, _ := strconv.Atoi(m[4])
+		galaxy, _ := strconv.ParseInt(m[2], 10, 64)
+		system, _ := strconv.ParseInt(m[3], 10, 64)
+		position, _ := strconv.ParseInt(m[4], 10, 64)
 		planetType := PlanetType
 		return Coordinate{galaxy, system, position, planetType}, nil
 	} else if len(m) == 6 {
 		planetTypeStr := m[2]
-		galaxy, _ := strconv.Atoi(m[3])
-		system, _ := strconv.Atoi(m[4])
-		position, _ := strconv.Atoi(m[5])
+		galaxy, _ := strconv.ParseInt(m[3], 10, 64)
+		system, _ := strconv.ParseInt(m[4], 10, 64)
+		position, _ := strconv.ParseInt(m[5], 10, 64)
 		planetType := PlanetType
 		if planetTypeStr == "M" {
 			planetType = MoonType
@@ -86,7 +86,7 @@ func ParseCoord(str string) (coord Coordinate, err error) {
 func name2id(name string) ID {
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	name, _, _ = transform.String(t, name)
-	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シ]+")
+	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シα-ωΑ-Ω]+")
 	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
 	nameMap := map[string]ID{
 		// en
@@ -104,6 +104,79 @@ func name2id(name string) ID {
 		"recycler":       RecyclerID,
 		"espionageprobe": EspionageProbeID,
 		"solarsatellite": SolarSatelliteID,
+		"crawler":        CrawlerID,
+		"reaper":         ReaperID,
+		"pathfinder":     PathfinderID,
+
+		// ro
+		"vanatorusor":      LightFighterID,
+		"vanatorgreu":      HeavyFighterID,
+		"crucisator":       CruiserID,
+		"navaderazboi":     BattleshipID,
+		"distrugator":      DestroyerID,
+		"rip":              DeathstarID,
+		"transportormic":   SmallCargoID,
+		"transportormare":  LargeCargoID,
+		"navadecolonizare": ColonyShipID,
+		"reciclator":       RecyclerID,
+		"probadespionaj":   EspionageProbeID,
+		"satelitsolar":     SolarSatelliteID,
+
+		// sk
+		"lahkystihac":    LightFighterID,
+		"tazkystihac":    HeavyFighterID,
+		"bojovalod":      BattleshipID,
+		"bojovykriznik":  BattlecruiserID,
+		"devastator":     DestroyerID,
+		"hviezdasmrti":   DeathstarID,
+		"kolonizacnalod": ColonyShipID,
+		"spionaznasonda": EspionageProbeID,
+		"solarnysatelit": SolarSatelliteID,
+		"vrtak":          CrawlerID,
+		"kosa":           ReaperID,
+		"prieskumnik":    PathfinderID,
+
+		// gr
+		"ελαφρυμαχητικο":         LightFighterID,
+		"βαρυμαχητικο":           HeavyFighterID,
+		"καταδιωκτικο":           CruiserID,
+		"καταδρομικο":            BattleshipID,
+		"θωρηκτοαναχαιτισης":     BattlecruiserID,
+		"βομβαρδιστικο":          BomberID,
+		"μικρομεταγωγικο":        SmallCargoID,
+		"μεγαλομεταγωγικο":       LargeCargoID,
+		"σκαφοςαποικιοποιησης":   ColonyShipID,
+		"ανακυκλωτης":            RecyclerID,
+		"κατασκοπευτικοστελεχος": EspionageProbeID,
+		"ηλιακοισυλλεκτες":       SolarSatelliteID,
+
+		// no
+		"lettjeger":      LightFighterID,
+		"tungjeger":      HeavyFighterID,
+		"krysser":        CruiserID,
+		"slagskip":       BattleshipID,
+		"slagkrysser":    BattlecruiserID,
+		"litelasteskip":  SmallCargoID,
+		"stortlasteskip": LargeCargoID,
+		"koloniskip":     ColonyShipID,
+		"resirkulerer":   RecyclerID,
+		"spionasjesonde": EspionageProbeID,
+		"solarsatelitt":  SolarSatelliteID,
+
+		// tw
+		"輕型戰鬥機": LightFighterID,
+		"重型戰鬥機": HeavyFighterID,
+		"戰列艦":   BattleshipID,
+		"戰鬥巡洋艦": BattlecruiserID,
+		"導彈艦":   BomberID,
+		"毀滅者":   DestroyerID,
+		"死星":    DeathstarID,
+		"小型運輸艦": SmallCargoID,
+		"大型運輸艦": LargeCargoID,
+		"殖民船":   ColonyShipID,
+		"回收船":   RecyclerID,
+		"間諜衛星":  EspionageProbeID,
+		"太陽能衛星": SolarSatelliteID,
 
 		// hr
 		"malilovac":         LightFighterID,
@@ -118,9 +191,15 @@ func name2id(name string) ID {
 		"kolonijalnibrod":   ColonyShipID,
 		"recikler":          RecyclerID,
 		"sondezaspijunazu":  EspionageProbeID,
+		"puzavac":           CrawlerID,
+		"zetelac":           ReaperID,
+		"krcilac":           PathfinderID,
 
 		// mx
 		"navedelacolonia": ColonyShipID,
+		"taladrador":      CrawlerID,
+		"segador":         ReaperID,
+		"explorador":      PathfinderID,
 
 		// cz
 		"lehkystihac":      LightFighterID,
@@ -137,6 +216,8 @@ func name2id(name string) ID {
 		"recyklator":       RecyclerID,
 		"spionaznisonda":   EspionageProbeID,
 		"solarnisatelit":   SolarSatelliteID,
+		"rozparovac":       ReaperID,
+		"pruzkumnik":       PathfinderID,
 
 		// it
 		"caccialeggero":           LightFighterID,
@@ -169,6 +250,10 @@ func name2id(name string) ID {
 		"solarsatellit":      SolarSatelliteID,
 		// "bomber":             BomberID,
 		// "recycler":           RecyclerID,
+
+		// dk
+		"kravler":   CrawlerID,
+		"stifinder": PathfinderID,
 
 		// es
 		"cazadorligero":      LightFighterID,
@@ -233,6 +318,9 @@ func name2id(name string) ID {
 		"残骸回収船":     RecyclerID,
 		"偵察機":       EspionageProbeID,
 		"ソーラーサテライト": SolarSatelliteID,
+		"ローラー":      CrawlerID,
+		"ーー":        ReaperID,
+		"スイター":      PathfinderID,
 
 		// pl
 		"lekkimysliwiec":      LightFighterID,
@@ -249,6 +337,9 @@ func name2id(name string) ID {
 		"recykler":            RecyclerID,
 		"sondaszpiegowska":    EspionageProbeID,
 		"satelitasoneczny":    SolarSatelliteID,
+		"pezacz":              CrawlerID,
+		"rozpruwacz":          ReaperID,
+		"pionier":             PathfinderID,
 
 		// tr
 		"hafifavc":           LightFighterID,
@@ -265,10 +356,16 @@ func name2id(name string) ID {
 		"geridonusumcu":      RecyclerID,
 		"casussondasi":       EspionageProbeID,
 		"solaruydu":          SolarSatelliteID,
+		"paletli":            CrawlerID,
+		"azrail":             ReaperID,
+		"rehber":             PathfinderID,
 
 		// pt
 		"interceptor":       BattlecruiserID,
 		"navedecolonizacao": ColonyShipID,
+		"rastejador":        CrawlerID,
+		"ceifeira":          ReaperID,
+		"exploradora":       PathfinderID,
 
 		// nl
 		"lichtgevechtsschip": LightFighterID,
@@ -285,6 +382,9 @@ func name2id(name string) ID {
 		//"recycler":      RecyclerID,
 		//"spionagesonde":       EspionageProbeID,
 		"zonneenergiesatelliet": SolarSatelliteID,
+		"kruiper":               CrawlerID,
+		"hein":                  ReaperID,
+		"padvinder":             PathfinderID,
 
 		//dk
 		"lillejger": LightFighterID,
@@ -317,6 +417,31 @@ func name2id(name string) ID {
 		"переработчик":       RecyclerID,
 		"шпионскиизонд":      EspionageProbeID,
 		"солнечныиспутник":   SolarSatelliteID,
+		"гусеничник":         CrawlerID,
+		"жнец":               ReaperID,
+		"первопроходец":      PathfinderID,
 	}
 	return nameMap[processedString]
+}
+
+// MinInt returns the minimum int64 value
+func MinInt(vals ...int64) int64 {
+	min := vals[0]
+	for _, num := range vals {
+		if num < min {
+			min = num
+		}
+	}
+	return min
+}
+
+// MaxInt returns the minimum int64 value
+func MaxInt(vals ...int64) int64 {
+	max := vals[0]
+	for _, num := range vals {
+		if num > max {
+			max = num
+		}
+	}
+	return max
 }

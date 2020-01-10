@@ -18,10 +18,10 @@ func TestCrystalStorageCost(t *testing.T) {
 
 func TestCrystalStorageCapacity(t *testing.T) {
 	cs := newCrystalStorage()
-	assert.Equal(t, 10000, cs.Capacity(0))
-	assert.Equal(t, 20000, cs.Capacity(1))
-	assert.Equal(t, 40000, cs.Capacity(2))
-	assert.Equal(t, 75000, cs.Capacity(3))
-	assert.Equal(t, 140000, cs.Capacity(4))
-	assert.Equal(t, 255000, cs.Capacity(5))
+	assert.Equal(t, int64(10000), cs.Capacity(0))
+	assert.Equal(t, int64(20000), cs.Capacity(1))
+	assert.Equal(t, int64(40000), cs.Capacity(2))
+	assert.Equal(t, int64(75000), cs.Capacity(3))
+	assert.Equal(t, int64(140000), cs.Capacity(4))
+	assert.Equal(t, int64(255000), cs.Capacity(5))
 }

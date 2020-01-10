@@ -12,6 +12,6 @@ func newSmallShieldDome() *smallShieldDome {
 	d.StructuralIntegrity = 20000
 	d.ShieldPower = 2000
 	d.WeaponPower = 1
-	d.Requirements = map[ID]int{ShipyardID: 1, ShieldingTechnologyID: 2}
+	d.Requirements = map[ID]int64{ShipyardID: 1, ShieldingTechnologyID: 2}
 	return d
 }

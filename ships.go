@@ -1,42 +1,105 @@
 package ogame
 
-import "strconv"
+import (
+	"math"
+	"strconv"
+)
 
 // ShipsInfos represent a planet ships information
 type ShipsInfos struct {
-	LightFighter   int
-	HeavyFighter   int
-	Cruiser        int
-	Battleship     int
-	Battlecruiser  int
-	Bomber         int
-	Destroyer      int
-	Deathstar      int
-	SmallCargo     int
-	LargeCargo     int
-	ColonyShip     int
-	Recycler       int
-	EspionageProbe int
-	SolarSatellite int
+	LightFighter   int64
+	HeavyFighter   int64
+	Cruiser        int64
+	Battleship     int64
+	Battlecruiser  int64
+	Bomber         int64
+	Destroyer      int64
+	Deathstar      int64
+	SmallCargo     int64
+	LargeCargo     int64
+	ColonyShip     int64
+	Recycler       int64
+	EspionageProbe int64
+	SolarSatellite int64
+	Crawler        int64
+	Reaper         int64
+	Pathfinder     int64
+}
+
+// ToPtr returns a pointer to self
+func (s ShipsInfos) ToPtr() *ShipsInfos {
+	return &s
+}
+
+// Equal either or not two ShipsInfos are equal
+func (s ShipsInfos) Equal(other ShipsInfos) bool {
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		if s.ByID(shipID) != other.ByID(shipID) {
+			return false
+		}
+	}
+	return true
+}
+
+// HasShips returns either or not at least one ship is present
+func (s ShipsInfos) HasShips() bool {
+	for _, ship := range Ships {
+		if s.ByID(ship.GetID()) > 0 {
+			return true
+		}
+	}
+	return false
+}
+
+// Speed returns the speed of the slowest ship
+func (s ShipsInfos) Speed(techs Researches, isCollector, isGeneral bool) int64 {
+	var minSpeed int64 = math.MaxInt64
+	for _, ship := range Ships {
+		if ship.GetID() == SolarSatelliteID {
+			continue
+		}
+		nbr := s.ByID(ship.GetID())
+		if nbr > 0 {
+			shipSpeed := ship.GetSpeed(techs, isCollector, isGeneral)
+			if shipSpeed < minSpeed {
+				minSpeed = shipSpeed
+			}
+		}
+	}
+	return minSpeed
+}
+
+// ToQuantifiables convert a ShipsInfos to an array of Quantifiable
+func (s ShipsInfos) ToQuantifiables() []Quantifiable {
+	out := make([]Quantifiable, 0)
+	for _, ship := range Ships {
+		if ship.GetID() == SolarSatelliteID || ship.GetID() == CrawlerID {
+			continue
+		}
+		shipID := ship.GetID()
+		nbr := s.ByID(shipID)
+		if nbr > 0 {
+			out = append(out, Quantifiable{ID: shipID, Nbr: nbr})
+		}
+	}
+	return out
+}
+
+// FromQuantifiables convert an array of Quantifiable to a ShipsInfos
+func (s ShipsInfos) FromQuantifiables(in []Quantifiable) (out ShipsInfos) {
+	for _, item := range in {
+		out.Set(item.ID, item.Nbr)
+	}
+	return
 }
 
 // Cargo returns the total cargo of the ships
-func (s ShipsInfos) Cargo(techs Researches) int {
-	res := LightFighter.GetCargoCapacity(techs) * s.LightFighter
-	res += HeavyFighter.GetCargoCapacity(techs) * s.HeavyFighter
-	res += Cruiser.GetCargoCapacity(techs) * s.Cruiser
-	res += Battleship.GetCargoCapacity(techs) * s.Battleship
-	res += Battlecruiser.GetCargoCapacity(techs) * s.Battlecruiser
-	res += Bomber.GetCargoCapacity(techs) * s.Bomber
-	res += Destroyer.GetCargoCapacity(techs) * s.Destroyer
-	res += Deathstar.GetCargoCapacity(techs) * s.Deathstar
-	res += SmallCargo.GetCargoCapacity(techs) * s.SmallCargo
-	res += LargeCargo.GetCargoCapacity(techs) * s.LargeCargo
-	res += ColonyShip.GetCargoCapacity(techs) * s.ColonyShip
-	res += Recycler.GetCargoCapacity(techs) * s.Recycler
-	res += EspionageProbe.GetCargoCapacity(techs) * s.EspionageProbe
-	res += SolarSatellite.GetCargoCapacity(techs) * s.SolarSatellite
-	return res
+func (s ShipsInfos) Cargo(techs Researches, probeRaids, isCollector bool) (out int64) {
+	for _, ship := range Ships {
+		out += ship.GetCargoCapacity(techs, probeRaids, isCollector) * s.ByID(ship.GetID())
+	}
+	return
 }
 
 // Has returns true if v is contained by s
@@ -52,63 +115,31 @@ func (s ShipsInfos) Has(v ShipsInfos) bool {
 }
 
 // FleetValue returns the value of the fleet
-func (s ShipsInfos) FleetValue() int {
-	val := s.LightFighter * LightFighter.Price.Total()
-	val += s.HeavyFighter * HeavyFighter.Price.Total()
-	val += s.Cruiser * Cruiser.Price.Total()
-	val += s.Battleship * Battleship.Price.Total()
-	val += s.Battlecruiser * Battlecruiser.Price.Total()
-	val += s.Bomber * Bomber.Price.Total()
-	val += s.Destroyer * Destroyer.Price.Total()
-	val += s.Deathstar * Deathstar.Price.Total()
-	val += s.SmallCargo * SmallCargo.Price.Total()
-	val += s.LargeCargo * LargeCargo.Price.Total()
-	val += s.ColonyShip * ColonyShip.Price.Total()
-	val += s.Recycler * Recycler.Price.Total()
-	val += s.EspionageProbe * EspionageProbe.Price.Total()
-	val += s.SolarSatellite * SolarSatellite.Price.Total()
-	return val
+func (s ShipsInfos) FleetValue() (out int64) {
+	for _, ship := range Ships {
+		out += ship.GetPrice(s.ByID(ship.GetID())).Total()
+	}
+	return
 }
 
 // FleetCost returns the cost of the fleet
-func (s ShipsInfos) FleetCost() Resources {
-	val := LightFighter.Price.Mul(s.LightFighter)
-	val = val.Add(HeavyFighter.Price.Mul(s.HeavyFighter))
-	val = val.Add(Cruiser.Price.Mul(s.Cruiser))
-	val = val.Add(Battleship.Price.Mul(s.Battleship))
-	val = val.Add(Battlecruiser.Price.Mul(s.Battlecruiser))
-	val = val.Add(Bomber.Price.Mul(s.Bomber))
-	val = val.Add(Destroyer.Price.Mul(s.Destroyer))
-	val = val.Add(Deathstar.Price.Mul(s.Deathstar))
-	val = val.Add(SmallCargo.Price.Mul(s.SmallCargo))
-	val = val.Add(LargeCargo.Price.Mul(s.LargeCargo))
-	val = val.Add(ColonyShip.Price.Mul(s.ColonyShip))
-	val = val.Add(Recycler.Price.Mul(s.Recycler))
-	val = val.Add(EspionageProbe.Price.Mul(s.EspionageProbe))
-	val = val.Add(SolarSatellite.Price.Mul(s.SolarSatellite))
-	return val
+func (s ShipsInfos) FleetCost() (out Resources) {
+	for _, ship := range Ships {
+		out = out.Add(ship.GetPrice(s.ByID(ship.GetID())))
+	}
+	return
 }
 
 // Add adds two ShipsInfos together
 func (s *ShipsInfos) Add(v ShipsInfos) {
-	s.LightFighter += v.LightFighter
-	s.HeavyFighter += v.HeavyFighter
-	s.Cruiser += v.Cruiser
-	s.Battleship += v.Battleship
-	s.Battlecruiser += v.Battlecruiser
-	s.Bomber += v.Bomber
-	s.Destroyer += v.Destroyer
-	s.Deathstar += v.Deathstar
-	s.SmallCargo += v.SmallCargo
-	s.LargeCargo += v.LargeCargo
-	s.ColonyShip += v.ColonyShip
-	s.Recycler += v.Recycler
-	s.EspionageProbe += v.EspionageProbe
-	s.SolarSatellite += v.SolarSatellite
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		s.Set(shipID, s.ByID(shipID)+v.ByID(shipID))
+	}
 }
 
 // ByID get number of ships by ship id
-func (s ShipsInfos) ByID(id ID) int {
+func (s ShipsInfos) ByID(id ID) int64 {
 	switch id {
 	case LightFighterID:
 		return s.LightFighter
@@ -138,13 +169,19 @@ func (s ShipsInfos) ByID(id ID) int {
 		return s.EspionageProbe
 	case SolarSatelliteID:
 		return s.SolarSatellite
+	case CrawlerID:
+		return s.Crawler
+	case ReaperID:
+		return s.Reaper
+	case PathfinderID:
+		return s.Pathfinder
 	default:
 		return 0
 	}
 }
 
 // Set sets the ships value using the ship id
-func (s *ShipsInfos) Set(id ID, val int) {
+func (s *ShipsInfos) Set(id ID, val int64) {
 	switch id {
 	case LightFighterID:
 		s.LightFighter = val
@@ -174,23 +211,32 @@ func (s *ShipsInfos) Set(id ID, val int) {
 		s.EspionageProbe = val
 	case SolarSatelliteID:
 		s.SolarSatellite = val
+	case CrawlerID:
+		s.Crawler = val
+	case ReaperID:
+		s.Reaper = val
+	case PathfinderID:
+		s.Pathfinder = val
 	}
 }
 
 func (s ShipsInfos) String() string {
 	return "\n" +
-		"  Light Fighter: " + strconv.Itoa(s.LightFighter) + "\n" +
-		"  Heavy Fighter: " + strconv.Itoa(s.HeavyFighter) + "\n" +
-		"        Cruiser: " + strconv.Itoa(s.Cruiser) + "\n" +
-		"     Battleship: " + strconv.Itoa(s.Battleship) + "\n" +
-		"  Battlecruiser: " + strconv.Itoa(s.Battlecruiser) + "\n" +
-		"         Bomber: " + strconv.Itoa(s.Bomber) + "\n" +
-		"      Destroyer: " + strconv.Itoa(s.Destroyer) + "\n" +
-		"      Deathstar: " + strconv.Itoa(s.Deathstar) + "\n" +
-		"    Small Cargo: " + strconv.Itoa(s.SmallCargo) + "\n" +
-		"    Large Cargo: " + strconv.Itoa(s.LargeCargo) + "\n" +
-		"    Colony Ship: " + strconv.Itoa(s.ColonyShip) + "\n" +
-		"       Recycler: " + strconv.Itoa(s.Recycler) + "\n" +
-		"Espionage Probe: " + strconv.Itoa(s.EspionageProbe) + "\n" +
-		"Solar Satellite: " + strconv.Itoa(s.SolarSatellite)
+		"  Light Fighter: " + strconv.FormatInt(s.LightFighter, 10) + "\n" +
+		"  Heavy Fighter: " + strconv.FormatInt(s.HeavyFighter, 10) + "\n" +
+		"        Cruiser: " + strconv.FormatInt(s.Cruiser, 10) + "\n" +
+		"     Battleship: " + strconv.FormatInt(s.Battleship, 10) + "\n" +
+		"  Battlecruiser: " + strconv.FormatInt(s.Battlecruiser, 10) + "\n" +
+		"         Bomber: " + strconv.FormatInt(s.Bomber, 10) + "\n" +
+		"      Destroyer: " + strconv.FormatInt(s.Destroyer, 10) + "\n" +
+		"      Deathstar: " + strconv.FormatInt(s.Deathstar, 10) + "\n" +
+		"    Small Cargo: " + strconv.FormatInt(s.SmallCargo, 10) + "\n" +
+		"    Large Cargo: " + strconv.FormatInt(s.LargeCargo, 10) + "\n" +
+		"    Colony Ship: " + strconv.FormatInt(s.ColonyShip, 10) + "\n" +
+		"       Recycler: " + strconv.FormatInt(s.Recycler, 10) + "\n" +
+		"Espionage Probe: " + strconv.FormatInt(s.EspionageProbe, 10) + "\n" +
+		"Solar Satellite: " + strconv.FormatInt(s.SolarSatellite, 10) + "\n" +
+		"        Crawler: " + strconv.FormatInt(s.Crawler, 10) + "\n" +
+		"         Reaper: " + strconv.FormatInt(s.Reaper, 10) + "\n" +
+		"     Pathfinder: " + strconv.FormatInt(s.Pathfinder, 10)
 }

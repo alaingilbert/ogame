@@ -10,6 +10,6 @@ func newArmourTechnology() *armourTechnology {
 	b.ID = ArmourTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Metal: 1000}
-	b.Requirements = map[ID]int{ResearchLabID: 2}
+	b.Requirements = map[ID]int64{ResearchLabID: 2}
 	return b
 }

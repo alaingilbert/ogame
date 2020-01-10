@@ -2,28 +2,36 @@ package ogame
 
 import "strconv"
 
+// LazyResearches ...
+type LazyResearches func() Researches
+
 // Researches represent player's researches
 type Researches struct {
-	EnergyTechnology             int
-	LaserTechnology              int
-	IonTechnology                int
-	HyperspaceTechnology         int
-	PlasmaTechnology             int
-	CombustionDrive              int
-	ImpulseDrive                 int
-	HyperspaceDrive              int
-	EspionageTechnology          int
-	ComputerTechnology           int
-	Astrophysics                 int
-	IntergalacticResearchNetwork int
-	GravitonTechnology           int
-	WeaponsTechnology            int
-	ShieldingTechnology          int
-	ArmourTechnology             int
+	EnergyTechnology             int64
+	LaserTechnology              int64
+	IonTechnology                int64
+	HyperspaceTechnology         int64
+	PlasmaTechnology             int64
+	CombustionDrive              int64
+	ImpulseDrive                 int64
+	HyperspaceDrive              int64
+	EspionageTechnology          int64
+	ComputerTechnology           int64
+	Astrophysics                 int64
+	IntergalacticResearchNetwork int64
+	GravitonTechnology           int64
+	WeaponsTechnology            int64
+	ShieldingTechnology          int64
+	ArmourTechnology             int64
+}
+
+// Lazy returns a function that return self
+func (s Researches) Lazy() LazyResearches {
+	return func() Researches { return s }
 }
 
 // ByID gets the player research level by research id
-func (s Researches) ByID(id ID) int {
+func (s Researches) ByID(id ID) int64 {
 	if id == EnergyTechnology.ID {
 		return s.EnergyTechnology
 	} else if id == LaserTechnology.ID {
@@ -62,20 +70,20 @@ func (s Researches) ByID(id ID) int {
 
 func (s Researches) String() string {
 	return "\n" +
-		"             Energy Technology: " + strconv.Itoa(s.EnergyTechnology) + "\n" +
-		"              Laser Technology: " + strconv.Itoa(s.LaserTechnology) + "\n" +
-		"                Ion Technology: " + strconv.Itoa(s.IonTechnology) + "\n" +
-		"         Hyperspace Technology: " + strconv.Itoa(s.HyperspaceTechnology) + "\n" +
-		"             Plasma Technology: " + strconv.Itoa(s.PlasmaTechnology) + "\n" +
-		"              Combustion Drive: " + strconv.Itoa(s.CombustionDrive) + "\n" +
-		"                 Impulse Drive: " + strconv.Itoa(s.ImpulseDrive) + "\n" +
-		"              Hyperspace Drive: " + strconv.Itoa(s.HyperspaceDrive) + "\n" +
-		"          Espionage Technology: " + strconv.Itoa(s.EspionageTechnology) + "\n" +
-		"           Computer Technology: " + strconv.Itoa(s.ComputerTechnology) + "\n" +
-		"                  Astrophysics: " + strconv.Itoa(s.Astrophysics) + "\n" +
-		"Intergalactic Research Network: " + strconv.Itoa(s.IntergalacticResearchNetwork) + "\n" +
-		"           Graviton Technology: " + strconv.Itoa(s.GravitonTechnology) + "\n" +
-		"            Weapons Technology: " + strconv.Itoa(s.WeaponsTechnology) + "\n" +
-		"          Shielding Technology: " + strconv.Itoa(s.ShieldingTechnology) + "\n" +
-		"             Armour Technology: " + strconv.Itoa(s.ArmourTechnology)
+		"             Energy Technology: " + strconv.FormatInt(s.EnergyTechnology, 10) + "\n" +
+		"              Laser Technology: " + strconv.FormatInt(s.LaserTechnology, 10) + "\n" +
+		"                Ion Technology: " + strconv.FormatInt(s.IonTechnology, 10) + "\n" +
+		"         Hyperspace Technology: " + strconv.FormatInt(s.HyperspaceTechnology, 10) + "\n" +
+		"             Plasma Technology: " + strconv.FormatInt(s.PlasmaTechnology, 10) + "\n" +
+		"              Combustion Drive: " + strconv.FormatInt(s.CombustionDrive, 10) + "\n" +
+		"                 Impulse Drive: " + strconv.FormatInt(s.ImpulseDrive, 10) + "\n" +
+		"              Hyperspace Drive: " + strconv.FormatInt(s.HyperspaceDrive, 10) + "\n" +
+		"          Espionage Technology: " + strconv.FormatInt(s.EspionageTechnology, 10) + "\n" +
+		"           Computer Technology: " + strconv.FormatInt(s.ComputerTechnology, 10) + "\n" +
+		"                  Astrophysics: " + strconv.FormatInt(s.Astrophysics, 10) + "\n" +
+		"Intergalactic Research Network: " + strconv.FormatInt(s.IntergalacticResearchNetwork, 10) + "\n" +
+		"           Graviton Technology: " + strconv.FormatInt(s.GravitonTechnology, 10) + "\n" +
+		"            Weapons Technology: " + strconv.FormatInt(s.WeaponsTechnology, 10) + "\n" +
+		"          Shielding Technology: " + strconv.FormatInt(s.ShieldingTechnology, 10) + "\n" +
+		"             Armour Technology: " + strconv.FormatInt(s.ArmourTechnology, 10)
 }

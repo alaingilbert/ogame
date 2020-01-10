@@ -10,6 +10,6 @@ func newEnergyTechnology() *energyTechnology {
 	b.ID = EnergyTechnologyID
 	b.IncreaseFactor = 2.0
 	b.BaseCost = Resources{Crystal: 800, Deuterium: 400}
-	b.Requirements = map[ID]int{ResearchLabID: 1}
+	b.Requirements = map[ID]int64{ResearchLabID: 1}
 	return b
 }

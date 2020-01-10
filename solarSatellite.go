@@ -14,18 +14,18 @@ func newSolarSatellite() *solarSatellite {
 	s.BaseCargoCapacity = 0
 	s.BaseSpeed = 0
 	s.FuelConsumption = 0
-	s.RapidfireFrom = map[ID]int{DeathstarID: 1250}
+	s.RapidfireFrom = map[ID]int64{DeathstarID: 1250}
 	s.Price = Resources{Crystal: 2000, Deuterium: 500}
-	s.Requirements = map[ID]int{ShipyardID: 1}
+	s.Requirements = map[ID]int64{ShipyardID: 1}
 	return s
 }
 
 // Production gets the energy production of nbr solar satellite
-func (s *solarSatellite) Production(temp Temperature, nbr int) int {
-	return int(float64(temp.Mean()+160)/6) * nbr
+func (s *solarSatellite) Production(temp Temperature, nbr int64) int64 {
+	return int64(float64(temp.Mean()+160)/6) * nbr
 }
 
 // GetLevel only useful so the solar satellite can implement Building interface
-func (s *solarSatellite) GetLevel(ResourcesBuildings, Facilities, Researches) int {
+func (s *solarSatellite) GetLevel(LazyResourcesBuildings, LazyFacilities, LazyResearches) int64 {
 	return 0
 }

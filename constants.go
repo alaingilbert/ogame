@@ -30,16 +30,22 @@ func (m MissionID) String() string {
 	case Expedition:
 		return "Expedition"
 	default:
-		return strconv.Itoa(int(m))
+		return strconv.FormatInt(int64(m), 10)
 	}
 }
 
 // Speed represent a fleet speed
 type Speed int
 
+// Int64 returns an integer value of the speed
+func (s Speed) Int64() int64 {
+	return int64(s)
+}
+
 // Int returns an integer value of the speed
-func (s Speed) Int() int {
-	return int(s)
+// Deprecated: backward compatibility
+func (s Speed) Int() int64 {
+	return int64(s)
 }
 
 func (s Speed) String() string {
@@ -65,12 +71,12 @@ func (s Speed) String() string {
 	case HundredPercent:
 		return "100%"
 	default:
-		return strconv.Itoa(int(s))
+		return strconv.FormatInt(int64(s), 10)
 	}
 }
 
 // CelestialType destination type might be planet/moon/debris
-type CelestialType int
+type CelestialType int64
 
 func (d CelestialType) String() string {
 	switch d {
@@ -81,12 +87,31 @@ func (d CelestialType) String() string {
 	case DebrisType:
 		return "debris"
 	default:
-		return strconv.Itoa(int(d))
+		return strconv.FormatInt(int64(d), 10)
 	}
 }
 
+// Int64 returns an integer value of the CelestialType
+func (d CelestialType) Int64() int64 {
+	return int64(d)
+}
+
+// Int returns an integer value of the CelestialType
+// Deprecated: backward compatibility
+func (d CelestialType) Int() int64 {
+	return int64(d)
+}
+
+// CharacterClass ...
+type CharacterClass int64
+
 // OGame constants
 const (
+	NoClass    CharacterClass = 0
+	Collector  CharacterClass = 1
+	General    CharacterClass = 2
+	Discoverer CharacterClass = 3
+
 	PlanetType CelestialType = 1
 	DebrisType CelestialType = 2
 	MoonType   CelestialType = 3
@@ -138,6 +163,9 @@ const (
 	DestroyerID                    ID = 213
 	DeathstarID                    ID = 214
 	BattlecruiserID                ID = 215
+	CrawlerID                      ID = 217
+	ReaperID                       ID = 218
+	PathfinderID                   ID = 219
 	EspionageTechnologyID          ID = 106 // Research
 	ComputerTechnologyID           ID = 108
 	WeaponsTechnologyID            ID = 109

@@ -32,3 +32,10 @@ func TestDefence_String(t *testing.T) {
 		"Interplanetary Missiles: 10"
 	assert.Equal(t, expected, r.String())
 }
+
+func TestDefence_AttackableValue(t *testing.T) {
+	r := DefensesInfos{RocketLauncher: 2}
+	assert.Equal(t, int64(4000), r.AttackableValue())
+	r = DefensesInfos{RocketLauncher: 2, LightLaser: 4}
+	assert.Equal(t, int64(12000), r.AttackableValue())
+}

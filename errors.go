@@ -8,6 +8,12 @@ var ErrNotLogged = errors.New("not logged")
 // ErrBadCredentials returned when the provided credentials are invalid
 var ErrBadCredentials = errors.New("bad credentials")
 
+// ErrNotLogged returned when the account is not found
+var ErrAccountNotFound = errors.New("account not found")
+
+// ErrAccountBlocked returned when account is banned
+var ErrAccountBlocked = errors.New("account is blocked")
+
 // ErrInvalidPlanetID returned when a planet id is invalid
 var ErrInvalidPlanetID = errors.New("invalid planet id")
 
@@ -20,11 +26,19 @@ var ErrBotInactive = errors.New("bot is not active")
 // ErrBotLoggedOut returned when the bot is logged out (manually logged out)
 var ErrBotLoggedOut = errors.New("bot is logged out")
 
+// ErrFailedExecuteCallback returned when "withRetry" failed to execute callback
+var ErrFailedExecuteCallback = errors.New("failed to execute callback")
+
 // ErrDeactivateHidePictures returned when "Hide pictures in reports" is activated
 var ErrDeactivateHidePictures = errors.New("deactivate 'Hide pictures in reports'")
 
+// ErrEventsBoxNotDisplayed returned when trying to get attacks from a full page without event box
+var ErrEventsBoxNotDisplayed = errors.New("eventList box is not displayed")
+
 // Send fleet errors
 var (
+	ErrUnionNotFound                      = errors.New("union not found")
+	ErrAccountInVacationMode              = errors.New("account in vacation mode")
 	ErrNoShipSelected                     = errors.New("no ships to send")
 	ErrNotEnoughShips                     = errors.New("not enough ships to send")
 	ErrUninhabitedPlanet                  = errors.New("uninhabited planet")

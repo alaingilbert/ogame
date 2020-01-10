@@ -13,11 +13,11 @@ func newBomber() *bomber {
 	b.WeaponPower = 1000
 	b.BaseCargoCapacity = 500
 	b.BaseSpeed = 4000
-	b.FuelConsumption = 1000
-	b.RapidfireFrom = map[ID]int{DeathstarID: 25}
-	b.RapidfireAgainst = map[ID]int{EspionageProbeID: 5, SolarSatelliteID: 5,
+	b.FuelConsumption = 700
+	b.RapidfireFrom = map[ID]int64{DeathstarID: 25}
+	b.RapidfireAgainst = map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5,
 		RocketLauncherID: 20, LightLaserID: 20, HeavyLaserID: 10, IonCannonID: 10}
 	b.Price = Resources{Metal: 50000, Crystal: 25000, Deuterium: 15000}
-	b.Requirements = map[ID]int{ImpulseDriveID: 6, ShipyardID: 8, PlasmaTechnologyID: 5}
+	b.Requirements = map[ID]int64{ImpulseDriveID: 6, ShipyardID: 8, PlasmaTechnologyID: 5}
 	return b
 }

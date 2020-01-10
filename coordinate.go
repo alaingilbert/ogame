@@ -7,9 +7,9 @@ import (
 
 // Coordinate represent an ogame coordinate
 type Coordinate struct {
-	Galaxy   int
-	System   int
-	Position int
+	Galaxy   int64
+	System   int64
+	Position int64
 	Type     CelestialType
 }
 
@@ -38,4 +38,19 @@ func (c Coordinate) IsMoon() bool {
 // IsDebris return true if coordinate is a debris field
 func (c Coordinate) IsDebris() bool {
 	return c.Type == DebrisType
+}
+
+// Planet return a new coordinate with planet type
+func (c Coordinate) Planet() Coordinate {
+	return Coordinate{Galaxy: c.Galaxy, System: c.System, Position: c.Position, Type: PlanetType}
+}
+
+// Moon return a new coordinate with moon type
+func (c Coordinate) Moon() Coordinate {
+	return Coordinate{Galaxy: c.Galaxy, System: c.System, Position: c.Position, Type: MoonType}
+}
+
+// Debris return a new coordinate with debris type
+func (c Coordinate) Debris() Coordinate {
+	return Coordinate{Galaxy: c.Galaxy, System: c.System, Position: c.Position, Type: DebrisType}
 }

@@ -4,7 +4,7 @@ package ogame
 type Base struct {
 	ID           ID
 	Name         string
-	Requirements map[ID]int
+	Requirements map[ID]int64
 }
 
 // GetID returns the ogame id of the object
@@ -18,12 +18,13 @@ func (b Base) GetName() string {
 }
 
 // GetRequirements returns the requirements to have this object available
-func (b Base) GetRequirements() map[ID]int {
+func (b Base) GetRequirements() map[ID]int64 {
 	return b.Requirements
 }
 
 // IsAvailable returns either or not the object is available to us
-func (b Base) IsAvailable(t CelestialType, resourcesBuildings ResourcesBuildings, facilities Facilities, researches Researches, energy int) bool {
+func (b Base) IsAvailable(t CelestialType, lazyResourcesBuildings LazyResourcesBuildings,
+	lazyFacilities LazyFacilities, lazyResearches LazyResearches, energy int64) bool {
 	if t != PlanetType && t != MoonType {
 		return false
 	}
@@ -56,7 +57,7 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings ResourcesBuildings
 	}
 	type requirement struct {
 		ID  ID
-		Lvl int
+		Lvl int64
 	}
 	q := make([]requirement, 0)
 	for id, levelNeeded := range b.Requirements {
@@ -74,15 +75,15 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings ResourcesBuildings
 		id := req.ID
 		levelNeeded := req.Lvl
 		if id.IsResourceBuilding() {
-			if resourcesBuildings.ByID(id) < levelNeeded {
+			if lazyResourcesBuildings().ByID(id) < levelNeeded {
 				return false
 			}
 		} else if id.IsFacility() {
-			if facilities.ByID(id) < levelNeeded {
+			if lazyFacilities().ByID(id) < levelNeeded {
 				return false
 			}
 		} else if id.IsTech() {
-			if researches.ByID(id) < levelNeeded {
+			if lazyResearches().ByID(id) < levelNeeded {
 				return false
 			}
 		}

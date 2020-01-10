@@ -6,7 +6,7 @@ import "strconv"
 type PlanetID CelestialID
 
 func (p PlanetID) String() string {
-	return strconv.Itoa(int(p))
+	return strconv.FormatInt(int64(p), 10)
 }
 
 // Celestial convert a PlanetID to a CelestialID

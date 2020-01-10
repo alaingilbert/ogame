@@ -8,11 +8,11 @@ import (
 
 func TestLargeCargo_GetSpeed(t *testing.T) {
 	lc := newLargeCargo()
-	assert.Equal(t, 12000, lc.GetSpeed(Researches{}))
+	assert.Equal(t, int64(12000), lc.GetSpeed(Researches{}, false, false))
 }
 
 func TestLargeCargo_GetCargoCapacity(t *testing.T) {
 	lc := newLargeCargo()
-	assert.Equal(t, 35000, lc.GetCargoCapacity(Researches{HyperspaceTechnology: 8}))
-	assert.Equal(t, 37500, lc.GetCargoCapacity(Researches{HyperspaceTechnology: 10}))
+	assert.Equal(t, int64(35000), lc.GetCargoCapacity(Researches{HyperspaceTechnology: 8}, false, false))
+	assert.Equal(t, int64(37500), lc.GetCargoCapacity(Researches{HyperspaceTechnology: 10}, false, false))
 }
