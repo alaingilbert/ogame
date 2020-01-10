@@ -1,12 +1,14 @@
 package main
 
 import (
+	"crypto/subtle"
 	"log"
 	"os"
 	"strconv"
 
 	"github.com/alaingilbert/ogame"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"gopkg.in/urfave/cli.v2"
 )
 
@@ -102,6 +104,36 @@ func main() {
 			Value:   "http://127.0.0.1:8080",
 			EnvVars: []string{"OGAMED_NEW_HOSTNAME"},
 		},
+		&cli.StringFlag{
+			Name:    "basic-auth-username",
+			Usage:   "New Ogame Hostname eg: administrator",
+			Value:   "",
+			EnvVars: []string{"OGAMED_AUTH_USERNAME"},
+		},
+		&cli.StringFlag{
+			Name:    "basic-auth-password",
+			Usage:   "New Ogame Hostname eg: secret",
+			Value:   "",
+			EnvVars: []string{"OGAMED_AUTH_PASSWORD"},
+		},
+		&cli.StringFlag{
+			Name:    "enable-tls",
+			Usage:   "provide files key.pem and cert.pem",
+			Value:   "false",
+			EnvVars: []string{"OGAMED_ENABLE_TLS"},
+		},
+		&cli.StringFlag{
+			Name:    "tls-key-file",
+			Usage:   "provide files ~/.ogame/key.pem",
+			Value:   "~/.ogame/key.pem",
+			EnvVars: []string{"OGAMED_TLS_CERTFILE"},
+		},
+		&cli.StringFlag{
+			Name:    "tls-cert-file",
+			Usage:   "provide files ~/.ogame/cert.pem",
+			Value:   "~/.ogame/cert.pem",
+			EnvVars: []string{"OGAMED_TLS_KEYFILE"},
+		},
 	}
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
@@ -123,6 +155,13 @@ func start(c *cli.Context) error {
 	proxyPassword := c.String("proxy-password")
 	lobby := c.String("lobby")
 	apiNewHostname := c.String("api-new-hostname")
+
+	enableTLS := c.Bool("enable-tls")
+	tlskeyfile := c.String("tls-key-file")
+	tlscertfile := c.String("tls-cert-file")
+
+	basicAuthUsername := c.String("basic-auth-username")
+	basicAuthPassword := c.String("basic-auth-password")
 
 	bot, err := ogame.NewWithParams(ogame.Params{
 		Universe:       universe,
@@ -153,6 +192,17 @@ func start(c *cli.Context) error {
 			return next(ctx)
 		}
 	})
+	if len(basicAuthUsername) > 0 && len(basicAuthPassword) > 0 {
+		log.Println("Enable Basic Auth")
+		e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+			// Be careful to use constant time comparison to prevent timing attacks
+			if subtle.ConstantTimeCompare([]byte(username), []byte(basicAuthUsername)) == 1 &&
+				subtle.ConstantTimeCompare([]byte(password), []byte(basicAuthPassword)) == 1 {
+				return true, nil
+			}
+			return false, nil
+		}))
+	}
 	e.HideBanner = true
 	e.HidePort = true
 	e.Debug = false
@@ -232,5 +282,11 @@ func start(c *cli.Context) error {
 	e.GET("/api/*", ogame.GetStaticHandler)
 	e.HEAD("/api/*", ogame.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
 
-	return e.Start(host + ":" + strconv.Itoa(port))
+	if enableTLS {
+		log.Println("Enable TLS Support")
+		return e.StartTLS(host+":"+strconv.Itoa(port), tlscertfile, tlskeyfile)
+	} else {
+		log.Println("Disable TLS Support")
+		return e.Start(host + ":" + strconv.Itoa(port))
+	}
 }
