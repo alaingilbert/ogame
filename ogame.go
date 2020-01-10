@@ -2264,19 +2264,28 @@ func (b *OGame) cancel(token string, techID, listID int64) error {
 }
 
 func (b *OGame) cancelBuilding(celestialID CelestialID) error {
-	pageHTML, _ := b.getPage(OverviewPage, celestialID)
+	pageHTML, err := b.getPage(OverviewPage, celestialID)
+	if err != nil {
+		return err
+	}
 	token, techID, listID, _ := b.extractor.ExtractCancelBuildingInfos(pageHTML)
 	return b.cancel(token, techID, listID)
 }
 
 func (b *OGame) cancelResearch(celestialID CelestialID) error {
-	pageHTML, _ := b.getPage(OverviewPage, celestialID)
+	pageHTML, err := b.getPage(OverviewPage, celestialID)
+	if err != nil {
+		return err
+	}
 	token, techID, listID, _ := b.extractor.ExtractCancelResearchInfos(pageHTML)
 	return b.cancel(token, techID, listID)
 }
 
 func (b *OGame) fetchResources(celestialID CelestialID) (ResourcesDetails, error) {
-	pageJSON, _ := b.getPage(FetchResourcesPage, celestialID)
+	pageJSON, err := b.getPage(FetchResourcesPage, celestialID)
+	if err != nil {
+		return ResourcesDetails{}, err
+	}
 	return b.extractor.ExtractResourcesDetails(pageJSON)
 }
 
