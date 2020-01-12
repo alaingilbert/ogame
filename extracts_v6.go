@@ -1135,14 +1135,14 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
 		var arriveIn int64
 		if len(m) == 2 {
-			arriveIn, _ = strconv.ParseInt(string(m[1]), 10, 64)
+			arriveIn, _ = strconv.ParseInt(m[1], 10, 64)
 		}
 
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
 		m = regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
 		var backIn int64
 		if len(m) == 2 {
-			backIn, _ = strconv.ParseInt(string(m[1]), 10, 64)
+			backIn, _ = strconv.ParseInt(m[1], 10, 64)
 		}
 
 		missionType, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
