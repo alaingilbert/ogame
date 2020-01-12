@@ -14,6 +14,10 @@ func TestToInt(t *testing.T) {
 	assert.Equal(t, 1234567890, toInt([]byte("1234567890")))
 }
 
+func TestMinInt(t *testing.T) {
+	assert.Equal(t, int64(2), MinInt(5, 2, 3))
+}
+
 func TestParseCoord(t *testing.T) {
 	coord, _ := ParseCoord("[P:1:2:3]")
 	assert.Equal(t, Coordinate{1, 2, 3, PlanetType}, coord)

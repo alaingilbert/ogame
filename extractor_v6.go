@@ -73,6 +73,7 @@ func (e ExtractorV6) ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) 
 	return e.ExtractCelestialFromDoc(doc, b, v)
 }
 
+// ExtractServerTime ...
 func (e ExtractorV6) ExtractServerTime(pageHTML []byte) (time.Time, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractServerTimeFromDoc(doc)
@@ -92,8 +93,12 @@ func (e ExtractorV6) ExtractIPM(pageHTML []byte) (duration, max int64, token str
 
 // ExtractFleets ...
 func (e ExtractorV6) ExtractFleets(pageHTML []byte) (res []Fleet) {
+	return e.extractFleets(pageHTML, clockwork.NewRealClock())
+}
+
+func (e ExtractorV6) extractFleets(pageHTML []byte, clock clockwork.Clock) (res []Fleet) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractFleetsFromDoc(doc)
+	return e.extractFleetsFromDoc(doc, clock)
 }
 
 // ExtractSlots ...
@@ -230,7 +235,7 @@ func (e ExtractorV6) ExtractSpioAnz(pageHTML []byte) int64 {
 	return e.ExtractSpioAnzFromDoc(doc)
 }
 
-// ExtractNbProbes ...
+// ExtractPreferencesShowActivityMinutes ...
 func (e ExtractorV6) ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractShowActivityMinutesFromDoc(doc)
@@ -456,7 +461,11 @@ func (e ExtractorV6) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int
 
 // ExtractFleetsFromDoc ...
 func (e ExtractorV6) ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
-	return extractFleetsFromDocV6(doc)
+	return e.extractFleetsFromDoc(doc, clockwork.NewRealClock())
+}
+
+func (e ExtractorV6) extractFleetsFromDoc(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
+	return extractFleetsFromDocV6(doc, clock)
 }
 
 // ExtractSlotsFromDoc extract fleet slots from page "fleet1"
@@ -610,7 +619,7 @@ func (e ExtractorV6) ExtractNotifAccountFromDoc(doc *goquery.Document) bool {
 	return extractNotifAccountFromDocV6(doc)
 }
 
-// ExtractCharacterClass ...
+// ExtractCharacterClassFromDoc ...
 func (e ExtractorV6) ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error) {
 	return 0, errors.New("character class not supported in v6")
 }
@@ -679,6 +688,7 @@ func (e ExtractorV6) ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, 
 	return extractUserInfosV6(pageHTML, lang)
 }
 
+// ExtractResourcesDetails ...
 func (e ExtractorV6) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV6(pageHTML)
 }

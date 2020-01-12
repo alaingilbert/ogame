@@ -61,13 +61,7 @@ func IsFacilityID(id int64) bool {
 // ParseCoord parse a coordinate from a string
 func ParseCoord(str string) (coord Coordinate, err error) {
 	m := regexp.MustCompile(`^\[?(([PMD]):)?(\d{1,3}):(\d{1,3}):(\d{1,3})]?$`).FindStringSubmatch(str)
-	if len(m) == 5 {
-		galaxy, _ := strconv.ParseInt(m[2], 10, 64)
-		system, _ := strconv.ParseInt(m[3], 10, 64)
-		position, _ := strconv.ParseInt(m[4], 10, 64)
-		planetType := PlanetType
-		return Coordinate{galaxy, system, position, planetType}, nil
-	} else if len(m) == 6 {
+	if len(m) == 6 {
 		planetTypeStr := m[2]
 		galaxy, _ := strconv.ParseInt(m[3], 10, 64)
 		system, _ := strconv.ParseInt(m[4], 10, 64)
