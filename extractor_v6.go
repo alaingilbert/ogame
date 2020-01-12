@@ -73,6 +73,7 @@ func (e ExtractorV6) ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) 
 	return e.ExtractCelestialFromDoc(doc, b, v)
 }
 
+// ExtractServerTime ...
 func (e ExtractorV6) ExtractServerTime(pageHTML []byte) (time.Time, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractServerTimeFromDoc(doc)
@@ -234,7 +235,7 @@ func (e ExtractorV6) ExtractSpioAnz(pageHTML []byte) int64 {
 	return e.ExtractSpioAnzFromDoc(doc)
 }
 
-// ExtractNbProbes ...
+// ExtractPreferencesShowActivityMinutes ...
 func (e ExtractorV6) ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractShowActivityMinutesFromDoc(doc)
@@ -618,7 +619,7 @@ func (e ExtractorV6) ExtractNotifAccountFromDoc(doc *goquery.Document) bool {
 	return extractNotifAccountFromDocV6(doc)
 }
 
-// ExtractCharacterClass ...
+// ExtractCharacterClassFromDoc ...
 func (e ExtractorV6) ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error) {
 	return 0, errors.New("character class not supported in v6")
 }
@@ -687,6 +688,7 @@ func (e ExtractorV6) ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, 
 	return extractUserInfosV6(pageHTML, lang)
 }
 
+// ExtractResourcesDetails ...
 func (e ExtractorV6) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV6(pageHTML)
 }

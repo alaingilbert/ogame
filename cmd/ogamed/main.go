@@ -283,8 +283,7 @@ func start(c *cli.Context) error {
 	if enableTLS {
 		log.Println("Enable TLS Support")
 		return e.StartTLS(host+":"+strconv.Itoa(port), tlsCertFile, tlsKeyFile)
-	} else {
-		log.Println("Disable TLS Support")
-		return e.Start(host + ":" + strconv.Itoa(port))
 	}
+	log.Println("Disable TLS Support")
+	return e.Start(host + ":" + strconv.Itoa(port))
 }

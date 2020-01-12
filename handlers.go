@@ -772,8 +772,8 @@ func SendFleetHandler(c echo.Context) error {
 // GetAlliancePageContentHandler ...
 func GetAlliancePageContentHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	allianceId := c.QueryParam("allianceId")
-	vals := url.Values{"allianceId": {allianceId}}
+	allianceID := c.QueryParam("allianceId")
+	vals := url.Values{"allianceId": {allianceID}}
 	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
 }
 
