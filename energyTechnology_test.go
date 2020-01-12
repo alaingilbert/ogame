@@ -26,6 +26,15 @@ func TestEnergyTechnologyConstructionTime(t *testing.T) {
 	researchSpeed = 2
 	ct = mm.ConstructionTime(1, universeSpeed*researchSpeed, Facilities{ResearchLab: 0}, false, false)
 	assert.Equal(t, 4*time.Minute, ct)
+
+	universeSpeed = 1
+	researchSpeed = 1
+	ct = mm.ConstructionTime(1, universeSpeed*researchSpeed, Facilities{ResearchLab: 10}, false, false)
+	assert.Equal(t, 261*time.Second, ct)
+	ct = mm.ConstructionTime(1, universeSpeed*researchSpeed, Facilities{ResearchLab: 10}, true, false)
+	assert.Equal(t, 196*time.Second, ct)
+	ct = mm.ConstructionTime(1, universeSpeed*researchSpeed, Facilities{ResearchLab: 10}, true, true)
+	assert.Equal(t, 147*time.Second, ct)
 }
 
 func TestEnergyTechnology_GetLevel(t *testing.T) {
