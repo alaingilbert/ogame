@@ -92,8 +92,12 @@ func (e ExtractorV6) ExtractIPM(pageHTML []byte) (duration, max int64, token str
 
 // ExtractFleets ...
 func (e ExtractorV6) ExtractFleets(pageHTML []byte) (res []Fleet) {
+	return e.extractFleets(pageHTML, clockwork.NewRealClock())
+}
+
+func (e ExtractorV6) extractFleets(pageHTML []byte, clock clockwork.Clock) (res []Fleet) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractFleetsFromDoc(doc)
+	return e.extractFleetsFromDoc(doc, clock)
 }
 
 // ExtractSlots ...
@@ -456,7 +460,11 @@ func (e ExtractorV6) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int
 
 // ExtractFleetsFromDoc ...
 func (e ExtractorV6) ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
-	return extractFleetsFromDocV6(doc)
+	return e.extractFleetsFromDoc(doc, clockwork.NewRealClock())
+}
+
+func (e ExtractorV6) extractFleetsFromDoc(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
+	return extractFleetsFromDocV6(doc, clock)
 }
 
 // ExtractSlotsFromDoc extract fleet slots from page "fleet1"

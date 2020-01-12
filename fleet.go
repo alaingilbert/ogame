@@ -1,5 +1,7 @@
 package ogame
 
+import "time"
+
 // Fleet represent a player fleet information
 type Fleet struct {
 	Mission        MissionID
@@ -9,6 +11,8 @@ type Fleet struct {
 	Origin         Coordinate
 	Destination    Coordinate
 	Ships          ShipsInfos
+	ArrivalTime    time.Time
+	BackTime       time.Time
 	ArriveIn       int64
 	BackIn         int64
 	UnionID        int64

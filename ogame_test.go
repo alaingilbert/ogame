@@ -1977,6 +1977,36 @@ func TestExtractFleetV71(t *testing.T) {
 	assert.Equal(t, Resources{}, fleets[0].Resources)
 }
 
+func TestExtractFleetV71_2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement2.html")
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 1, 12, 1, 45, 34, 0, time.UTC))
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 2, len(fleets))
+	assert.Equal(t, int64(621), fleets[0].ArriveIn)
+	assert.Equal(t, int64(1245), fleets[0].BackIn)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, fleets[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[0].Destination)
+	assert.Equal(t, Transport, fleets[0].Mission)
+	assert.Equal(t, false, fleets[0].ReturnFlight)
+	assert.Equal(t, FleetID(8441918), fleets[0].ID)
+	assert.Equal(t, int64(12), fleets[0].Ships.SmallCargo)
+	assert.Equal(t, Resources{}, fleets[0].Resources)
+	assert.Equal(t, clock.Now().Add(621*time.Second), fleets[0].ArrivalTime.UTC())
+	assert.Equal(t, clock.Now().Add(1245*time.Second), fleets[0].BackTime.UTC())
+
+	assert.Equal(t, int64(-1), fleets[1].ArriveIn)
+	assert.Equal(t, int64(2815), fleets[1].BackIn)
+	assert.Equal(t, Coordinate{4, 208, 10, PlanetType}, fleets[1].Origin)
+	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[1].Destination)
+	assert.Equal(t, Transport, fleets[1].Mission)
+	assert.Equal(t, true, fleets[1].ReturnFlight)
+	assert.Equal(t, FleetID(8441803), fleets[1].ID)
+	assert.Equal(t, int64(11), fleets[1].Ships.LargeCargo)
+	assert.Equal(t, Resources{}, fleets[1].Resources)
+	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].ArrivalTime.UTC())
+	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].BackTime.UTC())
+}
+
 func TestExtractFleetV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/movement.html")
 	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)

@@ -474,7 +474,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		}
 		attack.DestinationName = strings.TrimSpace(s.Find("td.destFleet").Text())
 
-		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
+		attack.ArrivalTime = time.Unix(arrivalTimeInt, 0)
 		attack.ArriveIn = int64(clock.Until(attack.ArrivalTime).Seconds())
 
 		if attack.UnionID != 0 {
@@ -1109,7 +1109,7 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 	return
 }
 
-func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
+func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1148,6 +1148,7 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 		missionType, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
 		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
 		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
+		endTime, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""), 10, 64)
 		ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
 		secs := arrivalTime - ogameTimestamp
 		if secs < 0 {
@@ -1175,6 +1176,8 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
+		fleet.ArrivalTime = time.Unix(endTime, 0)
+		fleet.BackTime = time.Unix(arrivalTime, 0)
 		if !returnFlight {
 			fleet.ArriveIn = arriveIn
 			fleet.BackIn = backIn
