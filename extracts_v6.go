@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"math"
 	"net/url"
 	"regexp"
@@ -1092,7 +1091,6 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 		res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
 		res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
 		res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
-		fmt.Println(fleet.Origin, fleet.Destination, res)
 
 		tmp = append(tmp, Tmp{fleet: fleet, res: res})
 	})

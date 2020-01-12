@@ -3,12 +3,11 @@ package ogame
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"math"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -152,7 +151,6 @@ type resourcesRespV71 struct {
 func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err error) {
 	var res resourcesRespV71
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
-		fmt.Println("CALSS", err)
 		if isLogged(pageHTML) {
 			return out, ErrInvalidPlanetID
 		}

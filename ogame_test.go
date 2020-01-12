@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"regexp"
 	"testing"
@@ -1923,8 +1922,7 @@ func TestCancelResearch(t *testing.T) {
 }
 func TestCancelResearchV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview_cancels.html")
-	token, techID, listID, err := NewExtractorV7().ExtractCancelResearchInfos(pageHTMLBytes)
-	fmt.Println(err)
+	token, techID, listID, _ := NewExtractorV7().ExtractCancelResearchInfos(pageHTMLBytes)
 	assert.Equal(t, "9d44b41d8136dffadab759749508105e", token)
 	assert.Equal(t, int64(124), techID)
 	assert.Equal(t, int64(1324883), listID)
