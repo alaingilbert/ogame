@@ -359,6 +359,10 @@ func SetResourceSettingsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid solarSatellite"))
 	}
+	crawler, err := strconv.ParseInt(c.Request().PostFormValue("crawler"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid crawler"))
+	}
 	settings := ResourceSettings{
 		MetalMine:            metalMine,
 		CrystalMine:          crystalMine,
@@ -366,6 +370,7 @@ func SetResourceSettingsHandler(c echo.Context) error {
 		SolarPlant:           solarPlant,
 		FusionReactor:        fusionReactor,
 		SolarSatellite:       solarSatellite,
+		Crawler:              crawler,
 	}
 	if err := bot.SetResourceSettings(PlanetID(planetID), settings); err != nil {
 		if err == ErrInvalidPlanetID {
