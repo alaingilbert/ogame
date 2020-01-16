@@ -1973,6 +1973,7 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 		"last4":        {strconv.FormatInt(settings.SolarPlant, 10)},
 		"last12":       {strconv.FormatInt(settings.FusionReactor, 10)},
 		"last212":      {strconv.FormatInt(settings.SolarSatellite, 10)},
+		"last217":      {strconv.FormatInt(settings.Crawler, 10)},
 	}
 	url2 := b.serverURL + "/game/index.php?page=resourceSettings"
 	resp, err := b.Client.PostForm(url2, payload)
