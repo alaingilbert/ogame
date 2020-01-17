@@ -136,7 +136,7 @@ func main() {
 		},
 		&cli.BoolFlag{
 			Name:    "cors-enabled",
-			Usage:   "Enabled CORS",
+			Usage:   "Enable CORS",
 			Value:   true,
 			EnvVars: []string{"CORS_ENABLED"},
 		},
