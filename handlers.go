@@ -649,6 +649,24 @@ func GetResourcesHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(res))
 }
 
+// GetPriceHandler ...
+func GetPriceHandler(c echo.Context) error {
+	ogameID, err := strconv.ParseInt(c.Param("ogameID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
+	}
+	nbr, err := strconv.ParseInt(c.Param("nbr"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid nbr"))
+	}
+	ogameObj := Objs.ByID(ID(ogameID))
+	if ogameObj != nil {
+		price := ogameObj.GetPrice(nbr)
+		return c.JSON(http.StatusOK, SuccessResp(price))
+	}
+	return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
+}
+
 // SendFleetHandler ...
 // curl 127.0.0.1:1234/bot/planets/123/send-fleet -d 'ships="203,1"&ships="204,10"&speed=10&galaxy=1&system=1&type=1&position=1&mission=3&metal=1&crystal=2&deuterium=3'
 func SendFleetHandler(c echo.Context) error {
