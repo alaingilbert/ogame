@@ -359,6 +359,10 @@ func SetResourceSettingsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid solarSatellite"))
 	}
+	crawler, err := strconv.ParseInt(c.Request().PostFormValue("crawler"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid crawler"))
+	}
 	settings := ResourceSettings{
 		MetalMine:            metalMine,
 		CrystalMine:          crystalMine,
@@ -366,6 +370,7 @@ func SetResourceSettingsHandler(c echo.Context) error {
 		SolarPlant:           solarPlant,
 		FusionReactor:        fusionReactor,
 		SolarSatellite:       solarSatellite,
+		Crawler:              crawler,
 	}
 	if err := bot.SetResourceSettings(PlanetID(planetID), settings); err != nil {
 		if err == ErrInvalidPlanetID {
@@ -644,6 +649,24 @@ func GetResourcesHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(res))
 }
 
+// GetPriceHandler ...
+func GetPriceHandler(c echo.Context) error {
+	ogameID, err := strconv.ParseInt(c.Param("ogameID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
+	}
+	nbr, err := strconv.ParseInt(c.Param("nbr"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid nbr"))
+	}
+	ogameObj := Objs.ByID(ID(ogameID))
+	if ogameObj != nil {
+		price := ogameObj.GetPrice(nbr)
+		return c.JSON(http.StatusOK, SuccessResp(price))
+	}
+	return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
+}
+
 // SendFleetHandler ...
 // curl 127.0.0.1:1234/bot/planets/123/send-fleet -d 'ships="203,1"&ships="204,10"&speed=10&galaxy=1&system=1&type=1&position=1&mission=3&metal=1&crystal=2&deuterium=3'
 func SendFleetHandler(c echo.Context) error {
@@ -772,8 +795,8 @@ func SendFleetHandler(c echo.Context) error {
 // GetAlliancePageContentHandler ...
 func GetAlliancePageContentHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	allianceId := c.QueryParam("allianceId")
-	vals := url.Values{"allianceId": {allianceId}}
+	allianceID := c.QueryParam("allianceId")
+	vals := url.Values{"allianceId": {allianceID}}
 	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
 }
 

@@ -100,37 +100,37 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    "api-new-hostname",
-			Usage:   "New Ogame Hostname eg: https://someuniverse.example.com",
+			Usage:   "New OGame Hostname eg: https://someuniverse.example.com",
 			Value:   "http://127.0.0.1:8080",
 			EnvVars: []string{"OGAMED_NEW_HOSTNAME"},
 		},
 		&cli.StringFlag{
 			Name:    "basic-auth-username",
-			Usage:   "New Ogame Hostname eg: administrator",
+			Usage:   "Basic auth username eg: admin",
 			Value:   "",
 			EnvVars: []string{"OGAMED_AUTH_USERNAME"},
 		},
 		&cli.StringFlag{
 			Name:    "basic-auth-password",
-			Usage:   "New Ogame Hostname eg: secret",
+			Usage:   "Basic auth password eg: secret",
 			Value:   "",
 			EnvVars: []string{"OGAMED_AUTH_PASSWORD"},
 		},
 		&cli.StringFlag{
 			Name:    "enable-tls",
-			Usage:   "provide files key.pem and cert.pem",
+			Usage:   "Enable TLS. Needs key.pem and cert.pem",
 			Value:   "false",
 			EnvVars: []string{"OGAMED_ENABLE_TLS"},
 		},
 		&cli.StringFlag{
 			Name:    "tls-key-file",
-			Usage:   "provide files ~/.ogame/key.pem",
+			Usage:   "Path to key.pem",
 			Value:   "~/.ogame/key.pem",
 			EnvVars: []string{"OGAMED_TLS_CERTFILE"},
 		},
 		&cli.StringFlag{
 			Name:    "tls-cert-file",
-			Usage:   "provide files ~/.ogame/cert.pem",
+			Usage:   "Path to cert.pem",
 			Value:   "~/.ogame/cert.pem",
 			EnvVars: []string{"OGAMED_TLS_KEYFILE"},
 		},
@@ -155,6 +155,11 @@ func start(c *cli.Context) error {
 	proxyPassword := c.String("proxy-password")
 	lobby := c.String("lobby")
 	apiNewHostname := c.String("api-new-hostname")
+	enableTLS := c.Bool("enable-tls")
+	tlsKeyFile := c.String("tls-key-file")
+	tlsCertFile := c.String("tls-cert-file")
+	basicAuthUsername := c.String("basic-auth-username")
+	basicAuthPassword := c.String("basic-auth-password")
 
 	enableTLS := c.Bool("enable-tls")
 	tlskeyfile := c.String("tls-key-file")
@@ -236,6 +241,7 @@ func start(c *cli.Context) error {
 	e.GET("/bot/attacks", ogame.GetAttacksHandler)
 	e.GET("/bot/galaxy-infos/:galaxy/:system", ogame.GalaxyInfosHandler)
 	e.GET("/bot/get-research", ogame.GetResearchHandler)
+	e.GET("/bot/price/:ogameID/:nbr", ogame.GetPriceHandler)
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
@@ -284,9 +290,8 @@ func start(c *cli.Context) error {
 
 	if enableTLS {
 		log.Println("Enable TLS Support")
-		return e.StartTLS(host+":"+strconv.Itoa(port), tlscertfile, tlskeyfile)
-	} else {
-		log.Println("Disable TLS Support")
-		return e.Start(host + ":" + strconv.Itoa(port))
+  	return e.StartTLS(host+":"+strconv.Itoa(port), tlsCertFile, tlsKeyFile)
 	}
+	log.Println("Disable TLS Support")
+	return e.Start(host + ":" + strconv.Itoa(port))
 }

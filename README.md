@@ -80,9 +80,7 @@ GetUniverseName() string
 GetUniverseSpeed() int64
 GetUniverseSpeedFleet() int64
 GetResearchSpeed() int64
-SetResearchSpeed(int64)
 GetNbSystems() int64
-SetNbSystems(int64)
 IsDonutGalaxy() bool
 IsDonutSystem() bool
 FleetDeutSaveFactor() float64
@@ -218,6 +216,7 @@ POST /bot/delete-all-reports/:tabIndex
 GET  /bot/attacks
 GET  /bot/galaxy-infos/:galaxy/:system
 GET  /bot/get-research
+GET  /bot/price/:ogameID/:nbr
 GET  /bot/planets
 GET  /bot/planets/:galaxy/:system/:position
 GET  /bot/planets/:planetID

@@ -60,6 +60,7 @@ func (e ExtractorV7) ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildi
 	return e.ExtractResourcesBuildingsFromDoc(doc)
 }
 
+// ExtractResourcesDetails ...
 func (e ExtractorV7) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV7(pageHTML)
 }
@@ -171,7 +172,7 @@ func (e ExtractorV7) ExtractCancelResearchInfos(pageHTML []byte) (token string, 
 	return extractCancelResearchInfosV7(pageHTML)
 }
 
-// ExtractCharacterClass ...
+// ExtractCharacterClassFromDoc ...
 func (e ExtractorV7) ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error) {
 	return extractCharacterClassFromDocV7(doc)
 }

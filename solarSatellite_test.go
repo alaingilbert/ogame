@@ -19,7 +19,9 @@ func TestSolarSatellite_GetLevel(t *testing.T) {
 
 func TestSolarSatellite_Production(t *testing.T) {
 	ss := newSolarSatellite()
-	assert.Equal(t, int64(1326), ss.Production(Temperature{-23, 17}, 51))
+	assert.Equal(t, int64(1326), ss.Production(Temperature{-23, 17}, 51, false))
+	assert.Equal(t, int64(78), ss.Production(Temperature{54, 94}, 2, false))
+	assert.Equal(t, int64(86), ss.Production(Temperature{54, 94}, 2, true))
 }
 
 func TestSolarSatellite_ConstructionTime(t *testing.T) {

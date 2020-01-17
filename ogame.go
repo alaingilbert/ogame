@@ -1429,6 +1429,7 @@ func (b *OGame) getUserInfos() UserInfos {
 	return userInfos
 }
 
+// ChatPostResp ...
 type ChatPostResp struct {
 	Status   string `json:"status"`
 	ID       int    `json:"id"`
@@ -1788,8 +1789,10 @@ type planetResource struct {
 	// OtherPlanet   string // can be null or apparently number (cannot unmarshal number into Go struct field planetResource.OtherPlanet of type string)
 }
 
+// PlanetResources ...
 type PlanetResources map[CelestialID]planetResource
 
+// Multiplier ...
 type Multiplier struct {
 	Metal     float64
 	Crystal   float64
@@ -1970,6 +1973,7 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 		"last4":        {strconv.FormatInt(settings.SolarPlant, 10)},
 		"last12":       {strconv.FormatInt(settings.FusionReactor, 10)},
 		"last212":      {strconv.FormatInt(settings.SolarSatellite, 10)},
+		"last217":      {strconv.FormatInt(settings.Crawler, 10)},
 	}
 	url2 := b.serverURL + "/game/index.php?page=resourceSettings"
 	resp, err := b.Client.PostForm(url2, payload)
@@ -2432,6 +2436,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	return b.sendFleetV6(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
 }
 
+// CheckTargetResponse ...
 type CheckTargetResponse struct {
 	Status string `json:"status"`
 	Orders struct {
@@ -2654,7 +2659,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		Message           string        `json:"message"`
 		FleetSendingToken string        `json:"fleetSendingToken"`
 		Components        []interface{} `json:"components"`
-		RedirectUrl       string        `json:"redirectUrl"`
+		RedirectURL       string        `json:"redirectUrl"`
 		Errors            []struct {
 			Message string `json:"message"`
 			Error   int64  `json:"error"`
@@ -3170,7 +3175,7 @@ func (b *OGame) deleteAllMessagesFromTab(tabID int64) error {
 func energyProduced(temp Temperature, resourcesBuildings ResourcesBuildings, resSettings ResourceSettings, energyTechnology int64) int64 {
 	energyProduced := int64(float64(SolarPlant.Production(resourcesBuildings.SolarPlant)) * (float64(resSettings.SolarPlant) / 100))
 	energyProduced += int64(float64(FusionReactor.Production(energyTechnology, resourcesBuildings.FusionReactor)) * (float64(resSettings.FusionReactor) / 100))
-	energyProduced += int64(float64(SolarSatellite.Production(temp, resourcesBuildings.SolarSatellite)) * (float64(resSettings.SolarSatellite) / 100))
+	energyProduced += int64(float64(SolarSatellite.Production(temp, resourcesBuildings.SolarSatellite, false)) * (float64(resSettings.SolarSatellite) / 100))
 	return energyProduced
 }
 
@@ -3589,19 +3594,9 @@ func (b *OGame) GetResearchSpeed() int64 {
 	return b.serverData.ResearchDurationDivisor
 }
 
-// Deprecated: SetResearchSpeed sets the research speed
-func (b *OGame) SetResearchSpeed(newSpeed int64) {
-	b.serverData.ResearchDurationDivisor = newSpeed
-}
-
 // GetNbSystems gets the number of systems
 func (b *OGame) GetNbSystems() int64 {
 	return b.serverData.Systems
-}
-
-// Deprecated: SetNbSystems sets the number of speed
-func (b *OGame) SetNbSystems(newNbSystems int64) {
-	b.serverData.Systems = newNbSystems
 }
 
 // GetUniverseSpeed shortcut to get ogame universe speed
@@ -3655,7 +3650,7 @@ func (b *OGame) GetCachedPlayer() UserInfos {
 	return b.Player
 }
 
-// GetCachedNbProbes returns cached number of probes from preferences
+// GetCachedPreferences returns cached preferences
 func (b *OGame) GetCachedPreferences() Preferences {
 	return b.CachedPreferences
 }

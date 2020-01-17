@@ -28,6 +28,7 @@ func (e ExtractorV71) ExtractFacilities(pageHTML []byte) (Facilities, error) {
 	return e.ExtractFacilitiesFromDoc(doc)
 }
 
+// ExtractResourcesDetails ...
 func (e ExtractorV71) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV71(pageHTML)
 }
