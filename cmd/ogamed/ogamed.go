@@ -1,15 +1,14 @@
 package main
 
 import (
-	"crypto/subtle"
 	"log"
 	"os"
 	"strconv"
+	"text/template"
 
 	"github.com/alaingilbert/ogame"
 	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"gopkg.in/urfave/cli.v2"
+	cli "gopkg.in/urfave/cli.v2"
 )
 
 var version = "0.0.0"
@@ -100,39 +99,9 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    "api-new-hostname",
-			Usage:   "New OGame Hostname eg: https://someuniverse.example.com",
+			Usage:   "New Ogame Hostname eg: https://someuniverse.example.com",
 			Value:   "http://127.0.0.1:8080",
 			EnvVars: []string{"OGAMED_NEW_HOSTNAME"},
-		},
-		&cli.StringFlag{
-			Name:    "basic-auth-username",
-			Usage:   "Basic auth username eg: admin",
-			Value:   "",
-			EnvVars: []string{"OGAMED_AUTH_USERNAME"},
-		},
-		&cli.StringFlag{
-			Name:    "basic-auth-password",
-			Usage:   "Basic auth password eg: secret",
-			Value:   "",
-			EnvVars: []string{"OGAMED_AUTH_PASSWORD"},
-		},
-		&cli.StringFlag{
-			Name:    "enable-tls",
-			Usage:   "Enable TLS. Needs key.pem and cert.pem",
-			Value:   "false",
-			EnvVars: []string{"OGAMED_ENABLE_TLS"},
-		},
-		&cli.StringFlag{
-			Name:    "tls-key-file",
-			Usage:   "Path to key.pem",
-			Value:   "~/.ogame/key.pem",
-			EnvVars: []string{"OGAMED_TLS_CERTFILE"},
-		},
-		&cli.StringFlag{
-			Name:    "tls-cert-file",
-			Usage:   "Path to cert.pem",
-			Value:   "~/.ogame/cert.pem",
-			EnvVars: []string{"OGAMED_TLS_KEYFILE"},
 		},
 	}
 	app.Action = start
@@ -155,19 +124,6 @@ func start(c *cli.Context) error {
 	proxyPassword := c.String("proxy-password")
 	lobby := c.String("lobby")
 	apiNewHostname := c.String("api-new-hostname")
-	enableTLS := c.Bool("enable-tls")
-	tlsKeyFile := c.String("tls-key-file")
-	tlsCertFile := c.String("tls-cert-file")
-	basicAuthUsername := c.String("basic-auth-username")
-	basicAuthPassword := c.String("basic-auth-password")
-
-	enableTLS := c.Bool("enable-tls")
-	tlskeyfile := c.String("tls-key-file")
-	tlscertfile := c.String("tls-cert-file")
-
-	basicAuthUsername := c.String("basic-auth-username")
-	basicAuthPassword := c.String("basic-auth-password")
-
 	bot, err := ogame.NewWithParams(ogame.Params{
 		Universe:       universe,
 		Username:       username,
@@ -187,6 +143,8 @@ func start(c *cli.Context) error {
 		return err
 	}
 
+	initial(bot)
+
 	e := echo.New()
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
@@ -197,20 +155,22 @@ func start(c *cli.Context) error {
 			return next(ctx)
 		}
 	})
-	if len(basicAuthUsername) > 0 && len(basicAuthPassword) > 0 {
-		log.Println("Enable Basic Auth")
-		e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-			// Be careful to use constant time comparison to prevent timing attacks
-			if subtle.ConstantTimeCompare([]byte(username), []byte(basicAuthUsername)) == 1 &&
-				subtle.ConstantTimeCompare([]byte(password), []byte(basicAuthPassword)) == 1 {
-				return true, nil
-			}
-			return false, nil
-		}))
-	}
 	e.HideBanner = true
 	e.HidePort = true
-	e.Debug = false
+	e.Debug = true
+
+	///////////////////////////////////
+	var templateFuncs = template.FuncMap{
+		"add": add,
+	}
+	tmp, _ := template.New("").Funcs(templateFuncs).ParseGlob("templates/*.html")
+
+	t := &Template{
+		templates: tmp,
+	}
+	e.Renderer = t
+	///////////////////////////////////
+
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
@@ -241,7 +201,6 @@ func start(c *cli.Context) error {
 	e.GET("/bot/attacks", ogame.GetAttacksHandler)
 	e.GET("/bot/galaxy-infos/:galaxy/:system", ogame.GalaxyInfosHandler)
 	e.GET("/bot/get-research", ogame.GetResearchHandler)
-	e.GET("/bot/price/:ogameID/:nbr", ogame.GetPriceHandler)
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
@@ -264,7 +223,6 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/cancel-research", ogame.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", ogame.GetResourcesHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
-	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 
 	// Get/Post Page Content
@@ -276,8 +234,8 @@ func start(c *cli.Context) error {
 	e.GET("/cdn/*", ogame.GetStaticHandler)
 	e.GET("/headerCache/*", ogame.GetStaticHandler)
 	e.GET("/favicon.ico", ogame.GetStaticHandler)
-	e.GET("/game/sw.js", ogame.GetStaticHandler)
-
+	e.GET("/game/sw.js", ogame.GetStaticHandler)	
+	
 	// JSON API
 	/*
 		/api/serverData.xml
@@ -287,11 +245,12 @@ func start(c *cli.Context) error {
 	*/
 	e.GET("/api/*", ogame.GetStaticHandler)
 	e.HEAD("/api/*", ogame.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
+	
+	e.GET("/game/allianceInfo.php", getAlliancePageContent)
 
-	if enableTLS {
-		log.Println("Enable TLS Support")
-  	return e.StartTLS(host+":"+strconv.Itoa(port), tlsCertFile, tlsKeyFile)
-	}
-	log.Println("Disable TLS Support")
+	e.GET("/planet/:planetID", htmlPlanetView)
+
 	return e.Start(host + ":" + strconv.Itoa(port))
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////
