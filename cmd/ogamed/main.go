@@ -134,6 +134,12 @@ func main() {
 			Value:   "~/.ogame/cert.pem",
 			EnvVars: []string{"OGAMED_TLS_KEYFILE"},
 		},
+		&cli.BoolFlag{
+			Name:    "cors-enabled",
+			Usage:   "Enabled CORS",
+			Value:   true,
+			EnvVars: []string{"CORS_ENABLED"},
+		},
 	}
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
@@ -160,6 +166,7 @@ func start(c *cli.Context) error {
 	tlsCertFile := c.String("tls-cert-file")
 	basicAuthUsername := c.String("basic-auth-username")
 	basicAuthPassword := c.String("basic-auth-password")
+	corsEnabled := c.Bool("cors-enabled")
 
 	bot, err := ogame.NewWithParams(ogame.Params{
 		Universe:       universe,
@@ -181,6 +188,9 @@ func start(c *cli.Context) error {
 	}
 
 	e := echo.New()
+	if corsEnabled {
+		e.Use(middleware.CORS())
+	}
 	e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
 			ctx.Set("bot", bot)
