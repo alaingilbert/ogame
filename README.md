@@ -216,6 +216,7 @@ POST /bot/delete-all-reports/:tabIndex
 GET  /bot/attacks
 GET  /bot/galaxy-infos/:galaxy/:system
 GET  /bot/get-research
+GET  /bot/price/:ogameID/:nbr
 GET  /bot/planets
 GET  /bot/planets/:galaxy/:system/:position
 GET  /bot/planets/:planetID
