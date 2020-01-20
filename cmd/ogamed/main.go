@@ -226,6 +226,7 @@ func start(c *cli.Context) error {
 	e.Debug = false
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/planets", HTMLPlanets)
+	e.GET("/browser", HTMLBrowser)
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
@@ -347,5 +348,17 @@ func HTMLPlanets(c echo.Context) error {
 		bot,
 	}
 
-	return c.Render(http.StatusOK, "Planets.html", data)
+	return c.Render(http.StatusOK, "planets", data)
+}
+
+func HTMLBrowser(c echo.Context) error {
+	bot := c.Get("bot").(*ogame.OGame)
+
+	var data = struct {
+		Bot *ogame.OGame
+	}{
+		bot,
+	}
+
+	return c.Render(http.StatusOK, "browser", data)
 }
