@@ -51,11 +51,13 @@ type OGame struct {
 	isVacationModeEnabled    bool
 	researches               *Researches
 	Planets                  []Planet
+	PlanetActivity           map[CelestialID]int64
 	PlanetResources          map[CelestialID]ResourcesDetails
 	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
 	PlanetFacilities         map[CelestialID]Facilities
 	PlanetShipsInfos         map[CelestialID]ShipsInfos
 	PlanetDefensesInfos      map[CelestialID]DefensesInfos
+	FleetMovements           []Fleet
 	ajaxChatToken            string
 	Universe                 string
 	Username                 string
@@ -193,6 +195,7 @@ func NewWithParams(params Params) (*OGame, error) {
 func NewNoLogin(universe, username, password, lang string) *OGame {
 	b := new(OGame)
 
+	b.PlanetActivity = map[CelestialID]int64{}
 	b.PlanetResources = map[CelestialID]ResourcesDetails{}
 	b.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
 	b.PlanetFacilities = map[CelestialID]Facilities{}
@@ -668,10 +671,9 @@ func (b *OGame) login() error {
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 
-	planetID, _ := b.extractor.ExtractPlanetID(pageHTML)
-	b.PlanetResources[planetID] = b.extractor.ExtractResourcesDetailsFromFullPage(pageHTML)
-
 	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
+	b.PlanetResources[celestialID] = b.extractor.ExtractResourcesDetailsFromFullPage(pageHTML)
+	b.PlanetActivity[celestialID] = b.extractor.ExtractOgameTimestamp(pageHTML)
 
 	switch page {
 	case SuppliesPage:
@@ -3835,39 +3837,23 @@ func (b *OGame) SetResourceSettings(planetID PlanetID, settings ResourceSettings
 
 // GetResourcesBuildings gets the resources buildings levels
 func (b *OGame) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	res, err := b.WithPriority(Normal).GetResourcesBuildings(celestialID)
-	if err == nil {
-		b.PlanetResourcesBuildings[celestialID] = res
-	}
-	return res, err
+	return b.WithPriority(Normal).GetResourcesBuildings(celestialID)
 }
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
 func (b *OGame) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
-	res, err := b.WithPriority(Normal).GetDefense(celestialID)
-	if err == nil {
-		b.PlanetDefensesInfos[celestialID] = res
-	}
-	return res, err
+	return b.WithPriority(Normal).GetDefense(celestialID)
 }
 
 // GetShips gets all ships units information of a planet
 func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
-	res, err := b.WithPriority(Normal).GetShips(celestialID)
-	if err == nil {
-		b.PlanetShipsInfos[celestialID] = res
-	}
-	return res, err
+	return b.WithPriority(Normal).GetShips(celestialID)
 }
 
 // GetFacilities gets all facilities information of a planet
 func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
-	res, err := b.WithPriority(Normal).GetFacilities(celestialID)
-	if err == nil {
-		b.PlanetFacilities[celestialID] = res
-	}
-	return res, err
+	return b.WithPriority(Normal).GetFacilities(celestialID)
 }
 
 // GetProduction get what is in the production queue.
