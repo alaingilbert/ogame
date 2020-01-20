@@ -38,62 +38,68 @@ import (
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabledAtom            int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedInAtom           int32  // atomic, prevent auto re login if we manually logged out
-	isConnectedAtom          int32  // atomic, either or not communication between the bot and OGame is possible
-	lockedAtom               int32  // atomic, bot state locked/unlocked
-	chatConnectedAtom        int32  // atomic, either or not the chat is connected
-	state                    string // keep name of the function that currently lock the bot
-	stateChangeCallbacks     []func(locked bool, actor string)
-	quiet                    bool
-	Player                   UserInfos
-	CachedPreferences        Preferences
-	isVacationModeEnabled    bool
-	researches               *Researches
-	Planets                  []Planet
-	PlanetActivity           map[CelestialID]int64
-	PlanetResources          map[CelestialID]ResourcesDetails
-	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
-	PlanetFacilities         map[CelestialID]Facilities
-	PlanetShipsInfos         map[CelestialID]ShipsInfos
-	PlanetDefensesInfos      map[CelestialID]DefensesInfos
-	FleetMovements           []Fleet
-	ajaxChatToken            string
-	Universe                 string
-	Username                 string
-	password                 string
-	language                 string
-	lobby                    string
-	ogameSession             string
-	sessionChatCounter       int64
-	server                   Server
-	serverData               ServerData
-	location                 *time.Location
-	serverURL                string
-	Client                   *OGameClient
-	logger                   *log.Logger
-	chatCallbacks            []func(msg ChatMsg)
-	auctioneerCallbacks      []func(packet []byte)
-	interceptorCallbacks     []func(method, url string, params, payload url.Values, pageHTML []byte)
-	closeChatCh              chan struct{}
-	chatRetry                *ExponentialBackoff
-	ws                       *websocket.Conn
-	tasks                    priorityQueue
-	tasksLock                sync.Mutex
-	tasksPushCh              chan *item
-	tasksPopCh               chan struct{}
-	loginWrapper             func(func() error) error
-	loginProxyTransport      *http.Transport
-	bytesUploaded            int64
-	bytesDownloaded          int64
-	extractor                Extractor
-	apiNewHostname           string
-	characterClass           CharacterClass
-	hasCommander             bool
-	hasAdmiral               bool
-	hasEngineer              bool
-	hasGeologist             bool
-	hasTechnocrat            bool
+	isEnabledAtom                     int32  // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom                    int32  // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom                   int32  // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom                        int32  // atomic, bot state locked/unlocked
+	chatConnectedAtom                 int32  // atomic, either or not the chat is connected
+	state                             string // keep name of the function that currently lock the bot
+	stateChangeCallbacks              []func(locked bool, actor string)
+	quiet                             bool
+	Player                            UserInfos
+	CachedPreferences                 Preferences
+	isVacationModeEnabled             bool
+	researches                        *Researches
+	Planets                           []Planet
+	PlanetActivity                    map[CelestialID]int64
+	PlanetResources                   map[CelestialID]ResourcesDetails
+	PlanetResourcesBuildings          map[CelestialID]ResourcesBuildings
+	PlanetFacilities                  map[CelestialID]Facilities
+	PlanetShipsInfos                  map[CelestialID]ShipsInfos
+	PlanetDefensesInfos               map[CelestialID]DefensesInfos
+	ResearchesActive                  Quantifiable
+	PlanetConstruction                map[CelestialID]Quantifiable
+	PlanetConstructionFinishAt        map[CelestialID]int64
+	PlanetShipyardProductions         map[CelestialID][]Quantifiable
+	PlanetShipyardProductionsFinishAt map[CelestialID]int64
+
+	FleetMovements       []Fleet
+	ajaxChatToken        string
+	Universe             string
+	Username             string
+	password             string
+	language             string
+	lobby                string
+	ogameSession         string
+	sessionChatCounter   int64
+	server               Server
+	serverData           ServerData
+	location             *time.Location
+	serverURL            string
+	Client               *OGameClient
+	logger               *log.Logger
+	chatCallbacks        []func(msg ChatMsg)
+	auctioneerCallbacks  []func(packet []byte)
+	interceptorCallbacks []func(method, url string, params, payload url.Values, pageHTML []byte)
+	closeChatCh          chan struct{}
+	chatRetry            *ExponentialBackoff
+	ws                   *websocket.Conn
+	tasks                priorityQueue
+	tasksLock            sync.Mutex
+	tasksPushCh          chan *item
+	tasksPopCh           chan struct{}
+	loginWrapper         func(func() error) error
+	loginProxyTransport  *http.Transport
+	bytesUploaded        int64
+	bytesDownloaded      int64
+	extractor            Extractor
+	apiNewHostname       string
+	characterClass       CharacterClass
+	hasCommander         bool
+	hasAdmiral           bool
+	hasEngineer          bool
+	hasGeologist         bool
+	hasTechnocrat        bool
 }
 
 // Preferences ...
@@ -201,6 +207,11 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.PlanetFacilities = map[CelestialID]Facilities{}
 	b.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
 	b.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+
+	b.PlanetConstruction = map[CelestialID]Quantifiable{}
+	b.PlanetConstructionFinishAt = map[CelestialID]int64{}
+	b.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
+	b.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
 
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
@@ -674,8 +685,35 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
 	b.PlanetResources[celestialID] = b.extractor.ExtractResourcesDetailsFromFullPage(pageHTML)
 	b.PlanetActivity[celestialID] = b.extractor.ExtractOgameTimestamp(pageHTML)
+	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
+
+	// buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
+	// ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
+
+	// if page == OverviewPage || page == SuppliesPage || page == FacilitiesPage {
+	// 	b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+	// 	b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+	// }
+
+	// if page == OverviewPage || page == SuppliesPage || page == FacilitiesPage {
+	// 	b.PlanetShipyardProductions[celestialID] = ships
+	// 	b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+	// }
+
+	// if page == OverviewPage || page == ResearchPage {
+	// 	b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+	// }
 
 	switch page {
+	case OverviewPage:
+		buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
+		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
+		b.PlanetShipyardProductions[celestialID] = ships
+		b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		break
 	case SuppliesPage:
 		res, err := b.extractor.ExtractResourcesBuildings(pageHTML)
 		if err == nil {
