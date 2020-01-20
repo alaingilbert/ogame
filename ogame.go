@@ -38,19 +38,21 @@ import (
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabledAtom                     int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedInAtom                    int32  // atomic, prevent auto re login if we manually logged out
-	isConnectedAtom                   int32  // atomic, either or not communication between the bot and OGame is possible
-	lockedAtom                        int32  // atomic, bot state locked/unlocked
-	chatConnectedAtom                 int32  // atomic, either or not the chat is connected
-	state                             string // keep name of the function that currently lock the bot
-	stateChangeCallbacks              []func(locked bool, actor string)
-	quiet                             bool
-	Player                            UserInfos
-	CachedPreferences                 Preferences
-	isVacationModeEnabled             bool
-	researches                        *Researches
-	Planets                           []Planet
+	isEnabledAtom         int32  // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom        int32  // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom       int32  // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom            int32  // atomic, bot state locked/unlocked
+	chatConnectedAtom     int32  // atomic, either or not the chat is connected
+	state                 string // keep name of the function that currently lock the bot
+	stateChangeCallbacks  []func(locked bool, actor string)
+	quiet                 bool
+	Player                UserInfos
+	CachedPreferences     Preferences
+	isVacationModeEnabled bool
+	researches            *Researches
+	Planets               []Planet
+
+	LastActivePlanet                  CelestialID
 	PlanetActivity                    map[CelestialID]int64
 	PlanetResources                   map[CelestialID]ResourcesDetails
 	PlanetResourcesBuildings          map[CelestialID]ResourcesBuildings
@@ -62,8 +64,10 @@ type OGame struct {
 	PlanetConstructionFinishAt        map[CelestialID]int64
 	PlanetShipyardProductions         map[CelestialID][]Quantifiable
 	PlanetShipyardProductionsFinishAt map[CelestialID]int64
+	EventboxResp                      eventboxResp
+	MovementFleets                    []Fleet
+	Slots                             Slots
 
-	FleetMovements       []Fleet
 	ajaxChatToken        string
 	Universe             string
 	Username             string
@@ -100,6 +104,20 @@ type OGame struct {
 	hasEngineer          bool
 	hasGeologist         bool
 	hasTechnocrat        bool
+}
+
+type Data struct {
+	PlanetActivity           map[CelestialID]int64
+	PlanetResources          map[CelestialID]ResourcesDetails
+	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
+	PlanetFacilities         map[CelestialID]Facilities
+	PlanetShipsInfos         map[CelestialID]ShipsInfos
+	PlanetDefensesInfos      map[CelestialID]DefensesInfos
+
+	PlanetConstruction                map[CelestialID]Quantifiable
+	PlanetConstructionFinishAt        map[CelestialID]int64
+	PlanetShipyardProductions         map[CelestialID][]Quantifiable
+	PlanetShipyardProductionsFinishAt map[CelestialID]int64
 }
 
 // Preferences ...
@@ -212,6 +230,56 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.PlanetConstructionFinishAt = map[CelestialID]int64{}
 	b.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
 	b.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+
+	filename := username + "_" + universe + "_" + lang + "_data.json"
+	info, err := os.Stat(filename)
+	if !os.IsNotExist(err) && !info.IsDir() {
+		var data Data
+		file, _ := ioutil.ReadFile(filename)
+		json.Unmarshal(file, &data)
+
+		b.PlanetActivity = data.PlanetActivity
+
+		b.PlanetActivity = data.PlanetActivity
+		b.PlanetResources = data.PlanetResources
+		b.PlanetResourcesBuildings = data.PlanetResourcesBuildings
+		b.PlanetFacilities = data.PlanetFacilities
+		b.PlanetShipsInfos = data.PlanetShipsInfos
+		b.PlanetDefensesInfos = data.PlanetDefensesInfos
+
+		b.PlanetConstruction = data.PlanetConstruction
+		b.PlanetConstructionFinishAt = data.PlanetConstructionFinishAt
+		b.PlanetShipyardProductions = data.PlanetShipyardProductions
+		b.PlanetShipyardProductionsFinishAt = data.PlanetShipyardProductionsFinishAt
+	} else {
+		var data Data
+		data.PlanetActivity = map[CelestialID]int64{}
+		data.PlanetResources = map[CelestialID]ResourcesDetails{}
+		data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+		data.PlanetFacilities = map[CelestialID]Facilities{}
+		data.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
+		data.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+
+		data.PlanetConstruction = map[CelestialID]Quantifiable{}
+		data.PlanetConstructionFinishAt = map[CelestialID]int64{}
+		data.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
+		data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+
+		data.PlanetActivity = b.PlanetActivity
+		data.PlanetResources = b.PlanetResources
+		data.PlanetResourcesBuildings = b.PlanetResourcesBuildings
+		data.PlanetFacilities = b.PlanetFacilities
+		data.PlanetShipsInfos = b.PlanetShipsInfos
+		data.PlanetDefensesInfos = b.PlanetDefensesInfos
+
+		data.PlanetConstruction = b.PlanetConstruction
+		data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
+		data.PlanetShipyardProductions = b.PlanetShipyardProductions
+		data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
+
+		by, _ := json.Marshal(data)
+		ioutil.WriteFile(filename, by, 0644)
+	}
 
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
@@ -683,26 +751,10 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 
 	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
-	b.PlanetResources[celestialID] = b.extractor.ExtractResourcesDetailsFromFullPage(pageHTML)
+	b.PlanetResources[celestialID], _ = b.fetchResources(celestialID)
+	b.EventboxResp, _ = b.fetchEventbox()
 	b.PlanetActivity[celestialID] = b.extractor.ExtractOgameTimestamp(pageHTML)
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
-
-	// buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
-	// ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
-
-	// if page == OverviewPage || page == SuppliesPage || page == FacilitiesPage {
-	// 	b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
-	// 	b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
-	// }
-
-	// if page == OverviewPage || page == SuppliesPage || page == FacilitiesPage {
-	// 	b.PlanetShipyardProductions[celestialID] = ships
-	// 	b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
-	// }
-
-	// if page == OverviewPage || page == ResearchPage {
-	// 	b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
-	// }
 
 	switch page {
 	case OverviewPage:
@@ -737,6 +789,10 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		if err == nil {
 			b.PlanetDefensesInfos[celestialID] = defenses
 		}
+		break
+	case MovementPage:
+		b.MovementFleets = b.extractor.ExtractFleets(pageHTML)
+		b.Slots = b.extractor.ExtractSlots(pageHTML)
 		break
 	}
 
@@ -1165,7 +1221,10 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
 		b.cacheFullPageInfo(page, pageHTMLBytes)
+		b.LastActivePlanet, _ = b.extractor.ExtractPlanetID(pageHTMLBytes)
 	}
+
+	log.Println("Visit page: " + page)
 
 	go func() {
 		for _, fn := range b.interceptorCallbacks {
