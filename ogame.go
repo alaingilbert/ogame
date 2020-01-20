@@ -29,7 +29,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
 )
@@ -38,55 +38,60 @@ import (
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabledAtom         int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedInAtom        int32  // atomic, prevent auto re login if we manually logged out
-	isConnectedAtom       int32  // atomic, either or not communication between the bot and OGame is possible
-	lockedAtom            int32  // atomic, bot state locked/unlocked
-	chatConnectedAtom     int32  // atomic, either or not the chat is connected
-	state                 string // keep name of the function that currently lock the bot
-	stateChangeCallbacks  []func(locked bool, actor string)
-	quiet                 bool
-	Player                UserInfos
-	CachedPreferences     Preferences
-	isVacationModeEnabled bool
-	researches            *Researches
-	Planets               []Planet
-	ajaxChatToken         string
-	Universe              string
-	Username              string
-	password              string
-	language              string
-	lobby                 string
-	ogameSession          string
-	sessionChatCounter    int64
-	server                Server
-	serverData            ServerData
-	location              *time.Location
-	serverURL             string
-	Client                *OGameClient
-	logger                *log.Logger
-	chatCallbacks         []func(msg ChatMsg)
-	auctioneerCallbacks   []func(packet []byte)
-	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
-	closeChatCh           chan struct{}
-	chatRetry             *ExponentialBackoff
-	ws                    *websocket.Conn
-	tasks                 priorityQueue
-	tasksLock             sync.Mutex
-	tasksPushCh           chan *item
-	tasksPopCh            chan struct{}
-	loginWrapper          func(func() error) error
-	loginProxyTransport   *http.Transport
-	bytesUploaded         int64
-	bytesDownloaded       int64
-	extractor             Extractor
-	apiNewHostname        string
-	characterClass        CharacterClass
-	hasCommander          bool
-	hasAdmiral            bool
-	hasEngineer           bool
-	hasGeologist          bool
-	hasTechnocrat         bool
+	isEnabledAtom            int32  // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom           int32  // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom          int32  // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom               int32  // atomic, bot state locked/unlocked
+	chatConnectedAtom        int32  // atomic, either or not the chat is connected
+	state                    string // keep name of the function that currently lock the bot
+	stateChangeCallbacks     []func(locked bool, actor string)
+	quiet                    bool
+	Player                   UserInfos
+	CachedPreferences        Preferences
+	isVacationModeEnabled    bool
+	researches               *Researches
+	Planets                  []Planet
+	PlanetResources          map[CelestialID]ResourcesDetails
+	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
+	PlanetFacilities         map[CelestialID]Facilities
+	PlanetShipsInfos         map[CelestialID]ShipsInfos
+	PlanetDefensesInfos      map[CelestialID]DefensesInfos
+	ajaxChatToken            string
+	Universe                 string
+	Username                 string
+	password                 string
+	language                 string
+	lobby                    string
+	ogameSession             string
+	sessionChatCounter       int64
+	server                   Server
+	serverData               ServerData
+	location                 *time.Location
+	serverURL                string
+	Client                   *OGameClient
+	logger                   *log.Logger
+	chatCallbacks            []func(msg ChatMsg)
+	auctioneerCallbacks      []func(packet []byte)
+	interceptorCallbacks     []func(method, url string, params, payload url.Values, pageHTML []byte)
+	closeChatCh              chan struct{}
+	chatRetry                *ExponentialBackoff
+	ws                       *websocket.Conn
+	tasks                    priorityQueue
+	tasksLock                sync.Mutex
+	tasksPushCh              chan *item
+	tasksPopCh               chan struct{}
+	loginWrapper             func(func() error) error
+	loginProxyTransport      *http.Transport
+	bytesUploaded            int64
+	bytesDownloaded          int64
+	extractor                Extractor
+	apiNewHostname           string
+	characterClass           CharacterClass
+	hasCommander             bool
+	hasAdmiral               bool
+	hasEngineer              bool
+	hasGeologist             bool
+	hasTechnocrat            bool
 }
 
 // Preferences ...
@@ -187,6 +192,13 @@ func NewWithParams(params Params) (*OGame, error) {
 // NewNoLogin does not auto login.
 func NewNoLogin(universe, username, password, lang string) *OGame {
 	b := new(OGame)
+
+	b.PlanetResources = map[CelestialID]ResourcesDetails{}
+	b.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+	b.PlanetFacilities = map[CelestialID]Facilities{}
+	b.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
+	b.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
 	b.quiet = false
@@ -655,7 +667,41 @@ func (b *OGame) login() error {
 
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+
+	planetID, _ := b.extractor.ExtractPlanetID(pageHTML)
+	b.PlanetResources[planetID] = b.extractor.ExtractResourcesDetailsFromFullPage(pageHTML)
+
+	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
+
+	switch page {
+	case SuppliesPage:
+		res, err := b.extractor.ExtractResourcesBuildings(pageHTML)
+		if err == nil {
+			b.PlanetResourcesBuildings[celestialID] = res
+		}
+		break
+	case FacilitiesPage:
+		fac, err := b.extractor.ExtractFacilities(pageHTML)
+		if err == nil {
+			b.PlanetFacilities[celestialID] = fac
+		}
+		break
+	case ShipyardPage:
+		shipyard, err := b.extractor.ExtractShips(pageHTML)
+		if err == nil {
+			b.PlanetShipsInfos[celestialID] = shipyard
+		}
+		break
+	case DefensePage:
+		defenses, err := b.extractor.ExtractDefense(pageHTML)
+		if err == nil {
+			b.PlanetDefensesInfos[celestialID] = defenses
+		}
+		break
+	}
+
 	b.Planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
+
 	b.isVacationModeEnabled = b.extractor.ExtractIsInVacationFromDoc(doc)
 	b.ajaxChatToken, _ = b.extractor.ExtractAjaxChatToken(pageHTML)
 	b.characterClass, _ = b.extractor.ExtractCharacterClassFromDoc(doc)
@@ -3789,23 +3835,39 @@ func (b *OGame) SetResourceSettings(planetID PlanetID, settings ResourceSettings
 
 // GetResourcesBuildings gets the resources buildings levels
 func (b *OGame) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	return b.WithPriority(Normal).GetResourcesBuildings(celestialID)
+	res, err := b.WithPriority(Normal).GetResourcesBuildings(celestialID)
+	if err == nil {
+		b.PlanetResourcesBuildings[celestialID] = res
+	}
+	return res, err
 }
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
 func (b *OGame) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
-	return b.WithPriority(Normal).GetDefense(celestialID)
+	res, err := b.WithPriority(Normal).GetDefense(celestialID)
+	if err == nil {
+		b.PlanetDefensesInfos[celestialID] = res
+	}
+	return res, err
 }
 
 // GetShips gets all ships units information of a planet
 func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
-	return b.WithPriority(Normal).GetShips(celestialID)
+	res, err := b.WithPriority(Normal).GetShips(celestialID)
+	if err == nil {
+		b.PlanetShipsInfos[celestialID] = res
+	}
+	return res, err
 }
 
 // GetFacilities gets all facilities information of a planet
 func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
-	return b.WithPriority(Normal).GetFacilities(celestialID)
+	res, err := b.WithPriority(Normal).GetFacilities(celestialID)
+	if err == nil {
+		b.PlanetFacilities[celestialID] = res
+	}
+	return res, err
 }
 
 // GetProduction get what is in the production queue.
