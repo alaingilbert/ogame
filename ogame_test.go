@@ -2360,9 +2360,22 @@ func TestExtractEspionageReportV7(t *testing.T) {
 func TestExtractEspionageReportV71(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report.html")
 	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.False(t, infos.HonorableTarget)
 	assert.Equal(t, int64(66331), infos.Metal)
 	assert.Equal(t, int64(58452), infos.Crystal)
 	assert.Equal(t, int64(0), infos.Deuterium)
+}
+
+func TestExtractEspionageReportHonorableV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report_honorable.html")
+	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.True(t, infos.HonorableTarget)
+}
+
+func TestExtractEspionageReportHonorableStrongV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report_honorable_strong.html")
+	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.True(t, infos.HonorableTarget)
 }
 
 func TestExtractEspionageReportThousands(t *testing.T) {

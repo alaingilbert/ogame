@@ -222,6 +222,9 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 		report.IsStarlord = banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3")
 	}
 
+	honorableFound := doc.Find("div.detail_txt").First().Find("span.status_abbr_honorableTarget")
+	report.HonorableTarget = honorableFound.Length() > 0
+
 	// IsInactive, IsLongInactive
 	inactive := doc.Find("div.detail_txt").First().Find("span")
 	if inactive.HasClass("status_abbr_longinactive") {
