@@ -341,11 +341,19 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 
 func HTMLPlanets(c echo.Context) error {
 	bot := c.Get("bot").(*ogame.OGame)
-
+	var objs ogame.ObjsStruct
 	var data = struct {
-		Bot *ogame.OGame
+		Bot          *ogame.OGame
+		Objs         ogame.ObjsStruct
+		Buildings    []ogame.Building
+		Ships        []ogame.Ship
+		Technologies []ogame.Technology
 	}{
-		bot,
+		Bot:          bot,
+		Objs:         objs,
+		Buildings:    ogame.Buildings,
+		Ships:        ogame.Ships,
+		Technologies: ogame.Technologies,
 	}
 
 	return c.Render(http.StatusOK, "planets", data)
@@ -353,11 +361,20 @@ func HTMLPlanets(c echo.Context) error {
 
 func HTMLBrowser(c echo.Context) error {
 	bot := c.Get("bot").(*ogame.OGame)
+	var objs ogame.ObjsStruct
 
 	var data = struct {
-		Bot *ogame.OGame
+		Bot          *ogame.OGame
+		Objs         ogame.ObjsStruct
+		Buildings    []ogame.Building
+		Ships        []ogame.Ship
+		Technologies []ogame.Technology
 	}{
-		bot,
+		Bot:          bot,
+		Objs:         objs,
+		Buildings:    ogame.Buildings,
+		Ships:        ogame.Ships,
+		Technologies: ogame.Technologies,
 	}
 
 	return c.Render(http.StatusOK, "browser", data)
