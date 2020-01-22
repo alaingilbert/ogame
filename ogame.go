@@ -73,6 +73,7 @@ type OGame struct {
 	Username             string
 	password             string
 	language             string
+	playerID              int64
 	lobby                string
 	ogameSession         string
 	sessionChatCounter   int64
@@ -167,10 +168,11 @@ type CelestialID int64
 
 // Params parameters for more fine-grained initialization
 type Params struct {
-	Universe       string
 	Username       string
 	Password       string
+	Universe       string
 	Lang           string
+	PlayerID       int64
 	AutoLogin      bool
 	Proxy          string
 	ProxyUsername  string
@@ -184,17 +186,16 @@ type Params struct {
 
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
-	b := NewNoLogin(universe, username, password, lang)
+	b := NewNoLogin(username, password, universe, lang, 0)
 	if err := b.Login(); err != nil {
 		return nil, err
 	}
-
 	return b, nil
 }
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b := NewNoLogin(params.Universe, params.Username, params.Password, params.Lang)
+	b := NewNoLogin(params.Username, params.Password, params.Universe, params.Lang, params.PlayerID)
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
@@ -216,7 +217,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(universe, username, password, lang string) *OGame {
+func NewNoLogin(username, password, universe, lang string, playerID int64) *OGame {
 	b := new(OGame)
 
 	b.PlanetActivity = map[CelestialID]int64{}
@@ -290,6 +291,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.SetOGameCredentials(username, password)
 	b.setOGameLobby("lobby")
 	b.language = lang
+	b.playerID = playerID
 
 	b.extractor = NewExtractorV6()
 
@@ -388,7 +390,7 @@ type account struct {
 		Language string
 		Number   int64
 	}
-	ID         int64
+	ID         int64 // player ID
 	Name       string
 	LastPlayed string
 	Blocked    bool
@@ -459,7 +461,7 @@ func getServers(b *OGame) ([]Server, error) {
 	return servers, nil
 }
 
-func findAccountByName(universe, lang string, accounts []account, servers []Server) (account, Server, error) {
+func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
 	var server Server
 	var acc account
 	for _, s := range servers {
@@ -470,8 +472,15 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 	}
 	for _, a := range accounts {
 		if a.Server.Language == server.Language && a.Server.Number == server.Number {
-			acc = a
-			break
+			if playerID != 0 {
+				if a.ID == playerID {
+					acc = a
+					break
+				}
+			} else {
+				acc = a
+				break
+			}
 		}
 	}
 	if server.Number == 0 {
@@ -650,7 +659,7 @@ func (b *OGame) login() error {
 		return err
 	}
 	b.debug("find account & server for universe")
-	userAccount, server, err := findAccountByName(b.Universe, b.language, accounts, servers)
+	userAccount, server, err := findAccount(b.Universe, b.language, b.playerID, accounts, servers)
 	if err != nil {
 		return err
 	}
