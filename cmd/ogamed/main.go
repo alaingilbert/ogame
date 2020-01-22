@@ -225,7 +225,8 @@ func start(c *cli.Context) error {
 	e.HidePort = true
 	e.Debug = false
 	e.GET("/", ogame.HomeHandler)
-	e.GET("/planets", HTMLPlanets)
+	e.GET("/empire", HTMLEmpire)
+	e.GET("/flights", HTMLFlights)
 	e.GET("/browser", HTMLBrowser)
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
@@ -339,7 +340,7 @@ func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c 
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-func HTMLPlanets(c echo.Context) error {
+func HTMLEmpire(c echo.Context) error {
 	bot := c.Get("bot").(*ogame.OGame)
 	var objs ogame.ObjsStruct
 	var data = struct {
@@ -356,7 +357,32 @@ func HTMLPlanets(c echo.Context) error {
 		Technologies: ogame.Technologies,
 	}
 
-	return c.Render(http.StatusOK, "planets", data)
+	return c.Render(http.StatusOK, "empire", data)
+}
+
+func HTMLFlights(c echo.Context) error {
+	bot := c.Get("bot").(*ogame.OGame)
+	var objs ogame.ObjsStruct
+
+	planetID, _ := strconv.ParseInt(c.QueryParam("planetID"), 10, 64)
+
+	var data = struct {
+		Bot            *ogame.OGame
+		Objs           ogame.ObjsStruct
+		Buildings      []ogame.Building
+		Ships          []ogame.Ship
+		Technologies   []ogame.Technology
+		SelectedPlanet int64
+	}{
+		Bot:            bot,
+		Objs:           objs,
+		Buildings:      ogame.Buildings,
+		Ships:          ogame.Ships,
+		Technologies:   ogame.Technologies,
+		SelectedPlanet: planetID,
+	}
+
+	return c.Render(http.StatusOK, "flights", data)
 }
 
 func HTMLBrowser(c echo.Context) error {
