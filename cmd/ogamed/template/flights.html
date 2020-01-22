@@ -1,0 +1,37 @@
+{{define "flights"}}
+{{template "header" .}}
+<div class="content">
+	<h2>Main</h2>
+	<div>This is the Main Page!</div>
+	
+	<table>
+		{{range $k, $v := .Ships}}
+		<tr>
+		<td>{{$v.GetName}}</td>
+		<td><input id='{{$v.GetName}}' value='' /></td>
+		</tr>
+		{{end}}
+	</table>
+	
+	<div>
+		<form Method='GET'>
+			<select name='origin' onchange="this.form.submit();">
+				{{range $k, $v := .Bot.Planets}}
+					{{if eq $v.GetID  .SelectedPlanet}}
+					<option value=''>{{$v.GetName}} {{$v.GetCoordinate}}</option>
+					{{else}}
+					<option value=''>-- Select origin --</option>
+					{{end}}
+					
+				{{end}}
+				{{range $k, $v := .Bot.Planets}}
+					{{if not eq $v.GetID  .SelectedPlanet}}
+					<option value='{{$v.GetID}}'>{{$v.GetName}} {{$v.GetCoordinate}}</option>
+					{{end}}
+				{{end}}
+			</select>
+		</form>
+	</div>
+</div>
+{{template "footer" .}}
+{{end}}
