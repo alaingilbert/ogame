@@ -1,0 +1,45 @@
+{{define "header"}}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>OGame Bot</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+	<style type="text/css">
+	body {
+		padding-bottom: 70px;
+	}
+	
+	.content {
+		margin: 10px;
+	}
+	
+	table {
+	  border-collapse: collapse;
+	}
+	
+	td {
+	  height: 50px;
+	  vertical-align: top;
+	}
+
+	table, th, td {
+	  border: 1px solid black;
+	}
+	</style>
+</head>
+
+<body>
+	<nav class="navbar navbar-default" role="navigation">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="/">Go App</a>
+		</div>
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
+			<ul class="nav navbar-nav">
+				<li><a href="/">Bot</a></li>
+				<li><a href="/planets">Planets</a></li>
+				<li><a href="/browser">Browser</a></li>
+			</ul>
+		</div>
+	</nav>
+{{end}}

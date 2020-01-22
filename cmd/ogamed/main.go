@@ -2,11 +2,15 @@ package main
 
 import (
 	"crypto/subtle"
+	"html/template"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
+	"time"
 
-	"github.com/alaingilbert/ogame"
+	"github.com/0xE232FE/ogame"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/urfave/cli.v2"
@@ -136,7 +140,7 @@ func main() {
 		},
 		&cli.BoolFlag{
 			Name:    "cors-enabled",
-			Usage:   "Enable CORS",
+			Usage:   "Enabled CORS",
 			Value:   true,
 			EnvVars: []string{"CORS_ENABLED"},
 		},
@@ -188,6 +192,12 @@ func start(c *cli.Context) error {
 	}
 
 	e := echo.New()
+
+	t := &TemplateRenderer{
+		templates: template.Must(template.ParseGlob("template/*.html")),
+	}
+	e.Renderer = t
+
 	if corsEnabled {
 		e.Use(middleware.CORS())
 	}
@@ -215,6 +225,8 @@ func start(c *cli.Context) error {
 	e.HidePort = true
 	e.Debug = false
 	e.GET("/", ogame.HomeHandler)
+	e.GET("/planets", HTMLPlanets)
+	e.GET("/browser", HTMLBrowser)
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
@@ -291,10 +303,79 @@ func start(c *cli.Context) error {
 	e.GET("/api/*", ogame.GetStaticHandler)
 	e.HEAD("/api/*", ogame.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
 
+	go func() {
+		planets := bot.GetCachedPlanets()
+		bot.GetResourcesBuildings(planets[0].ID.Celestial())
+
+		log.Printf("Resources Buildings: %d", bot.PlanetResources[planets[0].ID.Celestial()].Metal.Available)
+		log.Printf("Resources Buildings: %s", bot.PlanetResourcesBuildings[planets[0].ID.Celestial()])
+
+		time.Sleep(time.Duration(60) * time.Second)
+
+		log.Printf("Facilities: %s", bot.PlanetFacilities[planets[0].ID.Celestial()])
+	}()
+
 	if enableTLS {
 		log.Println("Enable TLS Support")
 		return e.StartTLS(host+":"+strconv.Itoa(port), tlsCertFile, tlsKeyFile)
 	}
 	log.Println("Disable TLS Support")
 	return e.Start(host + ":" + strconv.Itoa(port))
+}
+
+// TemplateRenderer is a custom html/template renderer for Echo framework
+type TemplateRenderer struct {
+	templates *template.Template
+}
+
+// Render renders a template document
+func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+
+	// Add global methods if data is a map
+	if viewContext, isMap := data.(map[string]interface{}); isMap {
+		viewContext["reverse"] = c.Echo().Reverse
+	}
+
+	return t.templates.ExecuteTemplate(w, name, data)
+}
+
+func HTMLPlanets(c echo.Context) error {
+	bot := c.Get("bot").(*ogame.OGame)
+	var objs ogame.ObjsStruct
+	var data = struct {
+		Bot          *ogame.OGame
+		Objs         ogame.ObjsStruct
+		Buildings    []ogame.Building
+		Ships        []ogame.Ship
+		Technologies []ogame.Technology
+	}{
+		Bot:          bot,
+		Objs:         objs,
+		Buildings:    ogame.Buildings,
+		Ships:        ogame.Ships,
+		Technologies: ogame.Technologies,
+	}
+
+	return c.Render(http.StatusOK, "planets", data)
+}
+
+func HTMLBrowser(c echo.Context) error {
+	bot := c.Get("bot").(*ogame.OGame)
+	var objs ogame.ObjsStruct
+
+	var data = struct {
+		Bot          *ogame.OGame
+		Objs         ogame.ObjsStruct
+		Buildings    []ogame.Building
+		Ships        []ogame.Ship
+		Technologies []ogame.Technology
+	}{
+		Bot:          bot,
+		Objs:         objs,
+		Buildings:    ogame.Buildings,
+		Ships:        ogame.Ships,
+		Technologies: ogame.Technologies,
+	}
+
+	return c.Render(http.StatusOK, "browser", data)
 }
