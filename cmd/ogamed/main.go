@@ -223,10 +223,11 @@ func start(c *cli.Context) error {
 	}
 	e.HideBanner = true
 	e.HidePort = true
-	e.Debug = false
+	e.Debug = true
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/empire", HTMLEmpire)
 	e.GET("/flights", HTMLFlights)
+	e.GET("/planet", HTMLPlanet)
 	e.GET("/browser", HTMLBrowser)
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
@@ -360,26 +361,61 @@ func HTMLEmpire(c echo.Context) error {
 	return c.Render(http.StatusOK, "empire", data)
 }
 
-func HTMLFlights(c echo.Context) error {
+func HTMLPlanet(c echo.Context) error {
 	bot := c.Get("bot").(*ogame.OGame)
 	var objs ogame.ObjsStruct
 
-	planetID, _ := strconv.ParseInt(c.QueryParam("planetID"), 10, 64)
+	planet, _ := strconv.ParseInt(c.QueryParam("id"), 10, 64)
+	var data = struct {
+		Bot             *ogame.OGame
+		PlanetID        ogame.PlanetID
+		Objs            ogame.ObjsStruct
+		Buildings       []ogame.Building
+		PlanetBuildings []ogame.Building
+		Ships           []ogame.Ship
+		Technologies    []ogame.Technology
+	}{
+		Bot:             bot,
+		PlanetID:        ogame.PlanetID(planet),
+		Objs:            objs,
+		Buildings:       ogame.Buildings,
+		PlanetBuildings: ogame.PlanetBuildings,
+		Ships:           ogame.Ships,
+		Technologies:    ogame.Technologies,
+	}
+
+	return c.Render(http.StatusOK, "planet", data)
+}
+
+func HTMLFlights(c echo.Context) error {
+	bot := c.Get("bot").(*ogame.OGame)
+	var objs ogame.ObjsStruct
+	var planetOrigin ogame.Planet
+	var planetDestination ogame.Planet
+
+	origin, _ := strconv.ParseInt(c.QueryParam("origin"), 10, 64)
+	planetOrigin, _ = bot.GetPlanet(origin)
+	destination, _ := strconv.ParseInt(c.QueryParam("destination"), 10, 64)
+	planetDestination, _ = bot.GetPlanet(destination)
 
 	var data = struct {
-		Bot            *ogame.OGame
-		Objs           ogame.ObjsStruct
-		Buildings      []ogame.Building
-		Ships          []ogame.Ship
-		Technologies   []ogame.Technology
-		SelectedPlanet int64
+		Bot          *ogame.OGame
+		PlanetShips  ogame.ShipsInfos
+		Objs         ogame.ObjsStruct
+		Buildings    []ogame.Building
+		Ships        []ogame.Ship
+		Technologies []ogame.Technology
+		Origin       ogame.Planet
+		Destination  ogame.Planet
 	}{
-		Bot:            bot,
-		Objs:           objs,
-		Buildings:      ogame.Buildings,
-		Ships:          ogame.Ships,
-		Technologies:   ogame.Technologies,
-		SelectedPlanet: planetID,
+		Bot:          bot,
+		PlanetShips:  bot.PlanetShipsInfos[ogame.CelestialID(origin)],
+		Objs:         objs,
+		Buildings:    ogame.Buildings,
+		Ships:        ogame.Ships,
+		Technologies: ogame.Technologies,
+		Origin:       planetOrigin,
+		Destination:  planetDestination,
 	}
 
 	return c.Render(http.StatusOK, "flights", data)

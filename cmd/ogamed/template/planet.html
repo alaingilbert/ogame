@@ -1,0 +1,52 @@
+{{define "planet"}}
+{{template "header" .}}
+<div class="content">
+    <div class="w3">
+        <div class="w3-bar w3-green">
+            {{range $k, $v := .Bot.Planets}}
+               <a href="/planet?id={{$v.GetID}}" class="w3-bar-item w3-button">
+                <p><img src="{{$v.Img}}" alt="{{$v.Coordinate}}"></p>
+                <p>{{$v.GetName}}</p>
+                </a>
+            {{end}}
+        </div>
+    </div>
+    <br/>
+
+    <table>
+        <tr><td>
+            <table class="w3-table w3-striped">
+            {{range $k, $v := .Technologies}}
+            <tr>
+                <td>{{$v.GetName}}</td>
+                <td>{{$.Bot.Researches.ByID $v.GetID}}</td>
+            </tr>
+            {{end}}
+            </table>
+        </td>
+        <td>
+            <table class="w3-table w3-striped">
+                {{range $k, $v := .PlanetBuildings}}
+                <tr>
+                    <td>{{$v.GetName}}</td>
+                    <td>{{with (index $.Bot.PlanetResourcesBuildings $.PlanetID.Celestial)}} {{.ByID $v.GetID}} {{end}}</td>
+                </tr>
+                {{end}}
+                </table>
+        </td>
+
+        <td>
+            <table class="w3-table w3-striped">
+                {{range $k, $v := .Ships}}
+                <tr>
+                    <td>{{$v.GetName}}</td>
+                    <td>{{with (index $.Bot.PlanetShipsInfos $.PlanetID.Celestial)}} {{.ByID $v.GetID}} {{end}}</td>
+                </tr>
+                {{end}}
+                </table>
+        </td>
+        </tr>
+    </table>
+</div>
+{{template "footer" .}}
+{{end}}
