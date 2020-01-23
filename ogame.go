@@ -985,6 +985,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == AllianceOverviewAjaxPage ||
 		page == SupportAjaxPage ||
 		page == BuffActivationAjaxPage ||
+		page == AuctioneerAjaxPage ||
 		ajax == "1"
 }
 
@@ -1779,6 +1780,91 @@ func (b *OGame) createUnion(fleet Fleet) (int64, error) {
 		return 0, errors.New(res.Errorbox.Text)
 	}
 	return res.UnionID, nil
+}
+
+func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
+	payload := url.Values{"show": {"auctioneer"}, "ajax": {"1"}}
+	if celestialID != 0 {
+		payload.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, payload)
+	if err != nil {
+		return Auction{}, err
+	}
+	return b.extractor.ExtractAuction(auctionHTML)
+}
+
+func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources) error {
+	if celestialID == 0 {
+		return errors.New("invalid celestial ID")
+	}
+
+	// Get fresh token (among others)
+	auction, err := b.getAuction(celestialID)
+	if err != nil {
+		return err
+	}
+
+	if auction.HasFinished {
+		return errors.New("auction completed")
+	}
+
+	payload := url.Values{}
+	for auctionPlanetidString, _ := range auction.Resources {
+		payload.Set("bid[planets]["+auctionPlanetidString+"][metal]", "0")
+		payload.Set("bid[planets]["+auctionPlanetidString+"][crystal]", "0")
+		payload.Set("bid[planets]["+auctionPlanetidString+"][deuterium]", "0")
+	}
+	for celestialID, resources := range bid {
+		payload.Set("bid[planets]["+strconv.FormatInt(int64(celestialID), 10)+"][metal]", strconv.FormatInt(resources.Metal, 10))
+		payload.Set("bid[planets]["+strconv.FormatInt(int64(celestialID), 10)+"][crystal]", strconv.FormatInt(resources.Crystal, 10))
+		payload.Set("bid[planets]["+strconv.FormatInt(int64(celestialID), 10)+"][deuterium]", strconv.FormatInt(resources.Deuterium, 10))
+	}
+
+	payload.Add("bid[honor]", "0")
+	payload.Add("token", auction.Token)
+	payload.Add("ajax", "1")
+
+	if celestialID != 0 {
+		payload.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"auctioneer"}}, payload)
+	if err != nil {
+		return err
+	}
+
+	/*
+		Example return from postPageContent on page:auctioneer :
+		{
+		  "error": false,
+		  "message": "Your bid has been accepted.",
+		  "planetResources": {
+		    "$planetID": {
+		      "metal": $metal,
+		      "crystal": $crystal,
+		      "deuterium": $deuterium
+		    },
+		    "31434289": {
+		      "metal": 5202955.0986408,
+		      "crystal": 2043854.5003197,
+		      "deuterium": 1552571.3257004
+		    }
+		    <...>
+		  },
+		  "honor": 10107,
+		  "newToken": "940387sf93e28fbf47b24920c510db38"
+		}
+	*/
+
+	var jsonObj map[string]interface{}
+	if err := json.Unmarshal(auctionHTML, &jsonObj); err != nil {
+		return err
+	}
+	if jsonObj["error"] == true {
+		return errors.New(jsonObj["message"].(string))
+	}
+	return nil
 }
 
 type planetResource struct {
@@ -4030,168 +4116,11 @@ func (b *OGame) CharacterClass() CharacterClass {
 }
 
 // GetAuction ...
-func (b *OGame) GetAuction() (Auction, error) {
-	payload := url.Values{"show": {"auctioneer"}, "ajax": {"1"}}
-	auctionHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, payload)
-	if err != nil {
-		return Auction{}, err
-	}
-
-	return b.extractor.ExtractAuction(auctionHTML), nil
+func (b *OGame) GetAuction(celestialID CelestialID) (Auction, error) {
+	return b.WithPriority(Normal).GetAuction(celestialID)
 }
 
 // DoAuction ...
-func (b *OGame) DoAuction(planetID int64, planetType int64, bid int64, resourcetype int64) (string, error) {
-	if planetID == 0 {
-		return "", errors.New("invalid planetid")
-	}
-
-	if planetType < 1 || planetType > 3 {
-		return "", errors.New("invalid planettype")
-	}
-
-	if bid < 1 {
-		return "", errors.New("bid must be 1 or more")
-	}
-
-	// resourcetypes: 0-metal, 1-crystal, 2-deuterium
-	if resourcetype > 2 {
-		return "", errors.New("invalid resourcetype provided")
-	}
-
-	// Sleep 0.5 second to prevent any possible collisions with the server
-	time.Sleep(time.Second / 2)
-
-	// Get fresh token (among others)
-	auction, err := b.GetAuction()
-	if err != nil {
-		return "", err
-	}
-
-	if auction.HasFinished == true {
-		return "Auction completed", nil
-	}
-
-	// Sleep 0.5 second to prevent any possible collisions with the server
-	time.Sleep(time.Second / 2)
-
-//	----------------------------------------
-//	POST request copied from Chrome-inspect window:
-//	----------------------------------------
-//
-//	Request URL: https://s117-en.ogame.gameforge.com/game/index.php?page=auctioneer
-//	Referrer Policy: no-referrer-when-downgrade
-//	Provisional headers are shown
-//	Accept: application/json, text/javascript, */*; q=0.01
-//	Content-Type: application/x-www-form-urlencoded; charset=UTF-8 <<< yes is added by postPageContent
-//	Origin: https://s117-en.ogame.gameforge.com
-//	Referer: https://s117-en.ogame.gameforge.com/game/index.php?page=traderOverview
-//	User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36
-//	X-Requested-With: XMLHttpRequest <<< yes is in func IsAjaxPage
-//	page: auctioneer
-//	bid[planets][planet_id_1][metal]: 0
-//	bid[planets][planet_id_1][crystal]: 0
-//	bid[planets][planet_id_1][deuterium]: 0
-//	bid[planets][planet_id_2][metal]: 3000 <<< set this one manually, copy the rest as placeholders
-//	bid[planets][planet_id_2][crystal]: 0
-//	bid[planets][planet_id_2][deuterium]: 0
-//	bid[honor]: 0
-//	token: 99997e5c0cd1dd8r8d26b6a27bf53c5f
-//	ajax: 1
-
-	// -------------------------------------------------------------
-	// -------------------------------------------------------------
-
-	// Step 1 : Construct base payload
-	payload := url.Values{}
-
-	// Step 2 : Add bids to payload
-	// We recreate the whole list as per the JSON from GetAuction
-	// We then set the bid value to the correct value for that planetID
-
-	for auction_planetid_string, _ := range auction.Resources {
-		auction_planetid_int, _ := strconv.ParseInt(auction_planetid_string, 10, 64)
-
-		tmp_metal := "0"
-		tmp_crystal := "0"
-		tmp_deuterium := "0"
-
-		if auction_planetid_int == planetID {
-			tmp_bid := strconv.FormatInt(bid, 10)
-			switch resourcetype {
-				case 0:
-					tmp_metal = tmp_bid
-				case 1:
-					tmp_crystal = tmp_bid
-				case 2:
-					tmp_deuterium = tmp_bid
-			}
-		}
-
-		payload.Add("bid[planets][" + auction_planetid_string + "][metal]", tmp_metal)
-		payload.Add("bid[planets][" + auction_planetid_string + "][crystal]", tmp_crystal)
-		payload.Add("bid[planets][" + auction_planetid_string + "][deuterium]", tmp_deuterium)
-	}
-
-	// Step 3 : Add Honor-points, unsupported in our API
-	payload.Add("bid[honor]", "0")
-
-	// Step 4 : Add Token
-	payload.Add("token", auction.Token)
-
-	// Step 5 : Set AJAX
-	payload.Add("ajax", "1")
-
-	// Done building payload
-	log.Print(payload)
-	// ------------------------------------------
-
-	// Sleep 0.5 second to prevent any possible collisions with the server
-	time.Sleep(time.Second / 2)
-
-	// Perform the Auction
-	// Send HTTP POST request to the server
-	// Full manual HTTP POST request (if needed) can be copied from function: getPhpSessionID()
-	auctionHTML, err := b.postPageContent(url.Values{"page": {"auctioneer"}}, payload)
-	if err != nil {
-		return "", err
-	}
-
-	/*
-
-	Example return from postPageContent on page:auctioneer :
-
-	{
-	  "error": false,
-	  "message": "Your bid has been accepted.",
-	  "planetResources": {
-	    "$planet_id_1": {
-	      "metal": $metal,
-	      "crystal": $crystal,
-	      "deuterium": $deuterium
-	    },
-	    "$planet_id_2": {
-	      "metal": 5202955.0986408,
-	      "crystal": 2043854.5003197,
-	      "deuterium": 1552571.3257004
-	    }
-	    <...>
-	  },
-	  "honor": 10107,
-	  "newToken": "220387ff91e28fbf47b24940b510db59"
-	}
-
-	*/
-
-	var jsonobj map[string]interface{}
-
-	if err := json.Unmarshal([]byte(auctionHTML), &jsonobj); err != nil {
-		return "", err
-	}
-
-	if jsonobj["error"] == true {
-		return "", errors.New(jsonobj["message"].(string))
-	}
-
-	return jsonobj["message"].(string), nil
+func (b *OGame) DoAuction(celestialID CelestialID, bid map[CelestialID]Resources) error {
+	return b.WithPriority(Normal).DoAuction(celestialID, bid)
 }

@@ -2016,132 +2016,96 @@ func extractEmpire(html string, nbr int64) (interface{}, error) {
 
 // Auction ...
 type Auction struct {
-	HasFinished bool
-	Endtime int
-	NumBids int
-	CurrentBid int
-	MinimumBid int
-	HighestBidder string
-	HighestBidderUserId int
-	CurrentItem string
-	CurrentItemLong string
-	Inventory int
-	Token string
-
-	ResourceMultiplier struct {
-		Metal float64
-		Crystal float64
+	HasFinished         bool
+	Endtime             int64
+	NumBids             int64
+	CurrentBid          int64
+	MinimumBid          int64
+	HighestBidder       string
+	HighestBidderUserID int64
+	CurrentItem         string
+	CurrentItemLong     string
+	Inventory           int64
+	Token               string
+	ResourceMultiplier  struct {
+		Metal     float64
+		Crystal   float64
 		Deuterium float64
-		Honor int
+		Honor     int64
 	}
-
 	Resources map[string]interface{}
 }
 
+// String ...
+func (a Auction) String() string {
+	return "" +
+		"  Has finished: " + strconv.FormatBool(a.HasFinished) + "\n" +
+		"      End time: " + strconv.FormatInt(a.Endtime, 10) + "\n" +
+		"      Num bids: " + strconv.FormatInt(a.NumBids, 10) + "\n" +
+		"   Minimum bid: " + strconv.FormatInt(a.MinimumBid, 10) + "\n" +
+		"Highest bidder: " + a.HighestBidder + " (" + strconv.FormatInt(a.HighestBidderUserID, 10) + ")" + "\n" +
+		"  Current item: " + a.CurrentItem + " (" + a.CurrentItemLong + ")" + "\n" +
+		"     Inventory: " + strconv.FormatInt(a.Inventory, 10) + "\n" +
+		""
+}
+
 // ExtractAuction extract auction information from page "traderAuctioneer"
-func ExtractAuctionFromDoc(doc *goquery.Document) Auction {
-	// Create Auction object
+func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	auction := Auction{}
 	auction.HasFinished = false
 
 	// Detect if Auction has already finished
 	nextAuction := doc.Find("span.nextAuction")
-
-	if(nextAuction.Size() > 0) {
+	if nextAuction.Size() > 0 {
 		// Find time until next auction starts
-		endtime := nextAuction.Text()
-		auction.Endtime, _ = strconv.Atoi(endtime)
-
-		// Set HasFinished to true
+		auction.Endtime, _ = strconv.ParseInt(nextAuction.Text(), 10, 64)
 		auction.HasFinished = true
-
 	} else {
 		endAtApprox := doc.Find("p.auction_info b").Text()
-		// m := regexp.MustCompile(`approx\.\s(\d+)m`).FindStringSubmatch(endAtApprox) // TODO: just the \d for multi language
-		m := regexp.MustCompile(`(\d+)`).FindStringSubmatch(endAtApprox)
-
-		if len(m) == 2 {
-			endtime, err := strconv.Atoi(m[1])
-			if err != nil {
-				b.debug(err)
-			}
-			auction.Endtime = endtime
-		} else {
-			b.debug(m)
+		m := regexp.MustCompile(`approx\.\s(\d+)m`).FindStringSubmatch(endAtApprox)
+		if len(m) != 2 {
+			return Auction{}, errors.New("failed to find end time approx")
 		}
+		endTime, err := strconv.ParseInt(m[1], 10, 64)
+		if err != nil {
+			return Auction{}, errors.New("invalid end time approx: " + err.Error())
+		}
+		auction.Endtime = endTime
 	}
 
-	// Find name of latest bidder
-	currentPlayer := doc.Find("a.currentPlayer").Text()
-	auction.HighestBidder = strings.TrimSpace(currentPlayer)
-
-	// Find UserId of latest bidder
-	currentPlayerUid, _ := doc.Find("a.currentPlayer").Attr("data-player-id")
-	auction.HighestBidderUserId, _ = strconv.Atoi(currentPlayerUid)
-
-	// Find number of bids
-	numbids := doc.Find("div.numberOfBids").Text()
-	auction.NumBids, _ = strconv.Atoi(numbids)
-
-	// Find current bid
-	currentbid := doc.Find("div.currentSum").Text()
-	if strings.Contains(currentbid, ".") { // NL and EN HTML both use "." as the thousand-separator. Locale-settings not required? Don't know about other languages.
-		currentbid = strings.Replace(currentbid, ".", "", -1)
+	auction.HighestBidder = strings.TrimSpace(doc.Find("a.currentPlayer").Text())
+	auction.HighestBidderUserID, _ = strconv.ParseInt(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""), 10, 64)
+	auction.NumBids, _ = strconv.ParseInt(doc.Find("div.numberOfBids").Text(), 10, 64)
+	auction.CurrentBid = ParseInt(doc.Find("div.currentSum").Text())
+	auction.Inventory, _ = strconv.ParseInt(doc.Find("span.level.amount").Text(), 10, 64)
+	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
+	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
+	multiplierRegex := regexp.MustCompile(`multiplier=([^;]+);`).FindStringSubmatch(doc.Text())
+	if len(multiplierRegex) != 2 {
+		return Auction{}, errors.New("failed to find auction multiplier")
 	}
-	auction.CurrentBid, _ = strconv.Atoi(currentbid)
-
-	// Find inventory amount for auctioned item
-	inventory := doc.Find("span.level.amount")
-	auction.Inventory, _ = strconv.Atoi(inventory.Text())
-
-	// Find current item
-	currentitem, _ := doc.Find("img").First().Attr("alt")
-	auction.CurrentItem = strings.ToLower(currentitem)
-
-	// Find current item long
-	currentitemlong, _ := doc.Find("div.image_140px").First().Find("a").First().Attr("title")
-	auction.CurrentItemLong = strings.ToLower(string(currentitemlong))
-
-	// Find multiplier ratios
-	// var multiplier={"metal":1,"crystal":1.5,"deuterium":3,"honor":100};auctioneer
-	multiplier_regex := regexp.MustCompile(`multiplier=(.*);auctioneer`).FindStringSubmatch(doc.Text())
-	if len(multiplier_regex) == 2 {
-		if err := json.Unmarshal([]byte(multiplier_regex[1]), &auction.ResourceMultiplier); err != nil {
-			b.debug(err)
-		}
-	} else {
-		b.debug(multiplier_regex)
+	if err := json.Unmarshal([]byte(multiplierRegex[1]), &auction.ResourceMultiplier); err != nil {
+		return Auction{}, errors.New("failed to json parse auction multiplier: " + err.Error())
 	}
 
 	// Find auctioneer token
-	// var auctioneerToken="90db7e5c0cd2dk808d26b6a27bf53c5x";var multiplier
-	token_regex := regexp.MustCompile(`auctioneerToken\=\"(.*)\"\;`).FindStringSubmatch(doc.Text())
-	if len(token_regex) == 2 {
-		auction.Token = string(token_regex[1])
-	} else {
-		b.debug(token_regex)
+	tokenRegex := regexp.MustCompile(`auctioneerToken="([^"]+)";`).FindStringSubmatch(doc.Text())
+	if len(tokenRegex) != 2 {
+		return Auction{}, errors.New("failed to find auctioneer token")
 	}
+	auction.Token = tokenRegex[1]
 
 	// Find Planet / Moon resources JSON
-	// planetResources=(.*);var playerBid
-	planet_moon_resources := regexp.MustCompile(`planetResources=(.*);var playerBid`).FindStringSubmatch(doc.Text())
-	if len(planet_moon_resources) == 2 {
-		err := json.Unmarshal([]byte(planet_moon_resources[1]), &auction.Resources)
-		if err != nil {
-			b.debug(err)
-		}
-	} else {
-		b.debug(planet_moon_resources)
+	planetMoonResources := regexp.MustCompile(`planetResources=([^;]+);`).FindStringSubmatch(doc.Text())
+	if len(planetMoonResources) != 2 {
+		return Auction{}, errors.New("failed to find planetResources")
+	}
+	if err := json.Unmarshal([]byte(planetMoonResources[1]), &auction.Resources); err != nil {
+		return Auction{}, errors.New("failed to json unmarshal planetResources: " + err.Error())
 	}
 
 	// Find min bid
-	minimumbid := doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text()
-	if strings.Contains(minimumbid, ".") { // NL and EN HTML both use "." as the thousand-separator. Locale-settings not required? Don't know about other languages.
-		b.debug(minimumbid)
-		minimumbid = strings.Replace(minimumbid, ".", "", -1)
-	}
-	auction.MinimumBid, _ = strconv.Atoi(minimumbid)
+	auction.MinimumBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
 
-	return auction
+	return auction, nil
 }
-

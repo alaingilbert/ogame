@@ -101,6 +101,8 @@ type Wrapper interface {
 	GetEmpire(nbr int64) (interface{}, error)
 	HeadersForPage(url string) (http.Header, error)
 	CharacterClass() CharacterClass
+	GetAuction(celestialID CelestialID) (Auction, error)
+	DoAuction(celestialID CelestialID, bid map[CelestialID]Resources) error
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
