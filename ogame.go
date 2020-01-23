@@ -1810,10 +1810,10 @@ func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources
 	}
 
 	payload := url.Values{}
-	for auctionPlanetidString, _ := range auction.Resources {
-		payload.Set("bid[planets]["+auctionPlanetidString+"][metal]", "0")
-		payload.Set("bid[planets]["+auctionPlanetidString+"][crystal]", "0")
-		payload.Set("bid[planets]["+auctionPlanetidString+"][deuterium]", "0")
+	for auctionCelestialIDString, _ := range auction.Resources {
+		payload.Set("bid[planets]["+auctionCelestialIDString+"][metal]", "0")
+		payload.Set("bid[planets]["+auctionCelestialIDString+"][crystal]", "0")
+		payload.Set("bid[planets]["+auctionCelestialIDString+"][deuterium]", "0")
 	}
 	for celestialID, resources := range bid {
 		payload.Set("bid[planets]["+strconv.FormatInt(int64(celestialID), 10)+"][metal]", strconv.FormatInt(resources.Metal, 10))
