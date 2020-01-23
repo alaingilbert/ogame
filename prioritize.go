@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"net/http"
 	"net/url"
 	"sync/atomic"
 	"time"
@@ -490,7 +491,7 @@ func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, shi
 	researches := b.bot.getCachedResearch()
 	return calcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
 		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, b.bot.serverData.SpeedFleet, ships, researches)
+		float64(speed)/10, b.bot.serverData.SpeedFleet, ships, researches, b.bot.characterClass)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
@@ -531,10 +532,16 @@ func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
 	return b.bot.createUnion(fleet)
 }
 
+// HeadersForPage gets the headers for a specific ogame page
+func (b *Prioritize) HeadersForPage(url string) (http.Header, error) {
+	b.begin("HeadersForPage")
+	defer b.done()
+	return b.bot.headersForPage(url)
+}
+
 // GetEmpire retrieves JSON from Empire page (Commander only).
 func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
 	b.begin("GetEmpire")
 	defer b.done()
 	return b.bot.getEmpire(nbr)
 }
-

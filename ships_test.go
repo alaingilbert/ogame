@@ -16,7 +16,7 @@ func TestShipsInfos_Cargo(t *testing.T) {
 		LargeCargo: 2,
 	}
 	techs := Researches{}
-	assert.Equal(t, int64(60000), ships.Cargo(techs, false))
+	assert.Equal(t, int64(60000), ships.Cargo(techs, false, false))
 }
 
 func TestShipsInfos_FleetValue(t *testing.T) {
@@ -143,9 +143,13 @@ func TestShipsInfos_ToQuantifiables(t *testing.T) {
 	assert.Equal(t, []Quantifiable{{SmallCargoID, 1}, {LargeCargoID, 2}}, ShipsInfos{SmallCargo: 1, LargeCargo: 2}.ToQuantifiables())
 }
 
+func TestShipsInfos_FromQuantifiables(t *testing.T) {
+	assert.Equal(t, ShipsInfos{SmallCargo: 1, LargeCargo: 2}, ShipsInfos{}.FromQuantifiables([]Quantifiable{{SmallCargoID, 1}, {LargeCargoID, 2}}))
+}
+
 func TestShipsInfos_Speed(t *testing.T) {
-	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}))
-	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}))
+	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}, false, false))
+	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}, false, false))
 }
 
 func TestShipsInfos_ToPtr(t *testing.T) {

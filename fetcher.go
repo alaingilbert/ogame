@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// Page names
 const (
 	// V6 full pages
 	OverviewPage         = "overview"

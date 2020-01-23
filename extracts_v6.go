@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"math"
 	"net/url"
 	"regexp"
@@ -473,8 +472,9 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 		if s.Find("td.destFleet figure").HasClass("moon") {
 			attack.Destination.Type = MoonType
 		}
+		attack.DestinationName = strings.TrimSpace(s.Find("td.destFleet").Text())
 
-		attack.ArrivalTime = time.Unix(int64(arrivalTimeInt), 0)
+		attack.ArrivalTime = time.Unix(arrivalTimeInt, 0)
 		attack.ArriveIn = int64(clock.Until(attack.ArrivalTime).Seconds())
 
 		if attack.UnionID != 0 {
@@ -1091,7 +1091,6 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 		res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
 		res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
 		res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
-		fmt.Println(fleet.Origin, fleet.Destination, res)
 
 		tmp = append(tmp, Tmp{fleet: fleet, res: res})
 	})
@@ -1110,7 +1109,7 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 	return
 }
 
-func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
+func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1136,19 +1135,20 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
 		var arriveIn int64
 		if len(m) == 2 {
-			arriveIn, _ = strconv.ParseInt(string(m[1]), 10, 64)
+			arriveIn, _ = strconv.ParseInt(m[1], 10, 64)
 		}
 
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
 		m = regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
 		var backIn int64
 		if len(m) == 2 {
-			backIn, _ = strconv.ParseInt(string(m[1]), 10, 64)
+			backIn, _ = strconv.ParseInt(m[1], 10, 64)
 		}
 
 		missionType, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
 		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
 		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
+		endTime, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""), 10, 64)
 		ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
 		secs := arrivalTime - ogameTimestamp
 		if secs < 0 {
@@ -1176,6 +1176,8 @@ func extractFleetsFromDocV6(doc *goquery.Document) (res []Fleet) {
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
+		fleet.ArrivalTime = time.Unix(endTime, 0)
+		fleet.BackTime = time.Unix(arrivalTime, 0)
 		if !returnFlight {
 			fleet.ArriveIn = arriveIn
 			fleet.BackIn = backIn
@@ -1379,6 +1381,26 @@ func extractNotifAccountFromDocV6(doc *goquery.Document) bool {
 	return exists
 }
 
+func extractCommanderFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.commander").HasClass("on")
+}
+
+func extractAdmiralFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.admiral").HasClass("on")
+}
+
+func extractEngineerFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.engineer").HasClass("on")
+}
+
+func extractGeologistFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.geologist").HasClass("on")
+}
+
+func extractTechnocratFromDocV6(doc *goquery.Document) bool {
+	return doc.Find("div#officers a.technocrat").HasClass("on")
+}
+
 func extractPlanetCoordinateV6(pageHTML []byte) (Coordinate, error) {
 	m := regexp.MustCompile(`<meta name="ogame-planet-coordinates" content="(\d+):(\d+):(\d+)"/>`).FindSubmatch(pageHTML)
 	if len(m) == 0 {
@@ -1502,6 +1524,8 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Plaats ([\d.]+) van ([\d.]+)\)`)
 	case "dk":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Placering ([\d.]+) af ([\d.]+)\)`)
+	case "ro":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Locul ([\d.]+) din ([\d.]+)\)`)
 	case "ru":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u041c\\u0435\\u0441\\u0442\\u043e ([\d.]+) \\u0438\\u0437 ([\d.]+)\)`)
 	}
@@ -1907,7 +1931,7 @@ func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error
 	}
 
 	txt := goquery.NewDocumentFromNode(root).Text()
-	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|至|a|～|do|ile|tot|og|до|až|til|έως)\s*([-\d]+).+C`)
+	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως)\s*([-\d]+).+C`)
 	m := planetInfosRgx.FindStringSubmatch(txt)
 	if len(m) < 10 {
 		return Planet{}, errors.New("failed to parse planet infos: " + txt)

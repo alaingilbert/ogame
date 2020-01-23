@@ -48,12 +48,19 @@ func (e ExtractorV7) ExtractResourceSettings(pageHTML []byte) (ResourceSettings,
 	return e.ExtractResourceSettingsFromDoc(doc)
 }
 
+// ExtractCharacterClass ...
+func (e ExtractorV7) ExtractCharacterClass(pageHTML []byte) (CharacterClass, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractCharacterClassFromDoc(doc)
+}
+
 // ExtractResourcesBuildings ...
 func (e ExtractorV7) ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractResourcesBuildingsFromDoc(doc)
 }
 
+// ExtractResourcesDetails ...
 func (e ExtractorV7) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV7(pageHTML)
 }
@@ -163,4 +170,9 @@ func (e ExtractorV7) ExtractCancelBuildingInfos(pageHTML []byte) (token string, 
 // ExtractCancelResearchInfos ...
 func (e ExtractorV7) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return extractCancelResearchInfosV7(pageHTML)
+}
+
+// ExtractCharacterClassFromDoc ...
+func (e ExtractorV7) ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error) {
+	return extractCharacterClassFromDocV7(doc)
 }

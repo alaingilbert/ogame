@@ -3,12 +3,11 @@ package ogame
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"math"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -152,7 +151,6 @@ type resourcesRespV71 struct {
 func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err error) {
 	var res resourcesRespV71
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
-		fmt.Println("CALSS", err)
 		if isLogged(pageHTML) {
 			return out, ErrInvalidPlanetID
 		}
@@ -223,6 +221,9 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 		report.IsBandit = banditstarlord.HasClass("rank_bandit1") || banditstarlord.HasClass("rank_bandit2") || banditstarlord.HasClass("rank_bandit3")
 		report.IsStarlord = banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3")
 	}
+
+	honorableFound := doc.Find("div.detail_txt").First().Find("span.status_abbr_honorableTarget")
+	report.HonorableTarget = honorableFound.Length() > 0
 
 	// IsInactive, IsLongInactive
 	inactive := doc.Find("div.detail_txt").First().Find("span")
@@ -462,8 +463,8 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 }
 
 func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
-	duration_float, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
-	duration = int64(math.Ceil(duration_float))
+	durationFloat, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
+	duration = int64(math.Ceil(durationFloat))
 	max, _ = strconv.ParseInt(doc.Find("input#missileCount").AttrOr("data-max", "0"), 10, 64)
 	token = doc.Find("input[name=token]").AttrOr("value", "")
 	return

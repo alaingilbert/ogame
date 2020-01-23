@@ -8,7 +8,7 @@ var ErrNotLogged = errors.New("not logged")
 // ErrBadCredentials returned when the provided credentials are invalid
 var ErrBadCredentials = errors.New("bad credentials")
 
-// ErrNotLogged returned when the account is not found
+// ErrAccountNotFound returned when the account is not found
 var ErrAccountNotFound = errors.New("account not found")
 
 // ErrAccountBlocked returned when account is banned

@@ -99,6 +99,24 @@ func (f *FleetBuilder) SetAllResources() *FleetBuilder {
 	return f
 }
 
+// SetAllMetal will send all metal from the origin
+func (f *FleetBuilder) SetAllMetal() *FleetBuilder {
+	f.resources.Metal = -1
+	return f
+}
+
+// SetAllCrystal will send all crystal from the origin
+func (f *FleetBuilder) SetAllCrystal() *FleetBuilder {
+	f.resources.Crystal = -1
+	return f
+}
+
+// SetAllDeuterium will send all deuterium from the origin
+func (f *FleetBuilder) SetAllDeuterium() *FleetBuilder {
+	f.resources.Deuterium = -1
+	return f
+}
+
 // SetMission ...
 func (f *FleetBuilder) SetMission(mission MissionID) *FleetBuilder {
 	f.mission = mission
@@ -165,16 +183,22 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 
 		payload := f.resources
 		// Send all resources
-		if f.resources.Metal == -1 && f.resources.Crystal == -1 && f.resources.Deuterium == -1 {
+		if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
 			// Calculate cargo
 			techs := tx.GetResearch()
-			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1)
+			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
 			planetResources, _ := tx.GetResources(f.origin.GetID())
-			payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
-			cargoCapacity -= payload.Deuterium
-			payload.Crystal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
-			cargoCapacity -= payload.Crystal
-			payload.Metal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
+			if f.resources.Deuterium == -1 {
+				payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
+				cargoCapacity -= payload.Deuterium
+			}
+			if f.resources.Crystal == -1 {
+				payload.Crystal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
+				cargoCapacity -= payload.Crystal
+			}
+			if f.resources.Metal == -1 {
+				payload.Metal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
+			}
 		}
 
 		f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)

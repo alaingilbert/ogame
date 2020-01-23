@@ -41,3 +41,19 @@ func TestConstants_MissionID_String(t *testing.T) {
 	assert.Equal(t, "Expedition", MissionID(15).String())
 	assert.Equal(t, "16", MissionID(16).String())
 }
+
+func TestConstants_Speed_Int64(t *testing.T) {
+	assert.Equal(t, int64(1), TenPercent.Int64())
+}
+
+func TestConstants_Speed_Int(t *testing.T) {
+	assert.Equal(t, int64(1), TenPercent.Int())
+}
+
+func TestConstants_CelestialType_Int64(t *testing.T) {
+	assert.Equal(t, int64(1), PlanetType.Int64())
+}
+
+func TestConstants_CelestialType_Int(t *testing.T) {
+	assert.Equal(t, int64(1), PlanetType.Int())
+}

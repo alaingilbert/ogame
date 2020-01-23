@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"regexp"
 	"testing"
@@ -40,7 +39,7 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 
 func TestWrapper(t *testing.T) {
 	var bot Wrapper
-	bot = NewNoLogin("", "", "", "")
+	bot = NewNoLogin("", "", "", "", 0)
 	assert.NotNil(t, bot)
 }
 
@@ -639,6 +638,20 @@ func TestExtractPlanet_no(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_ro(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/ro/overview.html")
+	planet, _ := NewExtractorV71().ExtractPlanet(pageHTMLBytes, PlanetID(33629199), &OGame{language: "ro"})
+	assert.Equal(t, "Planeta Principala", planet.Name)
+	assert.Equal(t, int64(12800), planet.Diameter)
+	assert.Equal(t, int64(31), planet.Temperature.Min)
+	assert.Equal(t, int64(71), planet.Temperature.Max)
+	assert.Equal(t, int64(0), planet.Fields.Built)
+	assert.Equal(t, int64(193), planet.Fields.Total)
+	assert.Equal(t, PlanetID(33629199), planet.ID)
+	assert.Equal(t, Coordinate{1, 185, 4, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_sk(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/sk/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33625241), &OGame{language: "sk"})
@@ -813,7 +826,7 @@ func TestExtractPlanetByCoord_notExists(t *testing.T) {
 }
 
 func TestFindSlowestSpeed(t *testing.T) {
-	assert.Equal(t, int64(8000), findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}))
+	assert.Equal(t, int64(8000), findSlowestSpeed(ShipsInfos{SmallCargo: 1, LargeCargo: 1}, Researches{CombustionDrive: 6}, false, false))
 }
 
 func TestExtractShips(t *testing.T) {
@@ -1133,6 +1146,7 @@ func TestExtractAttacks(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
 	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clock)
 	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, "Homeworld", attacks[0].DestinationName)
 	assert.Equal(t, clock.Now().Add(14*time.Minute), attacks[0].ArrivalTime.UTC())
 	assert.Equal(t, int64(14*60), attacks[0].ArriveIn)
 }
@@ -1204,6 +1218,7 @@ func TestExtractAttacksMoon(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, attacks[0].Destination)
 	assert.Equal(t, MoonType, attacks[0].Destination.Type)
 	assert.Equal(t, int64(1), attacks[0].Ships.SmallCargo)
+	assert.Equal(t, "Moon", attacks[0].DestinationName)
 }
 
 func TestExtractAttacksMoonDestruction(t *testing.T) {
@@ -1482,6 +1497,14 @@ func TestExtractUserInfos_gr(t *testing.T) {
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(162), infos.Rank)
 	assert.Equal(t, int64(163), infos.Total)
+}
+
+func TestExtractUserInfos_ro(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/ro/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "ro")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(108), infos.Rank)
+	assert.Equal(t, int64(109), infos.Total)
 }
 
 func TestExtractUserInfos_mx(t *testing.T) {
@@ -1899,8 +1922,7 @@ func TestCancelResearch(t *testing.T) {
 }
 func TestCancelResearchV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview_cancels.html")
-	token, techID, listID, err := NewExtractorV7().ExtractCancelResearchInfos(pageHTMLBytes)
-	fmt.Println(err)
+	token, techID, listID, _ := NewExtractorV7().ExtractCancelResearchInfos(pageHTMLBytes)
 	assert.Equal(t, "9d44b41d8136dffadab759749508105e", token)
 	assert.Equal(t, int64(124), techID)
 	assert.Equal(t, int64(1324883), listID)
@@ -1953,6 +1975,36 @@ func TestExtractFleetV71(t *testing.T) {
 	assert.Equal(t, int64(250), fleets[0].Ships.SmallCargo)
 	assert.Equal(t, int64(2), fleets[0].Ships.Pathfinder)
 	assert.Equal(t, Resources{}, fleets[0].Resources)
+}
+
+func TestExtractFleetV71_2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement2.html")
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 1, 12, 1, 45, 34, 0, time.UTC))
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 2, len(fleets))
+	assert.Equal(t, int64(621), fleets[0].ArriveIn)
+	assert.Equal(t, int64(1245), fleets[0].BackIn)
+	assert.Equal(t, Coordinate{4, 116, 12, MoonType}, fleets[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[0].Destination)
+	assert.Equal(t, Transport, fleets[0].Mission)
+	assert.Equal(t, false, fleets[0].ReturnFlight)
+	assert.Equal(t, FleetID(8441918), fleets[0].ID)
+	assert.Equal(t, int64(12), fleets[0].Ships.SmallCargo)
+	assert.Equal(t, Resources{}, fleets[0].Resources)
+	assert.Equal(t, clock.Now().Add(621*time.Second), fleets[0].ArrivalTime.UTC())
+	assert.Equal(t, clock.Now().Add(1245*time.Second), fleets[0].BackTime.UTC())
+
+	assert.Equal(t, int64(-1), fleets[1].ArriveIn)
+	assert.Equal(t, int64(2815), fleets[1].BackIn)
+	assert.Equal(t, Coordinate{4, 208, 10, PlanetType}, fleets[1].Origin)
+	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[1].Destination)
+	assert.Equal(t, Transport, fleets[1].Mission)
+	assert.Equal(t, true, fleets[1].ReturnFlight)
+	assert.Equal(t, FleetID(8441803), fleets[1].ID)
+	assert.Equal(t, int64(11), fleets[1].Ships.LargeCargo)
+	assert.Equal(t, Resources{}, fleets[1].Resources)
+	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].ArrivalTime.UTC())
+	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].BackTime.UTC())
 }
 
 func TestExtractFleetV7(t *testing.T) {
@@ -2308,9 +2360,22 @@ func TestExtractEspionageReportV7(t *testing.T) {
 func TestExtractEspionageReportV71(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report.html")
 	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.False(t, infos.HonorableTarget)
 	assert.Equal(t, int64(66331), infos.Metal)
 	assert.Equal(t, int64(58452), infos.Crystal)
 	assert.Equal(t, int64(0), infos.Deuterium)
+}
+
+func TestExtractEspionageReportHonorableV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report_honorable.html")
+	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.True(t, infos.HonorableTarget)
+}
+
+func TestExtractEspionageReportHonorableStrongV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report_honorable_strong.html")
+	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.True(t, infos.HonorableTarget)
 }
 
 func TestExtractEspionageReportThousands(t *testing.T) {
@@ -2439,19 +2504,19 @@ func TestDistance(t *testing.T) {
 func TestCalcFlightTime(t *testing.T) {
 	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
 	secs, fuel := calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
-		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7})
+		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7}, NoClass)
 	assert.Equal(t, int64(4966), secs)
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
 	secs, fuel = calcFlightTime(Coordinate{1, 162, 1, PlanetType}, Coordinate{4, 144, 1, PlanetType},
-		6, 499, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10})
+		6, 499, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10}, NoClass)
 	assert.Equal(t, int64(22594), secs)
 	assert.Equal(t, int64(699587), fuel)
 
 	// Test with solar satellite
 	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
-		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15})
+		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, NoClass)
 	assert.Equal(t, int64(651), secs)
 	assert.Equal(t, int64(612), fuel)
 }
@@ -2579,4 +2644,44 @@ func TestExtractIPMV71(t *testing.T) {
 	assert.Equal(t, "95b68270230217f7e9a813e4a4beb20e", token)
 	assert.Equal(t, int64(25), max)
 	assert.Equal(t, int64(248), duration)
+}
+
+func TestFixAttackEvents(t *testing.T) {
+	// Test when moon name matches
+	planets := []Planet{
+		{
+			Coordinate: Coordinate{1, 2, 3, PlanetType},
+			Name:       "My Planet",
+			Moon: &Moon{
+				Name: "VeryLongName Moon",
+			},
+		},
+	}
+	attacks := []AttackEvent{
+		{
+			DestinationName: "VeryLongName Moon",
+			Destination:     Coordinate{1, 2, 3, PlanetType},
+		},
+	}
+	fixAttackEvents(attacks, planets)
+	assert.Equal(t, MoonType, attacks[0].Destination.Type) // Fixed to moon type
+
+	// Test when the moon name doesn't match
+	planets = []Planet{
+		{
+			Coordinate: Coordinate{1, 2, 3, PlanetType},
+			Name:       "My Planet",
+			Moon: &Moon{
+				Name: "VeryLongName Moon",
+			},
+		},
+	}
+	attacks = []AttackEvent{
+		{
+			DestinationName: "My Planet",
+			Destination:     Coordinate{1, 2, 3, PlanetType},
+		},
+	}
+	fixAttackEvents(attacks, planets)
+	assert.Equal(t, PlanetType, attacks[0].Destination.Type) // Did not change
 }
