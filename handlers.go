@@ -997,3 +997,492 @@ func SendIPMHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(duration))
 }
+
+func GetStaticHandler(c echo.Context) error {
+	// TODO: this function does HTTP HEAD request but its requests will not use any (SOCKS) proxy
+	// TODO: also add proxy for execRequest() and / or GetStaticHEADHandler?
+
+	bot := c.Get("bot").(*OGame)
+	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
+
+	if (orighostname != "s117-en.ogame.gameforge.com") && (orighostname != "s107-nl.ogame.gameforge.com") {
+		bot.debug(orighostname)
+	}
+
+	// url := "https://s117-en.ogame.gameforge.com" + c.Request().URL.String() // TODO: swap s117-en<...> with : ogame.Params.APIoriginalhostname ogame.Params.apinewhostname
+	url := "https://" + orighostname + c.Request().URL.String()
+
+	resp, err := http.Get(url)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			bot.error(err)
+		}
+	}()
+
+	// Added 21 Dec 2019 for testing as replace of above manual request. Below one uses correct UserAgent and potential use of Proxy.
+	// func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) ([]byte, error) {
+	// _, err := bot.execRequest("GET", url , c.QueryParams
+	// if _, err := bot.execRequest("GET", url , nil, nil); err != nil {
+		// log.Print(err)
+	// }
+
+	// Copy the original HTTP headers to our client
+	// for k, v := range resp.Header {
+		// c.Response().Header().Set(k, strings.Join(v, "")) // strings.Join() to change []string into string
+	// }
+	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		for _, v := range vv {
+			c.Response().Header().Add(k, v)
+		}
+	}
+
+	//if strings.Contains(c.Request().URL.String(), "localization.xml") || strings.Contains(c.Request().URL.String(), "serverData.xml") {
+	if strings.Contains(c.Request().URL.String(), ".xml") {
+		// body2 := strings.Replace(string(body), "s117-en.ogame.gameforge.com", "quantum.webfreakz.nl", -1) // TODO: swap s117-en<...> with : ogame.Params.APIoriginalhostname ogame.Params.apinewhostname
+
+		body2 := strings.Replace(string(body), orighostname, bot.APInewhostname, -1)
+		return c.XMLBlob(http.StatusOK, []byte(body2)) // Added 21 Dec 2019
+		// return c.Blob(http.StatusOK, contentType, []byte(body2))
+	}
+
+	contentType := string(http.DetectContentType(body))
+
+	if strings.Contains(url, ".css") {
+		contentType = "text/css"
+	} else if strings.Contains(url, ".js") {
+		contentType = "text/javascript"
+	} else if strings.Contains(url, ".gif") {
+		contentType = "image/gif"
+	}
+
+	return c.Blob(http.StatusOK, contentType, body)
+}
+
+func GetFromGameHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	vals := url.Values{"page": {"overview"}}
+
+	if len(c.QueryParams()) > 0 {
+		vals = c.QueryParams()
+	}
+
+//	log.Print(c.Request())
+//	log.Print(c.Request().Header)
+//	log.Print(c.Request().URL)
+//	log.Print(c.Request().Host)
+//	log.Print(c.Request().RequestURI)
+
+	pageHTML := bot.GetPageContent(vals)
+
+	// Replace "s117-en.ogame.gameforge.com" with "quantum.webfreakz.nl"
+	html := string(pageHTML)
+	// html = strings.Replace(html, "s117-en.ogame.gameforge.com", "quantum.webfreakz.nl", -1)  // TODO: swap s117-en<...> with : ogame.Params.APIoriginalhostname ogame.Params.apinewhostname
+
+	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
+
+	if (orighostname != "s117-en.ogame.gameforge.com") && (orighostname != "s107-nl.ogame.gameforge.com") {
+		bot.debug(orighostname) // s117-en.ogame.gameforge.com
+		log.Print(bot.serverURL) // https://s117-en.ogame.gameforge.com
+	}
+
+	html = strings.Replace(html, orighostname, bot.APInewhostname, -1)
+
+//	html = strings.Replace(html, "\"/cdn", "\"https://s117-en.ogame.gameforge.com/cdn", -1)
+
+	// TODO: update GetPageContent to also return http.Headers
+	// // Copy the original HTTP headers to our client
+	// for k, v := range headers {
+		// k = http.CanonicalHeaderKey(k)
+		// c.Response().Header().Set(k, strings.Join(v, ""))
+	// }
+
+	// TODO: remove <div id="banner_skyscraper"></div> which contains ads.
+	// TODO: remove <div id="mmonetbar" class="mmoogame" style="display: block;"> contains GameForge game ads
+
+	// doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+
+	// if err != nil {
+		// log.Print(err)
+		// return c.HTML(http.StatusOK, html)
+	// }
+
+	// if doc.Find("div#mmonetbar").Size() > 0 {
+		// doc.Find("div#mmonetbar").Remove()
+	// }
+
+	// if doc.Find("div#banner_skyscraper").Size() > 0 {
+		// doc.Find("div#banner_skyscraper").Remove()
+	// }
+
+	return c.HTML(http.StatusOK, html)
+
+	// Below stuff should work and remove the ads, but EventList stopped working?
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(html)) // Shouldn't be here, ideally it is in ogame.go -> prioritize.go -> extractor -> ExtractHTMLWithoutAdvertisementBars() but could not get it to work.
+
+	if err != nil {
+		bot.debug(err)
+		return c.HTML(http.StatusOK, html)
+	}
+
+	if doc.Find("div#mmonetbar").Size() > 0 {
+		doc.Find("div#mmonetbar").Remove()
+	}
+
+	if doc.Find("div#banner_skyscraper").Size() > 0 {
+		doc.Find("div#banner_skyscraper").Remove()
+	}
+
+	returnHTML, err := doc.Html()
+
+	if err != nil {
+		bot.debug(err)
+		return c.HTML(http.StatusOK, html) // Return original HTML
+	}
+
+	return c.HTML(http.StatusOK, returnHTML) // Return filtered HTML (no ads / banners)
+}
+
+func PostToGameHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	var vals url.Values
+
+	if len(c.QueryParams()) > 0 {
+		vals = c.QueryParams()
+	} else {
+		vals = url.Values{"page": {"overview"}}
+	}
+
+	// Payload
+	payload, _ := c.FormParams()
+
+	// Perform the post to the library
+	byteArray := bot.PostPageContent(vals, payload)
+
+	// Replace "s117-en.ogame.gameforge.com" with "quantum.webfreakz.nl"
+	html := string(byteArray)
+	// html = strings.Replace(html, "s117-en.ogame.gameforge.com", "quantum.webfreakz.nl", -1)  // TODO: swap s117-en<...> with : ogame.Params.APIoriginalhostname ogame.Params.apinewhostname
+
+	orighostname := "s" + strconv.FormatInt(bot.server.Number, 10) + "-" + bot.server.Language + ".ogame.gameforge.com"
+
+	if (orighostname != "s117-en.ogame.gameforge.com") && (orighostname != "s107-nl.ogame.gameforge.com") {
+		bot.debug(orighostname)
+		log.Print(bot.serverURL) // https://s117-en.ogame.gameforge.com
+	}
+
+	html = strings.Replace(html, orighostname, bot.APInewhostname, -1)
+
+//	html = strings.Replace(html, "\"/cdn", "\"https://s117-en.ogame.gameforge.com/cdn", -1)
+	return c.HTML(http.StatusOK, html)
+}
+
+func GetAlliancePageContentHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	allianceId := c.QueryParam("allianceId")
+	vals := url.Values{"allianceId": {allianceId}}
+
+	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
+}
+
+func PostPageContentHandler(c echo.Context) error {
+	// bot := c.Get("bot").(*OGame)
+
+	if err := c.Request().ParseForm(); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+
+	get := url.Values{}
+	post := url.Values{}
+	log.Print(c.Request().PostForm)
+	log.Print(reflect.TypeOf(c.Request().PostForm))
+//	for key, values := range c.Request().PostForm {
+//		log.Print(reflect.TypeOf(values))
+//		log.Print(key)
+//		log.Print(values)
+//		switch key {
+//		case "url":
+//			get, _ = url.Parse(values)
+//		case "data":
+//			post, _ = url.Parse(values)
+//		}
+//	}
+
+	log.Print(c.Request().Form["url"])
+	log.Print(c.Request().Form["data"])
+	log.Print(get)
+	log.Print(post)
+
+//	return c.JSON(http.StatusOK, SuccessResp())//bot.PostPageContent(get, post)))
+	return c.JSON(http.StatusBadRequest, ErrorResp(400, "kweenie"))
+}
+
+func GetPageContentHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	if err := c.Request().ParseForm(); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(bot.GetPageContent(c.Request().Form)))
+}
+
+func GetStaticHEADHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	url := "/api/" + strings.Join(c.ParamValues(), "") // + "?" + c.QueryString()
+	log.Print(url)
+
+	if len(c.ParamValues()) > 0 {
+		log.Print(c.ParamValues())
+	}
+
+	if len(c.QueryString()) > 0 {
+		url = url + "?" + c.QueryString()
+		log.Print(c.QueryParams())
+	}
+
+	headers, err := bot.HeadersForPage(url)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+
+	log.Print(headers)
+
+	if len(headers) < 1 {
+	     return c.NoContent(http.StatusFailedDependency) // Code: 424
+	}
+
+	// Copy the original HTTP HEAD headers to our client
+	// for k, v := range headers {
+		// k = http.CanonicalHeaderKey(k)
+		// c.Response().Header().Set(k, strings.Join(v, "")) // strings.Join() to change []string into string
+	// }
+	for k, vv := range headers { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		for _, v := range vv {
+			c.Response().Header().Add(k, v)
+		}
+	}
+
+	c.Response().WriteHeader(http.StatusOK)
+
+	log.Print(c.Response().Header())
+
+	return c.NoContent(http.StatusOK)
+
+	/*
+	Original CURL -I to Gameforge for Localization.xml / Players.xml :
+
+	Original:
+	################################################################
+	curl -I https://s117-en.ogame.gameforge.com/api/localization.xml
+	HTTP/1.1 200 OK
+	Date: Sun, 03 Mar 2019 19:36:42 GMT
+	Server: Apache
+	P3P: CP="This is not a P3P policy. It is a ninja, sneaking by Internet Explorer and escaping its iframe at lightning speed."
+	Cache-Control: public
+	Last-Modified: Sun, 03 Mar 2019 12:44:43 GMT
+	Expires: Mon, 04 Mar 2019 12:44:43 GMT
+	Connection: close
+	Content-Type: application/xml
+	################################################################
+	curl -I https://s117-en.ogame.gameforge.com/api/players.xml
+	HTTP/1.1 200 OK
+	Date: Sun, 03 Mar 2019 19:36:48 GMT
+	Server: Apache
+	P3P: CP="This is not a P3P policy. It is a ninja, sneaking by Internet Explorer and escaping its iframe at lightning speed."
+	Cache-Control: public
+	Last-Modified: Sun, 03 Mar 2019 12:53:22 GMT
+	Expires: Mon, 04 Mar 2019 12:53:22 GMT
+	Connection: close
+	Content-Type: application/xml
+	################################################################
+
+	No Gameforge hostname is specified in any of the returned HTTP Headers: we don't need to use string.Replace() to swap it with our own hostname.
+
+	*/
+}
+
+
+func GetCombatReportMessagesHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	report, err := bot.getCombatReportMessages()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(report))
+}
+
+// FullCombatReport, takes JSON from CR message. There is no JSON in EspioageReport.
+func GetCombatReportHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	msgID, err := strconv.ParseInt(c.Param("msgid"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid msgid id"))
+	}
+	combatReport, err := bot.GetFullCombatReport(msgID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(combatReport))
+}
+
+func GetCombatReportForHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	galaxy, err := strconv.ParseInt(c.Param("galaxy"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+	}
+	system, err := strconv.ParseInt(c.Param("system"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+	}
+	position, err := strconv.ParseInt(c.Param("position"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+	}
+
+	planet, err := bot.getCombatReportFor(Coordinate{Type: PlanetType, Galaxy: galaxy, System: system, Position: position})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(planet))
+}
+
+
+
+
+
+// GalaxyEspionage
+func GalaxyEspionageHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+log.SetFlags(log.LstdFlags | log.Lshortfile)
+	// e.GET("/bot/planets/:celestialID/espionage/:galaxy/:system/:position/:type/:probecount", galaxyEspionage)
+
+	// PlanetID
+	planetID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil || planetID < 0 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+
+	// Galaxy
+	galaxy, err := strconv.ParseInt(c.Param("galaxy"), 10, 64)
+	if err != nil || galaxy < 0 || galaxy > 9 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+	}
+
+	// System
+	system, err := strconv.ParseInt(c.Param("system"), 10, 64)
+	if err != nil || system < 0 || system > 499 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+	}
+
+	// Position
+	position, err := strconv.ParseInt(c.Param("position"), 10, 64)
+	if err != nil || position < 0 || position > 15 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+	}
+
+	// Type
+	planettype, err := strconv.ParseInt(c.Param("type"), 10, 64)
+	if err != nil || planettype < 1 || planettype > 3 || planettype == 2 {
+	// log.Print(planettype)
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid type"))
+	}
+
+	// Probecount
+	probecount, err := strconv.ParseInt(c.Param("probecount"), 10, 64)
+	if err != nil || position < 0 {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid probecount"))
+	}
+
+	// --------------------------------------------------------------------------------------
+
+	coord := Coordinate{Type: PlanetType, Galaxy: galaxy, System: system, Position: position}
+	celestialID := CelestialID(planetID)
+
+	espionage, err := bot.GalaxyEspionage(celestialID, coord, probecount)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(espionage))
+}
+
+func GetEventListHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	return c.JSON(http.StatusOK, SuccessResp(bot.GetFleetsFromEventList()))
+}
+
+// -- Start: Auction
+func GetAuctionHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	auction, err := bot.GetAuction()
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "could not open auction page"))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(auction))
+}
+
+func DoAuctionHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	// Collect our parameters:
+	// - planetID
+	// - planetType
+	// - bid
+	// - resourceType
+
+	// PlanetID
+	planetID, err := strconv.ParseInt(c.Request().PostFormValue("planetid"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+
+	// PlanetType
+	planetType, err := strconv.ParseInt(c.Request().PostFormValue("planettype"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planettype"))
+	}
+
+	// Bid
+	bid, err := strconv.ParseInt(c.Request().PostFormValue("bid"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid bid"))
+	}
+
+	// ResourceType
+	resourceType, err := strconv.ParseInt(c.Request().PostFormValue("resourcetype"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid resourcetype"))
+	}
+	// --------------------------------------------
+
+	auctionMsg, err := bot.DoAuction(planetID, planetType, bid, resourceType)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(auctionMsg))
+}
+

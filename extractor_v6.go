@@ -746,6 +746,12 @@ func (e ExtractorV6) ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, err
 	return extractEmpire(string(pageHTML), nbr)
 }
 
+// ExtractAuction ...
+func (e ExtractorV6) ExtractAuction(pageHTML []byte) Auction {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return ExtractAuctionFromDoc(doc)
+}
+
 // ExtractCharacterClass ...
 func (e ExtractorV6) ExtractCharacterClass(pageHTML []byte) (CharacterClass, error) {
 	return 0, errors.New("character class not supported in v6")

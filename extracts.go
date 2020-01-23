@@ -131,6 +131,7 @@ type Extractor interface {
 	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error)
+	ExtractAuction(pageHTML []byte) Auction
 	ExtractCharacterClass(pageHTML []byte) (CharacterClass, error)
 	ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error)
 	ExtractCommander(pageHTML []byte) bool

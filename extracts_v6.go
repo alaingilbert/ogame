@@ -2013,3 +2013,135 @@ func extractEmpire(html string, nbr int64) (interface{}, error) {
 	}
 	return empireJSON, nil
 }
+
+// Auction ...
+type Auction struct {
+	HasFinished bool
+	Endtime int
+	NumBids int
+	CurrentBid int
+	MinimumBid int
+	HighestBidder string
+	HighestBidderUserId int
+	CurrentItem string
+	CurrentItemLong string
+	Inventory int
+	Token string
+
+	ResourceMultiplier struct {
+		Metal float64
+		Crystal float64
+		Deuterium float64
+		Honor int
+	}
+
+	Resources map[string]interface{}
+}
+
+// ExtractAuction extract auction information from page "traderAuctioneer"
+func ExtractAuctionFromDoc(doc *goquery.Document) Auction {
+	// Create Auction object
+	auction := Auction{}
+	auction.HasFinished = false
+
+	// Detect if Auction has already finished
+	nextAuction := doc.Find("span.nextAuction")
+
+	if(nextAuction.Size() > 0) {
+		// Find time until next auction starts
+		endtime := nextAuction.Text()
+		auction.Endtime, _ = strconv.Atoi(endtime)
+
+		// Set HasFinished to true
+		auction.HasFinished = true
+
+	} else {
+		endAtApprox := doc.Find("p.auction_info b").Text()
+		// m := regexp.MustCompile(`approx\.\s(\d+)m`).FindStringSubmatch(endAtApprox) // TODO: just the \d for multi language
+		m := regexp.MustCompile(`(\d+)`).FindStringSubmatch(endAtApprox)
+
+		if len(m) == 2 {
+			endtime, err := strconv.Atoi(m[1])
+			if err != nil {
+				b.debug(err)
+			}
+			auction.Endtime = endtime
+		} else {
+			b.debug(m)
+		}
+	}
+
+	// Find name of latest bidder
+	currentPlayer := doc.Find("a.currentPlayer").Text()
+	auction.HighestBidder = strings.TrimSpace(currentPlayer)
+
+	// Find UserId of latest bidder
+	currentPlayerUid, _ := doc.Find("a.currentPlayer").Attr("data-player-id")
+	auction.HighestBidderUserId, _ = strconv.Atoi(currentPlayerUid)
+
+	// Find number of bids
+	numbids := doc.Find("div.numberOfBids").Text()
+	auction.NumBids, _ = strconv.Atoi(numbids)
+
+	// Find current bid
+	currentbid := doc.Find("div.currentSum").Text()
+	if strings.Contains(currentbid, ".") { // NL and EN HTML both use "." as the thousand-separator. Locale-settings not required? Don't know about other languages.
+		currentbid = strings.Replace(currentbid, ".", "", -1)
+	}
+	auction.CurrentBid, _ = strconv.Atoi(currentbid)
+
+	// Find inventory amount for auctioned item
+	inventory := doc.Find("span.level.amount")
+	auction.Inventory, _ = strconv.Atoi(inventory.Text())
+
+	// Find current item
+	currentitem, _ := doc.Find("img").First().Attr("alt")
+	auction.CurrentItem = strings.ToLower(currentitem)
+
+	// Find current item long
+	currentitemlong, _ := doc.Find("div.image_140px").First().Find("a").First().Attr("title")
+	auction.CurrentItemLong = strings.ToLower(string(currentitemlong))
+
+	// Find multiplier ratios
+	// var multiplier={"metal":1,"crystal":1.5,"deuterium":3,"honor":100};auctioneer
+	multiplier_regex := regexp.MustCompile(`multiplier=(.*);auctioneer`).FindStringSubmatch(doc.Text())
+	if len(multiplier_regex) == 2 {
+		if err := json.Unmarshal([]byte(multiplier_regex[1]), &auction.ResourceMultiplier); err != nil {
+			b.debug(err)
+		}
+	} else {
+		b.debug(multiplier_regex)
+	}
+
+	// Find auctioneer token
+	// var auctioneerToken="90db7e5c0cd2dk808d26b6a27bf53c5x";var multiplier
+	token_regex := regexp.MustCompile(`auctioneerToken\=\"(.*)\"\;`).FindStringSubmatch(doc.Text())
+	if len(token_regex) == 2 {
+		auction.Token = string(token_regex[1])
+	} else {
+		b.debug(token_regex)
+	}
+
+	// Find Planet / Moon resources JSON
+	// planetResources=(.*);var playerBid
+	planet_moon_resources := regexp.MustCompile(`planetResources=(.*);var playerBid`).FindStringSubmatch(doc.Text())
+	if len(planet_moon_resources) == 2 {
+		err := json.Unmarshal([]byte(planet_moon_resources[1]), &auction.Resources)
+		if err != nil {
+			b.debug(err)
+		}
+	} else {
+		b.debug(planet_moon_resources)
+	}
+
+	// Find min bid
+	minimumbid := doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text()
+	if strings.Contains(minimumbid, ".") { // NL and EN HTML both use "." as the thousand-separator. Locale-settings not required? Don't know about other languages.
+		b.debug(minimumbid)
+		minimumbid = strings.Replace(minimumbid, ".", "", -1)
+	}
+	auction.MinimumBid, _ = strconv.Atoi(minimumbid)
+
+	return auction
+}
+
