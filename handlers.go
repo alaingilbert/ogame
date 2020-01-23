@@ -1041,9 +1041,8 @@ func DoAuction(c echo.Context) error {
 			}
 		}
 	}
-	auctionMsg, err := bot.DoAuction(celestialID, bid)
-	if err != nil {
+	if err := bot.DoAuction(celestialID, bid); err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
-	return c.JSON(http.StatusOK, SuccessResp(auctionMsg))
+	return c.JSON(http.StatusOK, SuccessResp(nil))
 }
