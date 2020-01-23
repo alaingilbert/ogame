@@ -1795,10 +1795,6 @@ func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
 }
 
 func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources) error {
-	if celestialID == 0 {
-		return errors.New("invalid celestial ID")
-	}
-
 	// Get fresh token (among others)
 	auction, err := b.getAuction(celestialID)
 	if err != nil {
