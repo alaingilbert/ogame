@@ -15,9 +15,18 @@
 
     <table>
         <tr><td>
-           <form id="myform" method="get" action="/bot/get-research">
-                <input type="submit" name="submit" />
-            </form>
+                <button id="updateResearch"> Update</button>
+            <script>
+                $(document).ready(function(){
+                    $("#updateResearch").click(function(){
+                        $.getJSON("/bot/get-research", function(result){
+                            $.each(result, function(i, field){
+                                $("div").append(field + " ");
+                            });
+                        });
+                    });
+                });            
+            </script>
             <table class="w3-table w3-striped">
             {{range $k, $v := .Technologies}}
             <tr>

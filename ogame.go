@@ -108,6 +108,7 @@ type OGame struct {
 }
 
 type Data struct {
+	Planets                  []Planet
 	PlanetActivity           map[CelestialID]int64
 	PlanetResources          map[CelestialID]ResourcesDetails
 	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
@@ -244,6 +245,8 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 		file, _ := ioutil.ReadFile(filename)
 		json.Unmarshal(file, &data)
 
+		b.Planets = data.Planets
+
 		b.PlanetActivity = data.PlanetActivity
 
 		b.PlanetActivity = data.PlanetActivity
@@ -258,8 +261,14 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 		b.PlanetShipyardProductions = data.PlanetShipyardProductions
 		b.PlanetShipyardProductionsFinishAt = data.PlanetShipyardProductionsFinishAt
 		b.Researches = data.Researches
+		b.ResearchesActive = data.ResearchesActive
+		b.EventboxResp = data.EventboxResp
+		b.MovementFleets = data.MovementFleets
+		b.Slots = data.Slots
 	} else {
 		var data Data
+
+		data.Planets = b.Planets
 		data.PlanetActivity = map[CelestialID]int64{}
 		data.PlanetResources = map[CelestialID]ResourcesDetails{}
 		data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
@@ -283,7 +292,12 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 		data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
 		data.PlanetShipyardProductions = b.PlanetShipyardProductions
 		data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
+
 		data.Researches = b.Researches
+		data.ResearchesActive = b.ResearchesActive
+		data.EventboxResp = b.EventboxResp
+		data.MovementFleets = b.MovementFleets
+		data.Slots = b.Slots
 
 		by, _ := json.Marshal(data)
 		ioutil.WriteFile(filename, by, 0644)
@@ -826,6 +840,8 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 
 	var data Data
 	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
+	data.Planets = b.Planets
+
 	data.PlanetActivity = map[CelestialID]int64{}
 	data.PlanetResources = map[CelestialID]ResourcesDetails{}
 	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
