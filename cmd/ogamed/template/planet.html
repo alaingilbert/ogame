@@ -41,7 +41,9 @@
                 {{range $k, $v := .PlanetBuildings}}
                 <tr>
                     <td>{{$v.GetName}}</td>
-                    <td>{{with (index $.Bot.PlanetResourcesBuildings $.PlanetID.Celestial)}} {{.ByID $v.GetID}} {{end}}</td>
+                    <td>{{with (index $.Bot.PlanetResourcesBuildings $.PlanetID.Celestial)}}
+                            {{.ByID $v.GetID}}
+                        {{end}}</td>
                 </tr>
                 {{end}}
                 </table>
