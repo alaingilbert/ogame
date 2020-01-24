@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/0xE232FE/ogame"
 	"github.com/labstack/echo"
@@ -306,15 +305,17 @@ func start(c *cli.Context) error {
 	e.HEAD("/api/*", ogame.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
 
 	go func() {
-		planets := bot.GetCachedPlanets()
-		bot.GetResourcesBuildings(planets[0].ID.Celestial())
+		/*
+			planets := bot.GetCachedPlanets()
+			bot.GetResourcesBuildings(planets[0].ID.Celestial())
 
-		log.Printf("Resources Buildings: %d", bot.PlanetResources[planets[0].ID.Celestial()].Metal.Available)
-		log.Printf("Resources Buildings: %s", bot.PlanetResourcesBuildings[planets[0].ID.Celestial()])
+			log.Printf("Resources Buildings: %d", bot.PlanetResources[planets[0].ID.Celestial()].Metal.Available)
+			log.Printf("Resources Buildings: %s", bot.PlanetResourcesBuildings[planets[0].ID.Celestial()])
 
-		time.Sleep(time.Duration(60) * time.Second)
+			time.Sleep(time.Duration(60) * time.Second)
 
-		log.Printf("Facilities: %s", bot.PlanetFacilities[planets[0].ID.Celestial()])
+			log.Printf("Facilities: %s", bot.PlanetFacilities[planets[0].ID.Celestial()])
+		*/
 	}()
 
 	if enableTLS {
@@ -385,7 +386,7 @@ func HTMLPlanet(c echo.Context) error {
 		Ships:           ogame.Ships,
 		Defenses:        ogame.Defenses,
 		Technologies:    ogame.Technologies,
-		Researches:      bot.GetResearch(),
+		Researches:      bot.Researches,
 	}
 
 	return c.Render(http.StatusOK, "planet", data)

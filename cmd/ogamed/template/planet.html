@@ -15,6 +15,9 @@
 
     <table>
         <tr><td>
+           <form id="myform" method="get" action="/bot/get-research">
+                <input type="submit" name="submit" />
+            </form>
             <table class="w3-table w3-striped">
             {{range $k, $v := .Technologies}}
             <tr>
