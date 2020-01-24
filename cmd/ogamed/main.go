@@ -373,9 +373,7 @@ func HTMLPlanet(c echo.Context) error {
 		Buildings       []ogame.Building
 		PlanetBuildings []ogame.Building
 		Ships           []ogame.Ship
-		Defenses        []ogame.Defense
 		Technologies    []ogame.Technology
-		Researches      ogame.Researches
 	}{
 		Bot:             bot,
 		PlanetID:        ogame.PlanetID(planet),
@@ -383,9 +381,7 @@ func HTMLPlanet(c echo.Context) error {
 		Buildings:       ogame.Buildings,
 		PlanetBuildings: ogame.PlanetBuildings,
 		Ships:           ogame.Ships,
-		Defenses:        ogame.Defenses,
 		Technologies:    ogame.Technologies,
-		Researches:      bot.GetResearch(),
 	}
 
 	return c.Render(http.StatusOK, "planet", data)
