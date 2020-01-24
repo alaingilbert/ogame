@@ -59,11 +59,12 @@ type OGame struct {
 	PlanetFacilities                  map[CelestialID]Facilities
 	PlanetShipsInfos                  map[CelestialID]ShipsInfos
 	PlanetDefensesInfos               map[CelestialID]DefensesInfos
-	ResearchesActive                  Quantifiable
 	PlanetConstruction                map[CelestialID]Quantifiable
 	PlanetConstructionFinishAt        map[CelestialID]int64
 	PlanetShipyardProductions         map[CelestialID][]Quantifiable
 	PlanetShipyardProductionsFinishAt map[CelestialID]int64
+	Researches                        Researches
+	ResearchesActive                  Quantifiable
 	EventboxResp                      eventboxResp
 	MovementFleets                    []Fleet
 	Slots                             Slots
@@ -73,7 +74,6 @@ type OGame struct {
 	Username             string
 	password             string
 	language             string
-	playerID              int64
 	lobby                string
 	ogameSession         string
 	sessionChatCounter   int64
@@ -119,6 +119,11 @@ type Data struct {
 	PlanetConstructionFinishAt        map[CelestialID]int64
 	PlanetShipyardProductions         map[CelestialID][]Quantifiable
 	PlanetShipyardProductionsFinishAt map[CelestialID]int64
+	Researches                        Researches
+	ResearchesActive                  Quantifiable
+	EventboxResp                      eventboxResp
+	MovementFleets                    []Fleet
+	Slots                             Slots
 }
 
 // Preferences ...
@@ -168,11 +173,10 @@ type CelestialID int64
 
 // Params parameters for more fine-grained initialization
 type Params struct {
+	Universe       string
 	Username       string
 	Password       string
-	Universe       string
 	Lang           string
-	PlayerID       int64
 	AutoLogin      bool
 	Proxy          string
 	ProxyUsername  string
@@ -186,16 +190,17 @@ type Params struct {
 
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
-	b := NewNoLogin(username, password, universe, lang, 0)
+	b := NewNoLogin(universe, username, password, lang)
 	if err := b.Login(); err != nil {
 		return nil, err
 	}
+
 	return b, nil
 }
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b := NewNoLogin(params.Username, params.Password, params.Universe, params.Lang, params.PlayerID)
+	b := NewNoLogin(params.Universe, params.Username, params.Password, params.Lang)
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
@@ -217,7 +222,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, universe, lang string, playerID int64) *OGame {
+func NewNoLogin(universe, username, password, lang string) *OGame {
 	b := new(OGame)
 
 	b.PlanetActivity = map[CelestialID]int64{}
@@ -252,6 +257,7 @@ func NewNoLogin(username, password, universe, lang string, playerID int64) *OGam
 		b.PlanetConstructionFinishAt = data.PlanetConstructionFinishAt
 		b.PlanetShipyardProductions = data.PlanetShipyardProductions
 		b.PlanetShipyardProductionsFinishAt = data.PlanetShipyardProductionsFinishAt
+		b.Researches = data.Researches
 	} else {
 		var data Data
 		data.PlanetActivity = map[CelestialID]int64{}
@@ -277,6 +283,7 @@ func NewNoLogin(username, password, universe, lang string, playerID int64) *OGam
 		data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
 		data.PlanetShipyardProductions = b.PlanetShipyardProductions
 		data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
+		data.Researches = b.Researches
 
 		by, _ := json.Marshal(data)
 		ioutil.WriteFile(filename, by, 0644)
@@ -291,7 +298,6 @@ func NewNoLogin(username, password, universe, lang string, playerID int64) *OGam
 	b.SetOGameCredentials(username, password)
 	b.setOGameLobby("lobby")
 	b.language = lang
-	b.playerID = playerID
 
 	b.extractor = NewExtractorV6()
 
@@ -390,7 +396,7 @@ type account struct {
 		Language string
 		Number   int64
 	}
-	ID         int64 // player ID
+	ID         int64
 	Name       string
 	LastPlayed string
 	Blocked    bool
@@ -461,7 +467,7 @@ func getServers(b *OGame) ([]Server, error) {
 	return servers, nil
 }
 
-func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
+func findAccountByName(universe, lang string, accounts []account, servers []Server) (account, Server, error) {
 	var server Server
 	var acc account
 	for _, s := range servers {
@@ -472,15 +478,8 @@ func findAccount(universe, lang string, playerID int64, accounts []account, serv
 	}
 	for _, a := range accounts {
 		if a.Server.Language == server.Language && a.Server.Number == server.Number {
-			if playerID != 0 {
-				if a.ID == playerID {
-					acc = a
-					break
-				}
-			} else {
-				acc = a
-				break
-			}
+			acc = a
+			break
 		}
 	}
 	if server.Number == 0 {
@@ -659,7 +658,7 @@ func (b *OGame) login() error {
 		return err
 	}
 	b.debug("find account & server for universe")
-	userAccount, server, err := findAccount(b.Universe, b.language, b.playerID, accounts, servers)
+	userAccount, server, err := findAccountByName(b.Universe, b.language, accounts, servers)
 	if err != nil {
 		return err
 	}
@@ -803,6 +802,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.MovementFleets = b.extractor.ExtractFleets(pageHTML)
 		b.Slots = b.extractor.ExtractSlots(pageHTML)
 		break
+
+	case ResearchPage:
+		b.Researches = b.extractor.ExtractResearch(pageHTML)
 	}
 
 	b.Planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
@@ -821,6 +823,41 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	} else if page == "preferences" {
 		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
 	}
+
+	var data Data
+	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
+	data.PlanetActivity = map[CelestialID]int64{}
+	data.PlanetResources = map[CelestialID]ResourcesDetails{}
+	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+	data.PlanetFacilities = map[CelestialID]Facilities{}
+	data.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
+	data.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+
+	data.PlanetConstruction = map[CelestialID]Quantifiable{}
+	data.PlanetConstructionFinishAt = map[CelestialID]int64{}
+	data.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
+	data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+
+	data.PlanetActivity = b.PlanetActivity
+	data.PlanetResources = b.PlanetResources
+	data.PlanetResourcesBuildings = b.PlanetResourcesBuildings
+	data.PlanetFacilities = b.PlanetFacilities
+	data.PlanetShipsInfos = b.PlanetShipsInfos
+	data.PlanetDefensesInfos = b.PlanetDefensesInfos
+
+	data.PlanetConstruction = b.PlanetConstruction
+	data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
+	data.PlanetShipyardProductions = b.PlanetShipyardProductions
+	data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
+
+	data.Researches = b.Researches
+	data.ResearchesActive = b.ResearchesActive
+	data.EventboxResp = b.EventboxResp
+	data.MovementFleets = b.MovementFleets
+	data.Slots = b.Slots
+
+	by, _ := json.Marshal(data)
+	ioutil.WriteFile(filename, by, 0644)
 }
 
 // DefaultLoginWrapper ...
