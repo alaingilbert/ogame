@@ -625,6 +625,8 @@ func (b *OGame) login() error {
 	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	b.sessionChatCounter = 1
 
+	b.debug("logged in as " + userAccount.Name + " on " + b.Universe + "-" + b.language)
+
 	serverTime, _ := b.extractor.ExtractServerTime(pageHTML)
 	b.location = serverTime.Location()
 

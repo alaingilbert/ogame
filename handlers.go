@@ -1046,3 +1046,30 @@ func DoAuctionHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(nil))
 }
+
+// PhalanxHandler ...
+func PhalanxHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	moonID, err := strconv.ParseInt(c.Param("moonID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid moon id"))
+	}
+	galaxy, err := strconv.ParseInt(c.Param("galaxy"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+	}
+	system, err := strconv.ParseInt(c.Param("system"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+	}
+	position, err := strconv.ParseInt(c.Param("position"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+	}
+	coord := Coordinate{Type: PlanetType, Galaxy: galaxy, System: system, Position: position}
+	fleets, err := bot.Phalanx(MoonID(moonID), coord)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(fleets))
+}
