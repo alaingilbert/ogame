@@ -2020,7 +2020,9 @@ type Auction struct {
 	Endtime             int64
 	NumBids             int64
 	CurrentBid          int64
+	AlreadyBid          int64
 	MinimumBid          int64
+	DeficitBid          int64
 	HighestBidder       string
 	HighestBidderUserID int64
 	CurrentItem         string
@@ -2104,8 +2106,19 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 		return Auction{}, errors.New("failed to json unmarshal planetResources: " + err.Error())
 	}
 
-	// Find min bid
+	// Find already-bid
+	auction.AlreadyBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_alreadyBidden").Text())
+
+	// Find min-bid
 	auction.MinimumBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
+
+	// Find deficit-bid
+	auction.DeficitBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_deficit").Text())
+
+	// Note: Don't just bid the min-bid amount. It will keep doubling the total bid and grow exponentially...
+	// DeficitBid is 1000 when another player has outbid you or if nobody has bid yet.
+	// DeficitBid seems to be filled by Javascript in the browser. We're parsing it anyway. Correct Bid calculation would be:
+	// bid = max(auction.DeficitBid, auction.MinimumBid - auction.AlreadyBid)
 
 	return auction, nil
 }
