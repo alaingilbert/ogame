@@ -143,6 +143,7 @@ type Extractor interface {
 	ExtractEngineerFromDoc(doc *goquery.Document) bool
 	ExtractGeologistFromDoc(doc *goquery.Document) bool
 	ExtractTechnocratFromDoc(doc *goquery.Document) bool
+	ExtractAuction(pageHTML []byte) (Auction, error)
 }
 
 // Compile time checks to ensure type satisfies Extractor interface

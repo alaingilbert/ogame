@@ -255,6 +255,8 @@ func start(c *cli.Context) error {
 	e.POST("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
 	e.POST("/bot/delete-all-reports/:tabIndex", ogame.DeleteMessagesFromTabHandler)
 	e.GET("/bot/attacks", ogame.GetAttacksHandler)
+	e.GET("/bot/get-auction", ogame.GetAuctionHandler)
+	e.POST("/bot/do-auction", ogame.DoAuctionHandler)
 	e.GET("/bot/galaxy-infos/:galaxy/:system", ogame.GalaxyInfosHandler)
 	e.GET("/bot/get-research", ogame.GetResearchHandler)
 	e.GET("/bot/price/:ogameID/:nbr", ogame.GetPriceHandler)
@@ -280,8 +282,9 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/cancel-research", ogame.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", ogame.GetResourcesHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
-	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
+	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", ogame.PhalanxHandler)
+	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 
 	// Get/Post Page Content
 	e.GET("/game/index.php", ogame.GetFromGameHandler)
