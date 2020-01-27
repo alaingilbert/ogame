@@ -133,6 +133,9 @@ BytesUploaded() int64
 CreateUnion(fleet Fleet) (int64, error)
 GetEmpire(nbr int64) (interface{}, error)
 HeadersForPage(url string) (http.Header, error)
+CharacterClass() CharacterClass
+GetAuction() (Auction, error)
+DoAuction(bid map[CelestialID]Resources) error
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
@@ -240,4 +243,7 @@ POST /bot/planets/:planetID/cancel-research
 GET  /bot/planets/:planetID/resources
 POST /bot/planets/:planetID/send-fleet
 POST /bot/planets/:planetID/send-ipm
+GET  /bot/moons/:moonID/phalanx/:galaxy/:system/:position
+GET  /bot/get-auction
+POST /bot/do-auction
 ```

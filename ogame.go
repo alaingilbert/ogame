@@ -625,6 +625,8 @@ func (b *OGame) login() error {
 	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	b.sessionChatCounter = 1
 
+	b.debug("logged in as " + userAccount.Name + " on " + b.Universe + "-" + b.language)
+
 	serverTime, _ := b.extractor.ExtractServerTime(pageHTML)
 	b.location = serverTime.Location()
 
@@ -985,6 +987,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == AllianceOverviewAjaxPage ||
 		page == SupportAjaxPage ||
 		page == BuffActivationAjaxPage ||
+		page == AuctioneerAjaxPage ||
 		ajax == "1"
 }
 
@@ -1779,6 +1782,87 @@ func (b *OGame) createUnion(fleet Fleet) (int64, error) {
 		return 0, errors.New(res.Errorbox.Text)
 	}
 	return res.UnionID, nil
+}
+
+func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
+	payload := url.Values{"show": {"auctioneer"}, "ajax": {"1"}}
+	if celestialID != 0 {
+		payload.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, payload)
+	if err != nil {
+		return Auction{}, err
+	}
+	return b.extractor.ExtractAuction(auctionHTML)
+}
+
+func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources) error {
+	// Get fresh token (among others)
+	auction, err := b.getAuction(celestialID)
+	if err != nil {
+		return err
+	}
+
+	if auction.HasFinished {
+		return errors.New("auction completed")
+	}
+
+	payload := url.Values{}
+	for auctionCelestialIDString, _ := range auction.Resources {
+		payload.Set("bid[planets]["+auctionCelestialIDString+"][metal]", "0")
+		payload.Set("bid[planets]["+auctionCelestialIDString+"][crystal]", "0")
+		payload.Set("bid[planets]["+auctionCelestialIDString+"][deuterium]", "0")
+	}
+	for celestialID, resources := range bid {
+		payload.Set("bid[planets]["+strconv.FormatInt(int64(celestialID), 10)+"][metal]", strconv.FormatInt(resources.Metal, 10))
+		payload.Set("bid[planets]["+strconv.FormatInt(int64(celestialID), 10)+"][crystal]", strconv.FormatInt(resources.Crystal, 10))
+		payload.Set("bid[planets]["+strconv.FormatInt(int64(celestialID), 10)+"][deuterium]", strconv.FormatInt(resources.Deuterium, 10))
+	}
+
+	payload.Add("bid[honor]", "0")
+	payload.Add("token", auction.Token)
+	payload.Add("ajax", "1")
+
+	if celestialID != 0 {
+		payload.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"auctioneer"}}, payload)
+	if err != nil {
+		return err
+	}
+
+	/*
+		Example return from postPageContent on page:auctioneer :
+		{
+		  "error": false,
+		  "message": "Your bid has been accepted.",
+		  "planetResources": {
+		    "$planetID": {
+		      "metal": $metal,
+		      "crystal": $crystal,
+		      "deuterium": $deuterium
+		    },
+		    "31434289": {
+		      "metal": 5202955.0986408,
+		      "crystal": 2043854.5003197,
+		      "deuterium": 1552571.3257004
+		    }
+		    <...>
+		  },
+		  "honor": 10107,
+		  "newToken": "940387sf93e28fbf47b24920c510db38"
+		}
+	*/
+
+	var jsonObj map[string]interface{}
+	if err := json.Unmarshal(auctionHTML, &jsonObj); err != nil {
+		return err
+	}
+	if jsonObj["error"] == true {
+		return errors.New(jsonObj["message"].(string))
+	}
+	return nil
 }
 
 type planetResource struct {
@@ -4027,4 +4111,14 @@ func (b *OGame) GetEmpire(nbr int64) (interface{}, error) {
 // CharacterClass returns the bot character class
 func (b *OGame) CharacterClass() CharacterClass {
 	return b.characterClass
+}
+
+// GetAuction ...
+func (b *OGame) GetAuction() (Auction, error) {
+	return b.WithPriority(Normal).GetAuction()
+}
+
+// DoAuction ...
+func (b *OGame) DoAuction(bid map[CelestialID]Resources) error {
+	return b.WithPriority(Normal).DoAuction(bid)
 }
