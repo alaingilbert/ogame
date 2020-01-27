@@ -2013,3 +2013,112 @@ func extractEmpire(html string, nbr int64) (interface{}, error) {
 	}
 	return empireJSON, nil
 }
+
+// Auction ...
+type Auction struct {
+	HasFinished         bool
+	Endtime             int64
+	NumBids             int64
+	CurrentBid          int64
+	AlreadyBid          int64
+	MinimumBid          int64
+	DeficitBid          int64
+	HighestBidder       string
+	HighestBidderUserID int64
+	CurrentItem         string
+	CurrentItemLong     string
+	Inventory           int64
+	Token               string
+	ResourceMultiplier  struct {
+		Metal     float64
+		Crystal   float64
+		Deuterium float64
+		Honor     int64
+	}
+	Resources map[string]interface{}
+}
+
+// String ...
+func (a Auction) String() string {
+	return "" +
+		"  Has finished: " + strconv.FormatBool(a.HasFinished) + "\n" +
+		"      End time: " + strconv.FormatInt(a.Endtime, 10) + "\n" +
+		"      Num bids: " + strconv.FormatInt(a.NumBids, 10) + "\n" +
+		"   Minimum bid: " + strconv.FormatInt(a.MinimumBid, 10) + "\n" +
+		"Highest bidder: " + a.HighestBidder + " (" + strconv.FormatInt(a.HighestBidderUserID, 10) + ")" + "\n" +
+		"  Current item: " + a.CurrentItem + " (" + a.CurrentItemLong + ")" + "\n" +
+		"     Inventory: " + strconv.FormatInt(a.Inventory, 10) + "\n" +
+		""
+}
+
+// ExtractAuction extract auction information from page "traderAuctioneer"
+func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
+	auction := Auction{}
+	auction.HasFinished = false
+
+	// Detect if Auction has already finished
+	nextAuction := doc.Find("span.nextAuction")
+	if nextAuction.Size() > 0 {
+		// Find time until next auction starts
+		auction.Endtime, _ = strconv.ParseInt(nextAuction.Text(), 10, 64)
+		auction.HasFinished = true
+	} else {
+		endAtApprox := doc.Find("p.auction_info b").Text()
+		m := regexp.MustCompile(`approx\.\s(\d+)m`).FindStringSubmatch(endAtApprox)
+		if len(m) != 2 {
+			return Auction{}, errors.New("failed to find end time approx")
+		}
+		endTime, err := strconv.ParseInt(m[1], 10, 64)
+		if err != nil {
+			return Auction{}, errors.New("invalid end time approx: " + err.Error())
+		}
+		auction.Endtime = endTime
+	}
+
+	auction.HighestBidder = strings.TrimSpace(doc.Find("a.currentPlayer").Text())
+	auction.HighestBidderUserID, _ = strconv.ParseInt(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""), 10, 64)
+	auction.NumBids, _ = strconv.ParseInt(doc.Find("div.numberOfBids").Text(), 10, 64)
+	auction.CurrentBid = ParseInt(doc.Find("div.currentSum").Text())
+	auction.Inventory, _ = strconv.ParseInt(doc.Find("span.level.amount").Text(), 10, 64)
+	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
+	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
+	multiplierRegex := regexp.MustCompile(`multiplier=([^;]+);`).FindStringSubmatch(doc.Text())
+	if len(multiplierRegex) != 2 {
+		return Auction{}, errors.New("failed to find auction multiplier")
+	}
+	if err := json.Unmarshal([]byte(multiplierRegex[1]), &auction.ResourceMultiplier); err != nil {
+		return Auction{}, errors.New("failed to json parse auction multiplier: " + err.Error())
+	}
+
+	// Find auctioneer token
+	tokenRegex := regexp.MustCompile(`auctioneerToken="([^"]+)";`).FindStringSubmatch(doc.Text())
+	if len(tokenRegex) != 2 {
+		return Auction{}, errors.New("failed to find auctioneer token")
+	}
+	auction.Token = tokenRegex[1]
+
+	// Find Planet / Moon resources JSON
+	planetMoonResources := regexp.MustCompile(`planetResources=([^;]+);`).FindStringSubmatch(doc.Text())
+	if len(planetMoonResources) != 2 {
+		return Auction{}, errors.New("failed to find planetResources")
+	}
+	if err := json.Unmarshal([]byte(planetMoonResources[1]), &auction.Resources); err != nil {
+		return Auction{}, errors.New("failed to json unmarshal planetResources: " + err.Error())
+	}
+
+	// Find already-bid
+	auction.AlreadyBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_alreadyBidden").Text())
+
+	// Find min-bid
+	auction.MinimumBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
+
+	// Find deficit-bid
+	auction.DeficitBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_deficit").Text())
+
+	// Note: Don't just bid the min-bid amount. It will keep doubling the total bid and grow exponentially...
+	// DeficitBid is 1000 when another player has outbid you or if nobody has bid yet.
+	// DeficitBid seems to be filled by Javascript in the browser. We're parsing it anyway. Correct Bid calculation would be:
+	// bid = max(auction.DeficitBid, auction.MinimumBid - auction.AlreadyBid)
+
+	return auction, nil
+}
