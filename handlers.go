@@ -1002,46 +1002,31 @@ func SendIPMHandler(c echo.Context) error {
 // GetAuctionHandler ...
 func GetAuctionHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	celestialID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
-	}
-	auction, err := bot.GetAuction(CelestialID(celestialID))
+	auction, err := bot.GetAuction()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "could not open auction page"))
 	}
-
 	return c.JSON(http.StatusOK, SuccessResp(auction))
 }
 
 // DoAuctionHandler (`celestialID=metal:crystal:deuterium` eg: `123456=123:456:789`)
 func DoAuctionHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	var celestialID CelestialID
 	bid := make(map[CelestialID]Resources)
 	for key, values := range c.Request().PostForm {
-		switch key {
-		case "celestialID":
-			celestialIDInt, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+		for _, s := range values {
+			var metal, crystal, deuterium int64
+			if n, err := fmt.Sscanf(s, "%d:%d:%d", &metal, &crystal, &deuterium); err != nil || n != 3 {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid bid format"))
+			}
+			celestialIDInt, err := strconv.ParseInt(key, 10, 64)
 			if err != nil {
 				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial ID"))
 			}
-			celestialID = CelestialID(celestialIDInt)
-		default:
-			for _, s := range values {
-				var metal, crystal, deuterium int64
-				if n, err := fmt.Sscanf(s, "%d:%d:%d", &metal, &crystal, &deuterium); err != nil || n != 3 {
-					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid bid format"))
-				}
-				celestialIDInt, err := strconv.ParseInt(key, 10, 64)
-				if err != nil {
-					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial ID"))
-				}
-				bid[CelestialID(celestialIDInt)] = Resources{Metal: metal, Crystal: crystal, Deuterium: deuterium}
-			}
+			bid[CelestialID(celestialIDInt)] = Resources{Metal: metal, Crystal: crystal, Deuterium: deuterium}
 		}
 	}
-	if err := bot.DoAuction(celestialID, bid); err != nil {
+	if err := bot.DoAuction(bid); err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(nil))
