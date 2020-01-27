@@ -2721,6 +2721,10 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		newResources = resources
 	}
 
+	newResources.Metal = MaxInt(newResources.Metal, 0)
+	newResources.Crystal = MaxInt(newResources.Crystal, 0)
+	newResources.Deuterium = MaxInt(newResources.Deuterium, 0)
+
 	// Page 3 : select coord, mission, speed
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
 	payload.Set("crystal", strconv.FormatInt(newResources.Crystal, 10))
