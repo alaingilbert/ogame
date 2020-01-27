@@ -4114,11 +4114,11 @@ func (b *OGame) CharacterClass() CharacterClass {
 }
 
 // GetAuction ...
-func (b *OGame) GetAuction(celestialID CelestialID) (Auction, error) {
-	return b.WithPriority(Normal).GetAuction(celestialID)
+func (b *OGame) GetAuction() (Auction, error) {
+	return b.WithPriority(Normal).GetAuction()
 }
 
 // DoAuction ...
-func (b *OGame) DoAuction(celestialID CelestialID, bid map[CelestialID]Resources) error {
-	return b.WithPriority(Normal).DoAuction(celestialID, bid)
+func (b *OGame) DoAuction(bid map[CelestialID]Resources) error {
+	return b.WithPriority(Normal).DoAuction(bid)
 }

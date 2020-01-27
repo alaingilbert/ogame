@@ -547,15 +547,15 @@ func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
 }
 
 // GetAuction ...
-func (b *Prioritize) GetAuction(celestialID CelestialID) (Auction, error) {
+func (b *Prioritize) GetAuction() (Auction, error) {
 	b.begin("GetAuction")
 	defer b.done()
-	return b.bot.getAuction(celestialID)
+	return b.bot.getAuction(CelestialID(0))
 }
 
 // DoAuction ...
-func (b *Prioritize) DoAuction(celestialID CelestialID, bid map[CelestialID]Resources) error {
+func (b *Prioritize) DoAuction(bid map[CelestialID]Resources) error {
 	b.begin("DoAuction")
 	defer b.done()
-	return b.bot.doAuction(celestialID, bid)
+	return b.bot.doAuction(CelestialID(0), bid)
 }
