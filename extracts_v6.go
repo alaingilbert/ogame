@@ -2057,22 +2057,22 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	auction.HasFinished = false
 
 	// Detect if Auction has already finished
-	nextAuction := doc.Find("span.nextAuction")
+	nextAuction := doc.Find("#nextAuction")
 	if nextAuction.Size() > 0 {
 		// Find time until next auction starts
 		auction.Endtime, _ = strconv.ParseInt(nextAuction.Text(), 10, 64)
 		auction.HasFinished = true
 	} else {
 		endAtApprox := doc.Find("p.auction_info b").Text()
-		m := regexp.MustCompile(`approx\.\s(\d+)m`).FindStringSubmatch(endAtApprox)
+		m := regexp.MustCompile(`[^\d]+(\d+).*`).FindStringSubmatch(endAtApprox)
 		if len(m) != 2 {
 			return Auction{}, errors.New("failed to find end time approx")
 		}
-		endTime, err := strconv.ParseInt(m[1], 10, 64)
+		endTimeMinutes, err := strconv.ParseInt(m[1], 10, 64)
 		if err != nil {
 			return Auction{}, errors.New("invalid end time approx: " + err.Error())
 		}
-		auction.Endtime = endTime
+		auction.Endtime = endTimeMinutes * 60
 	}
 
 	auction.HighestBidder = strings.TrimSpace(doc.Find("a.currentPlayer").Text())
