@@ -836,7 +836,7 @@ func GetStaticHandler(c echo.Context) error {
 
 	if strings.Contains(c.Request().URL.String(), ".xml") {
 		body = replaceHostname(bot, body)
-		return c.XMLBlob(http.StatusOK, body)
+		return c.Blob(http.StatusOK, "application/xml", body)
 	}
 
 	contentType := http.DetectContentType(body)
