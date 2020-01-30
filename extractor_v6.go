@@ -756,3 +756,13 @@ func (e ExtractorV6) ExtractAuction(pageHTML []byte) (Auction, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return extractAuctionFromDoc(doc)
 }
+
+// ExtractHighscore ...
+func (e ExtractorV6) ExtractHighscore(pageHTML []byte) (Highscore, error) {
+	panic("not implemented")
+}
+
+// ExtractHighscoreFromDoc ...
+func (e ExtractorV6) ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error) {
+	panic("not implemented")
+}

@@ -1,0 +1,89 @@
+
+<html><head></head><body><div id="content"><div>
+        <script type="text/javascript">
+            var currentCategory = 1;
+            var currentType = 0;
+            var searchPosition = "108";
+            var userWantsFocus = false;
+            var site = 300;
+            var searchSite = 2;
+            var resultsPerPage = 100;
+            var searchRelId = 106734;
+        </script>
+
+        No entries found.
+    </div></div></body></html>
+<script>
+    function inIframe () {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
+    }
+    if (!inIframe()) {
+        var btn = document.createElement("BUTTON");
+        var t = document.createTextNode("Exit full screen");
+        btn.style.height = '20px';
+        btn.style.width = '100%';
+        btn.style.display = 'block';
+        btn.style.marginBottom = '3px';
+        btn.appendChild(t);
+        btn.onclick = function() {
+            document.location.href = "/bots/1/browser";
+        };
+
+        var btn1 = document.createElement("BUTTON");
+        var t = document.createTextNode("Manual mode (off)");
+        btn1.style.height = '20px';
+        btn1.style.width = '130px';
+        btn1.style.display = 'block';
+        btn1.style.marginBottom = '3px';
+        btn1.appendChild(t);
+        btn1.onclick = function() {
+            var formData = new FormData();
+            formData.append('csrf', '2uOTBnGMitPpi0k24S20c4PSURgO7TLv');
+            $.ajax({
+                url: "/api/v1/bots/1/toggle-manual-mode", data: formData, type: 'POST', processData: false, contentType: false,
+                success: function(res) {
+                    $(btn1).text("Manual mode (" + (res ? "on" : "off") + ")");
+                },
+                error: function(req) { console.log(req.responseText); },
+            });
+        };
+
+        var div = document.createElement("div");
+        div.style.position = 'fixed';
+        div.style.right = '10px';
+        div.style.top = '10px';
+        div.style.zIndex = '3001';
+        div.appendChild(btn);
+        div.appendChild(btn1);
+
+        var d = document.createElement("div");
+        var a = document.createElement("a");
+        a.href = "/bots/19/browser/html/s149-us";
+        var t = document.createTextNode("Notriv")
+        a.appendChild(t);
+        d.appendChild(a);
+        div.appendChild(d);
+
+        var d = document.createElement("div");
+        var a = document.createElement("a");
+        a.href = "/bots/27/browser/html/s164-en";
+        var t = document.createTextNode("Procurator Serpentis")
+        a.appendChild(t);
+        d.appendChild(a);
+        div.appendChild(d);
+
+        var d = document.createElement("div");
+        var a = document.createElement("a");
+        a.href = "/bots/28/browser/html/s164-en";
+        var t = document.createTextNode("Notriv")
+        a.appendChild(t);
+        d.appendChild(a);
+        div.appendChild(d);
+
+        document.body.prepend(div);
+    }
+</script>

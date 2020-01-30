@@ -56,6 +56,7 @@ const (
 	SupportAjaxPage            = "support"
 	BuffActivationAjaxPage     = "buffActivation"
 	AuctioneerAjaxPage         = "auctioneer"
+	HighscoreContentAjaxPage   = "highscoreContent"
 
 	// V7 pages
 	DefensesPage      = "defenses"

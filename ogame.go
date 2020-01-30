@@ -1183,6 +1183,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page == SupportAjaxPage ||
 		page == BuffActivationAjaxPage ||
 		page == AuctioneerAjaxPage ||
+		page == HighscoreContentAjaxPage ||
 		ajax == "1"
 }
 
@@ -1980,6 +1981,27 @@ func (b *OGame) createUnion(fleet Fleet) (int64, error) {
 		return 0, errors.New(res.Errorbox.Text)
 	}
 	return res.UnionID, nil
+}
+
+func (b *OGame) highscore(category, typ, page int64) (out Highscore, err error) {
+	if category < 1 || category > 2 {
+		return out, errors.New("category must be in [1, 2] (1:player, 2:alliance)")
+	}
+	if typ < 0 || typ > 7 {
+		return out, errors.New("category must be in [0, 7] (0:Total, 1:Economy, 2:Research, 3:Military, 4:Military Built, 5:Military Destroyed, 6:Military Lost, 7:Honor)")
+	}
+	if page < 1 {
+		return out, errors.New("page must be greater than or equal to 1")
+	}
+	vals := url.Values{
+		"page":     {HighscoreContentAjaxPage},
+		"category": {strconv.FormatInt(category, 10)},
+		"type":     {strconv.FormatInt(typ, 10)},
+		"site":     {strconv.FormatInt(page, 10)},
+	}
+	payload := url.Values{}
+	pageHTML, _ := b.postPageContent(vals, payload)
+	return b.extractor.ExtractHighscore(pageHTML)
 }
 
 func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
@@ -4323,4 +4345,9 @@ func (b *OGame) GetAuction() (Auction, error) {
 // DoAuction ...
 func (b *OGame) DoAuction(bid map[CelestialID]Resources) error {
 	return b.WithPriority(Normal).DoAuction(bid)
+}
+
+// Highscore ...
+func (b *OGame) Highscore(category, typ, page int64) (Highscore, error) {
+	return b.WithPriority(Normal).Highscore(category, typ, page)
 }

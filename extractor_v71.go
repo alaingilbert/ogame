@@ -67,3 +67,14 @@ func (e ExtractorV71) ExtractProduction(pageHTML []byte) ([]Quantifiable, int64,
 func (e ExtractorV71) ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
 	return extractProductionFromDocV71(doc)
 }
+
+// ExtractHighscore ...
+func (e ExtractorV71) ExtractHighscore(pageHTML []byte) (Highscore, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractHighscoreFromDoc(doc)
+}
+
+// ExtractHighscoreFromDoc ...
+func (e ExtractorV71) ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error) {
+	return extractHighscoreFromDocV71(doc)
+}
