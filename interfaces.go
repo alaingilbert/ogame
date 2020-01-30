@@ -103,6 +103,7 @@ type Wrapper interface {
 	CharacterClass() CharacterClass
 	GetAuction() (Auction, error)
 	DoAuction(bid map[CelestialID]Resources) error
+	Highscore(category, typ, page int64) (Highscore, error)
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)

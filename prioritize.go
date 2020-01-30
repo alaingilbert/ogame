@@ -559,3 +559,10 @@ func (b *Prioritize) DoAuction(bid map[CelestialID]Resources) error {
 	defer b.done()
 	return b.bot.doAuction(CelestialID(0), bid)
 }
+
+// Highscore ...
+func (b *Prioritize) Highscore(category, typ, page int64) (Highscore, error) {
+	b.begin("Highscore")
+	defer b.done()
+	return b.bot.highscore(category, typ, page)
+}
