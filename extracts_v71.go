@@ -561,8 +561,8 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 			if len(m) == 2 {
 				p.AllianceID, _ = strconv.ParseInt(m[1], 10, 64)
 			}
+			allyTag.Remove()
 		}
-		allyTag.Remove()
 		href := tdName.Find("a").AttrOr("href", "")
 		m := regexp.MustCompile(`galaxy=(\d+)&system=(\d+)&position=(\d+)`).FindStringSubmatch(href)
 		if len(m) != 4 {
