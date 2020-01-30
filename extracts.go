@@ -144,6 +144,8 @@ type Extractor interface {
 	ExtractGeologistFromDoc(doc *goquery.Document) bool
 	ExtractTechnocratFromDoc(doc *goquery.Document) bool
 	ExtractAuction(pageHTML []byte) (Auction, error)
+	ExtractHighscore(pageHTML []byte) (Highscore, error)
+	ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error)
 }
 
 // Compile time checks to ensure type satisfies Extractor interface
