@@ -2697,3 +2697,30 @@ func TestExtractAuction_waiting(t *testing.T) {
 	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
 	assert.Equal(t, int64(6202), res.Endtime)
 }
+
+func TestExtractHighscore(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/highscore.html")
+	highscore, _ := NewExtractorV71().ExtractHighscore(pageHTMLBytes)
+	assert.Equal(t, int64(7), highscore.NbPage)
+	assert.Equal(t, int64(1), highscore.CurrPage)
+	assert.Equal(t, int64(1), highscore.Category)
+	assert.Equal(t, int64(0), highscore.Type)
+	assert.Equal(t, 100, len(highscore.Players))
+	assert.Equal(t, int64(103636), highscore.Players[0].ID)
+	assert.Equal(t, int64(525), highscore.Players[0].AllianceID)
+	assert.Equal(t, int64(3299957), highscore.Players[0].HonourPoints)
+	assert.Equal(t, int64(320933389), highscore.Players[0].Score)
+	assert.Equal(t, "blondie", highscore.Players[0].Name)
+	assert.Equal(t, Coordinate{2, 356, 15, PlanetType}, highscore.Players[0].Homeworld)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7.1/en/highscore_withSelf.html")
+	highscore, _ = NewExtractorV71().ExtractHighscore(pageHTMLBytes)
+	assert.Equal(t, int64(7), highscore.NbPage)
+	assert.Equal(t, int64(2), highscore.CurrPage)
+	assert.Equal(t, int64(1), highscore.Category)
+	assert.Equal(t, int64(0), highscore.Type)
+	assert.Equal(t, 100, len(highscore.Players))
+	assert.Equal(t, "Bob", highscore.Players[7].Name)
+	assert.Equal(t, int64(0), highscore.Players[7].ID)         // Player ID is broken for self
+	assert.Equal(t, int64(0), highscore.Players[7].AllianceID) // Alliance ID is broken for self
+}
