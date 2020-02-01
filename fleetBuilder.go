@@ -188,10 +188,18 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			f.ships, _ = tx.GetShips(f.origin.GetID())
 		}
 
+		var planetResources Resources
+		if f.minimumDeuterium > 0 {
+			planetResources, _ = tx.GetResources(f.origin.GetID())
+		}
+
 		var fuel int64
 		if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
 			_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
-			f.resources.Deuterium = int64(math.Max(float64(f.resources.Deuterium)-float64(fuel+10), 0))
+			planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
+			if f.resources.Deuterium > planetResources.Deuterium {
+				f.resources.Deuterium = planetResources.Deuterium
+			}
 		}
 
 		payload := f.resources
@@ -200,10 +208,12 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			// Calculate cargo
 			techs := tx.GetResearch()
 			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
-			planetResources, _ := tx.GetResources(f.origin.GetID())
+			if f.minimumDeuterium <= 0 {
+				planetResources, _ = tx.GetResources(f.origin.GetID())
+			}
 			if f.resources.Deuterium == -1 {
 				if f.minimumDeuterium > 0 {
-					planetResources.Deuterium -= fuel + 10
+					planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
 				}
 				payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
 				cargoCapacity -= payload.Deuterium
