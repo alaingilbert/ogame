@@ -32,6 +32,7 @@ type FleetBuilder struct {
 	resources        Resources
 	err              error
 	fleet            Fleet
+	minimumDeuterium int64
 	expeditiontime   int64
 	unionID          int64
 	allShips         bool
@@ -117,6 +118,12 @@ func (f *FleetBuilder) SetAllDeuterium() *FleetBuilder {
 	return f
 }
 
+// SetMinimumDeuterium set minimum deuterium to keep on celestial
+func (f *FleetBuilder) SetMinimumDeuterium(minimumDeuterium int64) *FleetBuilder {
+	f.minimumDeuterium = minimumDeuterium
+	return f
+}
+
 // SetMission ...
 func (f *FleetBuilder) SetMission(mission MissionID) *FleetBuilder {
 	f.mission = mission
@@ -159,13 +166,17 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 	return f
 }
 
+func (f *FleetBuilder) flightTime(ships ShipsInfos) (secs, fuel int64) {
+	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
+}
+
 // FlightTime ...
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 	ships := f.ships
 	if f.allShips {
 		ships, _ = f.b.GetShips(f.origin.GetID())
 	}
-	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
+	return f.flightTime(ships)
 }
 
 // SendNow send the fleet with defined configurations
@@ -181,6 +192,12 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			f.ships, _ = tx.GetShips(f.origin.GetID())
 		}
 
+		var fuel int64
+		if f.minimumDeuterium > 0 {
+			_, fuel = f.flightTime(f.ships)
+			f.resources.Deuterium -= fuel + 10
+		}
+
 		payload := f.resources
 		// Send all resources
 		if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
@@ -189,6 +206,9 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
 			planetResources, _ := tx.GetResources(f.origin.GetID())
 			if f.resources.Deuterium == -1 {
+				if f.minimumDeuterium > 0 {
+					planetResources.Deuterium -= fuel + 10
+				}
 				payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
 				cargoCapacity -= payload.Deuterium
 			}
