@@ -189,9 +189,9 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 		}
 
 		var fuel int64
-		if f.minimumDeuterium > 0 {
+		if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
 			_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
-			f.resources.Deuterium -= fuel + 10
+			f.resources.Deuterium = int64(math.Max(float64(f.resources.Deuterium)-float64(fuel+10), 0))
 		}
 
 		payload := f.resources
