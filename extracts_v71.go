@@ -589,3 +589,26 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 
 	return
 }
+
+func extractAllResourcesV71(pageHTML []byte) (out map[CelestialID]Resources, err error) {
+	out = make(map[CelestialID]Resources)
+	m := regexp.MustCompile(`var planetResources=([^;]+);`).FindSubmatch(pageHTML)
+	if len(m) != 2 {
+		return out, errors.New("failed to get resources json")
+	}
+	var data map[string]struct {
+		Input struct {
+			Metal     int64
+			Crystal   int64
+			Deuterium int64
+		}
+	}
+	if err := json.Unmarshal(m[1], &data); err != nil {
+		return out, err
+	}
+	for k, v := range data {
+		ki, _ := strconv.ParseInt(k, 10, 64)
+		out[CelestialID(ki)] = Resources{Metal: v.Input.Metal, Crystal: v.Input.Crystal, Deuterium: v.Input.Deuterium}
+	}
+	return
+}

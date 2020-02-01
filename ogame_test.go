@@ -2735,3 +2735,12 @@ func TestExtractHighscore(t *testing.T) {
 	assert.Equal(t, int64(0), highscore.Players[7].ID)         // Player ID is broken for self
 	assert.Equal(t, int64(0), highscore.Players[7].AllianceID) // Alliance ID is broken for self
 }
+
+func TestExtractAllResources(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/traderOverview_waiting.html")
+	resources, _ := NewExtractorV71().ExtractAllResources(pageHTMLBytes)
+	assert.Equal(t, 12, len(resources))
+	assert.Equal(t, Resources{Metal: 97696396, Crystal: 30582087, Deuterium: 32752170}, resources[33698658])
+	assert.Equal(t, Resources{Metal: 133578, Crystal: 74977, Deuterium: 66899}, resources[33702461])
+	assert.Equal(t, Resources{Metal: 0, Crystal: 0, Deuterium: 2676231}, resources[33741598])
+}
