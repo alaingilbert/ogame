@@ -526,7 +526,13 @@ type HighscorePlayer struct {
 }
 
 func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error) {
-	script := doc.Find("script").First().Text()
+	s := doc.Selection
+	isFullPage := doc.Find("#stat_list_content").Size() == 1
+	if isFullPage {
+		s = doc.Find("#stat_list_content")
+	}
+
+	script := s.Find("script").First().Text()
 	m := regexp.MustCompile(`var site = (\d+);`).FindStringSubmatch(script)
 	if len(m) != 2 {
 		return out, errors.New("failed to find site")
@@ -545,10 +551,10 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 	}
 	out.Type, _ = strconv.ParseInt(m[1], 10, 64)
 
-	changeSiteSize := doc.Find("select.changeSite option").Size()
+	changeSiteSize := s.Find("select.changeSite option").Size()
 	out.NbPage = MaxInt(int64(changeSiteSize)-1, 0)
 
-	doc.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
+	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
 		p := HighscorePlayer{}
 		p.Position, _ = strconv.ParseInt(s.Find("td.position").Text(), 10, 64)
 		p.ID, _ = strconv.ParseInt(s.Find("td.sendmsg a").AttrOr("data-playerid", "0"), 10, 64)
