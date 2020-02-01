@@ -1806,6 +1806,18 @@ func (b *OGame) highscore(category, typ, page int64) (out Highscore, err error) 
 	return b.extractor.ExtractHighscore(pageHTML)
 }
 
+func (b *OGame) getAllResources() (map[CelestialID]Resources, error) {
+	vals := url.Values{
+		"page": {"traderOverview"},
+	}
+	payload := url.Values{
+		"show": {"auctioneer"},
+		"ajax": {"1"},
+	}
+	pageHTML, _ := b.postPageContent(vals, payload)
+	return b.extractor.ExtractAllResources(pageHTML)
+}
+
 func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
 	payload := url.Values{"show": {"auctioneer"}, "ajax": {"1"}}
 	if celestialID != 0 {
@@ -4152,4 +4164,9 @@ func (b *OGame) DoAuction(bid map[CelestialID]Resources) error {
 // Highscore ...
 func (b *OGame) Highscore(category, typ, page int64) (Highscore, error) {
 	return b.WithPriority(Normal).Highscore(category, typ, page)
+}
+
+// GetAllResources gets the resources of all planets and moons
+func (b *OGame) GetAllResources() (map[CelestialID]Resources, error) {
+	return b.WithPriority(Normal).GetAllResources()
 }
