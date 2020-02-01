@@ -166,17 +166,13 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 	return f
 }
 
-func (f *FleetBuilder) flightTime(ships ShipsInfos) (secs, fuel int64) {
-	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
-}
-
 // FlightTime ...
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 	ships := f.ships
 	if f.allShips {
 		ships, _ = f.b.GetShips(f.origin.GetID())
 	}
-	return f.flightTime(ships)
+	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
 }
 
 // SendNow send the fleet with defined configurations
@@ -194,7 +190,7 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 
 		var fuel int64
 		if f.minimumDeuterium > 0 {
-			_, fuel = f.flightTime(f.ships)
+			_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
 			f.resources.Deuterium -= fuel + 10
 		}
 
