@@ -1587,7 +1587,7 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 		}
 		nbr := ships.ByID(ship.GetID())
 		if nbr > 0 {
-			tmpFuel += tmpFn(ship.GetFuelConsumption(), nbr, ship.GetSpeed(techs, isCollector, isGeneral))
+			tmpFuel += tmpFn(ship.GetFuelConsumption(techs), nbr, ship.GetSpeed(techs, isCollector, isGeneral))
 		}
 	}
 	fuel = int64(1 + math.Floor(tmpFuel*fleetDeutSaveFactor))
@@ -2742,7 +2742,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 		return Fleet{}, errors.New("target is not ok")
 	}
 
-	cargo := ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1, b.characterClass == Collector)
+	cargo := ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1, b.isCollector())
 	newResources := Resources{}
 	if resources.Total() > cargo {
 		newResources.Deuterium = int64(math.Min(float64(resources.Deuterium), float64(cargo)))
