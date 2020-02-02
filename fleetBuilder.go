@@ -188,14 +188,14 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			f.ships, _ = tx.GetShips(f.origin.GetID())
 		}
 
+		var fuel int64
 		var planetResources Resources
 		if f.minimumDeuterium > 0 {
 			planetResources, _ = tx.GetResources(f.origin.GetID())
+			_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
 		}
 
-		var fuel int64
 		if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
-			_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
 			planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
 			if f.resources.Deuterium > planetResources.Deuterium {
 				f.resources.Deuterium = planetResources.Deuterium
