@@ -1587,7 +1587,7 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 		}
 		nbr := ships.ByID(ship.GetID())
 		if nbr > 0 {
-			tmpFuel += tmpFn(ship.GetFuelConsumption(), nbr, ship.GetSpeed(techs, isCollector, isGeneral))
+			tmpFuel += tmpFn(ship.GetFuelConsumption(techs), nbr, ship.GetSpeed(techs, isCollector, isGeneral))
 		}
 	}
 	fuel = int64(1 + math.Floor(tmpFuel*fleetDeutSaveFactor))
