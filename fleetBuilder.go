@@ -32,6 +32,7 @@ type FleetBuilder struct {
 	resources        Resources
 	err              error
 	fleet            Fleet
+	minimumDeuterium int64
 	expeditiontime   int64
 	unionID          int64
 	allShips         bool
@@ -117,6 +118,12 @@ func (f *FleetBuilder) SetAllDeuterium() *FleetBuilder {
 	return f
 }
 
+// SetMinimumDeuterium set minimum deuterium to keep on celestial
+func (f *FleetBuilder) SetMinimumDeuterium(minimumDeuterium int64) *FleetBuilder {
+	f.minimumDeuterium = minimumDeuterium
+	return f
+}
+
 // SetMission ...
 func (f *FleetBuilder) SetMission(mission MissionID) *FleetBuilder {
 	f.mission = mission
@@ -181,14 +188,33 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 			f.ships, _ = tx.GetShips(f.origin.GetID())
 		}
 
+		var fuel int64
+		var planetResources Resources
+		if f.minimumDeuterium > 0 {
+			planetResources, _ = tx.GetResources(f.origin.GetID())
+			_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
+		}
+
+		if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
+			planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
+			if f.resources.Deuterium > planetResources.Deuterium {
+				f.resources.Deuterium = planetResources.Deuterium
+			}
+		}
+
 		payload := f.resources
 		// Send all resources
 		if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
 			// Calculate cargo
 			techs := tx.GetResearch()
 			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
-			planetResources, _ := tx.GetResources(f.origin.GetID())
+			if f.minimumDeuterium <= 0 {
+				planetResources, _ = tx.GetResources(f.origin.GetID())
+			}
 			if f.resources.Deuterium == -1 {
+				if f.minimumDeuterium > 0 {
+					planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
+				}
 				payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
 				cargoCapacity -= payload.Deuterium
 			}

@@ -566,3 +566,10 @@ func (b *Prioritize) Highscore(category, typ, page int64) (Highscore, error) {
 	defer b.done()
 	return b.bot.highscore(category, typ, page)
 }
+
+// GetAllResources ...
+func (b *Prioritize) GetAllResources() (map[CelestialID]Resources, error) {
+	b.begin("GetAllResources")
+	defer b.done()
+	return b.bot.getAllResources()
+}

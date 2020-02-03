@@ -137,6 +137,7 @@ CharacterClass() CharacterClass
 GetAuction() (Auction, error)
 DoAuction(bid map[CelestialID]Resources) error
 Highscore(category, typ, page int64) (Highscore, error)
+GetAllResources() (map[CelestialID]Resources, error)
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)

@@ -21,8 +21,12 @@ func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids, isCollector boo
 }
 
 // GetFuelConsumption returns ship fuel consumption
-func (b BaseShip) GetFuelConsumption() int64 {
-	return b.FuelConsumption
+func (b BaseShip) GetFuelConsumption(techs Researches) int64 {
+	fuelConsumption := b.FuelConsumption
+	if b.ID == SmallCargoID && techs.ImpulseDrive >= 5 {
+		fuelConsumption *= 2
+	}
+	return fuelConsumption
 }
 
 // GetSpeed returns speed of the ship

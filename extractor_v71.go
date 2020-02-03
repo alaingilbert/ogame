@@ -78,3 +78,8 @@ func (e ExtractorV71) ExtractHighscore(pageHTML []byte) (Highscore, error) {
 func (e ExtractorV71) ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error) {
 	return extractHighscoreFromDocV71(doc)
 }
+
+// ExtractAllResources ...
+func (e ExtractorV71) ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error) {
+	return extractAllResourcesV71(pageHTML)
+}
