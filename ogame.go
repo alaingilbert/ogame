@@ -63,6 +63,7 @@ type OGame struct {
 	PlanetConstructionFinishAt        map[CelestialID]int64
 	PlanetShipyardProductions         map[CelestialID][]Quantifiable
 	PlanetShipyardProductionsFinishAt map[CelestialID]int64
+	PlanetQueue                       map[CelestialID][]Quantifiable
 	Researches                        Researches
 	ResearchesActive                  Quantifiable
 	EventboxResp                      eventboxResp
@@ -120,11 +121,13 @@ type Data struct {
 	PlanetConstructionFinishAt        map[CelestialID]int64
 	PlanetShipyardProductions         map[CelestialID][]Quantifiable
 	PlanetShipyardProductionsFinishAt map[CelestialID]int64
-	Researches                        Researches
-	ResearchesActive                  Quantifiable
-	EventboxResp                      eventboxResp
-	MovementFleets                    []Fleet
-	Slots                             Slots
+	PlanetQueue                       map[CelestialID][]Quantifiable
+
+	Researches       Researches
+	ResearchesActive Quantifiable
+	EventboxResp     eventboxResp
+	MovementFleets   []Fleet
+	Slots            Slots
 }
 
 // Preferences ...
@@ -237,6 +240,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.PlanetConstructionFinishAt = map[CelestialID]int64{}
 	b.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
 	b.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+	b.PlanetQueue = map[CelestialID][]Quantifiable{}
 
 	filename := username + "_" + universe + "_" + lang + "_data.json"
 	info, err := os.Stat(filename)
@@ -260,6 +264,8 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 		b.PlanetConstructionFinishAt = data.PlanetConstructionFinishAt
 		b.PlanetShipyardProductions = data.PlanetShipyardProductions
 		b.PlanetShipyardProductionsFinishAt = data.PlanetShipyardProductionsFinishAt
+		b.PlanetQueue = data.PlanetQueue
+
 		b.Researches = data.Researches
 		b.ResearchesActive = data.ResearchesActive
 		b.EventboxResp = data.EventboxResp
@@ -280,6 +286,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 		data.PlanetConstructionFinishAt = map[CelestialID]int64{}
 		data.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
 		data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+		data.PlanetQueue = map[CelestialID][]Quantifiable{}
 
 		data.PlanetActivity = b.PlanetActivity
 		data.PlanetResources = b.PlanetResources
@@ -292,6 +299,7 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 		data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
 		data.PlanetShipyardProductions = b.PlanetShipyardProductions
 		data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
+		data.PlanetQueue = b.PlanetQueue
 
 		data.Researches = b.Researches
 		data.ResearchesActive = b.ResearchesActive
@@ -855,6 +863,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	data.PlanetConstructionFinishAt = map[CelestialID]int64{}
 	data.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
 	data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+	data.PlanetQueue = map[CelestialID][]Quantifiable{}
 
 	data.PlanetActivity = b.PlanetActivity
 	data.PlanetResources = b.PlanetResources
@@ -867,6 +876,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
 	data.PlanetShipyardProductions = b.PlanetShipyardProductions
 	data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
+	data.PlanetQueue = b.PlanetQueue
 
 	data.Researches = b.Researches
 	data.ResearchesActive = b.ResearchesActive
