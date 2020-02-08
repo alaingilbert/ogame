@@ -999,25 +999,20 @@ func SendIPMHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(duration))
 }
 
+// TeardownHandler ...
 func TeardownHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
-	// PlanetID
 	planetID, err := strconv.ParseInt(c.Param("planetID"), 10, 64)
 	if err != nil || planetID < 0 {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-
-	// ogameID
 	ogameID, err := strconv.ParseInt(c.Param("ogameID"), 10, 64)
 	if err != nil || planetID < 0 {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogame id"))
 	}
-
 	if err = bot.TearDown(CelestialID(planetID), ID(ogameID)); err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-
 	return c.JSON(http.StatusOK, SuccessResp(nil))
 }
 
