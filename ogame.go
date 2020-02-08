@@ -2232,7 +2232,7 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 		"action":     {"getDetails"},
 		"technology": {strconv.FormatInt(int64(id), 10)},
 		"cp":         {strconv.FormatInt(int64(celestialID), 10)},
-		})
+	})
 
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
@@ -2244,12 +2244,12 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 	}
 
 	params := url.Values{
-		"page":       {"ingame"},
-		"component":  {page},
-		"modus":      {"3"},
-		"token":      {token},
-		"type":       {strconv.FormatInt(int64(id), 10)},
-		"cp":         {strconv.FormatInt(int64(celestialID), 10)},
+		"page":      {"ingame"},
+		"component": {page},
+		"modus":     {"3"},
+		"token":     {token},
+		"type":      {strconv.FormatInt(int64(id), 10)},
+		"cp":        {strconv.FormatInt(int64(celestialID), 10)},
 	}
 	_, err = b.getPageContent(params)
 	return err
