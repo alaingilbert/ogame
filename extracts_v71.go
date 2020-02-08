@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
+	"golang.org/x/net/html"
 )
 
 type resourcesRespV71 struct {
@@ -611,4 +613,125 @@ func extractAllResourcesV71(pageHTML []byte) (out map[CelestialID]Resources, err
 		out[CelestialID(ki)] = Resources{Metal: v.Input.Metal, Crystal: v.Input.Crystal, Deuterium: v.Input.Deuterium}
 	}
 	return
+}
+
+func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
+	attacks := make([]*AttackEvent, 0)
+	out := make([]AttackEvent, 0)
+	if doc.Find("body").Size() == 1 && extractOGameSessionFromDocV6(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
+		return out, ErrEventsBoxNotDisplayed
+	} else if doc.Find("div#eventListWrap").Size() == 0 {
+		return out, ErrNotLogged
+	}
+
+	allianceAttacks := make(map[int64]*AttackEvent)
+
+	tmp := func(rowType string) func(int, *goquery.Selection) {
+		return func(i int, s *goquery.Selection) {
+			classes, _ := s.Attr("class")
+			partner := strings.Contains(classes, "partnerInfo")
+
+			td := s.Find("td.countDown")
+			isHostile := td.HasClass("hostile") || td.Find("span.hostile").Size() > 0
+			if !isHostile {
+				return
+			}
+			missionTypeInt, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
+			arrivalTimeInt, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
+			missionType := MissionID(missionTypeInt)
+			if rowType == "allianceAttack" {
+				missionType = GroupedAttack
+			}
+			if missionType != Attack && missionType != GroupedAttack && missionType != Destroy &&
+				missionType != MissileAttack && missionType != Spy {
+				return
+			}
+			attack := &AttackEvent{}
+			attack.MissionType = missionType
+			if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy || missionType == GroupedAttack {
+				linkSendMail := s.Find("a.sendMail")
+				attack.AttackerID, _ = strconv.ParseInt(linkSendMail.AttrOr("data-playerid", ""), 10, 64)
+				attack.AttackerName = linkSendMail.AttrOr("title", "")
+				if attack.AttackerID != 0 {
+					coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
+					attack.Origin = extractCoordV6(coordsOrigin)
+					attack.Origin.Type = PlanetType
+					if s.Find("td.originFleet figure").HasClass("moon") {
+						attack.Origin.Type = MoonType
+					}
+				}
+			}
+			if missionType == MissileAttack {
+				attack.Missiles = ParseInt(s.Find("td.detailsFleet span").First().Text())
+			}
+
+			// Get ships infos if available
+			if movement, exists := s.Find("td.icon_movement span").Attr("title"); exists {
+				root, err := html.Parse(strings.NewReader(movement))
+				if err != nil {
+					return
+				}
+				attack.Ships = new(ShipsInfos)
+				q := goquery.NewDocumentFromNode(root)
+				q.Find("tr").Each(func(i int, s *goquery.Selection) {
+					name := s.Find("td").Eq(0).Text()
+					nbrTxt := s.Find("td").Eq(1).Text()
+					nbr := ParseInt(nbrTxt)
+					if name != "" && nbr > 0 {
+						attack.Ships.Set(name2id(name), nbr)
+					} else if nbrTxt == "?" {
+						attack.Ships.Set(name2id(name), -1)
+					}
+				})
+			}
+
+			rgx := regexp.MustCompile(`union(\d+)`)
+			classesArr := strings.Split(classes, " ")
+			for _, c := range classesArr {
+				m := rgx.FindStringSubmatch(c)
+				if len(m) == 2 {
+					attack.UnionID, _ = strconv.ParseInt(m[1], 10, 64)
+				}
+			}
+
+			destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
+			attack.Destination = extractCoordV6(destCoords)
+			attack.Destination.Type = PlanetType
+			if s.Find("td.destFleet figure").HasClass("moon") {
+				attack.Destination.Type = MoonType
+			}
+			attack.DestinationName = strings.TrimSpace(s.Find("td.destFleet").Text())
+
+			attack.ArrivalTime = time.Unix(arrivalTimeInt, 0)
+			attack.ArriveIn = int64(clock.Until(attack.ArrivalTime).Seconds())
+
+			if attack.UnionID != 0 {
+				if allianceAttack, ok := allianceAttacks[attack.UnionID]; ok {
+					if attack.Ships != nil {
+						allianceAttack.Ships.Add(*attack.Ships)
+					}
+					if allianceAttack.AttackerID == 0 {
+						allianceAttack.AttackerID = attack.AttackerID
+					}
+					if allianceAttack.Origin.Equal(Coordinate{}) {
+						allianceAttack.Origin = attack.Origin
+					}
+				} else {
+					allianceAttacks[attack.UnionID] = attack
+				}
+			}
+
+			if !partner {
+				attacks = append(attacks, attack)
+			}
+		}
+	}
+	doc.Find("tr.allianceAttack").Each(tmp("allianceAttack"))
+	doc.Find("tr.eventFleet").Each(tmp("eventFleet"))
+
+	for _, a := range attacks {
+		out = append(out, *a)
+	}
+
+	return out, nil
 }

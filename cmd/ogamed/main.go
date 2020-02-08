@@ -263,6 +263,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/build/technology/:ogameID", ogame.BuildTechnologyHandler)
 	e.POST("/bot/planets/:planetID/build/defence/:ogameID/:nbr", ogame.BuildDefenseHandler)
 	e.POST("/bot/planets/:planetID/build/ships/:ogameID/:nbr", ogame.BuildShipsHandler)
+	e.POST("/bot/planets/:planetID/teardown/:ogameID", ogame.TeardownHandler)
 	e.GET("/bot/planets/:planetID/production", ogame.GetProductionHandler)
 	e.GET("/bot/planets/:planetID/constructions", ogame.ConstructionsBeingBuiltHandler)
 	e.POST("/bot/planets/:planetID/cancel-building", ogame.CancelBuildingHandler)
