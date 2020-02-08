@@ -90,6 +90,11 @@ func (e ExtractorV71) ExtractAttacksFromDoc(doc *goquery.Document, clock clockwo
 	return extractAttacksFromDocV71(doc, clock)
 }
 
+// ExtractAttacks ...
+func (e ExtractorV71) ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
+	return e.extractAttacks(pageHTML, clockwork.NewRealClock())
+}
+
 func (e ExtractorV71) extractAttacks(pageHTML []byte, clock clockwork.Clock) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractAttacksFromDoc(doc, clock)
