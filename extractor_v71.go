@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
 )
 
 // ExtractorV71 ...
@@ -82,4 +83,14 @@ func (e ExtractorV71) ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore,
 // ExtractAllResources ...
 func (e ExtractorV71) ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error) {
 	return extractAllResourcesV71(pageHTML)
+}
+
+// ExtractAttacksFromDoc ...
+func (e ExtractorV71) ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
+	return extractAttacksFromDocV71(doc, clock)
+}
+
+func (e ExtractorV71) extractAttacks(pageHTML []byte, clock clockwork.Clock) ([]AttackEvent, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractAttacksFromDoc(doc, clock)
 }

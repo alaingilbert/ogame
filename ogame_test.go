@@ -1258,6 +1258,15 @@ func TestExtractAttacksACS(t *testing.T) {
 	assert.Equal(t, int64(2176), attacks[0].Ships.Battlecruiser)
 }
 
+func TestExtractAttacksACS_v71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/eventlist_acs.html")
+	attacks, _ := NewExtractorV71().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
+	assert.Equal(t, int64(200), attacks[0].Ships.LightFighter)
+	assert.Equal(t, int64(9), attacks[0].Ships.SmallCargo)
+}
+
 func TestExtractAttacksACSMany(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs_multiple.html")
 	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
