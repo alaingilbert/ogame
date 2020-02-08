@@ -811,6 +811,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		}
 		break
 	case ShipyardPage:
+		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
+		b.PlanetShipyardProductions[celestialID] = ships
+		b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
 		shipyard, err := b.extractor.ExtractShips(pageHTML)
 		if err == nil {
 			b.PlanetShipsInfos[celestialID] = shipyard
@@ -1268,12 +1271,15 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 	page := vals.Get("page")
+
 	if page == "ingame" ||
 		(page == "componentOnly" && vals.Get("component") == "fetchEventbox") ||
 		(page == "componentOnly" && vals.Get("component") == "eventList" && vals.Get("action") != "fetchEventBox") {
 		page = vals.Get("component")
 	}
 	var pageHTMLBytes []byte
+
+	log.Println("Visit page: " + page)
 
 	if err := b.withRetry(func() (err error) {
 		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
@@ -1299,8 +1305,6 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		b.cacheFullPageInfo(page, pageHTMLBytes)
 		b.LastActivePlanet, _ = b.extractor.ExtractPlanetID(pageHTMLBytes)
 	}
-
-	log.Println("Visit page: " + page)
 
 	go func() {
 		for _, fn := range b.interceptorCallbacks {
