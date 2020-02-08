@@ -2213,9 +2213,9 @@ func getDemolishToken(b *OGame, page string, celestialID CelestialID) (string, e
 func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 	var page string
 	if id.IsResourceBuilding() {
-		page = "resources"
+		page = "supplies"
 	} else if id.IsFacility() {
-		page = "station"
+		page = "facilities"
 	} else {
 		return errors.New("invalid id " + id.String())
 	}
@@ -2225,7 +2225,15 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 		return err
 	}
 
-	pageHTML, _ := b.getPageContent(url.Values{"page": {page}, "ajax": {"1"}, "type": {strconv.FormatInt(int64(celestialID), 10)}, "cp": {strconv.FormatInt(int64(celestialID), 10)}})
+	pageHTML, _ := b.getPageContent(url.Values{
+		"page":       {"ingame"},
+		"component":  {"technologydetails"},
+		"ajax":       {"1"},
+		"action":     {"getDetails"},
+		"technology": {strconv.FormatInt(int64(id), 10)},
+		"cp":         {strconv.FormatInt(int64(celestialID), 10)},
+		})
+
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
 		return err
@@ -2236,10 +2244,12 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 	}
 
 	params := url.Values{
-		"page":  {page},
-		"modus": {"3"},
-		"token": {token},
-		"type":  {strconv.FormatInt(int64(id), 10)},
+		"page":       {"ingame"},
+		"component":  {page},
+		"modus":      {"3"},
+		"token":      {token},
+		"type":       {strconv.FormatInt(int64(id), 10)},
+		"cp":         {strconv.FormatInt(int64(celestialID), 10)},
 	}
 	_, err = b.getPageContent(params)
 	return err
