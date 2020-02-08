@@ -11,12 +11,18 @@ type BaseTechnology struct {
 }
 
 // ConstructionTime returns the duration it takes to build given technology
-func (b BaseTechnology) ConstructionTime(level, universeSpeed int64, facilities Facilities) time.Duration {
+func (b BaseTechnology) ConstructionTime(level, universeSpeed int64, facilities Facilities, hasTechnocrat, isDiscoverer bool) time.Duration {
 	price := b.GetPrice(int64(level))
 	metalCost := float64(price.Metal)
 	crystalCost := float64(price.Crystal)
 	researchLabLvl := float64(facilities.ResearchLab)
 	hours := (metalCost + crystalCost) / (1000 * (1 + researchLabLvl) * float64(universeSpeed))
+	if hasTechnocrat {
+		hours -= 0.25 * hours
+	}
+	if isDiscoverer {
+		hours -= 0.25 * hours
+	}
 	secs := math.Max(1, hours*3600)
 	return time.Duration(int64(math.Floor(secs))) * time.Second
 }

@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// Page names
 const (
 	// V6 full pages
 	OverviewPage         = "overview"
@@ -54,6 +55,8 @@ const (
 	AllianceOverviewAjaxPage   = "allianceOverview"
 	SupportAjaxPage            = "support"
 	BuffActivationAjaxPage     = "buffActivation"
+	AuctioneerAjaxPage         = "auctioneer"
+	HighscoreContentAjaxPage   = "highscoreContent"
 
 	// V7 pages
 	DefensesPage      = "defenses"

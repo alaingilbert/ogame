@@ -28,6 +28,7 @@ func (e ExtractorV71) ExtractFacilities(pageHTML []byte) (Facilities, error) {
 	return e.ExtractFacilitiesFromDoc(doc)
 }
 
+// ExtractResourcesDetails ...
 func (e ExtractorV71) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error) {
 	return extractResourcesDetailsV71(pageHTML)
 }
@@ -65,4 +66,20 @@ func (e ExtractorV71) ExtractProduction(pageHTML []byte) ([]Quantifiable, int64,
 // ExtractProductionFromDoc extracts ships/defenses production from the shipyard page
 func (e ExtractorV71) ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error) {
 	return extractProductionFromDocV71(doc)
+}
+
+// ExtractHighscore ...
+func (e ExtractorV71) ExtractHighscore(pageHTML []byte) (Highscore, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractHighscoreFromDoc(doc)
+}
+
+// ExtractHighscoreFromDoc ...
+func (e ExtractorV71) ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error) {
+	return extractHighscoreFromDocV71(doc)
+}
+
+// ExtractAllResources ...
+func (e ExtractorV71) ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error) {
+	return extractAllResourcesV71(pageHTML)
 }

@@ -3,12 +3,11 @@ package ogame
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"math"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -152,7 +151,6 @@ type resourcesRespV71 struct {
 func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err error) {
 	var res resourcesRespV71
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
-		fmt.Println("CALSS", err)
 		if isLogged(pageHTML) {
 			return out, ErrInvalidPlanetID
 		}
@@ -223,6 +221,9 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 		report.IsBandit = banditstarlord.HasClass("rank_bandit1") || banditstarlord.HasClass("rank_bandit2") || banditstarlord.HasClass("rank_bandit3")
 		report.IsStarlord = banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3")
 	}
+
+	honorableFound := doc.Find("div.detail_txt").First().Find("span.status_abbr_honorableTarget")
+	report.HonorableTarget = honorableFound.Length() > 0
 
 	// IsInactive, IsLongInactive
 	inactive := doc.Find("div.detail_txt").First().Find("span")
@@ -462,8 +463,8 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 }
 
 func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
-	duration_float, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
-	duration = int64(math.Ceil(duration_float))
+	durationFloat, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
+	duration = int64(math.Ceil(durationFloat))
 	max, _ = strconv.ParseInt(doc.Find("input#missileCount").AttrOr("data-max", "0"), 10, 64)
 	token = doc.Find("input[name=token]").AttrOr("value", "")
 	return
@@ -502,4 +503,112 @@ func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) 
 		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
 	})
 	return res, nil
+}
+
+// Highscore ...
+type Highscore struct {
+	NbPage   int64
+	CurrPage int64
+	Category int64 // 1:Player, 2:Alliance
+	Type     int64 // 0:Total, 1:Economy, 2:Research, 3:Military, 4:Military Built, 5:Military Destroyed, 6:Military Lost, 7:Honor
+	Players  []HighscorePlayer
+}
+
+// HighscorePlayer ...
+type HighscorePlayer struct {
+	Position     int64
+	ID           int64
+	Name         string
+	Score        int64
+	AllianceID   int64
+	HonourPoints int64
+	Homeworld    Coordinate
+}
+
+func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error) {
+	s := doc.Selection
+	isFullPage := doc.Find("#stat_list_content").Size() == 1
+	if isFullPage {
+		s = doc.Find("#stat_list_content")
+	}
+
+	script := s.Find("script").First().Text()
+	m := regexp.MustCompile(`var site = (\d+);`).FindStringSubmatch(script)
+	if len(m) != 2 {
+		return out, errors.New("failed to find site")
+	}
+	out.CurrPage, _ = strconv.ParseInt(m[1], 10, 64)
+
+	m = regexp.MustCompile(`var currentCategory = (\d+);`).FindStringSubmatch(script)
+	if len(m) != 2 {
+		return out, errors.New("failed to find currentCategory")
+	}
+	out.Category, _ = strconv.ParseInt(m[1], 10, 64)
+
+	m = regexp.MustCompile(`var currentType = (\d+);`).FindStringSubmatch(script)
+	if len(m) != 2 {
+		return out, errors.New("failed to find currentType")
+	}
+	out.Type, _ = strconv.ParseInt(m[1], 10, 64)
+
+	changeSiteSize := s.Find("select.changeSite option").Size()
+	out.NbPage = MaxInt(int64(changeSiteSize)-1, 0)
+
+	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
+		p := HighscorePlayer{}
+		p.Position, _ = strconv.ParseInt(s.Find("td.position").Text(), 10, 64)
+		p.ID, _ = strconv.ParseInt(s.Find("td.sendmsg a").AttrOr("data-playerid", "0"), 10, 64)
+		p.Name = strings.TrimSpace(s.Find("span.playername").Text())
+		tdName := s.Find("td.name")
+		allyTag := tdName.Find("span.ally-tag")
+		if allyTag != nil {
+			href := allyTag.Find("a").AttrOr("href", "")
+			m := regexp.MustCompile(`allianceId=(\d+)`).FindStringSubmatch(href)
+			if len(m) == 2 {
+				p.AllianceID, _ = strconv.ParseInt(m[1], 10, 64)
+			}
+			allyTag.Remove()
+		}
+		href := tdName.Find("a").AttrOr("href", "")
+		m := regexp.MustCompile(`galaxy=(\d+)&system=(\d+)&position=(\d+)`).FindStringSubmatch(href)
+		if len(m) != 4 {
+			return
+		}
+		p.Homeworld.Type = PlanetType
+		p.Homeworld.Galaxy, _ = strconv.ParseInt(m[1], 10, 64)
+		p.Homeworld.System, _ = strconv.ParseInt(m[2], 10, 64)
+		p.Homeworld.Position, _ = strconv.ParseInt(m[3], 10, 64)
+		honorScoreSpan := s.Find("span.honorScore span")
+		if honorScoreSpan == nil {
+			return
+		}
+		p.HonourPoints = ParseInt(strings.TrimSpace(honorScoreSpan.Text()))
+		p.Score = ParseInt(strings.TrimSpace(s.Find("td.score").Text()))
+		out.Players = append(out.Players, p)
+	})
+
+	return
+}
+
+func extractAllResourcesV71(pageHTML []byte) (out map[CelestialID]Resources, err error) {
+	out = make(map[CelestialID]Resources)
+	m := regexp.MustCompile(`var planetResources=([^;]+);`).FindSubmatch(pageHTML)
+	if len(m) != 2 {
+		return out, errors.New("failed to get resources json")
+	}
+	var data map[string]struct {
+		Input struct {
+			Metal     int64
+			Crystal   int64
+			Deuterium int64
+		}
+	}
+	if err := json.Unmarshal(m[1], &data); err != nil {
+		return out, err
+	}
+	for k, v := range data {
+		ki, _ := strconv.ParseInt(k, 10, 64)
+		out[CelestialID(ki)] = Resources{Metal: v.Input.Metal, Crystal: v.Input.Crystal, Deuterium: v.Input.Deuterium}
+	}
+	return
 }

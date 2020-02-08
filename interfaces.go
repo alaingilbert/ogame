@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"net/http"
 	"net/url"
 	"time"
 )
@@ -46,9 +47,7 @@ type Wrapper interface {
 	GetUniverseSpeed() int64
 	GetUniverseSpeedFleet() int64
 	GetResearchSpeed() int64
-	SetResearchSpeed(int64)
 	GetNbSystems() int64
-	SetNbSystems(int64)
 	IsDonutGalaxy() bool
 	IsDonutSystem() bool
 	FleetDeutSaveFactor() float64
@@ -100,6 +99,12 @@ type Wrapper interface {
 	BytesUploaded() int64
 	CreateUnion(fleet Fleet) (int64, error)
 	GetEmpire(nbr int64) (interface{}, error)
+	HeadersForPage(url string) (http.Header, error)
+	CharacterClass() CharacterClass
+	GetAuction() (Auction, error)
+	DoAuction(bid map[CelestialID]Resources) error
+	Highscore(category, typ, page int64) (Highscore, error)
+	GetAllResources() (map[CelestialID]Resources, error)
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
@@ -141,7 +146,7 @@ type Wrapper interface {
 type BaseOgameObj interface {
 	GetID() ID
 	GetName() string
-	ConstructionTime(nbr, universeSpeed int64, facilities Facilities) time.Duration
+	ConstructionTime(nbr, universeSpeed int64, facilities Facilities, hasTechnocrat, isDiscoverer bool) time.Duration
 	GetRequirements() map[ID]int64
 	GetPrice(int64) Resources
 	IsAvailable(CelestialType, LazyResourcesBuildings, LazyFacilities, LazyResearches, int64) bool
@@ -176,9 +181,9 @@ type DefenderObj interface {
 // Ship interface implemented by all ships units
 type Ship interface {
 	DefenderObj
-	GetCargoCapacity(techs Researches, probeRaids bool) int64
-	GetSpeed(Researches) int64
-	GetFuelConsumption() int64
+	GetCargoCapacity(techs Researches, probeRaids, isCollector bool) int64
+	GetSpeed(techs Researches, isCollector, isGeneral bool) int64
+	GetFuelConsumption(techs Researches) int64
 }
 
 // Defense interface implemented by all defenses units

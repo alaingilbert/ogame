@@ -1,0 +1,690 @@
+
+<!--  Trader auctioneer Start -->
+<div id="div_traderAuctioneer" class="div_trader" style="display:none;">
+    <div class="header">
+        <h2>Auctioneer</h2>
+    </div>
+    <div class="content">
+        <p class="stimulus">
+            <a title="Rules|At the auctioneer, auctions start in regular intervals between the times of 6 and 23. Bids can be made by using resources or by using honour points.<br /><br /><b>However, all bid resources and honour points will not be refunded.</b><br /><br />
+Your stakes will always be lost – no matter whether you win or not. If you are outbid, you can raise your previous  bid. For example: if someone bids 1.000 resources and is then outbid by another player who enters 3.000, the first player can raise his original bid by 3.000 resources to bring it to 4.000. The old bid will only be deleted after the auction is completed.<br /><br />
+Note: when creating a bid, crystal and deuterium are worth 1.5 and 3 more than metal respectively.<br /><br />
+The higher the quality of the equipment is (bronze, silver or gold), the rarer it is that they will be up for auction."
+               href="javascript:void(0);"
+               class="tooltipHTML help rules"></a>
+            Items are offered here daily and can be purchased using resources.<br/>
+            If you are outbid, you can increase your previous bid. <b><span style="color:#99CC00;">However, bid resources and honour points will never be refunded.</span></b>        </p>
+        <!-- <div class="left_box_wrap"> -->
+        <div class="left_box">
+            <div class="left_header">
+                <h2>Auctions in progress</h2>
+            </div>
+            <div class="left_content">
+                <div class="overlay"></div>
+                <div class="image_140px">
+                    <img alt="Silver Crystal Booster" src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/556f67672eea34462c375ce884fa8b22c36e60fe-140x.png"
+                         height="136" width="136"
+                         style="margin: 2px;"/>
+                    <a class="detail_button tooltipHTML js_hideTipOnMobile slideIn r_uncommon_140px" href="javascript:void(0);"
+                       title="Silver Crystal Booster|+20% more Crystal Mine production on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 8.500 Dark Matter&lt;br /&gt;
+In Inventory: 0"
+                       ref="422db99aac4ec594d483d8ef7faadc5d40d6f7d3">
+                                <span class="ecke">
+                                    <span class="level amount">0</span>
+                                </span>
+                    </a>
+                </div>
+                <p class="auction_info"><span style="color:#99CC00;"><b>approx. 20m</b></span> remaining until the auction ends</p>
+                <label class="auction_detail odd info_label">Current bid: </label>
+                <div class="detail_value odd currentSum">0</div>
+
+                <label class="auction_detail even info_label">Number of bids: </label>
+                <div class="detail_value even numberOfBids">0</div>
+
+                <label class="auction_detail odd info_label">Highest bidder: </label>
+                <a href="javascript:void(0);" class="detail_value odd currentPlayer"></a>
+            </div>
+            <div class="left_footer"></div>
+        </div> <!--  left_box End -->
+        <!-- </div> -->
+
+        <div class="right_box">
+            <div class="noAuctionOverlay" style="display: none;"></div>
+            <div class="right_header">
+                <h2>Submit bid</h2>
+            </div>
+
+            <div class="right_content">
+
+
+
+                <div class="resourceSelection">
+                    <div class="selectWrapper">
+                        <a href="javascript:void(0);" alt="Select resources from your planets"
+                           class="tooltip js_hideTipOnMobile source planet js_planet selected"
+                           title="Select resources from your planets"></a>
+                        <a href="javascript:void(0);" alt="Select resources from your moons"
+                           class="tooltip js_hideTipOnMobile source moon js_moon"
+                           title="Select resources from your moons"></a>
+                        <a href="javascript:void(0);" alt="Exchange your honour points"
+                           class="tooltip js_hideTipOnMobile source honor js_honor"
+                           title="Exchange your honour points"></a>
+
+                        <a id="js_toggleLinkAuctioneer" href="#togglePanel" class="js_valSourcePlanet toggleHidden toggleLink">
+                            <img alt="Colony" src="https://s149-us.ogame.gameforge.com/cdn/img/planets/water_9_1.png" width="18" height="18" >
+                            <span class="option_source">Colony</span>
+                        </a>
+                    </div>
+                    <table class="table_ressources" cellspacing="0" cellpadding="0">
+                        <tr class="normalResource">
+                            <td><div class="resourceIcon metal resource_label"></div></td>
+                            <td class="multiplier undermark tooltip" title="Each Metal unit has a value of 1.">
+                                <span class="dark_highlight_tablet">x 1</span>
+                            </td>
+                            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderMetalInput js_metal checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                            <td><a class="value-control more js_sliderMetalMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+                            <td><a class="value-control max js_sliderMetalMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td colspan="2">&nbsp;</td>
+                            <td><div class="max_hint">(max. <span class="max_planet_res max_planet_metal">470.448</span>)</div></td>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td><div class="resourceIcon crystal resource_label"></div></td>
+                            <td class="multiplier undermark tooltip" title="Each Crystal unit has a value of 1.5.">
+                                <span class="dark_highlight_tablet">x 1.5</span>
+                            </td>
+                            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderCrystalInput js_crystal checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                            <td><a class="value-control more js_sliderCrystalMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+                            <td><a class="value-control max js_sliderCrystalMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td colspan="2">&nbsp;</td>
+                            <td><div class="max_hint">(max. <span class="max_planet_res max_planet_crystal">255.224</span>)</div></td>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td><div class="resourceIcon deuterium resource_label"></div></td>
+                            <td class="multiplier undermark tooltip" title="Each Deuterium unit has a value of 3.">
+                                <span class="dark_highlight_tablet">x 3</span>
+                            </td>
+                            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderDeuteriumInput js_deuterium checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                            <td><a class="value-control more js_sliderDeuteriumMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+                            <td><a class="value-control max js_sliderDeuteriumMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td colspan="2">&nbsp;</td>
+                            <td><div class="max_hint">(max. <span class="max_planet_res max_planet_deuterium">140.112</span>)</div></td>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr class="honorResource" style="display: none">
+                            <td><img src="https://gf2.geo.gfsrv.net/cdn73/5ec55d1f417bc3fc71e98f19853fad.png" alt="Honour points" class="resource_label" /></td>
+                            <td class="multiplier undermark tooltip" title="Each Honour points unit has a value of 100.">
+                                <span class="dark_highlight_tablet">x 100</span>
+                            </td>
+                            <td><input type="text" pattern="[0-9,.]*"  class="resourceAmount js_amount js_sliderHonorInput js_honor checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                            <td><a class="value-control more js_sliderHonorMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 Honour points">+</a></td>
+                            <td><a class="value-control max js_sliderHonorMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+                        </tr>
+                        <tr class="honorResource" style="display: none">
+                            <td colspan="2">&nbsp;</td>
+                            <td><div class="max_hint">(max. <span class="max_planet_res max_planet_honor">57</span>)</div></td>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                    </table>
+                    <div id="js_togglePanelAuctioneer" class="togglePanel" style="display: none;">
+                        <ul class="planet active">
+                            <li id="33630870" class="dark_highlight_tablet ">
+                                <img alt="Homeworld" src="https://s149-us.ogame.gameforge.com/cdn/img/planets/dry_5_1.png" width="18" height="18" >
+                                <span class="option_source">Homewo... [1:430:4]</span>
+                            </li>
+                            <li id="33631212" class="dark_highlight_tablet ">
+                                <img alt="Colony" src="https://s149-us.ogame.gameforge.com/cdn/img/planets/jungle_10_1.png" width="18" height="18" >
+                                <span class="option_source">Colony [1:430:9]</span>
+                            </li>
+                            <li id="33631491" class="dark_highlight_tablet ">
+                                <img alt="Colony" src="https://s149-us.ogame.gameforge.com/cdn/img/planets/normal_8_1.png" width="18" height="18" >
+                                <span class="option_source">Colony [1:430:7]</span>
+                            </li>
+                            <li id="33632814" class="dark_highlight_tablet  selected">
+                                <img alt="Colony" src="https://s149-us.ogame.gameforge.com/cdn/img/planets/water_9_1.png" width="18" height="18" >
+                                <span class="option_source">Colony [1:429:9]</span>
+                            </li>
+                            <li id="33634011" class="dark_highlight_tablet ">
+                                <img alt="Colony" src="https://s149-us.ogame.gameforge.com/cdn/img/planets/jungle_1_1.png" width="18" height="18" >
+                                <span class="option_source">Colony [1:432:8]</span>
+                            </li>
+                        </ul>
+                        <ul class="moon" style="display: none">
+                            <li id="33639983" class="dark_highlight_tablet ">
+                                <img alt="Moon" src="https://s149-us.ogame.gameforge.com/cdn/img/planets/moon_3_1.gif" width="18" height="18" >
+                                <span class="option_source">Moon [1:430:7]</span>
+                            </li>
+                            <li id="33661003" class="dark_highlight_tablet ">
+                                <img alt="Moon" src="https://s149-us.ogame.gameforge.com/cdn/img/planets/moon_4_1.gif" width="18" height="18" >
+                                <span class="option_source">Moon [1:429:9]</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>                <table class="table_ressources_sum" cellspacing="0" cellpadding="0">
+                    <tr class="even">
+                        <td class="auctionInfo js_bidRise tooltip" title="The amount of resources that you raised your last bid by.">Bid increased by:</td>
+                        <td class="auctionInfo sum js_auctioneerSum green_text tooltip" title="The amount of resources that you raised your last bid by.">0</td>
+                    </tr>
+                    <tr class="odd">
+                        <td width="40%" class="auctionInfo tooltip" title="The amount of resources that you are bidding in the current auction.">Your bid:</td>
+                        <td width="60%" class="auctionInfo js_alreadyBidden">0</td>
+                    </tr>
+                    <tr class="odd">
+                        <td class="auctionInfo tooltip" title="The minimum amount of resources that you have to bid.">Minimum bid:</td>
+                        <td class="auctionInfo js_price">1.000</td>
+                    </tr>
+                    <tr class="even">
+                        <td class="auctionInfo tooltip" title="The amount of resources required to reach the minimum bid.">Shortfall:</td>
+                        <td class="auctionInfo js_deficit">0</td>
+                    </tr>
+                </table>
+
+                <p class="overbid_text">You have been outbid!</p>
+                <a href="javascript:void(0);" class="pay disabled">Submit bid</a>
+                <br class="clearfloat" />
+            </div>
+            <div class="right_footer"></div>
+        </div> <!-- right_box End -->
+        <br class="clearfloat" />
+        <div class="auction_history">
+            <div class="history_header">
+                <h2>Previous auctions</h2>
+            </div>
+            <div class="history_content">
+                <ul>
+                    <li class="
+                    even                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d3d541ecc23e4daa0c698e44c32f04afd2037d84">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/610b867a8841d4a4c949d8a59719243580456452-small.png"
+                                 alt="" title="DETROID Bronze|Reduces the construction time of current shipyard-contracts by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 2"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">
+                        Not sold                        </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 22:30:10                        </span>
+                    </li>
+                    <li class="
+                    odd                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="de922af379061263a56d7204d1c395cefcfb7d75">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/707cbdc35388956853bc622832cc1d2716329a2e-small.png"
+                                 alt="" title="Bronze Metal Booster|+10% more Metal Mine extraction on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 2.500 Dark Matter&lt;br /&gt;
+In Inventory: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">1.002</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=90">
+                                Tinky-Winky                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 21:43:18                        </span>
+                    </li>
+                    <li class="
+                    even                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="40f6c78e11be01ad3389b7dccd6ab8efa9347f3c">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/bc4e2315f7db4286ba72a424a32c920e78af8e27-small.png"
+                                 alt="" title="KRAKEN Bronze|Reduces the building time of buildings currently under construction by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 3"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">
+                        Not sold                        </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 20:30:35                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="da4a2a1bb9afd410be07bc9736d87f1c8059e66d">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/2a974711651e1b38cb8d840ccc15259c49726b75-small.png"
+                                 alt="" title="NEWTRON Bronze|Reduces research time for all research that is currently in progress by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">36.006</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 19:43:54                        </span>
+                    </li>
+                    <li class="
+                    even more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/014827f6d1d5b78b1edd0d4476db05639e7d9367-small.png"
+                                 alt="" title="NEWTRON Gold|Reduces research time for all research that is currently in progress by &lt;b&gt;6h&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 1"
+                                 class="item_img tooltipHTML tooltipLeft r_rare"/>
+                        </a>
+
+                        <span class="detail sum">27.877.746</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 18:37:25                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="e4b78acddfa6fd0234bcb814b676271898b0dbb3">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/d7c31c50030da4c178bc651a05a294894f105a76-small.png"
+                                 alt="" title="Silver Deuterium Booster|+20% more Deuterium Synthesizer harvest on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 8.500 Dark Matter&lt;br /&gt;
+In Inventory: 1"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">151.014</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 17:41:36                        </span>
+                    </li>
+                    <li class="
+                    even more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d3d541ecc23e4daa0c698e44c32f04afd2037d84">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/610b867a8841d4a4c949d8a59719243580456452-small.png"
+                                 alt="" title="DETROID Bronze|Reduces the construction time of current shipyard-contracts by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 2"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">32.535.003</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 16:33:57                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="e4b78acddfa6fd0234bcb814b676271898b0dbb3">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/d7c31c50030da4c178bc651a05a294894f105a76-small.png"
+                                 alt="" title="Silver Deuterium Booster|+20% more Deuterium Synthesizer harvest on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 8.500 Dark Matter&lt;br /&gt;
+In Inventory: 1"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">18.799.251</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 15:32:34                        </span>
+                    </li>
+                    <li class="
+                    even more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="929d5e15709cc51a4500de4499e19763c879f7f7">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/3e11d31fcf81e4c6eb48e74e2d434d5fa50e9c31-small.png"
+                                 alt="" title="KRAKEN Gold|Reduces the building time of buildings currently under construction by &lt;b&gt;6h&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_rare"/>
+                        </a>
+
+                        <span class="detail sum">21.983.361</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=90">
+                                Tinky-Winky                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 14:34:56                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d9fa5f359e80ff4f4c97545d07c66dbadab1d1be">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/1467bd003a88e3b3c559a2cbebefd27651e9f7a4-small.png"
+                                 alt="" title="Bronze Deuterium Booster|+10% more Deuterium Synthesizer harvest on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 2.500 Dark Matter&lt;br /&gt;
+In Inventory: 2"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">42.024</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 13:33:02                        </span>
+                    </li>
+                    <li class="
+                    even more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d26f4dab76fdc5296e3ebec11a1e1d2558c713ea">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/2ca40705737c0bc51107bfca49643487c510ac4a-small.png"
+                                 alt="" title="NEWTRON Silver|Reduces research time for all research that is currently in progress by &lt;b&gt;2h&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">19.002</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 12:31:19                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="3c9f85221807b8d593fa5276cdf7af9913c4a35d">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/7c1dc1bf2d48d0f617e6f882a5df2ce8bfe7caef-small.png"
+                                 alt="" title="Bronze Crystal Booster|+10% more Crystal Mine production on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 2.500 Dark Matter&lt;br /&gt;
+In Inventory: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">34.002</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 11:32:36                        </span>
+                    </li>
+                    <li class="
+                    even more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="40f6c78e11be01ad3389b7dccd6ab8efa9347f3c">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/bc4e2315f7db4286ba72a424a32c920e78af8e27-small.png"
+                                 alt="" title="KRAKEN Bronze|Reduces the building time of buildings currently under construction by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 3"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">28.005</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 10:30:04                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d9fa5f359e80ff4f4c97545d07c66dbadab1d1be">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/1467bd003a88e3b3c559a2cbebefd27651e9f7a4-small.png"
+                                 alt="" title="Bronze Deuterium Booster|+10% more Deuterium Synthesizer harvest on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 2.500 Dark Matter&lt;br /&gt;
+In Inventory: 2"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">16.002</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 09:36:24                        </span>
+                    </li>
+                    <li class="
+                    even more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="ba85cc2b8a5d986bbfba6954e2164ef71af95d4a">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/f582c0fcf125bfdd68cf9409f52777278b124ed8-small.png"
+                                 alt="" title="Silver Metal Booster|+20% more Metal Mine extraction on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 8.500 Dark Matter&lt;br /&gt;
+In Inventory: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">18.000</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 08:39:52                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="40f6c78e11be01ad3389b7dccd6ab8efa9347f3c">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/bc4e2315f7db4286ba72a424a32c920e78af8e27-small.png"
+                                 alt="" title="KRAKEN Bronze|Reduces the building time of buildings currently under construction by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 3"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">1.002</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 07:37:30                        </span>
+                    </li>
+                    <li class="
+                    even more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d3d541ecc23e4daa0c698e44c32f04afd2037d84">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/610b867a8841d4a4c949d8a59719243580456452-small.png"
+                                 alt="" title="DETROID Bronze|Reduces the construction time of current shipyard-contracts by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 2"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">1.002</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=2&system=174">
+                                Czar Celestial                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            27.01.2020 06:44:21                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="3c9f85221807b8d593fa5276cdf7af9913c4a35d">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/7c1dc1bf2d48d0f617e6f882a5df2ce8bfe7caef-small.png"
+                                 alt="" title="Bronze Crystal Booster|+10% more Crystal Mine production on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 2.500 Dark Matter&lt;br /&gt;
+In Inventory: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">
+                        Not sold                        </span>
+
+                        <span class="detail date_time">
+                            26.01.2020 23:37:26                        </span>
+                    </li>
+                    <li class="
+                    even more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/014827f6d1d5b78b1edd0d4476db05639e7d9367-small.png"
+                                 alt="" title="NEWTRON Gold|Reduces research time for all research that is currently in progress by &lt;b&gt;6h&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 1"
+                                 class="item_img tooltipHTML tooltipLeft r_rare"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">
+                        Not sold                        </span>
+
+                        <span class="detail date_time">
+                            26.01.2020 22:44:02                        </span>
+                    </li>
+                    <li class="
+                    odd more_auctions_li                     ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="da4a2a1bb9afd410be07bc9736d87f1c8059e66d">
+                            <img height="30" width="30"
+                                 src="https://s149-us.ogame.gameforge.com/cdn/img/item-images/2a974711651e1b38cb8d840ccc15259c49726b75-small.png"
+                                 alt="" title="NEWTRON Bronze|Reduces research time for all research that is currently in progress by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">1.000</span>
+
+                        <span class="detail player">
+                                                    <a href="https://www.ogame.ninja/bots/19/browser/html/s149-us?page=ingame&component=galaxy&galaxy=1&system=225">
+                                Locutus                            </a>
+                                                </span>
+
+                        <span class="detail date_time">
+                            26.01.2020 21:41:44                        </span>
+                    </li>
+                </ul>
+                <a href="javascript:void(0);" class="more dark_highlight_tablet">
+                    [show more]
+                </a>
+                <br class="clearfloat" />
+            </div>
+            <div class="history_footer"></div>
+        </div>
+
+
+    </div>  <!-- content End -->
+    <div class="footer"></div>
+</div><!--  Trader auctioneer End -->
+<script type="text/javascript">
+    var planetResources={"33630870":{"input":{"metal":60511237,"crystal":11279069,"deuterium":45919298},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"dry_5","name":"Homeworld","otherPlanet":null},"33631212":{"input":{"metal":867348,"crystal":471017,"deuterium":470537},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"jungle_10","name":"Colony","otherPlanet":null},"33631491":{"input":{"metal":865000,"crystal":255541,"deuterium":255272},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"normal_8","name":"Colony","otherPlanet":33639983},"33639983":{"input":{"metal":0,"crystal":0,"deuterium":0},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":true,"imageFileName":"moon_3","name":"Moon","otherPlanet":33631491},"33632814":{"input":{"metal":470448,"crystal":255224,"deuterium":140112},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"water_9","name":"Colony","otherPlanet":33661003},"33661003":{"input":{"metal":0,"crystal":0,"deuterium":0},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":true,"imageFileName":"moon_4","name":"Moon","otherPlanet":33632814},"33634011":{"input":{"metal":865820,"crystal":470309,"deuterium":865000},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"jungle_1","name":"Colony","otherPlanet":null}};var playerBid=false;var auctionFinished=false;var AuctionIdOflastPlayerBid="3271";var auctionId="6584";var auctionUrl="https:\/\/www.ogame.ninja\/bots\/19\/browser\/html\/s149-us?page=auctioneer";var auctioneerToken="cb782b979728933d96a4eadf2f74c113";var multiplier={"metal":1,"crystal":1.5,"deuterium":3,"honor":100};auctioneer.initialize();initThousandSeparator();</script>

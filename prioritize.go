@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"net/http"
 	"net/url"
 	"sync/atomic"
 	"time"
@@ -490,7 +491,7 @@ func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, shi
 	researches := b.bot.getCachedResearch()
 	return calcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
 		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, b.bot.serverData.SpeedFleet, ships, researches)
+		float64(speed)/10, b.bot.serverData.SpeedFleet, ships, researches, b.bot.characterClass)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
@@ -531,6 +532,13 @@ func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
 	return b.bot.createUnion(fleet)
 }
 
+// HeadersForPage gets the headers for a specific ogame page
+func (b *Prioritize) HeadersForPage(url string) (http.Header, error) {
+	b.begin("HeadersForPage")
+	defer b.done()
+	return b.bot.headersForPage(url)
+}
+
 // GetEmpire retrieves JSON from Empire page (Commander only).
 func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
 	b.begin("GetEmpire")
@@ -538,3 +546,30 @@ func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
 	return b.bot.getEmpire(nbr)
 }
 
+// GetAuction ...
+func (b *Prioritize) GetAuction() (Auction, error) {
+	b.begin("GetAuction")
+	defer b.done()
+	return b.bot.getAuction(CelestialID(0))
+}
+
+// DoAuction ...
+func (b *Prioritize) DoAuction(bid map[CelestialID]Resources) error {
+	b.begin("DoAuction")
+	defer b.done()
+	return b.bot.doAuction(CelestialID(0), bid)
+}
+
+// Highscore ...
+func (b *Prioritize) Highscore(category, typ, page int64) (Highscore, error) {
+	b.begin("Highscore")
+	defer b.done()
+	return b.bot.highscore(category, typ, page)
+}
+
+// GetAllResources ...
+func (b *Prioritize) GetAllResources() (map[CelestialID]Resources, error) {
+	b.begin("GetAllResources")
+	defer b.done()
+	return b.bot.getAllResources()
+}

@@ -1,5 +1,7 @@
 package ogame
 
+import "math"
+
 type solarSatellite struct {
 	BaseShip
 }
@@ -21,8 +23,12 @@ func newSolarSatellite() *solarSatellite {
 }
 
 // Production gets the energy production of nbr solar satellite
-func (s *solarSatellite) Production(temp Temperature, nbr int64) int64 {
-	return int64(float64(temp.Mean()+160)/6) * nbr
+func (s *solarSatellite) Production(temp Temperature, nbr int64, isCollector bool) int64 {
+	energy := int64(float64(temp.Mean()+160)/6) * nbr
+	if isCollector {
+		energy += int64(math.Round(0.1 * float64(energy)))
+	}
+	return energy
 }
 
 // GetLevel only useful so the solar satellite can implement Building interface

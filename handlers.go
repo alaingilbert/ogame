@@ -1,7 +1,11 @@
 package ogame
 
 import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -356,6 +360,10 @@ func SetResourceSettingsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid solarSatellite"))
 	}
+	crawler, err := strconv.ParseInt(c.Request().PostFormValue("crawler"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid crawler"))
+	}
 	settings := ResourceSettings{
 		MetalMine:            metalMine,
 		CrystalMine:          crystalMine,
@@ -363,6 +371,7 @@ func SetResourceSettingsHandler(c echo.Context) error {
 		SolarPlant:           solarPlant,
 		FusionReactor:        fusionReactor,
 		SolarSatellite:       solarSatellite,
+		Crawler:              crawler,
 	}
 	if err := bot.SetResourceSettings(PlanetID(planetID), settings); err != nil {
 		if err == ErrInvalidPlanetID {
@@ -641,6 +650,24 @@ func GetResourcesHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(res))
 }
 
+// GetPriceHandler ...
+func GetPriceHandler(c echo.Context) error {
+	ogameID, err := strconv.ParseInt(c.Param("ogameID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
+	}
+	nbr, err := strconv.ParseInt(c.Param("nbr"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid nbr"))
+	}
+	ogameObj := Objs.ByID(ID(ogameID))
+	if ogameObj != nil {
+		price := ogameObj.GetPrice(nbr)
+		return c.JSON(http.StatusOK, SuccessResp(price))
+	}
+	return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
+}
+
 // SendFleetHandler ...
 // curl 127.0.0.1:1234/bot/planets/123/send-fleet -d 'ships="203,1"&ships="204,10"&speed=10&galaxy=1&system=1&type=1&position=1&mission=3&metal=1&crystal=2&deuterium=3'
 func SendFleetHandler(c echo.Context) error {
@@ -766,6 +793,113 @@ func SendFleetHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(fleet))
 }
 
+// GetAlliancePageContentHandler ...
+func GetAlliancePageContentHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	allianceID := c.QueryParam("allianceId")
+	vals := url.Values{"allianceId": {allianceID}}
+	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
+}
+
+func replaceHostname(bot *OGame, html []byte) []byte {
+	serverURLBytes := []byte(bot.serverURL)
+	apiNewHostnameBytes := []byte(bot.apiNewHostname)
+	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
+	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
+	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
+	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
+	return html
+}
+
+// GetStaticHandler ...
+func GetStaticHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	newURL := bot.serverURL + c.Request().URL.String()
+	resp, err := http.Get(newURL)
+	if err != nil {
+		bot.error(err)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		bot.error(err)
+	}
+
+	// Copy the original HTTP headers to our client
+	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		for _, v := range vv {
+			c.Response().Header().Add(k, v)
+		}
+	}
+
+	if strings.Contains(c.Request().URL.String(), ".xml") {
+		body = replaceHostname(bot, body)
+		return c.Blob(http.StatusOK, "application/xml", body)
+	}
+
+	contentType := http.DetectContentType(body)
+	if strings.Contains(newURL, ".css") {
+		contentType = "text/css"
+	} else if strings.Contains(newURL, ".js") {
+		contentType = "text/javascript"
+	} else if strings.Contains(newURL, ".gif") {
+		contentType = "image/gif"
+	}
+
+	return c.Blob(http.StatusOK, contentType, body)
+}
+
+// GetFromGameHandler ...
+func GetFromGameHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	vals := url.Values{"page": {"ingame"}, "component": {"overview"}}
+	if len(c.QueryParams()) > 0 {
+		vals = c.QueryParams()
+	}
+	pageHTML := bot.GetPageContent(vals)
+	pageHTML = replaceHostname(bot, pageHTML)
+	return c.HTMLBlob(http.StatusOK, pageHTML)
+}
+
+// PostToGameHandler ...
+func PostToGameHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	vals := url.Values{"page": {"ingame"}, "component": {"overview"}}
+	if len(c.QueryParams()) > 0 {
+		vals = c.QueryParams()
+	}
+	payload, _ := c.FormParams()
+	pageHTML := bot.PostPageContent(vals, payload)
+	pageHTML = replaceHostname(bot, pageHTML)
+	return c.HTMLBlob(http.StatusOK, pageHTML)
+}
+
+// GetStaticHEADHandler ...
+func GetStaticHEADHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	newURL := "/api/" + strings.Join(c.ParamValues(), "") // + "?" + c.QueryString()
+	if len(c.QueryString()) > 0 {
+		newURL = newURL + "?" + c.QueryString()
+	}
+	headers, err := bot.HeadersForPage(newURL)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	if len(headers) < 1 {
+		return c.NoContent(http.StatusFailedDependency)
+	}
+	// Copy the original HTTP HEAD headers to our client
+	for k, vv := range headers { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		for _, v := range vv {
+			c.Response().Header().Add(k, v)
+		}
+	}
+	return c.NoContent(http.StatusOK)
+}
+
 // GetEmpireHandler ...
 func GetEmpireHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
@@ -885,4 +1019,64 @@ func TeardownHandler(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, SuccessResp(nil))
+}
+
+// GetAuctionHandler ...
+func GetAuctionHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	auction, err := bot.GetAuction()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "could not open auction page"))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(auction))
+}
+
+// DoAuctionHandler (`celestialID=metal:crystal:deuterium` eg: `123456=123:456:789`)
+func DoAuctionHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	bid := make(map[CelestialID]Resources)
+	for key, values := range c.Request().PostForm {
+		for _, s := range values {
+			var metal, crystal, deuterium int64
+			if n, err := fmt.Sscanf(s, "%d:%d:%d", &metal, &crystal, &deuterium); err != nil || n != 3 {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid bid format"))
+			}
+			celestialIDInt, err := strconv.ParseInt(key, 10, 64)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial ID"))
+			}
+			bid[CelestialID(celestialIDInt)] = Resources{Metal: metal, Crystal: crystal, Deuterium: deuterium}
+		}
+	}
+	if err := bot.DoAuction(bid); err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(nil))
+}
+
+// PhalanxHandler ...
+func PhalanxHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	moonID, err := strconv.ParseInt(c.Param("moonID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid moon id"))
+	}
+	galaxy, err := strconv.ParseInt(c.Param("galaxy"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+	}
+	system, err := strconv.ParseInt(c.Param("system"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+	}
+	position, err := strconv.ParseInt(c.Param("position"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+	}
+	coord := Coordinate{Type: PlanetType, Galaxy: galaxy, System: system, Position: position}
+	fleets, err := bot.Phalanx(MoonID(moonID), coord)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(fleets))
 }

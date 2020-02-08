@@ -80,9 +80,7 @@ GetUniverseName() string
 GetUniverseSpeed() int64
 GetUniverseSpeedFleet() int64
 GetResearchSpeed() int64
-SetResearchSpeed(int64)
 GetNbSystems() int64
-SetNbSystems(int64)
 IsDonutGalaxy() bool
 IsDonutSystem() bool
 FleetDeutSaveFactor() float64
@@ -134,6 +132,12 @@ BytesDownloaded() int64
 BytesUploaded() int64
 CreateUnion(fleet Fleet) (int64, error)
 GetEmpire(nbr int64) (interface{}, error)
+HeadersForPage(url string) (http.Header, error)
+CharacterClass() CharacterClass
+GetAuction() (Auction, error)
+DoAuction(bid map[CelestialID]Resources) error
+Highscore(category, typ, page int64) (Highscore, error)
+GetAllResources() (map[CelestialID]Resources, error)
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
@@ -217,6 +221,7 @@ POST /bot/delete-all-reports/:tabIndex
 GET  /bot/attacks
 GET  /bot/galaxy-infos/:galaxy/:system
 GET  /bot/get-research
+GET  /bot/price/:ogameID/:nbr
 GET  /bot/planets
 GET  /bot/planets/:galaxy/:system/:position
 GET  /bot/planets/:planetID
@@ -241,4 +246,7 @@ GET  /bot/planets/:planetID/resources
 POST /bot/planets/:planetID/send-fleet
 POST /bot/planets/:planetID/send-ipm
 POST /bot/planets/:planetID/teardown/:ogameID
+GET  /bot/moons/:moonID/phalanx/:galaxy/:system/:position
+GET  /bot/get-auction
+POST /bot/do-auction
 ```
