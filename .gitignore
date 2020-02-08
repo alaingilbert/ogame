@@ -4,5 +4,6 @@ cmd/scripts/bindata
 cmd/bot1
 *.cover
 cover.out
+vendor
 *.bat
 *.json

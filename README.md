@@ -245,6 +245,7 @@ POST /bot/planets/:planetID/cancel-research
 GET  /bot/planets/:planetID/resources
 POST /bot/planets/:planetID/send-fleet
 POST /bot/planets/:planetID/send-ipm
+POST /bot/planets/:planetID/teardown/:ogameID
 GET  /bot/moons/:moonID/phalanx/:galaxy/:system/:position
 GET  /bot/get-auction
 POST /bot/do-auction
