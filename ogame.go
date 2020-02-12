@@ -66,6 +66,7 @@ type OGame struct {
 	PlanetQueue                       map[CelestialID][]Quantifiable
 	Researches                        Researches
 	ResearchesActive                  Quantifiable
+	ResearchFinishAt                  int64
 	EventboxResp                      eventboxResp
 	MovementFleets                    []Fleet
 	Slots                             Slots
@@ -122,6 +123,7 @@ type Data struct {
 	PlanetShipyardProductions         map[CelestialID][]Quantifiable
 	PlanetShipyardProductionsFinishAt map[CelestialID]int64
 	PlanetQueue                       map[CelestialID][]Quantifiable
+	ResearchFinishAt                  int64
 
 	Researches       Researches
 	ResearchesActive Quantifiable
@@ -268,6 +270,8 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 
 		b.Researches = data.Researches
 		b.ResearchesActive = data.ResearchesActive
+		b.ResearchFinishAt = data.ResearchFinishAt
+
 		b.EventboxResp = data.EventboxResp
 		b.MovementFleets = data.MovementFleets
 		b.Slots = data.Slots
@@ -794,6 +798,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
 		b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
 		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		b.ResearchFinishAt = researchCountdown + time.Now().Unix()
 
 		ships, shipyardCountdown, _ := b.extractor.ExtractOverviewProduction(pageHTML)
 		b.PlanetShipyardProductions[celestialID] = ships
@@ -834,6 +839,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.MovementFleets = b.extractor.ExtractFleets(pageHTML)
 		b.Slots = b.extractor.ExtractSlots(pageHTML)
 		break
+	case FleetdispatchPage:
+		b.PlanetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
+		break
 
 	case ResearchPage:
 		b.Researches = b.extractor.ExtractResearch(pageHTML)
@@ -873,6 +881,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
 	data.PlanetQueue = map[CelestialID][]Quantifiable{}
 
+	data.ResearchFinishAt = b.ResearchFinishAt
 	data.PlanetActivity = b.PlanetActivity
 	data.PlanetResources = b.PlanetResources
 	data.PlanetResourcesBuildings = b.PlanetResourcesBuildings
