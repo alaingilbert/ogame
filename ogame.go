@@ -827,7 +827,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	case ShipyardPage:
 		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
 		b.PlanetShipyardProductions[celestialID] = ships
-		b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		if shipyardCountdown != 0 {
+			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		}
 		shipyard, err := b.extractor.ExtractShips(pageHTML)
 		if err == nil {
 			b.PlanetShipsInfos[celestialID] = shipyard
@@ -837,7 +839,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		defenses, err := b.extractor.ExtractDefense(pageHTML)
 		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
 		b.PlanetShipyardProductions[celestialID] = ships
-		b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		if shipyardCountdown != 0 {
+			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		}
 
 		if err == nil {
 			b.PlanetDefensesInfos[celestialID] = defenses
