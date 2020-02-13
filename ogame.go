@@ -796,13 +796,21 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	case OverviewPage:
 		buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
 		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
-		b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+		if buildingID != 0 && buildingCountdown != 0 {
+			b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+		}
+
 		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
-		b.ResearchFinishAt = researchCountdown + time.Now().Unix()
+		if researchID != 0 && researchCountdown != 0 {
+			b.ResearchFinishAt = researchCountdown + time.Now().Unix()
+		}
 
 		ships, shipyardCountdown, _ := b.extractor.ExtractOverviewProduction(pageHTML)
 		b.PlanetShipyardProductions[celestialID] = ships
-		b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		if shipyardCountdown != 0 {
+			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		}
+
 		break
 	case SuppliesPage:
 		res, err := b.extractor.ExtractResourcesBuildings(pageHTML)
