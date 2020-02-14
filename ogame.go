@@ -770,7 +770,7 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 		b.loginProxyTransport = transport
 		b.Client.Transport = http.DefaultTransport
 	} else {
-		b.loginProxyTransport = nil
+		b.loginProxyTransport = transport
 		b.Client.Transport = transport
 	}
 	return err
