@@ -754,6 +754,9 @@ func getSocks5Transport(proxyAddress, username, password string) (*http.Transpor
 }
 
 func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error {
+	if proxyType == "" {
+		proxyType = "socks5"
+	}
 	if proxyAddress == "" {
 		b.loginProxyTransport = nil
 		b.Client.Transport = http.DefaultTransport
