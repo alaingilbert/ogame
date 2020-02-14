@@ -75,12 +75,6 @@ func main() {
 			EnvVars: []string{"OGAMED_PROXY"},
 		},
 		&cli.StringFlag{
-			Name:    "socks5-proxy",
-			Usage:   "Socks5 proxy address",
-			Value:   "",
-			EnvVars: []string{"OGAMED_SOCKS5_PROXY"},
-		},
-		&cli.StringFlag{
 			Name:    "proxy-username",
 			Usage:   "Proxy username",
 			Value:   "",
@@ -91,6 +85,18 @@ func main() {
 			Usage:   "Proxy password",
 			Value:   "",
 			EnvVars: []string{"OGAMED_PROXY_PASSWORD"},
+		},
+		&cli.StringFlag{
+			Name:    "proxy-type",
+			Usage:   "Proxy type (socks5/http)",
+			Value:   "socks5",
+			EnvVars: []string{"OGAMED_PROXY_TYPE"},
+		},
+		&cli.BoolFlag{
+			Name:    "proxy-login-only",
+			Usage:   "Proxy login requests only",
+			Value:   false,
+			EnvVars: []string{"OGAMED_PROXY_LOGIN_ONLY"},
 		},
 		&cli.StringFlag{
 			Name:    "lobby",
@@ -156,9 +162,10 @@ func start(c *cli.Context) error {
 	host := c.String("host")
 	port := c.Int("port")
 	proxyAddr := c.String("proxy")
-	socks5ProxyAddr := c.String("socks5-proxy")
 	proxyUsername := c.String("proxy-username")
 	proxyPassword := c.String("proxy-password")
+	proxyType := c.String("proxy-type")
+	proxyLoginOnly := c.Bool("proxy-login-only")
 	lobby := c.String("lobby")
 	apiNewHostname := c.String("api-new-hostname")
 	enableTLS := c.Bool("enable-tls")
@@ -177,9 +184,8 @@ func start(c *cli.Context) error {
 		Proxy:          proxyAddr,
 		ProxyUsername:  proxyUsername,
 		ProxyPassword:  proxyPassword,
-		Socks5Address:  socks5ProxyAddr,
-		Socks5Username: proxyUsername,
-		Socks5Password: proxyPassword,
+		ProxyType:      proxyType,
+		ProxyLoginOnly: proxyLoginOnly,
 		Lobby:          lobby,
 		APINewHostname: apiNewHostname,
 	})
