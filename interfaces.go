@@ -11,9 +11,7 @@ type Wrapper interface {
 	IsV7() bool
 	GetExtractor() Extractor
 	SetOGameCredentials(username, password string)
-	SetLoginProxy(proxy, username, password string) error
-	SetProxy(proxy, username, password string) error
-	SetSocks5Proxy(proxy, username, password string) error
+	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error
 	SetLoginWrapper(func(func() error) error)
 	GetClient() *OGameClient
 	Enable()

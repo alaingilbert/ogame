@@ -1,0 +1,49 @@
+
+<div id='content'><div id="jumpgate">
+		<form id="jumpgateForm" name="jumpgateForm">
+			<input type='hidden' name='token' value='e5ed5d9ea1a5958c60c3e687bfdd2365' />
+			<div id="selecttarget">
+				<h4>Select jump target</h4>
+				<div class="fleft">
+	        <span class="textBeefy">
+            	Starting coordinates
+	        </span>
+					<a class="dark_highlight_tablet" target="_parent" href=":///bots/1/browser/html/s152-en?page=ingame&component=galaxy&galaxy=4&system=117">
+						[4:117:9]
+					</a>
+				</div>
+				<br class="clearfloat" />
+			</div>
+
+			<div id="jumpgateNotReady">
+				<p>no jump gate found at source moon </p>
+			</div>
+	</div>
+
+	<script type="text/javascript">
+		var planet;
+
+		var translation = {"validTargetNeeded":"You have to select a valid target.","noShipsWereSelected":"No ships selected!","changeSettingOnlyWithCommander":"You need a commander to change these settings."};
+
+		function jumpToTarget() {
+			var jumpToTargetUrl = ":\/\/\/bots\/1\/browser\/html\/s152-en?page=ingame&component=fleetdispatch";
+
+			if (window.jumpGateTargetId) {
+				location.href = jumpToTargetUrl + '&cp=' + window.jumpGateTargetId
+			}
+		}
+		function toggleMaxShips(form, techID, amountOnPlanet) {
+			var shipAmount = $(form).find('#ship_' + techID);
+			if(parseInt(shipAmount.val()) !== amountOnPlanet) {
+				shipAmount.val(amountOnPlanet);
+			} else {
+				shipAmount.val('');
+			}
+			$("#continue").focus();
+		}
+
+		(function($) {
+			initJumpgate();
+		})(jQuery);
+	</script>
+</div>

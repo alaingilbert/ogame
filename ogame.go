@@ -77,7 +77,7 @@ type OGame struct {
 	tasksPushCh           chan *item
 	tasksPopCh            chan struct{}
 	loginWrapper          func(func() error) error
-	loginProxyTransport   *http.Transport
+	loginProxyTransport   http.RoundTripper
 	bytesUploaded         int64
 	bytesDownloaded       int64
 	extractor             Extractor
@@ -146,9 +146,8 @@ type Params struct {
 	Proxy          string
 	ProxyUsername  string
 	ProxyPassword  string
-	Socks5Address  string
-	Socks5Username string
-	Socks5Password string
+	ProxyType      string
+	ProxyLoginOnly bool
 	Lobby          string
 	APINewHostname string
 }
@@ -168,12 +167,7 @@ func NewWithParams(params Params) (*OGame, error) {
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
-		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword); err != nil {
-			return nil, err
-		}
-	}
-	if params.Socks5Address != "" {
-		if err := b.SetSocks5Proxy(params.Socks5Address, params.Socks5Username, params.Socks5Password); err != nil {
+		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly); err != nil {
 			return nil, err
 		}
 	}
@@ -742,42 +736,54 @@ func getProxyTransport(proxy, username, password string) (*http.Transport, error
 	return t, nil
 }
 
-// SetLoginProxy set the proxy to use for login requests
-func (b *OGame) SetLoginProxy(proxy, username, password string) error {
-	transport, err := getProxyTransport(proxy, username, password)
-	if err != nil {
-		return err
-	}
-	b.loginProxyTransport = transport
-	return nil
-}
-
-// SetProxy this will change the bot http transport object
-func (b *OGame) SetProxy(proxy, username, password string) error {
-	t, err := getProxyTransport(proxy, username, password)
-	if err != nil {
-		return err
-	}
-	b.Client.Transport = t
-	return nil
-}
-
-// SetSocks5Proxy this will change the bot http transport object
-func (b *OGame) SetSocks5Proxy(socks5Address, socks5Username, socks5Password string) error {
+func getSocks5Transport(proxyAddress, username, password string) (*http.Transport, error) {
 	var auth *proxy.Auth
-	if socks5Username != "" || socks5Password != "" {
-		auth = &proxy.Auth{User: socks5Username, Password: socks5Password}
+	if username != "" || password != "" {
+		auth = &proxy.Auth{User: username, Password: password}
 	}
-	dialer, err := proxy.SOCKS5("tcp", socks5Address, auth, proxy.Direct)
+	dialer, err := proxy.SOCKS5("tcp", proxyAddress, auth, proxy.Direct)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	b.Client.Transport = &http.Transport{
+	transport := &http.Transport{
 		DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
 			return dialer.Dial(network, addr)
 		},
 	}
-	return nil
+	return transport, nil
+}
+
+func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error {
+	if proxyType == "" {
+		proxyType = "socks5"
+	}
+	if proxyAddress == "" {
+		b.loginProxyTransport = nil
+		b.Client.Transport = http.DefaultTransport
+		return nil
+	}
+	var err error
+	transport := http.DefaultTransport
+	if proxyType == "socks5" {
+		transport, err = getSocks5Transport(proxyAddress, username, password)
+	} else if proxyType == "http" {
+		transport, err = getProxyTransport(proxyAddress, username, password)
+	}
+	if loginOnly {
+		b.loginProxyTransport = transport
+		b.Client.Transport = http.DefaultTransport
+	} else {
+		b.loginProxyTransport = transport
+		b.Client.Transport = transport
+	}
+	return err
+}
+
+// SetProxy this will change the bot http transport object.
+// proxyType can be "http" or "socks5".
+// An empty proxyAddress will reset the client transport to default value.
+func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error {
+	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly)
 }
 
 func (b *OGame) connectChat(host, port string) {
