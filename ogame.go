@@ -3850,6 +3850,34 @@ func (b *OGame) withPriority(priority int) *Prioritize {
 	return &Prioritize{bot: b, taskIsDoneCh: taskIsDoneCh}
 }
 
+// TasksOverview overview of tasks in heap
+type TasksOverview struct {
+	Low       int64
+	Normal    int64
+	Important int64
+	Critical  int64
+	Total     int64
+}
+
+func (b *OGame) getTasks() (out TasksOverview) {
+	b.tasksLock.Lock()
+	out.Total = int64(b.tasks.Len())
+	for _, item := range b.tasks {
+		switch item.priority {
+		case Low:
+			out.Low++
+		case Normal:
+			out.Normal++
+		case Important:
+			out.Important++
+		case Critical:
+			out.Critical++
+		}
+	}
+	b.tasksLock.Unlock()
+	return
+}
+
 // Public interface -----------------------------------------------------------
 
 // Enable enables communications with OGame Server
@@ -4435,4 +4463,9 @@ func (b *OGame) Highscore(category, typ, page int64) (Highscore, error) {
 // GetAllResources gets the resources of all planets and moons
 func (b *OGame) GetAllResources() (map[CelestialID]Resources, error) {
 	return b.WithPriority(Normal).GetAllResources()
+}
+
+// GetTasks return how many tasks are queued in the heap.
+func (b *OGame) GetTasks() TasksOverview {
+	return b.getTasks()
 }

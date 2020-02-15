@@ -42,6 +42,12 @@ func HomeHandler(c echo.Context) error {
 	})
 }
 
+// TasksHandler return how many tasks are queued in the heap.
+func TasksHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	return c.JSON(http.StatusOK, SuccessResp(bot.GetTasks()))
+}
+
 // GetServerHandler ...
 func GetServerHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)

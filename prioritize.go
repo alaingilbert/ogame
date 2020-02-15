@@ -42,8 +42,7 @@ func (b *Prioritize) Done() {
 }
 
 func (b *Prioritize) begin(name string) *Prioritize {
-	atomic.AddInt32(&b.isTx, 1)
-	if atomic.LoadInt32(&b.isTx) == 1 {
+	if atomic.AddInt32(&b.isTx, 1) == 1 {
 		b.name = name
 		b.bot.botLock(name)
 	}
@@ -51,8 +50,7 @@ func (b *Prioritize) begin(name string) *Prioritize {
 }
 
 func (b *Prioritize) done() {
-	atomic.AddInt32(&b.isTx, -1)
-	if atomic.LoadInt32(&b.isTx) == 0 {
+	if atomic.AddInt32(&b.isTx, -1) == 0 {
 		defer close(b.taskIsDoneCh)
 		b.bot.botUnlock(b.name)
 	}
