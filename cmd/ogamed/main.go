@@ -221,6 +221,7 @@ func start(c *cli.Context) error {
 	e.HidePort = true
 	e.Debug = false
 	e.GET("/", ogame.HomeHandler)
+	e.GET("/tasks", ogame.TasksHandler)
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
