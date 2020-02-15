@@ -18,6 +18,7 @@ type Wrapper interface {
 	Disable()
 	IsEnabled() bool
 	Quiet(bool)
+	GetTasks() TasksOverview
 	Tx(clb func(tx *Prioritize) error) error
 	Begin() *Prioritize
 	BeginNamed(name string) *Prioritize
