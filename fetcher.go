@@ -12,7 +12,7 @@ const (
 	PreferencesPage      = "preferences"
 	ResourceSettingsPage = "resourceSettings"
 	ResourcesPage        = "resources"
-	DefensePage          = "defenses"
+	DefensePage          = "defense"
 	ShipyardPage         = "shipyard"
 	StationPage          = "station"
 	MovementPage         = "movement"

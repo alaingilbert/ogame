@@ -841,6 +841,18 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 			b.PlanetDefensesInfos[celestialID] = defenses
 		}
 		break
+	case DefensesPage:
+		defenses, err := b.extractor.ExtractDefense(pageHTML)
+		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
+		b.PlanetShipyardProductions[celestialID] = ships
+		if shipyardCountdown != 0 {
+			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		}
+
+		if err == nil {
+			b.PlanetDefensesInfos[celestialID] = defenses
+		}
+		break
 	case MovementPage:
 		b.MovementFleets = b.extractor.ExtractFleets(pageHTML)
 		b.Slots = b.extractor.ExtractSlots(pageHTML)
