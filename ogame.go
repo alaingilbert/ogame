@@ -26,6 +26,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	//cookiejar "github.com/juju/persistent-cookiejar"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
@@ -321,7 +323,9 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 
 	b.extractor = NewExtractorV6()
 
+	//jar, _ := cookiejar.New(&cookiejar.Options{PublicSuffixList: nil, Filename: "cookies.txt", NoPersist: false})
 	jar, _ := cookiejar.New(nil)
+
 	b.Client = NewOGameClient()
 	b.Client.Jar = jar
 	b.Client.UserAgent = defaultUserAgent
@@ -659,7 +663,10 @@ func (b *OGame) getServerData() (ServerData, error) {
 }
 
 func (b *OGame) login() error {
+	//jar, _ := cookiejar.New(&cookiejar.Options{PublicSuffixList: nil, Filename: "cookies.txt", NoPersist: true})
 	jar, _ := cookiejar.New(nil)
+	//b.debug("Cookie Size: " + strconv.FormatInt(int64(len(jar.AllCookies())), 10))
+
 	b.Client.Jar = jar
 
 	b.debug("get session")
