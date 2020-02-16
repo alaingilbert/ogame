@@ -5,11 +5,13 @@ import (
 	"net/http"
 	"sync/atomic"
 	"time"
+	cookiejar "github.com/juju/persistent-cookiejar"
 )
 
 // OGameClient ...
 type OGameClient struct {
 	http.Client
+	Jar			 *cookiejar.Jar
 	UserAgent    string
 	rpsCounter   int32
 	rps          int32

@@ -15,7 +15,7 @@ import (
 	"math"
 	"net"
 	"net/http"
-	"net/http/cookiejar"
+	cookiejar "github.com/juju/persistent-cookiejar"
 	"net/url"
 	"os"
 	"regexp"
