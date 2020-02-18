@@ -144,6 +144,12 @@ func main() {
 			Value:   "~/.ogame/cert.pem",
 			EnvVars: []string{"OGAMED_TLS_KEYFILE"},
 		},
+		&cli.StringFlag{
+			Name:    "cookies-filename",
+			Usage:   "Path cookies file",
+			Value:   "",
+			EnvVars: []string{"OGAMED_COOKIES_FILENAME"},
+		},		
 		&cli.BoolFlag{
 			Name:    "cors-enabled",
 			Usage:   "Enabled CORS",
@@ -177,6 +183,7 @@ func start(c *cli.Context) error {
 	tlsCertFile := c.String("tls-cert-file")
 	basicAuthUsername := c.String("basic-auth-username")
 	basicAuthPassword := c.String("basic-auth-password")
+	cookiesFilename := c.String("cookies-filename")
 	corsEnabled := c.Bool("cors-enabled")
 
 	bot, err := ogame.NewWithParams(ogame.Params{
@@ -192,6 +199,7 @@ func start(c *cli.Context) error {
 		ProxyLoginOnly: proxyLoginOnly,
 		Lobby:          lobby,
 		APINewHostname: apiNewHostname,
+		CookiesFilename: cookiesFilename,
 	})
 	if err != nil {
 		return err

@@ -15,7 +15,6 @@ import (
 	"math"
 	"net"
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
 	"os"
 	"regexp"
@@ -26,10 +25,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	//cookiejar "github.com/juju/persistent-cookiejar"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/hashicorp/go-version"
+	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"github.com/pkg/errors"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
@@ -181,24 +180,26 @@ type CelestialID int64
 
 // Params parameters for more fine-grained initialization
 type Params struct {
-	Universe       string
-	Username       string
-	Password       string
-	Lang           string
-	AutoLogin      bool
-	Proxy          string
-	ProxyUsername  string
-	ProxyPassword  string
-	ProxyType      string
-	ProxyLoginOnly bool
-	Lobby          string
-	APINewHostname string
+	Username        string
+	Password        string
+	Universe        string
+	Lang            string
+	PlayerID        int64
+	AutoLogin       bool
+	Proxy           string
+	ProxyUsername   string
+	ProxyPassword   string
+	ProxyType       string
+	ProxyLoginOnly  bool
+	Lobby           string
+	APINewHostname  string
+	CookiesFilename string
 }
 
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
-	b := NewNoLogin(universe, username, password, lang)
-	if err := b.Login(); err != nil {
+	b := NewNoLogin(username, password, universe, lang, "", 0)
+	if err := b.LoginWithExistingCookies(); err != nil {
 		return nil, err
 	}
 
@@ -207,7 +208,7 @@ func New(universe, username, password, lang string) (*OGame, error) {
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b := NewNoLogin(params.Universe, params.Username, params.Password, params.Lang)
+	b := NewNoLogin(params.Username, params.Password, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID)
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
@@ -216,7 +217,7 @@ func NewWithParams(params Params) (*OGame, error) {
 		}
 	}
 	if params.AutoLogin {
-		if err := b.Login(); err != nil {
+		if err := b.LoginWithExistingCookies(); err != nil {
 			return nil, err
 		}
 	}
@@ -224,7 +225,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(universe, username, password, lang string) *OGame {
+func NewNoLogin(username, password, universe, lang, cookiesFilename string, playerID int64) *OGame {
 	b := new(OGame)
 
 	b.PlanetActivity = map[CelestialID]int64{}
@@ -321,11 +322,12 @@ func NewNoLogin(universe, username, password, lang string) *OGame {
 	b.setOGameLobby("lobby")
 	b.language = lang
 
-	b.extractor = NewExtractorV6()
+	b.extractor = NewExtractorV71()
 
-	//jar, _ := cookiejar.New(&cookiejar.Options{PublicSuffixList: nil, Filename: "cookies.txt", NoPersist: false})
-	jar, _ := cookiejar.New(nil)
-
+	jar, _ := cookiejar.New(&cookiejar.Options{
+		Filename:              cookiesFilename,
+		PersistSessionCookies: true,
+	})
 	b.Client = NewOGameClient()
 	b.Client.Jar = jar
 	b.Client.UserAgent = defaultUserAgent
@@ -436,13 +438,12 @@ type account struct {
 	}
 }
 
-func getUserAccounts(b *OGame, phpSessionID string) ([]account, error) {
+func getUserAccounts(b *OGame) ([]account, error) {
 	var userAccounts []account
 	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
-	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
@@ -565,14 +566,13 @@ func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	return by, nil
 }
 
-func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, error) {
+func getLoginLink(b *OGame, userAccount account) (string, error) {
 	ogURL := fmt.Sprintf("https://"+b.lobby+".ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
 		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest("GET", ogURL, nil)
 	if err != nil {
 		return "", err
 	}
-	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
@@ -662,75 +662,116 @@ func (b *OGame) getServerData() (ServerData, error) {
 	return serverData, nil
 }
 
+func (b *OGame) loginWithExistingCookies() error {
+	cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
+	found := false
+	for _, c := range cookies {
+		if c.Name == phpSessionIDCookieName {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return b.login()
+	}
+	server, userAccount, err := b.loginPart1()
+	if err != nil {
+		return b.login()
+	}
+
+	if err := b.loginPart2(server, userAccount); err != nil {
+		return err
+	}
+
+	pageHTML, err := b.getPage(OverviewPage, CelestialID(0))
+	if err != nil {
+		return err
+	}
+	b.debug("login using existing cookies")
+	if err := b.loginPart3(userAccount, pageHTML); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (b *OGame) login() error {
-	//jar, _ := cookiejar.New(&cookiejar.Options{PublicSuffixList: nil, Filename: "cookies.txt", NoPersist: true})
-	jar, _ := cookiejar.New(nil)
-	//b.debug("Cookie Size: " + strconv.FormatInt(int64(len(jar.AllCookies())), 10))
-
-	b.Client.Jar = jar
-
 	b.debug("get session")
-	phpSessionID, err := getPhpSessionID(b, b.Username, b.password)
+	if _, err := getPhpSessionID(b, b.Username, b.password); err != nil {
+		return err
+	}
+
+	server, userAccount, err := b.loginPart1()
 	if err != nil {
 		return err
 	}
-	b.debug("get user accounts")
-	accounts, err := getUserAccounts(b, phpSessionID)
-	if err != nil {
-		return err
-	}
-	b.debug("get servers")
-	servers, err := getServers(b)
-	if err != nil {
-		return err
-	}
-	b.debug("find account & server for universe")
-	userAccount, server, err := findAccountByName(b.Universe, b.language, accounts, servers)
-	if err != nil {
-		return err
-	}
-	if userAccount.Blocked {
-		return ErrAccountBlocked
-	}
-	b.debug("Players online: " + strconv.FormatInt(server.PlayersOnline, 10) + ", Players: " + strconv.FormatInt(server.PlayerCount, 10))
-	b.server = server
-	b.language = userAccount.Server.Language
+
 	b.debug("get login link")
-	loginLink, err := getLoginLink(b, userAccount, phpSessionID)
+	loginLink, err := getLoginLink(b, userAccount)
 	if err != nil {
 		return err
 	}
-
-	r := regexp.MustCompile(`(https://.+\.ogame\.gameforge\.com)/game`)
-	res := r.FindStringSubmatch(loginLink)
-	if len(res) != 2 {
-		return errors.New("failed to get server url")
-	}
-	b.serverURL = res[1]
-
 	pageHTML, err := execLoginLink(b, loginLink)
 	if err != nil {
 		return err
 	}
-	b.debug("extract information from html")
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	if err != nil {
+
+	if err := b.loginPart2(server, userAccount); err != nil {
 		return err
 	}
-	b.ogameSession = b.extractor.ExtractOGameSessionFromDoc(doc)
-	if b.ogameSession == "" {
-		return errors.New("bad credentials")
+	if err := b.loginPart3(userAccount, pageHTML); err != nil {
+		return err
 	}
 
+	if err := b.Client.Jar.(*cookiejar.Jar).Save(); err != nil {
+		return err
+	}
+	for _, fn := range b.interceptorCallbacks {
+		fn("GET", loginLink, nil, nil, pageHTML)
+	}
+	return nil
+}
+
+func (b *OGame) loginPart1() (server Server, userAccount account, err error) {
+	b.debug("get user accounts")
+	accounts, err := getUserAccounts(b)
+	if err != nil {
+		return
+	}
+	b.debug("get servers")
+	servers, err := getServers(b)
+	if err != nil {
+		return
+	}
+	b.debug("find account & server for universe")
+	userAccount, server, err = findAccount(b.Universe, b.language, b.playerID, accounts, servers)
+	if err != nil {
+		return
+	}
+	if userAccount.Blocked {
+		return server, userAccount, ErrAccountBlocked
+	}
+	b.debug("Players online: " + strconv.FormatInt(server.PlayersOnline, 10) + ", Players: " + strconv.FormatInt(server.PlayerCount, 10))
+	return
+}
+
+func (b *OGame) loginPart2(server Server, userAccount account) error {
+	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
+	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	// Get server data
 	start := time.Now()
+	b.server = server
 	serverData, err := b.getServerData()
 	if err != nil {
 		return err
 	}
 	b.serverData = serverData
+	b.language = userAccount.Server.Language
+	b.serverURL = "https://s" + strconv.FormatInt(server.Number, 10) + "-" + server.Language + ".ogame.gameforge.com"
 	b.debug("get server data", time.Since(start))
+	return nil
+}
 
+func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
 		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
 			b.extractor = NewExtractorV71()
@@ -741,20 +782,24 @@ func (b *OGame) login() error {
 		b.error("failed to parse ogame version: " + err.Error())
 	}
 
-	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
-	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	b.sessionChatCounter = 1
 
 	b.debug("logged in as " + userAccount.Name + " on " + b.Universe + "-" + b.language)
+
+	b.debug("extract information from html")
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return err
+	}
+	b.ogameSession = b.extractor.ExtractOGameSessionFromDoc(doc)
+	if b.ogameSession == "" {
+		return errors.New("bad credentials")
+	}
 
 	serverTime, _ := b.extractor.ExtractServerTime(pageHTML)
 	b.location = serverTime.Location()
 
 	b.cacheFullPageInfo("overview", pageHTML)
-
-	for _, fn := range b.interceptorCallbacks {
-		fn("GET", loginLink, nil, nil, pageHTML)
-	}
 
 	_, _ = b.getPage(PreferencesPage, CelestialID(0)) // Will update preferences cached values
 
@@ -933,6 +978,10 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 // DefaultLoginWrapper ...
 var DefaultLoginWrapper = func(loginFn func() error) error {
 	return loginFn()
+}
+
+func (b *OGame) wrapLoginWithExistingCookies() error {
+	return b.loginWrapper(b.loginWithExistingCookies)
 }
 
 func (b *OGame) wrapLogin() error {
@@ -3990,6 +4039,11 @@ func (b *OGame) GetLanguage() string {
 // SetUserAgent change the user-agent used by the http client
 func (b *OGame) SetUserAgent(newUserAgent string) {
 	b.Client.UserAgent = newUserAgent
+}
+
+// LoginWithExistingCookies to ogame server reusing existing cookies
+func (b *OGame) LoginWithExistingCookies() error {
+	return b.WithPriority(Normal).LoginWithExistingCookies()
 }
 
 // Login to ogame server
