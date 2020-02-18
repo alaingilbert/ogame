@@ -12,17 +12,27 @@ require (
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/go-errors/errors v1.0.1
 	github.com/google/gxui v0.0.0-20151028112939-f85e0a97b3a4
+	github.com/goware/prefixer v0.0.0-20160118172347-395022866408 // indirect
 	github.com/hashicorp/go-version v1.2.0
+	github.com/juju/go4 v0.0.0-20160222163258-40d72ab9641a // indirect
+	github.com/juju/persistent-cookiejar v0.0.0-20171026135701-d5e5a8405ef9 // indirect
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/magiconair/properties v1.8.1
+	github.com/mikkeloscar/sshconfig v0.0.0-20190102082740-ec0822bcc4f4 // indirect
 	github.com/olekukonko/tablewriter v0.0.4
+	github.com/orirawlings/persistent-cookiejar v0.2.1
 	github.com/pkg/errors v0.9.1
+	github.com/pressly/sup v0.5.3 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
 	golang.org/x/net v0.0.0-20200202094626-16171245cfb2
 	golang.org/x/text v0.3.2
 	gopkg.in/abiosoft/ishell.v2 v2.0.0
+	gopkg.in/errgo.v1 v1.0.1 // indirect
+	gopkg.in/retry.v1 v1.0.3 // indirect
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8
 )
+
+replace github.com/juju/persistent-cookiejar => github.com/orirawlings/persistent-cookiejar v0.0.0-20181119224032-99f11603c3cf
