@@ -37,6 +37,7 @@ type Wrapper interface {
 	GetPageContent(url.Values) []byte
 	GetAlliancePageContent(url.Values) []byte
 	PostPageContent(url.Values, url.Values) []byte
+	LoginWithExistingCookies() error
 	Login() error
 	Logout()
 	IsLoggedIn() bool

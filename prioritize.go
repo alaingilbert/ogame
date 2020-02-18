@@ -71,6 +71,13 @@ func (b *Prioritize) FakeCall(name string, delay int) {
 	b.bot.fakeCall(name, delay)
 }
 
+// LoginWithExistingCookies to ogame server reusing existing cookies
+func (b *Prioritize) LoginWithExistingCookies() error {
+	b.begin("LoginWithExistingCookies")
+	defer b.done()
+	return b.bot.wrapLoginWithExistingCookies()
+}
+
 // Login to ogame server
 // Can fails with BadCredentialsError
 func (b *Prioritize) Login() error {
