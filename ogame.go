@@ -306,13 +306,12 @@ type account struct {
 	}
 }
 
-func getUserAccounts(b *OGame, phpSessionID string) ([]account, error) {
+func getUserAccounts(b *OGame) ([]account, error) {
 	var userAccounts []account
 	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
-	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
@@ -442,14 +441,13 @@ func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	return by, nil
 }
 
-func getLoginLink(b *OGame, userAccount account, phpSessionID string) (string, error) {
+func getLoginLink(b *OGame, userAccount account) (string, error) {
 	ogURL := fmt.Sprintf("https://"+b.lobby+".ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
 		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest("GET", ogURL, nil)
 	if err != nil {
 		return "", err
 	}
-	req.AddCookie(&http.Cookie{Name: phpSessionIDCookieName, Value: phpSessionID})
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
@@ -540,16 +538,12 @@ func (b *OGame) getServerData() (ServerData, error) {
 }
 
 func (b *OGame) login() error {
-	jar, _ := cookiejar.New(nil)
-	b.Client.Jar = jar
-
 	b.debug("get session")
-	phpSessionID, err := getPhpSessionID(b, b.Username, b.password)
-	if err != nil {
+	if _, err := getPhpSessionID(b, b.Username, b.password); err != nil {
 		return err
 	}
 	b.debug("get user accounts")
-	accounts, err := getUserAccounts(b, phpSessionID)
+	accounts, err := getUserAccounts(b)
 	if err != nil {
 		return err
 	}
@@ -570,7 +564,7 @@ func (b *OGame) login() error {
 	b.server = server
 	b.language = userAccount.Server.Language
 	b.debug("get login link")
-	loginLink, err := getLoginLink(b, userAccount, phpSessionID)
+	loginLink, err := getLoginLink(b, userAccount)
 	if err != nil {
 		return err
 	}
