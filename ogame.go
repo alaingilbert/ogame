@@ -156,7 +156,7 @@ type Params struct {
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
 	b := NewNoLogin(username, password, universe, lang, "", 0)
-	if err := b.Login(); err != nil {
+	if err := b.LoginWithExistingCookies(); err != nil {
 		return nil, err
 	}
 	return b, nil
