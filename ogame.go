@@ -77,6 +77,7 @@ type OGame struct {
 	Username             string
 	password             string
 	language             string
+	playerID			 int64
 	lobby                string
 	ogameSession         string
 	sessionChatCounter   int64
@@ -492,7 +493,7 @@ func getServers(b *OGame) ([]Server, error) {
 	return servers, nil
 }
 
-func findAccountByName(universe, lang string, accounts []account, servers []Server) (account, Server, error) {
+func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
 	var server Server
 	var acc account
 	for _, s := range servers {
@@ -503,8 +504,15 @@ func findAccountByName(universe, lang string, accounts []account, servers []Serv
 	}
 	for _, a := range accounts {
 		if a.Server.Language == server.Language && a.Server.Number == server.Number {
-			acc = a
-			break
+			if playerID != 0 {
+				if a.ID == playerID {
+					acc = a
+					break
+				}
+			} else {
+				acc = a
+				break
+			}
 		}
 	}
 	if server.Number == 0 {
