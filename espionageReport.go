@@ -86,6 +86,39 @@ type EspionageReport struct {
 	Date                         time.Time
 }
 
+func i64(v *int64) int64 {
+	if v == nil {
+		return 0
+	}
+	return *v
+}
+
+// ShipsInfos returns a ShipsInfos struct from the espionage report
+func (r EspionageReport) ShipsInfos() *ShipsInfos {
+	if !r.HasFleet {
+		return nil
+	}
+	return &ShipsInfos{
+		LightFighter:   i64(r.LightFighter),
+		HeavyFighter:   i64(r.HeavyFighter),
+		Cruiser:        i64(r.Cruiser),
+		Battleship:     i64(r.Battleship),
+		Battlecruiser:  i64(r.Battlecruiser),
+		Bomber:         i64(r.Bomber),
+		Destroyer:      i64(r.Destroyer),
+		Deathstar:      i64(r.Deathstar),
+		SmallCargo:     i64(r.SmallCargo),
+		LargeCargo:     i64(r.LargeCargo),
+		ColonyShip:     i64(r.ColonyShip),
+		Recycler:       i64(r.Recycler),
+		EspionageProbe: i64(r.EspionageProbe),
+		SolarSatellite: i64(r.SolarSatellite),
+		Crawler:        i64(r.Crawler),
+		Reaper:         i64(r.Reaper),
+		Pathfinder:     i64(r.Pathfinder),
+	}
+}
+
 // PlunderRatio returns the plunder ratio
 func (r EspionageReport) PlunderRatio(characterClass CharacterClass) float64 {
 	plunderRatio := 0.5
