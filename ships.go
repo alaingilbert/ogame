@@ -130,6 +130,14 @@ func (s ShipsInfos) FleetCost() (out Resources) {
 	return
 }
 
+// CountShips returns the count of ships
+func (s ShipsInfos) CountShips() (out int64) {
+	for _, ship := range Ships {
+		out += s.ByID(ship.GetID())
+	}
+	return
+}
+
 // Add adds two ShipsInfos together
 func (s *ShipsInfos) Add(v ShipsInfos) {
 	for _, ship := range Ships {
