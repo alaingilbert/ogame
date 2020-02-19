@@ -380,4 +380,23 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, CrawlerID, name2id("Foreuse"))
 	assert.Equal(t, ReaperID, name2id("Faucheur"))
 	assert.Equal(t, PathfinderID, name2id("Éclaireur"))
+
+	// tw
+	assert.Equal(t, LightFighterID, name2id("輕型戰鬥機"))
+	assert.Equal(t, HeavyFighterID, name2id("重型戰鬥機"))
+	assert.Equal(t, CruiserID, name2id("巡洋艦"))
+	assert.Equal(t, BattleshipID, name2id("戰列艦"))
+	assert.Equal(t, BattlecruiserID, name2id("戰鬥巡洋艦"))
+	assert.Equal(t, BomberID, name2id("導彈艦"))
+	assert.Equal(t, DestroyerID, name2id("毀滅者"))
+	assert.Equal(t, DeathstarID, name2id("死星"))
+	assert.Equal(t, SmallCargoID, name2id("小型運輸艦"))
+	assert.Equal(t, LargeCargoID, name2id("大型運輸艦"))
+	assert.Equal(t, ColonyShipID, name2id("殖民船"))
+	assert.Equal(t, RecyclerID, name2id("回收船"))
+	assert.Equal(t, EspionageProbeID, name2id("間諜衛星"))
+	assert.Equal(t, SolarSatelliteID, name2id("太陽能衛星"))
+	assert.Equal(t, CrawlerID, name2id("履帶車"))
+	assert.Equal(t, ReaperID, name2id("惡魔飛船"))
+	assert.Equal(t, PathfinderID, name2id("探路者"))
 }
