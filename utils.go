@@ -28,6 +28,11 @@ func toInt(buf []byte) (n int) {
 	return
 }
 
+// I64Ptr returns a pointer to int64
+func I64Ptr(v int64) *int64 {
+	return &v
+}
+
 // IsDefenseID helper returns if an integer is a defense id
 func IsDefenseID(id int64) bool {
 	return ID(id).IsDefense()

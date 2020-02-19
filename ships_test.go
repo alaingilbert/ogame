@@ -125,6 +125,10 @@ func TestShipsInfos_FleetCost(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 22000, Crystal: 22000}, ShipsInfos{SmallCargo: 2, LargeCargo: 3}.FleetCost())
 }
 
+func TestShipsInfos_CountShips(t *testing.T) {
+	assert.Equal(t, int64(5), ShipsInfos{SmallCargo: 2, LargeCargo: 3}.CountShips())
+}
+
 func TestShipsInfos_Has(t *testing.T) {
 	ships := ShipsInfos{SmallCargo: 2, LargeCargo: 3}
 	assert.True(t, ships.Has(ShipsInfos{SmallCargo: 1, LargeCargo: 2}))
