@@ -2223,6 +2223,11 @@ func TestExtractDKProductionWithABM(t *testing.T) {
 	assert.Equal(t, int64(1), prods[1].Nbr)
 }
 
+func TestI64Ptr(t *testing.T) {
+	v := int64(6)
+	assert.Equal(t, &v, I64Ptr(6))
+}
+
 func TestIsShipID(t *testing.T) {
 	assert.True(t, IsShipID(int64(SmallCargoID)))
 	assert.False(t, IsShipID(int64(RocketLauncherID)))
