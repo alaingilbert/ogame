@@ -1941,7 +1941,7 @@ func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error
 	res.ogame = b
 	res.Img = s.Find("img.planetPic").AttrOr("src", "")
 	res.ID = PlanetID(id)
-	res.Name = m[1]
+	res.Name = strings.TrimSpace(m[1])
 	res.Coordinate.Galaxy, _ = strconv.ParseInt(m[2], 10, 64)
 	res.Coordinate.System, _ = strconv.ParseInt(m[3], 10, 64)
 	res.Coordinate.Position, _ = strconv.ParseInt(m[4], 10, 64)
@@ -1987,7 +1987,7 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	moon := Moon{}
 	moon.ogame = b
 	moon.ID = MoonID(id)
-	moon.Name = mm[1]
+	moon.Name = strings.TrimSpace(mm[1])
 	moon.Coordinate.Galaxy, _ = strconv.ParseInt(mm[2], 10, 64)
 	moon.Coordinate.System, _ = strconv.ParseInt(mm[3], 10, 64)
 	moon.Coordinate.Position, _ = strconv.ParseInt(mm[4], 10, 64)
