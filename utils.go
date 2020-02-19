@@ -285,6 +285,9 @@ func name2id(name string) ID {
 		"recycleur":              RecyclerID,
 		"sondedespionnage":       EspionageProbeID,
 		"satellitesolaire":       SolarSatelliteID,
+		"foreuse":                CrawlerID,
+		"faucheur":               ReaperID,
+		"eclaireur":              PathfinderID,
 
 		// br
 		"cacaligeiro":       LightFighterID,
