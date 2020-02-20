@@ -10,7 +10,7 @@ type BaseBuilding struct {
 	BaseLevelable
 }
 
-// ConstructionTime returns the duration it takes to build given level
+// ConstructionTime returns the duration it takes to build given level. Deconstruction time is the same function.
 func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Facilities, hasTechnocrat, isDiscoverer bool) time.Duration {
 	price := b.GetPrice(level)
 	metalCost := float64(price.Metal)
