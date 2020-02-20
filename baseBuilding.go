@@ -10,6 +10,19 @@ type BaseBuilding struct {
 	BaseLevelable
 }
 
+// DeconstructionPrice returns the price to tear down to given level
+func (b BaseBuilding) DeconstructionPrice(level int64, techs Researches) Resources {
+	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
+		return int64(math.Floor(float64(baseCost)*math.Pow(increaseFactor, float64(level-1))) * (1 - 0.04*float64(techs.IonTechnology)))
+	}
+	return Resources{
+		Metal:     tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
+		Crystal:   tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
+		Deuterium: tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
+		Energy:    tmp(b.BaseCost.Energy, b.IncreaseFactor, level),
+	}
+}
+
 // ConstructionTime returns the duration it takes to build given level. Deconstruction time is the same function.
 func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Facilities, hasTechnocrat, isDiscoverer bool) time.Duration {
 	price := b.GetPrice(level)
