@@ -13,3 +13,8 @@ func newTerraformer() *terraformer {
 	b.Requirements = map[ID]int64{NaniteFactoryID: 1, EnergyTechnologyID: 12}
 	return b
 }
+
+// DeconstructionPrice terraformer cannot be deconstructed
+func (s *terraformer) DeconstructionPrice(level int64, techs Researches) Resources {
+	return Resources{}
+}

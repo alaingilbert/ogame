@@ -39,3 +39,8 @@ func TestMetalMine_IsAvailable(t *testing.T) {
 	assert.False(t, mm.IsAvailable(DebrisType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0))
 	assert.False(t, mm.IsAvailable(MoonType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0))
 }
+
+func TestDeconstructionPrice(t *testing.T) {
+	mm := newMetalMine()
+	assert.Equal(t, Resources{Metal: 3681620, Crystal: 920404}, mm.DeconstructionPrice(31, Researches{IonTechnology: 17}))
+}

@@ -13,3 +13,8 @@ func newLunarBase() *lunarBase {
 	b.Requirements = map[ID]int64{}
 	return b
 }
+
+// DeconstructionPrice lunar base cannot be deconstructed
+func (s *lunarBase) DeconstructionPrice(level int64, techs Researches) Resources {
+	return Resources{}
+}

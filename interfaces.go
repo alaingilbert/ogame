@@ -166,6 +166,7 @@ type Technology interface {
 // Building interface that all buildings implement
 type Building interface {
 	Levelable
+	DeconstructionPrice(lvl int64, techs Researches) Resources
 }
 
 // DefenderObj base interface for all defensive units (ships, defenses)

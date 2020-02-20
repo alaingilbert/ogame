@@ -35,3 +35,8 @@ func (s *solarSatellite) Production(temp Temperature, nbr int64, isCollector boo
 func (s *solarSatellite) GetLevel(LazyResourcesBuildings, LazyFacilities, LazyResearches) int64 {
 	return 0
 }
+
+// DeconstructionPrice only useful so the solar satellite can implement Building interface
+func (s *solarSatellite) DeconstructionPrice(level int64, techs Researches) Resources {
+	return Resources{}
+}
