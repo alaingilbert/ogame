@@ -278,6 +278,15 @@ func GetResearchHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(bot.GetResearch()))
 }
 
+// BuyOfferOfTheDayHandler ...
+func BuyOfferOfTheDayHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	if err := bot.BuyOfferOfTheDay(); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(nil))
+}
+
 // GetPlanetsHandler ...
 func GetPlanetsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
