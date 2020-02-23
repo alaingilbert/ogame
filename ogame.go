@@ -947,6 +947,13 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		break
 
 	case ResearchPage:
+		_, _, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
+		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		if researchID.Int() != 0 && researchCountdown != 0 {
+			b.ResearchFinishAt = researchCountdown + time.Now().Unix()
+		} else {
+			b.ResearchFinishAt = 0
+		}
 		b.Researches = b.extractor.ExtractResearch(pageHTML)
 		break
 
