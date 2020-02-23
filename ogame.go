@@ -25,7 +25,6 @@ import (
 	"sync/atomic"
 	"time"
 
-
 	"github.com/PuerkitoBio/goquery"
 	"github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
@@ -77,7 +76,7 @@ type OGame struct {
 	Username             string
 	password             string
 	language             string
-	playerID			 int64
+	playerID             int64
 	lobby                string
 	ogameSession         string
 	sessionChatCounter   int64
@@ -170,11 +169,13 @@ type Preferences struct {
 	}
 }
 
-const defaultUserAgent = "" +
-	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) " +
-	"AppleWebKit/537.36 (KHTML, like Gecko) " +
-	"Chrome/51.0.2704.103 " +
-	"Safari/537.36"
+// const defaultUserAgent = "" +
+// 	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) " +
+// 	"AppleWebKit/537.36 (KHTML, like Gecko) " +
+// 	"Chrome/51.0.2704.103 " +
+// 	"Safari/537.36"
+
+const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0"
 
 // CelestialID represent either a PlanetID or a MoonID
 type CelestialID int64
@@ -917,12 +918,19 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.MovementFleets = b.extractor.ExtractFleets(pageHTML)
 		b.Slots = b.extractor.ExtractSlots(pageHTML)
 		break
+
+	case ResearchPage:
+		b.Researches = b.extractor.ExtractResearch(pageHTML)
+		break
+
 	case FleetdispatchPage:
 		b.PlanetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
 		break
 
-	case ResearchPage:
-		b.Researches = b.extractor.ExtractResearch(pageHTML)
+	case Fleet1Page:
+		b.PlanetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
+		break
+
 	}
 
 	b.Planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
@@ -4538,3 +4546,44 @@ func (b *OGame) GetAllResources() (map[CelestialID]Resources, error) {
 func (b *OGame) GetTasks() TasksOverview {
 	return b.getTasks()
 }
+
+// GetLastActivePlanet returns the last active Planet
+func (b *OGame) GetLastActivePlanet() CelestialID {
+	last := b.GetCachedCelestials()[0].GetID()
+	max := b.PlanetActivity[0]
+	for k, v := range b.PlanetActivity {
+		if max < v {
+			max = v
+			last = k
+		}
+	}
+	return last
+}
+
+// GetPlanetsActivity return last activity Unix Timestamp of all Planets in map.
+func (b *OGame) GetPlanetsActivity() map[CelestialID]int64 {
+	return b.PlanetActivity
+}
+
+// GetPlanetsResources returns the cached PlanetsResources in map.
+func (b *OGame) GetPlanetsResources() map[CelestialID]ResourcesDetails {
+	return b.PlanetResources
+}
+
+/*
+	PlanetResourcesBuildings          map[CelestialID]ResourcesBuildings
+	PlanetFacilities                  map[CelestialID]Facilities
+	PlanetShipsInfos                  map[CelestialID]ShipsInfos
+	PlanetDefensesInfos               map[CelestialID]DefensesInfos
+	PlanetConstruction                map[CelestialID]Quantifiable
+	PlanetConstructionFinishAt        map[CelestialID]int64
+	PlanetShipyardProductions         map[CelestialID][]Quantifiable
+	PlanetShipyardProductionsFinishAt map[CelestialID]int64
+	PlanetQueue                       map[CelestialID][]Quantifiable
+	Researches                        Researches
+	ResearchesActive                  Quantifiable
+	ResearchFinishAt                  int64
+	EventboxResp                      eventboxResp
+	MovementFleets                    []Fleet
+	Slots                             Slots
+*/
