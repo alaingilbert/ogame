@@ -68,6 +68,7 @@ type OGame struct {
 	ResearchesActive                  Quantifiable
 	ResearchFinishAt                  int64
 	EventboxResp                      eventboxResp
+	AttackEvents                      []AttackEvent
 	MovementFleets                    []Fleet
 	Slots                             Slots
 
@@ -129,6 +130,7 @@ type Data struct {
 	Researches       Researches
 	ResearchesActive Quantifiable
 	EventboxResp     eventboxResp
+	AttackEvents     []AttackEvent
 	MovementFleets   []Fleet
 	Slots            Slots
 }
@@ -844,6 +846,8 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
 	b.PlanetResources[celestialID], _ = b.fetchResources(celestialID)
 	b.EventboxResp, _ = b.fetchEventbox()
+	b.AttackEvents, _ = b.getAttacks(celestialID)
+
 	b.PlanetActivity[celestialID] = b.extractor.ExtractOgameTimestamp(pageHTML)
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
 
@@ -965,6 +969,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.PlanetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
 		break
 
+	case ResourceSettingsPage:
+
+		break
 	}
 
 	b.Planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
@@ -1018,6 +1025,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	data.Researches = b.Researches
 	data.ResearchesActive = b.ResearchesActive
 	data.EventboxResp = b.EventboxResp
+	data.AttackEvents = b.AttackEvents
 	data.MovementFleets = b.MovementFleets
 	data.Slots = b.Slots
 
@@ -1429,7 +1437,7 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	}
 	var pageHTMLBytes []byte
 
-	log.Println("Visit page: " + page)
+	log.Printf("Visit page: %s (%s)", page, finalURL)
 
 	if err := b.withRetry(func() (err error) {
 		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
