@@ -3213,6 +3213,7 @@ const Report EspionageReportType = 1
 // CombatReportSummary summary of combat report
 type CombatReportSummary struct {
 	ID           int64
+	APIKey       string
 	Origin       *Coordinate
 	Destination  Coordinate
 	AttackerName string
