@@ -127,9 +127,9 @@ type Preferences struct {
 }
 
 const defaultUserAgent = "" +
-	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_6) " +
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) " +
 	"AppleWebKit/537.36 (KHTML, like Gecko) " +
-	"Chrome/51.0.2704.103 " +
+	"Chrome/79.0.3945.130 " +
 	"Safari/537.36"
 
 // CelestialID represent either a PlanetID or a MoonID
