@@ -851,29 +851,51 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	case OverviewPage:
 		buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
 		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
-		if buildingID != 0 && buildingCountdown != 0 {
+		if buildingID.Int64() != 0 && buildingCountdown != 0 {
 			b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+		} else {
+			b.PlanetConstructionFinishAt[celestialID] = 0
 		}
 
 		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
-		if researchID != 0 && researchCountdown != 0 {
+		if researchID.Int() != 0 && researchCountdown != 0 {
 			b.ResearchFinishAt = researchCountdown + time.Now().Unix()
+		} else {
+			b.ResearchFinishAt = 0
 		}
 
 		ships, shipyardCountdown, _ := b.extractor.ExtractOverviewProduction(pageHTML)
 		b.PlanetShipyardProductions[celestialID] = ships
 		if shipyardCountdown != 0 {
 			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		} else {
+			b.PlanetShipyardProductionsFinishAt[celestialID] = 0
 		}
 
 		break
 	case SuppliesPage:
+		buildingID, buildingCountdown, _, _ := b.extractor.ExtractConstructions(pageHTML)
+		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		if buildingID.Int64() != 0 && buildingCountdown != 0 {
+			b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+		} else {
+			b.PlanetConstructionFinishAt[celestialID] = 0
+		}
+
 		res, err := b.extractor.ExtractResourcesBuildings(pageHTML)
 		if err == nil {
 			b.PlanetResourcesBuildings[celestialID] = res
 		}
 		break
 	case FacilitiesPage:
+		buildingID, buildingCountdown, _, _ := b.extractor.ExtractConstructions(pageHTML)
+		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		if buildingID.Int64() != 0 && buildingCountdown != 0 {
+			b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+		} else {
+			b.PlanetConstructionFinishAt[celestialID] = 0
+		}
+
 		fac, err := b.extractor.ExtractFacilities(pageHTML)
 		if err == nil {
 			b.PlanetFacilities[celestialID] = fac
@@ -884,7 +906,10 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.PlanetShipyardProductions[celestialID] = ships
 		if shipyardCountdown != 0 {
 			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		} else {
+			b.PlanetShipyardProductionsFinishAt[celestialID] = 0
 		}
+
 		shipyard, err := b.extractor.ExtractShips(pageHTML)
 		if err == nil {
 			b.PlanetShipsInfos[celestialID] = shipyard
@@ -896,6 +921,8 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.PlanetShipyardProductions[celestialID] = ships
 		if shipyardCountdown != 0 {
 			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+		} else {
+			b.PlanetShipyardProductionsFinishAt[celestialID] = 0
 		}
 
 		if err == nil {
