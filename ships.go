@@ -43,10 +43,22 @@ func (s ShipsInfos) Equal(other ShipsInfos) bool {
 }
 
 // HasShips returns either or not at least one ship is present
+// func (s ShipsInfos) HasShips() bool {
+// 	for _, ship := range Ships {
+// 		if s.ByID(ship.GetID()) > 0 {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+// HasShips returns either or not at least one ship that can be moved is present
 func (s ShipsInfos) HasShips() bool {
 	for _, ship := range Ships {
-		if s.ByID(ship.GetID()) > 0 {
-			return true
+		if ship.GetID() != SolarSatelliteID || ship.GetID() != CrawlerID {
+			if s.ByID(ship.GetID()) > 0 {
+				return true
+			}
 		}
 	}
 	return false
