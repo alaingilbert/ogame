@@ -912,6 +912,18 @@ func TestExtractCombatReportMessagesV7_Debris(t *testing.T) {
 	assert.Equal(t, int64(2400), msgs[0].DebrisField)
 }
 
+func TestExtractCombatReportMessagesV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/combat_reports.html")
+	msgs, _ := NewExtractorV71().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, "cr-us-149-fe449460902860455db7ef57a522ae341f931a59", msgs[0].APIKey)
+}
+
+func TestExtractCombatReportMessagesV71_lossContact(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/combat_reports_loss_contact.html")
+	msgs, _ := NewExtractorV71().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 8, len(msgs))
+}
+
 func TestExtractCombatReportMessages(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/combat_reports_msgs.html")
 	msgs, _ := NewExtractorV6().ExtractCombatReportMessagesSummary(pageHTMLBytes)
