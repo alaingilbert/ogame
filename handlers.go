@@ -1081,3 +1081,15 @@ func PhalanxHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(fleets))
 }
+
+// AddAccountHandler ...
+func AddAccountHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	value, _ := strconv.ParseInt(c.QueryParam("number"), 10, 64)
+	lang := c.QueryParam("lang")
+	account, err := bot.AddAccount(int(value), lang)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(account.Server))
+}
