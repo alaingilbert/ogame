@@ -1433,7 +1433,6 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	if allianceID != "" {
 		finalURL = b.serverURL + "/game/allianceInfo.php?allianceID=" + allianceID
 	}
-	//https://tobias-pc.speedport.ip:9080/game/allianceInfo.php?allianceId=500673
 
 	page := vals.Get("page")
 
