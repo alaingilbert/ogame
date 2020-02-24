@@ -242,8 +242,13 @@ func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReport
 				} else {
 					report.Destination.Type = PlanetType
 				}
+				apiKeyTitle := s.Find("span.icon_apikey").AttrOr("title", "")
+				m := regexp.MustCompile(`'(cr-[^']+)'`).FindStringSubmatch(apiKeyTitle)
+				if len(m) == 2 {
+					report.APIKey = m[1]
+				}
 				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
-				m := regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
+				m = regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
 				if len(m) == 4 {
 					report.Metal = ParseInt(m[1])
 					report.Crystal = ParseInt(m[2])
