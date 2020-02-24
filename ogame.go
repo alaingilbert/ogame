@@ -1428,6 +1428,13 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	}
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
+
+	allianceID := vals.Get("allianceId")
+	if allianceID != "" {
+		finalURL = b.serverURL + "/game/allianceInfo.php?allianceID=" + allianceID
+	}
+	//https://tobias-pc.speedport.ip:9080/game/allianceInfo.php?allianceId=500673
+
 	page := vals.Get("page")
 
 	if page == "ingame" ||
@@ -1443,6 +1450,10 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
 		if err != nil {
 			return err
+		}
+
+		if allianceID != "" {
+			return nil
 		}
 
 		if (page != LogoutPage && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
