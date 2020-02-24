@@ -149,7 +149,7 @@ func main() {
 			Usage:   "Path cookies file",
 			Value:   "",
 			EnvVars: []string{"OGAMED_COOKIES_FILENAME"},
-		},		
+		},
 		&cli.BoolFlag{
 			Name:    "cors-enabled",
 			Usage:   "Enabled CORS",
@@ -187,18 +187,18 @@ func start(c *cli.Context) error {
 	corsEnabled := c.Bool("cors-enabled")
 
 	bot, err := ogame.NewWithParams(ogame.Params{
-		Universe:       universe,
-		Username:       username,
-		Password:       password,
-		Lang:           language,
-		AutoLogin:      autoLogin,
-		Proxy:          proxyAddr,
-		ProxyUsername:  proxyUsername,
-		ProxyPassword:  proxyPassword,
-		ProxyType:      proxyType,
-		ProxyLoginOnly: proxyLoginOnly,
-		Lobby:          lobby,
-		APINewHostname: apiNewHostname,
+		Universe:        universe,
+		Username:        username,
+		Password:        password,
+		Lang:            language,
+		AutoLogin:       autoLogin,
+		Proxy:           proxyAddr,
+		ProxyUsername:   proxyUsername,
+		ProxyPassword:   proxyPassword,
+		ProxyType:       proxyType,
+		ProxyLoginOnly:  proxyLoginOnly,
+		Lobby:           lobby,
+		APINewHostname:  apiNewHostname,
 		CookiesFilename: cookiesFilename,
 	})
 	if err != nil {
@@ -275,6 +275,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/do-auction", ogame.DoAuctionHandler)
 	e.GET("/bot/galaxy-infos/:galaxy/:system", ogame.GalaxyInfosHandler)
 	e.GET("/bot/get-research", ogame.GetResearchHandler)
+	e.GET("/bot/buy-offer-of-the-day", ogame.BuyOfferOfTheDayHandler)
 	e.GET("/bot/price/:ogameID/:nbr", ogame.GetPriceHandler)
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
