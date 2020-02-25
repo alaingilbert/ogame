@@ -523,6 +523,13 @@ func (b *Prioritize) JumpGate(origin, dest MoonID, ships ShipsInfos) (bool, int6
 	return b.bot.executeJumpGate(origin, dest, ships)
 }
 
+// JumpGateDestinations returns available destinations for jump gate.
+func (b *Prioritize) JumpGateDestinations(origin MoonID) ([]MoonID, int64, error) {
+	b.begin("JumpGateDestinations")
+	defer b.done()
+	return b.bot.jumpGateDestinations(origin)
+}
+
 // BuyOfferOfTheDay buys the offer of the day.
 func (b *Prioritize) BuyOfferOfTheDay() error {
 	b.begin("BuyOfferOfTheDay")

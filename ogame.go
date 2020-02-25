@@ -2093,6 +2093,15 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 	return resp.Header, err
 }
 
+func (b *OGame) jumpGateDestinations(originMoonID MoonID) ([]MoonID, int64, error) {
+	pageHTML, _ := b.getPage(JumpgatelayerPage, originMoonID.Celestial())
+	_, _, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
+	if wait > 0 {
+		return dests, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
+	}
+	return dests, wait, nil
+}
+
 func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfos) (bool, int64, error) {
 	pageHTML, _ := b.getPage(JumpgatelayerPage, originMoonID.Celestial())
 	availShips, token, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
@@ -4543,6 +4552,11 @@ func (b *OGame) Phalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 // UnsafePhalanx same as Phalanx but does not perform any input validation.
 func (b *OGame) UnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	return b.WithPriority(Normal).UnsafePhalanx(moonID, coord)
+}
+
+// JumpGateDestinations returns available destinations for jump gate.
+func (b *OGame) JumpGateDestinations(origin MoonID) (moonIDs []MoonID, rechargeCountdown int64, err error) {
+	return b.WithPriority(Normal).JumpGateDestinations(origin)
 }
 
 // JumpGate sends ships through a jump gate.
