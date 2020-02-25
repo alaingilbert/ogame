@@ -7,3 +7,4 @@ cover.out
 vendor
 *.bat
 *.json
+*.code-workspace
