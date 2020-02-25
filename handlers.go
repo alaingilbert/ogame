@@ -287,6 +287,48 @@ func BuyOfferOfTheDayHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(nil))
 }
 
+// GetMoonsHandler ...
+func GetMoonsHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	return c.JSON(http.StatusOK, SuccessResp(bot.GetMoons()))
+}
+
+// GetMoonHandler ...
+func GetMoonHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	moonID, err := strconv.ParseInt(c.Param("moonID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid moon id"))
+	}
+	moon, err := bot.GetMoon(moonID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid moon id"))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(moon))
+}
+
+// GetMoonByCoordHandler ...
+func GetMoonByCoordHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	galaxy, err := strconv.ParseInt(c.Param("galaxy"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+	}
+	system, err := strconv.ParseInt(c.Param("system"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+	}
+	position, err := strconv.ParseInt(c.Param("position"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+	}
+	planet, err := bot.GetMoon(Coordinate{Type: PlanetType, Galaxy: galaxy, System: system, Position: position})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(planet))
+}
+
 // GetPlanetsHandler ...
 func GetPlanetsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
