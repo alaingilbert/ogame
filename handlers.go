@@ -322,7 +322,7 @@ func GetMoonByCoordHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
 	}
-	planet, err := bot.GetMoon(Coordinate{Type: PlanetType, Galaxy: galaxy, System: system, Position: position})
+	planet, err := bot.GetMoon(Coordinate{Type: MoonType, Galaxy: galaxy, System: system, Position: position})
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
