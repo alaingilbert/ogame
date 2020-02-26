@@ -99,3 +99,32 @@ func (e ExtractorV71) extractAttacks(pageHTML []byte, clock clockwork.Clock) ([]
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractAttacksFromDoc(doc, clock)
 }
+
+// DMCost ...
+type DMCost struct {
+	Cost                int64
+	CanBuy              bool  // Either or not we have enough DM
+	Complete            bool  // false means we will halve the time, true will complete
+	OGameID             ID    // What we are going to build
+	Nbr                 int64 // Either the amount of ships/defences or the building/research level
+	BuyAndActivateToken string
+	Token               string
+}
+
+// DMCosts ...
+type DMCosts struct {
+	Buildings DMCost
+	Research  DMCost
+	Shipyard  DMCost
+}
+
+// ExtractDMCosts ...
+func (e ExtractorV71) ExtractDMCosts(pageHTML []byte) (DMCosts, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractDMCostsFromDoc(doc)
+}
+
+// ExtractDMCostsFromDoc ...
+func (e ExtractorV71) ExtractDMCostsFromDoc(doc *goquery.Document) (DMCosts, error) {
+	return extractDMCostsFromDocV71(doc)
+}

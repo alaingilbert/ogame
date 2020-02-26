@@ -1,0 +1,1402 @@
+
+<!DOCTYPE html><html lang="en"><head>
+    <title>Zibal OGame</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript">
+        /**
+         * This is only currently needed in a separate file in libraries because
+         * the javascript files are loaded alphabetically from files and we need to
+         * ensure that our namespace object is loaded before all other ogame specific
+         * javascript code
+         */
+
+        /*
+         * global javascript namespace for ogame
+         */
+        var ogame = ogame || {};
+    </script>
+    <meta name="ogame-session" content="f2ed5586f86784a0dd713a28fd40737b23afce7f"/>
+    <meta name="ogame-version" content="7.1.1-rc4"/>
+    <meta name="ogame-timestamp" content="1582608571"/>
+    <meta name="ogame-universe" content="s152-en.ogame.gameforge.com"/>
+    <meta name="ogame-universe-name" content="Zibal"/>
+    <meta name="ogame-universe-speed" content="7"/>
+    <meta name="ogame-universe-speed-fleet" content="2"/>
+    <meta name="ogame-language" content="en"/>
+    <meta name="ogame-donut-galaxy" content="1"/>
+    <meta name="ogame-donut-system" content="1"/>
+    <meta name="ogame-player-id" content="106734"/>
+    <meta name="ogame-player-name" content="Notriv"/>
+    <meta name="ogame-planet-id" content="33803877"/>
+    <meta name="ogame-planet-name" content="Colony"/>
+    <meta name="ogame-planet-coordinates" content="4:115:9"/>
+    <meta name="ogame-planet-type" content="planet"/>
+
+    <meta name="ogame-alliance-id" content="545"/>
+    <meta name="ogame-alliance-name" content="Ninja"/>
+    <meta name="ogame-alliance-tag" content="nja"/>
+
+    <script type="text/javascript">
+        var ajaxEventboxURI = 'https://www.ogame.ninja/bots/1/browser/html/s152-en?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+        var ajaxResourceboxURI = 'https://www.ogame.ninja/bots/1/browser/html/s152-en?page=fetchResources&ajax=1';
+        var eventboxLoca    = {"mission":"Mission","missions":"Missions","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"own","neutral":"friendly","hostile":"hostile","nextEvent":"Next","nextEventText":"Type"};
+        var eventlistLink   = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=componentOnly&component=eventList&ajax=1";
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn8a/8e1cac9ef6b9a5462d661e32160563.css
+"/>
+
+    <script type="text/javascript" src="https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js"> </script>
+    <script type='text/javascript' src='/bots/1/browser/html/s152-en/ogame.js?url=https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+    <script type='text/javascript' src='/bots/1/browser/html/s152-en/ogame.js?url=https://gf3.geo.gfsrv.net/cdn59/aba48a9110aeed5c90b9f0eed1ba0d.js'> </script>
+
+
+
+
+
+    <script type="text/javascript">
+
+        var changeSettingsLink = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=changeSettings";
+        var changeSettingsToken = "2a04773b0875ba33163ce55ac9aa8872";
+        var redirectLogoutLink = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=logout";
+        var redirectOverviewLink = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=overview";
+        var redirectSpaceDockLink = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=facilities&openTech=36";
+        var constants   = {"espionage":6,"missleattack":10,"language":"en","name":"152"};
+        var currentPage = "defenses";
+        var changeNickLink = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ajax&component=changenick&asJson=1";
+    </script>
+
+    <script type="text/javascript">
+        var playerId = 106734;
+        var playerName = "Notriv";
+        var player = {"playerId":106734,"name":"Notriv","hasCommander":false,"hasAPassword":true};
+        var session = "f2ed5586f86784a0dd713a28fd40737b23afce7f";
+        var vacation = 0;
+        var hasAPassword = true;
+        var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"More Options","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+        var itemNames = {"090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Bronze Crystal Booster","e254352ac599de4dd1f20f0719df0a070c623ca8":"Bronze Deuterium Booster","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Bronze Metal Booster","2dd05cc4c0e185fce2e712112dc44932027aee98":"Discoverer","9374c79a24b84c4331f0d26526ef6c2d33319a6e":"Collector","77eff880829027daf23b755e14820a60c4c6fd93":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Bronze Crystal Booster","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Silver Crystal Booster","118d34e685b5d1472267696d1010a393a59aed03":"Gold Crystal Booster","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Gold","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID Silver","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Bronze Deuterium Booster","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Silver Deuterium Booster","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Gold Deuterium Booster","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Gold","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN Silver","de922af379061263a56d7204d1c395cefcfb7d75":"Bronze Metal Booster","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Silver Metal Booster","05294270032e5dc968672425ab5611998c409166":"Gold Metal Booster","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Bronze Moon Fields","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Gold Moon Fields","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"Silver Moon Fields","485a6d5624d9de836d3eb52b181b13423f795770":"Bronze M.O.O.N.S.","45d6660308689c65d97f3c27327b0b31f880ae75":"Gold M.O.O.N.S.","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"Silver M.O.O.N.S.","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Gold","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON Silver","16768164989dffd819a373613b5e1a52e226a5b0":"Bronze Planet Fields","04e58444d6d0beb57b3e998edc34c60f8318825a":"Gold Planet Fields","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Silver Planet Fields"};
+        var isMobile = false;
+        var isMobileApp = false;
+        var bbcodePreviewUrl = "https://www.ogame.ninja/bots/1/browser/html/s152-en?page=bbcodePreview";
+        var ogameUrl="https:\/\/www.ogame.ninja";
+        var startpageUrl = "https:\/\/en.ogame.gameforge.com";
+        var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","planetMoveBreakUpWarning":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter? In doing so, you will lose your current class.","activateItemQuestion":"Do you want to activate the #characterClassName# class? In doing so, you will lose your current class."},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+        var popupWindows = [];
+        var showOutlawWarning = true;
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"};
+        var overlayWidth = 770;
+        var overlayHeight = 600;
+        var isStandalonePage = false;
+        var serverTime = new Date(2020, 1, 25, 5, 29, 31);
+        var localTime = new Date();
+        var timeDiff = serverTime - localTime;
+
+        var nodePort = 19768
+        var nodeUrl="https:\/\/www.ogame.ninja\/socket.io\/socket.io.js?url=https:\/\/s152-en.ogame.gameforge.com:19768\/socket.io\/socket.io.js";
+        var nodeParams = {"port":19768,"secure":true}
+
+        var miniFleetToken = "1ed1044a6024a143749558fcd66f6df9";
+        var miniFleetLink = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=minifleet&ajax=1";
+
+        var jumpGateLink = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=jumpgatelayer";
+        var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Use jumpgate"};
+
+        var timerHandler = new TimerHandler();
+
+        $(document).ready(
+            function(){
+                initOverlays();
+            }
+        );
+    </script>
+    <link rel="stylesheet" type="text/css" href="/public/css/ninja.css" media="screen"/></head>
+<body id="ingamepage" class="no-touch no-commander ">
+
+<!-- #MMO:NETBAR# -->
+<div id="pagefoldtarget"></div>
+<script type="text/javascript">
+    var mmoCSS = ' body {margin:0; padding:0;} div.openX_interstitial div.openX_int_closeButton a { text-indent:-4000px; float:right; height:23px; width:23px; display:block; background:transparent url(//gf2.geo.gfsrv.net/cdn14/7618d1159940178a2e53a8be22710a.png) repeat-x; } #mmonetbar { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar .mmosmallbar {width:585px !important;} #mmonetbar .mmosmallbar div.mmoBoxMiddle { width: 290px; } #mmonetbar .mmonewsout {width:800px !important;} #mmonetbar .mmouseronlineout {width:768px !important;} #mmonetbar .mmolangout {width:380px !important;} #mmonetbar .mmolangout .mmoGame { width: 265px; } #mmonetbar #mmoContent.mmoingame { width: 533px; } #mmonetbar #mmoContent.mmoingame .mmoGame { width: auto; } #mmonetbar a { color:#666; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; outline: none; text-decoration:none; white-space:nowrap; } #mmonetbar select { background-color:#091218 !important; border:1px solid #1c2e3a !important; color:#9099a3 !important; font:normal 11px Verdana, Arial, Helvetica, sans-serif; height:18px; margin-top:3px; width:100px; } #mmonetbar .mmoGames select {width:80px;} #mmonetbar option { background-color:#091218 !important; color:#9099a3 !important; } #mmonetbar option:hover { background-color:#132835 !important; } #mmonetbar select#mmoCountry {width:120px;} #mmonetbar .mmoSelectbox { background-color:#091218; float:left; margin:3px 0 0 3px; position:relative; } * html #mmonetbar .mmoSelectbox {position:static;} *+html #mmonetbar .mmoSelectbox {position:static;} #mmonetbar #mmoOneGame {cursor:default; height:14px; margin-top:3px; padding-left:5px; width:80px;} #mmonetbar .label {float:left; font-weight:bold; margin-right:4px; overflow:hidden !important;} #mmonetbar #mmoUsers .label {font-size:10px;} #mmonetbar .mmoBoxLeft, #mmonetbar .mmoBoxRight { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -109px -4px; float:left; width:5px; height:24px; } #mmonetbar .mmoBoxRight {background-position:-126px -4px;} #mmonetbar .mmoBoxMiddle { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -36px; color:#9099a3 !important; float:left; height:24px; line-height:22px; text-align:left; white-space:nowrap; position: relative; z-index: 10000; } #mmonetbar #mmoGames, #mmonetbar #mmoLangs {margin:0px 4px 0 0;} #mmonetbar #mmoNews, #mmonetbar #mmoUsers, #mmonetbar #mmoGame, #mmonetbar .nojsGame {margin:4px 4px 0 0;} #mmonetbar #mmoLogo { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat top left; float:left; display:block; height:32px; width:108px; text-indent: -9999px; position: relative; z-index: 1 } #mmonetbar #mmoNews {float:left; width:252px;} #mmonetbar #mmoNews #mmoNewsContent {text-align:left; width:200px;} #mmonetbar #mmoNews #mmoNewsticker {overflow:hidden; width:240px;} #mmonetbar #mmoNews #mmoNewsticker ul { margin: 0; padding: 0; list-style: none; } #mmonetbar #mmoNews #mmoNewsticker ul li { font:normal 11px/22px Tahoma, Arial, Helvetica, sans-serif !important; color:#9099a3 !important; padding: 0; margin: 0; background: none; display: none; } #mmonetbar #mmoNews #mmoNewsticker ul li.mmoTickShow { display: block; } #mmonetbar #mmoNews #mmoNewsticker ul li a img {border:0;} #mmonetbar #mmoNews #mmoNewsticker ul li a {color:#9099a3 !important;display:block;height:24px;line-height:23px;} #mmonetbar #mmoNews #mmoNewsticker ul li a:hover {text-decoration:underline;} #mmonetbar #mmoUsers {float:left; width:178px;} #mmonetbar #mmoUsers .mmoBoxLeft {width:17px;} #mmonetbar #mmoUsers .mmoBoxMiddle {padding-left:3px; width:150px;} #mmonetbar .mmoGame {display:none; float:left; width:432px;} #mmonetbar .mmoGame #mmoGames {float:left; width:206px;} #mmonetbar .mmoGame #mmoLangs {float:left; margin:0; width:252px;} #mmonetbar .mmoGame label { color:#9099a3 !important; float:left; font-weight:400 !important; line-height:22px; margin:0px; text-align:right !important; width:110px; font-size: 11px !important; } #mmonetbar .nojsGame {display:block; width:470px;} #mmonetbar .nojsGame .mmoBoxMiddle {width:450px;} #mmonetbar .nojsGame .mmoSelectbox {margin:0px 0 0 3px;} *+html #mmonetbar .nojsGame .mmoSelectbox {margin:2px 0 0 3px;} * html #mmonetbar .nojsGame .mmoSelectbox {margin:2px 0 0 3px;} #mmonetbar .nojsGame .mmoGameBtn { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -162px -7px; border:none; cursor:pointer; float:left; height:18px; margin:3px 0 0 7px; padding:0; width:18px; } #mmonetbar .mmoSelectArea { border:1px solid #1c2e3a; color:#9099a3 !important; display:block !important; float:none; font-weight:400 !important; font-size:11px; height:16px; line-height:13px; -moz-box-sizing: content-box; overflow:hidden !important; width:90px; } #mmonetbar #mmoLangSelect .mmoSelectArea {width:129px;} #mmonetbar #mmoLangSelect .mmoOptionsDivVisible {min-width:129px;} #mmonetbar .mmoSelectArea .mmoSelectButton { background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -141px -8px; float:right; width:17px; height:16px; } #mmonetbar .mmoSelectText {cursor:pointer; float:left; overflow:hidden; padding:1px 2px; width:68px;} #mmonetbar #mmoLangSelect .mmoSelectText {width:107px;} #mmonetbar #mmoOneLang {cursor:default; height:14px;} #mmonetbar div.mmoOneLang { background: none; } #mmonetbar div.mmoOneLang #mmoOneLang { border: none; padding: 2px 3px; } #mmonetbar .mmoOptionsDivInvisible, #mmonetbar .mmoOptionsDivVisible { background-color: #091218 !important; border: 1px solid #1c2e3a; position: absolute; min-width:90px; z-index: 3100; } * html #mmonetbar .mmoOptionsDivVisible .highlight {background-color:#132835 !important} #mmonetbar .mmoOptionsDivInvisible {display: none;} #mmonetbar .mmoOptionsDivVisible ul { border:0; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; list-style: none; margin:0; padding:2px; overflow:auto; overflow-x:hidden; } #mmonetbar #mmoLangs .mmoOptionsDivVisible ul {min-width:125px;} #mmonetbar .mmoOptionsDivVisible ul li { background-color: #091218; height:14px; padding:2px 0; } #mmonetbar .mmoOptionsDivVisible a { color: #9099a3 !important; display: block; font-weight:400 !important; height:16px !important; min-width:80px; text-decoration: none; white-space:nowrap; width:100%; } #mmonetbar #mmoContent .mmoLangList a {min-width:102px;} #mmonetbar .mmoOptionsDivVisible li:hover {background-color: #132835;} #mmonetbar .mmoOptionsDivVisible li a:hover {color: #9099a3 !important;} #mmonetbar .mmoOptionsDivVisible li.mmoActive {background-color: #132835 !important;} #mmonetbar .mmoOptionsDivVisible li.mmoActive a {color: #9099a3 !important;} #mmonetbar .mmoOptionsDivVisible ul.mmoListHeight {height:240px} #mmonetbar .mmoOptionsDivVisible ul.mmoLangList.mmoListHeight li {padding-right:15px !important; width:100%;} #mmonetbar #mmoGameSelect ul.mmoListHeight a {min-width:85px;} #mmonetbar #mmoLangSelect ul.mmoListHeight a {min-width:105px;} #mmonetbar #mmoFocus {position:absolute;left:-2000px;top:-2000px;} #mmonetbar #mmoLangs .mmoSelectText span, #mmonetbar #mmoLangs .mmoflag { background: transparent url(//gf3.geo.gfsrv.net/cdn28/71fe874d78b03e38e06a3b471f6224.png) no-repeat; height:14px !important; padding-left:23px; } .mmo_AE {background-position:left 0px !important} .mmo_AR {background-position:left -14px !important} .mmo_BE {background-position:left -28px !important} .mmo_BG {background-position:left -42px !important} .mmo_BR {background-position:left -56px !important} .mmo_BY {background-position:left -70px !important} .mmo_CA {background-position:left -84px !important} .mmo_CH {background-position:left -98px !important} .mmo_CL {background-position:left -112px !important} .mmo_CN {background-position:left -126px !important} .mmo_CO {background-position:left -140px !important} .mmo_CZ {background-position:left -154px !important} .mmo_DE {background-position:left -168px !important} .mmo_DK {background-position:left -182px !important} .mmo_EE {background-position:left -196px !important} .mmo_EG {background-position:left -210px !important} .mmo_EN {background-position:left -224px !important} .mmo_ES {background-position:left -238px !important} .mmo_EU {background-position:left -252px !important} .mmo_FI {background-position:left -266px !important} .mmo_FR {background-position:left -280px !important} .mmo_GR {background-position:left -294px !important} .mmo_HK {background-position:left -308px !important} .mmo_HR {background-position:left -322px !important} .mmo_HU {background-position:left -336px !important} .mmo_ID {background-position:left -350px !important} .mmo_IL {background-position:left -364px !important} .mmo_IN {background-position:left -378px !important} .mmo_INTL {background-position:left -392px !important} .mmo_IR {background-position:left -406px !important} .mmo_IT {background-position:left -420px !important} .mmo_JP {background-position:left -434px !important} .mmo_KE {background-position:left -448px !important} .mmo_KR {background-position:left -462px !important} .mmo_LT {background-position:left -476px !important} .mmo_LV {background-position:left -490px !important} .mmo_ME {background-position:left -504px !important} .mmo_MK {background-position:left -518px !important} .mmo_MX {background-position:left -532px !important} .mmo_NL {background-position:left -546px !important} .mmo_NO {background-position:left -560px !important} .mmo_PE {background-position:left -574px !important} .mmo_PH {background-position:left -588px !important} .mmo_PK {background-position:left -602px !important} .mmo_PL {background-position:left -616px !important} .mmo_PT {background-position:left -630px !important} .mmo_RO {background-position:left -644px !important} .mmo_RS {background-position:left -658px !important} .mmo_RU {background-position:left -672px !important} .mmo_SE {background-position:left -686px !important} .mmo_SI {background-position:left -700px !important} .mmo_SK {background-position:left -714px !important} .mmo_TH {background-position:left -728px !important} .mmo_TR {background-position:left -742px !important} .mmo_TW {background-position:left -756px !important} .mmo_UA {background-position:left -770px !important} .mmo_UK {background-position:left -784px !important} .mmo_US {background-position:left -798px !important} .mmo_VE {background-position:left -812px !important} .mmo_VN {background-position:left -826px !important} .mmo_YU {background-position:left -840px !important} .mmo_ZA {background-position:left -854px !important} .mmo_WW {background-position:left -392px !important} .mmo_AU {background-position:left -868px !important} div#mmonetbar a:active { top: 0; } div#mmoGamesOverviewPanel { width: 582px; position: absolute; top: 0; right: 0; font: 12px Arial, sans-serif; } div#mmoGamesOverviewPanel h4, div#mmoGamesOverviewPanel h5 { margin: 0; font-size: 12px; font-weight: bold; text-align: left; } div#mmoGamesOverviewPanel a { text-decoration: none; } div#mmoGamesOverviewPanel a img { border: none; } div#mmoGamesOverviewToggle { width: 168px; padding: 4px 0 4px 414px; } div#mmoGamesOverviewToggle h4 { height: 18px; position: relative; background: url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -36px; top: 0px; padding: 3px 20px; -moz-box-sizing: content-box; } div#mmoGamesOverviewToggle h4 a { display: block; width: 116px; height: 16px; line-height: 14px; text-align: left; font-weight: normal; outline: none; color: #9099a3 !important; font-size: 11px !important; position: relative; border: 1px solid #1c2e3a; padding: 0 0 0 10px; background: #091218; -moz-box-sizing: content-box; } div#mmoGamesOverviewToggle h4 a.gameCountZero { cursor: default; text-align: center; padding: 0; width: 126px; } div#mmoGamesOverviewToggle h4 a span.mmoNbPseudoSelect_icon { display: block; position: absolute; top: 0; right: 0; width: 17px; height: 16px; background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -141px -8px; } span.iconTriangle { display: block; position: absolute; top: 5px; right: 10px; width: 0px; border: 5px solid transparent; border-bottom-color: #9099a3; } div#mmoGamesOverviewToggle h4 a.toggleHidden { } div#mmoGamesOverviewToggle h4 a.toggleHidden span.iconTriangle { top: 10px; border: 5px solid transparent; border-top-color: #9099a3; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge { display: block; width: 5px; height: 24px; background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -109px -4px; position: absolute; top: 0; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge_left { left: 0; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge_right { right: 0; background-position: -126px -4px; } div#mmoGamesOverviewLists { clear: both; background: #091218; width: 580px; border: 1px solid #1c2e3a; float: left; position: relative; top: 0px; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists h5 { clear: both; width: 544px; margin: 0; padding: 0 18px; height: 27px; line-height: 27px; color: #9099a3; border-bottom: 1px solid #1c2e3a; background: url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -3px; font-family: inherit; -moz-box-sizing: content-box; } #mmoGamesOverviewLists #mmoGamesOverview_featured li { width: auto; } #mmoGamesOverviewLists #mmoGamesOverview_featured span { display: block; width: 560px; height: 180px; margin: 0; } #mmoGamesOverviewLists #mmoGamesOverview_featured span.gameName { display: none; } #mmoGamesOverview_featured img { display: block; } div#mmoGamesOverviewLists ul { margin: 0; padding: 5px 5px; list-style: none; width: 570px; float: left; text-align: left; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists ul li { margin: 0; padding: 0; list-style: none; width: 190px; float: left; background: none; } div#mmoGamesOverviewLists ul li a { display: block; padding: 5px; font-weight: bold; line-height: 1; color: #9099a3 !important; font-size: 11px !important; } div#mmoGamesOverviewLists ul li a:focus, div#mmoGamesOverviewLists ul li a:hover { background-color: #132835; } div#mmoGamesOverviewLists ul li a span.gameImgTarget { display: block; width: 180px; height: 90px; background: none; margin: 0 0 4px 0; } div#mmoGamesOverviewLists ul li a span img { display: block; } div#mmoGamesOverviewLists div#mmoGamesOverviewCountry { width: 20px; height: 14px; position: absolute; top: 6px; right: 12px; background-image: url(//gf3.geo.gfsrv.net/cdn28/71fe874d78b03e38e06a3b471f6224.png); background-repeat: no-repeat; } #mmonetbar div.nojsGame { width: 432px !important; } #mmonetbar div.nojsGame div.mmoBoxMiddle { width: 422px; } #mmonetbar div.nojsGame label { width: 105px; } #pagefoldtarget .nbPF { position: absolute; top: 0; z-index: 999999; text-indent: -9999px; width: 125px; height: 120px; } #pagefoldtarget .nbPFLeft { left: 0px; } #pagefoldtarget .nbPF.nbPFRight { right: 0px; background-position: right 0px } #pagefoldtarget .nbPFDark.nbPFRight { background-image: url(//gf2.geo.gfsrv.net/cdn75/98954a5b65ea8ac2b5472017426515.png); _background-image: url(//gf1.geo.gfsrv.net/cdn9d/ca3b68a0f2fc9b5fd4f4e9acc1aa9f.gif); } #pagefoldtarget .nbPFDark.nbPFLeft { background-image: url(//gf2.geo.gfsrv.net/cdndd/f3329ffdb5f66db6930cd98f547da7.png); _background-image: url(//gf1.geo.gfsrv.net/cdn37/470d765043864d857eb6ffdc30bc4d.gif); } #pagefoldtarget .nbPFLight.nbPFRight { background-image: url(//gf1.geo.gfsrv.net/cdn34/8ae6ba8194f659bc3784e01b457749.png); _background-image: url(//gf2.geo.gfsrv.net/cdn46/2634bb44de90d88b10e3fe8cf940ff.gif); } #pagefoldtarget .nbPFLight.nbPFLeft { background: url(//gf1.geo.gfsrv.net/cdn38/d4718fc349f75778ee051b4cc76824.png) no-repeat; _background-image: url(//gf1.geo.gfsrv.net/cdn01/3dc42ed780058a74a17220804afda1.gif); } #pagefoldtarget .nbPF a{ text-indent: -9999px; display: block; width: 110px; height: 95px; } #pagefoldtarget .nbPF.nbPFRight a{ float:right; } #pagefoldtarget .nbPF.nbPFHover a{ width:358px; height: 320px; } #pagefoldtarget .nbPF.nbPFHover { background-position: left -129px !important; width:400px; height: 400px; } #pagefoldtarget .nbPF.nbPFRight.nbPFHover { background-position: right -129px !important; } ';
+    var mmostyle = document.createElement('style');
+    if (navigator.appName == "Microsoft Internet Explorer") {
+        mmostyle.setAttribute("type", "text/css");
+        mmostyle.styleSheet.cssText = mmoCSS;
+    } else {
+        var mmostyleTxt = document.createTextNode(mmoCSS);
+        mmostyle.type = 'text/css';
+        mmostyle.appendChild(mmostyleTxt);
+    }
+    document.getElementsByTagName('head')[0].appendChild(mmostyle);
+</script>
+
+<noscript>
+    <style type="text/css">
+
+        body {margin:0; padding:0;} #mmonetbar { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar #mmoLogo { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat top left; float:left; display:block; height:32px; width:108px; text-indent: -9999px; } #mmonetbar #mmoNews, #mmonetbar #mmoGame, #mmonetbar #mmoFocus, #pagefoldtarget { display:none !important; }
+    </style>
+</noscript>
+
+<!-- Start Alexa Certify Javascript -->
+<script type="text/javascript">
+    _atrk_opts = { atrk_acct: 'Ezuyi1a8Dy00aI', domain: 'gameforge.com', dynamic: true };
+    (function() {
+        var as = document.createElement('script');
+        as.type = 'text/javascript';
+        as.async = true;
+        as.src = 'https://d31qbv1cthcecs.cloudfront.net/atrk.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(as, s);
+    })();
+</script>
+<noscript><img src="https://d5nxst8fruw4z.cloudfront.net/atrk.gif?account=Ezuyi1a8Dy00aI" style="display:none" height="1" width="1" alt="" /></noscript>
+<!-- End Alexa Certify Javascript -->
+
+<div id="mmonetbar" class="mmoogame">
+    <script type="text/javascript">
+        var mmoActive_select=null;function mmoInitSelect(){if(!document.getElementById)return false;document.getElementById('mmonetbar').style.display='block';document.getElementById('mmoGame').style.display='block';document.getElementById('mmoFocus').onkeyup=function(e){mmo_selid=mmoActive_select.id.replace('mmoOptionsDiv','');var e=e||window.event;if(e.keyCode)var thecode=e.keyCode;else if(e.which)var thecode=e.which;mmoSelectMe(mmo_selid,thecode);}}
+        function mmoSelectMe(selid,thecode){var mmolist=document.getElementById('mmoList'+selid);var mmoitems=mmolist.getElementsByTagName('li');switch(thecode){case 13:mmoShowOptions(selid);window.location=mmoActive_select.url;break;case 38:mmoActive_select.activeit.className='';var minus=((mmoActive_select.activeid-1)<=0)?'0':(mmoActive_select.activeid-1);mmoActive_select=mmoSetActive(selid,minus);break;case 40:mmoActive_select.activeit.className='';var plus=((mmoActive_select.activeid+1)>=mmoitems.length)?(mmoitems.length-1):(mmoActive_select.activeid+1);mmoActive_select=mmoSetActive(selid,plus);break;default:thecode=String.fromCharCode(thecode);var found=false;for(var i=0;i<mmoitems.length;i++){var _a=mmoitems[i].getElementsByTagName('a');if(navigator.appName.indexOf("Explorer")>-1){}
+        else{txtContent=_a[0].textContent;}
+            if(!found&&(thecode.toLowerCase()==txtContent.charAt(0).toLowerCase())){mmoActive_select.activeit.className='';mmoActive_select=mmoSetActive(selid,i);found=true;}}
+            break;}}
+        function mmoSetActive(selid,itemid){mmoActive_select=null;var mmolist=document.getElementById('mmoList'+selid);var mmoitems=mmolist.getElementsByTagName('li');mmoActive_select=document.getElementById('mmoOptionsDiv'+selid);;mmoActive_select.selid=selid;if(itemid!=undefined){var _a=mmoitems[itemid].getElementsByTagName('a');var textVar=document.getElementById("mmoMySelectText"+selid);textVar.innerHTML=_a[0].innerHTML;if(selid==1)textVar.className=_a[0].className;mmoitems[itemid].className='mmoActive';}
+            for(var i=0;i<mmoitems.length;i++){if(mmoitems[i].className=='mmoActive'){mmoActive_select.activeit=mmoitems[i];mmoActive_select.activeid=i;mmoActive_select.url=(mmoitems[i].getElementsByTagName('a'))?mmoitems[i].getElementsByTagName('a')[0].href:null;}}
+            return mmoActive_select;}
+        function mmoShowOptions(g){var _elem=document.getElementById("mmoOptionsDiv"+g);if((mmoActive_select)&&(mmoActive_select!=_elem)){mmoActive_select.className="mmoOptionsDivInvisible";document.getElementById('mmonetbar').focus();}
+            if(_elem.className=="mmoOptionsDivInvisible"){document.getElementById('mmoFocus').focus();mmoActive_select=mmoSetActive(g);if(document.documentElement){document.documentElement.onclick=mmoHideOptions;}else{window.onclick=mmoHideOptions;}
+                _elem.className="mmoOptionsDivVisible";}else if(_elem.className=="mmoOptionsDivVisible"){_elem.className="mmoOptionsDivInvisible";document.getElementById('mmonetbar').focus();}}
+        function mmoHideOptions(e){if(mmoActive_select){if(!e)e=window.event;var _target=(e.target||e.srcElement);if((_target.id.indexOf('mmoOptionsDiv')!=-1))return false;if(mmoisElementBefore(_target,'mmoSelectArea')==0&&(mmoisElementBefore(_target,'mmoOptionsDiv')==0)){mmoActive_select.className="mmoOptionsDivInvisible";mmoActive_select=null;}}else{if(document.documentElement)document.documentElement.onclick=function(){};else window.onclick=null;}}
+        function mmoisElementBefore(_el,_class){var _parent=_el;do _parent=_parent.parentNode;while(_parent&&(_parent.className!=null)&&(_parent.className.indexOf(_class)==-1))
+            return(_parent.className&&(_parent.className.indexOf(_class)!=-1))?1:0;}
+        var ua=navigator.userAgent.toLowerCase();var ie6browser=((ua.indexOf("msie 6")>-1)&&(ua.indexOf("opera")<0))?true:false;function highlight(el,mod){if(ie6browser){if(mod==1&&!el.className.match(/highlight/))el.className=el.className+' highlight';else if(mod==0)el.className=el.className.replace(/highlight/g,'');}}
+        var mmoToggleDisplay={init:function(wrapper){var wrapper=document.getElementById(wrapper);if(!wrapper)return;var headline=wrapper.getElementsByTagName("h4")[0],link=headline.getElementsByTagName("a")[0];if(link.className.indexOf("gameCountZero")!=-1)return false;var panel=document.getElementById(link.hash.substr(1));mmoToggleDisplay.hidePanel(panel,link);link.onclick=function(e){mmoToggleDisplay.loadImages();mmoToggleDisplay.toggle(this,panel);return false;};mmoToggleDisplay.outerClick(wrapper,link,panel);var timeoutID=null,delay=8000;wrapper.onmouseout=function(e){if(!e){var e=window.event;}
+                var reltg=(e.relatedTarget)?e.relatedTarget:e.toElement;if(reltg==wrapper||mmoToggleDisplay.isChildOf(reltg,wrapper)){return;}
+                timeoutID=setTimeout(function(){mmoToggleDisplay.hidePanel(panel,link);},delay);};wrapper.onmouseover=function(e){if(timeoutID){clearTimeout(timeoutID);}};},isChildOf:function(child,parent){while(child&&child!=parent){child=child.parentNode;}
+                if(child==parent){return true;}else{return false;}},hidePanel:function(panel,link){panel.style.display="none";link.className="toggleHidden";},toggle:function(link,panel){panel.style.display=panel.style.display=="none"?"block":"none";link.className=link.className=="toggleHidden"?"":"toggleHidden";},outerClick:function(wrapper,link,panel){document.body.onclick=function(e){if(!e){e=window.event};if(!(mmoToggleDisplay.isChildOf((e.target||e.srcElement),wrapper))&&panel.style.display!="none"){mmoToggleDisplay.toggle(link,panel);}}},loadImages:function(){var script=document.createElement("script");script.type="text/javascript";var jsonGameData_browser='{"ultimatepirates":"\/\/gf3.geo.gfsrv.net\/cdne6\/2352ec3cdb9669f4cda71f663dbfe7.jpg","ikariam":"\/\/gf1.geo.gfsrv.net\/cdnfb\/468d7d51b2103198945d3f644169b7.png","battleknight":"\/\/gf3.geo.gfsrv.net\/cdn88\/1078f8c8b702f6c00bd80540a15de4.png","gladiatus":"\/\/gf2.geo.gfsrv.net\/cdn1d\/0da04cb94431ecf8cba6cc17d07ced.png","bitefight":"\/\/gf1.geo.gfsrv.net\/cdn3f\/d53efd82d430eaa71b708336af9624.png","kingsage":"\/\/gf1.geo.gfsrv.net\/cdncd\/48d4d41c64ce8cd6d180828935ef80.png","legend":"\/\/gf1.geo.gfsrv.net\/cdn96\/a18e9b9eb3b66c3a2c17b7bcd55ab4.png","wildguns":"\/\/gf1.geo.gfsrv.net\/cdn9d\/8ca347af6831c0d9d8228b7c9c1dde.png"}',jsonGameData_client='{"kuf2":"\/\/gf3.geo.gfsrv.net\/cdn85\/0739cb14e7fb49f17a3c7c2b10bfec.jpg","aion":"\/\/gf2.geo.gfsrv.net\/cdn1d\/ff786e5f897d515099f096725a0612.jpg","metin2":"\/\/gf1.geo.gfsrv.net\/cdn31\/42e645397ef450be0886499f765855.jpg","soulworker":"\/\/gf2.geo.gfsrv.net\/cdn77\/ce4887064b0a34580b25528cd3be96.jpg","tera":"\/\/gf2.geo.gfsrv.net\/cdnd0\/23ab25973a20a9560a76bb82916f20.jpg","elsword":"\/\/gf3.geo.gfsrv.net\/cdn28\/f1d511fc6386d1242f9928eac92079.jpg","4story":"\/\/gf1.geo.gfsrv.net\/cdn9f\/35e42e0330b32d00feda51fefb72cd.png","runesofmagic":"\/\/gf1.geo.gfsrv.net\/cdn69\/35877003ccc87e5e1c9d1c31e3f8ae.jpg","wizard101":"\/\/gf3.geo.gfsrv.net\/cdnef\/bb1f7155dee6104ecab03e13158faf.jpg"}',jsonGameData_featured='{"nostale":"\/\/gf2.geo.gfsrv.net\/cdna7\/d89956ac692e57271cd84a6aa2ac60.teaser"}';script.text='';script.text+=' mmoToggleDisplay.callback('+jsonGameData_featured+', "featured");';script.text+=' mmoToggleDisplay.callback('+jsonGameData_client+', "client");';script.text+='mmoToggleDisplay.callback('+jsonGameData_browser+', "browser");';document.getElementsByTagName("head")[0].appendChild(script);mmoToggleDisplay.loadImages=function(){};},callback:function(data,gamesCat){for(var gameName in data){var gameSpan=document.getElementById("gameImgTarget_"+gameName);if(!gameSpan){return false;}
+                var gameImg=document.createElement("img");gameImg.src=""+data[gameName];gameImg.alt="";gameSpan.appendChild(gameImg);}}}    </script>
+    <div id="mmoContent" class="mmosmallbar">
+
+        <a id="mmoLogo" target="_blank" href="http://en.gameforge.com/games/ogame?kid=5-29807-00107-1105-101121cb" title="Gameforge.com – Feel free to play">Gameforge.com – Feel free to play</a>
+
+
+        <div id="mmoGame" class="mmoGame">
+            <div class="mmoBoxLeft"></div>
+            <div class="mmoBoxMiddle">
+
+                <!--<div id="mmoGames"></div>-->
+
+                <div id="mmoLangs">
+                    <label>Select country:</label>
+                    <div id="mmoLangSelect" class="mmoSelectbox">
+                        <div id="mmoSarea1" onclick="mmoShowOptions(1)" class="mmoSelectArea">
+                            <div class="mmoSelectText" id="mmoMySelectContent1">
+                                <div id="mmoMySelectText1" class="mmoflag mmo_EN">United Kingdom</div>                                </div>
+                            <div class="mmoSelectButton"></div>
+                        </div>
+                        <div class="mmoOptionsDivInvisible" id="mmoOptionsDiv1">
+                            <ul class="mmoLangList mmoListHeight" id="mmoList1">
+                                <li><a href="//ar.ogame.gameforge.com/?kid=5-00140-00107-1105-1201218a" target="_blank" rel="nofollow" class="mmoflag mmo_AR">Argentina</a></li>
+                                <li><a href="//br.ogame.gameforge.com/?kid=5-00119-00107-1105-120121df" target="_blank" rel="nofollow" class="mmoflag mmo_BR">Brasil</a></li>
+                                <li><a href="//dk.ogame.gameforge.com/?kid=5-00120-00107-1105-120121d3" target="_blank" rel="nofollow" class="mmoflag mmo_DK">Danmark</a></li>
+                                <li><a href="//de.ogame.gameforge.com/?kid=5-00106-00107-1105-12012148" target="_blank" rel="nofollow" class="mmoflag mmo_DE">Deutschland</a></li>
+                                <li><a href="//es.ogame.gameforge.com/?kid=5-00109-00107-1105-12012129" target="_blank" rel="nofollow" class="mmoflag mmo_ES">España</a></li>
+                                <li><a href="//fr.ogame.gameforge.com/?kid=5-00108-00107-1105-120121f9" target="_blank" rel="nofollow" class="mmoflag mmo_FR">France</a></li>
+                                <li><a href="//hr.ogame.gameforge.com/?kid=5-00126-00107-1105-120121da" target="_blank" rel="nofollow" class="mmoflag mmo_HR">Hrvatska</a></li>
+                                <li><a href="//it.ogame.gameforge.com/?kid=5-00110-00107-1105-12012110" target="_blank" rel="nofollow" class="mmoflag mmo_IT">Italia</a></li>
+                                <li><a href="//hu.ogame.gameforge.com/?kid=5-00132-00107-1105-1201212b" target="_blank" rel="nofollow" class="mmoflag mmo_HU">Magyarország</a></li>
+                                <li><a href="//mx.ogame.gameforge.com/?kid=5-00139-00107-1105-12012160" target="_blank" rel="nofollow" class="mmoflag mmo_MX">México</a></li>
+                                <li><a href="//nl.ogame.gameforge.com/?kid=5-00113-00107-1105-12012174" target="_blank" rel="nofollow" class="mmoflag mmo_NL">Nederland</a></li>
+                                <li><a href="//no.ogame.gameforge.com/?kid=5-00134-00107-1105-120121b7" target="_blank" rel="nofollow" class="mmoflag mmo_NO">Norge</a></li>
+                                <li><a href="//pl.ogame.gameforge.com/?kid=5-00111-00107-1105-1201214c" target="_blank" rel="nofollow" class="mmoflag mmo_PL">Polska</a></li>
+                                <li><a href="//pt.ogame.gameforge.com/?kid=5-00117-00107-1105-120121de" target="_blank" rel="nofollow" class="mmoflag mmo_PT">Portugal</a></li>
+                                <li><a href="//ro.ogame.gameforge.com/?kid=5-00133-00107-1105-12012190" target="_blank" rel="nofollow" class="mmoflag mmo_RO">Romania</a></li>
+                                <li><a href="//si.ogame.gameforge.com/?kid=5-00160-00107-1105-12012128" target="_blank" rel="nofollow" class="mmoflag mmo_SI">Slovenija</a></li>
+                                <li><a href="//sk.ogame.gameforge.com/?kid=5-00135-00107-1105-1201219e" target="_blank" rel="nofollow" class="mmoflag mmo_SK">Slovensko</a></li>
+                                <li><a href="//fi.ogame.gameforge.com/?kid=5-00137-00107-1105-12012166" target="_blank" rel="nofollow" class="mmoflag mmo_FI">Suomi</a></li>
+                                <li><a href="//se.ogame.gameforge.com/?kid=5-00123-00107-1105-120121b5" target="_blank" rel="nofollow" class="mmoflag mmo_SE">Sverige</a></li>
+                                <li><a href="//tr.ogame.gameforge.com/?kid=5-00114-00107-1105-120121f6" target="_blank" rel="nofollow" class="mmoflag mmo_TR">Türkiye</a></li>
+                                <li><a href="//us.ogame.gameforge.com/?kid=5-00145-00107-1105-120121c8" target="_blank" rel="nofollow" class="mmoflag mmo_US">USA</a></li>
+                                <li class="mmoActive"><a href="//en.ogame.gameforge.com/?kid=5-00107-00107-1105-1201216c" target="_blank" rel="nofollow" class="mmoflag mmo_EN">United Kingdom</a></li>
+                                <li><a href="//cz.ogame.gameforge.com/?kid=5-00131-00107-1105-12012121" target="_blank" rel="nofollow" class="mmoflag mmo_CZ">Česká Republika</a></li>
+                                <li><a href="//gr.ogame.gameforge.com/?kid=5-00127-00107-1105-12012120" target="_blank" rel="nofollow" class="mmoflag mmo_GR">Ελλάδα</a></li>
+                                <li><a href="//ru.ogame.gameforge.com/?kid=5-00115-00107-1105-120121e9" target="_blank" rel="nofollow" class="mmoflag mmo_RU">Российская Федерация</a></li>
+                                <li><a href="//tw.ogame.gameforge.com/?kid=5-00116-00107-1105-120121de" target="_blank" rel="nofollow" class="mmoflag mmo_TW">台灣</a></li>
+                                <li><a href="//jp.ogame.gameforge.com/?kid=5-00122-00107-1105-1201218e" target="_blank" rel="nofollow" class="mmoflag mmo_JP">日本</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mmoBoxRight"></div>
+
+            <div id="mmoGamesOverviewPanel">
+                <div id="mmoGamesOverviewToggle">
+                    <h4>
+                        <a href="#mmoGamesOverviewLists">More games<span class="mmoNbPseudoSelect_icon"></span></a>
+                        <span class="mmoNbBoxEdge mmoNbBoxEdge_left"></span>
+                        <span class="mmoNbBoxEdge mmoNbBoxEdge_right"></span>
+                    </h4>
+                </div>
+                <div id="mmoGamesOverviewLists">
+                    <div id="mmoGamesOverviewCountry" class="mmo_EN"></div>
+
+                    <!-- Section: Featured Game -->
+                    <h5>Featured game</h5>
+                    <ul id="mmoGamesOverview_featured">
+                        <li>
+                            <a href="https://en.nostale.gameforge.com/landing/?kid=5-09107-00107-1105-120281fc" title="Live the legend" target="_blank">
+                                <span id="gameImgTarget_nostale" class="gameImgTarget"></span>
+                                <span class="gameName">NosTale</span>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Section: Client Games -->
+                    <h5>MMORPGs</h5>
+                    <ul id="mmoGamesOverview_client">
+                        <li class="mmoGameIcon mmoGameIcon_kuf2 mmoGameIcon_kuf2_en">
+                            <a href="https://join.kingdomunderfire2.gameforge.com/en-GB/landing/packages/?kid=5-a9k07-00107-1105-12028131" title="MMORPG MEETS RTS" target="_blank">
+                                <span id="gameImgTarget_kuf2" class="gameImgTarget"></span>
+                                Kingdom Under Fire 2                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_aion mmoGameIcon_aion_en">
+                            <a href="https://en.aion.gameforge.com/website/7-0?kid=5-62007-00107-1105-120281ce" title="Earn your wings" target="_blank">
+                                <span id="gameImgTarget_aion" class="gameImgTarget"></span>
+                                AION free-to-play                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_metin2 mmoGameIcon_metin2_en">
+                            <a href="https://en.metin2.gameforge.com/landing?kid=5-02007-00107-1105-1202818e" title="Sharpen your blade and your mind" target="_blank">
+                                <span id="gameImgTarget_metin2" class="gameImgTarget"></span>
+                                Metin2                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_soulworker mmoGameIcon_soulworker_en">
+                            <a href="https://en.soulworker.gameforge.com/landingpage/freetoplay?kid=5-a7x07-00107-1105-12028109" title="Your Soul, Your Weapon" target="_blank">
+                                <span id="gameImgTarget_soulworker" class="gameImgTarget"></span>
+                                SoulWorker                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_tera mmoGameIcon_tera_en">
+                            <a href="https://en.tera.gameforge.com/landingpage/freetoplay?kid=5-60907-00107-1105-12028128" title="Master the combat!" target="_blank">
+                                <span id="gameImgTarget_tera" class="gameImgTarget"></span>
+                                TERA                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_elsword mmoGameIcon_elsword_en">
+                            <a href="https://en.elsword.gameforge.com/landing?kid=5-48807-00107-1105-12028125" title="Mean monsters, cool heroes" target="_blank">
+                                <span id="gameImgTarget_elsword" class="gameImgTarget"></span>
+                                Elsword                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_4story mmoGameIcon_4story_en">
+                            <a href="http://en.4story.gameforge.com/landing?kid=5-23307-00107-1105-120281a9" title="For the light of truth" target="_blank">
+                                <span id="gameImgTarget_4story" class="gameImgTarget"></span>
+                                4Story                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_runesofmagic mmoGameIcon_runesofmagic_en">
+                            <a href="https://en.runesofmagic.gameforge.com/landing/?kid=5-46807-00107-1105-12028189" title="THE AWARD WINNING MMORPG" target="_blank">
+                                <span id="gameImgTarget_runesofmagic" class="gameImgTarget"></span>
+                                Runes of Magic                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_wizard101 mmoGameIcon_wizard101_en">
+                            <a href="http://en.wizard101.gameforge.com/?kid=5-47607-00107-1105-12028131" title="Captivating adventures, magical worlds!" target="_blank">
+                                <span id="gameImgTarget_wizard101" class="gameImgTarget"></span>
+                                Wizard101                                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Section: Browser Games -->
+                    <h5>Browser games</h5>
+                    <ul id="mmoGamesOverview_browser">
+                        <li class="mmoGameIcon mmoGameIcon_ultimatepirates mmoGameIcon_ultimatepirates_en">
+                            <a href="https://lobby.ultimatepirates.gameforge.com/?kid=5-a9l07-00107-1105-1202818a" title="Create a Mighty Pirate Empire" target="_blank">
+                                <span id="gameImgTarget_ultimatepirates" class="gameImgTarget"></span>
+                                Ultimate Pirates                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_ikariam mmoGameIcon_ikariam_en">
+                            <a href="https://lobby.ikariam.gameforge.com/en_GB/?kid=5-03807-00107-1105-120281cb" title="The future of antiquity" target="_blank">
+                                <span id="gameImgTarget_ikariam" class="gameImgTarget"></span>
+                                Ikariam                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_battleknight mmoGameIcon_battleknight_en">
+                            <a href="https://en.battleknight.gameforge.com//?kid=5-01907-00107-1105-120281cc" title="For honour and glory" target="_blank">
+                                <span id="gameImgTarget_battleknight" class="gameImgTarget"></span>
+                                BattleKnight                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_gladiatus mmoGameIcon_gladiatus_en">
+                            <a href="https://lobby.gladiatus.gameforge.com/en_GB/?kid=5-03707-00107-1105-120281fa" title="Blood, dust and glory" target="_blank">
+                                <span id="gameImgTarget_gladiatus" class="gameImgTarget"></span>
+                                Gladiatus                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_bitefight mmoGameIcon_bitefight_en">
+                            <a href="https://en.bitefight.gameforge.com/?kid=5-00207-00107-1105-1202816a" title="Rivals of the night" target="_blank">
+                                <span id="gameImgTarget_bitefight" class="gameImgTarget"></span>
+                                BiteFight                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_kingsage mmoGameIcon_kingsage_en">
+                            <a href="https://en.kingsage.gameforge.com/?kid=5-31107-00107-1105-12028123" title="Long live the king!" target="_blank">
+                                <span id="gameImgTarget_kingsage" class="gameImgTarget"></span>
+                                KingsAge                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_legend mmoGameIcon_legend_en">
+                            <a href="https://en.tanoth.gameforge.com/?kid=5-20807-00107-1105-12028165" title="Defeat the darkness" target="_blank">
+                                <span id="gameImgTarget_legend" class="gameImgTarget"></span>
+                                Tanoth                                            </a>
+                        </li>
+                        <li class="mmoGameIcon mmoGameIcon_wildguns mmoGameIcon_wildguns_en">
+                            <a href="http://wildguns.co.uk/?kid=5-12707-00107-1105-12028150" title="Seize the prairie" target="_blank">
+                                <span id="gameImgTarget_wildguns" class="gameImgTarget"></span>
+                                WildGuns                                            </a>
+                        </li>
+                    </ul>
+                </div><!-- /mmoGamesOverviewLists -->
+            </div><!-- /mmoGamesOverviewPanel -->
+        </div><!-- /mmoGame -->
+        <input id="mmoFocus" type="text" size="5"/>
+    </div><!-- /mmoContent -->
+</div><!-- /mmonetbar -->
+
+<!-- ogame / en / ingame / 25.02.2020 05:45 -->
+<script type="text/javascript">
+    mmoInitSelect();
+    mmoToggleDisplay.init("mmoGamesOverviewPanel");
+</script>
+
+
+<!--/* OpenX Interstitial or Floating DHTML Tag v2.8.8 */-->
+<div id="openXHackFoo">
+    <script type="text/javascript">
+        var HTTP_GET_VARS = new Array();
+        var strGET = document.location.search.substr(1, document.location.search.length);
+        if (strGET != '') {
+            var gArr = strGET.split('&');
+            for (i = 0; i < gArr.length; ++i) {
+                var v = '';
+                var vArr = gArr[i].split('=');
+                if (vArr.length > 1) {
+                    v = vArr[1];
+                }
+                HTTP_GET_VARS[unescape(vArr[0])] = unescape(v);
+            }
+        }
+
+        function GET(v) {
+            if (!HTTP_GET_VARS[v]) {
+                return '';
+            }
+            return HTTP_GET_VARS[v];
+        }
+
+        function openxDetectDeviceOS() {
+            return (function(ua) {
+                if (/iPhone/i.test(ua) || /iPad/.test(ua) || /iPod/.test(ua)) {
+                    return 'ios';
+                }
+                else if (/Android/.test(ua)) {
+                    return 'android';
+                }
+                else if (/Windows Phone OS 7\.0/.test(ua)) {
+                    return 'winphone7';
+                }
+                else if (/BlackBerry/.test(ua)) {
+                    return 'rim';
+                }
+                else {
+                    return 'desktop';
+                }
+            })(navigator.userAgent);
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
+        if (openxDetectDeviceOS() == 'desktop') {
+            var params = 'zoneid=1317&source=Quelle&cb=INSERT_RANDOM_NUMBER_HERE&layerstyle=simple&align=right&valign=top&padding=2&shifth=30&shiftv=20&closebutton=t&backcolor=778591&bordercolor=FFFFFF';
+            var m3_r = Math.floor(Math.random() * 99999999999);
+            var m3_u = (document.location.protocol == 'https:' ? 'https://ads-delivery.gameforge.com/al.php' : 'http://delivery.ads.gfsrv.net/al.php');
+            params = params.replace(/INSERT_RANDOM_NUMBER_HERE/g, m3_r);
+            params = params + '&zindex=9999999&layerstyle=gameforge';
+            params = params + '&kid=' + escapeHtml(GET('kid'));
+            document.write("<scr" + "ipt type='text/javascript' src='" + m3_u + "?" + params + "'><\/scr" + "ipt>");
+        }
+    </script>
+</div>
+
+<!-- #/MMO:NETBAR# -->
+
+<div id="siteHeader">
+</div>
+
+<div id="pageContent">
+    <div id="top">
+        <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+        <div id="resourcesbarcomponent" class="">
+            <ul id="resources">
+                <li id="metal_box" class="metal  tooltipHTML" title="Metal|&lt;table class=&#34;resourceTooltip&#34;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;2.989&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;33.005.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;undermark&#34;&gt;+26.778&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;undermark&#34;&gt;386.280&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;">
+                    <div class="resourceIcon metal"></div>
+                    <span class="value">
+                    <span id="resources_metal" data-raw="2989.5294087775" class="">2.989.529</span>
+                </span>
+                </li>
+                <li id="crystal_box" class="crystal  tooltipHTML" title="Crystal|&lt;table class=&#34;resourceTooltip&#34;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;97.238&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;9.820.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;undermark&#34;&gt;+10.292&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;undermark&#34;&gt;154.569&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;">
+                    <div class="resourceIcon crystal"></div>
+                    <span class="value">
+                    <span id="resources_crystal" data-raw="97238.068842169" class="">97.238.068</span>
+                </span>
+                </li>
+                <li id="deuterium_box" class="deuterium  tooltipHTML" title="Deuterium|&lt;table class=&#34;resourceTooltip&#34;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;67.368&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;9.820.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;undermark&#34;&gt;+6.224&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;undermark&#34;&gt;98.613&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;">
+                    <div class="resourceIcon deuterium"></div>
+                    <span class="value">
+                    <span id="resources_deuterium" data-raw="67368.340653281" class="">67.368.34</span>
+                </span>
+                </li>
+                <li id="energy_box" class="energy  tooltipHTML" title="Energy|&lt;table class=&#34;resourceTooltip&#34;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;overmark&#34;&gt;-18.356&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;undermark&#34;&gt;+3.108&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Consumption:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;overmark&#34;&gt;-21.464&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;">
+                    <div class="resourceIcon energy"></div>
+                    <span class="value">
+                    <span id="resources_energy" data-raw="-18356" class="">-18.356</span>
+                </span>
+                </li>
+                <li id="darkmatter_box" class="darkmatter  tooltipHTML" title="Dark Matter|&lt;table class=&#34;resourceTooltip&#34;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;24.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Purchased:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Found:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&#34;&#34;&gt;24.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;" data-tooltip-button="Purchase Dark Matter">
+                    <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=payment" class="overlay">
+                        <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif"/>
+                        <div class="resourceIcon darkmatter"></div>
+                    </a>
+                    <span class="value">
+                    <span id="resources_darkmatter" data-raw="24000" class="overlay">24.000</span>
+                </span>
+                </li>
+            </ul>
+            <script type="text/javascript">
+                var isMobile = false;
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","planetMoveBreakUpWarning":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter? In doing so, you will lose your current class.","activateItemQuestion":"Do you want to activate the #characterClassName# class? In doing so, you will lose your current class."},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+
+                (function($) {
+                    reloadResources({"resources":{"metal":{"amount":2989.5294087775,"storage":33005000,"tooltip":"Metal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">2.989<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">33.005.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+26.778<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">386.280<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"crystal":{"amount":97238.068842169,"storage":9820000,"tooltip":"Crystal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">97.238<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">9.820.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+10.292<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">154.569<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"deuterium":{"amount":67368.340653281,"storage":9820000,"tooltip":"Deuterium|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">67.368<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">9.820.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+6.224<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">98.613<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"energy":{"amount":-18356,"tooltip":"Energy|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"overmark\">-18.356<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+3.108<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"overmark\">-21.464<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"darkmatter":{"amount":24000,"tooltip":"Dark Matter|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">24.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Purchased:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Found:<\/th>\n                <td><span class=\"\">24.000<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":"","classes":"overlay","link":"https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}},"techs":{"1":{"techId":1,"production":{"metal":50.9675,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":2.1288888888889}},"2":{"techId":2,"production":{"metal":0,"crystal":19.543036,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":1.2777777777778}},"3":{"techId":3,"production":{"metal":0,"crystal":0,"deuterium":11.940919944444,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":2.5555555555556}},"4":{"techId":4,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0.86333333333333},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12":{"techId":12,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"212":{"techId":212,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"217":{"techId":217,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}}},"honorScore":374677});
+                })(jQuery);
+            </script>
+        </div>
+        <div id="commandercomponent" class="">
+            <div id="characterclass" class="fleft">
+                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=characterclassselection" class="tooltipHTML js_hideTipOnMobile" title="Select class|Select a class to receive special bonuses.">
+                    <div class="sprite characterclass medium none"></div>
+                </a>
+            </div>
+            <div id="officers" class="  fright">
+                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=premium&amp;openDetail=2" class="tooltipHTML   commander js_hideTipOnMobile " title="Hire Commander|+40 favourites, building queue, empire view, shortcuts, transport scanner, advertisement free* &lt;span style=&#34;font-size:10px;line-height:10px;&#34;&gt;(*excludes: game related references)&lt;/span&gt;">
+                    <img src="https://s152-en.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"/>
+                </a>
+                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=premium&amp;openDetail=3" class="tooltipHTML    admiral js_hideTipOnMobile " title="Hire Admiral|Max. fleet slots +2,
+Max. expeditions +1,
+Improved fleet escape rate">
+                    <img src="https://s152-en.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"/>
+                </a>
+                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=premium&amp;openDetail=4" class="tooltipHTML    engineer js_hideTipOnMobile " title="Hire Engineer|Halves losses to defences, +10% energy production">
+                    <img src="https://s152-en.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"/>
+                </a>
+                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=premium&amp;openDetail=5" class="tooltipHTML    geologist js_hideTipOnMobile " title="Hire Geologist|+10% mine production">
+                    <img src="https://s152-en.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"/>
+                </a>
+                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=premium&amp;openDetail=6" class="tooltipHTML    technocrat js_hideTipOnMobile " title="Hire Technocrat|+2 espionage levels, 25% less research time">
+                    <img src="https://s152-en.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"/>
+                </a>
+            </div>
+        </div>
+        <div id="notificationbarcomponent" class="">
+            <div id="message-wrapper">
+                <a class=" comm_menu messages tooltip js_hideTipOnMobile" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=messages" title="256 unread message(s)">
+                    <span class="new_msg_count totalMessages news " data-new-messages="256">
+                256
+            </span>
+                </a>
+                <a class=" comm_menu chat tooltip js_hideTipOnMobile" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=chat" title="256 unread message(s)">
+        <span class="new_msg_count totalChatMessages noMessage" data-new-messages="0">
+            0
+        </span>
+                </a>
+                <div id="messages_collapsed">
+                    <div id="eventboxFilled" class="eventToggle" style="display: none;">
+                        <a id="js_eventDetailsClosed" class="tooltipRight js_hideTipOnMobile" href="javascript:void(0);" title="More details"></a>
+                        <a id="js_eventDetailsOpen" class="tooltipRight open js_hideTipOnMobile" href="javascript:void(0);" title="Less detail"></a>
+                    </div>
+                    <div id="eventboxLoading" class="textCenter textBeefy" style="display: block;">
+                        <img height="16" width="16" alt="ajax spinner" src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"/>
+                        load...
+                    </div>
+                    <div id="eventboxBlank" class="textCenter" style="display: none;">
+                        No fleet movement
+                    </div>
+                </div>
+                <div id="attack_alert" class="tooltip noAttack" title="">
+                    <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"></a>
+                </div>
+            </div>
+        </div>
+        <div id="headerbarcomponent" class="">
+            <div id="bar">
+                <ul>
+                    <li id="playerName">
+                        Player:
+                        <span class="honorRank rank_starlord2 tooltip" title="Emperor"> </span>
+                        <span class="textBeefy">
+                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ajax&amp;component=changenick" class="overlay textBeefy" data-overlay-title="Change player name" data-overlay-popup-width="400" data-overlay-popup-height="200">Notriv</a>
+                        </span>
+                    </li>
+                    <li>
+                        <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=highscore" accesskey="">Highscore</a>
+                        (104)
+                    </li>
+                    <li>
+                        <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=notices" class="overlay" data-overlay-title="My notes" data-overlay-class="notices" data-overlay-popup-width="750" data-overlay-popup-height="480" accesskey="">
+                            Notes</a>
+                    </li>
+                    <li>
+                        <a class="" accesskey="" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=buddies">
+                            Buddies</a>
+                    </li>
+                    <li><a class="overlay" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=search&amp;ajax=1" data-overlay-title="Search Universe" data-overlay-close="__default closeSearch" data-overlay-class="search" accesskey="">Search</a>
+                    </li>
+                    <li><a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=preferences" accesskey="">Options</a></li>
+                    <li><a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=support" target="_blank">Support</a></li>
+                    <li><a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=logout">Log out</a></li>
+                    <li class="OGameClock">25.02.2020 <span>05:29:31</span></li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div id="left">
+        <div id="mainmenucomponent"></div>
+        <div id="tutorialiconcomponent" class="">
+            <div id="helper">
+                <a class="highlight tooltip tooltipClose" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=tutorial&amp;displayNew=1" title="Tutorial overview&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=rewards&#34;&gt;Rewards&lt;/a&gt;">?</a>
+            </div>
+        </div>
+        <div id="toolbarcomponent" class="">
+            <div id="links">
+                <ul id="menuTable" class="leftmenu">
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=rewards" class="tooltipRight js_hideTipOnMobile " target="_self" title="Rewards">
+                            <div class="menuImage overview
+                                                                overview_claimable
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview" accesskey="" target="_self">
+                            <span class="textlabel">Overview</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=resourceSettings" class="tooltipRight js_hideTipOnMobile " target="_self" title="Resource settings">
+                            <div class="menuImage resources
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies" accesskey="" target="_self">
+                            <span class="textlabel">Resources</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities" class="tooltipRight js_hideTipOnMobile " target="_self" title="Jump Gate">
+                            <div class="menuImage station
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities" accesskey="" target="_self">
+                            <span class="textlabel">Facilities</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;tab=overview" class="tooltipRight js_hideTipOnMobile " target="_self" title="Own">
+                            <div class="menuImage marketplace
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace" accesskey="" target="_self">
+                            <span class="textlabel">Marketplace</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=traderOverview#page=traderResources&amp;animation=false" class="trader tooltipRight js_hideTipOnMobile " target="_self" title="Resource Market">
+                            <div class="menuImage traderOverview
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=traderOverview" accesskey="" target="_self">
+                            <span class="textlabel">Merchant</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all" class="overlay tooltipRight js_hideTipOnMobile " target="_blank" title="Technology">
+                            <div class="menuImage research
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research" accesskey="" target="_self">
+                            <span class="textlabel">Research</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage shipyard  "></span>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard" accesskey="" target="_self">
+                            <span class="textlabel">Shipyard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage defense active "></span>
+                                    </span>
+                        <a class="menubutton  selected" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses" accesskey="" target="_self">
+                            <span class="textlabel">Defence</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=movement" class="tooltipRight js_hideTipOnMobile " target="_self" title="Fleet movement">
+                            <div class="menuImage fleet1
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch" accesskey="" target="_self">
+                            <span class="textlabel">Fleet</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage galaxy  "></span>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy" accesskey="" target="_self">
+                            <span class="textlabel">Galaxy</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=alliance&amp;tab=broadcast" class="tooltipRight js_hideTipOnMobile " target="_self" title="Circular message">
+                            <div class="menuImage alliance
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton " href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=alliance" accesskey="" target="_self">
+                            <span class="textlabel">Alliance</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage premium  "></span>
+                                    </span>
+                        <a class="menubutton premiumHighligt officers" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=premium" accesskey="" target="_self">
+                            <span class="textlabel">Recruit Officers</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be" class="tooltipRight js_hideTipOnMobile " target="_self" title="Inventory">
+                            <div class="menuImage shop
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=shop" accesskey="" target="_self">
+                            <span class="textlabel">Shop</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <span class="menuImage   "></span>
+                                    </span>
+                        <a class="menubutton " href="https://www.stomt.com/ogame" target="_blank">
+                            <span class="textlabel">Stomt</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="toolLinksWrapper">
+                    <ul id="menuTableTools" class="leftmenu"></ul>
+                </div>
+                <br class="clearfloat"/>
+            </div>
+        </div>
+        <div id="advicebarcomponent" class="">
+            <div class="adviceWrapper">
+                <div id="promotionCountdownBox">
+                    <a class="" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=shop">
+                        <span></span>
+                        <span id="promotionCountdown"></span>
+                        <span>Cashback</span>
+                    </a>
+                </div>
+
+
+                <div id="advice-bar">
+
+
+
+
+                </div>
+                <div id="banner_skyscraper" name="banner_skyscraper">
+                    <div>
+                        <a class="tooltipLeft " title="" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=shop">
+                            <img src="https://gf1.geo.gfsrv.net/cdn6c/82d83f429d8454bac3ac4d6a72584a.jpg" alt=""/>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <script language="javascript" type="text/javascript">
+                setTimeout(function () {
+                    $('#promotionCountdownBox').remove()
+                }, 153028000)
+
+                new baulisteCountdown(
+                    $('#promotionCountdown')[0],
+                    153028,
+                    null,
+                    function () {
+                        $('#promotionCountdownBox').remove()
+                    })
+            </script>
+        </div>
+    </div>
+    <div id="middle">
+        <div id="eventlistcomponent" class="">
+            <div id="eventboxContent" style="display: none;">
+                <div id="eventListWrap">
+                    <div id="eventHeader">
+                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
+                        </a>
+                        <h2>Events</h2>
+                    </div>
+                    <table id="eventContent">
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div id="eventFooter"></div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var timeDelta = 1582608571000 - (new Date()).getTime();
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","planetMoveBreakUpWarning":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter? In doing so, you will lose your current class.","activateItemQuestion":"Do you want to activate the #characterClassName# class? In doing so, you will lose your current class."},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+                (function($) {
+                })(jQuery);
+            </script>
+
+
+        </div>
+        <div id="defensescomponent" class="maincontent">
+            <div id="defense">
+                <header id="planet" data-anchor="technologyDetails">
+                    <h2>Defence - Colony</h2>
+                </header>
+                <div id="technologydetails_wrapper">
+                    <div id="technologydetails_content"></div>
+                </div>
+
+                <div id="technologies">
+                    <h3>Defensive structures</h3>
+                    <ul class="icons">
+                        <li class="technology rocketLauncher  hasDetails tooltip js_hideTipOnMobile" data-technology="401" data-status="active" data-is-spaceprovider="" data-progress="1" data-start="1582608545" data-end="1582611401" data-total="2830" aria-label="Rocket Launcher" title="Rocket Launcher (69)"><span class="icon sprite sprite_medium medium rocketLauncher"><span class="targetamount" data-value="125" data-bonus="0">
+                    125
+                </span><time class="countdown" id="countdownshipDetails" datetime="PT47M10S" data-start="1582608545" data-end="1582611401" data-segments="2">
+                47m 10s
+            </time><span class="amount" data-value="69" data-bonus="0"><span class="stockAmount">69</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Rocket Launcher</span></span></li><li class="technology laserCannonLight  hasDetails tooltip js_hideTipOnMobile" data-technology="402" data-status="on" data-is-spaceprovider="" aria-label="Light Laser" title="Light Laser (0)"><span class="icon sprite sprite_medium medium laserCannonLight"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Light Laser</span></span></li><li class="technology laserCannonHeavy  hasDetails tooltip js_hideTipOnMobile" data-technology="403" data-status="off" data-is-spaceprovider="" aria-label="Heavy Laser" title="Heavy Laser (0)&lt;br/&gt;Requirements are not met"><span class="icon sprite sprite_medium medium laserCannonHeavy"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Heavy Laser</span></span></li><li class="technology gaussCannon  hasDetails tooltip js_hideTipOnMobile" data-technology="404" data-status="off" data-is-spaceprovider="" aria-label="Gauss Cannon" title="Gauss Cannon (0)&lt;br/&gt;Requirements are not met"><span class="icon sprite sprite_medium medium gaussCannon"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Gauss Cannon</span></span></li><li class="technology ionCannon  hasDetails tooltip js_hideTipOnMobile" data-technology="405" data-status="off" data-is-spaceprovider="" aria-label="Ion Cannon" title="Ion Cannon (0)&lt;br/&gt;Requirements are not met"><span class="icon sprite sprite_medium medium ionCannon"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Ion Cannon</span></span></li><li class="technology plasmaCannon  hasDetails tooltip js_hideTipOnMobile" data-technology="406" data-status="off" data-is-spaceprovider="" aria-label="Plasma Turret" title="Plasma Turret (0)&lt;br/&gt;Requirements are not met"><span class="icon sprite sprite_medium medium plasmaCannon"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Plasma Turret</span></span></li><li class="technology shieldDomeSmall  hasDetails tooltip js_hideTipOnMobile" data-technology="407" data-status="disabled" data-is-spaceprovider="" aria-label="Small Shield Dome" title="Small Shield Dome (0)&lt;br/&gt;Not enough resources!"><span class="icon sprite sprite_medium medium shieldDomeSmall"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Small Shield Dome</span></span></li><li class="technology shieldDomeLarge  hasDetails tooltip js_hideTipOnMobile" data-technology="408" data-status="off" data-is-spaceprovider="" aria-label="Large Shield Dome" title="Large Shield Dome (0)&lt;br/&gt;Requirements are not met"><span class="icon sprite sprite_medium medium shieldDomeLarge"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Large Shield Dome</span></span></li><li class="technology missileInterceptor  hasDetails tooltip js_hideTipOnMobile" data-technology="502" data-status="off" data-is-spaceprovider="" aria-label="Anti-Ballistic Missiles" title="Anti-Ballistic Missiles (0)&lt;br/&gt;Requirements are not met"><span class="icon sprite sprite_medium medium missileInterceptor"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Anti-Ballistic Missiles</span></span></li><li class="technology missileInterplanetary  hasDetails tooltip js_hideTipOnMobile" data-technology="503" data-status="off" data-is-spaceprovider="" aria-label="Interplanetary Missiles" title="Interplanetary Missiles (0)&lt;br/&gt;Requirements are not met"><span class="icon sprite sprite_medium medium missileInterplanetary"><span class="amount" data-value="0" data-bonus="0"><span>0</span><span class="bonus"></span></span><span style="min-width: 90px;" class="notago_items_textName notago_items_text notago_text_background">Interplanetary Missiles</span></span></li>        </ul>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                var planetMoveInProgress = false;
+                var urlQueueAdd = 'https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&component=defenses&modus=1&token=f109b191b9ee3389415fba138474bbba';
+
+            </script>
+        </div>
+        <div id="productionboxshipyardcomponent" class="productionboxshipyard injectedComponent parent defenses">
+            <div class="content-box-s">
+                <div class="header">
+                    <h3>Shipyard</h3>
+                </div>
+                <div class="content">
+                    <table cellspacing="0" cellpadding="0" class="construction active">
+                        <tbody>
+                        <tr>
+                            <th colspan="2">Rocket Launcher</th>
+                        </tr>
+                        <tr class="data">
+                            <td class="first" rowspan="5">
+                                <div>
+                                    <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;openTech=401">
+                                        <img class="queuePic" width="40" height="40" src="https://gf1.geo.gfsrv.net/cdn93/4c4fbd313bc449e16f5212f23d6311.jpg" alt="techId_401"/>
+                                    </a>
+                                </div>
+                                <div class="shipSumCount" id="shipSumCount7">56</div>
+                            </td>
+                        </tr>
+                        <tr class="data">
+                            <td class="desc">Building duration</td>
+                        </tr>
+                        <tr class="data">
+                            <td class="desc timer">
+                                <span id="shipyardCountdown">load...</span>
+                            </td>
+                        </tr>
+                        <tr class="data">
+                            <td class="desc">Total time:</td>
+                        </tr>
+                        <tr class="data">
+                            <td class="desc timer">
+                                <span id="shipyardCountdown2">load...</span>
+                            </td>
+                        </tr>
+                        <tr class="data">
+                            <td colspan="2">
+                                <a class="build-faster dark_highlight tooltipLeft js_hideTipOnMobile ship " title="Immediately complete the current construction order." href="javascript:void(0);" rel="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=inventory&amp;buyAndActivate=75accaa0d1bc22b78d83b89cd437bdccd6a58887" token="4d04aaf2b21f13bd5e87e3b24cb0d747">
+                                    <div class="                                                build-finish-img
+                                            " alt="                                                Complete
+                                            "></div>
+                                    <span class="build-txt">
+                                                                                            Complete
+                                                                                    </span>
+                                    <span class="dm_cost ">
+                                                                                                    Costs:
+                                                                                                        3.000 DM
+                                                                                            </span>
+                                </a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="footer"></div>
+            </div>
+            <script type="text/javascript">
+                var refreshLinkship = 'https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&component=defenses';
+                var cancelLinkship = 'https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&component=defenses&modus=2&token=8214ddf7ae8ffad93dc9396df4fc7d5f&action=cancel';
+                var questionship = 'Do\u0020you\u0020want\u0020to\u0020immediately\u0020complete\u0020the\u0020construction\u0020order\u0020for\u0020\u003Cb\u003E3.000\u0020Dark\u0020Matter\u003C\/b\u003E\u003F';
+                var priceship = 3000;
+                var referrerPage = $.deparam.querystring().page;
+
+                new schiffbauCountdown(document.getElementById('shipyardCountdown'),56, 69, 25, 51,refreshLinkship);
+                var countdownIdship2 = '#shipyardCountdown2';
+                var techDetailsship2 = '#countdownshipDetails';
+                var restTimeship2 = 2830;
+                new baulisteCountdown(countdownIdship2, restTimeship2, refreshLinkship, null, techDetailsship2);
+
+                if (true) { //$type == 'TemplateHelper::TYPE_PBOX_RESEARCH'
+                    function cancelship(id, listId, question)
+                    {
+                        errorBoxDecision(
+                            'Caution',
+                            ""+question+"",
+                            'yes',
+                            'No',
+                            function() {
+                                window.location.replace(cancelLinkship + "&type=" + id + "&listid=" + listId);
+                            }
+                        );
+                    }
+
+                    function redirectPremium()
+                    {
+                        location.href = 'https://www.ogame.ninja/bots/1/browser/html/s152-en?page=premium&showDarkMatter=1';
+                    }
+                }
+
+                $(function() {
+                });
+            </script>
+        </div>
+        <div id="technologydetailscomponent" class="technologydetails injectedComponent parent defenses">
+            <script type="text/javascript">
+                var loca = {"LOCA_ALL_NOTICE":"Reference","LOCA_ALL_NETWORK_ATTENTION":"Caution","locaDemolishStructureQuestion":"Really downgrade TECHNOLOGY_NAME by one level?","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+
+                var upgradeEndpoint = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=defenses&modus=1&token=7eaf83bac96d5e847bbbec4c84045acf&type=TECHNOLOGY_ID&menge=AMOUNT";
+                var downgradeEndpoint = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=defenses&modus=3&token=58bd49c20eda41bee24fd0da18d08689&type=TECHNOLOGY_ID";
+                var cancelBuildingEndpoint = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=defenses&modus=2&token=8c376dcb5a8e77eca84e7dd39ebbce40&type=TECHNOLOGY_ID&listid=PRIORITY";
+                var cancelResearchEndpoint = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=defenses&modus=2&token=8c376dcb5a8e77eca84e7dd39ebbce40&type=TECHNOLOGY_ID&listid=PRIORITY";
+                var technologyDetailsEndpoint = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=technologydetails&ajax=1&ajax=1&action=getDetails";
+                var selectCharacterClassEndpoint = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=selectClass&ajax=1&asJson=1";
+                var deselectCharacterClassEndpoint = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=deselectClass&ajax=1&asJson=1";
+
+                var technologyDetails = new TechnologyDetails({
+                    upgradeEndpoint: upgradeEndpoint,
+                    downgradeEndpoint: downgradeEndpoint,
+                    cancelBuildingEndpoint: cancelBuildingEndpoint,
+                    cancelResearchEndpoint: cancelResearchEndpoint,
+                    technologyDetailsEndpoint: technologyDetailsEndpoint,
+                    selectCharacterClassEndpoint: selectCharacterClassEndpoint,
+                    deselectCharacterClassEndpoint: deselectCharacterClassEndpoint,
+                    loca: loca
+                })
+                technologyDetails.init()
+
+            </script>
+        </div>
+    </div>
+    <div id="right">
+        <div id="planetbarcomponent" class="">
+            <div id="rechts">
+                <div id="cutty">
+                    <div id="myPlanets">
+                        <div id="countColonies">
+                            <p class="textCenter">
+                                <span>8/10</span> Planets
+                            </p>
+                        </div>
+                        <div id="planetList">
+                            <div class="smallplanet smaller   notago_highlight notago_hover" id="planet-33698658">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33698658" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33698658" title="&lt;b&gt;Homeworld [4:116:12]&lt;/b&gt;&lt;br/&gt;12.800km (220/221)&lt;br&gt;-23°C to 17°C&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33698658&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33698658&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research&amp;cp=33698658&#34;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33698658&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33698658&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;cp=33698658&#34;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33698658&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33698658&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33698658&amp;galaxy=4&amp;system=116&amp;position=12&#34;&gt;Galaxy&lt;/a&gt;" class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile">
+                                    <img class="planetPic js_replace2x" alt="Homeworld" src="https://gf1.geo.gfsrv.net/cdn9e/6183cba4025fe240b2d2fe7dc84f92.png" width="30" height="30"/>
+                                    <span class="planet-name ">Homeworld</span>
+                                    <span class="planet-koords ">[4:116:12]</span>
+                                </a>
+                                <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="&lt;b&gt;Pega Dorminhocos [4:116:12]&lt;/b&gt;&lt;br&gt;8.774km (28/31)&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33741598&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33741598&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33741598&amp;opengate=1&#34;&gt;Jump Gate&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33741598&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33741598&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33741598&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33741598&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33741598&amp;galaxy=4&amp;system=116&amp;position=12&#34;&gt;Galaxy&lt;/a&gt;" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33741598" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33741598" data-jumpgatelevel="1">
+                                    <img src="https://gf1.geo.gfsrv.net/cdn9d/8e0e6034049bd64e18a1804b42f179.gif" width="16" height="16" alt="Pega Dorminhocos" class="icon-moon"/>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller   notago_highlight notago_hover" id="planet-33702461">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33702461" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33702461" title="&lt;b&gt;Colony [4:117:9]&lt;/b&gt;&lt;br/&gt;13.756km (195/219)&lt;br&gt;-6°C to 34°C&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33702461&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33702461&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research&amp;cp=33702461&#34;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33702461&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33702461&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;cp=33702461&#34;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33702461&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33702461&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33702461&amp;galaxy=4&amp;system=117&amp;position=9&#34;&gt;Galaxy&lt;/a&gt;" class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile">
+                                    <img class="planetPic js_replace2x" alt="Colony" src="https://gf1.geo.gfsrv.net/cdn07/66f44c7a5a76f653320c621afcd0c7.png" width="30" height="30"/>
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[4:117:9]</span>
+                                </a>
+                                <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="&lt;b&gt;Moon [4:117:9]&lt;/b&gt;&lt;br&gt;8.888km (&lt;span class=&#39;overmark&#39; &gt;19&lt;/span&gt;/19)&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33780773&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33780773&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33780773&amp;opengate=1&#34;&gt;Jump Gate&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33780773&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33780773&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33780773&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33780773&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33780773&amp;galaxy=4&amp;system=117&amp;position=9&#34;&gt;Galaxy&lt;/a&gt;" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33780773" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33780773" data-jumpgatelevel="1">
+                                    <img src="https://gf3.geo.gfsrv.net/cdn2f/6c86116a2c1d0fc00f3b17a2b6ff49.gif" width="16" height="16" alt="Moon" class="icon-moon"/>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller   notago_highlight notago_hover" id="planet-33709974">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33709974" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33709974" title="&lt;b&gt;Colony [4:119:8]&lt;/b&gt;&lt;br/&gt;14.154km (186/225)&lt;br&gt;-9°C to 31°C&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33709974&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33709974&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research&amp;cp=33709974&#34;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33709974&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33709974&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;cp=33709974&#34;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33709974&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33709974&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33709974&amp;galaxy=4&amp;system=119&amp;position=8&#34;&gt;Galaxy&lt;/a&gt;" class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile">
+                                    <img class="planetPic js_replace2x" alt="Colony" src="https://gf1.geo.gfsrv.net/cdn9d/d88d769ee3243e00e216fe96e18663.png" width="30" height="30"/>
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[4:119:8]</span>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller   notago_highlight notago_hover" id="planet-33710470">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33710470" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33710470" title="&lt;b&gt;Colony [4:126:8]&lt;/b&gt;&lt;br/&gt;14.345km (201/230)&lt;br&gt;15°C to 55°C&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33710470&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33710470&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research&amp;cp=33710470&#34;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33710470&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33710470&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;cp=33710470&#34;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33710470&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33710470&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33710470&amp;galaxy=4&amp;system=126&amp;position=8&#34;&gt;Galaxy&lt;/a&gt;" class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile">
+                                    <img class="planetPic js_replace2x" alt="Colony" src="https://gf2.geo.gfsrv.net/cdna7/731eb88bbcd40dcfe4ca066db1e6df.png" width="30" height="30"/>
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[4:126:8]</span>
+                                </a>
+                                <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="&lt;b&gt;Averylong moonname [4:126:8]&lt;/b&gt;&lt;br&gt;8.831km (25/28)&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33743183&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33743183&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33743183&amp;opengate=1&#34;&gt;Jump Gate&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33743183&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33743183&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33743183&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33743183&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33743183&amp;galaxy=4&amp;system=126&amp;position=8&#34;&gt;Galaxy&lt;/a&gt;" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33743183" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33743183" data-jumpgatelevel="1">
+                                    <img src="https://gf2.geo.gfsrv.net/cdnad/9c9f0a78e85bcf40c2ccfc08db5cb4.gif" width="16" height="16" alt="Averylong moonname" class="icon-moon"/>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller   notago_highlight notago_hover" id="planet-33719721">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33719721" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33719721" title="&lt;b&gt;Colony [4:208:10]&lt;/b&gt;&lt;br/&gt;14.423km (191/238)&lt;br&gt;-16°C to 24°C&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33719721&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33719721&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research&amp;cp=33719721&#34;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33719721&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33719721&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;cp=33719721&#34;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33719721&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33719721&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33719721&amp;galaxy=4&amp;system=208&amp;position=10&#34;&gt;Galaxy&lt;/a&gt;" class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile">
+                                    <img class="planetPic js_replace2x" alt="Colony" src="https://gf1.geo.gfsrv.net/cdnf2/32926d2ee2884eab5015c14c73afa3.png" width="30" height="30"/>
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[4:208:10]</span>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller   notago_highlight notago_hover" id="planet-33735905">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33735905" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33735905" title="&lt;b&gt;Colony [4:116:1]&lt;/b&gt;&lt;br/&gt;12.273km (184/213)&lt;br&gt;217°C to 257°C&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33735905&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33735905&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research&amp;cp=33735905&#34;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33735905&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33735905&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;cp=33735905&#34;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33735905&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33735905&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33735905&amp;galaxy=4&amp;system=116&amp;position=1&#34;&gt;Galaxy&lt;/a&gt;" class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile">
+                                    <img class="planetPic js_replace2x" alt="Colony" src="https://gf1.geo.gfsrv.net/cdnf9/b8a5ac08d95fc0fc02abea130bb7f9.png" width="30" height="30"/>
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[4:116:1]</span>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller   notago_highlight notago_hover" id="planet-33736200">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33736200" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33736200" title="&lt;b&gt;Colony [4:116:8]&lt;/b&gt;&lt;br/&gt;14.635km (180/261)&lt;br&gt;30°C to 70°C&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33736200&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33736200&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research&amp;cp=33736200&#34;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33736200&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33736200&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;cp=33736200&#34;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33736200&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33736200&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33736200&amp;galaxy=4&amp;system=116&amp;position=8&#34;&gt;Galaxy&lt;/a&gt;" class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile">
+                                    <img class="planetPic js_replace2x" alt="Colony" src="https://gf2.geo.gfsrv.net/cdna7/731eb88bbcd40dcfe4ca066db1e6df.png" width="30" height="30"/>
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[4:116:8]</span>
+                                </a>
+                                <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile" title="&lt;b&gt;Moon [4:116:8]&lt;/b&gt;&lt;br&gt;8.426km (18/22)&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33764913&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33764913&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33764913&amp;opengate=1&#34;&gt;Jump Gate&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33764913&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33764913&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33764913&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33764913&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33764913&amp;galaxy=4&amp;system=116&amp;position=8&#34;&gt;Galaxy&lt;/a&gt;" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33764913" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33764913" data-jumpgatelevel="1">
+                                    <img src="https://gf2.geo.gfsrv.net/cdnad/9c9f0a78e85bcf40c2ccfc08db5cb4.gif" width="16" height="16" alt="Moon" class="icon-moon"/>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller hightlightPlanet  notago_highlight notago_hover" id="planet-33803877">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33803877" data-link="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33803877" title="&lt;b&gt;Colony [4:115:9]&lt;/b&gt;&lt;br/&gt;13.382km (161/204)&lt;br&gt;1°C to 41°C&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=overview&amp;cp=33803877&#34;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=supplies&amp;cp=33803877&#34;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=research&amp;cp=33803877&#34;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=marketplace&amp;cp=33803877&#34;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=facilities&amp;cp=33803877&#34;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=shipyard&amp;cp=33803877&#34;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=defenses&amp;cp=33803877&#34;&gt;Defence&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=fleetdispatch&amp;cp=33803877&#34;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&#34;https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;cp=33803877&amp;galaxy=4&amp;system=115&amp;position=9&#34;&gt;Galaxy&lt;/a&gt;" class="planetlink active tooltipRight tooltipClose js_hideTipOnMobile">
+                                    <img class="planetPic js_replace2x" alt="Colony" src="https://gf3.geo.gfsrv.net/cdn8a/a53d828535504560c6c2ddedb88429.png" width="30" height="30"/>
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[4:115:9]</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="bottom">
+    <div id="errorboxcomponent" class="">
+        <div id="decisionTB" style="display:none;">
+            <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxDecisionContent">-</span>
+                    <div class="response">
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+                        </div>
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+                        </div>
+                        <br class="clearfloat"/>
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+
+        <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+            <div>
+                <span id="fadeBoxStyle" class="success"></span>
+                <p id="fadeBoxContent"></p>
+            </div>
+        </div>
+
+        <div id="notifyTB" style="display:none;">
+            <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxNotifyContent">-</span>
+                    <div class="response">
+                        <div>
+                            <a href="javascript:void(0);" class="ok">
+                                <span id="errorBoxNotifyOk">.</span>
+                            </a>
+                        </div>
+                        <br class="clearfloat"/>
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    fadeBox("You have successfully accelerated the order.", 0);
+    initIndex();
+
+</script>
+<div id="chatbarcomponent" class="">
+    <script type="text/javascript">
+        var bigChatLink = 'https://www.ogame.ninja/bots/1/browser/html/s152-en?page=chat';
+        var ajaxChatToken = "5d2b18bf1d48e2ebf1572f7dcbaaa3b5"
+        var chatUrl = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ajaxChat"
+        var chatUrlLoadMoreMessages = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=chatGetAdditionalMessages"
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"}
+
+        var visibleChats = {"players":[{"partnerName":"Mos_Mircea","partnerId":100774,"partnerPlanet":"33620969","new":"0","unreadCounter":0,"text":"take all what ?","time":"2020-02-22 11:39:54","timestamp":"1582371594","allianceName":"STARGATE COMMAND","allianceTag":"SGC","allianceId":"510","highscorePosition":"49","showState":"1"}],"associations":[]};
+
+        (function($) {
+            ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box'); //list in chat bar
+            ogame.chat.showPlayerList('#sideBar'); // list in chat
+
+            var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
+
+            function initChatAsync() {
+                if (ogame.chat.isLoadingPlayerList === false && ogame.chat.playerList !== null) {
+                    clearInterval(initChatAsyncInterval);
+                    ogame.chat.initChatBar(106734);
+                    ogame.chat.initChat(106734, false);
+                    ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+                }
+            }
+        })(jQuery);
+    </script>
+    <div id="chatBar">
+        <ul class="chat_bar_list">
+            <li id="chatBarPlayerList" class="chat_bar_pl_list_item">
+                <div class="cb_playerlist_box" style="display:none">
+                </div>
+                <span class="onlineCount">1 Contact(s) online</span>
+            </li>
+            <li class="chat_bar_list_item " style="display:none;" data-associationid="545">
+                <!-- START CHAT BOX -->
+                <div class="chat_box" data-associationid="545" style="display:none;">
+                    <div class="chat_box_title">
+                        <span class="icon icon_close fright"></span>
+                        <span class="icon icon_maximize fright"></span>
+                    </div>
+                    <div class="chat_box_ctn">
+                        <ul class="chat clearfix" data-foreign-association-id="545">
+
+                            <li class="chat_msg odd" data-chat-id="97826">
+                                <div class="msg_head">
+                                    <span class="msg_date fright">00:21:07</span>
+                                    <span class="msg_title blue_txt new">Notriv</span>
+                                </div>
+                                <span class="msg_content">test</span>
+                                <div class="speechbubble_arrow"></div>
+                            </li>
+                        </ul>
+                    </div>
+                    <textarea name="text" class="chat_box_textarea"></textarea>
+                </div>
+                <!-- END Chat Box -->
+                <span class="playerstatus online"></span>
+                <span class="chatstatus cs_new fleft"></span>
+                <span class="cb_playername" data-associationid="545">Alliance Chat</span>
+                <span class="new_msg_count noMessage" data-associationid="545" data-new-messages="0">0</span>
+                <span class="icon icon_close fright"></span>
+            </li>
+
+            <li class="chat_bar_list_item " style="display:none;" data-playerid="100774">
+                <div class="chat_box" data-playerid="100774" style="display:none;">
+                    <div class="chat_box_title">
+                        <span class="icon icon_close fright"></span>
+                        <span class="icon icon_maximize fright"></span>
+                    </div>
+                    <div class="chat_box_ctn">
+                        <ul class="chat clearfix" data-foreign-player-id="100774">
+                            <li class="chat_msg " data-chat-id="377474">
+                                <div class="msg_head">
+                                    <span class="msg_date fright">15:19:07</span>
+                                    <span class="msg_title blue_txt new ">Mos_Mircea</span>
+                                </div>
+                                <span class="msg_content">common, you want to take all????</span>
+                                <div class="speechbubble_arrow"></div>
+                            </li>
+                            <li class="chat_msg odd" data-chat-id="377551">
+                                <div class="msg_head">
+                                    <span class="msg_date fright">11:39:54</span>
+                                    <span class="msg_title blue_txt new ">Notriv</span>
+                                </div>
+                                <span class="msg_content">take all what ?</span>
+                                <div class="speechbubble_arrow"></div>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <textarea name="text" class="chat_box_textarea"></textarea>
+                </div><!-- END Chat Box -->
+                <span class="playerstatus disallowed"></span>
+                <span class="chatstatus cs_new fleft"></span>
+                <span class="cb_playername" data-playerid="100774"> Mos_Mircea</span>
+                <span class="new_msg_count noMessage" data-playerid="100774" data-new-messages="0">0</span>
+                <span class="icon icon_close fright"></span>
+            </li>
+        </ul><!-- END Chat Bar List -->
+
+        <script type="text/javascript">
+
+        </script>
+    </div>
+</div>
+<div id="siteFooter">
+    <div class="content" style="font-size:10px">
+        <div class="fleft textLeft"><span>Ninja 0.66.3 |</span>
+            <a class="tooltip js_hideTipOnMobile overlay" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=standalone&amp;component=changelog&amp;ajax=1" data-overlay-class="popupWidthFixed" data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patch notes" title="Patch notes">7.1.1-rc4</a>
+            <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. All rights reserved.</a>
+        </div>
+        <div class="fright textRight">
+            <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
+            <a href="https://board.en.ogame.gameforge.com/" target="_blank">Forum</a>|
+            <a class="overlay" href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=standalone&amp;component=rules&amp;ajax=1" data-overlay-iframe="true" data-iframe-width="450" data-overlay-title="Rules">Rules</a>|
+            <a href="https://agbserver.gameforge.com/rewrite.php?locale=en&amp;type=imprint&amp;product=ogame" target="_blank">Legal</a>
+        </div>
+    </div>
+</div>
+
+
+</body></html>
+<script src="/public/js/mousetrap.min.js"></script>
+<script>
+    Mousetrap.bind('h', function() { document.location.href = "/bots/1"; });
+    Mousetrap.bind('b', function() { document.location.href = "/bots/1/browser"; });
+    Mousetrap.bind('f', function() { document.location.href = "/bots/1/farmer"; });
+    Mousetrap.bind('g', function() { document.location.href = "/bots/1/galaxy"; });
+    Mousetrap.bind('s', function() { document.location.href = "/bots/1/scripts"; });
+    Mousetrap.bind('shift+s', function() { document.location.href = "/bots/1/settings"; });
+    Mousetrap.bind('shift+l', function() { document.location.href = "/bots/1/logs"; });
+    Mousetrap.bind('a', function() { document.location.href = "/bots/1/activities"; });
+</script>
+<script>
+    function inIframe () {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
+    }
+    if (!inIframe()) {
+        var urlParams = new URLSearchParams(window.location.search);
+        urlParams.delete("token");
+        urlParams.delete("modus");
+        urlParams.delete("menge");
+        urlParams.delete("cp");
+
+        var btn = document.createElement("BUTTON");
+        var t = document.createTextNode("Exit full screen");
+        btn.style.height = '20px';
+        btn.style.width = '100%';
+        btn.style.display = 'block';
+        btn.style.marginBottom = '3px';
+        btn.appendChild(t);
+        btn.onclick = function() {
+            document.location.href = "/bots/1/browser?" + urlParams.toString();
+        };
+
+        var btn1 = document.createElement("BUTTON");
+        var t = document.createTextNode("Manual mode (off)");
+        btn1.style.height = '20px';
+        btn1.style.width = '130px';
+        btn1.style.display = 'block';
+        btn1.style.marginBottom = '3px';
+        btn1.appendChild(t);
+        btn1.onclick = function() {
+            var formData = new FormData();
+            formData.append('csrf', '2WhzHgunH4N78oZSLpAURBj1CIelTuqZ');
+            $.ajax({
+                url: "/api/v1/bots/1/toggle-manual-mode", data: formData, type: 'POST', processData: false, contentType: false,
+                success: function(res) {
+                    $(btn1).text("Manual mode (" + (res ? "on" : "off") + ")");
+                },
+                error: function(req) { console.log(req.responseText); },
+            });
+        };
+
+        var div = document.createElement("div");
+        div.style.position = 'fixed';
+        div.style.right = '10px';
+        div.style.top = '10px';
+        div.style.zIndex = '3001';
+        div.appendChild(btn);
+        div.appendChild(btn1);
+
+        var d = document.createElement("div");
+        var a = document.createElement("a");
+        a.href = "/bots/5/browser/html/s152-en?" + urlParams.toString();
+        var t = document.createTextNode("Constable Telesto")
+        a.appendChild(t);
+        d.appendChild(a);
+        div.appendChild(d);
+
+        var d = document.createElement("div");
+        var a = document.createElement("a");
+        a.href = "/bots/19/browser/html/s149-us?" + urlParams.toString();
+        var t = document.createTextNode("Notriv")
+        a.appendChild(t);
+        d.appendChild(a);
+        div.appendChild(d);
+
+        var d = document.createElement("div");
+        var a = document.createElement("a");
+        a.href = "/bots/27/browser/html/s164-en?" + urlParams.toString();
+        var t = document.createTextNode("Procurator Serpentis")
+        a.appendChild(t);
+        d.appendChild(a);
+        div.appendChild(d);
+
+        var d = document.createElement("div");
+        var a = document.createElement("a");
+        a.href = "/bots/26/browser/html/s164-en?" + urlParams.toString();
+        var t = document.createTextNode("Admiral Castor")
+        a.appendChild(t);
+        d.appendChild(a);
+        div.appendChild(d);
+
+        var d = document.createElement("div");
+        var a = document.createElement("a");
+        a.href = "/bots/28/browser/html/s164-en?" + urlParams.toString();
+        var t = document.createTextNode("Notriv")
+        a.appendChild(t);
+        d.appendChild(a);
+        div.appendChild(d);
+
+        document.body.prepend(div);
+    }
+</script>

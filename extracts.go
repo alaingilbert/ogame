@@ -147,6 +147,7 @@ type Extractor interface {
 	ExtractHighscore(pageHTML []byte) (Highscore, error)
 	ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error)
 	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
+	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
 }
 
 // Compile time checks to ensure type satisfies Extractor interface
