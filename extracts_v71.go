@@ -3,6 +3,7 @@ package ogame
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -733,5 +734,49 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]A
 		out = append(out, *a)
 	}
 
+	return out, nil
+}
+
+func extractDMCostsFromDocV71(doc *goquery.Document) (DMCosts, error) {
+	tmp := func(s *goquery.Selection) (id ID, nbr, cost int64, canBuy, isComplete bool, buyAndActivate string, token string) {
+		imgAlt := s.Find("img.queuePic").AttrOr("alt", "")
+		if n, err := fmt.Sscanf(imgAlt, "techId_%d", &id); err != nil || n != 1 {
+			return
+		}
+		r := regexp.MustCompile(`([\d\.]+)`)
+		levelTxt := s.Find("span.level").Text()
+		if levelTxt == "" {
+			levelTxt = s.Find("div.shipSumCount").Text()
+		}
+		m := r.FindStringSubmatch(levelTxt)
+		if len(m) != 2 {
+			return
+		}
+		nbr = ParseInt(m[1])
+		canBuy = !s.Find("span.dm_cost").HasClass("overmark")
+		costTxt := s.Find("span.dm_cost").Text()
+		m = r.FindStringSubmatch(costTxt)
+		if len(m) != 2 {
+			return
+		}
+		cost = ParseInt(m[1])
+		token = s.Find("a.build-faster").AttrOr("token", "")
+		linkRel := s.Find("a.build-faster").AttrOr("rel", "")
+		r = regexp.MustCompile(`buyAndActivate=([^"]+)`)
+		m = r.FindStringSubmatch(linkRel)
+		if len(m) != 2 {
+			return
+		}
+		buyAndActivate = m[1]
+		isComplete = s.Find("a.build-faster div").First().HasClass("build-finish-img")
+		return
+	}
+	out := DMCosts{}
+	buildingsBox := doc.Find("#productionboxbuildingcomponent")
+	researchBox := doc.Find("#productionboxresearchcomponent")
+	shipyardBox := doc.Find("#productionboxshipyardcomponent")
+	out.Buildings.OGameID, out.Buildings.Nbr, out.Buildings.Cost, out.Buildings.CanBuy, out.Buildings.Complete, out.Buildings.BuyAndActivateToken, out.Buildings.Token = tmp(buildingsBox)
+	out.Research.OGameID, out.Research.Nbr, out.Research.Cost, out.Research.CanBuy, out.Research.Complete, out.Research.BuyAndActivateToken, out.Research.Token = tmp(researchBox)
+	out.Shipyard.OGameID, out.Shipyard.Nbr, out.Shipyard.Cost, out.Shipyard.CanBuy, out.Shipyard.Complete, out.Shipyard.BuyAndActivateToken, out.Shipyard.Token = tmp(shipyardBox)
 	return out, nil
 }
