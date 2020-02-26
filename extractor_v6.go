@@ -771,3 +771,8 @@ func (e ExtractorV6) ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, 
 func (e ExtractorV6) ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error) {
 	panic("not implemented")
 }
+
+// ExtractDMCosts ...
+func (e ExtractorV6) ExtractDMCosts(pageHTML []byte) (DMCosts, error) {
+	panic("not implemented")
+}

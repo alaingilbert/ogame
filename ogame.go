@@ -1122,6 +1122,12 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	}
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
+
+	allianceID := vals.Get("allianceId")
+	if allianceID != "" {
+		finalURL = b.serverURL + "/game/allianceInfo.php?allianceID=" + allianceID
+	}
+
 	page := vals.Get("page")
 	if page == "ingame" ||
 		(page == "componentOnly" && vals.Get("component") == "fetchEventbox") ||
@@ -1136,6 +1142,9 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 			return err
 		}
 
+		if allianceID != "" {
+			return nil
+		}
 		if (page != LogoutPage && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
 			(page == "eventList" && !bytes.Contains(pageHTMLBytes, []byte("eventListWrap"))) ||
 			(page == "fetchEventbox" && !canParseEventBox(pageHTMLBytes)) {
@@ -1885,6 +1894,44 @@ func (b *OGame) getAllResources() (map[CelestialID]Resources, error) {
 	}
 	pageHTML, _ := b.postPageContent(vals, payload)
 	return b.extractor.ExtractAllResources(pageHTML)
+}
+
+func (b *OGame) getDMCosts() (DMCosts, error) {
+	pageHTML, _ := b.getPage(OverviewPage, 0)
+	return b.extractor.ExtractDMCosts(pageHTML)
+}
+
+func (b *OGame) useDM(typ string) error {
+	if typ != "buildings" && typ != "research" && typ != "shipyard" {
+		return fmt.Errorf("invalid type %s", typ)
+	}
+	pageHTML, _ := b.getPage(OverviewPage, 0)
+	costs, err := b.extractor.ExtractDMCosts(pageHTML)
+	if err != nil {
+		return err
+	}
+	var buyAndActivate, token string
+	switch typ {
+	case "buildings":
+		buyAndActivate, token = costs.Buildings.BuyAndActivateToken, costs.Buildings.Token
+	case "research":
+		buyAndActivate, token = costs.Research.BuyAndActivateToken, costs.Research.Token
+	case "shipyard":
+		buyAndActivate, token = costs.Shipyard.BuyAndActivateToken, costs.Shipyard.Token
+	}
+	params := url.Values{
+		"page":           {"inventory"},
+		"buyAndActivate": {buyAndActivate},
+	}
+	payload := url.Values{
+		"ajax":         {"1"},
+		"token":        {token},
+		"referrerPage": {"ingame"},
+	}
+	if _, err := b.postPageContent(params, payload); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
@@ -4292,4 +4339,14 @@ func (b *OGame) GetAllResources() (map[CelestialID]Resources, error) {
 // GetTasks return how many tasks are queued in the heap.
 func (b *OGame) GetTasks() TasksOverview {
 	return b.getTasks()
+}
+
+// GetDMCosts returns fast build with DM information
+func (b *OGame) GetDMCosts() (DMCosts, error) {
+	return b.WithPriority(Normal).GetDMCosts()
+}
+
+// UseDM use dark matter to fast build
+func (b *OGame) UseDM(typ string) error {
+	return b.WithPriority(Normal).UseDM(typ)
 }
