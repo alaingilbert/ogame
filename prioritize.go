@@ -594,7 +594,7 @@ func (b *Prioritize) GetDMCosts(celestialID CelestialID) (DMCosts, error) {
 }
 
 // UseDM use dark matter to fast build
-func (b *Prioritize) UseDM(celestialID CelestialID, typ string) error {
+func (b *Prioritize) UseDM(typ string, celestialID CelestialID) error {
 	b.begin("UseDM")
 	defer b.done()
 	return b.bot.useDM(typ, celestialID)
