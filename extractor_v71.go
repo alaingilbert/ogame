@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"bytes"
+	"strconv"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -111,11 +112,31 @@ type DMCost struct {
 	Token               string
 }
 
+// String ...
+func (d DMCost) String() string {
+	return "\n" +
+		"               Cost: " + strconv.FormatInt(d.Cost, 10) + "\n" +
+		"             CanBuy: " + strconv.FormatBool(d.CanBuy) + "\n" +
+		"           Complete: " + strconv.FormatBool(d.Complete) + "\n" +
+		"            OGameID: " + strconv.FormatInt(int64(d.OGameID), 10) + "\n" +
+		"                Nbr: " + strconv.FormatInt(d.Nbr, 10) + "\n" +
+		"BuyAndActivateToken: " + d.BuyAndActivateToken + "\n" +
+		"              Token: " + d.Token
+}
+
 // DMCosts ...
 type DMCosts struct {
 	Buildings DMCost
 	Research  DMCost
 	Shipyard  DMCost
+}
+
+// String ...
+func (d DMCosts) String() string {
+	return "\n" +
+		"Buildings:" + d.Buildings.String() + "\n" +
+		"Research:" + d.Research.String() + "\n" +
+		"Shipyard:" + d.Shipyard.String()
 }
 
 // ExtractDMCosts ...
