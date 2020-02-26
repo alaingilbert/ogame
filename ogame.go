@@ -1896,16 +1896,16 @@ func (b *OGame) getAllResources() (map[CelestialID]Resources, error) {
 	return b.extractor.ExtractAllResources(pageHTML)
 }
 
-func (b *OGame) getDMCosts() (DMCosts, error) {
-	pageHTML, _ := b.getPage(OverviewPage, 0)
+func (b *OGame) getDMCosts(celestialID CelestialID) (DMCosts, error) {
+	pageHTML, _ := b.getPage(OverviewPage, celestialID)
 	return b.extractor.ExtractDMCosts(pageHTML)
 }
 
-func (b *OGame) useDM(typ string) error {
+func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 	if typ != "buildings" && typ != "research" && typ != "shipyard" {
 		return fmt.Errorf("invalid type %s", typ)
 	}
-	pageHTML, _ := b.getPage(OverviewPage, 0)
+	pageHTML, _ := b.getPage(OverviewPage, celestialID)
 	costs, err := b.extractor.ExtractDMCosts(pageHTML)
 	if err != nil {
 		return err
@@ -4342,11 +4342,11 @@ func (b *OGame) GetTasks() TasksOverview {
 }
 
 // GetDMCosts returns fast build with DM information
-func (b *OGame) GetDMCosts() (DMCosts, error) {
-	return b.WithPriority(Normal).GetDMCosts()
+func (b *OGame) GetDMCosts(celestialID CelestialID) (DMCosts, error) {
+	return b.WithPriority(Normal).GetDMCosts(celestialID)
 }
 
 // UseDM use dark matter to fast build
-func (b *OGame) UseDM(typ string) error {
-	return b.WithPriority(Normal).UseDM(typ)
+func (b *OGame) UseDM(typ string, celestialID CelestialID) error {
+	return b.WithPriority(Normal).UseDM(typ, celestialID)
 }
