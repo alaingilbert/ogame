@@ -1122,6 +1122,12 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 	}
 
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
+
+	allianceID := vals.Get("allianceId")
+	if allianceID != "" {
+		finalURL = b.serverURL + "/game/allianceInfo.php?allianceID=" + allianceID
+	}
+
 	page := vals.Get("page")
 	if page == "ingame" ||
 		(page == "componentOnly" && vals.Get("component") == "fetchEventbox") ||
@@ -1136,6 +1142,9 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 			return err
 		}
 
+		if allianceID != "" {
+			return nil
+		}
 		if (page != LogoutPage && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
 			(page == "eventList" && !bytes.Contains(pageHTMLBytes, []byte("eventListWrap"))) ||
 			(page == "fetchEventbox" && !canParseEventBox(pageHTMLBytes)) {
