@@ -585,3 +585,17 @@ func (b *Prioritize) GetAllResources() (map[CelestialID]Resources, error) {
 	defer b.done()
 	return b.bot.getAllResources()
 }
+
+// GetDMCosts returns fast build with DM information
+func (b *Prioritize) GetDMCosts() (DMCosts, error) {
+	b.begin("GetDMCosts")
+	defer b.done()
+	return b.bot.getDMCosts()
+}
+
+// UseDM use dark matter to fast build
+func (b *Prioritize) UseDM(typ string) error {
+	b.begin("UseDM")
+	defer b.done()
+	return b.bot.useDM(typ)
+}
