@@ -10,10 +10,10 @@ type EspionageReport struct {
 	LastActivity                 int64
 	CounterEspionage             int64
 	APIKey                       string
-	HasFleet                     bool
-	HasDefenses                  bool
-	HasBuildings                 bool
-	HasResearches                bool
+	HasFleetInformation          bool // Either or not we sent enough probes to get the fleet information
+	HasDefensesInformation       bool // Either or not we sent enough probes to get the defenses information
+	HasBuildingsInformation      bool // Either or not we sent enough probes to get the buildings information
+	HasResearchesInformation     bool // Either or not we sent enough probes to get the researches information
 	HonorableTarget              bool
 	IsBandit                     bool
 	IsStarlord                   bool
@@ -93,9 +93,72 @@ func i64(v *int64) int64 {
 	return *v
 }
 
+// ResourcesBuildings returns a ResourcesBuildings struct from the espionage report
+func (r EspionageReport) ResourcesBuildings() *ResourcesBuildings {
+	if !r.HasBuildingsInformation {
+		return nil
+	}
+	return &ResourcesBuildings{
+		MetalMine:            i64(r.MetalMine),
+		CrystalMine:          i64(r.CrystalMine),
+		DeuteriumSynthesizer: i64(r.DeuteriumSynthesizer),
+		SolarPlant:           i64(r.SolarPlant),
+		FusionReactor:        i64(r.FusionReactor),
+		SolarSatellite:       i64(r.SolarSatellite),
+		MetalStorage:         i64(r.MetalStorage),
+		CrystalStorage:       i64(r.CrystalStorage),
+		DeuteriumTank:        i64(r.DeuteriumTank),
+	}
+}
+
+// Facilities returns a Facilities struct from the espionage report
+func (r EspionageReport) Facilities() *Facilities {
+	if !r.HasBuildingsInformation {
+		return nil
+	}
+	return &Facilities{
+		RoboticsFactory: i64(r.RoboticsFactory),
+		Shipyard:        i64(r.Shipyard),
+		ResearchLab:     i64(r.ResearchLab),
+		AllianceDepot:   i64(r.AllianceDepot),
+		MissileSilo:     i64(r.MissileSilo),
+		NaniteFactory:   i64(r.NaniteFactory),
+		Terraformer:     i64(r.Terraformer),
+		SpaceDock:       i64(r.SpaceDock),
+		LunarBase:       i64(r.LunarBase),
+		SensorPhalanx:   i64(r.SensorPhalanx),
+		JumpGate:        i64(r.JumpGate),
+	}
+}
+
+// Researches returns a Researches struct from the espionage report
+func (r EspionageReport) Researches() *Researches {
+	if !r.HasResearchesInformation {
+		return nil
+	}
+	return &Researches{
+		EnergyTechnology:             i64(r.EnergyTechnology),
+		LaserTechnology:              i64(r.LaserTechnology),
+		IonTechnology:                i64(r.IonTechnology),
+		HyperspaceTechnology:         i64(r.HyperspaceTechnology),
+		PlasmaTechnology:             i64(r.PlasmaTechnology),
+		CombustionDrive:              i64(r.CombustionDrive),
+		ImpulseDrive:                 i64(r.ImpulseDrive),
+		HyperspaceDrive:              i64(r.HyperspaceDrive),
+		EspionageTechnology:          i64(r.EspionageTechnology),
+		ComputerTechnology:           i64(r.ComputerTechnology),
+		Astrophysics:                 i64(r.Astrophysics),
+		IntergalacticResearchNetwork: i64(r.IntergalacticResearchNetwork),
+		GravitonTechnology:           i64(r.GravitonTechnology),
+		WeaponsTechnology:            i64(r.WeaponsTechnology),
+		ShieldingTechnology:          i64(r.ShieldingTechnology),
+		ArmourTechnology:             i64(r.ArmourTechnology),
+	}
+}
+
 // ShipsInfos returns a ShipsInfos struct from the espionage report
 func (r EspionageReport) ShipsInfos() *ShipsInfos {
-	if !r.HasFleet {
+	if !r.HasFleetInformation {
 		return nil
 	}
 	return &ShipsInfos{
@@ -116,6 +179,25 @@ func (r EspionageReport) ShipsInfos() *ShipsInfos {
 		Crawler:        i64(r.Crawler),
 		Reaper:         i64(r.Reaper),
 		Pathfinder:     i64(r.Pathfinder),
+	}
+}
+
+// DefensesInfos returns a DefensesInfos struct from the espionage report
+func (r EspionageReport) DefensesInfos() *DefensesInfos {
+	if !r.HasDefensesInformation {
+		return nil
+	}
+	return &DefensesInfos{
+		RocketLauncher:         i64(r.RocketLauncher),
+		LightLaser:             i64(r.LightLaser),
+		HeavyLaser:             i64(r.HeavyLaser),
+		GaussCannon:            i64(r.GaussCannon),
+		IonCannon:              i64(r.IonCannon),
+		PlasmaTurret:           i64(r.PlasmaTurret),
+		SmallShieldDome:        i64(r.SmallShieldDome),
+		LargeShieldDome:        i64(r.LargeShieldDome),
+		AntiBallisticMissiles:  i64(r.AntiBallisticMissiles),
+		InterplanetaryMissiles: i64(r.InterplanetaryMissiles),
 	}
 }
 
