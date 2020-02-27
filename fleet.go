@@ -11,6 +11,7 @@ type Fleet struct {
 	Origin         Coordinate
 	Destination    Coordinate
 	Ships          ShipsInfos
+	StartTime      time.Time
 	ArrivalTime    time.Time
 	BackTime       time.Time
 	ArriveIn       int64

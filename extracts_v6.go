@@ -1155,6 +1155,26 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			secs = 0
 		}
 
+		var startTime time.Time
+		if !returnFlight {
+			startTimeString, _ := s.Find("div.origin img").Attr("title")
+			startTimeArray := strings.Split(startTimeString, " ")
+			if len(startTimeArray) == 2 {
+				var format string = "02.01.2006<br>15:04:05"
+				startTime, _ = time.Parse(format, startTimeArray[1])
+			}
+		} else {
+			startTimeString, _ := s.Find("div.destination img").Attr("title")
+			startTimeArray := strings.Split(startTimeString, " ")
+			if len(startTimeArray) == 2 {
+				var format string = "02.01.2006<br>15:04:05"
+				startTime, _ = time.Parse(format, startTimeArray[1])
+			}
+		}
+
+		//returnAt, _ := s.Find("span.reversal a").Attr("title")
+		//log.Printf("ReturnAt: %s", returnAt)
+
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
 		shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
@@ -1176,6 +1196,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
+		fleet.StartTime = startTime
 		fleet.ArrivalTime = time.Unix(endTime, 0)
 		fleet.BackTime = time.Unix(arrivalTime, 0)
 		if !returnFlight {
