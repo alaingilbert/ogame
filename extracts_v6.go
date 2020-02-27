@@ -787,7 +787,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 			report.Deuterium = ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
 			report.Energy = ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
-			report.HasBuildings = s.Find("li.detail_list_fail").Size() == 0
+			report.HasBuildingsInformation = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
 				img := s2.Find("img")
 				if img.Size() == 0 {
@@ -842,7 +842,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				return true
 			})
 		} else if dataType == "research" {
-			report.HasResearches = s.Find("li.detail_list_fail").Size() == 0
+			report.HasResearchesInformation = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
 				img := s2.Find("img")
 				if img.Size() == 0 {
@@ -891,7 +891,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				return true
 			})
 		} else if dataType == "ships" {
-			report.HasFleet = s.Find("li.detail_list_fail").Size() == 0
+			report.HasFleetInformation = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
 				img := s2.Find("img")
 				if img.Size() == 0 {
@@ -936,7 +936,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				return true
 			})
 		} else if dataType == "defense" {
-			report.HasDefenses = s.Find("li.detail_list_fail").Size() == 0
+			report.HasDefensesInformation = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
 				img := s2.Find("img")
 				if img.Size() == 0 {
