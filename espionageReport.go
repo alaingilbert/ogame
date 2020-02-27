@@ -10,10 +10,10 @@ type EspionageReport struct {
 	LastActivity                 int64
 	CounterEspionage             int64
 	APIKey                       string
-	HasFleet                     bool
-	HasDefenses                  bool
-	HasBuildings                 bool
-	HasResearches                bool
+	HasFleetInformation          bool // Either or not we sent enough probes to get the fleet information
+	HasDefensesInformation       bool // Either or not we sent enough probes to get the defenses information
+	HasBuildingsInformation      bool // Either or not we sent enough probes to get the buildings information
+	HasResearchesInformation     bool // Either or not we sent enough probes to get the researches information
 	HonorableTarget              bool
 	IsBandit                     bool
 	IsStarlord                   bool
@@ -95,7 +95,7 @@ func i64(v *int64) int64 {
 
 // ResourcesBuildings returns a ResourcesBuildings struct from the espionage report
 func (r EspionageReport) ResourcesBuildings() *ResourcesBuildings {
-	if !r.HasBuildings {
+	if !r.HasBuildingsInformation {
 		return nil
 	}
 	return &ResourcesBuildings{
@@ -113,7 +113,7 @@ func (r EspionageReport) ResourcesBuildings() *ResourcesBuildings {
 
 // Facilities returns a Facilities struct from the espionage report
 func (r EspionageReport) Facilities() *Facilities {
-	if !r.HasBuildings {
+	if !r.HasBuildingsInformation {
 		return nil
 	}
 	return &Facilities{
@@ -133,7 +133,7 @@ func (r EspionageReport) Facilities() *Facilities {
 
 // Researches returns a Researches struct from the espionage report
 func (r EspionageReport) Researches() *Researches {
-	if !r.HasResearches {
+	if !r.HasResearchesInformation {
 		return nil
 	}
 	return &Researches{
@@ -158,7 +158,7 @@ func (r EspionageReport) Researches() *Researches {
 
 // ShipsInfos returns a ShipsInfos struct from the espionage report
 func (r EspionageReport) ShipsInfos() *ShipsInfos {
-	if !r.HasFleet {
+	if !r.HasFleetInformation {
 		return nil
 	}
 	return &ShipsInfos{
@@ -184,7 +184,7 @@ func (r EspionageReport) ShipsInfos() *ShipsInfos {
 
 // DefensesInfos returns a DefensesInfos struct from the espionage report
 func (r EspionageReport) DefensesInfos() *DefensesInfos {
-	if !r.HasDefenses {
+	if !r.HasDefensesInformation {
 		return nil
 	}
 	return &DefensesInfos{
