@@ -119,6 +119,25 @@ func (r EspionageReport) ShipsInfos() *ShipsInfos {
 	}
 }
 
+// DefensesInfos returns a DefensesInfos struct from the espionage report
+func (r EspionageReport) DefensesInfos() *DefensesInfos {
+	if !r.HasDefenses {
+		return nil
+	}
+	return &DefensesInfos{
+		RocketLauncher:         i64(r.RocketLauncher),
+		LightLaser:             i64(r.LightLaser),
+		HeavyLaser:             i64(r.HeavyLaser),
+		GaussCannon:            i64(r.GaussCannon),
+		IonCannon:              i64(r.IonCannon),
+		PlasmaTurret:           i64(r.PlasmaTurret),
+		SmallShieldDome:        i64(r.SmallShieldDome),
+		LargeShieldDome:        i64(r.LargeShieldDome),
+		AntiBallisticMissiles:  i64(r.AntiBallisticMissiles),
+		InterplanetaryMissiles: i64(r.InterplanetaryMissiles),
+	}
+}
+
 // PlunderRatio returns the plunder ratio
 func (r EspionageReport) PlunderRatio(characterClass CharacterClass) float64 {
 	plunderRatio := 0.5
