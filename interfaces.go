@@ -64,7 +64,7 @@ type Wrapper interface {
 	CancelFleet(FleetID) error
 	GetAttacks() ([]AttackEvent, error)
 	GetAttacksUsing(CelestialID) ([]AttackEvent, error)
-	GalaxyInfos(galaxy, system int64) (SystemInfos, error)
+	GalaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error)
 	GetCachedResearch() Researches
 	GetResearch() Researches
 	GetCachedPlanets() []Planet
