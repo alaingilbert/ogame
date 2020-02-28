@@ -132,6 +132,18 @@ const defaultUserAgent = "" +
 	"Chrome/79.0.3945.130 " +
 	"Safari/537.36"
 
+type options struct {
+	SkipInterceptor bool
+}
+
+// Option functions to be passed to public interface to change behaviors
+type Option func(*options)
+
+// SkipInterceptor option to skip html interceptors
+func SkipInterceptor(opt *options) {
+	opt.SkipInterceptor = true
+}
+
 // CelestialID represent either a PlanetID or a MoonID
 type CelestialID int64
 
@@ -1116,7 +1128,12 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	return by, nil
 }
 
-func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
+func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) {
+	var cfg options
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
 	if err := b.preRequestChecks(); err != nil {
 		return []byte{}, err
 	}
@@ -1163,16 +1180,23 @@ func (b *OGame) getPageContent(vals url.Values) ([]byte, error) {
 		b.cacheFullPageInfo(page, pageHTMLBytes)
 	}
 
-	go func() {
-		for _, fn := range b.interceptorCallbacks {
-			fn("GET", finalURL, vals, nil, pageHTMLBytes)
-		}
-	}()
+	if !cfg.SkipInterceptor {
+		go func() {
+			for _, fn := range b.interceptorCallbacks {
+				fn("GET", finalURL, vals, nil, pageHTMLBytes)
+			}
+		}()
+	}
 
 	return pageHTMLBytes, nil
 }
 
-func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
+func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byte, error) {
+	var cfg options
+	for _, opt := range opts {
+		opt(&cfg)
+	}
+
 	if err := b.preRequestChecks(); err != nil {
 		return []byte{}, err
 	}
@@ -1221,11 +1245,13 @@ func (b *OGame) postPageContent(vals, payload url.Values) ([]byte, error) {
 		b.ajaxChatToken = res.NewToken
 	}
 
-	go func() {
-		for _, fn := range b.interceptorCallbacks {
-			fn("POST", finalURL, vals, payload, pageHTMLBytes)
-		}
-	}()
+	if !cfg.SkipInterceptor {
+		go func() {
+			for _, fn := range b.interceptorCallbacks {
+				fn("POST", finalURL, vals, payload, pageHTMLBytes)
+			}
+		}()
+	}
 
 	return pageHTMLBytes, nil
 }
@@ -2168,7 +2194,7 @@ func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err erro
 	return
 }
 
-func (b *OGame) galaxyInfos(galaxy, system int64) (SystemInfos, error) {
+func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
 	if galaxy < 0 || galaxy > b.server.Settings.UniverseSize {
 		return SystemInfos{}, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
 	}
@@ -2184,7 +2210,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64) (SystemInfos, error) {
 	if b.IsV7() {
 		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
 	}
-	pageHTML, err := b.postPageContent(vals, payload)
+	pageHTML, err := b.postPageContent(vals, payload, options...)
 	if err != nil {
 		return res, err
 	}
@@ -4064,8 +4090,8 @@ func (b *OGame) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, error) 
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
-func (b *OGame) GalaxyInfos(galaxy, system int64) (SystemInfos, error) {
-	return b.WithPriority(Normal).GalaxyInfos(galaxy, system)
+func (b *OGame) GalaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
+	return b.WithPriority(Normal).GalaxyInfos(galaxy, system, options...)
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
