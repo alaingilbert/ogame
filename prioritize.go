@@ -240,10 +240,10 @@ func (b *Prioritize) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, er
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
-func (b *Prioritize) GalaxyInfos(galaxy, system int64) (SystemInfos, error) {
+func (b *Prioritize) GalaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
 	b.begin("GalaxyInfos")
 	defer b.done()
-	return b.bot.galaxyInfos(galaxy, system)
+	return b.bot.galaxyInfos(galaxy, system, options...)
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
