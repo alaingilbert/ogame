@@ -117,7 +117,6 @@ GetEspionageReportMessages() ([]EspionageReportSummary, error)
 GetEspionageReportFor(Coordinate) (EspionageReport, error)
 GetEspionageReport(msgID int64) (EspionageReport, error)
 GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
-//GetCombatReport(msgID int) (CombatReport, error)
 DeleteMessage(msgID int64) error
 DeleteAllMessagesFromTab(tabID int64) error
 Distance(origin, destination Coordinate) int64
@@ -139,6 +138,8 @@ Highscore(category, typ, page int64) (Highscore, error)
 GetAllResources() (map[CelestialID]Resources, error)
 GetDMCosts(CelestialID) (DMCosts, error)
 UseDM(string, CelestialID) error
+GetItems(CelestialID) ([]Item, error)
+ActivateItem(string, CelestialID) error
 
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)

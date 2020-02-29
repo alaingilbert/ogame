@@ -107,6 +107,8 @@ type Wrapper interface {
 	GetAllResources() (map[CelestialID]Resources, error)
 	GetDMCosts(CelestialID) (DMCosts, error)
 	UseDM(string, CelestialID) error
+	GetItems(CelestialID) ([]Item, error)
+	ActivateItem(string, CelestialID) error
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
@@ -219,4 +221,6 @@ type Celestial interface {
 	CancelResearch() error
 	CancelBuilding() error
 	TearDown(buildingID ID) error
+	GetItems() ([]Item, error)
+	ActivateItem(string) error
 }

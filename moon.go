@@ -134,6 +134,16 @@ func (m Moon) GetFacilities() (Facilities, error) {
 	return m.ogame.GetFacilities(m.ID.Celestial())
 }
 
+// GetItems get all items information
+func (p Moon) GetItems() ([]Item, error) {
+	return p.ogame.GetItems(p.ID.Celestial())
+}
+
+// ActivateItem activate an item
+func (p Moon) ActivateItem(ref string) error {
+	return p.ogame.ActivateItem(ref, p.ID.Celestial())
+}
+
 //// BuildFacility build a facility
 //func (m *Moon) BuildFacility(ID) error {
 //	return nil

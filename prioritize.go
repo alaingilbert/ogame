@@ -599,3 +599,17 @@ func (b *Prioritize) UseDM(typ string, celestialID CelestialID) error {
 	defer b.done()
 	return b.bot.useDM(typ, celestialID)
 }
+
+// GetItems get all items information
+func (b *Prioritize) GetItems(celestialID CelestialID) ([]Item, error) {
+	b.begin("GetItems")
+	defer b.done()
+	return b.bot.getItems(celestialID)
+}
+
+// ActivateItem activate an item
+func (b *Prioritize) ActivateItem(ref string, celestialID CelestialID) error {
+	b.begin("ActivateItem")
+	defer b.done()
+	return b.bot.activateItem(ref, celestialID)
+}
