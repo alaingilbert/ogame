@@ -1585,8 +1585,8 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 	return b.extractor.ExtractFleetsFromEventList(pageHTML)
 }
 
-func (b *OGame) getFleets() ([]Fleet, Slots) {
-	pageHTML, _ := b.getPage(MovementPage, CelestialID(0))
+func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
+	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
 	fleets := b.extractor.ExtractFleets(pageHTML)
 	slots := b.extractor.ExtractSlots(pageHTML)
 	return fleets, slots
@@ -1958,6 +1958,50 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 		return err
 	}
 	return nil
+}
+
+func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
+	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	pageHTML, _ := b.getPageContent(params)
+	_, items, err = b.extractor.ExtractBuffActivation(pageHTML)
+	return
+}
+
+func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
+	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	pageHTML, _ := b.getPageContent(params)
+	token, _, err := b.extractor.ExtractBuffActivation(pageHTML)
+	if err != nil {
+		return err
+	}
+	params = url.Values{"page": {"inventory"}}
+	payload := url.Values{
+		"ajax":         {"1"},
+		"token":        {token},
+		"referrerPage": {"ingame"},
+		"item":         {ref},
+	}
+	var res struct {
+		Message string `json:"message"`
+		Error   bool   `json:"error"`
+	}
+	by, err := b.postPageContent(params, payload)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if res.Error {
+		return errors.New(res.Message)
+	}
+	return err
 }
 
 func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
@@ -4065,8 +4109,8 @@ func (b *OGame) SendMessageAlliance(associationID int64, message string) error {
 }
 
 // GetFleets get the player's own fleets activities
-func (b *OGame) GetFleets() ([]Fleet, Slots) {
-	return b.WithPriority(Normal).GetFleets()
+func (b *OGame) GetFleets(opts ...Option) ([]Fleet, Slots) {
+	return b.WithPriority(Normal).GetFleets(opts...)
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
@@ -4375,4 +4419,14 @@ func (b *OGame) GetDMCosts(celestialID CelestialID) (DMCosts, error) {
 // UseDM use dark matter to fast build
 func (b *OGame) UseDM(typ string, celestialID CelestialID) error {
 	return b.WithPriority(Normal).UseDM(typ, celestialID)
+}
+
+// GetItems get all items information
+func (b *OGame) GetItems(celestialID CelestialID) ([]Item, error) {
+	return b.WithPriority(Normal).GetItems(celestialID)
+}
+
+// ActivateItem activate an item
+func (b *OGame) ActivateItem(ref string, celestialID CelestialID) error {
+	return b.WithPriority(Normal).ActivateItem(ref, celestialID)
 }

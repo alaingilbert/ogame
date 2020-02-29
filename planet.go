@@ -165,6 +165,16 @@ func (p Planet) CancelResearch() error {
 	return p.ogame.CancelResearch(p.ID.Celestial())
 }
 
+// GetItems get all items information
+func (p Planet) GetItems() ([]Item, error) {
+	return p.ogame.GetItems(p.ID.Celestial())
+}
+
+// ActivateItem activate an item
+func (p Planet) ActivateItem(ref string) error {
+	return p.ogame.ActivateItem(ref, p.ID.Celestial())
+}
+
 // GetResourcesProductions gets the resources production
 func (p *Planet) GetResourcesProductions() (Resources, error) {
 	return p.ogame.GetResourcesProductions(p.ID)

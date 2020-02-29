@@ -2820,3 +2820,10 @@ func TestExtractDMCosts(t *testing.T) {
 	assert.Equal(t, "75accaa0d1bc22b78d83b89cd437bdccd6a58887", dmCosts.Shipyard.BuyAndActivateToken)
 	assert.Equal(t, "f34eddc43aaeb43f9e7c6971c87eea2f", dmCosts.Shipyard.Token)
 }
+
+func TestExtractBuffActivation(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/buffActivation.html")
+	token, items, _ := NewExtractorV71().ExtractBuffActivation(pageHTMLBytes)
+	assert.Equal(t, "081876002bf5791011097597836d3f5c", token)
+	assert.Equal(t, 31, len(items))
+}

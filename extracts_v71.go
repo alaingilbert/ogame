@@ -780,3 +780,29 @@ func extractDMCostsFromDocV71(doc *goquery.Document) (DMCosts, error) {
 	out.Shipyard.OGameID, out.Shipyard.Nbr, out.Shipyard.Cost, out.Shipyard.CanBuy, out.Shipyard.Complete, out.Shipyard.BuyAndActivateToken, out.Shipyard.Token = tmp(shipyardBox)
 	return out, nil
 }
+
+func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items []Item, err error) {
+	scriptTxt := doc.Find("script").Text()
+	r := regexp.MustCompile(`activateToken = "([^"]+)"`)
+	m := r.FindStringSubmatch(scriptTxt)
+	if len(m) != 2 {
+		err = errors.New("failed to find activate token")
+		return
+	}
+	token = m[1]
+	r = regexp.MustCompile(`items_inventory = ({[^\n]+});\n`)
+	m = r.FindStringSubmatch(scriptTxt)
+	if len(m) != 2 {
+		err = errors.New("failed to find items inventory")
+		return
+	}
+	var inventoryMap map[string]Item
+	if err = json.Unmarshal([]byte(m[1]), &inventoryMap); err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, item := range inventoryMap {
+		items = append(items, item)
+	}
+	return
+}

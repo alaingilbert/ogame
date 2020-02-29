@@ -149,3 +149,14 @@ func (e ExtractorV71) ExtractDMCosts(pageHTML []byte) (DMCosts, error) {
 func (e ExtractorV71) ExtractDMCostsFromDoc(doc *goquery.Document) (DMCosts, error) {
 	return extractDMCostsFromDocV71(doc)
 }
+
+// ExtractBuffActivation ...
+func (e ExtractorV71) ExtractBuffActivation(pageHTML []byte) (string, []Item, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractBuffActivationFromDoc(doc)
+}
+
+// ExtractBuffActivationFromDoc ...
+func (e ExtractorV71) ExtractBuffActivationFromDoc(doc *goquery.Document) (string, []Item, error) {
+	return extractBuffActivationFromDocV71(doc)
+}
