@@ -72,7 +72,7 @@ var pageV7Mapping = map[string]string{
 	Fleet1Page:    FleetdispatchPage,
 }
 
-func (b *OGame) getPage(page string, celestialID CelestialID) ([]byte, error) {
+func (b *OGame) getPage(page string, celestialID CelestialID, opts ...Option) ([]byte, error) {
 	vals := url.Values{"page": {page}}
 	if b.IsV7() && page != FetchResourcesPage {
 		if newPage, ok := pageV7Mapping[page]; ok {
@@ -83,5 +83,5 @@ func (b *OGame) getPage(page string, celestialID CelestialID) ([]byte, error) {
 	if celestialID != 0 {
 		vals.Add("cp", strconv.FormatInt(int64(celestialID), 10))
 	}
-	return b.getPageContent(vals)
+	return b.getPageContent(vals, opts...)
 }

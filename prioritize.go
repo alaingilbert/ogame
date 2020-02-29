@@ -205,10 +205,10 @@ func (b *Prioritize) SendMessageAlliance(associationID int64, message string) er
 }
 
 // GetFleets get the player's own fleets activities
-func (b *Prioritize) GetFleets() ([]Fleet, Slots) {
+func (b *Prioritize) GetFleets(opts ...Option) ([]Fleet, Slots) {
 	b.begin("GetFleets")
 	defer b.done()
-	return b.bot.getFleets()
+	return b.bot.getFleets(opts...)
 }
 
 // GetFleetsFromEventList get the player's own fleets activities

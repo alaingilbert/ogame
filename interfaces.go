@@ -59,7 +59,7 @@ type Wrapper interface {
 	SendMessage(playerID int64, message string) error
 	SendMessageAlliance(associationID int64, message string) error
 	ReconnectChat() bool
-	GetFleets() ([]Fleet, Slots)
+	GetFleets(...Option) ([]Fleet, Slots)
 	GetFleetsFromEventList() []Fleet
 	CancelFleet(FleetID) error
 	GetAttacks() ([]AttackEvent, error)

@@ -1585,8 +1585,8 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 	return b.extractor.ExtractFleetsFromEventList(pageHTML)
 }
 
-func (b *OGame) getFleets() ([]Fleet, Slots) {
-	pageHTML, _ := b.getPage(MovementPage, CelestialID(0))
+func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
+	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
 	fleets := b.extractor.ExtractFleets(pageHTML)
 	slots := b.extractor.ExtractSlots(pageHTML)
 	return fleets, slots
@@ -4065,8 +4065,8 @@ func (b *OGame) SendMessageAlliance(associationID int64, message string) error {
 }
 
 // GetFleets get the player's own fleets activities
-func (b *OGame) GetFleets() ([]Fleet, Slots) {
-	return b.WithPriority(Normal).GetFleets()
+func (b *OGame) GetFleets(opts ...Option) ([]Fleet, Slots) {
+	return b.WithPriority(Normal).GetFleets(opts...)
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
