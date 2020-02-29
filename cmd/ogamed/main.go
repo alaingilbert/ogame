@@ -266,6 +266,8 @@ func start(c *cli.Context) error {
 	e.GET("/bot/moons", ogame.GetMoonsHandler)
 	e.GET("/bot/moons/:moonID", ogame.GetMoonHandler)
 	e.GET("/bot/moons/:galaxy/:system/:position", ogame.GetMoonByCoordHandler)
+	e.GET("/bot/celestials/:celestialID/items", ogame.GetCelestialItemsHandler)
+	e.GET("/bot/celestials/:celestialID/items/:itemRef/activate", ogame.ActivateCelestialItemHandler)
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
