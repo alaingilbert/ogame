@@ -776,3 +776,8 @@ func (e ExtractorV6) ExtractAllResources(pageHTML []byte) (map[CelestialID]Resou
 func (e ExtractorV6) ExtractDMCosts(pageHTML []byte) (DMCosts, error) {
 	panic("not implemented")
 }
+
+// ExtractBuffActivation ...
+func (e ExtractorV6) ExtractBuffActivation(pageHTML []byte) (string, []Item, error) {
+	panic("not implemented")
+}

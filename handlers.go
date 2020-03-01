@@ -335,6 +335,34 @@ func GetPlanetsHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(bot.GetPlanets()))
 }
 
+// GetCelestialItemsHandler ...
+func GetCelestialItemsHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+	items, err := bot.GetItems(CelestialID(celestialID))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(items))
+}
+
+// ActivateCelestialItemHandler ...
+func ActivateCelestialItemHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+	ref := c.Param("itemRef")
+	if err := bot.ActivateItem(ref, CelestialID(celestialID)); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(nil))
+}
+
 // GetPlanetHandler ...
 func GetPlanetHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)

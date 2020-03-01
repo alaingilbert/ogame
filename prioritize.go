@@ -205,10 +205,10 @@ func (b *Prioritize) SendMessageAlliance(associationID int64, message string) er
 }
 
 // GetFleets get the player's own fleets activities
-func (b *Prioritize) GetFleets() ([]Fleet, Slots) {
+func (b *Prioritize) GetFleets(opts ...Option) ([]Fleet, Slots) {
 	b.begin("GetFleets")
 	defer b.done()
-	return b.bot.getFleets()
+	return b.bot.getFleets(opts...)
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
@@ -598,4 +598,18 @@ func (b *Prioritize) UseDM(typ string, celestialID CelestialID) error {
 	b.begin("UseDM")
 	defer b.done()
 	return b.bot.useDM(typ, celestialID)
+}
+
+// GetItems get all items information
+func (b *Prioritize) GetItems(celestialID CelestialID) ([]Item, error) {
+	b.begin("GetItems")
+	defer b.done()
+	return b.bot.getItems(celestialID)
+}
+
+// ActivateItem activate an item
+func (b *Prioritize) ActivateItem(ref string, celestialID CelestialID) error {
+	b.begin("ActivateItem")
+	defer b.done()
+	return b.bot.activateItem(ref, celestialID)
 }

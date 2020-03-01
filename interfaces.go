@@ -59,7 +59,7 @@ type Wrapper interface {
 	SendMessage(playerID int64, message string) error
 	SendMessageAlliance(associationID int64, message string) error
 	ReconnectChat() bool
-	GetFleets() ([]Fleet, Slots)
+	GetFleets(...Option) ([]Fleet, Slots)
 	GetFleetsFromEventList() []Fleet
 	CancelFleet(FleetID) error
 	GetAttacks() ([]AttackEvent, error)
@@ -107,6 +107,8 @@ type Wrapper interface {
 	GetAllResources() (map[CelestialID]Resources, error)
 	GetDMCosts(CelestialID) (DMCosts, error)
 	UseDM(string, CelestialID) error
+	GetItems(CelestialID) ([]Item, error)
+	ActivateItem(string, CelestialID) error
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
@@ -219,4 +221,6 @@ type Celestial interface {
 	CancelResearch() error
 	CancelBuilding() error
 	TearDown(buildingID ID) error
+	GetItems() ([]Item, error)
+	ActivateItem(string) error
 }
