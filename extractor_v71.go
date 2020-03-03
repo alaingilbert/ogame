@@ -160,3 +160,14 @@ func (e ExtractorV71) ExtractBuffActivation(pageHTML []byte) (string, []Item, er
 func (e ExtractorV71) ExtractBuffActivationFromDoc(doc *goquery.Document) (string, []Item, error) {
 	return extractBuffActivationFromDocV71(doc)
 }
+
+// ExtractCombatReportMessagesSummary ...
+func (e ExtractorV71) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int64) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractCombatReportMessagesSummaryFromDoc(doc)
+}
+
+// ExtractCombatReportMessagesSummaryFromDoc ...
+func (e ExtractorV71) ExtractCombatReportMessagesSummaryFromDoc(doc *goquery.Document) ([]CombatReportSummary, int64) {
+	return extractCombatReportMessagesSummaryFromDocV71(doc)
+}

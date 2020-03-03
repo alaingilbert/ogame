@@ -256,6 +256,9 @@ func start(c *cli.Context) error {
 	e.POST("/bot/delete-report/:messageID", ogame.DeleteMessageHandler)
 	e.POST("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
 	e.POST("/bot/delete-all-reports/:tabIndex", ogame.DeleteMessagesFromTabHandler)
+	e.GET("/bot/combat-report/:msgid", ogame.GetCombatReportHandler) // returns FullCombatReport, it returns the JSON from inside the CombatReport. There is no JSON in EspionageReport.
+	e.GET("/bot/combat-report/:galaxy/:system/:position", ogame.GetCombatReportForHandler) // returns []CombatReportSummary
+	e.GET("/bot/combat-report", ogame.GetCombatReportMessagesHandler) // returns []CombatReportSummary
 	e.GET("/bot/attacks", ogame.GetAttacksHandler)
 	e.GET("/bot/get-auction", ogame.GetAuctionHandler)
 	e.POST("/bot/do-auction", ogame.DoAuctionHandler)
