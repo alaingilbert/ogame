@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"log"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 	"golang.org/x/net/html"
@@ -805,4 +807,100 @@ func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items
 		items = append(items, item)
 	}
 	return
+}
+
+func extractCombatReportMessagesSummaryFromDocV71(doc *goquery.Document) ([]CombatReportSummary, int64) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	msgs := make([]CombatReportSummary, 0)
+	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
+	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
+		if idStr, exists := s.Attr("data-msg-id"); exists {
+			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+				report := CombatReportSummary{ID: id}
+
+				// Find destination coordinate
+				report.Destination = extractCoordV6(s.Find("div.msg_head a").Text())
+				if s.Find("div.msg_head figure").HasClass("planet") {
+					report.Destination.Type = PlanetType
+				} else if s.Find("div.msg_head figure").HasClass("moon") {
+					report.Destination.Type = MoonType
+				} else {
+					report.Destination.Type = PlanetType
+				}
+
+				// Find looted resources {Metal, Crystal, Deuterium}
+				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
+				m := regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
+				if len(m) == 4 {
+					report.Metal = ParseInt(m[1])
+					report.Crystal = ParseInt(m[2])
+					report.Deuterium = ParseInt(m[3])
+				}
+
+				// Find debris field
+				report.DebrisField = ParseInt(s.Find("span.msg_content div.combatLeftSide span").Eq(2).AttrOr("title", "0"))
+
+				// Find Loot (%)
+				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
+				m = regexp.MustCompile(`(\d+)\%`).FindStringSubmatch(resText)
+				if len(m) > 0 {
+					// NL = Grondstoffen: 4,883M, buit: 50%
+					// EN = Resources: 1.958Mn, Loot: 50%
+					report.Loot = ParseInt(m[len(m)-1]) // Find last item , as NL language uses "," as thousand-separator instead of "." in EN.
+				}
+
+				// Find Date
+				msgDate, _ := time.Parse("02.01.2006 15:04:05", s.Find("span.msg_date").Text())
+				report.CreatedAt = msgDate
+
+				// Find: AttackerName and AttackerLostValue
+				attacker := s.Find("span.msg_content div.combatLeftSide span").Eq(0)
+				report.AttackerLostValue = ParseInt(attacker.AttrOr("title", "0"))
+				m = regexp.MustCompile(`\((.*)\)`).FindStringSubmatch(attacker.Text())
+				if len(m) == 2 {
+					report.AttackerName = m[1]
+				}
+
+				// Find: DefenderName and DefenderLostValue
+				defender := s.Find("span.msg_content div.combatRightSide span").Eq(0)
+				report.DefenderLostValue = ParseInt(defender.AttrOr("title", "0"))
+				m = regexp.MustCompile(`\((.*)\)`).FindStringSubmatch(defender.Text())
+				if len(m) == 2 {
+					report.DefenderName = m[1]
+				}
+
+				// Find origin coordinate
+				link := s.Find("div.msg_actions a span.icon_attack").Parent().AttrOr("href", "")
+				m = regexp.MustCompile(`page=ingame&component=fleetdispatch&galaxy=(\d+)&system=(\d+)&position=(\d+)&type=(\d+)&`).FindStringSubmatch(link)
+				if len(m) == 5 {
+					galaxy := ParseInt(m[1])
+					system := ParseInt(m[2])
+					position := ParseInt(m[3])
+					planetType := ParseInt(m[4])
+					report.Origin = &Coordinate{galaxy, system, position, CelestialType(planetType)}
+
+					if report.Origin.Equal(report.Destination) {
+						report.Origin = nil
+					}
+				}
+
+				// Find APIKey
+				apikey := s.Find("span.icon_apikey").AttrOr("title", "")
+				if len(apikey) > 0 {
+					apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+					report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
+				}
+
+				// Find Repaired
+				// Actually repaired: 0
+				repaired := s.Find("div.combatRightSide").Find("span.msg_ctn3").First().AttrOr("title", "")
+				if len(repaired) > 0 {
+					report.Repaired = ParseInt(repaired)
+				}
+
+				msgs = append(msgs, report)
+			}
+		}
+	})
+	return msgs, nbPage
 }

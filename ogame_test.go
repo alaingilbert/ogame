@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	//"log"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 	"github.com/stretchr/testify/assert"
@@ -921,7 +923,7 @@ func TestExtractCombatReportMessagesV71(t *testing.T) {
 func TestExtractCombatReportMessagesV71_lossContact(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/combat_reports_loss_contact.html")
 	msgs, _ := NewExtractorV71().ExtractCombatReportMessagesSummary(pageHTMLBytes)
-	assert.Equal(t, 8, len(msgs))
+	assert.Equal(t, 10, len(msgs))
 }
 
 func TestExtractCombatReportMessages(t *testing.T) {
@@ -943,6 +945,11 @@ func TestExtractCombatReportAttackingMessages(t *testing.T) {
 	assert.Equal(t, int64(25200), msgs[1].DebrisField)
 	assert.Equal(t, int64(0), msgs[2].DebrisField)
 	assert.Equal(t, "08.09.2018 09:33:18", msgs[0].CreatedAt.Format("02.01.2006 15:04:05"))
+
+
+	assert.Equal(t, "Commodore Nomad", msgs[0].AttackerName)
+	assert.Equal(t, "Commodore Nomad", msgs[1].AttackerName)
+	assert.Equal(t, "Du ZiMei", msgs[2].AttackerName)
 }
 
 func TestExtractCombatReportMessagesSummary(t *testing.T) {
@@ -2826,4 +2833,128 @@ func TestExtractBuffActivation(t *testing.T) {
 	token, items, _ := NewExtractorV71().ExtractBuffActivation(pageHTMLBytes)
 	assert.Equal(t, "081876002bf5791011097597836d3f5c", token)
 	assert.Equal(t, 31, len(items))
+}
+
+func TestV71ExtractCombatReportSummaries(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/combat_reports.html")
+	msgs, nbPages := NewExtractorV71().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+
+	assert.Equal(t, 10, len(msgs))
+	assert.Equal(t, int64(4), nbPages)
+
+	/*
+	type CombatReportSummary struct 
+		ID           int64
+		APIKey       string
+		Origin       *Coordinate
+		Destination  Coordinate
+		AttackerName string
+		DefenderName string
+		AttackerLostValue int64
+		DefenderLostValue int64
+		Loot         int64
+		Metal        int64
+		Crystal      int64
+		Deuterium    int64
+		DebrisField  int64
+		Repaired         int64
+		CreatedAt    time.Time
+	}
+	*/
+
+//	for k, v := range msgs {
+//		log.Print(k, v.ID)
+//	}
+
+	assert.Equal(t, int64(3566422), msgs[0].ID) //int64
+	assert.Equal(t, int64(3566421), msgs[1].ID) //int64
+	assert.Equal(t, int64(3566420), msgs[2].ID) //int64
+	assert.Equal(t, int64(3566416), msgs[3].ID) //int64
+	assert.Equal(t, int64(3566413), msgs[4].ID) //int64
+	assert.Equal(t, int64(3566403), msgs[5].ID) //int64
+	assert.Equal(t, int64(3566399), msgs[6].ID) //int64
+	assert.Equal(t, int64(3566394), msgs[7].ID) //int64
+	assert.Equal(t, int64(3565518), msgs[8].ID) //int64
+	assert.Equal(t, int64(3565516), msgs[9].ID) //int64
+
+	assert.Equal(t, &Coordinate{Galaxy:5, System:42, Position: 8, Type:3}, msgs[0].Origin) //*Coordinate
+
+	assert.Equal(t, Coordinate{Galaxy:1, System:430, Position: 4, Type:1}, msgs[0].Destination) //Coordinate
+	assert.Equal(t, "Czar Celestial", msgs[0].AttackerName) //string
+	assert.Equal(t, "Notriv", msgs[0].DefenderName) //string
+	assert.Equal(t, int64(50), msgs[0].Loot) //int64
+	assert.Equal(t, int64(50), msgs[1].Loot) //int64
+
+	assert.Equal(t, int64(1638541), msgs[0].Metal) //int64
+	assert.Equal(t, int64(64575), msgs[0].Crystal) //int64
+	assert.Equal(t, int64(728721), msgs[0].Deuterium) //int64
+
+	assert.Equal(t, int64(396581), msgs[5].Metal) //int64
+	assert.Equal(t, int64(223442), msgs[5].Crystal) //int64
+	assert.Equal(t, int64(424575), msgs[5].Deuterium) //int64
+
+	assert.Equal(t, int64(3566403), msgs[5].ID) //int64
+	assert.Equal(t, int64(748800), msgs[5].DebrisField) //int64
+
+	assert.Equal(t, int64(3566394), msgs[7].ID) //int64
+	assert.Equal(t, int64(70021600), msgs[7].DebrisField) //int64
+
+	assert.Equal(t, "cr-us-149-fe449460902860455db7ef57a522ae341f931a59", msgs[0].APIKey) //string
+	assert.Equal(t, "cr-us-149-9f9b7ba4b7fc6355e976446cecbd5a825858e34c", msgs[1].APIKey) //string
+	assert.Equal(t, "23.02.2020 12:02:39", msgs[0].CreatedAt.Format("02.01.2006 15:04:05")) //time.Time
+}
+
+func TestV71ExtractCombatReportSummaries2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/combat_reports_loss_contact.html")
+	msgs,_ := NewExtractorV71().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+
+	/*
+	type CombatReportSummary struct 
+		ID           int64
+		APIKey       string
+		Origin       *Coordinate
+		Destination  Coordinate
+		AttackerName string
+		DefenderName string
+		AttackerLostValue int64
+		DefenderLostValue int64
+		Loot         int64
+		Metal        int64
+		Crystal      int64
+		Deuterium    int64
+		DebrisField  int64
+		Repaired         int64
+		CreatedAt    time.Time
+	}
+	*/
+
+//	for k, v := range msgs {
+//		log.Print(k, v.ID, v.Loot, v.Repaired)
+//	}
+
+	/*
+	<div class="combatLeftSide"><br />
+		<span class="msg_ctn msg_ctn2 undermark tooltipLeft" title="3.896.000">Attacker: (threeflipskat3r): 3.896Mn</span>
+		<br />
+		<span class="msg_ctn msg_ctn3 tooltipLeft" title="Resources&lt;br/&gt;Metal: 0&lt;br/&gt;Crystal: 0&lt;br/&gt;Deuterium: 0">Resources: 0, Loot: 50%</span>
+		<br />
+		<span class="msg_ctn msg_ctn3 tooltipLeft" title="2.217.600">Debris field (newly created): 2.217Mn</span>
+		<br />
+	</div>
+
+	<div class="combatRightSide">
+		<br />
+		<span class="msg_ctn msg_ctn2 overmark tooltipRight" title="42.938.000">Defender: (Notriv): 42.938Mn</span>
+		<br />
+		<span class="msg_ctn msg_ctn3 tooltipRight" title="9.040">Actually repaired: 9.040</span>
+		<br />
+	</div>
+	*/
+
+	assert.Equal(t, int64(12502200), msgs[5].ID) //int64
+	assert.Equal(t, int64(3896000), msgs[5].AttackerLostValue) //int64
+	assert.Equal(t, int64(50), msgs[5].Loot) //int64
+	assert.Equal(t, int64(2217600), msgs[5].DebrisField) //int64
+	assert.Equal(t, int64(42938000), msgs[5].DefenderLostValue) //int64
+	assert.Equal(t, int64(9040), msgs[5].Repaired) //int64
 }

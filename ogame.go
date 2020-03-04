@@ -3344,11 +3344,14 @@ type CombatReportSummary struct {
 	Destination  Coordinate
 	AttackerName string
 	DefenderName string
+	AttackerLostValue int64
+	DefenderLostValue int64
 	Loot         int64
 	Metal        int64
 	Crystal      int64
 	Deuterium    int64
 	DebrisField  int64
+	Repaired	 int64
 	CreatedAt    time.Time
 }
 
@@ -4379,6 +4382,16 @@ func (b *OGame) HeadersForPage(url string) (http.Header, error) {
 // GetEmpire retrieves JSON from Empire page (Commander only).
 func (b *OGame) GetEmpire(nbr int64) (interface{}, error) {
 	return b.WithPriority(Normal).GetEmpire(nbr)
+}
+
+type FullCombatReport struct {
+	ID int64
+	Content interface{}
+}
+
+func (b *OGame) GetFullCombatReport(msgID int64) (FullCombatReport, error) {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"messages"}, "messageId": {strconv.FormatInt(msgID, 10)}, "tabid": {"21"}, "ajax": {"1"}})
+	return b.extractor.ExtractFullCombatReport(pageHTML, msgID)
 }
 
 // CharacterClass returns the bot character class

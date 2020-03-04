@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"log"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 	lua "github.com/yuin/gopher-lua"
@@ -662,6 +664,8 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
 				report := CombatReportSummary{ID: id}
+
+				// Find destination coordinate
 				report.Destination = extractCoordV6(s.Find("div.msg_head a").Text())
 				if s.Find("div.msg_head figure").HasClass("planet") {
 					report.Destination.Type = PlanetType
@@ -670,6 +674,8 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 				} else {
 					report.Destination.Type = PlanetType
 				}
+
+				// Find looted resources {Metal, Crystal, Deuterium}
 				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
 				m := regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
 				if len(m) == 4 {
@@ -677,16 +683,41 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 					report.Crystal = ParseInt(m[2])
 					report.Deuterium = ParseInt(m[3])
 				}
+
+				// Find debris field
 				debrisFieldTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(2).AttrOr("title", "0")
 				report.DebrisField = ParseInt(debrisFieldTitle)
+
+				// Find Loot (%) or Total Looted resources TODO
 				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
 				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
 				if len(m) == 2 {
 					report.Loot = ParseInt(m[1])
 				}
+
+				// Find Date
 				msgDate, _ := time.Parse("02.01.2006 15:04:05", s.Find("span.msg_date").Text())
 				report.CreatedAt = msgDate
 
+				// Find: attacker name
+				report.AttackerName = ""
+				attacker := s.Find("span.msg_content div.combatLeftSide span").Eq(0).Text()
+				m = regexp.MustCompile(`\((.*)\)`).FindStringSubmatch(attacker)
+
+				if len(m) > 0 {
+					report.AttackerName = m[1]
+				}
+
+				// Find: Defender name
+				report.DefenderName = ""
+				defender := s.Find("span.msg_content div.combatRightSide span").Eq(0).Text()
+				m = regexp.MustCompile(`\((.*)\)`).FindStringSubmatch(defender)
+
+				if len(m) > 0 {
+					report.DefenderName = m[1]
+				}
+
+				// Find origin coordinate
 				link := s.Find("div.msg_actions a span.icon_attack").Parent().AttrOr("href", "")
 				m = regexp.MustCompile(`page=fleet1&galaxy=(\d+)&system=(\d+)&position=(\d+)&type=(\d+)&`).FindStringSubmatch(link)
 				if len(m) != 5 {
@@ -697,6 +728,7 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 				position, _ := strconv.ParseInt(m[3], 10, 64)
 				planetType, _ := strconv.ParseInt(m[4], 10, 64)
 				report.Origin = &Coordinate{galaxy, system, position, CelestialType(planetType)}
+
 				if report.Origin.Equal(report.Destination) {
 					report.Origin = nil
 				}
@@ -2121,4 +2153,25 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	// bid = max(auction.DeficitBid, auction.MinimumBid - auction.AlreadyBid)
 
 	return auction, nil
+}
+
+func extractFullCombatReportFromDoc(doc *goquery.Document, msgID int64) (FullCombatReport, error) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	report := FullCombatReport{}
+	report.ID = msgID
+
+	scriptHTMLText := doc.Find("script").First().Text()
+
+	m := regexp.MustCompile(`parseJSON\(\'(.*)\'\);`).FindStringSubmatch(scriptHTMLText)
+
+	if len(m) == 2 {
+		if err := json.Unmarshal([]byte(m[1]), &report.Content); err != nil {
+			return FullCombatReport{}, err
+		}
+
+		return report, nil
+	}
+
+	return FullCombatReport{}, errors.New("Unable to find JSON in this CombatReport")
 }

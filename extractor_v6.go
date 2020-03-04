@@ -781,3 +781,9 @@ func (e ExtractorV6) ExtractDMCosts(pageHTML []byte) (DMCosts, error) {
 func (e ExtractorV6) ExtractBuffActivation(pageHTML []byte) (string, []Item, error) {
 	panic("not implemented")
 }
+
+// ExtractFullCombatReport ...
+func (e ExtractorV6) ExtractFullCombatReport(pageHTML []byte, msgID int64) (FullCombatReport, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return extractFullCombatReportFromDoc(doc, msgID)
+}

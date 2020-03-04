@@ -1160,3 +1160,53 @@ func PhalanxHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(fleets))
 }
+
+// GetCombatReportMessagesHandler ...
+func GetCombatReportMessagesHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	report, err := bot.getCombatReportMessages()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(report))
+}
+
+// FullCombatReport, takes JSON from CR message. There is no JSON in EspionageReport.
+func GetCombatReportHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	msgID, err := strconv.ParseInt(c.Param("msgid"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid msgid id"))
+	}
+	combatReport, err := bot.GetFullCombatReport(msgID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(combatReport))
+}
+
+// GetCombatReportForHandler ...
+func GetCombatReportForHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	galaxy, err := strconv.ParseInt(c.Param("galaxy"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+	}
+	system, err := strconv.ParseInt(c.Param("system"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+	}
+	position, err := strconv.ParseInt(c.Param("position"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+	}
+
+	planet, err := bot.getCombatReportFor(Coordinate{Type: PlanetType, Galaxy: galaxy, System: system, Position: position})
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(planet))
+}

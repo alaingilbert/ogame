@@ -149,6 +149,7 @@ type Extractor interface {
 	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
 	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
 	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
+	ExtractFullCombatReport(pageHTML []byte, msgID int64) (FullCombatReport, error)
 }
 
 // Compile time checks to ensure type satisfies Extractor interface
