@@ -11,6 +11,9 @@ import (
 	"strings"
 	"time"
 
+	"log"
+	"reflect"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 	lua "github.com/yuin/gopher-lua"
@@ -644,6 +647,8 @@ func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]Espiona
 				}
 				report := EspionageReportSummary{ID: id, Type: messageType}
 				report.From = s.Find("span.msg_sender").Text()
+
+				// Find target coordinate
 				spanLink := s.Find("span.msg_title a")
 				targetStr := spanLink.Text()
 				report.Target = extractCoordV6(targetStr)
@@ -651,6 +656,8 @@ func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]Espiona
 				if spanLink.Find("figure").HasClass("moon") {
 					report.Target.Type = MoonType
 				}
+
+				// Find LootPercentage
 				if messageType == Report {
 					s.Find("div.compacting").Each(func(i int, s *goquery.Selection) {
 						if regexp.MustCompile(`%`).MatchString(s.Text()) {
@@ -659,12 +666,184 @@ func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]Espiona
 						}
 					})
 				}
-				msgs = append(msgs, report)
 
+				// LastActivity
+				log.SetFlags(log.LstdFlags | log.Lshortfile)
+				report.LastActivity = 0
+
+				activity := s.Find("span.msg_content").First().Find("span.ctn.ctn4.fright").First().Text()
+				activity = strings.TrimSpace(activity)
+
+				m := regexp.MustCompile(`(\d{2})`).FindStringSubmatch(activity)
+
+				if len(m) > 0 {
+					minutes := ParseInt(m[1])
+
+					if len(m) == 2 {
+						report.LastActivity = minutes
+					}
+				}
+
+				// IsBandit, IsStarlord
+				report.IsBandit = false
+				report.IsStarlord = false
+
+				banditstarlord := s.Find("span.honorRank")
+				if banditstarlord.Size() > 0 {
+					if banditstarlord.HasClass("rank_bandit1") || banditstarlord.HasClass("rank_bandit2") || banditstarlord.HasClass("rank_bandit3") {
+						report.IsBandit = true
+					} else if banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3") {
+						report.IsStarlord = true
+					}
+				}
+
+				// IsInactive, IsLongInactive
+				report.IsInactive = false
+				report.IsLongInactive = false
+
+				if s.Find("span.status_abbr_longinactive").Size() > 0 {
+					report.IsInactive = true
+					report.IsLongInactive = true
+				} else if s.Find("span.status_abbr_inactive").Size() > 0 {
+					report.IsInactive = true
+				}
+
+				// HasFleet, FleetValue
+				report.HasFleet = false
+				report.FleetValue = -1
+
+				fleet := s.Find("div.compacting").Last().Find("span").Eq(0).AttrOr("title", "-1")
+
+				if strings.Contains(fleet, ":") {
+					fleet = strings.Split(fleet, ":")[1]
+					fleet = strings.TrimSpace(fleet)
+					report.FleetValue = ParseInt(fleet)
+				}
+
+				if report.FleetValue > -1 {
+					report.HasFleet = true
+				}
+
+				// HasDefenses,  DefenseValue
+				report.HasDefenses = false
+				report.DefenseValue = -1
+
+				defense := s.Find("div.compacting").Last().Find("span").Eq(1).AttrOr("title", "-1")
+				report.DefenseValue = ParseInt(defense)
+
+				if report.DefenseValue > -1 {
+					report.HasDefenses = true
+				}
+
+				// Metal, Crystal, Deuterium
+				log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+				// res := s.Find("div.compacting").Eq(2).Find("span")
+				res := s.Find("span.resspan").Parent()
+
+				metal := res.Find("span.resspan").Eq(0).Text()
+				crystal := res.Find("span.resspan").Eq(1).Text()
+				deuterium := res.Find("span.resspan").Eq(2).Text()
+
+				log.Print("preParseres = ", metal, crystal, deuterium)
+
+				report.Metal = parseRes(metal)
+				report.Crystal = parseRes(crystal)
+				report.Deuterium = parseRes(deuterium)
+
+				log.Print(report.Metal, report.Crystal, report.Deuterium)
+
+				// APIKey
+				apikey, _ := s.Find("span.icon_apikey").Attr("title")
+				blaat, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+				snarfzonk, _ := blaat.Find("input").First().Attr("value")
+
+				report.APIKey = snarfzonk
+
+				// CreatedAt
+				// <span class="msg_date fright">09.02.2019 23:25:56</span>
+				msgDate, _ := time.Parse("02.01.2006 15:04:05", s.Find("span.msg_date").Text())
+				report.CreatedAt = msgDate
+
+//log.Fatal("--end--")
+				msgs = append(msgs, report)
 			}
 		}
 	})
 	return msgs, nbPage
+}
+
+func parseRes(input string) (res int64) {
+	// Metaal: 2,4M
+	// Kristal: 3,6M
+	// Deuterium: 4,8M
+	// Deuterium: 140.000
+
+	//log.Print("Original input: ", input)
+
+	if strings.Contains(input, ":") {
+		input = strings.Split(input, ":")[1]
+	}
+
+	if strings.Contains(input, ",") {
+		input = strings.Replace(input, ",", ".", 1)
+	}
+
+	if strings.Contains(input, "Miljard") { // Todo: Billion in English? Or just return the value as string instead of int64
+		//log.Print(2.1 * 1e9)
+		//log.Print(input)
+
+		input = strings.Split(input, "M")[0] // regex : \d+\.\d+
+		//log.Print(input, reflect.TypeOf(input))
+
+		input = strings.TrimSpace(input)
+		//log.Print(input, reflect.TypeOf(input))
+
+		input, err := strconv.ParseFloat(input, 64)
+		if err != nil {
+			log.Print(input, reflect.TypeOf(input), err)
+		}
+
+		inputres := input * 1e9
+		//log.Print(input, inputres, reflect.TypeOf(inputres))
+
+		inputres2 := int64(inputres)
+		//log.Print(inputres2, reflect.TypeOf(inputres2))
+
+		return inputres2
+	} else if strings.Contains(input, "M") {
+		//log.Print("Sample: ", 2.1 * 1e6)
+		//log.Print(input)
+
+		input = strings.Split(input, "M")[0] // regex : \d+\.\d+
+		//log.Print(input, reflect.TypeOf(input))
+
+		input = strings.TrimSpace(input)
+		//log.Print(input, reflect.TypeOf(input))
+
+		input, err := strconv.ParseFloat(input, 64)
+		if err != nil {
+			log.Print(input, reflect.TypeOf(input), err)
+		}
+
+		inputres := input * 1e6
+		//log.Print(input, inputres, reflect.TypeOf(inputres))
+
+		inputres2 := int64(inputres)
+		//log.Print(inputres2, reflect.TypeOf(inputres2))
+
+		return inputres2
+	} else {
+		input = strings.Replace(input, ".", "", 1)
+		input = strings.TrimSpace(input)
+		inputint, err := strconv.ParseInt(input, 10, 64)
+		if err != nil {
+			log.Print(input, inputint, err, reflect.TypeOf(inputint))
+		}
+		return inputint
+	}
+
+	return int64(-1)
 }
 
 func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReportSummary, int64) {

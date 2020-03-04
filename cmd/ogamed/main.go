@@ -256,6 +256,12 @@ func start(c *cli.Context) error {
 	e.POST("/bot/delete-report/:messageID", ogame.DeleteMessageHandler)
 	e.POST("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
 	e.POST("/bot/delete-all-reports/:tabIndex", ogame.DeleteMessagesFromTabHandler)
+	e.GET("/bot/espionage-report/:msgid", ogame.GetEspionageReportHandler) // returns EspionageReport
+	e.GET("/bot/espionage-report/:galaxy/:system/:position", ogame.GetEspionageReportForHandler) // returns EspionageReport
+	e.GET("/bot/espionage-report", ogame.GetEspionageReportMessagesHandler) // returns []EspionageReportSummary
+	e.GET("/bot/espionage-report/:msgid", ogame.GetEspionageReportHandler) // returns EspionageReport
+	e.GET("/bot/espionage-report/:galaxy/:system/:position", ogame.GetEspionageReportForHandler) // returns EspionageReport
+	e.GET("/bot/espionage-report", ogame.GetEspionageReportMessagesHandler) // returns []EspionageReportSummary
 	e.GET("/bot/attacks", ogame.GetAttacksHandler)
 	e.GET("/bot/get-auction", ogame.GetAuctionHandler)
 	e.POST("/bot/do-auction", ogame.DoAuctionHandler)

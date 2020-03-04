@@ -3347,7 +3347,7 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 }
 
 // EspionageReportType type of espionage report (action or report)
-type EspionageReportType int
+type EspionageReportType int64
 
 // Action message received when an enemy is seen naer your planet
 const Action EspionageReportType = 0
@@ -3377,7 +3377,24 @@ type EspionageReportSummary struct {
 	Type           EspionageReportType
 	From           string
 	Target         Coordinate
+	PlayerClass string
+	Username string
 	LootPercentage float64
+	LastActivity int64
+	CounterEspionage int64
+	IsInactive bool
+	IsLongInactive bool
+	IsBandit bool
+	IsStarlord bool
+	HasDefenses bool
+	DefenseValue int64
+	HasFleet bool
+	FleetValue int64
+	Metal int64
+	Crystal int64
+	Deuterium int64
+	APIKey string
+	CreatedAt    time.Time
 }
 
 func (b *OGame) getPageMessages(page, tabid int64) ([]byte, error) {

@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"log"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 	"golang.org/x/net/html"
@@ -821,4 +823,153 @@ func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items
 		items = append(items, item)
 	}
 	return
+}
+
+// This function was initially created to extract MessageIDs from EspionageReportSummary messages. It has since been extended to include all fields, but kept it original name.
+func extractEspionageReportMessageIDsFromDocV71(doc *goquery.Document) ([]EspionageReportSummary, int64) {
+	msgs := make([]EspionageReportSummary, 0)
+	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
+	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
+		if idStr, exists := s.Attr("data-msg-id"); exists {
+			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+				messageType := Report
+				if s.Find("span.espionageDefText").Size() > 0 {
+					messageType = Action
+				}
+				report := EspionageReportSummary{ID: id, Type: messageType}
+				report.From = s.Find("span.msg_sender").Text()
+
+				// Added extra logging information (timestamp + linenumbers)
+				log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+				// Username
+				report.Username = strings.TrimSpace(s.Find("div.compacting").First().Find("span").Eq(1).Text())
+
+				// Find PlayerClass
+				playerClass := s.Find("div.compacting").Eq(1).Text()
+				if len(playerClass) > 0 && strings.Contains(playerClass, ":") {
+					report.PlayerClass = strings.TrimSpace(strings.Split(playerClass, ":")[1])
+				}
+
+				// Find target coordinate
+				spanLink := s.Find("span.msg_title a")
+				targetStr := spanLink.Text()
+				report.Target = extractCoordV6(targetStr)
+				report.Target.Type = PlanetType
+				if spanLink.Find("figure").HasClass("moon") {
+					report.Target.Type = MoonType
+				}
+
+				// Find LootPercentage
+				if messageType == Report {
+					s.Find("div.compacting").Each(func(i int, s *goquery.Selection) {
+						if regexp.MustCompile(`%`).MatchString(s.Text()) {
+							report.LootPercentage, _ = strconv.ParseFloat(regexp.MustCompile(`: (\d+)%`).FindStringSubmatch(s.Text())[1], 64)
+							report.LootPercentage /= 100
+						}
+					})
+				}
+
+				// LastActivity
+				report.LastActivity = 0
+				activity := s.Find("span.msg_content").First().Find("span.ctn.ctn4.fright").First().Text()
+				activity = strings.TrimSpace(activity)
+				m := regexp.MustCompile(`(\d{2})`).FindStringSubmatch(activity)
+				if len(m) > 0 {
+					minutes := ParseInt(m[1])
+
+					if len(m) == 2 {
+						report.LastActivity = minutes
+					}
+				}
+
+				// CounterEspionage
+				ceTxt := s.Find("span.msg_content div.compacting").Eq(3).Find("span.fright").Text()
+				ceTxtRegexp := regexp.MustCompile(`: (\d+)%`).FindStringSubmatch(ceTxt)
+				if len(ceTxtRegexp) == 2 {
+					report.CounterEspionage, _ = strconv.ParseInt(ceTxtRegexp[1], 10, 64)
+				}
+
+				// IsBandit, IsStarlord
+				report.IsBandit = false
+				report.IsStarlord = false
+
+				banditstarlord := s.Find("span.honorRank")
+				if banditstarlord.Size() > 0 {
+					if banditstarlord.HasClass("rank_bandit1") || banditstarlord.HasClass("rank_bandit2") || banditstarlord.HasClass("rank_bandit3") {
+						report.IsBandit = true
+					} else if banditstarlord.HasClass("rank_starlord1") || banditstarlord.HasClass("rank_starlord2") || banditstarlord.HasClass("rank_starlord3") {
+						report.IsStarlord = true
+					}
+				}
+
+				// IsInactive, IsLongInactive
+				report.IsInactive = false
+				report.IsLongInactive = false
+
+				if s.Find("span.status_abbr_longinactive").Size() > 0 {
+					report.IsInactive = true
+					report.IsLongInactive = true
+				} else if s.Find("span.status_abbr_inactive").Size() > 0 {
+					report.IsInactive = true
+				}
+
+				// HasFleet, FleetValue
+				report.HasFleet = false
+				report.FleetValue = -1
+
+				fleet := s.Find("div.compacting").Last().Find("span").Eq(0).AttrOr("title", "-1")
+
+				if strings.Contains(fleet, ":") {
+					fleet = strings.Split(fleet, ":")[1]
+					fleet = strings.TrimSpace(fleet)
+					report.FleetValue = ParseInt(fleet)
+				}
+
+				if report.FleetValue > -1 {
+					report.HasFleet = true
+				}
+
+				// HasDefenses,  DefenseValue
+				report.HasDefenses = false
+				report.DefenseValue = -1
+
+				defense := s.Find("div.compacting").Last().Find("span").Eq(1).AttrOr("title", "-1")
+				report.DefenseValue = ParseInt(defense)
+
+				if report.DefenseValue > -1 {
+					report.HasDefenses = true
+				}
+
+				// Metal, Crystal, Deuterium
+				res := s.Find("span.resspan").Parent()
+
+				metal := res.Find("span.resspan").Eq(0).Text()
+				crystal := res.Find("span.resspan").Eq(1).Text()
+				deuterium := res.Find("span.resspan").Eq(2).Text()
+
+				//log.Print("preParseres = ", metal, crystal, deuterium)
+
+				report.Metal = parseRes(metal)
+				report.Crystal = parseRes(crystal)
+				report.Deuterium = parseRes(deuterium)
+
+				//log.Print(report.Metal, report.Crystal, report.Deuterium)
+
+				// APIKey
+				apikey, _ := s.Find("span.icon_apikey").Attr("title")
+				blaat, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+				snarfzonk := blaat.Find("input").First().AttrOr("value", "")
+				report.APIKey = snarfzonk
+
+				// CreatedAt
+				// <span class="msg_date fright">09.02.2019 23:25:56</span>
+				msgDate, _ := time.Parse("02.01.2006 15:04:05", s.Find("span.msg_date").Text())
+				report.CreatedAt = msgDate
+
+				msgs = append(msgs, report)
+			}
+		}
+	})
+	return msgs, nbPage
 }
