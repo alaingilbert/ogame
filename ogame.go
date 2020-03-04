@@ -2790,6 +2790,11 @@ type CheckTargetResponse struct {
 		Type     int    `json:"type"`
 		Name     string `json:"name"`
 	} `json:"targetPlanet"`
+	Errors *struct {
+		Message string `json:"message"`
+		Error int `json:"error"`
+
+	} `json:"errors"`
 	TargetOk   bool          `json:"targetOk"`
 	Components []interface{} `json:"components"`
 }
@@ -2935,6 +2940,10 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	}
 
 	if !checkRes.TargetOk {
+		if len(checkRes.Errors.Message) > 0 {
+			return Fleet{}, errors.New(checkRes.Errors.Message)
+		}
+
 		return Fleet{}, errors.New("target is not ok")
 	}
 
@@ -3330,7 +3339,7 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 // EspionageReportType type of espionage report (action or report)
 type EspionageReportType int
 
-// Action message received when an enemy is seen naer your planet
+// Action message received when an enemy is seen near your planet
 const Action EspionageReportType = 0
 
 // Report message received when you spied on someone
