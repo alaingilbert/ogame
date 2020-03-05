@@ -1110,6 +1110,12 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 }
 
 func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
+
+	servertime, err := extractServerTimeFromDocV6(doc)
+	if err == nil {
+
+	}
+
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1161,14 +1167,14 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			startTimeArray := strings.Split(startTimeString, " ")
 			if len(startTimeArray) == 2 {
 				var format string = "02.01.2006<br>15:04:05"
-				startTime, _ = time.Parse(format, startTimeArray[1])
+				startTime, _ = time.ParseInLocation(format, startTimeArray[1], servertime.Location())
 			}
 		} else {
 			startTimeString, _ := s.Find("div.destination img").Attr("title")
 			startTimeArray := strings.Split(startTimeString, " ")
 			if len(startTimeArray) == 2 {
 				var format string = "02.01.2006<br>15:04:05"
-				startTime, _ = time.Parse(format, startTimeArray[1])
+				startTime, _ = time.ParseInLocation(format, startTimeArray[1], servertime.Location())
 			}
 		}
 
