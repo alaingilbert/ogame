@@ -51,5 +51,5 @@ var (
 	ErrNoMoonAvailable                    = errors.New("no moon available")
 	ErrNoRecyclerAvailable                = errors.New("no recycler available")
 	ErrNoEventsRunning                    = errors.New("there are currently no events running")
-	ErrPlanetAlreadyReservecForRelocation = errors.New("this planet has already been reserved for a relocation")
+	ErrPlanetAlreadyReservedForRelocation = errors.New("this planet has already been reserved for a relocation")
 )
