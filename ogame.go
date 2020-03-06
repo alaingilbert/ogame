@@ -816,7 +816,7 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	}
 	b.ogameSession = b.extractor.ExtractOGameSessionFromDoc(doc)
 	if b.ogameSession == "" {
-		return errors.New("bad credentials")
+		return ErrBadCredentials
 	}
 
 	serverTime, _ := b.extractor.ExtractServerTime(pageHTML)
@@ -1344,6 +1344,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page = vals.Get("component")
 	}
 	ajax := vals.Get("ajax")
+	asJson := vals.Get("asJson")
 	return page == FetchEventboxAjaxPage ||
 		page == FetchResourcesAjaxPage ||
 		page == GalaxyContentAjaxPage ||
@@ -1367,7 +1368,8 @@ func IsAjaxPage(vals url.Values) bool {
 		page == BuffActivationAjaxPage ||
 		page == AuctioneerAjaxPage ||
 		page == HighscoreContentAjaxPage ||
-		ajax == "1"
+		ajax == "1" ||
+		asJson == "1"
 }
 
 func canParseEventBox(by []byte) bool {
@@ -3528,7 +3530,7 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 	case "15":
 		return Fleet{}, ErrNoEventsRunning
 	case "16":
-		return Fleet{}, ErrPlanetAlreadyReservecForRelocation
+		return Fleet{}, ErrPlanetAlreadyReservedForRelocation
 	}
 
 	// Page 3 : select coord, mission, speed

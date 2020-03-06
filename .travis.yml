@@ -1,12 +1,9 @@
 language: go
 go:
-  - "1.11"
-
-before_install:
-  - go get -t -v ./...
+  - "1.12"
 
 script:
-  - go test -coverprofile=coverage.txt -covermode=atomic
+  - go test -mod=vendor -coverprofile=coverage.txt -covermode=atomic
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

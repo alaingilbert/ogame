@@ -869,7 +869,7 @@ func SendFleetHandler(c echo.Context) error {
 			err == ErrNoMoonAvailable ||
 			err == ErrNoRecyclerAvailable ||
 			err == ErrNoEventsRunning ||
-			err == ErrPlanetAlreadyReservecForRelocation) {
+			err == ErrPlanetAlreadyReservedForRelocation) {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
 	if err != nil {
