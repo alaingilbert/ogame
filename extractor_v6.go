@@ -277,6 +277,12 @@ func (e ExtractorV6) ExtractTechnocrat(pageHTML []byte) bool {
 	return e.ExtractTechnocratFromDoc(doc)
 }
 
+// ExtractOGameSession ...
+func (e ExtractorV6) ExtractOGameSession(pageHTML []byte) string {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractOGameSessionFromDoc(doc)
+}
+
 // <Extract from doc> ---------------------------------------------------------
 
 // ExtractHiddenFieldsFromDoc utils function to extract hidden input from a page
