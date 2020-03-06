@@ -1169,22 +1169,16 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			secs = 0
 		}
 
-		var startTime time.Time
+
+		var startTimeString string
 		if !returnFlight {
-			startTimeString, _ := s.Find("div.origin img").Attr("title")
-			startTimeArray := strings.Split(startTimeString, ":| ")
-			if len(startTimeArray) == 2 {
-				var format string = "02.01.2006<br>15:04:05"
-				startTime, _ = time.ParseInLocation(format, startTimeArray[1], servertime.Location())
-		}
+			startTimeString, _ = s.Find("div.origin img").Attr("title")
 		} else {
-			startTimeString, _ := s.Find("div.destination img").Attr("title")
-			startTimeArray := strings.Split(startTimeString, ":| ")
-			if len(startTimeArray) == 2 {
-				var format string = "02.01.2006<br>15:04:05"
-				startTime, _ = time.ParseInLocation(format, startTimeArray[1], servertime.Location())
-			}
+			startTimeString, _ = s.Find("div.destination img").Attr("title")
 		}
+		startTimeArray := strings.Split(startTimeString, ":| ")
+		startTime, _ := time.ParseInLocation("02.01.2006<br>15:04:05", startTimeArray[1], servertime.Location())
+
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
