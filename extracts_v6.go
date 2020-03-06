@@ -1122,6 +1122,7 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 }
 
 func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
+	servertime, _ := extractServerTimeFromDocV6(doc)
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1150,6 +1151,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			arriveIn, _ = strconv.ParseInt(m[1], 10, 64)
 		}
 
+
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
 		m = regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
 		var backIn int64
@@ -1165,6 +1167,23 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		secs := arrivalTime - ogameTimestamp
 		if secs < 0 {
 			secs = 0
+		}
+
+		var startTime time.Time
+		if !returnFlight {
+			startTimeString, _ := s.Find("div.origin img").Attr("title")
+			startTimeArray := strings.Split(startTimeString, " ")
+			if len(startTimeArray) == 2 {
+				var format string = "02.01.2006<br>15:04:05"
+				startTime, _ = time.ParseInLocation(format, startTimeArray[1], servertime.Location())
+		}
+		} else {
+			startTimeString, _ := s.Find("div.destination img").Attr("title")
+			startTimeArray := strings.Split(startTimeString, " ")
+			if len(startTimeArray) == 2 {
+				var format string = "02.01.2006<br>15:04:05"
+				startTime, _ = time.ParseInLocation(format, startTimeArray[1], servertime.Location())
+			}
 		}
 
 		trs := s.Find("table.fleetinfo tr")
@@ -1188,6 +1207,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
+		fleet.StartTime = startTime
 		fleet.ArrivalTime = time.Unix(endTime, 0)
 		fleet.BackTime = time.Unix(arrivalTime, 0)
 		if !returnFlight {
