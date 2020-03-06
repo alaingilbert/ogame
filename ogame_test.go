@@ -2827,3 +2827,13 @@ func TestExtractBuffActivation(t *testing.T) {
 	assert.Equal(t, "081876002bf5791011097597836d3f5c", token)
 	assert.Equal(t, 31, len(items))
 }
+
+func TestExtractOGameSession(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview.html")
+	session := NewExtractorV6().ExtractOGameSession(pageHTMLBytes)
+	assert.Equal(t, "0a724276a3ddbe9949f62bdae48d71c1a16adf20", session)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7/overview_mobile.html")
+	session = NewExtractorV6().ExtractOGameSession(pageHTMLBytes)
+	assert.Equal(t, "c1626ce8228ac5986e3808a7d42d4afc764c1b68", session)
+}

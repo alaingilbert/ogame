@@ -388,7 +388,19 @@ func extractResearchFromDocV6(doc *goquery.Document) Researches {
 }
 
 func extractOGameSessionFromDocV6(doc *goquery.Document) string {
-	return doc.Find("meta[name=ogame-session]").AttrOr("content", "")
+	sessionMeta := doc.Find("meta[name=ogame-session]")
+	if sessionMeta.Size() == 0 {
+		r := regexp.MustCompile(`var session = "([^"]+)";`)
+		scripts := doc.Find("script")
+		for i := 0; i < scripts.Size(); i++ {
+			scriptText := scripts.Eq(i).Text()
+			m := r.FindStringSubmatch(scriptText)
+			if len(m) == 2 {
+				return m[1]
+			}
+		}
+	}
+	return sessionMeta.AttrOr("content", "")
 }
 
 func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
