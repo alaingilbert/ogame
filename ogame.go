@@ -3220,7 +3220,7 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 	case "15":
 		return Fleet{}, ErrNoEventsRunning
 	case "16":
-		return Fleet{}, ErrPlanetAlreadyReservecForRelocation
+		return Fleet{}, ErrPlanetAlreadyReservedForRelocation
 	}
 
 	// Page 3 : select coord, mission, speed
