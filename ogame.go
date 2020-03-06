@@ -1038,6 +1038,7 @@ func IsAjaxPage(vals url.Values) bool {
 		page = vals.Get("component")
 	}
 	ajax := vals.Get("ajax")
+	asJson := vals.Get("asJson")
 	return page == FetchEventboxAjaxPage ||
 		page == FetchResourcesAjaxPage ||
 		page == GalaxyContentAjaxPage ||
@@ -1061,7 +1062,8 @@ func IsAjaxPage(vals url.Values) bool {
 		page == BuffActivationAjaxPage ||
 		page == AuctioneerAjaxPage ||
 		page == HighscoreContentAjaxPage ||
-		ajax == "1"
+		ajax == "1" ||
+		asJson == "1"
 }
 
 func canParseEventBox(by []byte) bool {
