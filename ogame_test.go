@@ -2012,6 +2012,7 @@ func TestExtractFleetV71_2(t *testing.T) {
 	assert.Equal(t, FleetID(8441918), fleets[0].ID)
 	assert.Equal(t, int64(12), fleets[0].Ships.SmallCargo)
 	assert.Equal(t, Resources{}, fleets[0].Resources)
+	assert.Equal(t, clock.Now().Add(-3*time.Second), fleets[0].StartTime.UTC())
 	assert.Equal(t, clock.Now().Add(621*time.Second), fleets[0].ArrivalTime.UTC())
 	assert.Equal(t, clock.Now().Add(1245*time.Second), fleets[0].BackTime.UTC())
 
@@ -2024,6 +2025,7 @@ func TestExtractFleetV71_2(t *testing.T) {
 	assert.Equal(t, FleetID(8441803), fleets[1].ID)
 	assert.Equal(t, int64(11), fleets[1].Ships.LargeCargo)
 	assert.Equal(t, Resources{}, fleets[1].Resources)
+	assert.Equal(t, clock.Now().Add(-1275*time.Second), fleets[1].StartTime.UTC())
 	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].ArrivalTime.UTC())
 	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].BackTime.UTC())
 }
