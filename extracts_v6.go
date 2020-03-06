@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/url"
 	"regexp"
@@ -1176,17 +1177,20 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		var startTime time.Time
 		if !returnFlight {
 			startTimeString, _ := s.Find("div.origin img").Attr("title")
-			startTimeArray := strings.Split(startTimeString, " ")
+			fmt.Printf("StartTime String: %s", startTimeString)
+			startTimeArray := strings.Split(startTimeString, "|")
 			if len(startTimeArray) == 2 {
 				var format string = "02.01.2006<br>15:04:05"
-				startTime, _ = time.ParseInLocation(format, startTimeArray[1], servertime.Location())
+
+				startTime, _ = time.ParseInLocation(format, strings.TrimPrefix(startTimeArray[1], " "), servertime.Location())
 			}
 		} else {
 			startTimeString, _ := s.Find("div.destination img").Attr("title")
-			startTimeArray := strings.Split(startTimeString, " ")
+			fmt.Printf("StartTime String: %s", startTimeString)
+			startTimeArray := strings.Split(startTimeString, "|")
 			if len(startTimeArray) == 2 {
 				var format string = "02.01.2006<br>15:04:05"
-				startTime, _ = time.ParseInLocation(format, startTimeArray[1], servertime.Location())
+				startTime, _ = time.ParseInLocation(format, strings.TrimPrefix(startTimeArray[1], " "), servertime.Location())
 			}
 		}
 
