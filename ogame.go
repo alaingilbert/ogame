@@ -684,7 +684,7 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	}
 	b.ogameSession = b.extractor.ExtractOGameSessionFromDoc(doc)
 	if b.ogameSession == "" {
-		return errors.New("bad credentials")
+		return ErrBadCredentials
 	}
 
 	serverTime, _ := b.extractor.ExtractServerTime(pageHTML)
