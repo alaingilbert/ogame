@@ -1122,7 +1122,6 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 }
 
 func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
-	servertime, _ := extractServerTimeFromDocV6(doc)
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1170,21 +1169,6 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		}
 
 
-		var startTimeString string
-		var startTimeStringExists bool
-		if !returnFlight {
-			startTimeString, startTimeStringExists = s.Find("div.origin img").Attr("title")
-		} else {
-			startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
-		}
-		if startTimeStringExists {
-			startTimeArray := strings.Split(startTimeString, ":| ")
-			if len(startTimeArray) == 2 {
-				startTime, _ := time.ParseInLocation("02.01.2006<br>15:04:05", startTimeArray[1], servertime.Location())
-			}
-		}
-
-
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
 		shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
@@ -1206,16 +1190,29 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
-		fleet.StartTime = startTime
 		fleet.ArrivalTime = time.Unix(endTime, 0)
 		fleet.BackTime = time.Unix(arrivalTime, 0)
+
+		var startTimeString string
+		var startTimeStringExists bool
 		if !returnFlight {
 			fleet.ArriveIn = arriveIn
 			fleet.BackIn = backIn
+			startTimeString, startTimeStringExists = s.Find("div.origin img").Attr("title")
 		} else {
 			fleet.ArriveIn = -1
 			fleet.BackIn = arriveIn
+			startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
 		}
+		
+		var startTime time.Time
+		if startTimeStringExists {
+			startTimeArray := strings.Split(startTimeString, ":| ")
+			if len(startTimeArray) == 2 {
+				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
+			}
+		}
+		fleet.StartTime = startTime
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
