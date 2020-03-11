@@ -29,7 +29,7 @@ import (
 	"github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"github.com/pkg/errors"
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
 )
@@ -1862,12 +1862,26 @@ func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
 	return b.extractor.ExtractEmpire([]byte(pageHTML), nbr)
 }
 
-func (b *OGame) createUnion(fleet Fleet) (int64, error) {
+func (b *OGame) createUnion(fleet Fleet, allUnionUsers []UserInfos) (int64, error) {
 	if fleet.ID == 0 {
 		return 0, errors.New("invalid fleet id")
 	}
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {strconv.FormatInt(int64(fleet.ID), 10)}, "target": {strconv.FormatInt(fleet.TargetPlanetID, 10)}, "ajax": {"1"}})
 	payload := b.extractor.ExtractFederation(pageHTML)
+
+	payload.Del("unionUsers")
+
+	var unionUsers string
+	for _, uu := range allUnionUsers {
+		if unionUsers == "" {
+			unionUsers += uu.PlayerName
+		} else {
+			unionUsers += ";" + uu.PlayerName
+		}
+	}
+
+	payload.Add("unionUsers", unionUsers)
+
 	by, err := b.postPageContent(url.Values{"page": {"unionchange"}, "ajax": {"1"}}, payload)
 	if err != nil {
 		return 0, err
@@ -4369,8 +4383,8 @@ func (b *OGame) BuyOfferOfTheDay() error {
 }
 
 // CreateUnion creates a union
-func (b *OGame) CreateUnion(fleet Fleet) (int64, error) {
-	return b.WithPriority(Normal).CreateUnion(fleet)
+func (b *OGame) CreateUnion(fleet Fleet, users []UserInfos) (int64, error) {
+	return b.WithPriority(Normal).CreateUnion(fleet, users)
 }
 
 // HeadersForPage gets the headers for a specific ogame page

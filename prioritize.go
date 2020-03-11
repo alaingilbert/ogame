@@ -538,10 +538,10 @@ func (b *Prioritize) BuyOfferOfTheDay() error {
 }
 
 // CreateUnion creates a union
-func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
+func (b *Prioritize) CreateUnion(fleet Fleet, users []UserInfos) (int64, error) {
 	b.begin("CreateUnion")
 	defer b.done()
-	return b.bot.createUnion(fleet)
+	return b.bot.createUnion(fleet, users)
 }
 
 // HeadersForPage gets the headers for a specific ogame page
