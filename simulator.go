@@ -891,7 +891,6 @@ func newCombatSimulator(attacker *entity, defender *entity) *combatSimulator {
 	cs.Defender = *defender
 	cs.IsLogging = false
 	cs.MaxRounds = 6
-	cs.FleetToDebris = 0.3
 	return cs
 }
 
@@ -1093,10 +1092,7 @@ func Simulate(attackerParam Attacker, defenderParam Defender, params SimulatorPa
 
 	cs := newCombatSimulator(attacker, defender)
 	cs.IsLogging = false
-	
-	if params.FleetToDebris > 0 {
-		cs.FleetToDebris = params.FleetToDebris
-	}
+	cs.FleetToDebris = params.FleetToDebris
 
 	for i := 0; i < nbSimulations; i++ {
 		cs.Rounds = 1
