@@ -97,7 +97,7 @@ type Wrapper interface {
 	BuyOfferOfTheDay() error
 	BytesDownloaded() int64
 	BytesUploaded() int64
-	CreateUnion(fleet Fleet) (int64, error)
+	CreateUnion(fleet Fleet, unionUsers []string) (int64, error)
 	GetEmpire(nbr int64) (interface{}, error)
 	HeadersForPage(url string) (http.Header, error)
 	CharacterClass() CharacterClass

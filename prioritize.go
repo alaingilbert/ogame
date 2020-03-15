@@ -538,7 +538,7 @@ func (b *Prioritize) BuyOfferOfTheDay() error {
 }
 
 // CreateUnion creates a union
-func (b *Prioritize) CreateUnion(fleet Fleet, users []UserInfos) (int64, error) {
+func (b *Prioritize) CreateUnion(fleet Fleet, users []string) (int64, error) {
 	b.begin("CreateUnion")
 	defer b.done()
 	return b.bot.createUnion(fleet, users)
