@@ -1150,6 +1150,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			arriveIn, _ = strconv.ParseInt(m[1], 10, 64)
 		}
 
+
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
 		m = regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
 		var backIn int64
@@ -1166,6 +1167,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		if secs < 0 {
 			secs = 0
 		}
+
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
@@ -1190,13 +1192,27 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.UnionID = unionID
 		fleet.ArrivalTime = time.Unix(endTime, 0)
 		fleet.BackTime = time.Unix(arrivalTime, 0)
+
+		var startTimeString string
+		var startTimeStringExists bool
 		if !returnFlight {
 			fleet.ArriveIn = arriveIn
 			fleet.BackIn = backIn
+			startTimeString, startTimeStringExists = s.Find("div.origin img").Attr("title")
 		} else {
 			fleet.ArriveIn = -1
 			fleet.BackIn = arriveIn
+			startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
 		}
+		
+		var startTime time.Time
+		if startTimeStringExists {
+			startTimeArray := strings.Split(startTimeString, ":| ")
+			if len(startTimeArray) == 2 {
+				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
+			}
+		}
+		fleet.StartTime = startTime
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")

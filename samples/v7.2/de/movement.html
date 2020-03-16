@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <title>Libra OGame</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <script type="text/javascript">
+            /**
+             * This is only currently needed in a separate file in libraries because
+             * the javascript files are loaded alphabetically from files and we need to
+             * ensure that our namespace object is loaded before all other ogame specific
+             * javascript code
+             */
+
+            /*
+             * global javascript namespace for ogame
+             */
+            var ogame = ogame || {};
+        </script>
+                        <meta name="ogame-session" content="a3a4d1a96d62750ce4ace45b73583758d7aaee46"/>
+        <meta name="ogame-version" content="7.2.0"/>
+        <meta name="ogame-timestamp" content="1583494995"/>
+        <meta name="ogame-universe" content="s1-de.ogame.gameforge.com"/>
+        <meta name="ogame-universe-name" content="Libra"/>
+        <meta name="ogame-universe-speed" content="5"/>
+        <meta name="ogame-universe-speed-fleet" content="1"/>
+        <meta name="ogame-language" content="de"/>
+        <meta name="ogame-donut-galaxy" content="1"/>
+        <meta name="ogame-donut-system" content="1"/>
+        <meta name="ogame-player-id" content="148421"/>
+        <meta name="ogame-player-name" content="Phoebe"/>
+        <meta name="ogame-planet-id" content="15445371"/>
+        <meta name="ogame-planet-name" content="Kolonie"/>
+        <meta name="ogame-planet-coordinates" content="1:127:5"/>
+        <meta name="ogame-planet-type" content="planet"/>
+
+                            
+    <script type="text/javascript">
+      var ajaxEventboxURI = 'https://tobias-pc.speedport.ip:9084/game/index.php?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+      var ajaxResourceboxURI = 'https://tobias-pc.speedport.ip:9084/game/index.php?page=fetchResources&ajax=1';
+      var eventboxLoca    = {"mission":"Auftrag","missions":"Auftr\u00e4ge","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"eigene","neutral":"freundlich","hostile":"feindlich","nextEvent":"N\u00e4chster","nextEventText":"Art"};
+      var eventlistLink   = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=componentOnly&component=eventList&ajax=1";
+    </script>
+
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne6/215ab306a69a767a9e3eba0c8c316f.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5c/0b90f4a098facd7e4d173ab7a27a6c.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna6/2a9f7af34971cdfbd971a0d867d0f3.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn3f/7ea99c73d22beea35a52bd6f7cb422.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc3/e97fcbb510366478af1860d20864c1.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn57/17590ed4605715033324741da78485.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/68ffdf60813686a9fe1d99a1cc334c.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn8e/9a111b0209f44edde46ca7dd9d303c.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn0e/b6730dfc1efc9c613317ae60328bb4.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn50/2fde7afaf29f6878c0b6b9b86449c4.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn07/d2cfcc4e1ddfd63aac037a4f507138.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn2c/0b4c19043f087a2c10ded10d951b95.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc7/a61659f9db877536599b792d2fdb63.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn03/f6de7d24819951074b5e1ae613e68a.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn80/cab8721c76db9f6606ca93faeddbac.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn93/55d667f3f50d381767948507c45e5b.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4b/da5d31cd0a99fc43fbbd9a06b52899.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdneb/210581d261b626ce77bac2ad4983f2.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn64/1b773fe4ce9c6ea5a8be3204caa002.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/541e9161c385e847711f7a6d2e2a41.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn96/3c3d20ad4845ddc678c00dd8fdbe5e.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn89/707f831c581ae267014f3f2fbcd020.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn8f/8733cf33d028ec6c43ecfc907ec98c.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn35/fe33689d32e93aeb383b075270cf4f.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4c/6057a87cf3d326e00e8a126731ec5a.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5d/4c00ba0389df4cdabed9385769f003.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn6c/ade34cb360f17762d348553a2de857.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna8/535876019e29f700c52e026519c566.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnab/c4669ba58ee728ac1bc7610f1f6a30.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn69/96d24bb94430f3ee33c668531a4a93.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnfd/6dff5b2f2b0f4eb551816bacf48791.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd8/7b75126fa68d03f92fbb77226f9132.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn45/f320115669b7611bda327a51918fd2.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/7c49c94686cc0b20c3de6f2921575e.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnc4/c480ff9537d079d4795ec3c6c700d2.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd9/20d2b84283d80fc0bad0e8d0b44344.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/50618794bb4987f392e23fcde41666.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnba/efcc85e086a1b970342e189a5608e1.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdna8/eb8cc78297093a62bba83be66e204e.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnf4/3d9d772413b0c3776bd3b676ea72e9.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn5e/a75bc4f176c8c4fd1548860b945708.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn40/c912ca07743ac211966f9e7e9ad128.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn01/b17884a364a3dc34841c44edae9d03.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn12/58641190a9641e4f2951c707820722.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdndd/eaf138d8da5d08e6de288958d6b08b.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn1c/75cd503d09c4df72ffcf5aff436858.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn06/c288674318e1f4be6fa9fe688317f2.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb3/de2acb879dfae8191ad4c1de8f8fcf.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdnb0/a524432bb87f4b191503be58bf4e38.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn19/6cd7cf97c8b9f95caf0bcc3dfea028.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd4/2f68a78f07cf9923e87fbe75c0ce8a.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn39/ed7c303e3f379ed29ac7d363bc9cc2.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn56/09292a38db7a327b5a161fa1fc0223.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn7c/23194c6009428df8cac22130e823eb.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnd3/4619434ba42d50dde6fb2bae56e371.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn38/36483f5ec8a719f7392723e53838fa.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn36/2c8857695a51fe4b86e99a2eb955d2.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn70/a4fccc0fefb259779456dc294521f6.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn63/7a32b02637324e1ee393271cb87566.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn13/36d28f6019f192739dd5879cc8fd5a.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdn4a/4b31423d3e4862041353c7d4c8d0fa.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdn51/9cb53f20d1f836516d0c1a294bf3fc.css"/>
+            <link rel="stylesheet" type="text/css" href="https://gf3.geo.gfsrv.net/cdne9/6a6d5fc4fff8ae65cacfe4680fb636.css"/>
+    
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn67/fcb375651c0c3542cb6492c9e3341d.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc7/97b54bbd2b148347307f851dd15702.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn04/1bd8fb473b9b768b8f24d50db2ba99.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0a/7454011d277727589dad3da2bbdd35.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf0/c63ad1332c56765a3d6a0692ef2da1.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn9f/8181eafdc5f9430385b2c30ef25b51.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn93/ab249723f51315cc21aa29df993a43.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn5a/83352c8c484520d93fbb80d7e55dd3.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn08/c18b98d9d2d81526f30441aae725f3.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn94/b81647b06d5f606e41f4b4234fb73c.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne7/b615fa36594e4ba18d0b71ca0b39c8.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn56/73217f10a95a494d3ab9535fccaf45.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn87/9a962f64f862267427bea03b98a1d9.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn6b/95fca477ebd6530efdcecff667dfb1.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn49/21a21061b60f907355fd3c06ea0288.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn31/a3cff6708efd0da82bb909a90bb036.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn4a/6a0821e704eba042ebe74781f912d6.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnff/032790954e205b2d4fcb72d484127a.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn09/6b1759b4d8ae0aeb3b4f566299ad46.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn2d/d0f951139e18634a0f55ea69d63723.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnb3/a7e7115215785502490da6c890ee95.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0a/e916181d78437eda6a19bf58ec4e90.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn10/3de5ec70c9081626f7c92363318996.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn43/15b163478fd10066ff77945c20377d.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn4f/8d7b92846cb476632758e9d2ba0f98.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn85/14a05fd59d8bd4ea3afb1d5f0b87f7.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn45/7f8940254df3f2cd3b47b79129a822.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn73/5f7bbb26936705816fe06cada8dada.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn49/422728156f2b26a567b1c04eb5c316.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc6/c8d90bcfc2ad5ecfdfd9eedf3e4e5d.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdna7/196e6d395aa3c50f2b0e208de96e4e.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn04/d752681870471998887a3a44b551a9.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn86/990cce91f0b6a910a2282cfa915d8e.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd0/e3c43906a11d9fbec75ef349168842.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd8/bf7272e9ec95fc337592a36a8ba27d.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0c/287d9025a7e182e89223908ce25353.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn62/087ddad6623296e02dc745566b7d95.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn53/9983cada674149f7b4f756798fe0ae.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnfd/e41e82e23fc01f9ef0c6f23648d584.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnb5/c2db415a9edd4dc63fc8cef617532d.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn52/10b31d9a2a498e01935e45e51a70bc.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne9/d0302006a4f0298a23bc32cebe8068.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn91/e03623732b682472ccb4cde2878597.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc6/8336f4f5cb7024ab5369a18f1fc048.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn40/9d59a24a6690715d0ec9aecdcbac04.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn9f/454060ffd9888f9da041cd2276a337.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnbf/7dea0983ed1dc0149c4f16235ca5e2.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd3/2aaf200752a4895425b54cde80366e.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdncf/1e4a91f9c25f4bdfeb3578acba150f.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn2a/f5f84a2c33484e29339156a358ee9a.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn2e/750b77451ec665077dadca84e88df9.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdndc/d8ca278fb6f548b9d8f2aa10bf310a.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnea/a5e6b0ce0eb367f23eff01a81c1b69.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdndf/e612014c56f552f37561e157546f9d.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0a/2c59dfe31910ca5d780de126e94d65.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn95/b99728a38d0389b2c7fd61d13dd1c5.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn03/37d2006f1c8f9a5e482889b8cc01f5.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn13/c375d55655e9356b77ef13c068bbad.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn48/d3195b6a7bf2fe4cb45be68ce614d6.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn32/9e2cb5dceab9987cd4bada7f922b06.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn41/90a193bbc9bea36e27541e337e7530.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn7f/b0c1c7542400ec3cd780c146ce6bb5.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn44/e75e3d57c758588a059747a1df3472.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf3/a761c8bf0e6998f493711cdc2d261d.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne5/6f621fc9d0fa80ceb25b80bd6464da.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnca/8c2f0b1a3fc6c9909bb76a334e9c42.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne7/d79110c9ea569c12531cd7a0d94179.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne4/cbfb2c1443541ac50ccc3eae0b594d.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn46/60cd95d4ce5cb91a86861f433773d1.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd0/4b21942c81adba07ff5c3c53a17484.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn36/a884fb205ad84a7dbff177a262fe40.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnfb/72cbaef1d58a5ad487b2e207e31c19.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc0/f81e00921ad2bd31110d26738088a7.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn57/3415be2875706a48863d7ee003c9d6.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd4/1d8cd98f00b204e9800998ecf8427e.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn0b/03712425766448174c6684070585b1.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn18/816224807113aa08af9bf131e84868.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnce/87adc249eae8d0b8094ae24b8349b0.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdne6/6ba0f0ec48bbf59618c822ebf27f5e.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnaa/49c3d528d0a05d1de38494ba7f516f.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn81/ee70152a152dfbd628902fc6b2a262.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnc4/c601f9d9857206265f2136779632f1.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn3a/dddb815a1073e20cdc5cc0f0332bb1.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn25/3e16c7b7349c36c8842db0249bacbb.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnbb/15b2ac5dd0107da56f9c0b3c6b41af.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnce/ac1149d19f4f5d3145033cb3e7c63c.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn57/c073a108bcb7d4249b55a098fcdc24.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn1f/c8cec551abbbf544ea541aa80b2fcf.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf4/c8c973ec6c1eb02013726eeb5fa3d6.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnaf/33dccd98865c407a5012ff837f6da5.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8a/b922ccf187e6585a1f6b589324d2db.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn91/cd412eb79595670d1e2cfb456874ad.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdnd4/ed50b027c9d07ddad90f7eb9a85496.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf0/5ec05c9a9b64ef04efc0dfb1fa6efb.js'> </script>
+            <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdna7/723d7a24c224b681ffa45c528c6100.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn24/8917c91d99fd24ca55a9f33d27ec6a.js'> </script>
+            <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdnf0/72d5c38239f4e6fc5b9f581ee53732.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdnbf/4200d09306762e743b04a1c04d51fe.js'> </script>
+            <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn52/fb023baf83234816c2445916460c45.js'> </script>
+    
+                
+                
+
+
+    <script type="text/javascript">
+                
+        var changeSettingsLink = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=changeSettings";
+        var changeSettingsToken = "a014183bd9d849e63dfbe6d3e4807afc";
+        var redirectLogoutLink = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=logout";
+        var redirectOverviewLink = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=ingame&component=overview";
+        var redirectSpaceDockLink = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=ingame&component=facilities&openTech=36";
+                var constants   = {"espionage":6,"missleattack":10,"language":"de","name":"138"};
+        var currentPage = "movement";
+                                        var changeNickLink = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=ajax&component=changenick&asJson=1";
+                    </script>
+
+    <script type="text/javascript">
+      var playerId = 148421;
+      var playerName = "Phoebe";
+      var player = {"playerId":148421,"name":"Phoebe","hasCommander":true,"hasAPassword":true};
+      var session = "a3a4d1a96d62750ce4ace45b73583758d7aaee46";
+      var vacation = 0;
+      var hasAPassword = true;
+      var locaKeys = {"bold":"Fett","italic":"Kursiv","underline":"Unterstrichen","stroke":"Durchgestrichen","sub":"Tiefgestellt","sup":"Hochgestellt","fontColor":"Textfarbe","fontSize":"Textgr\u00f6\u00dfe","backgroundColor":"Hintergrundfarbe","backgroundImage":"Hintergrundbild","tooltip":"Tooltip","alignLeft":"Linksb\u00fcndig","alignCenter":"Zentriert","alignRight":"Rechtsb\u00fcndig","alignJustify":"Blocksatz","block":"Absatz","code":"Code","spoiler":"Spoiler","moreopts":"Mehr Optionen","list":"Liste","hr":"Horizontale Linie","picture":"Bild","link":"Link","email":"E-Mail","player":"Spieler","item":"Item","coordinates":"Koordinaten","preview":"Vorschau","textPlaceHolder":"Text...","playerPlaceHolder":"Spieler ID oder Name","itemPlaceHolder":"Item Id","coordinatePlaceHolder":"Galaxie:System:Position","charsLeft":"Zeichen \u00fcbrig","colorPicker":{"ok":"OK","cancel":"Abbrechen","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"OK","repeatX":"Horizontal wiederholen","repeatY":"Vertikal wiederholen"}};
+      var itemNames = {"090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Kristall-Booster Bronze","e254352ac599de4dd1f20f0719df0a070c623ca8":"Deuterium-Booster Bronze","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Metall-Booster Bronze","2dd05cc4c0e185fce2e712112dc44932027aee98":"Entdecker","9374c79a24b84c4331f0d26526ef6c2d33319a6e":"Kollektor","77eff880829027daf23b755e14820a60c4c6fd93":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Kristall-Booster Bronze","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Kristall-Booster Silber","118d34e685b5d1472267696d1010a393a59aed03":"Kristall-Booster Gold","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Gold","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID Silber","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Deuterium-Booster Bronze","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Deuterium-Booster Silber","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Deuterium-Booster Gold","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Gold","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN Silber","de922af379061263a56d7204d1c395cefcfb7d75":"Metall-Booster Bronze","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Metall-Booster Silber","05294270032e5dc968672425ab5611998c409166":"Metall-Booster Gold","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Mondfelder Bronze","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Mondfelder Gold","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"Mondfelder Silber","485a6d5624d9de836d3eb52b181b13423f795770":"M.O.O.N.S. Bronze","45d6660308689c65d97f3c27327b0b31f880ae75":"M.O.O.N.S. Gold","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"M.O.O.N.S. Silber","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Gold","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON Silber","16768164989dffd819a373613b5e1a52e226a5b0":"Planetenfelder Bronze","04e58444d6d0beb57b3e998edc34c60f8318825a":"Planetenfelder Gold","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Planetenfelder Silber"};
+      var isMobile = false;
+      var isMobileApp = false;
+      var bbcodePreviewUrl = "https://tobias-pc.speedport.ip:9084/game/index.php?page=bbcodePreview";
+      var ogameUrl = "https:\/\/tobias-pc.speedport.ip:9084";
+      var startpageUrl = "https:\/\/de.ogame.gameforge.com";
+      var LocalizationStrings = {"timeunits":{"short":{"year":"J","month":"M","week":"w","day":"t","hour":"h","minute":"m","second":"s"}},"status":{"ready":"fertig"},"decimalPoint":",","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Mrd","question":"Frage","error":"Hinweis","loading":"laden ...","notice":"Hinweis","yes":"Ja","no":"Nein","ok":"OK","attention":"Achtung","outlawWarning":"Du bist im Begriff, einen st\u00e4rkeren Spieler anzugreifen. Wenn du dies tust, wird dein Angriffsschutz f\u00fcr 7 Tage ausgesetzt und alle Spieler k\u00f6nnen dich straflos angreifen. Bist du dir sicher, dass du fortfahren m\u00f6chtest?","lastSlotWarningMoon":"Dieses Geb\u00e4ude wird den letzten Bauplatz verbrauchen. Baue deine Mondbasis aus, um weitere Pl\u00e4tze zu bekommen.\nM\u00f6chtest du das Geb\u00e4ude wirklich bauen?","lastSlotWarningPlanet":"Dieses Geb\u00e4ude wird den letzten Bauplatz verbrauchen. Baue deinen Terraformer aus oder kaufe ein Planetenfelditem, um weitere Pl\u00e4tze zu bekommen.\nM\u00f6chtest du das Geb\u00e4ude wirklich bauen?","forcedVacationWarning":"Best\u00e4tige jetzt deinen Lobby-Account und wir schenken dir in jedem Universum Dunkle Materie!","planetMoveBreakUpWarning":"Vorsicht! Dieser Auftrag k\u00f6nnte \u00fcber den Umsiedlungszeitpunkt hinaus laufen und einen Abbruch der Umsiedlung zur Folge haben. Willst du wirklich mit dem Auftrag fortfahren?","moreDetails":"Mehr Details","lessDetails":"Weniger Details","planetOrder":{"lock":"Sortierung sperren","unlock":"Sortierung entsperren"},"darkMatter":"Dunkle Materie","errorNotEnoughDM":"Es ist nicht gen\u00fcgend Dunkle Materie vorhanden! M\u00f6chtest du diese jetzt kaufen?","activateItem":{"upgradeItemQuestion":"M\u00f6chtest du dein vorhandenes Item wirklich ersetzen? Der alte Bonus geht dabei verloren.","upgradeItemQuestionHeader":"Item ersetzen?"},"characterClassItem":{"buyAndActivateItemQuestion":"Willst du die Klasse #characterClassName# f\u00fcr #darkmatter# Dunkle Materie aktivieren? Deine aktuelle Klasse geht dabei verloren.","activateItemQuestion":"Willst du die Klasse #characterClassName# aktivieren? Deine aktuelle Klasse geht dabei verloren."},"LOCA_ALL_NETWORK_ATTENTION":"Achtung","LOCA_ALL_YES":"Ja","LOCA_ALL_NO":"Nein"};
+      var popupWindows = [];
+      var showOutlawWarning = true;
+      var chatLoca = {"TEXT_EMPTY":"Wo ist die Nachricht?","TEXT_TOO_LONG":"Die Nachricht ist zu lang.","SAME_USER":"Du kannst dir nicht selbst schreiben.","IGNORED_USER":"Du hast diesen Spieler ignoriert.","NO_DATABASE_CONNECTION":"Ein uns unbekannter Fehler ist aufgetreten, leider konnte deine letzte Aktion nicht ausgef\u00fchrt werden.","INVALID_PARAMETERS":"Ein uns unbekannter Fehler ist aufgetreten, leider konnte deine letzte Aktion nicht ausgef\u00fchrt werden.","SEND_FAILED":"Ein uns unbekannter Fehler ist aufgetreten, leider konnte deine letzte Aktion nicht ausgef\u00fchrt werden.","LOCA_ALL_ERROR_NOTACTIVATED":"Diese Funktion ist erst nach Aktivierung des Spielerkontos m\u00f6glich.","X_NEW_CHATS":"#+# ungelesene Unterhaltung(en)","MORE_USERS":"mehr anzeigen"};
+      var overlayWidth = 770;
+      var overlayHeight = 600;
+      var isStandalonePage = false;
+      var serverTime = new Date(2020, 2, 6, 12, 43, 15);
+      var serverTimeZoneOffsetInMinutes = -60;
+      var localTime = new Date();
+      var localTimeZoneOffsetInMinutes = localTime.getTimezoneOffset();
+      var timeDiff = serverTime - localTime;
+      var timeZoneDiffSeconds = (serverTimeZoneOffsetInMinutes - localTimeZoneOffsetInMinutes) * 60;
+
+      var nodePort = 19489
+      var nodeUrl = "https:\/\/tobias-pc.speedport.ip:9084:19489\/socket.io\/socket.io.js"
+      var nodeParams = {"port":19489,"secure":true}
+
+      var miniFleetToken = "643f9851320c7b9dfecabc496c3e2d54";
+      var miniFleetLink = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=minifleet&ajax=1";
+
+      var jumpGateLink = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=jumpgatelayer";
+      var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Sprungtor benutzen"};
+
+      var timerHandler = new TimerHandler();
+
+      $(document).ready(
+        function(){
+          initOverlays();
+        }
+      );
+    </script>
+                                </head>
+    <body id="ingamepage" class="no-touch ">
+            
+        <div id="siteHeader">
+    </div>
+
+            <div id="pageContent">
+        <div id="top">
+            <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+                                <div id='resourcesbarcomponent'
+                            class=""
+                >
+        <ul id="resources">
+            <li id="metal_box"
+            class="metal  tooltipHTML"
+            title="Metall|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Dein Bestand:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;21.377&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Lagerkapazität:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;255.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Aktuelle Produktion:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+15.256&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Versteckkapazität:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;13.232&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    >
+                            <div class="resourceIcon metal"></div>
+                <span class="value">
+                    <span id="resources_metal" data-raw="21377.262105555" class="">21.377,262</span>
+                </span>
+                    </li>
+            <li id="crystal_box"
+            class="crystal  tooltipHTML"
+            title="Kristall|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Dein Bestand:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;14.215&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Lagerkapazität:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;140.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Aktuelle Produktion:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+10.145&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Versteckkapazität:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;7.056&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    >
+                            <div class="resourceIcon crystal"></div>
+                <span class="value">
+                    <span id="resources_crystal" data-raw="14215.854594444" class="">14.215,854</span>
+                </span>
+                    </li>
+            <li id="deuterium_box"
+            class="deuterium  tooltipHTML"
+            title="Deuterium|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Dein Bestand:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;3.648&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Lagerkapazität:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;40.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Aktuelle Produktion:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+2.604&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Versteckkapazität:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;912&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    >
+                            <div class="resourceIcon deuterium"></div>
+                <span class="value">
+                    <span id="resources_deuterium" data-raw="3648.5648722222" class="">3.648,564</span>
+                </span>
+                    </li>
+            <li id="energy_box"
+            class="energy  tooltipHTML"
+            title="Energie|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Dein Bestand:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;344&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Aktuelle Produktion:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+2.441&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Verbrauch:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-2.097&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    >
+                            <div class="resourceIcon energy"></div>
+                <span class="value">
+                    <span id="resources_energy" data-raw="344" class="">344</span>
+                </span>
+                    </li>
+            <li id="darkmatter_box"
+            class="darkmatter  tooltipHTML"
+            title="Dunkle Materie|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Dein Bestand:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;722.222.424.442&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Gekauft:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Gefunden:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;722.222.424.442&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                            data-tooltip-button="Dunkle Materie beschaffen"
+                    >
+                            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=payment"
+                   class="overlay">
+                    <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif">
+                    <div class="resourceIcon darkmatter"></div>
+                </a>
+                <span class="value">
+                    <span id="resources_darkmatter" data-raw="722222424442" class="overlay">722.222.424.442</span>
+                </span>
+                    </li>
+    </ul>
+<script type="text/javascript">
+    var isMobile = false;
+    var LocalizationStrings = {"timeunits":{"short":{"year":"J","month":"M","week":"w","day":"t","hour":"h","minute":"m","second":"s"}},"status":{"ready":"fertig"},"decimalPoint":",","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Mrd","question":"Frage","error":"Hinweis","loading":"laden ...","notice":"Hinweis","yes":"Ja","no":"Nein","ok":"OK","attention":"Achtung","outlawWarning":"Du bist im Begriff, einen st\u00e4rkeren Spieler anzugreifen. Wenn du dies tust, wird dein Angriffsschutz f\u00fcr 7 Tage ausgesetzt und alle Spieler k\u00f6nnen dich straflos angreifen. Bist du dir sicher, dass du fortfahren m\u00f6chtest?","lastSlotWarningMoon":"Dieses Geb\u00e4ude wird den letzten Bauplatz verbrauchen. Baue deine Mondbasis aus, um weitere Pl\u00e4tze zu bekommen.\nM\u00f6chtest du das Geb\u00e4ude wirklich bauen?","lastSlotWarningPlanet":"Dieses Geb\u00e4ude wird den letzten Bauplatz verbrauchen. Baue deinen Terraformer aus oder kaufe ein Planetenfelditem, um weitere Pl\u00e4tze zu bekommen.\nM\u00f6chtest du das Geb\u00e4ude wirklich bauen?","forcedVacationWarning":"Best\u00e4tige jetzt deinen Lobby-Account und wir schenken dir in jedem Universum Dunkle Materie!","planetMoveBreakUpWarning":"Vorsicht! Dieser Auftrag k\u00f6nnte \u00fcber den Umsiedlungszeitpunkt hinaus laufen und einen Abbruch der Umsiedlung zur Folge haben. Willst du wirklich mit dem Auftrag fortfahren?","moreDetails":"Mehr Details","lessDetails":"Weniger Details","planetOrder":{"lock":"Sortierung sperren","unlock":"Sortierung entsperren"},"darkMatter":"Dunkle Materie","errorNotEnoughDM":"Es ist nicht gen\u00fcgend Dunkle Materie vorhanden! M\u00f6chtest du diese jetzt kaufen?","activateItem":{"upgradeItemQuestion":"M\u00f6chtest du dein vorhandenes Item wirklich ersetzen? Der alte Bonus geht dabei verloren.","upgradeItemQuestionHeader":"Item ersetzen?"},"characterClassItem":{"buyAndActivateItemQuestion":"Willst du die Klasse #characterClassName# f\u00fcr #darkmatter# Dunkle Materie aktivieren? Deine aktuelle Klasse geht dabei verloren.","activateItemQuestion":"Willst du die Klasse #characterClassName# aktivieren? Deine aktuelle Klasse geht dabei verloren."},"LOCA_ALL_NETWORK_ATTENTION":"Achtung","LOCA_ALL_YES":"Ja","LOCA_ALL_NO":"Nein"};
+
+    (function($) {
+        reloadResources({"resources":{"metal":{"amount":21377.262105555,"storage":255000,"baseProduction":0.041666666666667,"tooltip":"Metall|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Dein Bestand:<\/th>\n                <td><span class=\"\">21.377<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Lagerkapazit\u00e4t:<\/th>\n                <td><span class=\"\">255.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Aktuelle Produktion:<\/th>\n                <td><span class=\"undermark\">+15.256<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Versteckkapazit\u00e4t:<\/th>\n                <td><span class=\"middlemark\">13.232<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"crystal":{"amount":14215.854594444,"storage":140000,"baseProduction":0.020833333333333,"tooltip":"Kristall|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Dein Bestand:<\/th>\n                <td><span class=\"\">14.215<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Lagerkapazit\u00e4t:<\/th>\n                <td><span class=\"\">140.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Aktuelle Produktion:<\/th>\n                <td><span class=\"undermark\">+10.145<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Versteckkapazit\u00e4t:<\/th>\n                <td><span class=\"middlemark\">7.056<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"deuterium":{"amount":3648.5648722222,"storage":40000,"baseProduction":0,"tooltip":"Deuterium|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Dein Bestand:<\/th>\n                <td><span class=\"\">3.648<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Lagerkapazit\u00e4t:<\/th>\n                <td><span class=\"\">40.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Aktuelle Produktion:<\/th>\n                <td><span class=\"undermark\">+2.604<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Versteckkapazit\u00e4t:<\/th>\n                <td><span class=\"middlemark\">912<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"energy":{"amount":344,"tooltip":"Energie|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Dein Bestand:<\/th>\n                <td><span class=\"\">344<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Aktuelle Produktion:<\/th>\n                <td><span class=\"undermark\">+2.441<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Verbrauch:<\/th>\n                <td><span class=\"overmark\">-2.097<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"darkmatter":{"amount":722222424442,"tooltip":"Dunkle Materie|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Dein Bestand:<\/th>\n                <td><span class=\"\">722.222.424.442<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Gekauft:<\/th>\n                <td><span class=\"\">0<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Gefunden:<\/th>\n                <td><span class=\"\">722.222.424.442<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":"","classes":"overlay","link":"https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}},"techs":{"1":{"techId":1,"production":{"metal":4.1963861111111,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0.20416666666667}},"2":{"techId":2,"production":{"metal":0,"crystal":2.7974638888889,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0.20416666666667}},"3":{"techId":3,"production":{"metal":0,"crystal":0,"deuterium":0.72343611111111,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0.17416666666667}},"4":{"techId":4,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0.67811666666667},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12":{"techId":12,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"212":{"techId":212,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"217":{"techId":217,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}}},"honorScore":0});
+    })(jQuery);
+</script>
+    </div>
+                                <div id='commandercomponent'
+                            class=""
+                >
+                <div id="characterclass" class="fleft">
+        <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=characterclassselection"
+           class="tooltipHTML js_hideTipOnMobile"
+           title="Deine Klasse: Kollektor|+25% Minenproduktion&lt;br&gt;+10% Energieproduktion&lt;br&gt;+100% Geschwindigkeit für Transporter&lt;br&gt;+25% Laderaum für Transporter&lt;br&gt;+2 Angebote&lt;br&gt;Geringere Marktgebühren&lt;br&gt;+50% Crawler-Bonus">
+                <div class="sprite characterclass medium miner"></div>
+        </a>
+        </div>
+<div id="officers" class="all shortTime  fright">
+            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=premium&amp;openDetail=2"
+           class="tooltipHTML  on shortTime commander js_hideTipOnMobile "
+           title="Commander anheuern|Noch mehr als 788 Tage aktiv"
+        >
+            <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=premium&amp;openDetail=3"
+           class="tooltipHTML  on shortTime  admiral js_hideTipOnMobile "
+           title="Admiral anheuern|Noch mehr als 788 Tage aktiv"
+        >
+            <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=premium&amp;openDetail=4"
+           class="tooltipHTML  on shortTime  engineer js_hideTipOnMobile "
+           title="Ingenieur anheuern|Noch mehr als 788 Tage aktiv"
+        >
+            <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=premium&amp;openDetail=5"
+           class="tooltipHTML  on shortTime  geologist js_hideTipOnMobile "
+           title="Geologen anheuern|Noch mehr als 788 Tage aktiv"
+        >
+            <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=premium&amp;openDetail=6"
+           class="tooltipHTML  on shortTime  technocrat js_hideTipOnMobile "
+           title="Technokraten anheuern|Noch mehr als 788 Tage aktiv"
+        >
+            <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+    </div>
+    </div>
+                                <div id='notificationbarcomponent'
+                            class=""
+                >
+        <div id="message-wrapper">
+    <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+       href="https://tobias-pc.speedport.ip:9084/game/index.php?page=messages"
+       title="4 ungelesene Nachricht(en)"
+    >
+                    <span class="new_msg_count totalMessages news "
+                  data-new-messages="4"
+            >
+                4
+            </span>
+            </a>
+    <a class=" comm_menu chat tooltip js_hideTipOnMobile"
+       href="https://tobias-pc.speedport.ip:9084/game/index.php?page=chat"
+       title="4 ungelesene Nachricht(en)"
+    >
+        <span class="new_msg_count totalChatMessages noMessage"
+              data-new-messages="0">
+            0
+        </span>
+    </a>
+    <div id="messages_collapsed">
+        <div id="eventboxFilled" class="eventToggle" style="display: none;">
+            <a id="js_eventDetailsClosed"
+               class="tooltipRight js_hideTipOnMobile"
+               href="javascript:void(0);"
+               title="Mehr Details"
+            ></a>
+            <a id="js_eventDetailsOpen"
+               class="tooltipRight open js_hideTipOnMobile"
+               href="javascript:void(0);"
+               title="Weniger Details"
+            ></a>
+        </div>
+        <div id="eventboxLoading"
+             class="textCenter textBeefy"
+             style="display: block;"
+        >
+            <img height="16"
+                 width="16"
+                 alt="ajax spinner"
+                 src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"
+            />
+            laden ...
+        </div>
+        <div id="eventboxBlank"
+             class="textCenter"
+             style="display: none;"
+        >
+            Keine Flottenbewegungen
+        </div>
+    </div>
+    <div id="attack_alert"
+         class="tooltip noAttack"
+         title=""
+    >
+        <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"
+                ></a>
+            </div>
+</div>
+    </div>
+                                <div id='headerbarcomponent'
+                            class=""
+                >
+        <div id="bar">
+    <ul>
+        <li id="playerName">
+            Spieler:
+            
+                        <span class="textBeefy">
+                            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ajax&amp;component=changenick"
+                               class="overlay textBeefy"
+                               data-overlay-title="Spielername ändern"
+                               data-overlay-popup-width="400"
+                               data-overlay-popup-height="200"
+                            >Phoebe</a>
+                        </span>
+                    </li>
+        <li>
+            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=highscore" accesskey="">Highscore</a>
+                            (1)
+                    </li>
+        <li>
+            <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=notices"
+            class="overlay" data-overlay-title="Meine Notizen"
+            data-overlay-class="notices"
+            data-overlay-popup-width="750"
+            data-overlay-popup-height="480"
+            accesskey="">
+            Notizen</a>
+        </li>
+        <li>
+            <a class=""
+            accesskey=""
+            href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=buddies"
+            >
+            Buddys</a>
+                    </li>
+        <li><a class="overlay"
+               href="https://tobias-pc.speedport.ip:9084/game/index.php?page=search&amp;ajax=1"
+            data-overlay-title="OGame Universum durchsuchen"
+            data-overlay-close="__default closeSearch"
+            data-overlay-class="search"
+            accesskey="">Suche</a>
+        </li>
+        <li><a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=preferences" accesskey="">Einstellungen</a></li>
+        <li><a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=support" target="_blank">Support</a></li>
+        <li><a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=logout">Logout</a></li>
+        <li class="OGameClock">06.03.2020 <span>12:43:15</span></li>
+    </ul>
+</div>
+    </div>
+
+        </div>
+        <div id="left">
+                            <div id='mainmenucomponent'></div>
+                                <div id='tutorialiconcomponent'
+                            class=""
+                >
+        <div id="helper">
+        <a class="tooltip tooltipClose"
+       href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=tutorial"
+       title="Tutorialübersicht&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=rewards&quot;&gt;Belohnungen&lt;/a&gt;">?</a>
+    </div>
+    </div>
+                                <div id='toolbarcomponent'
+                            class=""
+                >
+        <div id="links">
+    <ul id="menuTable" class="leftmenu">
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://tobias-pc.speedport.ip:9084/game/index.php?page=rewards"
+                                                        class="tooltipRight js_hideTipOnMobile "
+                            target="_self"
+                            title="Belohnungen">
+                            <div class="menuImage overview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=overview"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Übersicht</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://tobias-pc.speedport.ip:9084/game/index.php?page=resourceSettings"
+                                                        class="tooltipRight js_hideTipOnMobile "
+                            target="_self"
+                            title="Versorgungseinstellungen">
+                            <div class="menuImage resources  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=supplies"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Versorgung</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=facilities"
+                                                        class="tooltipRight js_hideTipOnMobile "
+                            target="_self"
+                            title="Sprungtor">
+                            <div class="menuImage station  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=facilities"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Anlagen</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=marketplace&amp;tab=overview"
+                                                        class="tooltipRight js_hideTipOnMobile "
+                            target="_self"
+                            title="Eigene">
+                            <div class="menuImage marketplace  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=marketplace"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Marktplatz</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://tobias-pc.speedport.ip:9084/game/index.php?page=traderOverview#page=traderResources&amp;animation=false"
+                                                        class="trader tooltipRight js_hideTipOnMobile "
+                            target="_self"
+                            title="Rohstoffmarkt">
+                            <div class="menuImage traderOverview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                <a class="menubutton premiumHighligt"
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=traderOverview"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Händler</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all"
+                                                        class="overlay tooltipRight js_hideTipOnMobile "
+                            target="_blank"
+                            title="Technik">
+                            <div class="menuImage research  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=research"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Forschung</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <span class="menuImage shipyard  "></span>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=shipyard"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Schiffswerft</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <span class="menuImage defense  "></span>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=defenses"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Verteidigung</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=movement"
+                                                        class="tooltipRight js_hideTipOnMobile "
+                            target="_self"
+                            title="Flottenbewegungen">
+                            <div class="menuImage fleet1 active 
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                <a class="menubutton  selected"
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=fleetdispatch"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Flotte</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <span class="menuImage galaxy  "></span>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=galaxy"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Galaxie</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <span class="menuImage empire  "></span>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=standalone&amp;component=empire"
+                                            accesskey=""
+                                        target="_blank"
+                                        >
+                    <span class="textlabel">Imperium</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <span class="menuImage alliance  "></span>
+                                    </span>
+                <a class="menubutton "
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=alliance"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Allianz</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <span class="menuImage premium  "></span>
+                                    </span>
+                <a class="menubutton premiumHighligt officers"
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=premium"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Offizierskasino</span>
+                </a>
+            </li>
+                                                                                                                                
+            <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://tobias-pc.speedport.ip:9084/game/index.php?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be"
+                                                        class="tooltipRight js_hideTipOnMobile "
+                            target="_self"
+                            title="Inventar">
+                            <div class="menuImage shop  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                <a class="menubutton premiumHighligt"
+                    href="https://tobias-pc.speedport.ip:9084/game/index.php?page=shop"
+                                            accesskey=""
+                                        target="_self"
+                                        >
+                    <span class="textlabel">Shop</span>
+                </a>
+            </li>
+            </ul>
+
+    <div id="toolLinksWrapper">
+        <ul id="menuTableTools" class="leftmenu"></ul>
+    </div>
+    <br class="clearfloat"/>
+</div>
+    </div>
+                                <div id='advicebarcomponent'
+                            class=""
+                >
+        <div class="adviceWrapper">
+            <div id="promotionCountdownBox">
+    <a class=""
+       href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&component=fleetdispatch&position=16" >
+        <span>Die Happy Hour endet in:</span>
+        <span id="promotionCountdown"></span>
+        <span>Expedition</span>
+    </a>
+</div>
+
+    
+    <div id="advice-bar">
+                            
+        
+                
+        
+            </div>
+    <div id="banner_skyscraper" name="banner_skyscraper">
+        <div>
+            <a href="javascript:void(0);"
+           class="close_details"
+           ref="MTU4MzM2MjgwMHwxNTgzNTM1NTk57316b">
+       </a>
+        <a class="tooltipLeft "
+       title=""
+       href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&component=fleetdispatch&position=16"
+                  >
+        <img src="https://gf1.geo.gfsrv.net/cdn08/8386e9a5ee06a4a981edea04d5022a.jpg" alt=""/>
+    </a>
+</div>
+    </div>
+</div>
+
+    <script language="javascript" type="text/javascript">
+      setTimeout(function () {
+        $('#promotionCountdownBox').remove()
+      }, 40604000)
+
+      new baulisteCountdown(
+        $('#promotionCountdown')[0],
+              40604,
+        null,
+        function () {
+          $('#promotionCountdownBox').remove()
+        })
+    </script>
+    </div>
+        </div>
+        <div id="middle">
+                                                    <div id='eventlistcomponent'
+                            class=""
+                >
+        <div id="eventboxContent"
+     style="">
+    <div id="eventListWrap">
+        <div id="eventHeader">
+            <a class="close_details eventToggle" href="javascript:toggleEvents();">
+            </a>
+            <h2>Ereignisse</h2>
+        </div>
+        <table id="eventContent">
+            <tbody>
+                                        <tr class="eventFleet" id="eventRow-13946458"
+    data-mission-type="4"
+    data-return-flight="false"
+    data-arrival-time="1583565437"
+>
+        <td class="countDown">
+        <span id="counter-eventlist-13946458" class="friendly textBeefy">
+                    laden ...
+        </span>
+    </td>
+    <td class="arrivalTime">08:17:17 Uhr</td>
+        <td class="missionFleet">
+        <img src="https://gf3.geo.gfsrv.net/cdnb0/4dab966bded2d26f89992b2c6feb4c.gif" class="tooltipHTML"  title="Eigene Flotte | Stationieren" alt=""/>
+    </td>
+
+    <td class="originFleet">
+                        <figure class="planetIcon planet"></figure>Kolonie
+            </td>
+    <td class="coordsOrigin">
+    <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=123" target="_top">
+        [1:123:6]
+    </a>
+</td>
+
+    <td class="detailsFleet">
+            <span>30</span>
+    </td>
+    <td class="icon_movement">
+            <span class="tooltip tooltipRight tooltipClose"
+              title="&lt;div class=&quot;htmlTooltip&quot;&gt;
+    &lt;h1&gt;Flottendetails:&lt;/h1&gt;
+    &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
+            &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
+            &lt;tr&gt;
+                &lt;th colspan=&quot;3&quot;&gt;Schiffe:&lt;/th&gt;
+            &lt;/tr&gt;
+                                                &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Großer Transporter:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;22&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Leichter Jäger:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;8&lt;/td&gt;
+                    &lt;/tr&gt;
+                                                        &lt;tr&gt;
+                    &lt;td colspan=&quot;3&quot;&gt;&amp;nbsp;&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;th colspan=&quot;3&quot;&gt;Ladung:&lt;/th&gt;
+                &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Metall:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;137.094&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Kristall:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;80.108&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Deuterium:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;42.404&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+    &lt;/div&gt;
+">
+                &nbsp;
+            </span>
+    </td>
+
+    <td class="destFleet">
+            <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Kolonie
+    </td>
+    <td class="destCoords">
+    <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=127" target="_top">
+        [1:127:5]
+    </a>
+</td>
+
+    <td class="sendProbe">
+    </td>
+    <td class="sendMail">
+    </td>
+
+</tr>
+
+                                        <tr class="eventFleet" id="eventRow-13946448"
+    data-mission-type="4"
+    data-return-flight="false"
+    data-arrival-time="1583656582"
+>
+        <td class="countDown">
+        <span id="counter-eventlist-13946448" class="friendly textBeefy">
+                    laden ...
+        </span>
+    </td>
+    <td class="arrivalTime">09:36:22 Uhr</td>
+        <td class="missionFleet">
+        <img src="https://gf3.geo.gfsrv.net/cdnb0/4dab966bded2d26f89992b2c6feb4c.gif" class="tooltipHTML"  title="Eigene Flotte | Stationieren" alt=""/>
+    </td>
+
+    <td class="originFleet">
+                        <figure class="planetIcon planet"></figure>Kolonie
+            </td>
+    <td class="coordsOrigin">
+    <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=127" target="_top">
+        [1:127:5]
+    </a>
+</td>
+
+    <td class="detailsFleet">
+            <span>16</span>
+    </td>
+    <td class="icon_movement">
+            <span class="tooltip tooltipRight tooltipClose"
+              title="&lt;div class=&quot;htmlTooltip&quot;&gt;
+    &lt;h1&gt;Flottendetails:&lt;/h1&gt;
+    &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
+            &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
+            &lt;tr&gt;
+                &lt;th colspan=&quot;3&quot;&gt;Schiffe:&lt;/th&gt;
+            &lt;/tr&gt;
+                                                &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Großer Transporter:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;15&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Kolonieschiff:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;1&lt;/td&gt;
+                    &lt;/tr&gt;
+                                                        &lt;tr&gt;
+                    &lt;td colspan=&quot;3&quot;&gt;&amp;nbsp;&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;th colspan=&quot;3&quot;&gt;Ladung:&lt;/th&gt;
+                &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Metall:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;186.241&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Kristall:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;81.943&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Deuterium:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;3.527&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+    &lt;/div&gt;
+">
+                &nbsp;
+            </span>
+    </td>
+
+    <td class="destFleet">
+            <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Kolonie
+    </td>
+    <td class="destCoords">
+    <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=123" target="_top">
+        [1:123:6]
+    </a>
+</td>
+
+    <td class="sendProbe">
+    </td>
+    <td class="sendMail">
+    </td>
+
+</tr>
+
+                            </tbody>
+        </table>
+        <div id="eventFooter"></div>
+    </div>
+</div>
+<script type="text/javascript">
+  var timeDelta = 1583494995000 - (new Date()).getTime();
+  var LocalizationStrings = {"timeunits":{"short":{"year":"J","month":"M","week":"w","day":"t","hour":"h","minute":"m","second":"s"}},"status":{"ready":"fertig"},"decimalPoint":",","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Mrd","question":"Frage","error":"Hinweis","loading":"laden ...","notice":"Hinweis","yes":"Ja","no":"Nein","ok":"OK","attention":"Achtung","outlawWarning":"Du bist im Begriff, einen st\u00e4rkeren Spieler anzugreifen. Wenn du dies tust, wird dein Angriffsschutz f\u00fcr 7 Tage ausgesetzt und alle Spieler k\u00f6nnen dich straflos angreifen. Bist du dir sicher, dass du fortfahren m\u00f6chtest?","lastSlotWarningMoon":"Dieses Geb\u00e4ude wird den letzten Bauplatz verbrauchen. Baue deine Mondbasis aus, um weitere Pl\u00e4tze zu bekommen.\nM\u00f6chtest du das Geb\u00e4ude wirklich bauen?","lastSlotWarningPlanet":"Dieses Geb\u00e4ude wird den letzten Bauplatz verbrauchen. Baue deinen Terraformer aus oder kaufe ein Planetenfelditem, um weitere Pl\u00e4tze zu bekommen.\nM\u00f6chtest du das Geb\u00e4ude wirklich bauen?","forcedVacationWarning":"Best\u00e4tige jetzt deinen Lobby-Account und wir schenken dir in jedem Universum Dunkle Materie!","planetMoveBreakUpWarning":"Vorsicht! Dieser Auftrag k\u00f6nnte \u00fcber den Umsiedlungszeitpunkt hinaus laufen und einen Abbruch der Umsiedlung zur Folge haben. Willst du wirklich mit dem Auftrag fortfahren?","moreDetails":"Mehr Details","lessDetails":"Weniger Details","planetOrder":{"lock":"Sortierung sperren","unlock":"Sortierung entsperren"},"darkMatter":"Dunkle Materie","errorNotEnoughDM":"Es ist nicht gen\u00fcgend Dunkle Materie vorhanden! M\u00f6chtest du diese jetzt kaufen?","activateItem":{"upgradeItemQuestion":"M\u00f6chtest du dein vorhandenes Item wirklich ersetzen? Der alte Bonus geht dabei verloren.","upgradeItemQuestionHeader":"Item ersetzen?"},"characterClassItem":{"buyAndActivateItemQuestion":"Willst du die Klasse #characterClassName# f\u00fcr #darkmatter# Dunkle Materie aktivieren? Deine aktuelle Klasse geht dabei verloren.","activateItemQuestion":"Willst du die Klasse #characterClassName# aktivieren? Deine aktuelle Klasse geht dabei verloren."},"LOCA_ALL_NETWORK_ATTENTION":"Achtung","LOCA_ALL_YES":"Ja","LOCA_ALL_NO":"Nein"};
+  (function($) {
+                    new eventboxCountdown(
+              $("#counter-eventlist-13946458"),
+              1583565437 - 1583494995,
+              $("#eventListWrap"),
+              "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
+              [0,1]
+            );
+                    new eventboxCountdown(
+              $("#counter-eventlist-13946448"),
+              1583656582 - 1583494995,
+              $("#eventListWrap"),
+              "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
+              [0,1]
+            );
+            })(jQuery);
+</script>
+
+
+    </div>
+                                                                                                                                                                                                                                                                                                                                                                                                                        <div id='movementcomponent'
+                                                            class="maincontent"
+                                                >
+                        <div id="movement">
+    <div id="inhalt">
+        <header id="planet" class="planet-header ">
+            <h2>Flottenbewegungen - Kolonie</h2>
+            <a class="toggleHeader" data-name="movement">
+                <img alt="" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22" />
+            </a>
+        </header>
+                    <div class="c-left"></div>
+            <div class="c-right"></div>
+                <div class="fleetStatus">
+            <span class="reload">
+                <a class="dark_highlight_tablet" href="javascript:void(0);" onClick="reloadPage();">
+                    <span class="icon icon_reload"></span>
+                    <span>Reload</span>
+                </a>
+            </span>
+            <span class="fleetSlots">
+                Flotten: <span class="current">2</span> / <span class="all">10</span>
+            </span>
+            <span class="expSlots">
+                Expeditionen: <span class="current">0</span> / <span class="all">3</span>
+            </span>
+            <span class="closeAll">
+                <a href="javascript:void(0);">
+                    <img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" />
+                </a>
+            </span>
+        </div>
+                                <div id="fleet72489421" class="fleetDetails detailsOpened"
+                     data-mission-type="4"
+                     data-return-flight=""
+                     data-arrival-time="1583640910"
+            >
+                <span class="timer tooltip" title="07.03.2020 08:17:17" id="timer_72489421">laden ...</span>
+                                    <span class="absTime">08:17:17  Uhr</span>
+                                <span class="mission neutral textBeefy">Stationieren</span>
+                <span class="allianceName"></span>
+                <span class="originData">
+                    <span class="originCoords tooltip" title="Phoebe"><a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&component=galaxy&galaxy=1&amp;system=127">[1:123:6]</a></span>
+                    <span class="originPlanet">
+                                                    <figure class="planetIcon planet"></figure>Kolonie
+                                            </span>
+                </span>
+                <span class="marker01"></span>
+                <span class="marker02"></span>
+                <span class="fleetDetailButton">
+                    <a href="#bl72489421"
+                       rel="bl72489421"
+                       title="Flottendetails"
+                       class="tooltipRel tooltipClose fleet_icon_forward">
+                    </a>
+                </span>
+                                    <span class="reversal reversal_time" ref="72489421">
+                        <a class="icon_link tooltipHTML" href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=movement&amp;return=72489421" title="Rückruf:| 06.03.2020&lt;br&gt;14:07:06">
+                            <img src="https://gf2.geo.gfsrv.net/cdna2/89624964d4b06356842188dba05b1b.gif" height="16" width="16" />
+                        </a>
+                    </span>
+                                <span class="starStreak">
+                    <div style="position: relative;">
+                        <div class="origin fixed">
+                            <img class="tooltipHTML" height="30" width="30" src="https://gf3.geo.gfsrv.net/cdnb1/f487c218d316e5382a0440d6aa3b25.png" title="Startzeit:| 06.03.2020&lt;br&gt;11:19:24" alt=""/>
+                        </div>
+
+                        <div class="route fixed">
+
+                            <a href="#bl72489421"
+                               rel="bl72489421"
+                               title="Flottendetails"
+                               class="tooltipRel tooltipClose basic2 fleet_icon_forward"
+                               id="route_72489421"></a>
+
+                            <div style="display:none;" id="bl72489421">
+                                <div class="htmlTooltip">
+    <h1>Flottendetails:</h1>
+    <div class="splitLine"></div>
+    <table cellpadding="0" cellspacing="0" class="fleetinfo">
+        <tr>
+            <th colspan="2">Schiffe:</th>
+        </tr>
+                <tr>
+            <td>Großer Transporter:</td>
+            <td class="value">
+                            22                        </td>
+        </tr>
+                <tr>
+            <td>Leichter Jäger:</td>
+            <td class="value">
+                            8                        </td>
+        </tr>
+                <tr>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+            <th colspan="2">Ladung:</th>
+        </tr>
+        <tr>
+            <td>Metall:</td>
+            <td class="value">
+                137.094            </td>
+        </tr>
+        <tr>
+            <td>Kristall:</td>
+            <td class="value">
+                80.108            </td>
+        </tr>
+        <tr>
+            <td>Deuterium:</td>
+            <td class="value">
+                42.404            </td>
+        </tr>
+    </table>
+</div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="destination fixed">
+                            <img class="tooltipHTML" height="30" width="30" src="https://gf2.geo.gfsrv.net/cdna7/731eb88bbcd40dcfe4ca066db1e6df.png" title="Ankunftszeit:| 07.03.2020<br>08:17:17" alt=""/>
+                        </div>
+                    </div>
+                </span><!-- Starstreak -->
+                <span class="destinationData">
+                                            <span class="destinationPlanet">
+                            <span>
+                                                                                                            <figure class="planetIcon planet"></figure>Kolonie
+                                                                                                </span>
+                        </span>
+                    
+                                            <span class="destinationCoords tooltip" title="Phoebe"><a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&component=galaxy&galaxy=12&system=166">[1:127:5]</a></span>
+                                    </span>
+                                    <span class="nextTimer tooltip" title="08.03.2020 05:15:10" id="timerNext_72489421">laden ...</span>
+                    <span class="nextabsTime">05:15:10 Uhr</span>
+                    <span class="nextMission friendly textBeefy">Rückkehr</span>
+                
+                                                <span class="openDetails">
+                    <a href="javascript:void(0);" class="openCloseDetails" data-mission-id="72489421" data-end-time="1583565437">
+                                                    <img src="https://gf3.geo.gfsrv.net/cdnb6/577565fadab7780b0997a76d0dca9b.gif" height="16" width="16" />
+                                            </a>
+                </span>
+            </div>
+                                <div id="fleet57675955" class="fleetDetails detailsOpened"
+                     data-mission-type="4"
+                     data-return-flight=""
+                     data-arrival-time="1583823210"
+            >
+                <span class="timer tooltip" title="08.03.2020 09:36:22" id="timer_57675955">laden ...</span>
+                                    <span class="absTime">09:36:22  Uhr</span>
+                                <span class="mission neutral textBeefy">Stationieren</span>
+                <span class="allianceName"></span>
+                <span class="originData">
+                    <span class="originCoords tooltip" title="Phoebe"><a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&component=galaxy&galaxy=12&system=166">[1:127:5]</a></span>
+                    <span class="originPlanet">
+                                                    <figure class="planetIcon planet"></figure>Kolonie
+                                            </span>
+                </span>
+                <span class="marker01"></span>
+                <span class="marker02"></span>
+                <span class="fleetDetailButton">
+                    <a href="#bl57675955"
+                       rel="bl57675955"
+                       title="Flottendetails"
+                       class="tooltipRel tooltipClose fleet_icon_forward">
+                    </a>
+                </span>
+                                    <span class="reversal reversal_time" ref="57675955">
+                        <a class="icon_link tooltipHTML" href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=movement&amp;return=73785873" title="Rückruf:| 06.03.2020&lt;br&gt;14:07:16">
+                            <img src="https://gf2.geo.gfsrv.net/cdna2/89624964d4b06356842188dba05b1b.gif" height="16" width="16" />
+                        </a>
+                    </span>
+                                <span class="starStreak">
+                    <div style="position: relative;">
+                        <div class="origin fixed">
+                            <img class="tooltipHTML" height="30" width="30" src="https://gf2.geo.gfsrv.net/cdna7/731eb88bbcd40dcfe4ca066db1e6df.png" title="Startzeit:| 06.03.2020&lt;br&gt;11:19:14" alt=""/>
+                        </div>
+
+                        <div class="route fixed">
+
+                            <a href="#bl73785873"
+                               rel="bl73785873"
+                               title="Flottendetails"
+                               class="tooltipRel tooltipClose basic2 fleet_icon_forward"
+                               id="route_73785873"></a>
+
+                            <div style="display:none;" id="bl73785873">
+                                <div class="htmlTooltip">
+    <h1>Flottendetails:</h1>
+    <div class="splitLine"></div>
+    <table cellpadding="0" cellspacing="0" class="fleetinfo">
+        <tr>
+            <th colspan="2">Schiffe:</th>
+        </tr>
+                <tr>
+            <td>Großer Transporter:</td>
+            <td class="value">
+                            15                        </td>
+        </tr>
+                <tr>
+            <td>Kolonieschiff:</td>
+            <td class="value">
+                            1                        </td>
+        </tr>
+                <tr>
+            <td colspan="2">&nbsp;</td>
+        </tr>
+        <tr>
+            <th colspan="2">Ladung:</th>
+        </tr>
+        <tr>
+            <td>Metall:</td>
+            <td class="value">
+                186.241            </td>
+        </tr>
+        <tr>
+            <td>Kristall:</td>
+            <td class="value">
+                81.943            </td>
+        </tr>
+        <tr>
+            <td>Deuterium:</td>
+            <td class="value">
+                3.527            </td>
+        </tr>
+    </table>
+</div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="destination fixed">
+                            <img class="tooltipHTML" height="30" width="30" src="https://gf3.geo.gfsrv.net/cdnb1/f487c218d316e5382a0440d6aa3b25.png" title="Ankunftszeit:| 08.03.2020<br>09:36:22" alt=""/>
+                        </div>
+                    </div>
+                </span><!-- Starstreak -->
+                <span class="destinationData">
+                                            <span class="destinationPlanet">
+                            <span>
+                                                                                                            <figure class="planetIcon planet"></figure>Kolonie
+                                                                                                </span>
+                        </span>
+                    
+                                            <span class="destinationCoords tooltip" title="Phoebe"><a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&component=galaxy&galaxy=1&amp;system=127">[1:123:6]</a></span>
+                                    </span>
+                                    <span class="nextTimer tooltip" title="10.03.2020 07:53:30" id="timerNext_73785873">laden ...</span>
+                    <span class="nextabsTime">07:53:30 Uhr</span>
+                    <span class="nextMission friendly textBeefy">Rückkehr</span>
+                
+                                                <span class="openDetails">
+                    <a href="javascript:void(0);" class="openCloseDetails" data-mission-id="73785873" data-end-time="1583656582">
+                                                    <img src="https://gf3.geo.gfsrv.net/cdnb6/577565fadab7780b0997a76d0dca9b.gif" height="16" width="16" />
+                                            </a>
+                </span>
+            </div>
+            </div>
+</div>
+<script type="text/javascript">
+function unionEdit(response)
+{
+    var data = $.parseJSON(response);
+    errorBoxAsArray(data["errorbox"]);
+
+    $("#federation_" + data["fleetID"]).children().attr("href", "https://tobias-pc.speedport.ip:9084/game/index.php?page=federationlayer&ajax=1&union=" + data["unionID"] + "&fleet=" + data["fleetID"] + "&target=" + data["targetID"]);
+    $("#FederationLayer").parent().dialog('close');
+}
+
+function reloadPage()
+{
+    openParentLocation("https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=ingame&component=movement");
+}
+
+var currentMovementTabExtensionStates = JSON.parse("{\"57621156\":[1,1583570180],\"57650759\":[1,1583608197],\"57650763\":[1,1583517052],\"57651293\":[1,1583517739],\"57651307\":[1,1583608906],\"57654209\":[1,1583612791],\"57654214\":[1,1583521646],\"73785873\":[1,1583656582],\"72489421\":[1,1583565437]}");
+var showInfos = 1;
+
+$(document).ready(function() {
+    var movementLoca = "{\"callBack\":\"R\\u00fcckruf\"}";
+
+    if (showInfos == 0) {
+        showInfos = 1;
+        $(".closeAll").children().removeClass('all_open').addClass('all_closed');
+    } else {
+        showInfos = 0;
+        $(".closeAll").children().removeClass('all_closed').addClass('all_open');
+    }
+
+            
+            new reloadCountdown(
+                getElementByIdWithCache("timer_72489421"),
+                70442,
+                "https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&component=movement"
+            );
+
+                            new movementImageCountdown(
+                    getElementByIdWithCache("route_72489421"),
+                    70442,
+                    75473,
+                    0,
+                    0,
+                    274
+                );
+            
+            new simpleCountdown(
+                getElementByIdWithCache("timerNext_72489421"),
+                145915
+            );
+
+            new recallShipCountdown(
+                72489421,
+                1583500026
+            )
+
+                    
+            new reloadCountdown(
+                getElementByIdWithCache("timer_73785873"),
+                161587,
+                "https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&component=movement"
+            );
+
+                            new movementImageCountdown(
+                    getElementByIdWithCache("route_73785873"),
+                    161587,
+                    166628,
+                    0,
+                    0,
+                    274
+                );
+            
+            new simpleCountdown(
+                getElementByIdWithCache("timerNext_73785873"),
+                328215
+            );
+
+            new recallShipCountdown(
+                73785873,
+                1583500036
+            )
+
+            
+    initMovement();
+});
+</script>
+                    </div>
+                                                </div>
+        <div id="right">
+                                <div id='planetbarcomponent'
+                            class=""
+                >
+        <div id="rechts">
+                <div id="norm">
+            <div id="myWorlds">
+                    <div id="countColonies">
+                <p class="textCenter">
+                                        <span>2/4</span> Planeten
+                </p>
+            </div>
+            <div id="planetList"
+                             >
+                                    <div class="smallplanet  hightlightPlanet "
+                         id="planet-15445371">
+                        <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=movement&amp;cp=15445371"
+                           data-link="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=movement&amp;cp=15445371"
+                           title="&lt;b&gt;Kolonie [1:127:5]&lt;/b&gt;&lt;br/&gt;13.904km (93/223)&lt;br&gt;17 °C bis 57 °C&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=overview&amp;cp=15445371&quot;&gt;Übersicht&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=supplies&amp;cp=15445371&quot;&gt;Versorgung&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=research&amp;cp=15445371&quot;&gt;Forschung&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=marketplace&amp;cp=15445371&quot;&gt;Marktplatz&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=facilities&amp;cp=15445371&quot;&gt;Anlagen&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=shipyard&amp;cp=15445371&quot;&gt;Schiffswerft&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=defenses&amp;cp=15445371&quot;&gt;Verteidigung&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=15445371&quot;&gt;Flotte&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=galaxy&amp;cp=15445371&amp;galaxy=1&amp;system=127&amp;position=5&quot;&gt;Galaxie&lt;/a&gt;"
+                           class="planetlink active tooltipRight tooltipClose js_hideTipOnMobile"
+                        >
+                            <img class="planetPic js_replace2x"
+                                 alt="Kolonie"
+                                 src="https://gf3.geo.gfsrv.net/cdnb5/dfad7f831a95f6e8f305c7ea47552c.png"
+                                 width="48"
+                                 height ="48"
+                            />
+                            <span class="planet-name ">Kolonie</span>
+                            <span class="planet-koords ">[1:127:5]</span>
+                        </a>
+                                                                                                                                                                                            </div>
+                                    <div class="smallplanet   "
+                         id="planet-35049931">
+                        <a href="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=movement&amp;cp=35049931"
+                           data-link="https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=movement&amp;cp=35049931"
+                           title="&lt;b&gt;Kolonie [1:123:6]&lt;/b&gt;&lt;br/&gt;14.026km (64/226)&lt;br&gt;24 °C bis 64 °C&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=overview&amp;cp=35049931&quot;&gt;Übersicht&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=supplies&amp;cp=35049931&quot;&gt;Versorgung&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=research&amp;cp=35049931&quot;&gt;Forschung&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=marketplace&amp;cp=35049931&quot;&gt;Marktplatz&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=facilities&amp;cp=35049931&quot;&gt;Anlagen&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=shipyard&amp;cp=35049931&quot;&gt;Schiffswerft&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=defenses&amp;cp=35049931&quot;&gt;Verteidigung&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=35049931&quot;&gt;Flotte&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://tobias-pc.speedport.ip:9084/game/index.php?page=ingame&amp;component=galaxy&amp;cp=35049931&amp;galaxy=1&amp;system=123&amp;position=7&quot;&gt;Galaxie&lt;/a&gt;"
+                           class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                        >
+                            <img class="planetPic js_replace2x"
+                                 alt="Kolonie"
+                                 src="https://gf1.geo.gfsrv.net/cdnc3/05f9cbd97aef057af87dc00f448bdb.png"
+                                 width="48"
+                                 height ="48"
+                            />
+                            <span class="planet-name ">Kolonie</span>
+                            <span class="planet-koords ">[1:123:6]</span>
+                        </a>
+                                                                                                                                                                                            </div>
+                            </div>
+        </div>
+    </div>
+</div>
+    </div>
+        </div>
+    </div>
+    <div id="bottom">
+                        <div id='errorboxcomponent'
+                            class=""
+                >
+        <div id="decisionTB" style="display:none;">
+    <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+        <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+        <div class="middle">
+            <span id="errorBoxDecisionContent">-</span>
+            <div class="response">
+                <div style="float:left; width:180px;">
+                    <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+                </div>
+                <div style="float:left; width:180px;">
+                    <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+                </div>
+                <br class="clearfloat" />
+            </div>
+        </div>
+        <div class="foot"></div>
+    </div>
+</div>
+
+<div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+    <div>
+        <span id="fadeBoxStyle" class="success"></span>
+        <p id="fadeBoxContent"></p>
+    </div>
+</div>
+
+<div id="notifyTB" style="display:none;">
+    <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+        <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+        <div class="middle">
+            <span id="errorBoxNotifyContent">-</span>
+            <div class="response">
+                <div>
+                    <a href="javascript:void(0);" class="ok">
+                        <span id="errorBoxNotifyOk">.</span>
+                    </a>
+                </div>
+                <br class="clearfloat" />
+            </div>
+        </div>
+        <div class="foot"></div>
+    </div>
+</div>
+    </div>
+    </div>
+    <script type="text/javascript">
+      
+initIndex();
+
+    </script>
+                        <div id='chatbarcomponent'
+                            class=""
+                >
+        <script type="text/javascript">
+  var bigChatLink = 'https://tobias-pc.speedport.ip:9084/game/index.php?page=chat';
+  var ajaxChatToken = "f9a3cdbb80e1286bc438b00159364507"
+  var chatUrl = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=ajaxChat"
+  var chatUrlLoadMoreMessages = "https:\/\/tobias-pc.speedport.ip:9084\/game\/index.php?page=chatGetAdditionalMessages"
+  var chatLoca = {"TEXT_EMPTY":"Wo ist die Nachricht?","TEXT_TOO_LONG":"Die Nachricht ist zu lang.","SAME_USER":"Du kannst dir nicht selbst schreiben.","IGNORED_USER":"Du hast diesen Spieler ignoriert.","NO_DATABASE_CONNECTION":"Ein uns unbekannter Fehler ist aufgetreten, leider konnte deine letzte Aktion nicht ausgef\u00fchrt werden.","INVALID_PARAMETERS":"Ein uns unbekannter Fehler ist aufgetreten, leider konnte deine letzte Aktion nicht ausgef\u00fchrt werden.","SEND_FAILED":"Ein uns unbekannter Fehler ist aufgetreten, leider konnte deine letzte Aktion nicht ausgef\u00fchrt werden.","LOCA_ALL_ERROR_NOTACTIVATED":"Diese Funktion ist erst nach Aktivierung des Spielerkontos m\u00f6glich.","X_NEW_CHATS":"#+# ungelesene Unterhaltung(en)","MORE_USERS":"mehr anzeigen"}
+
+  var visibleChats = {"players":[],"associations":[]};
+
+  (function($) {
+    ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box'); //list in chat bar
+    ogame.chat.showPlayerList('#sideBar'); // list in chat
+
+    var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
+
+    function initChatAsync() {
+      if (ogame.chat.isLoadingPlayerList === false && ogame.chat.playerList !== null) {
+        clearInterval(initChatAsyncInterval);
+        ogame.chat.initChatBar(148421);
+        ogame.chat.initChat(148421, false);
+        ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+      }
+    }
+  })(jQuery);
+</script>
+<div id="chatBar">
+    <ul class="chat_bar_list">
+        <li id="chatBarPlayerList" class="chat_bar_pl_list_item">
+            <div class="cb_playerlist_box" style="display:none">
+            </div>
+            <span class="onlineCount">0 Kontakt(e) online</span>
+        </li>
+            </ul><!-- END Chat Bar List -->
+
+    <script type="text/javascript">
+
+    </script>
+</div>
+    </div>
+                    <div id="siteFooter">
+            <div class="content" style="font-size:10px">
+                 <div class="fleft textLeft">
+                     <a class="tooltip js_hideTipOnMobile overlay" href="https://tobias-pc.speedport.ip:9084/game/index.php?page=standalone&amp;component=changelog&amp;ajax=1" data-overlay-class="popupWidthFixed" data-overlay-iframe="true" data-iframe-width="680" data-overlay-title="Patchnotes" title="Patchnotes">7.2.0</a>
+                     <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. Alle Rechte vorbehalten.</a>
+                 </div>
+                 <div class="fright textRight">
+                     <a href="http://wiki.ogame.org/" target="_blank">Hilfe</a>|
+                     <a href="https://board.de.ogame.gameforge.com/" target="_blank">Forum</a>|
+                     <a class="overlay"
+                        href="https://tobias-pc.speedport.ip:9084/game/index.php?page=standalone&amp;component=rules&amp;ajax=1"
+                        data-overlay-iframe="true"
+                        data-iframe-width="450"
+                        data-overlay-title="Regeln"
+                     >Regeln</a>|
+                     <a href="https://agbserver.gameforge.com/rewrite.php?locale=de&amp;type=imprint&amp;product=ogame" target="_blank">Impressum</a>
+                 </div>
+            </div>
+        </div>
+        </body>
+</html>

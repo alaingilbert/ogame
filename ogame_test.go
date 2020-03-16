@@ -2008,6 +2008,17 @@ func TestExtractFleetV71(t *testing.T) {
 	assert.Equal(t, Resources{}, fleets[0].Resources)
 }
 
+func TestExtractFleetV72(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/de/movement.html")
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 3, 6, 12, 43, 15, 0, time.UTC))
+	
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+
+	assert.Equal(t, clock.Now().Add(-5031*time.Second), fleets[0].StartTime.UTC())
+
+	assert.Equal(t, clock.Now().Add(-5041*time.Second), fleets[1].StartTime.UTC())
+}
+
 func TestExtractFleetV71_2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement2.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2020, 1, 12, 1, 45, 34, 0, time.UTC))
@@ -2022,6 +2033,7 @@ func TestExtractFleetV71_2(t *testing.T) {
 	assert.Equal(t, FleetID(8441918), fleets[0].ID)
 	assert.Equal(t, int64(12), fleets[0].Ships.SmallCargo)
 	assert.Equal(t, Resources{}, fleets[0].Resources)
+	assert.Equal(t, clock.Now().Add(-3*time.Second), fleets[0].StartTime.UTC())
 	assert.Equal(t, clock.Now().Add(621*time.Second), fleets[0].ArrivalTime.UTC())
 	assert.Equal(t, clock.Now().Add(1245*time.Second), fleets[0].BackTime.UTC())
 
@@ -2034,6 +2046,7 @@ func TestExtractFleetV71_2(t *testing.T) {
 	assert.Equal(t, FleetID(8441803), fleets[1].ID)
 	assert.Equal(t, int64(11), fleets[1].Ships.LargeCargo)
 	assert.Equal(t, Resources{}, fleets[1].Resources)
+	assert.Equal(t, clock.Now().Add(-1275*time.Second), fleets[1].StartTime.UTC())
 	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].ArrivalTime.UTC())
 	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].BackTime.UTC())
 }
