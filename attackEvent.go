@@ -7,6 +7,7 @@ import (
 
 // AttackEvent all information available about an enemy attack
 type AttackEvent struct {
+	ID              int64
 	MissionType     MissionID
 	Origin          Coordinate
 	Destination     Coordinate
@@ -22,6 +23,7 @@ type AttackEvent struct {
 
 func (a AttackEvent) String() string {
 	return "" +
+		"               ID: " + strconv.FormatInt(a.ID, 10) + "\n" +
 		"     Mission Type: " + strconv.FormatInt(int64(a.MissionType), 10) + "\n" +
 		"           Origin: " + a.Origin.String() + "\n" +
 		"      Destination: " + a.Destination.String() + "\n" +

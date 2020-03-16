@@ -127,9 +127,9 @@ type Preferences struct {
 }
 
 const defaultUserAgent = "" +
-	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) " +
+	"Mozilla/5.0 (Windows NT 10.0; Win64; x64)  " +
 	"AppleWebKit/537.36 (KHTML, like Gecko) " +
-	"Chrome/79.0.3945.130 " +
+	"Chrome/80.0.3987.132 " +
 	"Safari/537.36"
 
 type options struct {
@@ -1862,12 +1862,17 @@ func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
 	return b.extractor.ExtractEmpire([]byte(pageHTML), nbr)
 }
 
-func (b *OGame) createUnion(fleet Fleet) (int64, error) {
+func (b *OGame) createUnion(fleet Fleet, unionUsers []string) (int64, error) {
 	if fleet.ID == 0 {
 		return 0, errors.New("invalid fleet id")
 	}
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {strconv.FormatInt(int64(fleet.ID), 10)}, "target": {strconv.FormatInt(fleet.TargetPlanetID, 10)}, "ajax": {"1"}})
 	payload := b.extractor.ExtractFederation(pageHTML)
+
+	unionUser := payload.Get("unionUsers")
+	unionUsers = append(unionUsers, unionUser)
+	payload.Add("unionUsers", strings.Join(unionUsers, ";"))
+
 	by, err := b.postPageContent(url.Values{"page": {"unionchange"}, "ajax": {"1"}}, payload)
 	if err != nil {
 		return 0, err
@@ -4369,8 +4374,8 @@ func (b *OGame) BuyOfferOfTheDay() error {
 }
 
 // CreateUnion creates a union
-func (b *OGame) CreateUnion(fleet Fleet) (int64, error) {
-	return b.WithPriority(Normal).CreateUnion(fleet)
+func (b *OGame) CreateUnion(fleet Fleet, users []string) (int64, error) {
+	return b.WithPriority(Normal).CreateUnion(fleet, users)
 }
 
 // HeadersForPage gets the headers for a specific ogame page
