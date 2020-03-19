@@ -1869,9 +1869,13 @@ func (b *OGame) createUnion(fleet Fleet, unionUsers []string) (int64, error) {
 	pageHTML, _ := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {strconv.FormatInt(int64(fleet.ID), 10)}, "target": {strconv.FormatInt(fleet.TargetPlanetID, 10)}, "ajax": {"1"}})
 	payload := b.extractor.ExtractFederation(pageHTML)
 
-	unionUser := payload.Get("unionUsers")
-	unionUsers = append(unionUsers, unionUser)
-	payload.Add("unionUsers", strings.Join(unionUsers, ";"))
+	payloadUnionUsers := payload["unionUsers"]
+	for _, user := range payloadUnionUsers {
+		if user != "" {
+			unionUsers = append(unionUsers, user)
+		}
+	}
+	payload.Set("unionUsers", strings.Join(unionUsers, ";"))
 
 	by, err := b.postPageContent(url.Values{"page": {"unionchange"}, "ajax": {"1"}}, payload)
 	if err != nil {
