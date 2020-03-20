@@ -1279,6 +1279,16 @@ func TestExtractAttacksACS_v71(t *testing.T) {
 	assert.Equal(t, int64(9), attacks[0].Ships.SmallCargo)
 }
 
+func TestExtractAttacksACS_v72(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/eventlist_multipleACS.html")
+	attacks, _ := NewExtractorV71().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	assert.Equal(t, 3, len(attacks))
+	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
+	assert.Equal(t, int64(14028), attacks[0].ID)
+	assert.Equal(t, int64(14029), attacks[1].ID)
+	assert.Equal(t, int64(673019), attacks[2].ID)
+}
+
 func TestExtractAttacksACSMany(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs_multiple.html")
 	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
@@ -1996,6 +2006,14 @@ func TestExtractFleetV71(t *testing.T) {
 	assert.Equal(t, int64(250), fleets[0].Ships.SmallCargo)
 	assert.Equal(t, int64(2), fleets[0].Ships.Pathfinder)
 	assert.Equal(t, Resources{}, fleets[0].Resources)
+}
+
+func TestExtractFleetV72(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/de/movement.html")
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 3, 6, 12, 43, 15, 0, time.UTC))
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, clock.Now().Add(-5031*time.Second), fleets[0].StartTime.UTC())
+	assert.Equal(t, clock.Now().Add(-5041*time.Second), fleets[1].StartTime.UTC())
 }
 
 func TestExtractFleetV71_2(t *testing.T) {
