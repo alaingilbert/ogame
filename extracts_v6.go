@@ -1202,14 +1202,6 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			fleet.BackIn = arriveIn
 			startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
 		}
-		var startTime time.Time
-		if startTimeStringExists {
-			startTimeArray := strings.Split(startTimeString, ":| ")
-			if len(startTimeArray) == 2 {
-				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
-			}
-		}
-		fleet.StartTime = startTime
 
 		var startTime time.Time
 		if startTimeStringExists {
