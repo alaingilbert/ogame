@@ -1167,24 +1167,6 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			secs = 0
 		}
 
-		var startTimeString string
-		var startTimeStringExists bool
-		var startTime time.Time
-		if !returnFlight {
-			startTimeString, startTimeStringExists = s.Find("div.origin img").Attr("title")
-		} else {
-			startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
-		}
-		if startTimeStringExists {
-			startTimeArray := strings.Split(startTimeString, ":| ")
-			if len(startTimeArray) == 2 {
-				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
-			}
-		}
-
-		//returnAt, _ := s.Find("span.reversal a").Attr("title")
-		//log.Printf("ReturnAt: %s", returnAt)
-
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
 		shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
@@ -1206,16 +1188,27 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
-		fleet.StartTime = startTime
 		fleet.ArrivalTime = time.Unix(endTime, 0)
 		fleet.BackTime = time.Unix(arrivalTime, 0)
+		var startTimeString string
+		var startTimeStringExists bool
 		if !returnFlight {
 			fleet.ArriveIn = arriveIn
 			fleet.BackIn = backIn
+			startTimeString, startTimeStringExists = s.Find("div.origin img").Attr("title")
 		} else {
 			fleet.ArriveIn = -1
 			fleet.BackIn = arriveIn
+			startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
 		}
+		var startTime time.Time
+		if startTimeStringExists {
+			startTimeArray := strings.Split(startTimeString, ":| ")
+			if len(startTimeArray) == 2 {
+				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
+			}
+		}
+		fleet.StartTime = startTime
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
