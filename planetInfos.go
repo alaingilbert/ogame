@@ -13,7 +13,8 @@ type SystemInfos struct {
 		PathfindersNeeded int64
 	}
 	Events struct {
-		Darkmatter int64
+		Darkmatter  int64
+		HasAsteroid bool
 	}
 }
 

@@ -1382,6 +1382,14 @@ func TestExtractGalaxyV7ExpeditionDebrisDM(t *testing.T) {
 	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(3137), infos.Events.Darkmatter)
+	assert.False(t, infos.Events.HasAsteroid)
+}
+
+func TestExtractGalaxyAsteroid(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/galaxyContent_asteroid.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.True(t, infos.Events.HasAsteroid)
 }
 
 func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
