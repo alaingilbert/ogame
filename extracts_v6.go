@@ -1762,6 +1762,11 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 		}
 	}
 
+	planet17Div := doc.Find("div#planet17")
+	if planet17Div.Size() > 0 {
+		res.Events.HasAsteroid = true
+	}
+
 	return res, nil
 }
 
