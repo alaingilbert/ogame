@@ -90,6 +90,8 @@ type Wrapper interface {
 	DeleteAllMessagesFromTab(tabID int64) error
 	Distance(origin, destination Coordinate) int64
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
+	RegisterWSCallback(string, func([]byte))
+	RemoveWSCallback(string)
 	RegisterChatCallback(func(ChatMsg))
 	RegisterAuctioneerCallback(func([]byte))
 	RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))

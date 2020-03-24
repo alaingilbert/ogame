@@ -71,44 +71,44 @@ type OGame struct {
 	AttackEvents                      []AttackEvent
 	MovementFleets                    []Fleet
 	Slots                             Slots
-
-	ajaxChatToken        string
-	Universe             string
-	Username             string
-	password             string
-	language             string
-	playerID             int64
-	lobby                string
-	ogameSession         string
-	sessionChatCounter   int64
-	server               Server
-	serverData           ServerData
-	location             *time.Location
-	serverURL            string
-	Client               *OGameClient
-	logger               *log.Logger
-	chatCallbacks        []func(msg ChatMsg)
-	auctioneerCallbacks  []func(packet []byte)
-	interceptorCallbacks []func(method, url string, params, payload url.Values, pageHTML []byte)
-	closeChatCh          chan struct{}
-	chatRetry            *ExponentialBackoff
-	ws                   *websocket.Conn
-	tasks                priorityQueue
-	tasksLock            sync.Mutex
-	tasksPushCh          chan *item
-	tasksPopCh           chan struct{}
-	loginWrapper         func(func() error) error
-	loginProxyTransport  http.RoundTripper
-	bytesUploaded        int64
-	bytesDownloaded      int64
-	extractor            Extractor
-	apiNewHostname       string
-	characterClass       CharacterClass
-	hasCommander         bool
-	hasAdmiral           bool
-	hasEngineer          bool
-	hasGeologist         bool
-	hasTechnocrat        bool
+	ajaxChatToken         string
+	Universe              string
+	Username              string
+	password              string
+	language              string
+	playerID              int64
+	lobby                 string
+	ogameSession          string
+	sessionChatCounter    int64
+	server                Server
+	serverData            ServerData
+	location              *time.Location
+	serverURL             string
+	Client                *OGameClient
+	logger                *log.Logger
+	chatCallbacks         []func(msg ChatMsg)
+	wsCallbacks           map[string]func(msg []byte)
+	auctioneerCallbacks   []func(packet []byte)
+	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
+	closeChatCh           chan struct{}
+	chatRetry             *ExponentialBackoff
+	ws                    *websocket.Conn
+	tasks                 priorityQueue
+	tasksLock             sync.Mutex
+	tasksPushCh           chan *item
+	tasksPopCh            chan struct{}
+	loginWrapper          func(func() error) error
+	loginProxyTransport   http.RoundTripper
+	bytesUploaded         int64
+	bytesDownloaded       int64
+	extractor             Extractor
+	apiNewHostname        string
+	characterClass        CharacterClass
+	hasCommander          bool
+	hasAdmiral            bool
+	hasEngineer           bool
+	hasGeologist          bool
+	hasTechnocrat         bool
 }
 
 type Data struct {
@@ -353,6 +353,8 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 	b.tasksPushCh = make(chan *item, 100)
 	b.tasksPopCh = make(chan struct{}, 100)
 	b.taskRunner()
+
+	b.wsCallbacks = make(map[string]func([]byte))
 
 	return b
 }
@@ -1200,7 +1202,8 @@ LOOP:
 		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
 			b.error("failed to set read deadline:", err)
 		}
-		if _, err = b.ws.Read(buf); err != nil {
+		n, err := b.ws.Read(buf)
+		if err != nil {
 			if err == io.EOF {
 				b.error("chat eof:", err)
 				break
@@ -1213,6 +1216,9 @@ LOOP:
 				// connection reset by peer
 				break
 			}
+		}
+		for _, clb := range b.wsCallbacks {
+			go clb(buf[0:n])
 		}
 		msg := bytes.Trim(buf, "\x00")
 		if bytes.Equal(msg, []byte("1::")) {
@@ -4642,6 +4648,20 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination Coordinate) int64 {
 	return Distance(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy, b.serverData.DonutSystem)
+}
+
+// RegisterWSCallback ...
+func (b *OGame) RegisterWSCallback(id string, fn func(msg []byte)) {
+	b.Lock()
+	defer b.Unlock()
+	b.wsCallbacks[id] = fn
+}
+
+// RemoveWSCallback ...
+func (b *OGame) RemoveWSCallback(id string) {
+	b.Lock()
+	defer b.Unlock()
+	delete(b.wsCallbacks, id)
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received
