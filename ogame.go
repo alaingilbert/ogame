@@ -223,6 +223,8 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 	b.tasksPopCh = make(chan struct{}, 100)
 	b.taskRunner()
 
+	b.wsCallbacks = make(map[string]func([]byte))
+
 	return b
 }
 
@@ -854,7 +856,6 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 }
 
 func (b *OGame) connectChat(host, port string) {
-	b.wsCallbacks = make(map[string]func([]byte))
 	req, err := http.NewRequest("GET", "https://"+host+":"+port+"/socket.io/1/?t="+strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10), nil)
 	if err != nil {
 		b.error("failed to create request:", err)
