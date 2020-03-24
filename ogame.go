@@ -67,6 +67,7 @@ type OGame struct {
 	Client                *OGameClient
 	logger                *log.Logger
 	chatCallbacks         []func(msg ChatMsg)
+	wsCallbacks           map[string]func(msg []byte)
 	auctioneerCallbacks   []func(packet []byte)
 	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
 	closeChatCh           chan struct{}
@@ -853,6 +854,7 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 }
 
 func (b *OGame) connectChat(host, port string) {
+	b.wsCallbacks = make(map[string]func([]byte))
 	req, err := http.NewRequest("GET", "https://"+host+":"+port+"/socket.io/1/?t="+strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10), nil)
 	if err != nil {
 		b.error("failed to create request:", err)
@@ -894,7 +896,8 @@ LOOP:
 		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
 			b.error("failed to set read deadline:", err)
 		}
-		if _, err = b.ws.Read(buf); err != nil {
+		n, err := b.ws.Read(buf)
+		if err != nil {
 			if err == io.EOF {
 				b.error("chat eof:", err)
 				break
@@ -907,6 +910,9 @@ LOOP:
 				// connection reset by peer
 				break
 			}
+		}
+		for _, clb := range b.wsCallbacks {
+			go clb(buf[0:n])
 		}
 		msg := bytes.Trim(buf, "\x00")
 		if bytes.Equal(msg, []byte("1::")) {
@@ -4332,6 +4338,20 @@ func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships Sh
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination Coordinate) int64 {
 	return Distance(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy, b.serverData.DonutSystem)
+}
+
+// RegisterWSCallback ...
+func (b *OGame) RegisterWSCallback(id string, fn func(msg []byte)) {
+	b.Lock()
+	defer b.Unlock()
+	b.wsCallbacks[id] = fn
+}
+
+// RemoveWSCallback ...
+func (b *OGame) RemoveWSCallback(id string) {
+	b.Lock()
+	defer b.Unlock()
+	delete(b.wsCallbacks, id)
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received
