@@ -903,16 +903,16 @@ func GetStaticHandler(c echo.Context) error {
 	newURL := bot.serverURL + c.Request().URL.String()
 	req, err := http.NewRequest("GET", newURL, nil)
 	if err != nil {
-		return err
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	resp, err := bot.Client.Do(req)
 	if err != nil {
-		bot.error(err)
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		bot.error(err)
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 
 	// Copy the original HTTP headers to our client

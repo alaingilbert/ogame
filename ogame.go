@@ -1222,7 +1222,8 @@ LOOP:
 		}
 		msg := bytes.Trim(buf, "\x00")
 		if bytes.Equal(msg, []byte("1::")) {
-			_, _ = b.ws.Write([]byte("1::/chat"))
+			_, _ = b.ws.Write([]byte("1::/chat"))       // subscribe to chat events
+			_, _ = b.ws.Write([]byte("1::/auctioneer")) // subscribe to auctioneer events
 		} else if bytes.Equal(msg, []byte("1::/chat")) {
 			authMsg := `5:` + strconv.FormatInt(b.sessionChatCounter, 10) + `+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
 			_, _ = b.ws.Write([]byte(authMsg))
