@@ -773,6 +773,7 @@ func SendFleetHandler(c echo.Context) error {
 	var unionID int64
 	payload := Resources{}
 	speed := HundredPercent
+	ensure := false
 	for key, values := range c.Request().PostForm {
 		switch key {
 		case "ships":
@@ -852,10 +853,17 @@ func SendFleetHandler(c echo.Context) error {
 				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid deuterium"))
 			}
 			payload.Deuterium = deuterium
+		case "ensure":
+			ensure, _ = strconv.ParseBool(values[0])
 		}
 	}
 
-	fleet, err := bot.SendFleet(CelestialID(planetID), ships, speed, where, mission, payload, duration, unionID)
+	var fleet interface{}
+	if ensure {
+		fleet, err = bot.EnsureFleet(CelestialID(planetID), ships, speed, where, mission, payload, duration, unionID)
+	} else {
+		fleet, err = bot.SendFleet(CelestialID(planetID), ships, speed, where, mission, payload, duration, unionID)
+	}
 	if err != nil &&
 		(err == ErrInvalidPlanetID ||
 			err == ErrNoShipSelected ||
