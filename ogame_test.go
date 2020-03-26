@@ -886,10 +886,8 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 
 
 func TestExtractEspionageReportMessageIDsParseResMillions(t *testing.T) {
-// messages_loot_percentage.html:Metal: 2.92Mn</span><span class="resspan">Crystal: 1.59Mn</span><span class="resspan">Deuterium: 713.855
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages_loot_percentage.html")
 	msgs, _ := NewExtractorV6().ExtractEspionageReportMessageIDs(pageHTMLBytes)
-
 
 	assert.Equal(t, int64(32393000), msgs[1].Metal) // Metal: 32.393Mn
 	assert.Equal(t, int64(20919000), msgs[1].Crystal) // Crystal: 20.919Mn
