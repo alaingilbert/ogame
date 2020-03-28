@@ -1167,6 +1167,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			secs = 0
 		}
 
+
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
 		shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
@@ -1190,6 +1191,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.UnionID = unionID
 		fleet.ArrivalTime = time.Unix(endTime, 0)
 		fleet.BackTime = time.Unix(arrivalTime, 0)
+
 		var startTimeString string
 		var startTimeStringExists bool
 		if !returnFlight {
@@ -1201,6 +1203,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			fleet.BackIn = arriveIn
 			startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
 		}
+		
 		var startTime time.Time
 		if startTimeStringExists {
 			startTimeArray := strings.Split(startTimeString, ":| ")

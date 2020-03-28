@@ -2871,7 +2871,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	} else {
 		for _, ship := range ships {
 			if ship.Nbr > availableShips.ByID(ship.ID) {
-				return Fleet{}, ErrNotEnoughShips
+				return Fleet{}, fmt.Errorf("not enough ships to send, %s", Objs.ByID(ship.ID).GetName())
 			}
 			atLeastOneShipSelected = true
 		}
