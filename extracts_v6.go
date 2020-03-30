@@ -779,8 +779,6 @@ func parseRes(input string) (res int64) {
 	// Deuterium: 4,8M
 	// Deuterium: 140.000
 
-	//log.Print("Original input: ", input)
-
 	if strings.Contains(input, ":") {
 		input = strings.Split(input, ":")[1]
 	}
@@ -790,56 +788,23 @@ func parseRes(input string) (res int64) {
 	}
 
 	if strings.Contains(input, "Miljard") { // Todo: Billion in English? Or just return the value as string instead of int64
-		//log.Print(2.1 * 1e9)
-		//log.Print(input)
-
-		input = strings.Split(input, "M")[0] // regex : \d+\.\d+
-		//log.Print(input, reflect.TypeOf(input))
-
+		input = strings.Split(input, "M")[0]
 		input = strings.TrimSpace(input)
-		//log.Print(input, reflect.TypeOf(input))
-
 		input, err := strconv.ParseFloat(input, 64)
-		if err != nil {
-			log.Print(input, reflect.TypeOf(input), err)
-		}
-
 		inputres := input * 1e9
-		//log.Print(input, inputres, reflect.TypeOf(inputres))
-
 		inputres2 := int64(inputres)
-		//log.Print(inputres2, reflect.TypeOf(inputres2))
-
 		return inputres2
 	} else if strings.Contains(input, "M") {
-		//log.Print("Sample: ", 2.1 * 1e6)
-		//log.Print(input)
-
-		input = strings.Split(input, "M")[0] // regex : \d+\.\d+
-		//log.Print(input, reflect.TypeOf(input))
-
+		input = strings.Split(input, "M")[0]
 		input = strings.TrimSpace(input)
-		//log.Print(input, reflect.TypeOf(input))
-
 		input, err := strconv.ParseFloat(input, 64)
-		if err != nil {
-			log.Print(input, reflect.TypeOf(input), err)
-		}
-
 		inputres := input * 1e6
-		//log.Print(input, inputres, reflect.TypeOf(inputres))
-
 		inputres2 := int64(inputres)
-		//log.Print(inputres2, reflect.TypeOf(inputres2))
-
 		return inputres2
 	} else {
 		input = strings.Replace(input, ".", "", 1)
 		input = strings.TrimSpace(input)
 		inputint, err := strconv.ParseInt(input, 10, 64)
-		if err != nil {
-			log.Print(input, inputint, err, reflect.TypeOf(inputint))
-		}
 		return inputint
 	}
 
