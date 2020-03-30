@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"log"
-	"reflect"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -787,24 +786,28 @@ func parseRes(input string) (res int64) {
 		input = strings.Replace(input, ",", ".", 1)
 	}
 
-	if strings.Contains(input, "Miljard") { // Todo: Billion in English? Or just return the value as string instead of int64
-		input = strings.Split(input, "M")[0]
+	if strings.Contains(input, "Miljard") || strings.Contains(input, "B") { // Miljard (NL) = Billion (EN)
+		if strings.Contains(input, "Miljard") {
+			input = strings.Split(input, "M")[0]
+		} else if strings.Contains(input, "B") {
+			input = strings.Split(input, "B")[0]
+		}
 		input = strings.TrimSpace(input)
-		input, err := strconv.ParseFloat(input, 64)
+		input, _ := strconv.ParseFloat(input, 64)
 		inputres := input * 1e9
 		inputres2 := int64(inputres)
 		return inputres2
 	} else if strings.Contains(input, "M") {
 		input = strings.Split(input, "M")[0]
 		input = strings.TrimSpace(input)
-		input, err := strconv.ParseFloat(input, 64)
+		input, _ := strconv.ParseFloat(input, 64)
 		inputres := input * 1e6
 		inputres2 := int64(inputres)
 		return inputres2
 	} else {
 		input = strings.Replace(input, ".", "", 1)
 		input = strings.TrimSpace(input)
-		inputint, err := strconv.ParseInt(input, 10, 64)
+		inputint, _ := strconv.ParseInt(input, 10, 64)
 		return inputint
 	}
 
