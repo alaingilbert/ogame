@@ -107,6 +107,24 @@ func name2id(name string) ID {
 		"reaper":         ReaperID,
 		"pathfinder":     PathfinderID,
 
+		// si
+		"laheklovec":          LightFighterID,
+		"tezkilovec":          HeavyFighterID,
+		"krizarka":            CruiserID,
+		"bojnaladja":          BattleshipID,
+		"bojnakrizarka":       BattlecruiserID,
+		"bombnik":             BomberID,
+		"unicevalec":          DestroyerID,
+		"zvezdasmrti":         DeathstarID,
+		"majhnatovornaladja":  SmallCargoID,
+		"velikatovornaladja":  LargeCargoID,
+		"kolonizacijskaladja": ColonyShipID,
+		"vohunskasonda":       EspionageProbeID,
+		"soncnisatelit":       SolarSatelliteID,
+		"plazilec":            CrawlerID,
+		"kombajn":             ReaperID,
+		"iskalecsledi":        PathfinderID,
+
 		// ro
 		"vanatorusor":      LightFighterID,
 		"vanatorgreu":      HeavyFighterID,
