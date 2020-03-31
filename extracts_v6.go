@@ -1661,6 +1661,8 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	switch lang {
 	case "fr":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Place ([\d.]+) sur ([\d.]+)\)`)
+	case "si":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Mesto ([\d.]+) od ([\d.]+)\)`)
 	case "sk":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Umiestnenie v rebr\\u00ed\\u010dku: ([\d.]+) z ([\d.]+)\)`)
 	case "no":
@@ -2095,6 +2097,10 @@ func extractUniverseSpeedV6(pageHTML []byte) int64 {
 	return universeSpeed
 }
 
+var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως)\s*([-\d]+).+C`)
+var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км|χμ) \((\d+)/(\d+)\)`)
+var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
+
 func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error) {
 	el, _ := s.Attr("id")
 	id, err := strconv.ParseInt(strings.TrimPrefix(el, "planet-"), 10, 64)
@@ -2109,7 +2115,6 @@ func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error
 	}
 
 	txt := goquery.NewDocumentFromNode(root).Text()
-	planetInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως)\s*([-\d]+).+C`)
 	m := planetInfosRgx.FindStringSubmatch(txt)
 	if len(m) < 10 {
 		return Planet{}, errors.New("failed to parse planet infos: " + txt)
@@ -2149,7 +2154,7 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	if !found {
 		return Moon{}, errors.New("no moon found")
 	}
-	m := regexp.MustCompile(`&cp=(\d+)`).FindStringSubmatch(href)
+	m := cpRgx.FindStringSubmatch(href)
 	id, _ := strconv.ParseInt(m[1], 10, 64)
 	title, _ := moonLink.Attr("title")
 	root, err := html.Parse(strings.NewReader(title))
@@ -2157,7 +2162,6 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 		return Moon{}, err
 	}
 	txt := goquery.NewDocumentFromNode(root).Text()
-	moonInfosRgx := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км|χμ) \((\d+)/(\d+)\)`)
 	mm := moonInfosRgx.FindStringSubmatch(txt)
 	if len(mm) < 8 {
 		return Moon{}, errors.New("failed to parse moon infos: " + txt)

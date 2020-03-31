@@ -72,7 +72,8 @@ func (b *Prioritize) FakeCall(name string, delay int) {
 }
 
 // LoginWithExistingCookies to ogame server reusing existing cookies
-func (b *Prioritize) LoginWithExistingCookies() error {
+// Returns either or not the bot logged in using the existing cookies
+func (b *Prioritize) LoginWithExistingCookies() (bool, error) {
 	b.begin("LoginWithExistingCookies")
 	defer b.done()
 	return b.bot.wrapLoginWithExistingCookies()

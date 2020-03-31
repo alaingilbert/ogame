@@ -169,7 +169,7 @@ type Params struct {
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
 	b := NewNoLogin(username, password, universe, lang, "", 0)
-	if err := b.LoginWithExistingCookies(); err != nil {
+	if _, err := b.LoginWithExistingCookies(); err != nil {
 		return nil, err
 	}
 	return b, nil
@@ -186,7 +186,7 @@ func NewWithParams(params Params) (*OGame, error) {
 		}
 	}
 	if params.AutoLogin {
-		if err := b.LoginWithExistingCookies(); err != nil {
+		if _, err := b.LoginWithExistingCookies(); err != nil {
 			return nil, err
 		}
 	}
@@ -556,7 +556,8 @@ func (b *OGame) getServerData() (ServerData, error) {
 	return serverData, nil
 }
 
-func (b *OGame) loginWithExistingCookies() error {
+// Return either or not the bot logged in using the existing cookies.
+func (b *OGame) loginWithExistingCookies() (bool, error) {
 	cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
 	found := false
 	for _, c := range cookies {
@@ -566,26 +567,28 @@ func (b *OGame) loginWithExistingCookies() error {
 		}
 	}
 	if !found {
-		return b.login()
+		err := b.login()
+		return false, err
 	}
 	server, userAccount, err := b.loginPart1()
 	if err != nil {
-		return b.login()
+		err := b.login()
+		return false, err
 	}
 
 	if err := b.loginPart2(server, userAccount); err != nil {
-		return err
+		return false, err
 	}
 
 	pageHTML, err := b.getPage(OverviewPage, CelestialID(0))
 	if err != nil {
-		return err
+		return false, err
 	}
 	b.debug("login using existing cookies")
 	if err := b.loginPart3(userAccount, pageHTML); err != nil {
-		return err
+		return false, err
 	}
-	return nil
+	return true, nil
 }
 
 func (b *OGame) login() error {
@@ -747,8 +750,12 @@ var DefaultLoginWrapper = func(loginFn func() error) error {
 	return loginFn()
 }
 
-func (b *OGame) wrapLoginWithExistingCookies() error {
-	return b.loginWrapper(b.loginWithExistingCookies)
+func (b *OGame) wrapLoginWithExistingCookies() (useCookies bool, err error) {
+	fn := func() error {
+		useCookies, err = b.loginWithExistingCookies()
+		return err
+	}
+	return useCookies, b.loginWrapper(fn)
 }
 
 func (b *OGame) wrapLogin() error {
@@ -926,6 +933,9 @@ LOOP:
 		} else if bytes.Equal(msg, []byte("2::")) {
 			_, _ = b.ws.Write([]byte("2::"))
 		} else if regexp.MustCompile(`\d+::/auctioneer`).Match(msg) {
+			// 5::/auctioneer:{"name":"timeLeft","args":["<span style=\"color:#FFA500;\"><b>approx. 10m</b></span> remaining until the auction ends"]} // every minute
+			// 5::/auctioneer:{"name":"new bid","args":[{"player":{"id":106734,"name":"Someone","link":"https://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"sum":2000,"price":3000,"bids":2,"auctionId":"13355"}]}
+			// 5::/auctioneer:{"name":"auction finished","args":[{"sum":2000,"player":{"id":106734,"name":"Someone","link":"http://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"bids":2,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1390</span>","time":"06:36"}]}
 			for _, clb := range b.auctioneerCallbacks {
 				clb(msg)
 			}
@@ -3953,7 +3963,7 @@ func (b *OGame) SetUserAgent(newUserAgent string) {
 }
 
 // LoginWithExistingCookies to ogame server reusing existing cookies
-func (b *OGame) LoginWithExistingCookies() error {
+func (b *OGame) LoginWithExistingCookies() (bool, error) {
 	return b.WithPriority(Normal).LoginWithExistingCookies()
 }
 
