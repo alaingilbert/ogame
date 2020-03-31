@@ -38,6 +38,14 @@ func main() {
 }
 ```
 
+##### How to get started
+
+- Ensure you have go 1.12 or above `go version`
+- Copy and paste the above example in a file `main.go`
+- Create your own module `go mod init my_project`
+- Install dependencies `go mod vendor`
+- Run the code `go run main.go`
+
 ### Available methods
 
 ```go
