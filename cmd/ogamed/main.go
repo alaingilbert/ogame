@@ -250,9 +250,9 @@ func start(c *cli.Context) error {
 	e.GET("/bot/fleets", ogame.GetFleetsHandler)
 	e.GET("/bot/fleets/slots", ogame.GetSlotsHandler)
 	e.POST("/bot/fleets/:fleetID/cancel", ogame.CancelFleetHandler)
-	e.GET("/bot/espionage-report/:msgid", ogame.GetEspionageReportHandler)
-	e.GET("/bot/espionage-report/:galaxy/:system/:position", ogame.GetEspionageReportForHandler)
-	e.GET("/bot/espionage-report", ogame.GetEspionageReportMessagesHandler)
+	e.GET("/bot/espionage-report/:msgid", ogame.GetEspionageReportHandler) // returns EspionageReport
+	e.GET("/bot/espionage-report/:galaxy/:system/:position", ogame.GetEspionageReportForHandler) // returns EspionageReport
+	e.GET("/bot/espionage-report", ogame.GetEspionageReportMessagesHandler) // returns []EspionageReportSummary
 	e.POST("/bot/delete-report/:messageID", ogame.DeleteMessageHandler)
 	e.POST("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
 	e.POST("/bot/delete-all-reports/:tabIndex", ogame.DeleteMessagesFromTabHandler)

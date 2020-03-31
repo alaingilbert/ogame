@@ -898,6 +898,25 @@ func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, msgs[1].Target)
 }
 
+
+func TestExtractEspionageReportMessageIDsParseResMillions(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages_loot_percentage.html")
+	msgs, _ := NewExtractorV6().ExtractEspionageReportMessageIDs(pageHTMLBytes)
+
+	assert.Equal(t, int64(32393000), msgs[1].Metal) // Metal: 32.393Mn
+	assert.Equal(t, int64(20919000), msgs[1].Crystal) // Crystal: 20.919Mn
+	assert.Equal(t, int64(6186000), msgs[1].Deuterium) // Deuterium: 6.186Mn
+	assert.Equal(t, true, msgs[1].HasDefenses) // true
+	assert.Equal(t, int64(448862000), msgs[1].DefenseValue) // 448.862.000
+	assert.Equal(t, true, msgs[1].HasFleet) // true
+	assert.Equal(t, int64(1950500), msgs[1].FleetValue) // Fleets: 1.950.500
+	assert.Equal(t, int64(1950500), msgs[1].FleetValue) // Fleets: 1.950.500
+
+	assert.Equal(t, int64(2920000), msgs[2].Metal)
+	assert.Equal(t, int64(1590000), msgs[2].Crystal)
+	assert.Equal(t, int64(713855), msgs[2].Deuterium)
+}
+
 func TestExtractEspionageReportMessageIDsLootPercentage(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages_loot_percentage.html")
 	msgs, _ := NewExtractorV6().ExtractEspionageReportMessageIDs(pageHTMLBytes)
@@ -2886,4 +2905,134 @@ func TestExtractOGameSession(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7/overview_mobile.html")
 	session = NewExtractorV6().ExtractOGameSession(pageHTMLBytes)
 	assert.Equal(t, "c1626ce8228ac5986e3808a7d42d4afc764c1b68", session)
+}
+
+func TestV72ExtractEspionageReportMessageIDs(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/messages.html")
+	msgs, _ := NewExtractorV71().ExtractEspionageReportMessageIDs(pageHTMLBytes)
+
+	/*
+	type EspionageReportSummary struct {
+		ID             int64
+		Type           EspionageReportType
+		From           string
+		Target         Coordinate
+		PlayerClass string
+		Username string
+		LootPercentage float64
+		LastActivity int64
+		CounterEspionage int64
+		IsInactive bool
+		IsLongInactive bool
+		IsBandit bool
+		IsStarlord bool
+		HasDefenses bool
+		DefenseValue int64
+		HasFleet bool
+		FleetValue int64
+		Metal int64
+		Crystal int64
+		Deuterium int64
+		APIKey string
+		CreatedAt    time.Time
+	}
+	*/
+
+	assert.Equal(t, int64(12692941), msgs[0].ID)
+	assert.Equal(t, int64(12692938), msgs[1].ID)
+	assert.Equal(t, int64(12692934), msgs[2].ID)
+	assert.Equal(t, int64(12692933), msgs[3].ID)
+	assert.Equal(t, int64(12692932), msgs[4].ID)
+	assert.Equal(t, int64(12692929), msgs[5].ID)
+
+
+	assert.Equal(t, "ChuckBiscuits", msgs[0].Username)
+	assert.Equal(t, "ChuckBiscuits", msgs[1].Username)
+	assert.Equal(t, "Hermes73",      msgs[2].Username)
+	assert.Equal(t, "InquisitoZ",    msgs[3].Username)
+	assert.Equal(t, "blondie",       msgs[4].Username)
+	assert.Equal(t, "blondie",       msgs[5].Username)
+
+	assert.Equal(t, "sr-en-152-ec0ae9f598948a42b23bf8a45caf818eb02c5198", msgs[0].APIKey)
+	assert.Equal(t, "sr-en-152-f8286f9a8d053ad7df343d0873a98429e656f9e9", msgs[1].APIKey)
+	assert.Equal(t, "sr-en-152-55b7de6f4cd4772fd6c881fb3ea689f2f8d697d9", msgs[2].APIKey)
+	assert.Equal(t, "sr-en-152-08f7014551e9717de500fa2d52f4e19566a44299", msgs[3].APIKey)
+	assert.Equal(t, "sr-en-152-2fa03c5e6d96ffaf745d92abc0a44b5ad2d2c29b", msgs[4].APIKey)
+	assert.Equal(t, "sr-en-152-e7eb3f47e7e64df22ec8f96bd3232645321a727d", msgs[5].APIKey)
+
+	assert.Equal(t, float64(1),    msgs[0].LootPercentage)
+	assert.Equal(t, float64(1),    msgs[1].LootPercentage)
+	assert.Equal(t, float64(0.75), msgs[2].LootPercentage)
+
+	assert.Equal(t, "2020-03-26 03:56:40", msgs[0].CreatedAt.Format("2006-01-02 15:04:05"))
+	assert.Equal(t, "2020-03-26 03:54:29", msgs[5].CreatedAt.Format("2006-01-02 15:04:05"))
+
+	assert.Equal(t, Coordinate{Galaxy:4, System:49, Position: 9, Type:3}, msgs[0].Target)
+	assert.Equal(t, Coordinate{Galaxy:4, System:49, Position: 9, Type:1}, msgs[1].Target)
+
+	assert.Equal(t, int64(0), msgs[0].Metal)
+	assert.Equal(t, int64(0), msgs[0].Crystal)
+	assert.Equal(t, int64(0), msgs[0].Deuterium)
+
+	assert.Equal(t, int64(20159000), msgs[1].Metal)
+	assert.Equal(t, int64(4363000), msgs[1].Crystal)
+	assert.Equal(t, int64(4127000), msgs[1].Deuterium)
+
+	assert.True(t, msgs[0].IsBandit)
+	assert.False(t, msgs[0].IsStarlord)
+	assert.True(t, msgs[1].IsBandit)
+	assert.False(t, msgs[1].IsStarlord)
+	assert.False(t, msgs[2].IsBandit)
+	assert.False(t, msgs[2].IsStarlord)
+	assert.False(t, msgs[3].IsBandit)
+	assert.True(t, msgs[3].IsStarlord)
+	assert.False(t, msgs[4].IsBandit)
+	assert.True(t, msgs[5].IsStarlord)
+	assert.False(t, msgs[5].IsBandit)
+	assert.True(t, msgs[5].IsStarlord)
+
+	assert.Equal(t, int64(0), msgs[0].DefenseValue)
+	assert.Equal(t, int64(0), msgs[0].FleetValue)
+	assert.True(t, msgs[0].HasDefenses)
+	assert.Equal(t, int64(230692000), msgs[1].DefenseValue)
+	assert.Equal(t, int64(21985000), msgs[1].FleetValue)
+	assert.True(t, msgs[0].HasDefenses)
+	assert.Equal(t, int64(46000), msgs[4].DefenseValue)
+	assert.Equal(t, int64(0), msgs[4].FleetValue)
+	assert.True(t, msgs[0].HasDefenses)
+	assert.Equal(t, int64(1148000), msgs[5].DefenseValue)
+	assert.Equal(t, int64(5000000), msgs[5].FleetValue)
+
+
+	assert.True(t, msgs[0].HasDefenses)
+	assert.True(t, msgs[0].HasFleet)
+
+	assert.Equal(t, int64(0), msgs[0].CounterEspionage)
+	assert.Equal(t, int64(100), msgs[1].CounterEspionage)
+	assert.Equal(t, int64(98), msgs[5].CounterEspionage)
+
+	assert.Equal(t, int64(60), msgs[0].LastActivity)
+	assert.Equal(t, int64(60), msgs[1].LastActivity)
+
+	assert.False(t, msgs[0].IsInactive)
+	assert.False(t, msgs[0].IsLongInactive)
+	assert.False(t, msgs[1].IsInactive)
+	assert.False(t, msgs[1].IsLongInactive)
+	assert.True(t, msgs[2].IsInactive)
+	assert.True(t, msgs[2].IsLongInactive)
+	assert.True(t, msgs[3].IsInactive)
+	assert.True(t, msgs[3].IsLongInactive)
+	assert.False(t, msgs[4].IsInactive)
+	assert.False(t, msgs[4].IsLongInactive)
+	assert.False(t, msgs[5].IsInactive)
+	assert.False(t, msgs[5].IsLongInactive)
+
+	assert.Equal(t, EspionageReportType(1), msgs[0].Type)
+	assert.Equal(t, EspionageReportType(1), msgs[1].Type)
+
+	assert.Equal(t, "Fleet Command", msgs[0].From)
+
+	assert.Equal(t, "Discoverer", msgs[0].PlayerClass)
+	assert.Equal(t, "No class selected", msgs[2].PlayerClass)
+	assert.Equal(t, "Discoverer", msgs[5].PlayerClass)
 }
