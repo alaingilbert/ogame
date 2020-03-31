@@ -1952,6 +1952,7 @@ func extractUniverseSpeedV6(pageHTML []byte) int64 {
 
 var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως)\s*([-\d]+).+C`)
 var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км|χμ) \((\d+)/(\d+)\)`)
+var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
 func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error) {
 	el, _ := s.Attr("id")
@@ -2006,7 +2007,7 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	if !found {
 		return Moon{}, errors.New("no moon found")
 	}
-	m := regexp.MustCompile(`&cp=(\d+)`).FindStringSubmatch(href)
+	m := cpRgx.FindStringSubmatch(href)
 	id, _ := strconv.ParseInt(m[1], 10, 64)
 	title, _ := moonLink.Attr("title")
 	root, err := html.Parse(strings.NewReader(title))
