@@ -38,6 +38,14 @@ func main() {
 }
 ```
 
+##### How to get started
+
+- Ensure you have go 1.12 or above `go version`
+- Copy and paste the above example in a file `main.go`
+- Create your own module `go mod init my_project`
+- Install dependencies `go mod vendor`
+- Run the code `go run main.go`
+
 ### Available methods
 
 ```go
@@ -51,6 +59,7 @@ Enable()
 Disable()
 IsEnabled() bool
 Quiet(bool)
+GetTasks() TasksOverview
 Tx(clb func(tx *Prioritize) error) error
 Begin() *Prioritize
 BeginNamed(name string) *Prioritize
@@ -69,7 +78,7 @@ GetLanguage() string
 GetPageContent(url.Values) []byte
 GetAlliancePageContent(url.Values) []byte
 PostPageContent(url.Values, url.Values) []byte
-LoginWithExistingCookies() error
+LoginWithExistingCookies() (bool, error)
 Login() error
 Logout()
 IsLoggedIn() bool
@@ -121,6 +130,8 @@ DeleteMessage(msgID int64) error
 DeleteAllMessagesFromTab(tabID int64) error
 Distance(origin, destination Coordinate) int64
 FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
+RegisterWSCallback(string, func([]byte))
+RemoveWSCallback(string)
 RegisterChatCallback(func(ChatMsg))
 RegisterAuctioneerCallback(func([]byte))
 RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
@@ -128,7 +139,7 @@ GetSlots() Slots
 BuyOfferOfTheDay() error
 BytesDownloaded() int64
 BytesUploaded() int64
-CreateUnion(fleet Fleet) (int64, error)
+CreateUnion(fleet Fleet, unionUsers []string) (int64, error)
 GetEmpire(nbr int64) (interface{}, error)
 HeadersForPage(url string) (http.Header, error)
 CharacterClass() CharacterClass
@@ -175,6 +186,7 @@ GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, T
 Phalanx(MoonID, Coordinate) ([]Fleet, error)
 UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
 JumpGate(origin, dest MoonID, ships ShipsInfos) (bool, int64, error)
+JumpGateDestinations(origin MoonID) ([]MoonID, int64, error)
 ```
 
 ### Full documentation
