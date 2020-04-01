@@ -14,6 +14,15 @@ func TestSystemInfos_Position(t *testing.T) {
 	assert.Equal(t, nilPlanetInfo, si.Position(16))
 }
 
+func TestSystemInfos_Each(t *testing.T) {
+	si := SystemInfos{}
+	i := 0
+	si.Each(func(pi *PlanetInfos) {
+		i++
+	})
+	assert.Equal(t, len(si.planets), i)
+}
+
 func TestSystemInfos_MarshalJSON(t *testing.T) {
 	planetInfos := PlanetInfos{
 		ID:         1,

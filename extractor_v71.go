@@ -160,3 +160,14 @@ func (e ExtractorV71) ExtractBuffActivation(pageHTML []byte) (string, []Item, er
 func (e ExtractorV71) ExtractBuffActivationFromDoc(doc *goquery.Document) (string, []Item, error) {
 	return extractBuffActivationFromDocV71(doc)
 }
+
+// ExtractIsMobile ...
+func (e ExtractorV71) ExtractIsMobile(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractIsMobileFromDoc(doc)
+}
+
+// ExtractIsMobileFromDoc ...
+func (e ExtractorV71) ExtractIsMobileFromDoc(doc *goquery.Document) bool {
+	return extractIsMobileFromDocV71(doc)
+}
