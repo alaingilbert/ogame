@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"bytes"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -165,7 +164,6 @@ func (e ExtractorV71) ExtractBuffActivationFromDoc(doc *goquery.Document) (strin
 // ExtractIsMobile ...
 func (e ExtractorV71) ExtractIsMobile(pageHTML []byte) bool {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fmt.Println(pageHTML)
 	return e.ExtractIsMobileFromDoc(doc)
 }
 
