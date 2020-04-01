@@ -344,6 +344,15 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 		Filename:              cookiesFilename,
 		PersistSessionCookies: true,
 	})
+
+	// Ensure we remove any cookies that would set the mobile view
+	cookies := jar.AllCookies()
+	for _, c := range cookies {
+		if c.Name == "device" {
+			jar.RemoveCookie(c)
+		}
+	}
+
 	b.Client = NewOGameClient()
 	b.Client.Jar = jar
 	b.Client.UserAgent = defaultUserAgent
