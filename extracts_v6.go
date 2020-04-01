@@ -1122,17 +1122,28 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 }
 
 func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
+	isMobile := extractIsMobileFromDocV71(doc)
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
-		originText := s.Find("span.originCoords a").Text()
+		var originText string
+		if isMobile {
+			originText = s.Find("a.origin div.coords").Text()
+		} else {
+			originText = s.Find("span.originCoords a").Text()
+		}
 		origin := extractCoordV6(originText)
 		origin.Type = PlanetType
 		if s.Find("span.originPlanet figure").HasClass("moon") {
 			origin.Type = MoonType
 		}
 
-		destText := s.Find("span.destinationCoords a").Text()
+		var destText string
+		if isMobile {
+			destText = s.Find("a.destination div.coords").Text()
+		} else {
+			destText = s.Find("span.destinationCoords a").Text()
+		}
 		dest := extractCoordV6(destText)
 		dest.Type = PlanetType
 		if s.Find("span.destinationPlanet figure").HasClass("moon") {
@@ -1143,18 +1154,48 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 
 		id, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"), 10, 64)
 
-		timerID := s.Find("span.timer").AttrOr("id", "")
-		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
 		var arriveIn int64
-		if len(m) == 2 {
-			arriveIn, _ = strconv.ParseInt(m[1], 10, 64)
+		if isMobile {
+			s.Find("span").Each(func(i int, ss *goquery.Selection) {
+				id := ss.AttrOr("id", "")
+				r := regexp.MustCompile(`timer_(\d+)`)
+				parts := r.FindStringSubmatch(id)
+				if len(parts) == 2 {
+					timerID := parts[1]
+					m := regexp.MustCompile(`getElementByIdWithCache\("timer_` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
+					if len(m) == 2 {
+						arriveIn, _ = strconv.ParseInt(m[1], 10, 64)
+					}
+				}
+			})
+		} else {
+			timerID := s.Find("span.timer").AttrOr("id", "")
+			m := regexp.MustCompile(`getElementByIdWithCache\("` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
+			if len(m) == 2 {
+				arriveIn, _ = strconv.ParseInt(m[1], 10, 64)
+			}
 		}
 
-		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
-		m = regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
 		var backIn int64
-		if len(m) == 2 {
-			backIn, _ = strconv.ParseInt(m[1], 10, 64)
+		if isMobile {
+			s.Find("span").Each(func(i int, ss *goquery.Selection) {
+				id := ss.AttrOr("id", "")
+				r := regexp.MustCompile(`timerNext_(\d+)`)
+				parts := r.FindStringSubmatch(id)
+				if len(parts) == 2 {
+					timerID := parts[1]
+					m := regexp.MustCompile(`getElementByIdWithCache\("timerNext_` + timerID + `"\),\s*(\d+),?`).FindStringSubmatch(script)
+					if len(m) == 2 {
+						backIn, _ = strconv.ParseInt(m[1], 10, 64)
+					}
+				}
+			})
+		} else {
+			timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
+			m := regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
+			if len(m) == 2 {
+				backIn, _ = strconv.ParseInt(m[1], 10, 64)
+			}
 		}
 
 		missionType, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
@@ -1167,11 +1208,38 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			secs = 0
 		}
 
-		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
-		shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
-		shipment.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
-		shipment.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+		ships := ShipsInfos{}
+		if isMobile {
+			ul := s.Find("ul.fleet_detail_list").Eq(1)
+			if ul != nil {
+				shipment.Metal = ParseInt(ul.Find("li").Eq(0).Find("span").Text())
+				shipment.Crystal = ParseInt(ul.Find("li").Eq(1).Find("span").Text())
+				shipment.Deuterium = ParseInt(ul.Find("li").Eq(2).Find("span").Text())
+			}
+
+			s.Find("ul#shipOverview li").Each(func(i int, ss *goquery.Selection) {
+				imgClass := ss.Find("img").AttrOr("class", "")
+				r := regexp.MustCompile(`tech(\d+)`)
+				shipID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
+				r = regexp.MustCompile(`([\d.]+)`)
+				qty := ParseInt(r.FindStringSubmatch(ss.Text())[1])
+				ships.Set(ID(shipID), qty)
+			})
+		} else {
+			trs := s.Find("table.fleetinfo tr")
+			shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
+			shipment.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
+			shipment.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+
+			for i := 1; i < trs.Size()-5; i++ {
+				tds := trs.Eq(i).Find("td")
+				name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
+				qty := ParseInt(tds.Eq(1).Text())
+				shipID := name2id(name)
+				ships.Set(shipID, qty)
+			}
+		}
 
 		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
 		fedAttackURL, _ := url.Parse(fedAttackHref)
@@ -1190,35 +1258,42 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.UnionID = unionID
 		fleet.ArrivalTime = time.Unix(endTime, 0)
 		fleet.BackTime = time.Unix(arrivalTime, 0)
+		fleet.Ships = ships
 
-		var startTimeString string
-		var startTimeStringExists bool
 		if !returnFlight {
 			fleet.ArriveIn = arriveIn
 			fleet.BackIn = backIn
-			startTimeString, startTimeStringExists = s.Find("div.origin img").Attr("title")
 		} else {
 			fleet.ArriveIn = -1
 			fleet.BackIn = arriveIn
-			startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
 		}
 
 		var startTime time.Time
-		if startTimeStringExists {
-			startTimeArray := strings.Split(startTimeString, ":| ")
-			if len(startTimeArray) == 2 {
-				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
+		var startTimeString string
+		var startTimeStringExists bool
+		if isMobile {
+			if !returnFlight {
+				startTimeString = s.Find("span.arrival_times").Eq(0).Text()
+			} else {
+				startTimeString = s.Find("span.arrival_times").Eq(1).Text()
+			}
+			tmp1 := strings.TrimSpace(strings.Join(strings.Split(startTimeString, ":")[1:], ":"))
+			tmp2 := strings.Join(strings.Split(tmp1, " ")[:2], " ")
+			startTime, _ = time.Parse("02.01.2006 15:04:05", tmp2)
+		} else {
+			if !returnFlight {
+				startTimeString, startTimeStringExists = s.Find("div.origin img").Attr("title")
+			} else {
+				startTimeString, startTimeStringExists = s.Find("div.destination img").Attr("title")
+			}
+			if startTimeStringExists {
+				startTimeArray := strings.Split(startTimeString, ":| ")
+				if len(startTimeArray) == 2 {
+					startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
+				}
 			}
 		}
 		fleet.StartTime = startTime
-
-		for i := 1; i < trs.Size()-5; i++ {
-			tds := trs.Eq(i).Find("td")
-			name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
-			qty := ParseInt(tds.Eq(1).Text())
-			shipID := name2id(name)
-			fleet.Ships.Set(shipID, qty)
-		}
 
 		res = append(res, fleet)
 	})

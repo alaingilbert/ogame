@@ -2046,6 +2046,26 @@ func TestExtractFleetV72(t *testing.T) {
 	assert.Equal(t, clock.Now().Add(-5041*time.Second), fleets[1].StartTime.UTC())
 }
 
+func TestExtractFleetMobileV72(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/movement_mobile.html")
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 3, 31, 18, 42, 22, 0, time.UTC))
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, FleetID(2359164), fleets[0].ID)
+	assert.Equal(t, Park, fleets[0].Mission)
+	assert.False(t, fleets[0].ReturnFlight)
+	assert.Equal(t, Coordinate{1, 430, 4, PlanetType}, fleets[0].Origin)
+	assert.Equal(t, Coordinate{1, 430, 9, PlanetType}, fleets[0].Destination)
+	assert.Equal(t, Resources{631569, 515157, 0, 0, 0}, fleets[0].Resources)
+	assert.Equal(t, ShipsInfos{SmallCargo: 139, EspionageProbe: 1}, fleets[0].Ships)
+	assert.Equal(t, clock.Now().Add(-0*time.Second), fleets[0].StartTime.UTC())
+	assert.Equal(t, clock.Now().Add(11432*time.Second), fleets[0].ArrivalTime.UTC())
+	//assert.Equal(t, clock.Now().Add(22874*time.Second), fleets[0].BackTime.UTC())
+	assert.Equal(t, int64(11432), fleets[0].ArriveIn)
+	assert.Equal(t, int64(22874), fleets[0].BackIn)
+	assert.Equal(t, int64(0), fleets[0].UnionID)
+	assert.Equal(t, int64(0), fleets[0].TargetPlanetID)
+}
+
 func TestExtractFleetV71_2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement2.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2020, 1, 12, 1, 45, 34, 0, time.UTC))
@@ -2886,4 +2906,14 @@ func TestExtractOGameSession(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7/overview_mobile.html")
 	session = NewExtractorV6().ExtractOGameSession(pageHTMLBytes)
 	assert.Equal(t, "c1626ce8228ac5986e3808a7d42d4afc764c1b68", session)
+}
+
+func TestExtractIsMobile(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement.html")
+	isMobile := NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
+	assert.False(t, isMobile)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7.2/en/movement_mobile.html")
+	isMobile = NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
+	assert.True(t, isMobile)
 }
