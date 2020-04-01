@@ -787,3 +787,13 @@ func (e ExtractorV6) ExtractDMCosts(pageHTML []byte) (DMCosts, error) {
 func (e ExtractorV6) ExtractBuffActivation(pageHTML []byte) (string, []Item, error) {
 	panic("not implemented")
 }
+
+// ExtractIsMobile ...
+func (e ExtractorV6) ExtractIsMobile(pageHTML []byte) bool {
+	panic("not implemented")
+}
+
+// ExtractIsMobileFromDoc ...
+func (e ExtractorV6) ExtractIsMobileFromDoc(doc *goquery.Document) bool {
+	panic("not implemented")
+}
