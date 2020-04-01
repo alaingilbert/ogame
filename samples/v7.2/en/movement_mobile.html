@@ -1,0 +1,1327 @@
+
+<!DOCTYPE html>
+<html lang="us">
+<head>
+    <title>Wezn</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript">
+        /**
+         * This is only currently needed in a separate file in libraries because
+         * the javascript files are loaded alphabetically from files and we need to
+         * ensure that our namespace object is loaded before all other ogame specific
+         * javascript code
+         */
+
+        /*
+         * global javascript namespace for ogame
+         */
+        var ogame = ogame || {};
+    </script>
+
+    <script type="text/javascript">
+        var ajaxEventboxURI = 'http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+        var ajaxResourceboxURI = 'http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=fetchResources&ajax=1';
+        var eventboxLoca    = {"mission":"Mission","missions":"Missions","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"own","neutral":"friendly","hostile":"hostile","nextEvent":"Next","nextEventText":"Type"};
+        var eventlistLink   = "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=componentOnly&component=eventList&ajax=1";
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdnf2/0f5a9a78bbf0e07cf1d673f000800a.css
+"/>
+
+    <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js'> </script>
+    <script type='text/javascript' src='/bots/19/browser/html/s149-us/ogame.js?url=https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+    <script type='text/javascript' src='/bots/19/browser/html/s149-us/ogame.js?url=https://gf3.geo.gfsrv.net/cdn8d/7d9374887352c986e9548db5bf9fcd.js'> </script>
+
+
+
+    <script type="text/javascript">
+        var changeSettingsLink = "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=changeSettings";
+        var changeSettingsToken = "958ace3c89d22a136d5ff6152721b7c3";
+        var redirectLogoutLink = "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=logout";
+        var redirectOverviewLink = "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=ingame&component=overview";
+        var redirectSpaceDockLink = "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=ingame&component=facilities&openTech=36";
+
+        var currentPage = "movement";
+        var changeNickLink = "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=ajax&component=changenick&asJson=1";
+    </script>
+
+    <script type="text/javascript">
+        var playerId = 102047;
+        var playerName = "Notriv";
+        var player = {"playerId":102047,"name":"Notriv","hasCommander":false,"hasAPassword":true};
+        var session = "5bc1e54dd8f277c0b36e9d08432d93e4a425c373";
+        var vacation = 0;
+        var hasAPassword = true;
+        var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"More Options","moreopts":"","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+        var itemNames = {"090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Bronze Crystal Booster","e254352ac599de4dd1f20f0719df0a070c623ca8":"Bronze Deuterium Booster","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Bronze Metal Booster","2dd05cc4c0e185fce2e712112dc44932027aee98":"Discoverer","9374c79a24b84c4331f0d26526ef6c2d33319a6e":"Collector","77eff880829027daf23b755e14820a60c4c6fd93":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Bronze Crystal Booster","060902a23da9dd917f1a754fe85734a91ec8d785":"Bronze Crystal Booster","bb7579f7a21152a4a256f001d5162765e2f2c5b9":"Bronze Crystal Booster","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Silver Crystal Booster","5b69663e3ba09a1fe77cf72c5094e246cfe954d6":"Silver Crystal Booster","04d8afd5936976e32ce894b765ea8bd168aa07ef":"Silver Crystal Booster","118d34e685b5d1472267696d1010a393a59aed03":"Gold Crystal Booster","36fb611e71d42014f5ebd0aa5a52bc0c81a0c1cb":"Gold Crystal Booster","d45f00e8b909f5293a83df4f369737ea7d69c684":"Gold Crystal Booster","35d96e441c21ef112a84c618934d9d0f026998fd":"Platinum Crystal Booster","6bf45fcba8a6a68158273d04a924452eca75cf39":"Platinum Crystal Booster","7c2edf40c5cd54ad11c6439398b83020c0a7a6be":"Platinum Crystal Booster","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Gold","3347bcd4ee59f1d3fa03c4d18a25bca2da81de82":"DETROID Platinum","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID Silver","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Bronze Deuterium Booster","d50005c05fd5b95125364af43c78dfaba64d7f83":"Bronze Deuterium Booster","63d11915e9af76ee41938cc099dbf8d54ad59a17":"Bronze Deuterium Booster","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Silver Deuterium Booster","26416a3cdb94613844b1d3ca78b9057fd6ae9b15":"Silver Deuterium Booster","6f0952a919fd2ab9c009e9ccd83c1745f98f758f":"Silver Deuterium Booster","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Gold Deuterium Booster","300493ddc756869578cb2888a3a1bc0c3c66765f":"Gold Deuterium Booster","dc5896bed3311434224d511fa7ced6fdbe41b4e8":"Gold Deuterium Booster","4b51d903560edd102467b110586000bd64fdb954":"Platinum Deuterium Booster","620f779dbffa1011aded69b091239727910a3d03":"Platinum Deuterium Booster","831c3ea8d868eb3601536f4d5e768842988a1ba9":"Platinum Deuterium Booster","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Gold","f36042d76e6b8b33d931e1d4ae99f35265cd82d1":"KRAKEN Platinum","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN Silver","de922af379061263a56d7204d1c395cefcfb7d75":"Bronze Metal Booster","8a469c50ed10b78eaf872ea766ca66495da31a17":"Bronze Metal Booster","9ce31395cbd1e60d29e0770b9e20c6eb6053a344":"Bronze Metal Booster","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Silver Metal Booster","742743b3b0ae1f0b8a1e01921042810b58f12f39":"Silver Metal Booster","6f44dcd2bd84875527abba69158b4e976c308bbc":"Silver Metal Booster","05294270032e5dc968672425ab5611998c409166":"Gold Metal Booster","6fecb993169fe918d9c63cd37a2e541cc067664e":"Gold Metal Booster","21c1a65ca6aecf54ffafb94c01d0c60d821b325d":"Gold Metal Booster","a83cfdc15b8dba27c82962d57e50d8101d263cfb":"Platinum Metal Booster","c690f492cffe5f9f2952337e8eed307a8a62d6cf":"Platinum Metal Booster","ca7f903a65467b70411e513b0920d66c417aa3a2":"Platinum Metal Booster","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Bronze Moon Fields","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Gold Moon Fields","8a426241572b2fea57844acd99bc326fe40e35cf":"Platinum Moon Fields","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"Silver Moon Fields","485a6d5624d9de836d3eb52b181b13423f795770":"Bronze M.O.O.N.S.","45d6660308689c65d97f3c27327b0b31f880ae75":"Gold M.O.O.N.S.","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"Silver M.O.O.N.S.","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Gold","a1ba242ede5286b530cdf991796b3d1cae9e4f23":"NEWTRON Platinum","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON Silver","16768164989dffd819a373613b5e1a52e226a5b0":"Bronze Planet Fields","04e58444d6d0beb57b3e998edc34c60f8318825a":"Gold Planet Fields","f3d9b82e10f2e969209c1a5ad7d22181c703bb36":"Platinum Planet Fields","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Silver Planet Fields"};
+        var isMobile = true;
+        var isMobileApp = false;
+        var bbcodePreviewUrl = "http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=bbcodePreview";
+        var ogameUrl="http:\/\/127.0.0.1:8080";
+        var startpageUrl = "https:\/\/us.ogame.gameforge.com";
+        var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","planetMoveBreakUpWarning":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be canceled. Do you really want to continue with this job?","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available!","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter? In doing so, you will lose your current class.","activateItemQuestion":"Do you want to activate the #characterClassName# class? In doing so, you will lose your current class."},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+        var popupWindows = [];
+        var showOutlawWarning = true;
+        var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You are ignoring this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"};
+        var overlayWidth = 770;
+        var overlayHeight = 600;
+        var isStandalonePage = false;
+        var serverTime = new Date(2020, 2, 31, 18, 42, 32);
+        var serverTimeZoneOffsetInMinutes = 240;
+        var localTime = new Date();
+        var localTimeZoneOffsetInMinutes = localTime.getTimezoneOffset();
+        var timeDiff = serverTime - localTime;
+        var timeZoneDiffSeconds = (serverTimeZoneOffsetInMinutes - localTimeZoneOffsetInMinutes) * 60;
+
+        var nodePort = 19920
+        var nodeUrl="\/ogws\/socket.io\/socket.io.js";
+        var nodeParams={"resource": "ogws/19/socket.io", "secure":false};
+
+        var miniFleetToken = "6839459c6d856e180c949565baba1602";
+        var miniFleetLink = "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=minifleet&ajax=1";
+
+        var jumpGateLink = "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=jumpgatelayer";
+        var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Use jumpgate"};
+
+        var timerHandler = new TimerHandler();
+
+        $(document).ready(
+            function(){
+                initOverlays();
+            }
+        );
+    </script>
+</head>
+<body id="ingamepage">
+
+<div id="siteHeader">
+</div>
+
+<div id="pageContent">
+    <div id="top">
+        <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+        <div id='resourcesbarcomponent'
+             class=""
+        >
+            <ul id="resources">
+                <li id="metal_box"
+                    class="metal  tooltipHTML"
+                    title="Metal|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;2.058.194&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;60.510.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+65.499&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;340.521&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon metal"></div>
+                    <span class="value">
+                <span id="resources_metal" data-raw="2058194.7535015">2.058.194.753</span>
+            </span>
+                </li>
+                <li id="crystal_box"
+                    class="crystal  tooltipHTML"
+                    title="Crystal|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;134.370&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;5.355.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+26.117&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;135.672&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon crystal"></div>
+                    <span class="value">
+                <span id="resources_crystal" data-raw="134370.54973477">134.370.549</span>
+            </span>
+                </li>
+                <li id="deuterium_box"
+                    class="deuterium  tooltipHTML"
+                    title="Deuterium|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;47&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Storage capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;33.005.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+16.892&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Den Capacity:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;88.104&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon deuterium"></div>
+                    <span class="value">
+                <span id="resources_deuterium" data-raw="47.923645498147">47.923</span>
+            </span>
+                </li>
+                <li id="energy_box"
+                    class="energy  tooltipHTML"
+                    title="Energy|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-10.793&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Current production:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+9.200&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Consumption:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;-19.993&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                >
+                    <div class="resourceIcon energy"></div>
+                    <span class="value">
+                <span id="resources_energy" data-raw="-10793">-10.793</span>
+            </span>
+                </li>
+                <li id="darkmatter_box"
+                    class="darkmatter dark_highlight_tablet overlay tooltipHTML"
+                    title="Dark Matter|&lt;table class=&quot;resourceTooltip&quot;&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Available:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;22.450&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Purchased:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;450&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;th&gt;Found:&lt;/th&gt;
+                &lt;td&gt;&lt;span class=&quot;&quot;&gt;22.000&lt;/span&gt;&lt;/td&gt;
+            &lt;/tr&gt;
+        &lt;/table&gt;"
+                    data-tooltip-button="Purchase Dark Matter"
+                >
+                    <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=payment"
+                       class="overlay">
+                        <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif">
+                        <div class="resourceIcon darkmatter"></div>
+                    </a>
+                    <span class="value">
+                <span id="resources_darkmatter" data-raw="22450" class="overlay">22.450</span>
+            </span>
+                </li>
+            </ul>
+            <script type="text/javascript">
+                var isMobile = true;
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","planetMoveBreakUpWarning":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be canceled. Do you really want to continue with this job?","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available!","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter? In doing so, you will lose your current class.","activateItemQuestion":"Do you want to activate the #characterClassName# class? In doing so, you will lose your current class."},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+
+                (function($) {
+                    reloadResources({"resources":{"metal":{"amount":2058194.7535015,"storage":60510000,"baseProduction":0.058333333333333,"tooltip":"Metal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">2.058.194<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">60.510.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+65.499<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"middlemark\">340.521<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"crystal":{"amount":134370.54973477,"storage":5355000,"baseProduction":0.029166666666667,"tooltip":"Crystal|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">134.370<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">5.355.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+26.117<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">135.672<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"deuterium":{"amount":47.923645498147,"storage":33005000,"baseProduction":0,"tooltip":"Deuterium|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">47<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Storage capacity:<\/th>\n                <td><span class=\"\">33.005.000<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+16.892<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Den Capacity:<\/th>\n                <td><span class=\"undermark\">88.104<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"energy":{"amount":-10793,"tooltip":"Energy|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"overmark\">-10.793<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Current production:<\/th>\n                <td><span class=\"undermark\">+9.200<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Consumption:<\/th>\n                <td><span class=\"overmark\">-19.993<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":""},"darkmatter":{"amount":22450,"tooltip":"Dark Matter|<table class=\"resourceTooltip\">\n            <tr>\n                <th>Available:<\/th>\n                <td><span class=\"\">22.450<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Purchased:<\/th>\n                <td><span class=\"\">450<\/span><\/td>\n            <\/tr>\n            <tr>\n                <th>Found:<\/th>\n                <td><span class=\"\">22.000<\/span><\/td>\n            <\/tr>\n        <\/table>","classesListItem":"dark_highlight_tablet overlay","classes":"overlay","link":"http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}},"techs":{"1":{"techId":1,"production":{"metal":39.412222222222,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":1.8766666666667}},"2":{"techId":2,"production":{"metal":0,"crystal":15.702777777778,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":1.1213888888889}},"3":{"techId":3,"production":{"metal":0,"crystal":0,"deuterium":10.197222222222,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":2.5555555555556}},"4":{"techId":4,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":2.5555555555556},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12":{"techId":12,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"212":{"techId":212,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"217":{"techId":217,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}}},"honorScore":57});
+                })(jQuery);
+            </script>
+        </div>
+        <div id='commandercomponent'
+             class=""
+        >
+            <div id="characterclass" class="fleft">
+                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=characterclassselection"
+                   class="tooltipHTML js_hideTipOnMobile"
+                   title="Select class|Select a class to receive special bonuses.">
+                    <div class="sprite characterclass medium none"></div>
+                </a>
+            </div>
+            <div id="officers" class="  fright">
+                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=premium&amp;openDetail=2"
+                   class="tooltipHTML   commander js_hideTipOnMobile "
+                   title="Hire commander|Building queue, empire view, improved galaxy view,&lt;br /&gt;
+message filter, shortcuts, advertisement free* &lt;span style=&quot;font-size:10px;line-height:10px;&quot;&gt;(*except for: game related references)&lt;/span&gt;"
+                >
+                    <img src="https://s149-us.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=premium&amp;openDetail=3"
+                   class="tooltipHTML    admiral js_hideTipOnMobile "
+                   title="Hire admiral|Max. fleet slots +2,
+improved fleet escape rate"
+                >
+                    <img src="https://s149-us.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=premium&amp;openDetail=4"
+                   class="tooltipHTML    engineer js_hideTipOnMobile "
+                   title="Hire engineer|Halves losses to defenses, +10% energy production"
+                >
+                    <img src="https://s149-us.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=premium&amp;openDetail=5"
+                   class="tooltipHTML    geologist js_hideTipOnMobile "
+                   title="Hire geologist|+10% mine production"
+                >
+                    <img src="https://s149-us.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=premium&amp;openDetail=6"
+                   class="tooltipHTML    technocrat js_hideTipOnMobile "
+                   title="Hire technocrat|+2 espionage levels, 25% less research time"
+                >
+                    <img src="https://s149-us.ogame.gameforge.com/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+                </a>
+            </div>
+        </div>
+        <div id='notificationbarcomponent'
+             class=""
+        >
+            <div id="message-wrapper">
+                <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+                   href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=messages"
+                   title="92 unread message(s)"
+                >
+                    <span class="new_msg_count totalMessages news "
+                          data-new-messages="92"
+                    >
+                92
+            </span>
+                </a>
+                <a class=" comm_menu chat tooltip js_hideTipOnMobile"
+                   href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=chat"
+                   title="92 unread message(s)"
+                >
+        <span class="new_msg_count totalChatMessages noMessage"
+              data-new-messages="0">
+            0
+        </span>
+                </a>
+                <div id="messages_collapsed">
+                    <div id="eventboxFilled" class="eventToggle" style="display: none;">
+                        <a id="js_eventDetailsClosed"
+                           class="tooltipRight js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="More details"
+                        ></a>
+                        <a id="js_eventDetailsOpen"
+                           class="tooltipRight open js_hideTipOnMobile"
+                           href="javascript:void(0);"
+                           title="Less detail"
+                        ></a>
+                    </div>
+                    <div id="eventboxLoading"
+                         class="textCenter textBeefy"
+                         style="display: block;"
+                    >
+                        <img height="16"
+                             width="16"
+                             alt="ajax spinner"
+                             src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"
+                        />
+                        load...
+                    </div>
+                    <div id="eventboxBlank"
+                         class="textCenter"
+                         style="display: none;"
+                    >
+                        No fleet movement
+                    </div>
+                </div>
+                <div id="attack_alert"
+                     class="tooltip noAttack"
+                     title=""
+                >
+                    <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"
+                    ></a>
+                </div>
+            </div>
+        </div>
+        <div id='headerbarcomponent'
+             class=""
+        >
+            <div id="bar">
+                <ul>
+                    <li class="OGameClock">31.03.2020 <span>18:42:32</span></li>
+                    <li id="playerName">
+                        Player:
+
+                        <span class="textBeefy">
+                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ajax&amp;component=changenick"
+                               class="overlay textBeefy"
+                               data-overlay-title=""
+                               data-overlay-popup-width="400"
+                               data-overlay-popup-height="200"
+                            >Notriv</a>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div id="left">
+        <div id='mainmenucomponent'></div>
+        <div id='tutorialiconcomponent'
+             class=""
+        >
+            <div id="helper">
+                <a class="highlight tooltip tooltipClose"
+                   href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=tutorial&amp;displayNew=1"
+                   title="Tutorial Overview&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=rewards&quot;&gt;&lt;/a&gt;">?</a>
+            </div>
+        </div>
+        <div id='toolbarcomponent'
+             class=""
+        >
+            <div id="links">
+                <ul id="menuTable" class="leftmenu">
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=rewards"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="">
+                            <div class="menuImage overview
+                                                                overview_claimable
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Overview</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=resourceSettings"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Resource settings">
+                            <div class="menuImage resources
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Resources</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;openTech=36"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Space Dock">
+                            <div class="menuImage station
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Facilities</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;tab=overview"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Own">
+                            <div class="menuImage marketplace
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Marketplace</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=traderOverview#page=traderResources&amp;animation=false"
+                                               class="trader tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Resource Market">
+                            <div class="menuImage traderOverview
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=traderOverview"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Trader</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all"
+                                               class="overlay tooltipRight js_hideTipOnMobile "
+                                               target="_blank"
+                                               title="Technology">
+                            <div class="menuImage research
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=research"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Research</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage shipyard"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=shipyard"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shipyard</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage defense"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Defense</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="fleet movement">
+                            <div class="menuImage fleet1
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton  selected"
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Fleet</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage galaxy"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Galaxy</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage alliance"></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=alliance"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Alliance</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage premium"></div>
+                                    </span>
+                        <a class="menubutton premiumHighligt officers"
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=premium"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Recruit Officers</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be"
+                                               class="tooltipRight js_hideTipOnMobile "
+                                               target="_self"
+                                               title="Inventory">
+                            <div class="menuImage shop
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+                        <a class="menubutton premiumHighligt"
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=shop"
+                           accesskey=""
+                           target="_self"
+                        >
+                            <span class="textlabel">Shop</span>
+                        </a>
+                    </li>
+
+                    <li>
+                <span class="menu_icon">
+                                            <div class="menuImage "></div>
+                                    </span>
+                        <a class="menubutton "
+                           href="https://www.stomt.com/ogame"
+                           target="_blank"
+                        >
+                            <span class="textlabel">Stomt</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <ul class="second_menu">
+                    <li>
+                        <a class="menu_item buddies active"
+                           accesskey=""
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=buddies&amp;action=2">
+                <span class="icon_caption">
+                    Buddies
+                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item score"
+                           accesskey=""
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=highscore">
+                <span class="icon_caption">
+                    Highscore
+                </span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item tutorial highlight tooltip" href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=tutorial&amp;displayNew=1">
+                            <span class="icon_caption">Tutorial</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item search overlay"
+                           accesskey=""
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=search&amp;ajax=1"
+                           data-overlay-title="Search Universe"
+                           data-overlay-close="__default closeSearch"
+                           data-overlay-class="search">
+                            <span class="icon_caption">Search</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item pref"
+                           accesskey=""
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=preferences">
+                            <span class="icon_caption">Options</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item notes overlay"
+                           accesskey=""
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=notices"
+                           data-overlay-title="My notes"
+                           data-overlay-class="notices">
+                            <span class="icon_caption">Notes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item rules overlay"
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=standalone&component=rules&ajax=1"
+                           data-overlay-title="Rules"
+                           data-overlay-iframe="true"
+                           data-iframe-width="450">
+                            <span class="icon_caption">Rules</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu_item logout"
+                           href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=logout">
+                            <span class="icon_caption">Log out</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div id="toolLinksWrapper">
+                    <ul id="menuTableTools" class="leftmenu"></ul>
+                </div>
+                <br class="clearfloat"/>
+            </div>
+        </div>
+        <div id='advicebarcomponent'
+             class=""
+        >
+            <div class="adviceWrapper">
+
+                <div id="advice-bar">
+
+
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="middle">
+        <div id='eventlistcomponent'
+             class=""
+        >
+            <div id="eventboxContent"
+                 style="display: none;">
+                <div id="eventListWrap">
+                    <div id="eventHeader">
+                        <a class="close_details eventToggle" href="javascript:toggleEvents();">
+                        </a>
+                        <h2>Events</h2>
+                    </div>
+                    <table id="eventContent">
+                        <tbody>
+                        <tr class="eventFleet" id="eventRow-384597"
+                            data-mission-type="4"
+                            data-return-flight="false"
+                            data-arrival-time="1585705984"
+                        >
+                            <td class="countDown">
+        <span id="counter-eventlist-384597" class="friendly textBeefy">
+            load...
+        </span>
+                                <br/>
+                                <span>21:53:04 Clock</span>
+                            </td>
+                            <td class="missionFleet">
+    <span class="dark_highlight_tablet">
+        <span class="icon icon_stationieren float_left"></span>
+        Deployment
+        <br/>
+        Own fleet
+    </span>
+                            </td>
+                            <td class="coordsOrigin">
+                                <a class="dark_highlight_tablet" href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=430" target="">
+                                    <figure class="planetIcon planet"></figure>Homeworld<br/>
+                                    [1:430:4]
+                                </a>
+                            </td>
+                            <td class="detailsFleet">
+            <span class="dark_highlight_tablet tooltip tooltipRight tooltipClose"
+                  title="&lt;div class=&quot;htmlTooltip&quot;&gt;
+    &lt;h1&gt;Fleet details:&lt;/h1&gt;
+    &lt;div class=&quot;splitLine&quot;&gt;&lt;/div&gt;
+            &lt;table cellpadding=&quot;0&quot; cellspacing=&quot;0&quot; class=&quot;fleetinfo&quot;&gt;
+            &lt;tr&gt;
+                &lt;th colspan=&quot;3&quot;&gt;Ships:&lt;/th&gt;
+            &lt;/tr&gt;
+                                                &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Small Cargo:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;139&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Espionage Probe:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;1&lt;/td&gt;
+                    &lt;/tr&gt;
+                                                        &lt;tr&gt;
+                    &lt;td colspan=&quot;3&quot;&gt;&amp;nbsp;&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;th colspan=&quot;3&quot;&gt;Shipment:&lt;/th&gt;
+                &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Metal:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;0&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Crystal:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;631.569&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;tr&gt;
+                        &lt;td colspan=&quot;2&quot;&gt;Deuterium:&lt;/td&gt;
+                        &lt;td class=&quot;value&quot;&gt;515.157&lt;/td&gt;
+                    &lt;/tr&gt;
+                                    &lt;/table&gt;
+    &lt;/div&gt;
+" data-federation-user-id="0">
+            <span class="icon_movement float_right"></span>
+                            <span class="ship_count">140</span>
+                    </span>
+                            </td>
+                            <td class="destCoords">
+                                <a class="dark_highlight_tablet" href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=430" target="">
+                                    <figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planet"></figure>Colony<br/>
+                                    [1:430:9]
+                                </a>
+                            </td>
+                            <td class="sendProbe">
+                            </td>
+                            <td class="sendMail">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div id="eventFooter"></div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                var timeDelta = 1585694552000 - (new Date()).getTime();
+                var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"M","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","planetMoveBreakUpWarning":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be canceled. Do you really want to continue with this job?","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available!","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter? In doing so, you will lose your current class.","activateItemQuestion":"Do you want to activate the #characterClassName# class? In doing so, you will lose your current class."},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+                (function($) {
+                    new eventboxCountdown(
+                        $("#counter-eventlist-384597"),
+                        1585705984 - 1585694552,
+                        $("#eventListWrap"),
+                        "http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=componentOnly&component=eventList&action=checkEvents&ajax=1&asJson=1",
+                        [0]
+                    );
+                })(jQuery);
+            </script>
+
+
+        </div>
+        <div id='movementcomponent'
+             class="maincontent"
+        >
+            <div id="movement">
+                <div id="inhalt">
+                    <div id="planet" class="planet-header ">
+                        <h2>fleet movement - Homeworld</h2>
+                        <a class="toggleHeader" data-name="movement">
+                            <img alt="" src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" height="22" width="22" />
+                        </a>
+                    </div>
+                    <div class="c-left"></div>
+                    <div class="c-right"></div>
+                    <div class="fleetStatus">
+            <span class="reload">
+                <a class="dark_highlight_tablet" href="javascript:void(0);" onClick="reloadPage();">
+                    <span class="icon icon_reload"></span>
+                    <span>Reload</span>
+                </a>
+            </span>
+                        <span class="fleetSlots">
+                Fleets: <span class="current">1</span> / <span class="all">17</span>
+            </span>
+                        <span class="expSlots">
+                Expeditions: <span class="current">0</span> / <span class="all">3</span>
+            </span>
+                        <span class="closeAll">
+                <a href="javascript:void(0);">
+                    <img src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif" />
+                </a>
+            </span>
+                    </div>
+                    <div id="fleet2359164" class="fleetDetails detailsOpened"
+                         data-mission-type="4"
+                         data-return-flight=""
+                         data-arrival-time="1585705984"
+                    >
+                <span class="originPlanet">
+                    <figure class="planetIcon planet"></figure>Homeworld (Notriv)
+                    <span class="hostile"></span>
+                </span>
+
+                        <span class="starStreak">
+                    <a class="origin" href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=430">
+                        <div class="dark_highlight_tablet">
+                            <img class="js_replace2x" height="30" width="30" src="https://gf1.geo.gfsrv.net/cdn9a/2068178c1ae68f8cb30b3d63613371.png" />
+                        </div>
+                        <div class="coords">
+                            [1:430:4]
+                        </div>
+                    </a>
+
+                    <a href="javascript:void(0);"
+                       class="openCloseDetails starstreak_toggle_link"
+                       data-mission-id="2359164"
+                       data-end-time="1585705984"
+                    ></a>
+                    <div class="route_txt">
+                        <span class="textBeefy neutral">Deployment: </span>
+                        <span id="timer_2359164">load...</span>
+                    </div>
+                    <div class="route fixed">
+                        <a class="basic2" id="route_2359164">
+                            <span class="fleet_icon_forward"></span>
+                        </a>
+                    </div>
+
+                    <a class="destination" href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=430">
+                        <div class="dark_highlight_tablet">
+                            <img class="js_replace2x" height="30" width="30" src="https://gf3.geo.gfsrv.net/cdn5f/9d6624c2c613cc59c18a39fc6f5ae6.png"/>
+                        </div>
+                        <div class="coords">
+                            [1:430:9]
+                        </div>
+                    </a>
+                </span><!-- End Starstreak -->
+
+                        <span class="destinationPlanet">
+                                                    <figure class="planetIcon planet"></figure>Colony
+                                            </span>
+
+                        <a class="reversal icon_link" href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;return=2359164">
+                            <span class="icon icon_recall"></span>
+                        </a>
+
+                        <span class="fedAttack">
+                        <span class="icon icon_fed_attack disabled"></span>
+                    </span>
+
+                        <span class="openDetails">
+                    <a href="javascript:void(0);" class="openCloseDetails toggleDetails"
+                       data-mission-id="2359164"
+                       data-end-time="1585705984"
+                    ></a>
+                </span>
+                        <div class="fleet_details border3px">
+                            <a class="dark_highlight_tablet reversal"
+                               href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;return=2359164"
+                            >
+                                <span class="icon icon_recall"></span>
+                                <span class="reversal_txt">
+                                Recall
+                                <br>
+                                <span class="reversal_time" ref="2359164">31.03.2020 18:42:42</span>
+                            </span>
+                            </a>
+
+                            <span class="arrival_times float_left"><span class='textBeefy'>Start time:</span> 31.03.2020 18:42:22 Clock</span>
+                            <span class="arrival_times float_right"><span class='textBeefy'>Time of arrival:</span> 31.03.2020 21:53:04 Clock</span>
+                            <br class="clearfix">
+
+                            <div class="recall_txt">
+                                <span class="friendly textBeefy">Return</span>
+                                01.04.2020 01:03:46 Clock
+                                (<span id="timerNext_2359164">load...</span>)
+                            </div>
+
+                            <h3>Fleet details</h3>
+                            <ul id="shipOverview" class="fleet_detail_list clearfix border3px">
+                                <li class="border3px ship202">
+                                    <div class="shipImage">
+                                        <img class="tech202"
+                                             width="28"
+                                             height="28"
+                                             alt="Small Cargo"
+                                             src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                        />
+                                    </div>
+                                    Small Cargo
+                                    <br>
+                                    139
+                                </li>
+                                <li class="border3px ship210">
+                                    <div class="shipImage">
+                                        <img class="tech210"
+                                             width="28"
+                                             height="28"
+                                             alt="Espionage Probe"
+                                             src="https://gf2.geo.gfsrv.net/cdndf/3e567d6f16d040326c7a0ea29a4f41.gif"
+                                        />
+                                    </div>
+                                    Espionage Probe
+                                    <br>
+                                    1
+                                </li>
+                            </ul>
+
+                            <h3>Shipment</h3>
+                            <ul class="fleet_detail_list clearfix border3px">
+                                <li class="border3px">
+                                    <div class="resourceIcon crystal"></div>
+                                    <span>631.569</span>
+                                </li>
+                                <li class="border3px">
+                                    <div class="resourceIcon deuterium"></div>
+                                    <span>515.157</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>             </div>
+            </div>
+
+            <script type="text/javascript">
+                function unionEdit(response)
+                {
+                    var data = $.parseJSON(response);
+                    errorBoxAsArray(data["errorbox"]);
+
+                    $("#federation_" + data["fleetID"]).children().attr("href", "http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=federationlayer&ajax=1&union=" + data["unionID"] + "&fleet=" + data["fleetID"] + "&target=" + data["targetID"]);
+                    $("#FederationLayer").parent().dialog('close');
+                }
+
+                function reloadPage()
+                {
+                    openParentLocation("http:\/\/127.0.0.1:8080\/bots\/19\/browser\/html\/s149-us?page=ingame&component=movement");
+                }
+
+                var showInfos = 1;
+                var currentMovementTabExtensionStates = JSON.parse("{\"2359163\":[1,1585705909],\"2359164\":[1,1585705984]}");
+
+                $(document).ready(function() {
+                    var movementLoca = "{\"callBack\":\"Recall\"}";
+
+                    if (showInfos == 0) {
+                        showInfos = 1;
+                        $(".closeAll").children().removeClass('all_open').addClass('all_closed');
+                    } else {
+                        showInfos = 0;
+                        $(".closeAll").children().removeClass('all_closed').addClass('all_open');
+                    }
+
+
+                    new reloadCountdown(
+                        getElementByIdWithCache("timer_2359164"),
+                        11432,
+                        "http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&component=movement"
+                    );
+
+                    new movementImageCountdown(
+                        getElementByIdWithCache("route_2359164"),
+                        11432,
+                        11442,
+                        0,
+                        0,
+                        274
+                    );
+
+                    new simpleCountdown(
+                        getElementByIdWithCache("timerNext_2359164"),
+                        22874
+                    );
+
+                    new recallShipCountdown(
+                        2359164,
+                        1585694562
+                    )
+
+
+                    initMovement();
+                });
+            </script>
+        </div>
+    </div>
+    <div id="right">
+        <div id='planetbarcomponent'
+             class=""
+        >
+            <div id="rechts">
+                <div id="cutty">
+                    <div id="myPlanets">
+                        <div id="countColonies">
+                            <p class="textCenter">
+                                <span>5/9</span> Planets
+                            </p>
+                        </div>
+                        <div id="planetList"
+                        >
+                            <div class="smallplanet smaller" id="planet-33630870">
+                                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;cp=33630870"
+                                   title="&lt;b&gt;Homeworld [1:430:4]&lt;/b&gt;&lt;br/&gt;12.800km (&lt;span class=&#039;overmark&#039; &gt;193&lt;/span&gt;/193)&lt;br&gt;35°C to 75°C&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview&amp;cp=33630870&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies&amp;cp=33630870&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=research&amp;cp=33630870&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;cp=33630870&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33630870&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=shipyard&amp;cp=33630870&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses&amp;cp=33630870&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch&amp;cp=33630870&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;cp=33630870&amp;galaxy=1&amp;system=430&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink active tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Homeworld"
+                                         src="https://gf1.geo.gfsrv.net/cdn35/9545f984bcd53c816a1a8452356d00.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Homeworld</span>
+                                    <span class="planet-koords ">[1:430:4]</span>
+                                </a>
+                                <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile"
+                                   title="&lt;b&gt;Moon [1:430:4]&lt;/b&gt;&lt;br&gt;8.888km (0/1)&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview&amp;cp=33673976&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies&amp;cp=33673976&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;cp=33673976&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33673976&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses&amp;cp=33673976&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch&amp;cp=33673976&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;cp=33673976&amp;galaxy=1&amp;system=430&amp;position=4&quot;&gt;Galaxy&lt;/a&gt;"
+                                   href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;cp=33673976"
+                                >
+                                    <img src="https://gf2.geo.gfsrv.net/cdnad/9c9f0a78e85bcf40c2ccfc08db5cb4.gif"
+                                         width="16"
+                                         height="16"
+                                         alt="Moon"
+                                         class="icon-moon"
+                                    />
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller" id="planet-33631212">
+                                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;cp=33631212"
+                                   title="&lt;b&gt;Colony [1:430:9]&lt;/b&gt;&lt;br/&gt;13.716km (114/218)&lt;br&gt;-18°C to 22°C&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview&amp;cp=33631212&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies&amp;cp=33631212&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=research&amp;cp=33631212&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;cp=33631212&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33631212&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=shipyard&amp;cp=33631212&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses&amp;cp=33631212&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch&amp;cp=33631212&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;cp=33631212&amp;galaxy=1&amp;system=430&amp;position=9&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf3.geo.gfsrv.net/cdneb/0b4e5e7d10690282412502048a2f80.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[1:430:9]</span>
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller" id="planet-33631491">
+                                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;cp=33631491"
+                                   title="&lt;b&gt;Colony [1:430:7]&lt;/b&gt;&lt;br/&gt;13.941km (107/224)&lt;br&gt;12°C to 52°C&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview&amp;cp=33631491&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies&amp;cp=33631491&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=research&amp;cp=33631491&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;cp=33631491&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33631491&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=shipyard&amp;cp=33631491&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses&amp;cp=33631491&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch&amp;cp=33631491&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;cp=33631491&amp;galaxy=1&amp;system=430&amp;position=7&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf2.geo.gfsrv.net/cdnd4/63f1df035da1b8ca6a1229dfcbf8cc.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[1:430:7]</span>
+                                </a>
+                                <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile"
+                                   title="&lt;b&gt;Moon [1:430:7]&lt;/b&gt;&lt;br&gt;8.717km (24/25)&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview&amp;cp=33639983&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies&amp;cp=33639983&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33639983&amp;opengate=1&quot;&gt;Jump Gate&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;cp=33639983&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33639983&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses&amp;cp=33639983&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch&amp;cp=33639983&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;cp=33639983&amp;galaxy=1&amp;system=430&amp;position=7&quot;&gt;Galaxy&lt;/a&gt;"
+                                   href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;cp=33639983"
+                                >
+                                    <img src="https://gf2.geo.gfsrv.net/cdn4d/7b05c61b8fa8c483a464cb423cb02b.gif"
+                                         width="16"
+                                         height="16"
+                                         alt="Moon"
+                                         class="icon-moon"
+                                    />
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller" id="planet-33632814">
+                                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;cp=33632814"
+                                   title="&lt;b&gt;Colony [1:429:9]&lt;/b&gt;&lt;br/&gt;13.305km (105/207)&lt;br&gt;8°C to 48°C&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview&amp;cp=33632814&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies&amp;cp=33632814&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=research&amp;cp=33632814&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;cp=33632814&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33632814&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=shipyard&amp;cp=33632814&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses&amp;cp=33632814&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch&amp;cp=33632814&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;cp=33632814&amp;galaxy=1&amp;system=429&amp;position=9&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf3.geo.gfsrv.net/cdne9/4176dad1705e1d32e0e10624f3b5a9.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[1:429:9]</span>
+                                </a>
+                                <a class="moonlink  tooltipLeft tooltipClose js_hideTipOnMobile"
+                                   title="&lt;b&gt;Moon [1:429:9]&lt;/b&gt;&lt;br&gt;6.181km (&lt;span class=&#039;overmark&#039; &gt;13&lt;/span&gt;/13)&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview&amp;cp=33661003&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies&amp;cp=33661003&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33661003&amp;opengate=1&quot;&gt;Jump Gate&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;cp=33661003&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33661003&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses&amp;cp=33661003&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch&amp;cp=33661003&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;cp=33661003&amp;galaxy=1&amp;system=429&amp;position=9&quot;&gt;Galaxy&lt;/a&gt;"
+                                   href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;cp=33661003"
+                                >
+                                    <img src="https://gf1.geo.gfsrv.net/cdn9d/8e0e6034049bd64e18a1804b42f179.gif"
+                                         width="16"
+                                         height="16"
+                                         alt="Moon"
+                                         class="icon-moon"
+                                    />
+                                </a>
+                            </div>
+                            <div class="smallplanet smaller" id="planet-33634011">
+                                <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=movement&amp;cp=33634011"
+                                   title="&lt;b&gt;Colony [1:432:8]&lt;/b&gt;&lt;br/&gt;14.122km (110/229)&lt;br&gt;30°C to 70°C&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=overview&amp;cp=33634011&quot;&gt;Overview&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=supplies&amp;cp=33634011&quot;&gt;Resources&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=research&amp;cp=33634011&quot;&gt;Research&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=marketplace&amp;cp=33634011&quot;&gt;Marketplace&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=facilities&amp;cp=33634011&quot;&gt;Facilities&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=shipyard&amp;cp=33634011&quot;&gt;Shipyard&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=defenses&amp;cp=33634011&quot;&gt;Defense&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=fleetdispatch&amp;cp=33634011&quot;&gt;Fleet&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=ingame&amp;component=galaxy&amp;cp=33634011&amp;galaxy=1&amp;system=432&amp;position=8&quot;&gt;Galaxy&lt;/a&gt;"
+                                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                                >
+                                    <img class="planetPic js_replace2x"
+                                         alt="Colony"
+                                         src="https://gf1.geo.gfsrv.net/cdnc3/05f9cbd97aef057af87dc00f448bdb.png"
+                                         width="30"
+                                         height ="30"
+                                    />
+                                    <span class="planet-name ">Colony</span>
+                                    <span class="planet-koords ">[1:432:8]</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div id="bottom">
+    <div id='errorboxcomponent'
+         class=""
+    >
+        <div id="decisionTB" style="display:none;">
+            <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxDecisionContent">-</span>
+                    <div class="response">
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+                        </div>
+                        <div style="float:left; width:180px;">
+                            <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+
+        <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+            <div>
+                <span id="fadeBoxStyle" class="success"></span>
+                <p id="fadeBoxContent"></p>
+            </div>
+        </div>
+
+        <div id="notifyTB" style="display:none;">
+            <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+                <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+                <div class="middle">
+                    <span id="errorBoxNotifyContent">-</span>
+                    <div class="response">
+                        <div>
+                            <a href="javascript:void(0);" class="ok">
+                                <span id="errorBoxNotifyOk">.</span>
+                            </a>
+                        </div>
+                        <br class="clearfloat" />
+                    </div>
+                </div>
+                <div class="foot"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    initIndex();
+
+</script>
+<div id="siteFooter">
+    <div class="content" style="font-size:10px">
+        <div class="fleft textLeft">
+            <a href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=standalone&amp;component=changelog&amp;ajax=1" class="tooltip js_hideTipOnMobile" title="Patch notes">7.2.1</a>
+            <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. All rights reserved.</a>
+        </div>
+        <div class="fright textRight">
+            <a class="overlay"
+               href="http://127.0.0.1:8080/bots/19/browser/html/s149-us?page=standalone&amp;component=rules&amp;ajax=1"
+               data-overlay-iframe="true"
+               data-iframe-width="450"
+               data-overlay-title="Rules"
+            >Rules</a>|
+            <a href="https://agbserver.gameforge.com/rewrite.php?locale=us&amp;type=imprint&amp;product=ogame" target="_blank">Imprint</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<script src="/public/js/mousetrap.min.js"></script>
+<script>
+    Mousetrap.bind('h', function() { document.location.href = "/bots/19"; });
+    Mousetrap.bind('b', function() { document.location.href = "/bots/19/browser"; });
+    Mousetrap.bind('f', function() { document.location.href = "/bots/19/farmer"; });
+    Mousetrap.bind('g', function() { document.location.href = "/bots/19/galaxy"; });
+    Mousetrap.bind('s', function() { document.location.href = "/bots/19/scripts"; });
+    Mousetrap.bind('shift+s', function() { document.location.href = "/bots/19/settings"; });
+    Mousetrap.bind('shift+l', function() { document.location.href = "/bots/19/logs"; });
+    Mousetrap.bind('a', function() { document.location.href = "/bots/19/activities"; });
+</script>
+<script>
+    function inIframe () {
+        try {
+            return window.self !== window.top;
+        } catch (e) {
+            return true;
+        }
+    }
+    if (!inIframe()) {
+        var urlParams = new URLSearchParams(window.location.search);
+        urlParams.delete("token");
+        urlParams.delete("modus");
+        urlParams.delete("menge");
+        urlParams.delete("cp");
+
+        var btn = document.createElement("BUTTON");
+        var t = document.createTextNode("Exit full screen");
+        btn.style.height = '20px';
+        btn.style.width = '100%';
+        btn.style.display = 'block';
+        btn.style.marginBottom = '3px';
+        btn.appendChild(t);
+        btn.onclick = function() {
+            document.location.href = "/bots/19/browser?" + urlParams.toString();
+        };
+
+        var btn1 = document.createElement("BUTTON");
+        var t = document.createTextNode("Manual mode (off)");
+        btn1.style.height = '20px';
+        btn1.style.width = '130px';
+        btn1.style.display = 'block';
+        btn1.style.marginBottom = '3px';
+        btn1.appendChild(t);
+        btn1.onclick = function() {
+            var formData = new FormData();
+            formData.append('csrf', 'mltOkWF7GwLhj8Iqe9VhYS11TumiHq3M');
+            $.ajax({
+                url: "/api/v1/bots/19/toggle-manual-mode", data: formData, type: 'POST', processData: false, contentType: false,
+                success: function(res) {
+                    $(btn1).text("Manual mode (" + (res ? "on" : "off") + ")");
+                },
+                error: function(req) { console.log(req.responseText); },
+            });
+        };
+
+        var div = document.createElement("div");
+        div.style.position = 'fixed';
+        div.style.right = '10px';
+        div.style.top = '10px';
+        div.style.zIndex = '3001';
+        div.appendChild(btn);
+        div.appendChild(btn1);
+
+        document.body.prepend(div);
+    }
+</script>
