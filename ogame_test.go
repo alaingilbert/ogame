@@ -2887,3 +2887,13 @@ func TestExtractOGameSession(t *testing.T) {
 	session = NewExtractorV6().ExtractOGameSession(pageHTMLBytes)
 	assert.Equal(t, "c1626ce8228ac5986e3808a7d42d4afc764c1b68", session)
 }
+
+func TestExtractIsMobile(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement.html")
+	isMobile := NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
+	assert.False(t, isMobile)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7.2/en/movement_mobile.html")
+	isMobile = NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
+	assert.True(t, isMobile)
+}

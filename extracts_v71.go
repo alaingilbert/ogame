@@ -822,3 +822,16 @@ func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items
 	}
 	return
 }
+
+func extractIsMobileFromDocV71(doc *goquery.Document) bool {
+	r := regexp.MustCompile(`var isMobile = (true|false);`)
+	scripts := doc.Find("script")
+	for i := 0; i < scripts.Size(); i++ {
+		scriptText := scripts.Eq(i).Text()
+		m := r.FindStringSubmatch(scriptText)
+		if len(m) == 2 {
+			return m[1] == "true"
+		}
+	}
+	return false
+}
