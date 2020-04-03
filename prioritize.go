@@ -18,9 +18,16 @@ const (
 // Prioritize ...
 type Prioritize struct {
 	bot          *OGame
+	initiator    string
 	name         string
 	taskIsDoneCh chan struct{}
 	isTx         int32
+}
+
+// SetInitiator ...
+func (b *Prioritize) SetInitiator(initiator string) *Prioritize {
+	b.initiator = initiator
+	return b
 }
 
 // Begin a new transaction. "Done" must be called to release the lock.
@@ -43,7 +50,10 @@ func (b *Prioritize) Done() {
 
 func (b *Prioritize) begin(name string) *Prioritize {
 	if atomic.AddInt32(&b.isTx, 1) == 1 {
-		b.name = name
+		if b.initiator != "" {
+			b.name = b.initiator + ":"
+		}
+		b.name += name
 		b.bot.botLock(name)
 	}
 	return b
