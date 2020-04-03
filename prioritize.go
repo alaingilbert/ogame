@@ -54,7 +54,7 @@ func (b *Prioritize) begin(name string) *Prioritize {
 			b.name = b.initiator + ":"
 		}
 		b.name += name
-		b.bot.botLock(name)
+		b.bot.botLock(b.name)
 	}
 	return b
 }
