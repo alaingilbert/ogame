@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"errors"
-	"math"
 	"time"
 )
 
@@ -215,15 +214,15 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 				if f.minimumDeuterium > 0 {
 					planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
 				}
-				payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
+				payload.Deuterium = MinInt(cargoCapacity, planetResources.Deuterium)
 				cargoCapacity -= payload.Deuterium
 			}
 			if f.resources.Crystal == -1 {
-				payload.Crystal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
+				payload.Crystal = MinInt(cargoCapacity, planetResources.Crystal)
 				cargoCapacity -= payload.Crystal
 			}
 			if f.resources.Metal == -1 {
-				payload.Metal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
+				payload.Metal = MinInt(cargoCapacity, planetResources.Metal)
 			}
 		}
 
