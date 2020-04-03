@@ -2978,7 +2978,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 
 	if !checkRes.TargetOk {
 		if len(checkRes.Errors) > 0 {
-			return Fleet{}, errors.New(checkRes.Errors[0].Message)
+			return Fleet{}, errors.New(checkRes.Errors[0].Message + " (" + strconv.Itoa(checkRes.Errors[0].Error) + ")")
 		}
 		return Fleet{}, errors.New("target is not ok")
 	}
