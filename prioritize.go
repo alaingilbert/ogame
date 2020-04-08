@@ -624,3 +624,24 @@ func (b *Prioritize) ActivateItem(ref string, celestialID CelestialID) error {
 	defer b.done()
 	return b.bot.activateItem(ref, celestialID)
 }
+
+// GetCachedData gets all Cached Data
+func (b *Prioritize) GetCachedData() Data {
+	b.begin("GetCachedData")
+	defer b.done()
+	return b.bot.getCachedData()
+}
+
+// SetResearchFinishAt sets b.SetResearchFinishAt
+func (b *Prioritize) SetResearchFinishAt(e int64) {
+	b.begin("SetResearchFinishAt")
+	defer b.done()
+	b.bot.setResearchFinishAt(e)
+}
+
+// GetResearchFinishAt get b.GetResearchFinishAt
+func (b *Prioritize) GetResearchFinishAt() int64 {
+	b.begin("GetResearchFinishAt")
+	defer b.done()
+	return b.bot.getResearchFinishAt()
+}

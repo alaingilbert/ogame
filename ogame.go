@@ -284,6 +284,7 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 		b.Researches = data.Researches
 		b.ResearchesActive = data.ResearchesActive
 		b.ResearchFinishAt = data.ResearchFinishAt
+		//b.SetResearchFinishAt(data.ResearchFinishAt)
 
 		b.EventboxResp = data.EventboxResp
 		b.MovementFleets = data.MovementFleets
@@ -868,7 +869,6 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-
 	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
 	b.PlanetResources[celestialID], _ = b.fetchResources(celestialID)
 	b.EventboxResp, _ = b.fetchEventbox()
@@ -888,8 +888,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		}
 
 		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
-		if researchID.Int() != 0 && researchCountdown != 0 {
+		if researchID != 0 && researchCountdown != 0 {
 			b.ResearchFinishAt = researchCountdown + time.Now().Unix()
+			//b.SetResearchFinishAt(researchCountdown + time.Now().Unix())
 		} else {
 			b.ResearchFinishAt = 0
 		}
@@ -979,7 +980,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	case ResearchPage:
 		_, _, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
 		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
-		if researchID.Int() != 0 && researchCountdown != 0 {
+		if researchID != 0 && researchCountdown != 0 {
 			b.ResearchFinishAt = researchCountdown + time.Now().Unix()
 		} else {
 			b.ResearchFinishAt = 0
@@ -4812,24 +4813,6 @@ func (b *OGame) GetPlanetsResources() map[CelestialID]ResourcesDetails {
 	return b.PlanetResources
 }
 
-/*
-	PlanetResourcesBuildings          map[CelestialID]ResourcesBuildings
-	PlanetFacilities                  map[CelestialID]Facilities
-	PlanetShipsInfos                  map[CelestialID]ShipsInfos
-	PlanetDefensesInfos               map[CelestialID]DefensesInfos
-	PlanetConstruction                map[CelestialID]Quantifiable
-	PlanetConstructionFinishAt        map[CelestialID]int64
-	PlanetShipyardProductions         map[CelestialID][]Quantifiable
-	PlanetShipyardProductionsFinishAt map[CelestialID]int64
-	PlanetQueue                       map[CelestialID][]Quantifiable
-	Researches                        Researches
-	ResearchesActive                  Quantifiable
-	ResearchFinishAt                  int64
-	EventboxResp                      eventboxResp
-	MovementFleets                    []Fleet
-	Slots                             Slots
-*/
-
 // GetItems get all items information
 func (b *OGame) GetItems(celestialID CelestialID) ([]Item, error) {
 	return b.WithPriority(Normal).GetItems(celestialID)
@@ -4838,4 +4821,74 @@ func (b *OGame) GetItems(celestialID CelestialID) ([]Item, error) {
 // ActivateItem activate an item
 func (b *OGame) ActivateItem(ref string, celestialID CelestialID) error {
 	return b.WithPriority(Normal).ActivateItem(ref, celestialID)
+}
+
+// GetCachedData gets all Cached Data
+func (b *OGame) GetCachedData() Data {
+	return b.WithPriority(Normal).GetCachedData()
+}
+
+// GetCachedData gets all Cached Data
+func (b *OGame) getCachedData() Data {
+	var data Data
+	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
+
+	data.Planets = b.Planets
+	data.PlanetActivity = map[CelestialID]int64{}
+	data.PlanetResources = map[CelestialID]ResourcesDetails{}
+	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+	data.PlanetFacilities = map[CelestialID]Facilities{}
+	data.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
+	data.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+
+	data.PlanetConstruction = map[CelestialID]Quantifiable{}
+	data.PlanetConstructionFinishAt = map[CelestialID]int64{}
+	data.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
+	data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+	data.PlanetQueue = map[CelestialID][]Quantifiable{}
+
+	data.PlanetActivity = b.PlanetActivity
+	data.PlanetResources = b.PlanetResources
+	data.PlanetResourcesBuildings = b.PlanetResourcesBuildings
+	data.PlanetFacilities = b.PlanetFacilities
+	data.PlanetShipsInfos = b.PlanetShipsInfos
+	data.PlanetDefensesInfos = b.PlanetDefensesInfos
+
+	data.PlanetConstruction = b.PlanetConstruction
+	data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
+	data.PlanetShipyardProductions = b.PlanetShipyardProductions
+	data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
+	data.PlanetQueue = b.PlanetQueue
+
+	data.Researches = b.Researches
+	data.ResearchesActive = b.ResearchesActive
+	data.ResearchFinishAt = b.ResearchFinishAt
+	data.EventboxResp = b.EventboxResp
+	data.AttackEvents = b.AttackEvents
+	data.MovementFleets = b.MovementFleets
+	data.Slots = b.Slots
+
+	by, _ := json.Marshal(data)
+	ioutil.WriteFile(filename, by, 0644)
+	return data
+}
+
+// SetResearchFinishAt set b.SetResearchFinishAt
+func (b *OGame) SetResearchFinishAt(e int64) {
+	b.WithPriority(Normal).SetResearchFinishAt(e)
+}
+
+// SetResearchFinishAt set b.SetResearchFinishAt
+func (b *OGame) setResearchFinishAt(e int64) {
+	b.ResearchFinishAt = e
+}
+
+// GetResearchFinishAt get b.SetResearchFinishAt
+func (b *OGame) GetResearchFinishAt() int64{
+	return b.WithPriority(Normal).GetResearchFinishAt()
+}
+
+// GetResearchFinishAt get b.SetResearchFinishAt
+func (b *OGame) getResearchFinishAt() int64{
+	return b.ResearchFinishAt
 }
