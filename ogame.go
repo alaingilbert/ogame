@@ -3712,6 +3712,7 @@ type EspionageReportSummary struct {
 	ID             int64
 	Type           EspionageReportType
 	From           string
+	Text		   string
 	Target         Coordinate
 	LootPercentage float64
 }

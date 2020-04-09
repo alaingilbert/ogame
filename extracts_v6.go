@@ -644,6 +644,7 @@ func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]Espiona
 				}
 				report := EspionageReportSummary{ID: id, Type: messageType}
 				report.From = s.Find("span.msg_sender").Text()
+				report.Text = s.Find("span.espionageDefText").Text()
 				spanLink := s.Find("span.msg_title a")
 				targetStr := spanLink.Text()
 				report.Target = extractCoordV6(targetStr)
@@ -1209,11 +1210,10 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			if len(startTimeArray) == 2 {
 				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
 
-				u1 := time.Now().UTC().Unix()
-				u2 := startTime.Unix()
-				n := int(math.Round(float64(u2-u1)/15)) * 15
-
-				startTime = startTime.Add(time.Duration(-n) * time.Second).In(time.FixedZone("OGT", n))
+				serverTime, _ := extractServerTimeFromDocV6(doc)
+				startTimeNeu := startTime.In(serverTime.Location())
+				offset := startTimeNeu.Hour() - startTime.Hour()
+				startTime = startTimeNeu.Add(time.Duration(-offset) * time.Hour)
 			}
 		}
 
