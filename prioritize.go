@@ -645,3 +645,4 @@ func (b *Prioritize) GetResearchFinishAt() int64 {
 	defer b.done()
 	return b.bot.getResearchFinishAt()
 }
+
