@@ -3375,7 +3375,7 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 // EspionageReportType type of espionage report (action or report)
 type EspionageReportType int
 
-// Action message received when an enemy is seen naer your planet
+// Action message received when an enemy is seen near your planet
 const Action EspionageReportType = 0
 
 // Report message received when you spied on someone
