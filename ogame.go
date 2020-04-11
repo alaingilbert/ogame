@@ -3401,7 +3401,7 @@ type CombatReportSummary struct {
 type EspionageReportSummary struct {
 	ID             int64
 	Type           EspionageReportType
-	From           string
+	From           string // Fleet Command | Space Monitoring
 	Target         Coordinate
 	LootPercentage float64
 }
