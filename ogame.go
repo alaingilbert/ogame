@@ -4031,18 +4031,18 @@ func (b *OGame) FleetDeutSaveFactor() float64 {
 }
 
 // GetAlliancePageContent gets the html for a specific alliance page
-func (b *OGame) GetAlliancePageContent(vals url.Values) []byte {
+func (b *OGame) GetAlliancePageContent(vals url.Values) ([]byte, error) {
 	return b.WithPriority(Normal).GetPageContent(vals)
 }
 
 // GetPageContent gets the html for a specific ogame page
-func (b *OGame) GetPageContent(vals url.Values) []byte {
+func (b *OGame) GetPageContent(vals url.Values) ([]byte, error) {
 	return b.WithPriority(Normal).GetPageContent(vals)
 }
 
 // PostPageContent make a post request to ogame server
 // This is useful when simulating a web browser
-func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
+func (b *OGame) PostPageContent(vals, payload url.Values) ([]byte, error) {
 	return b.WithPriority(Normal).PostPageContent(vals, payload)
 }
 
