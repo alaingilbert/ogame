@@ -3688,7 +3688,7 @@ func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed
 // EspionageReportType type of espionage report (action or report)
 type EspionageReportType int
 
-// Action message received when an enemy is seen naer your planet
+// Action message received when an enemy is seen near your planet
 const Action EspionageReportType = 0
 
 // Report message received when you spied on someone
@@ -3714,7 +3714,7 @@ type CombatReportSummary struct {
 type EspionageReportSummary struct {
 	ID             int64
 	Type           EspionageReportType
-	From           string
+	From           string // Fleet Command | Space Monitoring
 	Text		   string
 	Target         Coordinate
 	LootPercentage float64
@@ -4345,18 +4345,18 @@ func (b *OGame) FleetDeutSaveFactor() float64 {
 }
 
 // GetAlliancePageContent gets the html for a specific alliance page
-func (b *OGame) GetAlliancePageContent(vals url.Values) []byte {
+func (b *OGame) GetAlliancePageContent(vals url.Values) ([]byte, error) {
 	return b.WithPriority(Normal).GetPageContent(vals)
 }
 
 // GetPageContent gets the html for a specific ogame page
-func (b *OGame) GetPageContent(vals url.Values) []byte {
+func (b *OGame) GetPageContent(vals url.Values) ([]byte, error) {
 	return b.WithPriority(Normal).GetPageContent(vals)
 }
 
 // PostPageContent make a post request to ogame server
 // This is useful when simulating a web browser
-func (b *OGame) PostPageContent(vals, payload url.Values) []byte {
+func (b *OGame) PostPageContent(vals, payload url.Values) ([]byte, error) {
 	return b.WithPriority(Normal).PostPageContent(vals, payload)
 }
 

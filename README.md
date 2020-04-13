@@ -75,9 +75,9 @@ GetServerData() ServerData
 SetUserAgent(newUserAgent string)
 ServerURL() string
 GetLanguage() string
-GetPageContent(url.Values) []byte
-GetAlliancePageContent(url.Values) []byte
-PostPageContent(url.Values, url.Values) []byte
+GetPageContent(url.Values) ([]byte, error)
+GetAlliancePageContent(url.Values) ([]byte, error)
+PostPageContent(url.Values, url.Values) ([]byte, error)
 LoginWithExistingCookies() (bool, error)
 Login() error
 Logout()
