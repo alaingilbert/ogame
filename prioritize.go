@@ -113,20 +113,18 @@ func (b *Prioritize) GetAlliancePageContent(vals url.Values) []byte {
 }
 
 // GetPageContent gets the html for a specific ogame page
-func (b *Prioritize) GetPageContent(vals url.Values) []byte {
+func (b *Prioritize) GetPageContent(vals url.Values) ([]byte, error) {
 	b.begin("GetPageContent")
 	defer b.done()
-	pageHTML, _ := b.bot.getPageContent(vals)
-	return pageHTML
+	return b.bot.getPageContent(vals)
 }
 
 // PostPageContent make a post request to ogame server
 // This is useful when simulating a web browser
-func (b *Prioritize) PostPageContent(vals, payload url.Values) []byte {
+func (b *Prioritize) PostPageContent(vals, payload url.Values) ([]byte, error) {
 	b.begin("PostPageContent")
 	defer b.done()
-	by, _ := b.bot.postPageContent(vals, payload)
-	return by
+	return b.bot.postPageContent(vals, payload)
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
