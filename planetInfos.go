@@ -83,7 +83,7 @@ type AllianceInfos struct {
 // PlanetInfos public information of a planet in the galaxy page
 type PlanetInfos struct {
 	ID              int64
-	Activity        int64
+	Activity        int64 // no activity: 0, active: 15, inactive: [16, 59]
 	Name            string
 	Img             string
 	Coordinate      Coordinate
