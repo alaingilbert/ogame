@@ -113,6 +113,7 @@ type OGame struct {
 
 type Data struct {
 	Planets                  []Planet
+	Celestials				 []Celestial
 	PlanetActivity           map[CelestialID]int64
 	PlanetResources          map[CelestialID]ResourcesDetails
 	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
@@ -293,6 +294,7 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 		var data Data
 
 		data.Planets = b.Planets
+		data.Celestials = b.GetCachedCelestials()
 		data.PlanetActivity = map[CelestialID]int64{}
 		data.PlanetResources = map[CelestialID]ResourcesDetails{}
 		data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
@@ -873,6 +875,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.PlanetResources[celestialID], _ = b.fetchResources(celestialID)
 	b.EventboxResp, _ = b.fetchEventbox()
 	b.AttackEvents, _ = b.getAttacks(celestialID)
+	b.LastActivePlanet, _ = b.extractor.ExtractPlanetID(pageHTML)
 
 	b.PlanetActivity[celestialID] = b.extractor.ExtractOgameTimestamp(pageHTML)
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
@@ -1021,6 +1024,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	var data Data
 	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
 	data.Planets = b.Planets
+	data.Celestials = b.GetCachedCelestials()
 
 	data.PlanetActivity = map[CelestialID]int64{}
 	data.PlanetResources = map[CelestialID]ResourcesDetails{}
@@ -1516,7 +1520,6 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 
 	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
 		b.cacheFullPageInfo(page, pageHTMLBytes)
-		b.LastActivePlanet, _ = b.extractor.ExtractPlanetID(pageHTMLBytes)
 	}
 
 	if !cfg.SkipInterceptor {
@@ -4835,6 +4838,7 @@ func (b *OGame) getCachedData() Data {
 	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
 
 	data.Planets = b.Planets
+	data.Celestials = b.GetCachedCelestials()
 	data.PlanetActivity = map[CelestialID]int64{}
 	data.PlanetResources = map[CelestialID]ResourcesDetails{}
 	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
