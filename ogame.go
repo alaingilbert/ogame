@@ -53,25 +53,45 @@ type OGame struct {
 	planets               []Planet
 	planetsMu             sync.RWMutex
 
-	LastActivePlanet                  CelestialID
-	PlanetActivity                    map[CelestialID]int64
-	PlanetResources                   map[CelestialID]ResourcesDetails
-	PlanetResourcesBuildings          map[CelestialID]ResourcesBuildings
-	PlanetFacilities                  map[CelestialID]Facilities
-	PlanetShipsInfos                  map[CelestialID]ShipsInfos
-	PlanetDefensesInfos               map[CelestialID]DefensesInfos
-	PlanetConstruction                map[CelestialID]Quantifiable
-	PlanetConstructionFinishAt        map[CelestialID]int64
-	PlanetShipyardProductions         map[CelestialID][]Quantifiable
-	PlanetShipyardProductionsFinishAt map[CelestialID]int64
-	PlanetQueue                       map[CelestialID][]Quantifiable
-	Researches                        Researches
-	ResearchesActive                  Quantifiable
-	ResearchFinishAt                  int64
-	EventboxResp                      eventboxResp
-	AttackEvents                      []AttackEvent
-	MovementFleets                    []Fleet
-	Slots                             Slots
+	lastActivePlanet                  CelestialID
+	lastActivePlanetMu				  sync.RWMutex
+	planetActivity                    map[CelestialID]int64
+	planetActivityMu				  sync.RWMutex
+	planetResources                   map[CelestialID]ResourcesDetails
+	planetResourcesMu 				  sync.RWMutex
+	planetResourcesBuildings          map[CelestialID]ResourcesBuildings
+	planetResourcesBuildingsMu		  sync.RWMutex
+	planetFacilities                  map[CelestialID]Facilities
+	planetFacilitiesMu				  sync.RWMutex
+	planetShipsInfos                  map[CelestialID]ShipsInfos
+	planetShipsInfosMu				  sync.RWMutex
+	planetDefensesInfos               map[CelestialID]DefensesInfos
+	planetDefensesInfosMu			  sync.RWMutex
+	planetConstruction                map[CelestialID]Quantifiable
+	planetConstructionMu			  sync.RWMutex
+	planetConstructionFinishAt        map[CelestialID]int64
+	planetConstructionFinishAtMu	  sync.RWMutex
+	planetShipyardProductions         map[CelestialID][]Quantifiable
+	planetShipyardProductionsMu	  	  sync.RWMutex
+	planetShipyardProductionsFinishAt map[CelestialID]int64
+	planetShipyardProductionsFinishAtMu	  	  sync.RWMutex
+	planetQueue                       map[CelestialID][]Quantifiable
+	planetQueueMu					  sync.RWMutex
+	researchesCache					  Researches
+	researchesCacheMu				  sync.RWMutex
+	researchesActive                  Quantifiable
+	researchesActiveMu                sync.RWMutex
+	researchFinishAt                  int64
+	researchFinishAtMu                sync.RWMutex
+	eventboxResp                      eventboxResp
+	eventboxRespMu					  sync.RWMutex
+	attackEvents                      []AttackEvent
+	attackEventsMu                      sync.RWMutex
+	movementFleets                    []Fleet
+	movementFleetsMu				  sync.RWMutex
+	slots                             Slots
+	slotsMu                             sync.RWMutex
+
 	ajaxChatToken         string
 	Universe              string
 	Username              string
@@ -115,6 +135,7 @@ type OGame struct {
 type Data struct {
 	Planets                  []Planet
 	Celestials				 []Celestial
+	LastActivePlanet		 CelestialID
 	PlanetActivity           map[CelestialID]int64
 	PlanetResources          map[CelestialID]ResourcesDetails
 	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
@@ -245,19 +266,49 @@ func NewWithParams(params Params) (*OGame, error) {
 // NewNoLogin does not auto login.
 func NewNoLogin(username, password, universe, lang, cookiesFilename string, playerID int64) *OGame {
 	b := new(OGame)
+	b.planetActivityMu.Lock()
+	b.planetActivity = map[CelestialID]int64{}
+	b.planetActivityMu.Unlock()
 
-	b.PlanetActivity = map[CelestialID]int64{}
-	b.PlanetResources = map[CelestialID]ResourcesDetails{}
-	b.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
-	b.PlanetFacilities = map[CelestialID]Facilities{}
-	b.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
-	b.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+	b.planetResourcesMu.Lock()
+	b.planetResources = map[CelestialID]ResourcesDetails{}
+	b.planetResourcesMu.Unlock()
 
-	b.PlanetConstruction = map[CelestialID]Quantifiable{}
-	b.PlanetConstructionFinishAt = map[CelestialID]int64{}
-	b.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
-	b.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
-	b.PlanetQueue = map[CelestialID][]Quantifiable{}
+	b.planetResourcesBuildingsMu.Lock()
+	b.planetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+	b.planetResourcesBuildingsMu.Unlock()
+
+	b.planetFacilitiesMu.Lock()
+	b.planetFacilities = map[CelestialID]Facilities{}
+	b.planetFacilitiesMu.Unlock()
+
+	b.planetShipsInfosMu.Lock()
+	b.planetShipsInfos = map[CelestialID]ShipsInfos{}
+	b.planetShipsInfosMu.Unlock()
+
+	b.planetDefensesInfosMu.Lock()
+	b.planetDefensesInfos = map[CelestialID]DefensesInfos{}
+	b.planetDefensesInfosMu.Unlock()
+
+	b.planetConstructionMu.Lock()
+	b.planetConstruction = map[CelestialID]Quantifiable{}
+	b.planetConstructionMu.Unlock()
+
+	b.planetConstructionFinishAtMu.Lock()
+	b.planetConstructionFinishAt = map[CelestialID]int64{}
+	b.planetConstructionFinishAtMu.Unlock()
+
+	b.planetShipyardProductionsMu.Lock()
+	b.planetShipyardProductions = map[CelestialID][]Quantifiable{}
+	b.planetShipyardProductionsMu.Unlock()
+
+	b.planetShipyardProductionsFinishAtMu.Lock()
+	b.planetShipyardProductionsFinishAt = map[CelestialID]int64{}
+	b.planetShipyardProductionsFinishAtMu.Unlock()
+
+	b.planetQueueMu.Lock()
+	b.planetQueue = map[CelestialID][]Quantifiable{}
+	b.planetQueueMu.Unlock()
 
 	filename := username + "_" + universe + "_" + lang + "_data.json"
 	info, err := os.Stat(filename)
@@ -268,34 +319,92 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 
 		b.planets = data.Planets
 
-		b.PlanetActivity = data.PlanetActivity
+		b.planetActivityMu.Lock()
+		b.planetActivity = data.PlanetActivity
+		b.planetActivityMu.Unlock()
 
-		b.PlanetActivity = data.PlanetActivity
-		b.PlanetResources = data.PlanetResources
-		b.PlanetResourcesBuildings = data.PlanetResourcesBuildings
-		b.PlanetFacilities = data.PlanetFacilities
-		b.PlanetShipsInfos = data.PlanetShipsInfos
-		b.PlanetDefensesInfos = data.PlanetDefensesInfos
+		b.lastActivePlanetMu.Lock()
+		b.lastActivePlanet = data.LastActivePlanet
+		b.lastActivePlanetMu.Unlock()
 
-		b.PlanetConstruction = data.PlanetConstruction
-		b.PlanetConstructionFinishAt = data.PlanetConstructionFinishAt
-		b.PlanetShipyardProductions = data.PlanetShipyardProductions
-		b.PlanetShipyardProductionsFinishAt = data.PlanetShipyardProductionsFinishAt
-		b.PlanetQueue = data.PlanetQueue
 
-		b.Researches = data.Researches
-		b.ResearchesActive = data.ResearchesActive
-		b.ResearchFinishAt = data.ResearchFinishAt
+		b.planetResourcesMu.Lock()
+		b.planetResources = data.PlanetResources
+		b.planetResourcesMu.Unlock()
+
+		b.planetResourcesBuildingsMu.Lock()
+		b.planetResourcesBuildings = data.PlanetResourcesBuildings
+		b.planetResourcesBuildingsMu.Unlock()
+
+		b.planetFacilitiesMu.Lock()
+		b.planetFacilities = data.PlanetFacilities
+		b.planetFacilitiesMu.Unlock()
+
+		b.planetShipsInfosMu.Lock()
+		b.planetShipsInfos = data.PlanetShipsInfos
+		b.planetShipsInfosMu.Unlock()
+
+		b.planetDefensesInfosMu.Lock()
+		b.planetDefensesInfos = data.PlanetDefensesInfos
+		b.planetDefensesInfosMu.Unlock()
+
+		b.planetConstructionMu.Lock()
+		b.planetConstruction = data.PlanetConstruction
+		b.planetConstructionMu.Unlock()
+
+		b.planetConstructionFinishAtMu.Lock()
+		b.planetConstructionFinishAt = data.PlanetConstructionFinishAt
+		b.planetConstructionFinishAtMu.Unlock()
+
+		b.planetShipyardProductionsMu.Lock()
+		b.planetShipyardProductions = data.PlanetShipyardProductions
+		b.planetShipyardProductionsMu.Unlock()
+
+		b.planetShipyardProductionsFinishAtMu.Lock()
+		b.planetShipyardProductionsFinishAt = data.PlanetShipyardProductionsFinishAt
+		b.planetShipyardProductionsFinishAtMu.Unlock()
+
+		b.planetQueueMu.Lock()
+		b.planetQueue = data.PlanetQueue
+		b.planetQueueMu.Unlock()
+
+		b.researchesCacheMu.Lock()
+		b.researchesCache = data.Researches
+		b.researchesCacheMu.Unlock()
+
+		b.researchesActiveMu.Lock()
+		b.researchesActive = data.ResearchesActive
+		b.researchesActiveMu.Unlock()
+
+		b.researchFinishAtMu.Lock()
+		b.researchFinishAt = data.ResearchFinishAt
+		b.researchFinishAtMu.Unlock()
 		//b.SetResearchFinishAt(data.ResearchFinishAt)
 
-		b.EventboxResp = data.EventboxResp
-		b.MovementFleets = data.MovementFleets
-		b.Slots = data.Slots
+		b.eventboxRespMu.Lock()
+		b.eventboxResp = data.EventboxResp
+		b.eventboxRespMu.Unlock()
+
+		b.movementFleetsMu.Lock()
+		b.movementFleets = data.MovementFleets
+		b.movementFleetsMu.Unlock()
+
+		b.slotsMu.Lock()
+		b.slots = data.Slots
+		b.slotsMu.Unlock()
 	} else {
 		var data Data
 
+		b.planetsMu.RLock()
 		data.Planets = b.planets
+		b.planetsMu.RUnlock()
+
 		data.Celestials = b.GetCachedCelestials()
+
+		b.lastActivePlanetMu.RLock()
+		data.LastActivePlanet = b.lastActivePlanet
+		b.lastActivePlanetMu.RUnlock()
+
 		data.PlanetActivity = map[CelestialID]int64{}
 		data.PlanetResources = map[CelestialID]ResourcesDetails{}
 		data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
@@ -309,24 +418,69 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 		data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
 		data.PlanetQueue = map[CelestialID][]Quantifiable{}
 
-		data.PlanetActivity = b.PlanetActivity
-		data.PlanetResources = b.PlanetResources
-		data.PlanetResourcesBuildings = b.PlanetResourcesBuildings
-		data.PlanetFacilities = b.PlanetFacilities
-		data.PlanetShipsInfos = b.PlanetShipsInfos
-		data.PlanetDefensesInfos = b.PlanetDefensesInfos
+		b.planetActivityMu.RLock()
+		data.PlanetActivity = b.planetActivity
+		b.planetActivityMu.RUnlock()
 
-		data.PlanetConstruction = b.PlanetConstruction
-		data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
-		data.PlanetShipyardProductions = b.PlanetShipyardProductions
-		data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
-		data.PlanetQueue = b.PlanetQueue
+		b.planetResourcesMu.RLock()
+		data.PlanetResources = b.planetResources
+		b.planetResourcesMu.RUnlock()
 
-		data.Researches = b.Researches
-		data.ResearchesActive = b.ResearchesActive
-		data.EventboxResp = b.EventboxResp
-		data.MovementFleets = b.MovementFleets
-		data.Slots = b.Slots
+		b.planetResourcesBuildingsMu.RLock()
+		data.PlanetResourcesBuildings = b.planetResourcesBuildings
+		b.planetResourcesBuildingsMu.RUnlock()
+
+		b.planetFacilitiesMu.RLock()
+		data.PlanetFacilities = b.planetFacilities
+		b.planetFacilitiesMu.RUnlock()
+
+		b.planetShipsInfosMu.RLock()
+		data.PlanetShipsInfos = b.planetShipsInfos
+		b.planetShipsInfosMu.RUnlock()
+
+		b.planetDefensesInfosMu.RLock()
+		data.PlanetDefensesInfos = b.planetDefensesInfos
+		b.planetDefensesInfosMu.RUnlock()
+
+		b.planetConstructionMu.RLock()
+		data.PlanetConstruction = b.planetConstruction
+		b.planetConstructionMu.RUnlock()
+
+		b.planetConstructionFinishAtMu.RLock()
+		data.PlanetConstructionFinishAt = b.planetConstructionFinishAt
+		b.planetConstructionFinishAtMu.RUnlock()
+
+		b.planetShipyardProductionsMu.RLock()
+		data.PlanetShipyardProductions = b.planetShipyardProductions
+		b.planetShipyardProductionsMu.RUnlock()
+
+		b.planetShipyardProductionsFinishAtMu.RLock()
+		data.PlanetShipyardProductionsFinishAt = b.planetShipyardProductionsFinishAt
+		b.planetShipyardProductionsFinishAtMu.RUnlock()
+
+		b.planetQueueMu.RLock()
+		data.PlanetQueue = b.planetQueue
+		b.planetQueueMu.RUnlock()
+
+		b.researchesCacheMu.RLock()
+		data.Researches = b.researchesCache
+		b.researchesCacheMu.RUnlock()
+
+		b.researchesActiveMu.RLock()
+		data.ResearchesActive = b.researchesActive
+		b.researchesActiveMu.RUnlock()
+
+		b.eventboxRespMu.RLock()
+		data.EventboxResp = b.eventboxResp
+		b.eventboxRespMu.RUnlock()
+
+		b.movementFleetsMu.RLock()
+		data.MovementFleets = b.movementFleets
+		b.movementFleetsMu.RUnlock()
+
+		b.slotsMu.RLock()
+		data.Slots = b.slots
+		b.slotsMu.RUnlock()
 
 		by, _ := json.Marshal(data)
 		ioutil.WriteFile(filename, by, 0644)
@@ -878,132 +1032,221 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.planetsMu.Lock()
 	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
 	b.planetsMu.Unlock()
-	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
-	b.PlanetResources[celestialID], _ = b.fetchResources(celestialID)
-	b.EventboxResp, _ = b.fetchEventbox()
-	b.AttackEvents, _ = b.getAttacks(celestialID)
-	b.LastActivePlanet, _ = b.extractor.ExtractPlanetID(pageHTML)
 
-	b.PlanetActivity[celestialID] = b.extractor.ExtractOgameTimestamp(pageHTML)
+	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
+	b.planetResourcesMu.Lock()
+	b.planetResources[celestialID], _ = b.fetchResources(celestialID)
+	b.planetResourcesMu.Unlock()
+
+	b.eventboxRespMu.Lock()
+	b.eventboxResp, _ = b.fetchEventbox()
+	b.eventboxRespMu.Unlock()
+
+	b.attackEventsMu.Lock()
+	b.attackEvents, _ = b.getAttacks(celestialID)
+	b.attackEventsMu.Unlock()
+
+	b.lastActivePlanetMu.Lock()
+	b.lastActivePlanet, _ = b.extractor.ExtractPlanetID(pageHTML)
+	b.lastActivePlanetMu.Unlock()
+
+	b.planetActivityMu.Lock()
+	b.planetActivity[celestialID] = b.extractor.ExtractOgameTimestamp(pageHTML)
+	b.planetActivityMu.Unlock()
+
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
 
 	switch page {
 	case OverviewPage:
 		buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
-		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Lock()
+		b.planetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Unlock()
 		if buildingID.Int64() != 0 && buildingCountdown != 0 {
-			b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Unlock()
 		} else {
-			b.PlanetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Unlock()
 		}
 
-		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		b.researchesActiveMu.Lock()
+		b.researchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		b.researchesActiveMu.Unlock()
 		if researchID != 0 && researchCountdown != 0 {
-			b.ResearchFinishAt = researchCountdown + time.Now().Unix()
+			b.researchFinishAtMu.Lock()
+			b.researchFinishAt = researchCountdown + time.Now().Unix()
+			b.researchFinishAtMu.Unlock()
 			//b.SetResearchFinishAt(researchCountdown + time.Now().Unix())
 		} else {
-			b.ResearchFinishAt = 0
+			b.researchFinishAtMu.Lock()
+			b.researchFinishAt = 0
+			b.researchFinishAtMu.Unlock()
 		}
 
 		ships, shipyardCountdown, _ := b.extractor.ExtractOverviewProduction(pageHTML)
-		b.PlanetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Lock()
+		b.planetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Unlock()
 		if shipyardCountdown != 0 {
-			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Unlock()
 		} else {
-			b.PlanetShipyardProductionsFinishAt[celestialID] = 0
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = 0
+			b.planetShipyardProductionsFinishAtMu.Unlock()
 		}
 
 		break
 	case SuppliesPage:
 		buildingID, buildingCountdown, _, _ := b.extractor.ExtractConstructions(pageHTML)
-		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Lock()
+		b.planetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Unlock()
 		if buildingID.Int64() != 0 && buildingCountdown != 0 {
-			b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Unlock()
 		} else {
-			b.PlanetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Unlock()
 		}
 
 		res, err := b.extractor.ExtractResourcesBuildings(pageHTML)
 		if err == nil {
-			b.PlanetResourcesBuildings[celestialID] = res
+			b.planetResourcesBuildingsMu.Lock()
+			b.planetResourcesBuildings[celestialID] = res
+			b.planetResourcesBuildingsMu.Unlock()
 		}
 		break
 	case FacilitiesPage:
 		buildingID, buildingCountdown, _, _ := b.extractor.ExtractConstructions(pageHTML)
-		b.PlanetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Lock()
+		b.planetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Unlock()
 		if buildingID.Int64() != 0 && buildingCountdown != 0 {
-			b.PlanetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Unlock()
 		} else {
-			b.PlanetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Unlock()
 		}
 
 		fac, err := b.extractor.ExtractFacilities(pageHTML)
 		if err == nil {
-			b.PlanetFacilities[celestialID] = fac
+			b.planetFacilitiesMu.Lock()
+			b.planetFacilities[celestialID] = fac
+			b.planetFacilitiesMu.Unlock()
 		}
 		break
 	case ShipyardPage:
 		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
-		b.PlanetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Lock()
+		b.planetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Unlock()
 		if shipyardCountdown != 0 {
-			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Unlock()
 		} else {
-			b.PlanetShipyardProductionsFinishAt[celestialID] = 0
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = 0
+			b.planetShipyardProductionsFinishAtMu.Unlock()
 		}
 
 		shipyard, err := b.extractor.ExtractShips(pageHTML)
 		if err == nil {
-			b.PlanetShipsInfos[celestialID] = shipyard
+			b.planetShipsInfosMu.Lock()
+			b.planetShipsInfos[celestialID] = shipyard
+			b.planetShipsInfosMu.Unlock()
 		}
 		break
 	case DefensePage:
 		defenses, err := b.extractor.ExtractDefense(pageHTML)
 		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
-		b.PlanetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Lock()
+		b.planetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Unlock()
 		if shipyardCountdown != 0 {
-			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Unlock()
 		} else {
-			b.PlanetShipyardProductionsFinishAt[celestialID] = 0
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = 0
+			b.planetShipyardProductionsFinishAtMu.Unlock()
 		}
 
 		if err == nil {
-			b.PlanetDefensesInfos[celestialID] = defenses
+			b.planetDefensesInfosMu.Lock()
+			b.planetDefensesInfos[celestialID] = defenses
+			b.planetDefensesInfosMu.Unlock()
 		}
 		break
 	case DefensesPage:
 		defenses, err := b.extractor.ExtractDefense(pageHTML)
 		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
-		b.PlanetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Lock()
+		b.planetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Unlock()
 		if shipyardCountdown != 0 {
-			b.PlanetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Unlock()
+
 		}
 
 		if err == nil {
-			b.PlanetDefensesInfos[celestialID] = defenses
+			b.planetDefensesInfosMu.Lock()
+			b.planetDefensesInfos[celestialID] = defenses
+			b.planetDefensesInfosMu.Unlock()
 		}
 		break
 	case MovementPage:
-		b.MovementFleets = b.extractor.ExtractFleets(pageHTML)
-		b.Slots = b.extractor.ExtractSlots(pageHTML)
+		b.movementFleetsMu.Lock()
+		b.movementFleets = b.extractor.ExtractFleets(pageHTML)
+		b.movementFleetsMu.Unlock()
+
+		b.slotsMu.Lock()
+		b.slots = b.extractor.ExtractSlots(pageHTML)
+		b.slotsMu.Unlock()
 		break
 
 	case ResearchPage:
 		_, _, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
-		b.ResearchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		b.researchesActiveMu.Lock()
+		b.researchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		b.researchesActiveMu.Unlock()
 		if researchID != 0 && researchCountdown != 0 {
-			b.ResearchFinishAt = researchCountdown + time.Now().Unix()
+			b.researchFinishAtMu.Lock()
+			b.researchFinishAt = researchCountdown + time.Now().Unix()
+			b.researchFinishAtMu.Unlock()
 		} else {
-			b.ResearchFinishAt = 0
+			b.researchFinishAtMu.Lock()
+			b.researchFinishAt = 0
+			b.researchFinishAtMu.Unlock()
 		}
-		b.Researches = b.extractor.ExtractResearch(pageHTML)
+		b.researchesCacheMu.Lock()
+		b.researchesCache = b.extractor.ExtractResearch(pageHTML)
+		b.researchesCacheMu.Unlock()
 		break
 
 	case FleetdispatchPage:
-		b.PlanetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
+		b.planetShipsInfosMu.Lock()
+		b.planetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
+		b.planetShipsInfosMu.Unlock()
 		break
 
 	case Fleet1Page:
-		b.PlanetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
+		b.planetShipsInfosMu.Lock()
+		b.planetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
+		b.planetShipsInfosMu.Unlock()
 		break
 
 	case ResourceSettingsPage:
@@ -1046,26 +1289,78 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
 	data.PlanetQueue = map[CelestialID][]Quantifiable{}
 
-	data.ResearchFinishAt = b.ResearchFinishAt
-	data.PlanetActivity = b.PlanetActivity
-	data.PlanetResources = b.PlanetResources
-	data.PlanetResourcesBuildings = b.PlanetResourcesBuildings
-	data.PlanetFacilities = b.PlanetFacilities
-	data.PlanetShipsInfos = b.PlanetShipsInfos
-	data.PlanetDefensesInfos = b.PlanetDefensesInfos
 
-	data.PlanetConstruction = b.PlanetConstruction
-	data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
-	data.PlanetShipyardProductions = b.PlanetShipyardProductions
-	data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
-	data.PlanetQueue = b.PlanetQueue
+	b.researchFinishAtMu.RLock()
+	data.ResearchFinishAt = b.researchFinishAt
+	b.researchFinishAtMu.RUnlock()
 
-	data.Researches = b.Researches
-	data.ResearchesActive = b.ResearchesActive
-	data.EventboxResp = b.EventboxResp
-	data.AttackEvents = b.AttackEvents
-	data.MovementFleets = b.MovementFleets
-	data.Slots = b.Slots
+	b.planetActivityMu.RLock()
+	data.PlanetActivity = b.planetActivity
+	b.planetActivityMu.RUnlock()
+
+	b.planetResourcesMu.RLock()
+	data.PlanetResources = b.planetResources
+	b.planetResourcesMu.RUnlock()
+
+	b.planetResourcesBuildingsMu.RLock()
+	data.PlanetResourcesBuildings = b.planetResourcesBuildings
+	b.planetResourcesBuildingsMu.RUnlock()
+
+	b.planetFacilitiesMu.RLock()
+	data.PlanetFacilities = b.planetFacilities
+	b.planetFacilitiesMu.RUnlock()
+
+	b.planetShipsInfosMu.RLock()
+	data.PlanetShipsInfos = b.planetShipsInfos
+	b.planetShipsInfosMu.RUnlock()
+
+	b.planetDefensesInfosMu.RLock()
+	data.PlanetDefensesInfos = b.planetDefensesInfos
+	b.planetDefensesInfosMu.RUnlock()
+
+	b.planetConstructionMu.RLock()
+	data.PlanetConstruction = b.planetConstruction
+	b.planetConstructionMu.RUnlock()
+
+	b.planetConstructionFinishAtMu.RLock()
+	data.PlanetConstructionFinishAt = b.planetConstructionFinishAt
+	b.planetConstructionFinishAtMu.RUnlock()
+
+	b.planetShipyardProductionsMu.RLock()
+	data.PlanetShipyardProductions = b.planetShipyardProductions
+	b.planetShipyardProductionsMu.RUnlock()
+
+	b.planetShipyardProductionsFinishAtMu.RLock()
+	data.PlanetShipyardProductionsFinishAt = b.planetShipyardProductionsFinishAt
+	b.planetShipyardProductionsFinishAtMu.RUnlock()
+
+	b.planetQueueMu.RLock()
+	data.PlanetQueue = b.planetQueue
+	b.planetQueueMu.RUnlock()
+
+	b.researchesCacheMu.RLock()
+	data.Researches = b.researchesCache
+	b.researchesCacheMu.RUnlock()
+
+	b.researchesActiveMu.RLock()
+	data.ResearchesActive = b.researchesActive
+	b.researchesActiveMu.RUnlock()
+
+	b.eventboxRespMu.RLock()
+	data.EventboxResp = b.eventboxResp
+	b.eventboxRespMu.RUnlock()
+
+	b.attackEventsMu.RLock()
+	data.AttackEvents = b.attackEvents
+	b.attackEventsMu.RUnlock()
+
+	b.movementFleetsMu.RLock()
+	data.MovementFleets = b.movementFleets
+	b.movementFleetsMu.RUnlock()
+
+	b.slotsMu.RLock()
+	data.Slots = b.slots
+	b.slotsMu.RUnlock()
 
 	by, _ := json.Marshal(data)
 	ioutil.WriteFile(filename, by, 0644)
@@ -4803,27 +5098,18 @@ func (b *OGame) UseDM(typ string, celestialID CelestialID) error {
 	return b.WithPriority(Normal).UseDM(typ, celestialID)
 }
 
-// GetLastActivePlanet returns the last active Planet
-func (b *OGame) GetLastActivePlanet() CelestialID {
-	last := b.GetCachedCelestials()[0].GetID()
-	max := b.PlanetActivity[0]
-	for k, v := range b.PlanetActivity {
-		if max < v {
-			max = v
-			last = k
-		}
-	}
-	return last
-}
-
 // GetPlanetsActivity return last activity Unix Timestamp of all Planets in map.
 func (b *OGame) GetPlanetsActivity() map[CelestialID]int64 {
-	return b.PlanetActivity
+	b.planetActivityMu.RLock()
+	defer b.planetActivityMu.RUnlock()
+	return b.planetActivity
 }
 
 // GetPlanetsResources returns the cached PlanetsResources in map.
 func (b *OGame) GetPlanetsResources() map[CelestialID]ResourcesDetails {
-	return b.PlanetResources
+	b.planetResourcesMu.RLock()
+	defer b.planetResourcesMu.RUnlock()
+	return b.planetResources
 }
 
 // GetItems get all items information
@@ -4846,8 +5132,16 @@ func (b *OGame) getCachedData() Data {
 	var data Data
 	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
 
+	b.planetsMu.RLock()
 	data.Planets = b.planets
+	b.planetsMu.RUnlock()
+
 	data.Celestials = b.GetCachedCelestials()
+
+	b.lastActivePlanetMu.RLock()
+	data.LastActivePlanet = b.lastActivePlanet
+	b.lastActivePlanetMu.RUnlock()
+
 	data.PlanetActivity = map[CelestialID]int64{}
 	data.PlanetResources = map[CelestialID]ResourcesDetails{}
 	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
@@ -4861,26 +5155,77 @@ func (b *OGame) getCachedData() Data {
 	data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
 	data.PlanetQueue = map[CelestialID][]Quantifiable{}
 
-	data.PlanetActivity = b.PlanetActivity
-	data.PlanetResources = b.PlanetResources
-	data.PlanetResourcesBuildings = b.PlanetResourcesBuildings
-	data.PlanetFacilities = b.PlanetFacilities
-	data.PlanetShipsInfos = b.PlanetShipsInfos
-	data.PlanetDefensesInfos = b.PlanetDefensesInfos
+	b.planetActivityMu.RLock()
+	data.PlanetActivity = b.planetActivity
+	b.planetActivityMu.RUnlock()
 
-	data.PlanetConstruction = b.PlanetConstruction
-	data.PlanetConstructionFinishAt = b.PlanetConstructionFinishAt
-	data.PlanetShipyardProductions = b.PlanetShipyardProductions
-	data.PlanetShipyardProductionsFinishAt = b.PlanetShipyardProductionsFinishAt
-	data.PlanetQueue = b.PlanetQueue
+	b.planetResourcesMu.RLock()
+	data.PlanetResources = b.planetResources
+	b.planetResourcesMu.RUnlock()
 
-	data.Researches = b.Researches
-	data.ResearchesActive = b.ResearchesActive
-	data.ResearchFinishAt = b.ResearchFinishAt
-	data.EventboxResp = b.EventboxResp
-	data.AttackEvents = b.AttackEvents
-	data.MovementFleets = b.MovementFleets
-	data.Slots = b.Slots
+	b.planetResourcesBuildingsMu.RLock()
+	data.PlanetResourcesBuildings = b.planetResourcesBuildings
+	b.planetResourcesBuildingsMu.RUnlock()
+
+	b.planetFacilitiesMu.RLock()
+	data.PlanetFacilities = b.planetFacilities
+	b.planetFacilitiesMu.RUnlock()
+
+	b.planetShipsInfosMu.RLock()
+	data.PlanetShipsInfos = b.planetShipsInfos
+	b.planetShipsInfosMu.RUnlock()
+
+	b.planetDefensesInfosMu.RLock()
+	data.PlanetDefensesInfos = b.planetDefensesInfos
+	b.planetDefensesInfosMu.RUnlock()
+
+	b.planetConstructionMu.RLock()
+	data.PlanetConstruction = b.planetConstruction
+	b.planetConstructionMu.RUnlock()
+
+	b.planetConstructionFinishAtMu.RLock()
+	data.PlanetConstructionFinishAt = b.planetConstructionFinishAt
+	b.planetConstructionFinishAtMu.RUnlock()
+
+	b.planetShipyardProductionsMu.RLock()
+	data.PlanetShipyardProductions = b.planetShipyardProductions
+	b.planetShipyardProductionsMu.RUnlock()
+
+	b.planetShipyardProductionsFinishAtMu.RLock()
+	data.PlanetShipyardProductionsFinishAt = b.planetShipyardProductionsFinishAt
+	b.planetShipyardProductionsFinishAtMu.RUnlock()
+
+	b.planetQueueMu.RLock()
+	data.PlanetQueue = b.planetQueue
+	b.planetQueueMu.RUnlock()
+
+	b.researchesCacheMu.RLock()
+	data.Researches = b.researchesCache
+	b.researchesCacheMu.RUnlock()
+
+	b.researchesActiveMu.RLock()
+	data.ResearchesActive = b.researchesActive
+	b.researchesActiveMu.RUnlock()
+
+	b.researchFinishAtMu.RLock()
+	data.ResearchFinishAt = b.researchFinishAt
+	b.researchFinishAtMu.RUnlock()
+
+	b.eventboxRespMu.RLock()
+	data.EventboxResp = b.eventboxResp
+	b.eventboxRespMu.RUnlock()
+
+	b.attackEventsMu.RLock()
+	data.AttackEvents = b.attackEvents
+	b.attackEventsMu.RUnlock()
+
+	b.movementFleetsMu.RLock()
+	data.MovementFleets = b.movementFleets
+	b.movementFleetsMu.RUnlock()
+
+	b.slotsMu.RLock()
+	data.Slots = b.slots
+	b.slotsMu.RUnlock()
 
 	by, _ := json.Marshal(data)
 	ioutil.WriteFile(filename, by, 0644)
@@ -4894,7 +5239,9 @@ func (b *OGame) SetResearchFinishAt(e int64) {
 
 // SetResearchFinishAt set b.SetResearchFinishAt
 func (b *OGame) setResearchFinishAt(e int64) {
-	b.ResearchFinishAt = e
+	b.researchFinishAtMu.Lock()
+	b.researchFinishAt = e
+	b.researchFinishAtMu.Unlock()
 }
 
 // GetResearchFinishAt get b.SetResearchFinishAt
@@ -4904,5 +5251,8 @@ func (b *OGame) GetResearchFinishAt() int64{
 
 // GetResearchFinishAt get b.SetResearchFinishAt
 func (b *OGame) getResearchFinishAt() int64{
-	return b.ResearchFinishAt
+	b.researchFinishAtMu.RLock()
+	defer b.researchFinishAtMu.RUnlock()
+	return b.researchFinishAt
+
 }
