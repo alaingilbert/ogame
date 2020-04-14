@@ -26,10 +26,10 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/hashicorp/go-version"
+	version "github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"github.com/pkg/errors"
-	"github.com/yuin/gopher-lua"
+	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
 )
@@ -50,7 +50,8 @@ type OGame struct {
 	CachedPreferences     Preferences
 	isVacationModeEnabled bool
 	researches            *Researches
-	Planets               []Planet
+	planets               []Planet
+	planetsMu             sync.RWMutex
 	ajaxChatToken         string
 	Universe              string
 	Username              string
@@ -580,6 +581,9 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 		return false, err
 	}
 	server, userAccount, err := b.loginPart1()
+	if err == ErrAccountBlocked {
+		return false, err
+	}
 	if err != nil {
 		err := b.login()
 		return false, err
@@ -737,7 +741,9 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	b.Planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
+	b.planetsMu.Lock()
+	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
+	b.planetsMu.Unlock()
 	b.isVacationModeEnabled = b.extractor.ExtractIsInVacationFromDoc(doc)
 	b.ajaxChatToken, _ = b.extractor.ExtractAjaxChatToken(pageHTML)
 	b.characterClass, _ = b.extractor.ExtractCharacterClassFromDoc(doc)
@@ -3758,7 +3764,7 @@ func (b *OGame) getCachedCelestial(v interface{}) Celestial {
 
 // GetCachedCelestialByID return celestial from cached value
 func (b *OGame) GetCachedCelestialByID(celestialID CelestialID) Celestial {
-	for _, p := range b.Planets {
+	for _, p := range b.GetCachedPlanets() {
 		if p.ID.Celestial() == celestialID {
 			return p
 		}
@@ -3771,7 +3777,7 @@ func (b *OGame) GetCachedCelestialByID(celestialID CelestialID) Celestial {
 
 // GetCachedCelestialByCoord return celestial from cached value
 func (b *OGame) GetCachedCelestialByCoord(coord Coordinate) Celestial {
-	for _, p := range b.Planets {
+	for _, p := range b.GetCachedPlanets() {
 		if p.GetCoordinate().Equal(coord) {
 			return p
 		}
@@ -3795,7 +3801,7 @@ func (b *OGame) FakeCall(priority int, name string, delay int) {
 
 func (b *OGame) getCachedMoons() []Moon {
 	var moons []Moon
-	for _, p := range b.Planets {
+	for _, p := range b.GetCachedPlanets() {
 		if p.Moon != nil {
 			moons = append(moons, *p.Moon)
 		}
@@ -3805,7 +3811,7 @@ func (b *OGame) getCachedMoons() []Moon {
 
 func (b *OGame) getCachedCelestials() []Celestial {
 	celestials := make([]Celestial, 0)
-	for _, p := range b.Planets {
+	for _, p := range b.GetCachedPlanets() {
 		celestials = append(celestials, p)
 		if p.Moon != nil {
 			celestials = append(celestials, p.Moon)
@@ -4073,7 +4079,9 @@ func (b *OGame) GetPlanets() []Planet {
 
 // GetCachedPlanets return planets from cached value
 func (b *OGame) GetCachedPlanets() []Planet {
-	return b.Planets
+	b.planetsMu.RLock()
+	defer b.planetsMu.RUnlock()
+	return b.planets
 }
 
 // GetCachedMoons return moons from cached value
