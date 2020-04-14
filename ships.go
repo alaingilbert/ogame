@@ -56,9 +56,15 @@ func (s ShipsInfos) HasShips() bool {
 func (s ShipsInfos) HasMovableShips() bool {
 	for _, ship := range Ships {
 		if ship.GetID() != SolarSatelliteID || ship.GetID() != CrawlerID {
-			if s.ByID(ship.GetID()) > 0 {
-				return true
-			}
+
+		}
+		switch ship.GetID() {
+			case SolarSatelliteID:
+			case CrawlerID:
+			default:
+				if s.ByID(ship.GetID()) > 0 {
+					return true
+				}
 		}
 	}
 	return false

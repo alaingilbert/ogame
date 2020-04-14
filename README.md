@@ -6,6 +6,7 @@
 
 - [As a library](#ogame-library)
 - [As a service (ogamed)](#ogamed-service)
+- [As a docker container](#docker-container)
 
 ---
 
@@ -264,3 +265,31 @@ GET  /bot/moons/:moonID/phalanx/:galaxy/:system/:position
 GET  /bot/get-auction
 POST /bot/do-auction
 ```
+
+# docker container
+
+If you have Docker, and you are looking for a docker image just update the `.env` file specifying the universe name, credentials and language.
+
+```properties
+OGAMED_HOST=0.0.0.0
+OGAMED_UNIVERSE=Bellatrix
+OGAMED_USERNAME=email@gmail.com
+OGAMED_PASSWORD=*****
+OGAMED_LANGUAGE=en
+```
+
+`.env` file contains all the environment variables used by `ogamed` service.
+
+Create and run the container:
+
+```shell script
+docker-compose up -d
+```
+
+Check the container logs to see if the service is correctly connected to the server:
+
+```shell script
+docker logs ogame
+``` 
+
+The container can be invoked as usual [as a service](#ogamed-service) or [as a library](#ogame-library).
