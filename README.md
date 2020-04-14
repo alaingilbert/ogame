@@ -268,7 +268,7 @@ POST /bot/do-auction
 
 # docker container
 
-If you have Docker and you are looking for a docker image just update the `.env` file specifing the universe name, credentials and language.
+If you have Docker, and you are looking for a docker image just update the `.env` file specifying the universe name, credentials and language.
 
 ```properties
 OGAMED_HOST=0.0.0.0
