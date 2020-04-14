@@ -580,6 +580,9 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 		return false, err
 	}
 	server, userAccount, err := b.loginPart1()
+	if err == ErrAccountBlocked {
+		return false, err
+	}
 	if err != nil {
 		err := b.login()
 		return false, err
