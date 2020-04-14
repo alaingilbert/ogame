@@ -25,4 +25,4 @@ services:
       - OGAMED_COOKIES_FILENAME=${OGAMED_COOKIES_FILENAME}
       - CORS_ENABLED=${CORS_ENABLED}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
