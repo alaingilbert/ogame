@@ -2335,17 +2335,19 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 
 func calcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, characterClass CharacterClass) (secs, fuel int64) {
-	if !ships.HasShips() {
+	if !ships.HasMovableShips() {
 		return
 	}
 	isCollector := characterClass == Collector
 	isGeneral := characterClass == General
+
 	s := speed
 	v := float64(findSlowestSpeed(ships, techs, isCollector, isGeneral))
 	a := float64(universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	secs = int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
 	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, isCollector, isGeneral)
+	//cargo = ships.Cargo(techs, false, isCollector)
 	return
 }
 
