@@ -118,7 +118,7 @@ type OGame struct {
 	tasksLock             sync.Mutex
 	tasksPushCh           chan *item
 	tasksPopCh            chan struct{}
-	loginWrapper          func(func() error) error
+	loginWrapper          func(func() (bool, error)) error
 	loginProxyTransport   http.RoundTripper
 	bytesUploaded         int64
 	bytesDownloaded       int64
@@ -1367,20 +1367,21 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 }
 
 // DefaultLoginWrapper ...
-var DefaultLoginWrapper = func(loginFn func() error) error {
-	return loginFn()
+var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
+	_, err := loginFn()
+	return err
 }
 
 func (b *OGame) wrapLoginWithExistingCookies() (useCookies bool, err error) {
-	fn := func() error {
+	fn := func() (bool, error) {
 		useCookies, err = b.loginWithExistingCookies()
-		return err
+		return useCookies, err
 	}
 	return useCookies, b.loginWrapper(fn)
 }
 
 func (b *OGame) wrapLogin() error {
-	return b.loginWrapper(b.login)
+	return b.loginWrapper(func() (bool, error) { return false, b.login() })
 }
 
 // GetExtractor gets extractor object
@@ -1402,7 +1403,7 @@ func (b *OGame) setOGameLobby(lobby string) {
 }
 
 // SetLoginWrapper ...
-func (b *OGame) SetLoginWrapper(newWrapper func(func() error) error) {
+func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 	b.loginWrapper = newWrapper
 }
 

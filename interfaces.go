@@ -12,7 +12,7 @@ type Wrapper interface {
 	GetExtractor() Extractor
 	SetOGameCredentials(username, password string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error
-	SetLoginWrapper(func(func() error) error)
+	SetLoginWrapper(func(func() (bool, error)) error)
 	GetClient() *OGameClient
 	Enable()
 	Disable()
