@@ -1821,7 +1821,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return []byte{}, err
 	}
 
-	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
+	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) && vals.Get("return") == ""{
 		b.cacheFullPageInfo(page, pageHTMLBytes)
 	}
 
