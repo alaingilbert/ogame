@@ -1239,13 +1239,19 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 
 	case FleetdispatchPage:
 		b.planetShipsInfosMu.Lock()
-		b.planetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
+		si := b.extractor.ExtractFleet1Ships(pageHTML)
+		si.SolarSatellite = b.planetShipsInfos[celestialID].SolarSatellite
+		si.Crawler = b.planetShipsInfos[celestialID].SolarSatellite
+		b.planetShipsInfos[celestialID] = si
 		b.planetShipsInfosMu.Unlock()
 		break
 
 	case Fleet1Page:
 		b.planetShipsInfosMu.Lock()
-		b.planetShipsInfos[celestialID] = b.extractor.ExtractFleet1Ships(pageHTML)
+		si := b.extractor.ExtractFleet1Ships(pageHTML)
+		si.SolarSatellite = b.planetShipsInfos[celestialID].SolarSatellite
+		si.Crawler = b.planetShipsInfos[celestialID].SolarSatellite
+		b.planetShipsInfos[celestialID] = si
 		b.planetShipsInfosMu.Unlock()
 		break
 
