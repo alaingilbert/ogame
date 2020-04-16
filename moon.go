@@ -26,6 +26,11 @@ func (m Moon) GetName() string {
 	return m.Name
 }
 
+// GetDiameter ...
+func (m Moon) GetDiameter() int64 {
+	return m.Diameter
+}
+
 // GetID ...
 func (m Moon) GetID() CelestialID {
 	return m.ID.Celestial()
@@ -135,13 +140,13 @@ func (m Moon) GetFacilities() (Facilities, error) {
 }
 
 // GetItems get all items information
-func (p Moon) GetItems() ([]Item, error) {
-	return p.ogame.GetItems(p.ID.Celestial())
+func (m Moon) GetItems() ([]Item, error) {
+	return m.ogame.GetItems(m.ID.Celestial())
 }
 
 // ActivateItem activate an item
-func (p Moon) ActivateItem(ref string) error {
-	return p.ogame.ActivateItem(ref, p.ID.Celestial())
+func (m Moon) ActivateItem(ref string) error {
+	return m.ogame.ActivateItem(ref, m.ID.Celestial())
 }
 
 //// BuildFacility build a facility
