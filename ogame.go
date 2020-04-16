@@ -1022,6 +1022,8 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 				}
 			}
 		}(b)
+	} else {
+		b.ReconnectChat()
 	}
 
 	return nil
