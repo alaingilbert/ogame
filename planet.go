@@ -42,6 +42,11 @@ func (p Planet) GetName() string {
 	return p.Name
 }
 
+// GetDiameter ...
+func (p Planet) GetDiameter() int64 {
+	return p.Diameter
+}
+
 // GetID ...
 func (p Planet) GetID() CelestialID {
 	return p.ID.Celestial()

@@ -26,6 +26,11 @@ func (m Moon) GetName() string {
 	return m.Name
 }
 
+// GetDiameter ...
+func (m Moon) GetDiameter() int64 {
+	return m.Diameter
+}
+
 // GetID ...
 func (m Moon) GetID() CelestialID {
 	return m.ID.Celestial()
