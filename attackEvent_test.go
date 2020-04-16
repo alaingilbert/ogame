@@ -9,6 +9,7 @@ import (
 
 func TestAttackEvent_String(t *testing.T) {
 	a := AttackEvent{
+		ID:              123,
 		MissionType:     3,
 		Origin:          Coordinate{1, 2, 3, PlanetType},
 		Destination:     Coordinate{4, 5, 6, PlanetType},
@@ -19,6 +20,7 @@ func TestAttackEvent_String(t *testing.T) {
 		Ships:           &ShipsInfos{LargeCargo: 10},
 	}
 	expected := "" +
+		"               ID: 123\n" +
 		"     Mission Type: 3\n" +
 		"           Origin: [P:1:2:3]\n" +
 		"      Destination: [P:4:5:6]\n" +

@@ -149,6 +149,8 @@ type Extractor interface {
 	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
 	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
 	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
+	ExtractIsMobile(pageHTML []byte) bool
+	ExtractIsMobileFromDoc(doc *goquery.Document) bool
 }
 
 // Compile time checks to ensure type satisfies Extractor interface

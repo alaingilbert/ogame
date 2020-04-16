@@ -18,9 +18,16 @@ const (
 // Prioritize ...
 type Prioritize struct {
 	bot          *OGame
+	initiator    string
 	name         string
 	taskIsDoneCh chan struct{}
 	isTx         int32
+}
+
+// SetInitiator ...
+func (b *Prioritize) SetInitiator(initiator string) *Prioritize {
+	b.initiator = initiator
+	return b
 }
 
 // Begin a new transaction. "Done" must be called to release the lock.
@@ -43,8 +50,11 @@ func (b *Prioritize) Done() {
 
 func (b *Prioritize) begin(name string) *Prioritize {
 	if atomic.AddInt32(&b.isTx, 1) == 1 {
-		b.name = name
-		b.bot.botLock(name)
+		if b.initiator != "" {
+			b.name = b.initiator + ":"
+		}
+		b.name += name
+		b.bot.botLock(b.name)
 	}
 	return b
 }
@@ -72,7 +82,8 @@ func (b *Prioritize) FakeCall(name string, delay int) {
 }
 
 // LoginWithExistingCookies to ogame server reusing existing cookies
-func (b *Prioritize) LoginWithExistingCookies() error {
+// Returns either or not the bot logged in using the existing cookies
+func (b *Prioritize) LoginWithExistingCookies() (bool, error) {
 	b.begin("LoginWithExistingCookies")
 	defer b.done()
 	return b.bot.wrapLoginWithExistingCookies()
@@ -102,20 +113,18 @@ func (b *Prioritize) GetAlliancePageContent(vals url.Values) []byte {
 }
 
 // GetPageContent gets the html for a specific ogame page
-func (b *Prioritize) GetPageContent(vals url.Values) []byte {
+func (b *Prioritize) GetPageContent(vals url.Values) ([]byte, error) {
 	b.begin("GetPageContent")
 	defer b.done()
-	pageHTML, _ := b.bot.getPageContent(vals)
-	return pageHTML
+	return b.bot.getPageContent(vals)
 }
 
 // PostPageContent make a post request to ogame server
 // This is useful when simulating a web browser
-func (b *Prioritize) PostPageContent(vals, payload url.Values) []byte {
+func (b *Prioritize) PostPageContent(vals, payload url.Values) ([]byte, error) {
 	b.begin("PostPageContent")
 	defer b.done()
-	by, _ := b.bot.postPageContent(vals, payload)
-	return by
+	return b.bot.postPageContent(vals, payload)
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
@@ -538,10 +547,10 @@ func (b *Prioritize) BuyOfferOfTheDay() error {
 }
 
 // CreateUnion creates a union
-func (b *Prioritize) CreateUnion(fleet Fleet) (int64, error) {
+func (b *Prioritize) CreateUnion(fleet Fleet, users []string) (int64, error) {
 	b.begin("CreateUnion")
 	defer b.done()
-	return b.bot.createUnion(fleet)
+	return b.bot.createUnion(fleet, users)
 }
 
 // HeadersForPage gets the headers for a specific ogame page

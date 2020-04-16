@@ -666,6 +666,20 @@ func TestExtractPlanet_sk(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_si(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/si/overview.html")
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33625245), &OGame{language: "si"})
+	assert.Equal(t, "Glavni Planet", planet.Name)
+	assert.Equal(t, int64(12800), planet.Diameter)
+	assert.Equal(t, int64(41), planet.Temperature.Min)
+	assert.Equal(t, int64(81), planet.Temperature.Max)
+	assert.Equal(t, int64(0), planet.Fields.Built)
+	assert.Equal(t, int64(188), planet.Fields.Total)
+	assert.Equal(t, PlanetID(33625245), planet.ID)
+	assert.Equal(t, Coordinate{1, 70, 6, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_gr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33629206), &OGame{language: "gr"})
@@ -1279,6 +1293,16 @@ func TestExtractAttacksACS_v71(t *testing.T) {
 	assert.Equal(t, int64(9), attacks[0].Ships.SmallCargo)
 }
 
+func TestExtractAttacksACS_v72(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/eventlist_multipleACS.html")
+	attacks, _ := NewExtractorV71().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	assert.Equal(t, 3, len(attacks))
+	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
+	assert.Equal(t, int64(14028), attacks[0].ID)
+	assert.Equal(t, int64(14029), attacks[1].ID)
+	assert.Equal(t, int64(673019), attacks[2].ID)
+}
+
 func TestExtractAttacksACSMany(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs_multiple.html")
 	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
@@ -1372,6 +1396,14 @@ func TestExtractGalaxyV7ExpeditionDebrisDM(t *testing.T) {
 	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(3137), infos.Events.Darkmatter)
+	assert.False(t, infos.Events.HasAsteroid)
+}
+
+func TestExtractGalaxyAsteroid(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/galaxyContent_asteroid.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.True(t, infos.Events.HasAsteroid)
 }
 
 func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
@@ -1510,6 +1542,14 @@ func TestExtractUserInfos_sk(t *testing.T) {
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(89), infos.Rank)
 	assert.Equal(t, int64(90), infos.Total)
+}
+
+func TestExtractUserInfos_si(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/si/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "si")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(59), infos.Rank)
+	assert.Equal(t, int64(60), infos.Total)
 }
 
 func TestExtractUserInfos_gr(t *testing.T) {
@@ -2001,11 +2041,8 @@ func TestExtractFleetV71(t *testing.T) {
 func TestExtractFleetV72(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/de/movement.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2020, 3, 6, 12, 43, 15, 0, time.UTC))
-	
 	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
-
 	assert.Equal(t, clock.Now().Add(-5031*time.Second), fleets[0].StartTime.UTC())
-
 	assert.Equal(t, clock.Now().Add(-5041*time.Second), fleets[1].StartTime.UTC())
 }
 
@@ -2849,4 +2886,14 @@ func TestExtractOGameSession(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7/overview_mobile.html")
 	session = NewExtractorV6().ExtractOGameSession(pageHTMLBytes)
 	assert.Equal(t, "c1626ce8228ac5986e3808a7d42d4afc764c1b68", session)
+}
+
+func TestExtractIsMobile(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement.html")
+	isMobile := NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
+	assert.False(t, isMobile)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7.2/en/movement_mobile.html")
+	isMobile = NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
+	assert.True(t, isMobile)
 }

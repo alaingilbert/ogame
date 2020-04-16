@@ -12,7 +12,7 @@ type Wrapper interface {
 	GetExtractor() Extractor
 	SetOGameCredentials(username, password string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error
-	SetLoginWrapper(func(func() error) error)
+	SetLoginWrapper(func(func() (bool, error)) error)
 	GetClient() *OGameClient
 	Enable()
 	Disable()
@@ -34,10 +34,10 @@ type Wrapper interface {
 	SetUserAgent(newUserAgent string)
 	ServerURL() string
 	GetLanguage() string
-	GetPageContent(url.Values) []byte
-	GetAlliancePageContent(url.Values) []byte
-	PostPageContent(url.Values, url.Values) []byte
-	LoginWithExistingCookies() error
+	GetPageContent(url.Values) ([]byte, error)
+	GetAlliancePageContent(url.Values) ([]byte, error)
+	PostPageContent(url.Values, url.Values) ([]byte, error)
+	LoginWithExistingCookies() (bool, error)
 	Login() error
 	Logout()
 	IsLoggedIn() bool
@@ -90,6 +90,8 @@ type Wrapper interface {
 	DeleteAllMessagesFromTab(tabID int64) error
 	Distance(origin, destination Coordinate) int64
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
+	RegisterWSCallback(string, func([]byte))
+	RemoveWSCallback(string)
 	RegisterChatCallback(func(ChatMsg))
 	RegisterAuctioneerCallback(func([]byte))
 	RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
@@ -97,7 +99,7 @@ type Wrapper interface {
 	BuyOfferOfTheDay() error
 	BytesDownloaded() int64
 	BytesUploaded() int64
-	CreateUnion(fleet Fleet) (int64, error)
+	CreateUnion(fleet Fleet, unionUsers []string) (int64, error)
 	GetEmpire(nbr int64) (interface{}, error)
 	HeadersForPage(url string) (http.Header, error)
 	CharacterClass() CharacterClass
@@ -202,6 +204,7 @@ type Celestial interface {
 	GetID() CelestialID
 	GetType() CelestialType
 	GetName() string
+	GetDiameter() int64
 	GetCoordinate() Coordinate
 	GetFields() Fields
 	GetResources() (Resources, error)

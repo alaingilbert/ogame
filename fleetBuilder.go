@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"errors"
-	"math"
 	"time"
 )
 
@@ -24,6 +23,7 @@ func (f FleetBuilderFactory) NewFleet() *FleetBuilder {
 // FleetBuilder ...
 type FleetBuilder struct {
 	b                Wrapper
+	tx               *Prioritize
 	origin           Celestial
 	destination      Coordinate
 	speed            Speed
@@ -48,6 +48,12 @@ func NewFleetBuilder(b Wrapper) *FleetBuilder {
 	fb.mission = Transport
 	fb.speed = HundredPercent
 	return fb
+}
+
+// SetTx ...
+func (f *FleetBuilder) SetTx(tx *Prioritize) *FleetBuilder {
+	f.tx = tx
+	return f
 }
 
 // SetOrigin ...
@@ -170,66 +176,79 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 	ships := f.ships
 	if f.allShips {
-		ships, _ = f.b.GetShips(f.origin.GetID())
+		if f.tx != nil {
+			ships, _ = f.tx.GetShips(f.origin.GetID())
+		} else {
+			ships, _ = f.b.GetShips(f.origin.GetID())
+		}
 	}
 	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
 }
 
+func (f *FleetBuilder) sendNow(tx *Prioritize) error {
+	if f.origin == nil {
+		f.err = errors.New("invalid origin")
+		return f.err
+	}
+
+	// Set all ships
+	if f.allShips {
+		f.ships, _ = tx.GetShips(f.origin.GetID())
+	}
+
+	var fuel int64
+	var planetResources Resources
+	if f.minimumDeuterium > 0 {
+		planetResources, _ = tx.GetResources(f.origin.GetID())
+		_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
+	}
+
+	if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
+		planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
+		if f.resources.Deuterium > planetResources.Deuterium {
+			f.resources.Deuterium = planetResources.Deuterium
+		}
+	}
+
+	payload := f.resources
+	// Send all resources
+	if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
+		// Calculate cargo
+		techs := tx.GetResearch()
+		cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
+		if f.minimumDeuterium <= 0 {
+			planetResources, _ = tx.GetResources(f.origin.GetID())
+		}
+		if f.resources.Deuterium == -1 {
+			if f.minimumDeuterium > 0 {
+				planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
+			}
+			payload.Deuterium = MinInt(cargoCapacity, planetResources.Deuterium)
+			cargoCapacity -= payload.Deuterium
+		}
+		if f.resources.Crystal == -1 {
+			payload.Crystal = MinInt(cargoCapacity, planetResources.Crystal)
+			cargoCapacity -= payload.Crystal
+		}
+		if f.resources.Metal == -1 {
+			payload.Metal = MinInt(cargoCapacity, planetResources.Metal)
+		}
+	}
+
+	f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)
+	return f.err
+}
+
 // SendNow send the fleet with defined configurations
 func (f *FleetBuilder) SendNow() (Fleet, error) {
-	err := f.b.Tx(func(tx *Prioritize) error {
-
-		if f.origin == nil {
-			return errors.New("invalid origin")
-		}
-
-		// Set all ships
-		if f.allShips {
-			f.ships, _ = tx.GetShips(f.origin.GetID())
-		}
-
-		var fuel int64
-		var planetResources Resources
-		if f.minimumDeuterium > 0 {
-			planetResources, _ = tx.GetResources(f.origin.GetID())
-			_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
-		}
-
-		if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
-			planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
-			if f.resources.Deuterium > planetResources.Deuterium {
-				f.resources.Deuterium = planetResources.Deuterium
-			}
-		}
-
-		payload := f.resources
-		// Send all resources
-		if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
-			// Calculate cargo
-			techs := tx.GetResearch()
-			cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
-			if f.minimumDeuterium <= 0 {
-				planetResources, _ = tx.GetResources(f.origin.GetID())
-			}
-			if f.resources.Deuterium == -1 {
-				if f.minimumDeuterium > 0 {
-					planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
-				}
-				payload.Deuterium = int64(math.Min(float64(cargoCapacity), float64(planetResources.Deuterium)))
-				cargoCapacity -= payload.Deuterium
-			}
-			if f.resources.Crystal == -1 {
-				payload.Crystal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Crystal)))
-				cargoCapacity -= payload.Crystal
-			}
-			if f.resources.Metal == -1 {
-				payload.Metal = int64(math.Min(float64(cargoCapacity), float64(planetResources.Metal)))
-			}
-		}
-
-		f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)
-		return f.err
-	})
+	var err error
+	if f.tx != nil {
+		err = f.sendNow(f.tx)
+	} else {
+		err = f.b.Tx(func(tx *Prioritize) error {
+			return f.sendNow(tx)
+		})
+	}
 	if err != nil {
 		// On error, call error callbacks
 		for _, clb := range f.errorCallbacks {

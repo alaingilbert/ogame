@@ -82,7 +82,8 @@ func PageContentHandler(c echo.Context) error {
 	if err := c.Request().ParseForm(); err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetPageContent(c.Request().Form)))
+	pageHTML, _ := bot.GetPageContent(c.Request().Form)
+	return c.JSON(http.StatusOK, SuccessResp(pageHTML))
 }
 
 // LoginHandler ...
@@ -883,7 +884,8 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	allianceID := c.QueryParam("allianceId")
 	vals := url.Values{"allianceId": {allianceID}}
-	return c.HTML(http.StatusOK, string(bot.GetAlliancePageContent(vals)))
+	pageHTML, _ := bot.GetAlliancePageContent(vals)
+	return c.HTML(http.StatusOK, string(pageHTML))
 }
 
 func replaceHostname(bot *OGame, html []byte) []byte {
@@ -901,14 +903,18 @@ func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
 	newURL := bot.serverURL + c.Request().URL.String()
-	resp, err := http.Get(newURL)
+	req, err := http.NewRequest("GET", newURL, nil)
 	if err != nil {
-		bot.error(err)
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	resp, err := bot.Client.Do(req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		bot.error(err)
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 
 	// Copy the original HTTP headers to our client
@@ -943,7 +949,7 @@ func GetFromGameHandler(c echo.Context) error {
 	if len(c.QueryParams()) > 0 {
 		vals = c.QueryParams()
 	}
-	pageHTML := bot.GetPageContent(vals)
+	pageHTML, _ := bot.GetPageContent(vals)
 	pageHTML = replaceHostname(bot, pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
@@ -956,7 +962,7 @@ func PostToGameHandler(c echo.Context) error {
 		vals = c.QueryParams()
 	}
 	payload, _ := c.FormParams()
-	pageHTML := bot.PostPageContent(vals, payload)
+	pageHTML, _ := bot.PostPageContent(vals, payload)
 	pageHTML = replaceHostname(bot, pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }

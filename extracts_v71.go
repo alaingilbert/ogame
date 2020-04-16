@@ -629,6 +629,21 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]A
 
 	tmp := func(rowType string) func(int, *goquery.Selection) {
 		return func(i int, s *goquery.Selection) {
+			trIDAttr := s.AttrOr("id", "")
+			r := regexp.MustCompile(`eventRow-(union)?(\d+)`)
+			m := r.FindStringSubmatch(trIDAttr)
+			var id int64
+			if len(m) != 3 {
+				classes := s.AttrOr("class", "")
+				r = regexp.MustCompile(`unionunion(\d+)`)
+				m = r.FindStringSubmatch(classes)
+				if len(m) == 2 {
+					id, _ = strconv.ParseInt(m[1], 10, 64)
+				}
+			} else {
+				id, _ = strconv.ParseInt(m[2], 10, 64)
+			}
+
 			classes, _ := s.Attr("class")
 			partner := strings.Contains(classes, "partnerInfo")
 
@@ -648,6 +663,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]A
 				return
 			}
 			attack := &AttackEvent{}
+			attack.ID = id
 			attack.MissionType = missionType
 			if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy || missionType == GroupedAttack {
 				linkSendMail := s.Find("a.sendMail")
@@ -805,4 +821,17 @@ func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items
 		items = append(items, item)
 	}
 	return
+}
+
+func extractIsMobileFromDocV71(doc *goquery.Document) bool {
+	r := regexp.MustCompile(`var isMobile = (true|false);`)
+	scripts := doc.Find("script")
+	for i := 0; i < scripts.Size(); i++ {
+		scriptText := scripts.Eq(i).Text()
+		m := r.FindStringSubmatch(scriptText)
+		if len(m) == 2 {
+			return m[1] == "true"
+		}
+	}
+	return false
 }
