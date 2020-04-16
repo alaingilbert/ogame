@@ -2040,7 +2040,7 @@ func TestExtractFleetV71(t *testing.T) {
 
 func TestExtractFleetV72(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/de/movement.html")
-	clock := clockwork.NewFakeClockAt(time.Date(2020, 3, 6, 12, 43, 15, 0, time.UTC))
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 3, 6, 11, 43, 15, 0, time.UTC))
 	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
 	assert.Equal(t, clock.Now().Add(-5031*time.Second), fleets[0].StartTime.UTC())
 	assert.Equal(t, clock.Now().Add(-5041*time.Second), fleets[1].StartTime.UTC())

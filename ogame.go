@@ -1211,6 +1211,12 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	case MovementPage:
 		b.movementFleetsMu.Lock()
 		b.movementFleets = b.extractor.ExtractFleets(pageHTML)
+		for i := 0; i<len(b.movementFleets); i++  {
+			loc, _ := time.LoadLocation(b.serverData.Timezone)
+			tmp, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", b.movementFleets[i].StartTime.String(), loc)
+			b.movementFleets[i].StartTime = tmp
+			log.Println(b.movementFleets[i].StartTime)
+		}
 		b.movementFleetsMu.Unlock()
 
 		b.slotsMu.Lock()
@@ -2239,8 +2245,17 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
 	fleets := b.extractor.ExtractFleets(pageHTML)
+	for i := 0; i<len(fleets); i++  {
+		fleets[i].StartTime = b.fixTimezone(fleets[i].StartTime)
+	}
 	slots := b.extractor.ExtractSlots(pageHTML)
 	return fleets, slots
+}
+
+func (b *OGame) fixTimezone(t time.Time) time.Time {
+	loc, _ := time.LoadLocation(b.serverData.Timezone)
+	tFixed, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", t.String(), loc)
+	return tFixed
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {

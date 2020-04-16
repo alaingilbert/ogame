@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"github.com/alaingilbert/ogame"
+	"github.com/0xE232FE/ogame"
 	"gopkg.in/abiosoft/ishell.v2"
 )
 

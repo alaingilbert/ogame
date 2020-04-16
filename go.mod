@@ -1,4 +1,4 @@
-module github.com/alaingilbert/ogame
+module github.com/0xE232FE/ogame
 
 go 1.12
 

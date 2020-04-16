@@ -1209,9 +1209,9 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			startTimeArray := strings.Split(startTimeString, ":| ")
 			if len(startTimeArray) == 2 {
 				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
-				serverTime, _ := extractServerTimeFromDocV6(doc)
-				_, offset := serverTime.Zone()
-				startTime = startTime.In(serverTime.Location()).Add(time.Duration(-offset) * time.Second)
+				//serverTime, _ := extractServerTimeFromDocV6(doc)
+				//_, offset := serverTime.Zone()
+				//startTime = startTime.In(serverTime.Location()).Add(time.Duration(-offset) * time.Second)
 			}
 		}
 
