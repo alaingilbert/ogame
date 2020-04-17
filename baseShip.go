@@ -53,13 +53,13 @@ func (b BaseShip) GetSpeed(techs Researches, isCollector, isGeneral bool) int64 
 	} else if b.ID == RecyclerID && techs.ImpulseDrive >= 17 {
 		techDriveLvl = float64(techs.ImpulseDrive)
 		multiplier = 2
-	} else if minLvl, ok := b.Requirements[CombustionDrive.ID]; ok {
-		techDriveLvl = float64(MaxInt(techs.CombustionDrive, minLvl))
+	} else if _, ok := b.Requirements[CombustionDrive.ID]; ok {
+		techDriveLvl = float64(techs.CombustionDrive)
 		driveFactor = 0.1
-	} else if minLvl, ok := b.Requirements[ImpulseDrive.ID]; ok {
-		techDriveLvl = float64(MaxInt(techs.ImpulseDrive, minLvl))
-	} else if minLvl, ok := b.Requirements[HyperspaceDrive.ID]; ok {
-		techDriveLvl = float64(MaxInt(techs.HyperspaceDrive, minLvl))
+	} else if _, ok := b.Requirements[ImpulseDrive.ID]; ok {
+		techDriveLvl = float64(techs.ImpulseDrive)
+	} else if _, ok := b.Requirements[HyperspaceDrive.ID]; ok {
+		techDriveLvl = float64(techs.HyperspaceDrive)
 		driveFactor = 0.3
 	}
 	speed := baseSpeed + (baseSpeed*driveFactor)*techDriveLvl
