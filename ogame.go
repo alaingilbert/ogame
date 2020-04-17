@@ -1268,8 +1268,6 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		break
 	}
 
-	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
-
 	b.isVacationModeEnabled = b.extractor.ExtractIsInVacationFromDoc(doc)
 	b.ajaxChatToken, _ = b.extractor.ExtractAjaxChatToken(pageHTML)
 	b.characterClass, _ = b.extractor.ExtractCharacterClassFromDoc(doc)
@@ -1287,7 +1285,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 
 	var data Data
 	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
+	b.planetsMu.RLock()
 	data.Planets = b.planets
+	b.planetsMu.RUnlock()
 	data.Celestials = b.GetCachedCelestials()
 
 	data.PlanetActivity = map[CelestialID]int64{}
