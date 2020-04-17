@@ -21,7 +21,7 @@ func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids, isCollector boo
 }
 
 // GetFuelConsumption returns ship fuel consumption
-func (b BaseShip) GetFuelConsumption(techs Researches) int64 {
+func (b BaseShip) GetFuelConsumption(techs Researches, fleetDeutSaveFactor float64, isGeneral bool) int64 {
 	fuelConsumption := b.FuelConsumption
 	if b.ID == SmallCargoID && techs.ImpulseDrive >= 5 {
 		fuelConsumption *= 2
@@ -29,6 +29,10 @@ func (b BaseShip) GetFuelConsumption(techs Researches) int64 {
 		fuelConsumption *= 3
 	} else if b.ID == RecyclerID && techs.ImpulseDrive >= 17 {
 		fuelConsumption *= 2
+	}
+	fuelConsumption = int64(fleetDeutSaveFactor * float64(fuelConsumption))
+	if isGeneral {
+		fuelConsumption = int64(float64(fuelConsumption) / 2)
 	}
 	return fuelConsumption
 }
