@@ -1217,7 +1217,6 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 			loc, _ := time.LoadLocation(b.serverData.Timezone)
 			tmp, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", b.movementFleets[i].StartTime.String(), loc)
 			b.movementFleets[i].StartTime = tmp
-			log.Println(b.movementFleets[i].StartTime)
 		}
 		b.movementFleetsMu.Unlock()
 
@@ -5150,13 +5149,13 @@ func (b *OGame) ActivateItem(ref string, celestialID CelestialID) error {
 
 // GetCachedData gets all Cached Data
 func (b *OGame) GetCachedData() Data {
-	return b.WithPriority(Normal).GetCachedData()
+	return b.getCachedData()
+	//return b.WithPriority(Normal).GetCachedData()
 }
 
 // GetCachedData gets all Cached Data
 func (b *OGame) getCachedData() Data {
 	var data Data
-	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
 
 	b.planetsMu.RLock()
 	data.Planets = b.planets
@@ -5253,8 +5252,6 @@ func (b *OGame) getCachedData() Data {
 	data.Slots = b.slots
 	b.slotsMu.RUnlock()
 
-	by, _ := json.Marshal(data)
-	ioutil.WriteFile(filename, by, 0644)
 	return data
 }
 
