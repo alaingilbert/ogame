@@ -49,7 +49,9 @@ type OGame struct {
 	Player                UserInfos
 	CachedPreferences     Preferences
 	isVacationModeEnabled bool
+	isVacationModeEnabledMu sync.RWMutex
 	researches            *Researches
+	researchesMu		  sync.RWMutex
 	planets               []Planet
 	planetsMu             sync.RWMutex
 
@@ -314,7 +316,8 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 	info, err := os.Stat(filename)
 	if !os.IsNotExist(err) && !info.IsDir() {
 		var data Data
-		file, _ := ioutil.ReadFile(filename)
+
+		file := LoadFromFile(filename)
 		json.Unmarshal(file, &data)
 
 		b.planets = data.Planets
@@ -483,7 +486,7 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 		b.slotsMu.RUnlock()
 
 		by, _ := json.Marshal(data)
-		ioutil.WriteFile(filename, by, 0644)
+		SaveToFile(filename, by)
 	}
 
 	b.loginWrapper = DefaultLoginWrapper
@@ -1036,6 +1039,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.planetsMu.Unlock()
 
 	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
+
 	b.planetResourcesMu.Lock()
 	b.planetResources[celestialID], _ = b.fetchResources(celestialID)
 	b.planetResourcesMu.Unlock()
@@ -1287,6 +1291,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.planetsMu.RLock()
 	data.Planets = b.planets
 	b.planetsMu.RUnlock()
+
 	data.Celestials = b.GetCachedCelestials()
 
 	data.PlanetActivity = map[CelestialID]int64{}
@@ -1376,8 +1381,24 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.slotsMu.RUnlock()
 
 	by, _ := json.Marshal(data)
-	ioutil.WriteFile(filename, by, 0644)
+	SaveToFile(filename, by)
 }
+
+var mu sync.Mutex
+
+func SaveToFile(filename string, by []byte) {
+	mu.Lock()
+	ioutil.WriteFile(filename, by, 0644)
+	mu.Unlock()
+}
+
+func LoadFromFile(filename string) ([]byte) {
+	mu.Lock()
+	by, _ := ioutil.ReadFile(filename)
+	mu.Unlock()
+	return by
+}
+
 
 // DefaultLoginWrapper ...
 var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
@@ -5159,9 +5180,10 @@ func (b *OGame) getCachedData() Data {
 
 	b.planetsMu.RLock()
 	data.Planets = b.planets
+	data.Celestials = b.GetCachedCelestials()
 	b.planetsMu.RUnlock()
 
-	data.Celestials = b.GetCachedCelestials()
+
 
 	b.lastActivePlanetMu.RLock()
 	data.LastActivePlanet = b.lastActivePlanet
