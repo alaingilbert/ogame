@@ -1121,6 +1121,9 @@ func GetAuctionHandler(c echo.Context) error {
 func DoAuctionHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	bid := make(map[CelestialID]Resources)
+	if err := c.Request().ParseForm(); err != nil { // Required for PostForm, not for PostFormValue
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid form"))
+	}
 	for key, values := range c.Request().PostForm {
 		for _, s := range values {
 			var metal, crystal, deuterium int64
