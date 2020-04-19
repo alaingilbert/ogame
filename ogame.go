@@ -1033,6 +1033,7 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 }
 
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
+	log.Printf("Cache Run for Page: %s", page)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	b.planetsMu.Lock()
 	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
@@ -1384,18 +1385,18 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	SaveToFile(filename, by)
 }
 
-var mu sync.Mutex
+var SaveToFileMu sync.Mutex
 
 func SaveToFile(filename string, by []byte) {
-	mu.Lock()
+	SaveToFileMu.Lock()
 	ioutil.WriteFile(filename, by, 0644)
-	mu.Unlock()
+	SaveToFileMu.Unlock()
 }
 
 func LoadFromFile(filename string) ([]byte) {
-	mu.Lock()
+	SaveToFileMu.Lock()
 	by, _ := ioutil.ReadFile(filename)
-	mu.Unlock()
+	SaveToFileMu.Unlock()
 	return by
 }
 
@@ -1855,7 +1856,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return []byte{}, err
 	}
 
-	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) && vals.Get("return") == ""{
+	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) && vals.Get("return") == "" && page != "fetchResources"{
 		b.cacheFullPageInfo(page, pageHTMLBytes)
 	}
 
@@ -5183,8 +5184,6 @@ func (b *OGame) getCachedData() Data {
 	data.Celestials = b.GetCachedCelestials()
 	b.planetsMu.RUnlock()
 
-
-
 	b.lastActivePlanetMu.RLock()
 	data.LastActivePlanet = b.lastActivePlanet
 	b.lastActivePlanetMu.RUnlock()
@@ -5203,47 +5202,80 @@ func (b *OGame) getCachedData() Data {
 	data.PlanetQueue = map[CelestialID][]Quantifiable{}
 
 	b.planetActivityMu.RLock()
-	data.PlanetActivity = b.planetActivity
+	//data.PlanetActivity = b.planetActivity
+	for k, e := range b.planetActivity {
+		data.PlanetActivity[k] = e
+	}
 	b.planetActivityMu.RUnlock()
 
 	b.planetResourcesMu.RLock()
-	data.PlanetResources = b.planetResources
+	//data.PlanetResources = b.planetResources
+	for k, e := range b.planetResources {
+		data.PlanetResources[k] = e
+	}
 	b.planetResourcesMu.RUnlock()
 
 	b.planetResourcesBuildingsMu.RLock()
-	data.PlanetResourcesBuildings = b.planetResourcesBuildings
+	//data.PlanetResourcesBuildings = b.planetResourcesBuildings
+	for k, e := range b.planetResourcesBuildings {
+		data.PlanetResourcesBuildings[k] = e
+	}
 	b.planetResourcesBuildingsMu.RUnlock()
 
 	b.planetFacilitiesMu.RLock()
-	data.PlanetFacilities = b.planetFacilities
+	//data.PlanetFacilities = b.planetFacilities
+	for k, e := range b.planetFacilities {
+		data.PlanetFacilities[k] = e
+	}
 	b.planetFacilitiesMu.RUnlock()
 
 	b.planetShipsInfosMu.RLock()
-	data.PlanetShipsInfos = b.planetShipsInfos
+	//data.PlanetShipsInfos = b.planetShipsInfos
+	for k, e := range b.planetShipsInfos {
+		data.PlanetShipsInfos[k] = e
+	}
 	b.planetShipsInfosMu.RUnlock()
 
 	b.planetDefensesInfosMu.RLock()
-	data.PlanetDefensesInfos = b.planetDefensesInfos
+	//data.PlanetDefensesInfos = b.planetDefensesInfos
+	for k, e := range b.planetDefensesInfos {
+		data.PlanetDefensesInfos[k] = e
+	}
 	b.planetDefensesInfosMu.RUnlock()
 
 	b.planetConstructionMu.RLock()
-	data.PlanetConstruction = b.planetConstruction
+	//data.PlanetConstruction = b.planetConstruction
+	for k, e := range b.planetConstruction {
+		data.PlanetConstruction[k] = e
+	}
 	b.planetConstructionMu.RUnlock()
 
 	b.planetConstructionFinishAtMu.RLock()
-	data.PlanetConstructionFinishAt = b.planetConstructionFinishAt
+	//data.PlanetConstructionFinishAt = b.planetConstructionFinishAt
+	for k, e := range b.planetConstructionFinishAt {
+		data.PlanetConstructionFinishAt[k] = e
+	}
 	b.planetConstructionFinishAtMu.RUnlock()
 
 	b.planetShipyardProductionsMu.RLock()
-	data.PlanetShipyardProductions = b.planetShipyardProductions
+	//data.PlanetShipyardProductions = b.planetShipyardProductions
+	for k, e := range b.planetShipyardProductions {
+		data.PlanetShipyardProductions[k] = e
+	}
 	b.planetShipyardProductionsMu.RUnlock()
 
 	b.planetShipyardProductionsFinishAtMu.RLock()
-	data.PlanetShipyardProductionsFinishAt = b.planetShipyardProductionsFinishAt
+	//data.PlanetShipyardProductionsFinishAt = b.planetShipyardProductionsFinishAt
+	for k, e := range b.planetShipyardProductionsFinishAt {
+		data.PlanetShipyardProductionsFinishAt[k] = e
+	}
 	b.planetShipyardProductionsFinishAtMu.RUnlock()
 
 	b.planetQueueMu.RLock()
-	data.PlanetQueue = b.planetQueue
+	//data.PlanetQueue = b.planetQueue
+	for k, e := range b.planetQueue {
+		data.PlanetQueue[k] = e
+	}
 	b.planetQueueMu.RUnlock()
 
 	b.researchesCacheMu.RLock()
