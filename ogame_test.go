@@ -2585,10 +2585,10 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
-	secs, fuel = calcFlightTime(Coordinate{1, 162, 1, PlanetType}, Coordinate{4, 144, 1, PlanetType},
-		6, 499, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10}, NoClass)
-	assert.Equal(t, int64(22594), secs)
-	assert.Equal(t, int64(699587), fuel)
+	secs, fuel = calcFlightTime(Coordinate{4, 116, 12, PlanetType}, Coordinate{3, 116, 12, PlanetType},
+		6, 499, true, true, 0.5, 1, 2, ShipsInfos{LargeCargo: 1931}, Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, Discoverer)
+	assert.Equal(t, int64(5406), secs)
+	assert.Equal(t, int64(110336), fuel)
 
 	// Test with solar satellite
 	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
