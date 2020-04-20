@@ -629,3 +629,17 @@ func (b *Prioritize) BuyMarketplace(itemID int64, celestialID CelestialID) error
 	defer b.done()
 	return b.bot.buyMarketplace(itemID, celestialID)
 }
+
+// OfferSellMarketplace ...
+func (b *Prioritize) OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	b.begin("OfferSellMarketplace")
+	defer b.done()
+	return b.bot.offerMarketplace(4, itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// OfferBuyMarketplace ...
+func (b *Prioritize) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	b.begin("OfferBuyMarketplace")
+	defer b.done()
+	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)
+}

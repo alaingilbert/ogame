@@ -2007,6 +2007,71 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 	return nil
 }
 
+// marketItemType 3 -> offer buy
+// marketItemType 4 -> offer sell
+// itemID 1 -> metal
+// itemID 2 -> crystal
+// itemID 3 -> deuterium
+// itemID 204 -> light fighter
+// itemID <HASH> -> item
+func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"create_offer"}, "action": {"submitOffer"}, "asJson": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	var itemIDPayload string
+	var itemType int64
+	if itemIDStr, ok := itemID.(string); ok {
+		if len(itemIDStr) == 40 {
+			itemType = 3 // Item
+			itemIDPayload = itemIDStr
+		} else {
+			return errors.New("invalid itemID string")
+		}
+	} else if itemIDInt, ok := itemID.(int); ok {
+		if itemIDInt >= 1 && itemIDInt <= 3 {
+			itemType = 2 // Resources
+			itemIDPayload = strconv.Itoa(itemIDInt)
+		} else if ID(itemIDInt).IsShip() {
+			itemType = 1 // Ships
+			itemIDPayload = strconv.Itoa(itemIDInt)
+		} else {
+			return errors.New("invalid itemID int")
+		}
+	} else {
+		return errors.New("invalid itemID type")
+	}
+	payload := url.Values{
+		"marketItemType": {strconv.FormatInt(marketItemType, 10)},
+		"itemType":       {strconv.FormatInt(itemType, 10)},
+		"itemId":         {itemIDPayload},
+		"quantity":       {strconv.FormatInt(quantity, 10)},
+		"priceType":      {strconv.FormatInt(priceType, 10)},
+		"price":          {strconv.FormatInt(price, 10)},
+		"priceRange":     {strconv.FormatInt(priceRange, 10)},
+	}
+	var res struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Errors  []struct {
+			Message string `json:"message"`
+			Error   int64  `json:"error"`
+		} `json:"errors"`
+	}
+	by, err := b.postPageContent(params, payload)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(by), payload, params)
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if len(res.Errors) > 0 {
+		return errors.New(strconv.FormatInt(res.Errors[0].Error, 10) + " : " + res.Errors[0].Message)
+	}
+	return err
+}
+
 func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error) {
 	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"buying"}, "action": {"acceptRequest"}, "asJson": {"1"}}
 	if celestialID != 0 {
@@ -2018,7 +2083,10 @@ func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error
 	var res struct {
 		Status  string `json:"status"`
 		Message string `json:"message"`
-		Error   bool   `json:"error"`
+		Errors  []struct {
+			Message string `json:"message"`
+			Error   int64  `json:"error"`
+		} `json:"errors"`
 	}
 	by, err := b.postPageContent(params, payload)
 	if err != nil {
@@ -2027,8 +2095,8 @@ func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error
 	if err := json.Unmarshal(by, &res); err != nil {
 		return err
 	}
-	if res.Error {
-		return errors.New(res.Message)
+	if len(res.Errors) > 0 {
+		return errors.New(strconv.FormatInt(res.Errors[0].Error, 10) + " : " + res.Errors[0].Message)
 	}
 	return err
 }
@@ -4530,4 +4598,14 @@ func (b *OGame) ActivateItem(ref string, celestialID CelestialID) error {
 // BuyMarketplace buy an item on the marketplace
 func (b *OGame) BuyMarketplace(itemID int64, celestialID CelestialID) error {
 	return b.WithPriority(Normal).BuyMarketplace(itemID, celestialID)
+}
+
+// OfferSellMarketplace sell offer on marketplace
+func (b *OGame) OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).OfferSellMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// OfferBuyMarketplace buy offer on marketplace
+func (b *OGame) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
 }

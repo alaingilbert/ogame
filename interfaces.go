@@ -111,6 +111,9 @@ type Wrapper interface {
 	UseDM(string, CelestialID) error
 	GetItems(CelestialID) ([]Item, error)
 	ActivateItem(string, CelestialID) error
+	BuyMarketplace(itemID int64, celestialID CelestialID) error
+	OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
+	OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
