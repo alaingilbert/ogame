@@ -46,7 +46,8 @@ type OGame struct {
 	state                 string // keep name of the function that currently lock the bot
 	stateChangeCallbacks  []func(locked bool, actor string)
 	quiet                 bool
-	Player                UserInfos
+	player                UserInfos
+	playerMu              sync.RWMutex
 	CachedPreferences     Preferences
 	isVacationModeEnabled bool
 	isVacationModeEnabledMu sync.RWMutex
@@ -1103,7 +1104,7 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 }
 
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
-	log.Printf("Cache Run for Page: %s", page)
+	//b.debug("Cache Run for Page:"+page)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	b.planetsMu.Lock()
 	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
@@ -1359,7 +1360,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.hasTechnocrat = b.extractor.ExtractTechnocratFromDoc(doc)
 
 	if page == "overview" {
-		b.Player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
+		b.playerMu.Lock()
+		b.player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
+		b.playerMu.Unlock()
 	} else if page == "preferences" {
 		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
 	}
@@ -2543,7 +2546,9 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		return res, errors.New("invalid planet coordinate")
 	}
 	// Ensure you are not scanning your own planet
-	if target.Player.ID == b.Player.PlayerID {
+	b.playerMu.RLock()
+	defer b.playerMu.RUnlock()
+	if target.Player.ID == b.player.PlayerID {
 		return res, errors.New("cannot scan own planet")
 	}
 
@@ -3070,7 +3075,9 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 	if err != nil {
 		return res, err
 	}
-	return b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	b.playerMu.RLock()
+	defer b.playerMu.RUnlock()
+	return b.extractor.ExtractGalaxyInfos(pageHTML, b.player.PlayerName, b.player.PlayerID, b.player.Rank)
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
@@ -4828,7 +4835,9 @@ func (b *OGame) IsUnderAttack() (bool, error) {
 
 // GetCachedPlayer returns cached player infos
 func (b *OGame) GetCachedPlayer() UserInfos {
-	return b.Player
+	b.playerMu.RLock()
+	defer b.playerMu.RUnlock()
+	return b.player
 }
 
 // GetCachedPreferences returns cached preferences
