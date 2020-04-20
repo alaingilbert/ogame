@@ -2007,6 +2007,32 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 	return nil
 }
 
+func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error) {
+	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"buying"}, "action": {"acceptRequest"}, "asJson": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	payload := url.Values{
+		"marketItemId": {strconv.FormatInt(itemID, 10)},
+	}
+	var res struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Error   bool   `json:"error"`
+	}
+	by, err := b.postPageContent(params, payload)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if res.Error {
+		return errors.New(res.Message)
+	}
+	return err
+}
+
 func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
 	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
 	if celestialID != 0 {
@@ -4499,4 +4525,9 @@ func (b *OGame) GetItems(celestialID CelestialID) ([]Item, error) {
 // ActivateItem activate an item
 func (b *OGame) ActivateItem(ref string, celestialID CelestialID) error {
 	return b.WithPriority(Normal).ActivateItem(ref, celestialID)
+}
+
+// BuyMarketplace buy an item on the marketplace
+func (b *OGame) BuyMarketplace(itemID int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).BuyMarketplace(itemID, celestialID)
 }

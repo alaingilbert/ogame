@@ -622,3 +622,10 @@ func (b *Prioritize) ActivateItem(ref string, celestialID CelestialID) error {
 	defer b.done()
 	return b.bot.activateItem(ref, celestialID)
 }
+
+// BuyMarketplace buy an item on the marketplace
+func (b *Prioritize) BuyMarketplace(itemID int64, celestialID CelestialID) error {
+	b.begin("BuyMarketplace")
+	defer b.done()
+	return b.bot.buyMarketplace(itemID, celestialID)
+}
