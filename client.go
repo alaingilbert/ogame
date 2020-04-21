@@ -28,14 +28,15 @@ func NewOGameClient() *OGameClient {
 		maxRPS: 0,
 	}
 
-	const delay = 1
+	const delay = 500
 
 	go func() {
 		for {
 			prevRPS := atomic.SwapInt32(&client.rpsCounter, 0)
 			atomic.StoreInt32(&client.rps, prevRPS/delay)
 			atomic.StoreInt64(&client.rpsStartTime, time.Now().Add(delay*time.Second).UnixNano())
-			time.Sleep(delay * time.Second)
+			//time.Sleep(delay * time.Second)
+			time.Sleep(delay * time.Millisecond)
 		}
 	}()
 
