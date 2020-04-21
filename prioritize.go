@@ -462,6 +462,13 @@ func (b *Prioritize) GetEspionageReportMessages() ([]EspionageReportSummary, err
 	return b.bot.getEspionageReportMessages()
 }
 
+// GetExpeditionMessages gets the expedition messages
+func (b *Prioritize) GetExpeditionMessages() ([]ExpeditionMessage, error) {
+	b.begin("GetExpeditionMessages")
+	defer b.done()
+	return b.bot.getExpeditionMessages()
+}
+
 // GetEspionageReport gets a detailed espionage report
 func (b *Prioritize) GetEspionageReport(msgID int64) (EspionageReport, error) {
 	b.begin("GetEspionageReport")
@@ -621,4 +628,25 @@ func (b *Prioritize) ActivateItem(ref string, celestialID CelestialID) error {
 	b.begin("ActivateItem")
 	defer b.done()
 	return b.bot.activateItem(ref, celestialID)
+}
+
+// BuyMarketplace buy an item on the marketplace
+func (b *Prioritize) BuyMarketplace(itemID int64, celestialID CelestialID) error {
+	b.begin("BuyMarketplace")
+	defer b.done()
+	return b.bot.buyMarketplace(itemID, celestialID)
+}
+
+// OfferSellMarketplace ...
+func (b *Prioritize) OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	b.begin("OfferSellMarketplace")
+	defer b.done()
+	return b.bot.offerMarketplace(4, itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// OfferBuyMarketplace ...
+func (b *Prioritize) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	b.begin("OfferBuyMarketplace")
+	defer b.done()
+	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)
 }
