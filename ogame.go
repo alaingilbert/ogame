@@ -2019,24 +2019,36 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quant
 	if celestialID != 0 {
 		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
 	}
+	const (
+		shipsItemType = iota + 1
+		resourcesItemType
+		itemItemType
+	)
 	var itemIDPayload string
 	var itemType int64
 	if itemIDStr, ok := itemID.(string); ok {
 		if len(itemIDStr) == 40 {
-			itemType = 3 // Item
+			itemType = itemItemType
 			itemIDPayload = itemIDStr
 		} else {
 			return errors.New("invalid itemID string")
 		}
 	} else if itemIDInt, ok := itemID.(int); ok {
 		if itemIDInt >= 1 && itemIDInt <= 3 {
-			itemType = 2 // Resources
+			itemType = resourcesItemType
 			itemIDPayload = strconv.Itoa(itemIDInt)
 		} else if ID(itemIDInt).IsShip() {
-			itemType = 1 // Ships
+			itemType = shipsItemType
 			itemIDPayload = strconv.Itoa(itemIDInt)
 		} else {
 			return errors.New("invalid itemID int")
+		}
+	} else if itemIDID, ok := itemID.(ID); ok {
+		if itemIDID.IsShip() {
+			itemType = shipsItemType
+			itemIDPayload = strconv.FormatInt(int64(itemIDID), 10)
+		} else {
+			return errors.New("invalid itemID ID")
 		}
 	} else {
 		return errors.New("invalid itemID type")
