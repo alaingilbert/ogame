@@ -5336,6 +5336,29 @@ func (b *OGame) getCachedData() Data {
 	b.planetResourcesMu.RLock()
 	//data.PlanetResources = b.planetResources
 	for k, e := range b.planetResources {
+
+		var resProduction struct {
+			Metal float64
+			Crystal float64
+			Deuterium float64
+			Energy int64
+		}
+		resProduction.Metal = float64(e.Metal.CurrentProduction) / 3600
+		resProduction.Crystal = float64(e.Crystal.CurrentProduction) / 3600
+		resProduction.Deuterium = float64(e.Deuterium.CurrentProduction) / 3600
+
+		b.planetActivityMu.RLock()
+		timespan := float64(time.Now().Unix() - b.planetActivity[k])
+		b.planetActivityMu.RUnlock()
+
+		resProduction.Metal = resProduction.Metal * timespan
+		resProduction.Crystal = resProduction.Crystal * timespan
+		resProduction.Deuterium = resProduction.Deuterium * timespan
+
+		e.Metal.Available = e.Metal.Available + int64(resProduction.Metal)
+		e.Crystal.Available = e.Crystal.Available + int64(resProduction.Crystal)
+		e.Deuterium.Available = e.Deuterium.Available + int64(resProduction.Deuterium)
+
 		data.PlanetResources[k] = e
 	}
 	b.planetResourcesMu.RUnlock()
