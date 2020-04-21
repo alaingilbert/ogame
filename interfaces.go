@@ -81,6 +81,7 @@ type Wrapper interface {
 	GetCelestial(interface{}) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
 	Abandon(interface{}) error
+	GetExpeditionMessages() ([]ExpeditionMessage, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int64) (EspionageReport, error)

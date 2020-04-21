@@ -3521,6 +3521,14 @@ type EspionageReportSummary struct {
 	LootPercentage float64
 }
 
+// ExpeditionMessage ...
+type ExpeditionMessage struct {
+	ID         int64
+	Coordinate Coordinate
+	Content    string
+	CreatedAt  time.Time
+}
+
 func (b *OGame) getPageMessages(page, tabid int64) ([]byte, error) {
 	payload := url.Values{
 		"messageId":  {"-1"},
@@ -3555,6 +3563,21 @@ func (b *OGame) getCombatReportMessages() ([]CombatReportSummary, error) {
 	for page <= nbPage {
 		pageHTML, _ := b.getPageMessages(page, tabid)
 		newMessages, newNbPage := b.extractor.ExtractCombatReportMessagesSummary(pageHTML)
+		msgs = append(msgs, newMessages...)
+		nbPage = newNbPage
+		page++
+	}
+	return msgs, nil
+}
+
+func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
+	var tabid int64 = 22
+	var page int64 = 1
+	var nbPage int64 = 1
+	msgs := make([]ExpeditionMessage, 0)
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
 		page++
@@ -4442,6 +4465,11 @@ func (b *OGame) GetCombatReportSummaryFor(coord Coordinate) (CombatReportSummary
 // GetEspionageReportFor gets the latest espionage report for a given coordinate
 func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error) {
 	return b.WithPriority(Normal).GetEspionageReportFor(coord)
+}
+
+// GetExpeditionMessages gets the expedition messages
+func (b *OGame) GetExpeditionMessages() ([]ExpeditionMessage, error) {
+	return b.WithPriority(Normal).GetExpeditionMessages()
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports

@@ -885,6 +885,18 @@ func TestExtractShipsWhileBeingBuilt(t *testing.T) {
 	assert.Equal(t, int64(213), ships.EspionageProbe)
 }
 
+func TestExtractExpeditionMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/expedition_messages.html")
+	msgs, nbPages, _ := NewExtractorV7().ExtractExpeditionMessages(pageHTMLBytes)
+	assert.Equal(t, int64(10), nbPages)
+	assert.Equal(t, 10, len(msgs))
+	assert.Equal(t, time.Date(2020, 04, 22, 0, 12, 6, 0, time.UTC), msgs[0].CreatedAt) // TODO: Should be OGT
+	assert.Equal(t, int64(11199359), msgs[0].ID)
+	assert.Equal(t, Coordinate{1, 8, 16, PlanetType}, msgs[0].Coordinate)
+	assert.Equal(t, `We came across the remains of a previous expedition! Our technicians will try to get some of the ships to work again.<br/><br/>The following ships are now part of the fleet:<br/>Espionage Probe: 1880<br/>Light Fighter: 161<br/>Small Cargo: 156`,
+		msgs[0].Content)
+}
+
 func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages.html")
 	msgs, _ := NewExtractorV6().ExtractEspionageReportMessageIDs(pageHTMLBytes)
