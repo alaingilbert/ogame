@@ -19,6 +19,16 @@ func NewExtractorV6() *ExtractorV6 {
 	return &ExtractorV6{}
 }
 
+// ExtractExpeditionMessages ...
+func (e ExtractorV6) ExtractExpeditionMessages(pageHTML []byte) ([]ExpeditionMessage, int64, error) {
+	panic("implement me")
+}
+
+// ExtractExpeditionMessagesFromDoc ...
+func (e ExtractorV6) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ExpeditionMessage, int64, error) {
+	panic("implement me")
+}
+
 // ExtractIsInVacation ...
 func (e ExtractorV6) ExtractIsInVacation(pageHTML []byte) bool {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))

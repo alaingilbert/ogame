@@ -2777,6 +2777,112 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 	return nil
 }
 
+// marketItemType 3 -> offer buy
+// marketItemType 4 -> offer sell
+// itemID 1 -> metal
+// itemID 2 -> crystal
+// itemID 3 -> deuterium
+// itemID 204 -> light fighter
+// itemID <HASH> -> item
+func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"create_offer"}, "action": {"submitOffer"}, "asJson": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	const (
+		shipsItemType = iota + 1
+		resourcesItemType
+		itemItemType
+	)
+	var itemIDPayload string
+	var itemType int64
+	if itemIDStr, ok := itemID.(string); ok {
+		if len(itemIDStr) == 40 {
+			itemType = itemItemType
+			itemIDPayload = itemIDStr
+		} else {
+			return errors.New("invalid itemID string")
+		}
+	} else if itemIDInt, ok := itemID.(int); ok {
+		if itemIDInt >= 1 && itemIDInt <= 3 {
+			itemType = resourcesItemType
+			itemIDPayload = strconv.Itoa(itemIDInt)
+		} else if ID(itemIDInt).IsShip() {
+			itemType = shipsItemType
+			itemIDPayload = strconv.Itoa(itemIDInt)
+		} else {
+			return errors.New("invalid itemID int")
+		}
+	} else if itemIDID, ok := itemID.(ID); ok {
+		if itemIDID.IsShip() {
+			itemType = shipsItemType
+			itemIDPayload = strconv.FormatInt(int64(itemIDID), 10)
+		} else {
+			return errors.New("invalid itemID ID")
+		}
+	} else {
+		return errors.New("invalid itemID type")
+	}
+	payload := url.Values{
+		"marketItemType": {strconv.FormatInt(marketItemType, 10)},
+		"itemType":       {strconv.FormatInt(itemType, 10)},
+		"itemId":         {itemIDPayload},
+		"quantity":       {strconv.FormatInt(quantity, 10)},
+		"priceType":      {strconv.FormatInt(priceType, 10)},
+		"price":          {strconv.FormatInt(price, 10)},
+		"priceRange":     {strconv.FormatInt(priceRange, 10)},
+	}
+	var res struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Errors  []struct {
+			Message string `json:"message"`
+			Error   int64  `json:"error"`
+		} `json:"errors"`
+	}
+	by, err := b.postPageContent(params, payload)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(by), payload, params)
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if len(res.Errors) > 0 {
+		return errors.New(strconv.FormatInt(res.Errors[0].Error, 10) + " : " + res.Errors[0].Message)
+	}
+	return err
+}
+
+func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error) {
+	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"buying"}, "action": {"acceptRequest"}, "asJson": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	payload := url.Values{
+		"marketItemId": {strconv.FormatInt(itemID, 10)},
+	}
+	var res struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Errors  []struct {
+			Message string `json:"message"`
+			Error   int64  `json:"error"`
+		} `json:"errors"`
+	}
+	by, err := b.postPageContent(params, payload)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if len(res.Errors) > 0 {
+		return errors.New(strconv.FormatInt(res.Errors[0].Error, 10) + " : " + res.Errors[0].Message)
+	}
+	return err
+}
+
 func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
 	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
 	if celestialID != 0 {
@@ -4188,6 +4294,14 @@ type EspionageReportSummary struct {
 	LootPercentage float64
 }
 
+// ExpeditionMessage ...
+type ExpeditionMessage struct {
+	ID         int64
+	Coordinate Coordinate
+	Content    string
+	CreatedAt  time.Time
+}
+
 func (b *OGame) getPageMessages(page, tabid int64) ([]byte, error) {
 	payload := url.Values{
 		"messageId":  {"-1"},
@@ -4222,6 +4336,21 @@ func (b *OGame) getCombatReportMessages() ([]CombatReportSummary, error) {
 	for page <= nbPage {
 		pageHTML, _ := b.getPageMessages(page, tabid)
 		newMessages, newNbPage := b.extractor.ExtractCombatReportMessagesSummary(pageHTML)
+		msgs = append(msgs, newMessages...)
+		nbPage = newNbPage
+		page++
+	}
+	return msgs, nil
+}
+
+func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
+	var tabid int64 = 22
+	var page int64 = 1
+	var nbPage int64 = 1
+	msgs := make([]ExpeditionMessage, 0)
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
 		page++
@@ -5115,6 +5244,11 @@ func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error)
 	return b.WithPriority(Normal).GetEspionageReportFor(coord)
 }
 
+// GetExpeditionMessages gets the expedition messages
+func (b *OGame) GetExpeditionMessages() ([]ExpeditionMessage, error) {
+	return b.WithPriority(Normal).GetExpeditionMessages()
+}
+
 // GetEspionageReportMessages gets the summary of each espionage reports
 func (b *OGame) GetEspionageReportMessages() ([]EspionageReportSummary, error) {
 	return b.WithPriority(Normal).GetEspionageReportMessages()
@@ -5292,6 +5426,21 @@ func (b *OGame) GetItems(celestialID CelestialID) ([]Item, error) {
 // ActivateItem activate an item
 func (b *OGame) ActivateItem(ref string, celestialID CelestialID) error {
 	return b.WithPriority(Normal).ActivateItem(ref, celestialID)
+}
+
+// BuyMarketplace buy an item on the marketplace
+func (b *OGame) BuyMarketplace(itemID int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).BuyMarketplace(itemID, celestialID)
+}
+
+// OfferSellMarketplace sell offer on marketplace
+func (b *OGame) OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).OfferSellMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// OfferBuyMarketplace buy offer on marketplace
+func (b *OGame) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
 }
 
 // GetCachedData gets all Cached Data

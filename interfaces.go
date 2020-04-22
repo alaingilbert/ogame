@@ -81,6 +81,7 @@ type Wrapper interface {
 	GetCelestial(interface{}) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
 	Abandon(interface{}) error
+	GetExpeditionMessages() ([]ExpeditionMessage, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReport(msgID int64) (EspionageReport, error)
@@ -111,6 +112,9 @@ type Wrapper interface {
 	UseDM(string, CelestialID) error
 	GetItems(CelestialID) ([]Item, error)
 	ActivateItem(string, CelestialID) error
+	BuyMarketplace(itemID int64, celestialID CelestialID) error
+	OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
+	OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
 
 	// Planet or Moon functions
 	GetResources(CelestialID) (Resources, error)
