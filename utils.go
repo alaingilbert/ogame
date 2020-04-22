@@ -82,7 +82,8 @@ func ParseCoord(str string) (coord Coordinate, err error) {
 	return coord, errors.New("unable to parse coordinate")
 }
 
-func name2id(name string) ID {
+// ShipName2ID ...
+func ShipName2ID(name string) ID {
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	name, _, _ = transform.String(t, name)
 	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シα-ωΑ-Ω星殖重小民死輸帶太洋戰艦諜魔間能飛鬥路輕型列探履惡大彈運導衛滅者車收巡陽機回毀船]+")

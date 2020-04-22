@@ -462,9 +462,9 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 				nbrTxt := s.Find("td").Eq(1).Text()
 				nbr := ParseInt(nbrTxt)
 				if name != "" && nbr > 0 {
-					attack.Ships.Set(name2id(name), nbr)
+					attack.Ships.Set(ShipName2ID(name), nbr)
 				} else if nbrTxt == "?" {
-					attack.Ships.Set(name2id(name), -1)
+					attack.Ships.Set(ShipName2ID(name), -1)
 				}
 			})
 		}
@@ -1092,7 +1092,7 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 			name := s.Find("td").Eq(0).Text()
 			nbr := ParseInt(s.Find("td").Eq(1).Text())
 			if name != "" && nbr > 0 {
-				fleet.Ships.Set(name2id(name), nbr)
+				fleet.Ships.Set(ShipName2ID(name), nbr)
 			}
 		})
 		fleet.Origin = extractCoordV6(doc.Find("td.coordsOrigin").Text())
@@ -1216,7 +1216,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			tds := trs.Eq(i).Find("td")
 			name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
 			qty := ParseInt(tds.Eq(1).Text())
-			shipID := name2id(name)
+			shipID := ShipName2ID(name)
 			fleet.Ships.Set(shipID, qty)
 		}
 
@@ -1820,7 +1820,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 				name := s.Find("td").Eq(0).Text()
 				nbr := ParseInt(s.Find("td").Eq(1).Text())
 				if name != "" && nbr > 0 {
-					fleet.Ships.Set(name2id(name), nbr)
+					fleet.Ships.Set(ShipName2ID(name), nbr)
 				}
 			})
 		}
