@@ -695,9 +695,9 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]A
 					nbrTxt := s.Find("td").Eq(1).Text()
 					nbr := ParseInt(nbrTxt)
 					if name != "" && nbr > 0 {
-						attack.Ships.Set(name2id(name), nbr)
+						attack.Ships.Set(ShipName2ID(name), nbr)
 					} else if nbrTxt == "?" {
-						attack.Ships.Set(name2id(name), -1)
+						attack.Ships.Set(ShipName2ID(name), -1)
 					}
 				})
 			}
