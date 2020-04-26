@@ -2034,6 +2034,16 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quant
 		} else {
 			return errors.New("invalid itemID string")
 		}
+	} else if itemIDInt64, ok := itemID.(int64); ok {
+		if itemIDInt64 >= 1 && itemIDInt64 <= 3 {
+			itemType = resourcesItemType
+			itemIDPayload = strconv.FormatInt(itemIDInt64, 10)
+		} else if ID(itemIDInt64).IsShip() {
+			itemType = shipsItemType
+			itemIDPayload = strconv.FormatInt(itemIDInt64, 10)
+		} else {
+			return errors.New("invalid itemID int64")
+		}
 	} else if itemIDInt, ok := itemID.(int); ok {
 		if itemIDInt >= 1 && itemIDInt <= 3 {
 			itemType = resourcesItemType
