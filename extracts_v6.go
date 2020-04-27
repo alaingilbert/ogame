@@ -1159,6 +1159,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 
 		missionType, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
 		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
+		inDeepSpace := s.Find("span.fleetDetailButton a").HasClass("fleet_icon_forward_end")
 		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 		endTime, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""), 10, 64)
 		ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
@@ -1185,6 +1186,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.Destination = dest
 		fleet.Mission = MissionID(missionType)
 		fleet.ReturnFlight = returnFlight
+		fleet.InDeepSpace = inDeepSpace
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
