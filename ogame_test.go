@@ -2182,6 +2182,17 @@ func TestExtractFleet_returning(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 123, Crystal: 456, Deuterium: 789}, fleets[0].Resources)
 }
 
+func TestExtractFleet_deepspace(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/fleets_expeditions.html")
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 5, len(fleets))
+	assert.False(t, fleets[0].InDeepSpace)
+	assert.False(t, fleets[1].InDeepSpace)
+	assert.False(t, fleets[2].InDeepSpace)
+	assert.False(t, fleets[3].InDeepSpace)
+	assert.True(t, fleets[4].InDeepSpace)
+}
+
 func TestExtractFleet_targetPlanetID(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_moon_to_moon.html")
 	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
