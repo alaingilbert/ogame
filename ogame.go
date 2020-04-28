@@ -1287,14 +1287,21 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		}
 		break
 	case MovementPage:
+		fleets := b.extractor.ExtractFleets(pageHTML)
+
+		for i := 0; i<len(fleets); i++  {
+			fleets[i].StartTime = b.fixTimezone(fleets[i].StartTime)
+		}
 		b.movementFleetsMu.Lock()
-		b.movementFleets = b.extractor.ExtractFleets(pageHTML)
+		b.movementFleets = fleets
+		b.movementFleetsMu.Unlock()
+		/*
 		for i := 0; i<len(b.movementFleets); i++  {
 			loc, _ := time.LoadLocation(b.serverData.Timezone)
 			tmp, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", b.movementFleets[i].StartTime.String(), loc)
 			b.movementFleets[i].StartTime = tmp
 		}
-		b.movementFleetsMu.Unlock()
+		*/
 
 		b.slotsMu.Lock()
 		b.slots = b.extractor.ExtractSlots(pageHTML)
