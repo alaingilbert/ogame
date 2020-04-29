@@ -3697,9 +3697,13 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime, unionID int64, ensure bool) (Fleet, error) {
 	if b.IsV7() {
-		return b.sendFleetV7(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
+		fleet, err := b.sendFleetV7(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
+		fleet.StartTime = b.fixTimezone(fleet.StartTime)
+		return fleet, err
 	}
-	return b.sendFleetV6(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
+	fleet, err := b.sendFleetV6(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
+	fleet.StartTime = b.fixTimezone(fleet.StartTime)
+	return fleet, err
 }
 
 // CheckTargetResponse ...
