@@ -2064,6 +2064,25 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quant
 	} else {
 		return errors.New("invalid itemID type")
 	}
+
+	vals := url.Values{
+		"page":      {"ingame"},
+		"component": {"marketplace"},
+		"tab":       {"create_offer"},
+	}
+	pageHTML, err := b.getPageContent(vals)
+	if err != nil {
+		return err
+	}
+	getToken := func(pageHTML []byte) (string, error) {
+		m := regexp.MustCompile(`var token = "([^"]+)"`).FindSubmatch(pageHTML)
+		if len(m) != 2 {
+			return "", errors.New("unable to find token")
+		}
+		return string(m[1]), nil
+	}
+	token, _ := getToken(pageHTML)
+
 	payload := url.Values{
 		"marketItemType": {strconv.FormatInt(marketItemType, 10)},
 		"itemType":       {strconv.FormatInt(itemType, 10)},
@@ -2072,6 +2091,7 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quant
 		"priceType":      {strconv.FormatInt(priceType, 10)},
 		"price":          {strconv.FormatInt(price, 10)},
 		"priceRange":     {strconv.FormatInt(priceRange, 10)},
+		"token":          {token},
 	}
 	var res struct {
 		Status  string `json:"status"`
@@ -2085,7 +2105,6 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quant
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(by), payload, params)
 	if err := json.Unmarshal(by, &res); err != nil {
 		return err
 	}
