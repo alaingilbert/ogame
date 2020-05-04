@@ -194,7 +194,7 @@ func TestName2id(t *testing.T) {
 	// tr
 	assert.Equal(t, LightFighterID, ShipName2ID("Hafif Avcı"))
 	assert.Equal(t, HeavyFighterID, ShipName2ID("Ağır Avcı"))
-	assert.Equal(t, CruiserID, ShipName2ID("Kruvazör Adet"))
+	assert.Equal(t, CruiserID, ShipName2ID("Kruvazör"))
 	assert.Equal(t, BattleshipID, ShipName2ID("Komuta Gemisi"))
 	assert.Equal(t, BattlecruiserID, ShipName2ID("Firkateyn"))
 	assert.Equal(t, BomberID, ShipName2ID("Bombardıman Gemisi"))
