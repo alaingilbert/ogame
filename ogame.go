@@ -1216,7 +1216,11 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	}
 
 	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
-		b.cacheFullPageInfo(page, pageHTMLBytes)
+		page := vals.Get("page")
+		component := vals.Get("component")
+		if page != "standalone" && component != "empire" {
+			b.cacheFullPageInfo(page, pageHTMLBytes)
+		}
 	}
 
 	if !cfg.SkipInterceptor {
