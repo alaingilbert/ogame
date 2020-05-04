@@ -1219,6 +1219,9 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		page := vals.Get("page")
 		component := vals.Get("component")
 		if page != "standalone" && component != "empire" {
+			if page == "ingame" {
+				page = component
+			}
 			b.cacheFullPageInfo(page, pageHTMLBytes)
 		}
 	}
