@@ -469,6 +469,13 @@ func (b *Prioritize) GetExpeditionMessages() ([]ExpeditionMessage, error) {
 	return b.bot.getExpeditionMessages()
 }
 
+// GetExpeditionMessageAt gets the expedition message for time t
+func (b *Prioritize) GetExpeditionMessageAt(t time.Time) ([]ExpeditionMessage, error) {
+	b.begin("GetExpeditionMessageAt")
+	defer b.done()
+	return b.bot.getExpeditionMessageAt(t)
+}
+
 // GetEspionageReport gets a detailed espionage report
 func (b *Prioritize) GetEspionageReport(msgID int64) (EspionageReport, error) {
 	b.begin("GetEspionageReport")

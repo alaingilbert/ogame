@@ -3622,6 +3622,28 @@ func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
 	return msgs, nil
 }
 
+func (b *OGame) getExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
+	var tabid int64 = 22
+	var page int64 = 1
+	var nbPage int64 = 1
+LOOP:
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
+		for _, m := range newMessages {
+			if m.CreatedAt.Unix() == t.Unix() {
+				return m, nil
+			}
+			if m.CreatedAt.Unix() < t.Unix() {
+				break LOOP
+			}
+		}
+		nbPage = newNbPage
+		page++
+	}
+	return ExpeditionMessage{}, errors.New("expedition message not found for " + t.String())
+}
+
 func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error) {
 	var tabid int64 = 21
 	var page int64 = 1
@@ -4507,6 +4529,11 @@ func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error)
 // GetExpeditionMessages gets the expedition messages
 func (b *OGame) GetExpeditionMessages() ([]ExpeditionMessage, error) {
 	return b.WithPriority(Normal).GetExpeditionMessages()
+}
+
+// GetExpeditionMessageAt gets the expedition message for time t
+func (b *OGame) GetExpeditionMessageAt(t time.Time) ([]ExpeditionMessage, error) {
+	return b.WithPriority(Normal).GetExpeditionMessageAt(t)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
