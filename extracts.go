@@ -31,7 +31,7 @@ type Extractor interface {
 	ExtractAttacks(pageHTML []byte) ([]AttackEvent, error)
 	ExtractOfferOfTheDay(pageHTML []byte) (int64, string, PlanetResources, Multiplier, error)
 	ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error)
-	ExtractExpeditionMessages(pageHTML []byte) ([]ExpeditionMessage, int64, error)
+	ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error)
 	ExtractDefense(pageHTML []byte) (DefensesInfos, error)
 	ExtractShips(pageHTML []byte) (ShipsInfos, error)
 	ExtractFacilities(pageHTML []byte) (Facilities, error)
@@ -77,7 +77,7 @@ type Extractor interface {
 	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos)
 	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int64)
 	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int64)
-	ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ExpeditionMessage, int64, error)
+	ExtractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ExpeditionMessage, int64, error)
 	ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error)
 	ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error)
 	ExtractPreferencesFromDoc(doc *goquery.Document) Preferences
