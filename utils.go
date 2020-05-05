@@ -368,7 +368,7 @@ func ShipName2ID(name string) ID {
 		// tr
 		"hafifavc":           LightFighterID,
 		"agravc":             HeavyFighterID,
-		"kruvazoradet":       CruiserID,
+		"kruvazor":           CruiserID,
 		"komutagemisi":       BattleshipID,
 		"firkateyn":          BattlecruiserID,
 		"bombardmangemisi":   BomberID,

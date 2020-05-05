@@ -20,12 +20,12 @@ func NewExtractorV6() *ExtractorV6 {
 }
 
 // ExtractExpeditionMessages ...
-func (e ExtractorV6) ExtractExpeditionMessages(pageHTML []byte) ([]ExpeditionMessage, int64, error) {
+func (e ExtractorV6) ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error) {
 	panic("implement me")
 }
 
 // ExtractExpeditionMessagesFromDoc ...
-func (e ExtractorV6) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ExpeditionMessage, int64, error) {
+func (e ExtractorV6) ExtractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ExpeditionMessage, int64, error) {
 	panic("implement me")
 }
 

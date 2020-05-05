@@ -1980,7 +1980,14 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	}
 
 	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) && vals.Get("return") == "" && page != "fetchResources"{
-		b.cacheFullPageInfo(page, pageHTMLBytes)
+		page := vals.Get("page")
+		component := vals.Get("component")
+		if page != "standalone" && component != "empire" {
+			if page == "ingame" {
+				page = component
+			}
+			b.cacheFullPageInfo(page, pageHTMLBytes)
+		}
 	}
 
 	if !cfg.SkipInterceptor {
@@ -2841,6 +2848,25 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quant
 	} else {
 		return errors.New("invalid itemID type")
 	}
+
+	vals := url.Values{
+		"page":      {"ingame"},
+		"component": {"marketplace"},
+		"tab":       {"create_offer"},
+	}
+	pageHTML, err := b.getPageContent(vals)
+	if err != nil {
+		return err
+	}
+	getToken := func(pageHTML []byte) (string, error) {
+		m := regexp.MustCompile(`var token = "([^"]+)"`).FindSubmatch(pageHTML)
+		if len(m) != 2 {
+			return "", errors.New("unable to find token")
+		}
+		return string(m[1]), nil
+	}
+	token, _ := getToken(pageHTML)
+
 	payload := url.Values{
 		"marketItemType": {strconv.FormatInt(marketItemType, 10)},
 		"itemType":       {strconv.FormatInt(itemType, 10)},
@@ -2849,6 +2875,7 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quant
 		"priceType":      {strconv.FormatInt(priceType, 10)},
 		"price":          {strconv.FormatInt(price, 10)},
 		"priceRange":     {strconv.FormatInt(priceRange, 10)},
+		"token":          {token},
 	}
 	var res struct {
 		Status  string `json:"status"`
@@ -2862,7 +2889,6 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quant
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(by), payload, params)
 	if err := json.Unmarshal(by, &res); err != nil {
 		return err
 	}
@@ -4372,12 +4398,34 @@ func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
 	msgs := make([]ExpeditionMessage, 0)
 	for page <= nbPage {
 		pageHTML, _ := b.getPageMessages(page, tabid)
-		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML)
+		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
 		page++
 	}
 	return msgs, nil
+}
+
+func (b *OGame) getExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
+	var tabid int64 = 22
+	var page int64 = 1
+	var nbPage int64 = 1
+LOOP:
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
+		for _, m := range newMessages {
+			if m.CreatedAt.Unix() == t.Unix() {
+				return m, nil
+			}
+			if m.CreatedAt.Unix() < t.Unix() {
+				break LOOP
+			}
+		}
+		nbPage = newNbPage
+		page++
+	}
+	return ExpeditionMessage{}, errors.New("expedition message not found for " + t.String())
 }
 
 func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error) {
@@ -5269,6 +5317,11 @@ func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error)
 // GetExpeditionMessages gets the expedition messages
 func (b *OGame) GetExpeditionMessages() ([]ExpeditionMessage, error) {
 	return b.WithPriority(Normal).GetExpeditionMessages()
+}
+
+// GetExpeditionMessageAt gets the expedition message for time t
+func (b *OGame) GetExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
+	return b.WithPriority(Normal).GetExpeditionMessageAt(t)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports

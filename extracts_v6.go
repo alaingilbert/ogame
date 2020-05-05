@@ -1163,11 +1163,6 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		inDeepSpace := s.Find("span.fleetDetailButton a").HasClass("fleet_icon_forward_end")
 		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 		endTime, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""), 10, 64)
-		ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
-		secs := arrivalTime - ogameTimestamp
-		if secs < 0 {
-			secs = 0
-		}
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}

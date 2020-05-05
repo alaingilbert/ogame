@@ -19,9 +19,9 @@ func NewExtractorV7() *ExtractorV7 {
 }
 
 // ExtractExpeditionMessages ...
-func (e ExtractorV7) ExtractExpeditionMessages(pageHTML []byte) ([]ExpeditionMessage, int64, error) {
+func (e ExtractorV7) ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractExpeditionMessagesFromDoc(doc)
+	return e.ExtractExpeditionMessagesFromDoc(doc, location)
 }
 
 // ExtractDefense ...
@@ -139,8 +139,8 @@ func (e ExtractorV7) ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos
 }
 
 // ExtractExpeditionMessagesFromDoc ...
-func (e ExtractorV7) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ExpeditionMessage, int64, error) {
-	return extractExpeditionMessagesFromDocV7(doc)
+func (e ExtractorV7) ExtractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ExpeditionMessage, int64, error) {
+	return extractExpeditionMessagesFromDocV7(doc, location)
 }
 
 // ExtractFacilitiesFromDoc ...
