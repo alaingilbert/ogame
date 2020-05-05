@@ -4532,7 +4532,7 @@ func (b *OGame) GetExpeditionMessages() ([]ExpeditionMessage, error) {
 }
 
 // GetExpeditionMessageAt gets the expedition message for time t
-func (b *OGame) GetExpeditionMessageAt(t time.Time) ([]ExpeditionMessage, error) {
+func (b *OGame) GetExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
 	return b.WithPriority(Normal).GetExpeditionMessageAt(t)
 }
 

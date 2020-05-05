@@ -470,7 +470,7 @@ func (b *Prioritize) GetExpeditionMessages() ([]ExpeditionMessage, error) {
 }
 
 // GetExpeditionMessageAt gets the expedition message for time t
-func (b *Prioritize) GetExpeditionMessageAt(t time.Time) ([]ExpeditionMessage, error) {
+func (b *Prioritize) GetExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
 	b.begin("GetExpeditionMessageAt")
 	defer b.done()
 	return b.bot.getExpeditionMessageAt(t)
