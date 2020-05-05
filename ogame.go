@@ -3614,7 +3614,7 @@ func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
 	msgs := make([]ExpeditionMessage, 0)
 	for page <= nbPage {
 		pageHTML, _ := b.getPageMessages(page, tabid)
-		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML)
+		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
 		page++
