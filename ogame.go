@@ -816,6 +816,17 @@ func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Resp
 	return
 }
 
+func getTransport(proxy, username, password, proxyType string) (http.RoundTripper, error) {
+	var err error
+	transport := http.DefaultTransport
+	if proxyType == "socks5" {
+		transport, err = getSocks5Transport(proxy, username, password)
+	} else if proxyType == "http" {
+		transport, err = getProxyTransport(proxy, username, password)
+	}
+	return transport, err
+}
+
 // Creates a proxy http transport with optional basic auth
 func getProxyTransport(proxy, username, password string) (*http.Transport, error) {
 	proxyURL, err := url.Parse(proxy)
@@ -856,19 +867,11 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 		b.Client.Transport = http.DefaultTransport
 		return nil
 	}
-	var err error
-	transport := http.DefaultTransport
-	if proxyType == "socks5" {
-		transport, err = getSocks5Transport(proxyAddress, username, password)
-	} else if proxyType == "http" {
-		transport, err = getProxyTransport(proxyAddress, username, password)
-	}
+	transport, err := getTransport(proxyAddress, username, password, proxyType)
+	b.loginProxyTransport = transport
+	b.Client.Transport = transport
 	if loginOnly {
-		b.loginProxyTransport = transport
 		b.Client.Transport = http.DefaultTransport
-	} else {
-		b.loginProxyTransport = transport
-		b.Client.Transport = transport
 	}
 	return err
 }
