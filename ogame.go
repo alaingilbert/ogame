@@ -3158,6 +3158,10 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	payload.Set("deuterium", strconv.FormatInt(newResources.Deuterium, 10))
 	payload.Set("metal", strconv.FormatInt(newResources.Metal, 10))
 	payload.Set("mission", strconv.FormatInt(int64(mission), 10))
+	payload.Set("prioMetal", "1")
+	payload.Set("prioCrystal", "2")
+	payload.Set("prioDeuterium", "3")
+	payload.Set("retreatAfterDefenderRetreat", "0")
 	if mission == Expedition {
 		if expeditiontime <= 0 {
 			expeditiontime = 1
