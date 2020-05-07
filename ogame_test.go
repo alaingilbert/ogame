@@ -897,6 +897,15 @@ func TestExtractExpeditionMessages(t *testing.T) {
 		msgs[0].Content)
 }
 
+func TestExtractMarketplaceMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/sales_messages.html")
+	msgs, _, _ := NewExtractorV7().ExtractMarketplaceMessages(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 9, len(msgs))
+	assert.Equal(t, int64(12912161), msgs[3].ID)
+	assert.Equal(t, int64(1379), msgs[3].MarketTransactionID)
+	assert.Equal(t, "164ba9f6e5cbfdaa03c061730767d779", msgs[3].Token)
+}
+
 func TestExtractEspionageReportMessageIDs(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/messages.html")
 	msgs, _ := NewExtractorV6().ExtractEspionageReportMessageIDs(pageHTMLBytes)

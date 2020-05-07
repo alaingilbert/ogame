@@ -81,6 +81,8 @@ type Wrapper interface {
 	GetCelestial(interface{}) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
 	Abandon(interface{}) error
+	CollectAllMarketplaceMessages() error
+	CollectMarketplaceMessage(MarketplaceMessage) error
 	GetExpeditionMessages() ([]ExpeditionMessage, error)
 	GetExpeditionMessageAt(time.Time) (ExpeditionMessage, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)

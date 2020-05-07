@@ -3738,6 +3738,14 @@ type ExpeditionMessage struct {
 	CreatedAt  time.Time
 }
 
+// MarketplaceMessage ...
+type MarketplaceMessage struct {
+	ID                  int64
+	CreatedAt           time.Time
+	Token               string
+	MarketTransactionID int64
+}
+
 func (b *OGame) getPageMessages(page, tabid int64) ([]byte, error) {
 	payload := url.Values{
 		"messageId":  {"-1"},
@@ -3787,6 +3795,60 @@ func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
 	for page <= nbPage {
 		pageHTML, _ := b.getPageMessages(page, tabid)
 		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
+		msgs = append(msgs, newMessages...)
+		nbPage = newNbPage
+		page++
+	}
+	return msgs, nil
+}
+
+func (b *OGame) collectAllMarketplaceMessages() error {
+	purchases, _ := b.getMarketplacePurchasesMessages()
+	sales, _ := b.getMarketplaceSalesMessages()
+	msgs := make([]MarketplaceMessage, 0)
+	msgs = append(msgs, purchases...)
+	msgs = append(msgs, sales...)
+	for _, msg := range msgs {
+		if msg.MarketTransactionID != 0 {
+			err := b.collectMarketplaceMessage(msg)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (b *OGame) collectMarketplaceMessage(msg MarketplaceMessage) error {
+	payload := url.Values{
+		"page":                {"componentOnly"},
+		"component":           {"marketplace"},
+		"action":              {"collectPrice"},
+		"marketTransactionId": {strconv.FormatInt(msg.MarketTransactionID, 10)},
+		"token":               {msg.Token},
+		"asJson":              {"1"},
+	}
+	_, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
+	return err
+}
+
+func (b *OGame) getMarketplacePurchasesMessages() ([]MarketplaceMessage, error) {
+	return b.getMarketplaceMessages(26)
+}
+
+func (b *OGame) getMarketplaceSalesMessages() ([]MarketplaceMessage, error) {
+	return b.getMarketplaceMessages(27)
+}
+
+// tabID 26: purchases, 27: sales
+func (b *OGame) getMarketplaceMessages(tabID int64) ([]MarketplaceMessage, error) {
+	var tabid int64 = tabID
+	var page int64 = 1
+	var nbPage int64 = 1
+	msgs := make([]MarketplaceMessage, 0)
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractMarketplaceMessages(pageHTML, b.location)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
 		page++
@@ -4707,6 +4769,16 @@ func (b *OGame) GetExpeditionMessages() ([]ExpeditionMessage, error) {
 // GetExpeditionMessageAt gets the expedition message for time t
 func (b *OGame) GetExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
 	return b.WithPriority(Normal).GetExpeditionMessageAt(t)
+}
+
+// CollectAllMarketplaceMessages collect all marketplace messages
+func (b *OGame) CollectAllMarketplaceMessages() error {
+	return b.WithPriority(Normal).CollectAllMarketplaceMessages()
+}
+
+// CollectMarketplaceMessage collect marketplace message
+func (b *OGame) CollectMarketplaceMessage(msg MarketplaceMessage) error {
+	return b.WithPriority(Normal).CollectMarketplaceMessage(msg)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
