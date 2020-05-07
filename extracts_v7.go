@@ -699,3 +699,32 @@ func extractExpeditionMessagesFromDocV7(doc *goquery.Document, location *time.Lo
 	})
 	return msgs, nbPage, nil
 }
+
+func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.Location) ([]MarketplaceMessage, int64, error) {
+	msgs := make([]MarketplaceMessage, 0)
+	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
+	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
+		if idStr, exists := s.Attr("data-msg-id"); exists {
+			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+				href := s.Find("a.js_actionCollect").AttrOr("href", "")
+				m := regexp.MustCompile(`token=([^&]+)`).FindStringSubmatch(href)
+				var token string
+				var marketTransactionID int64
+				if len(m) == 2 {
+					token = m[1]
+				}
+				m = regexp.MustCompile(`marketTransactionId=([^&]+)`).FindStringSubmatch(href)
+				if len(m) == 2 {
+					marketTransactionIDStr := m[1]
+					marketTransactionID, _ = strconv.ParseInt(marketTransactionIDStr, 10, 64)
+				}
+				msg := MarketplaceMessage{ID: id}
+				msg.CreatedAt, _ = time.ParseInLocation("02.01.2006 15:04:05", s.Find(".msg_date").Text(), location)
+				msg.Token = token
+				msg.MarketTransactionID = marketTransactionID
+				msgs = append(msgs, msg)
+			}
+		}
+	})
+	return msgs, nbPage, nil
+}
