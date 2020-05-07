@@ -167,6 +167,55 @@ type Params struct {
 	CookiesFilename string
 }
 
+// Register a new gameforge lobby account
+func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
+	var err error
+	client := &http.Client{}
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	if err != nil {
+		return err
+	}
+	var payload struct {
+		Credentials struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		} `json:"credentials"`
+		Language string `json:"language"`
+		Kid      string `json:"kid"`
+	}
+	payload.Credentials.Email = email
+	payload.Credentials.Password = password
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var res struct {
+		MigrationRequired bool   `json:"migrationRequired"`
+		Error             string `json:"error"`
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if res.Error != "" {
+		return errors.New(res.Error)
+	}
+	return nil
+}
+
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
 	b := NewNoLogin(username, password, universe, lang, "", 0)
