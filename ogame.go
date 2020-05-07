@@ -216,6 +216,62 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 	return nil
 }
 
+func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
+	var newAccount NewAccount
+	var err error
+	client := &http.Client{}
+	client.Jar, _ = cookiejar.New(nil)
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	if err != nil {
+		return newAccount, err
+	}
+	if _, err := getPhpSessionID2(client, "lobby", username, password); err != nil {
+		return newAccount, err
+	}
+	servers, err := getServers2("lobby", client)
+	if err != nil {
+		return newAccount, err
+	}
+	var server Server
+	for _, s := range servers {
+		if s.Name == universe && s.Language == lang {
+			server = s
+			break
+		}
+	}
+	var payload struct {
+		Language string `json:"language"`
+		Number   int64  `json:"number"`
+	}
+	payload.Language = lang
+	payload.Number = server.Number
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return newAccount, err
+	}
+	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return newAccount, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return newAccount, err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return newAccount, err
+	}
+	if err := json.Unmarshal(by, &newAccount); err != nil {
+		return newAccount, err
+	}
+	if newAccount.Error != "" {
+		return newAccount, errors.New(newAccount.Error)
+	}
+	return newAccount, nil
+}
+
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
 	b := NewNoLogin(username, password, universe, lang, "", 0)
@@ -319,6 +375,45 @@ type Server struct {
 // ogame cookie name for php session id
 const phpSessionIDCookieName = "PHPSESSID"
 
+func getPhpSessionID2(client *http.Client, lobby, username, password string) (string, error) {
+	payload := url.Values{
+		"kid":                   {""},
+		"language":              {"en"},
+		"autologin":             {"false"},
+		"credentials[email]":    {username},
+		"credentials[password]": {password},
+	}
+	req, err := http.NewRequest("POST", "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(payload.Encode()))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 500 {
+		return "", errors.New("OGame server error code : " + resp.Status)
+	}
+
+	if resp.StatusCode != 200 {
+		_, _ = ioutil.ReadAll(resp.Body)
+		return "", ErrBadCredentials
+	}
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == phpSessionIDCookieName {
+			return cookie.Value, nil
+		}
+	}
+
+	return "", errors.New(phpSessionIDCookieName + " not found")
+}
+
 func getPhpSessionID(b *OGame, username, password string) (string, error) {
 	payload := url.Values{
 		"kid":                   {""},
@@ -409,6 +504,27 @@ func getUserAccounts(b *OGame) ([]account, error) {
 		return userAccounts, err
 	}
 	return userAccounts, nil
+}
+
+func getServers2(lobby string, client *http.Client) ([]Server, error) {
+	var servers []Server
+	req, err := http.NewRequest("GET", "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
+	if err != nil {
+		return servers, err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return servers, err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return servers, err
+	}
+	if err := json.Unmarshal(by, &servers); err != nil {
+		return servers, err
+	}
+	return servers, nil
 }
 
 func getServers(b *OGame) ([]Server, error) {
@@ -3912,6 +4028,7 @@ type NewAccount struct {
 		Language string
 		Number   int
 	}
+	Error string
 }
 
 func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
