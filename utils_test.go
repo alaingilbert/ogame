@@ -58,6 +58,25 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, SolarSatelliteID, ShipName2ID("Satélite solar"))
 	assert.Equal(t, ID(0), ShipName2ID("人中位"))
 
+	// hu
+	assert.Equal(t, LightFighterID, ShipName2ID("Könnyű Harcos"))
+	assert.Equal(t, HeavyFighterID, ShipName2ID("Nehéz Harcos"))
+	assert.Equal(t, CruiserID, ShipName2ID("Cirkáló"))
+	assert.Equal(t, BattleshipID, ShipName2ID("Csatahajó"))
+	assert.Equal(t, BattlecruiserID, ShipName2ID("Csatacirkáló"))
+	assert.Equal(t, BomberID, ShipName2ID("Bombázó"))
+	assert.Equal(t, DestroyerID, ShipName2ID("Romboló"))
+	assert.Equal(t, DeathstarID, ShipName2ID("Halálcsillag"))
+	assert.Equal(t, SmallCargoID, ShipName2ID("Kis szállító"))
+	assert.Equal(t, LargeCargoID, ShipName2ID("Nagy Szállító"))
+	assert.Equal(t, ColonyShipID, ShipName2ID("Kolóniahajó"))
+	assert.Equal(t, RecyclerID, ShipName2ID("Szemetesek"))
+	assert.Equal(t, EspionageProbeID, ShipName2ID("Kémszonda"))
+	assert.Equal(t, SolarSatelliteID, ShipName2ID("Napműhold"))
+	assert.Equal(t, CrawlerID, ShipName2ID("Crawler"))
+	assert.Equal(t, ReaperID, ShipName2ID("Kaszás"))
+	assert.Equal(t, PathfinderID, ShipName2ID("Felderítő"))
+
 	// ro
 	assert.Equal(t, LightFighterID, ShipName2ID("Vanator usor"))
 	assert.Equal(t, HeavyFighterID, ShipName2ID("Vanator greu"))
