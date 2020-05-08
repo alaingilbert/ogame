@@ -32,6 +32,7 @@ type Extractor interface {
 	ExtractOfferOfTheDay(pageHTML []byte) (int64, string, PlanetResources, Multiplier, error)
 	ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error)
 	ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error)
+	ExtractMarketplaceMessages(pageHTML []byte, location *time.Location) ([]MarketplaceMessage, int64, error)
 	ExtractDefense(pageHTML []byte) (DefensesInfos, error)
 	ExtractShips(pageHTML []byte) (ShipsInfos, error)
 	ExtractFacilities(pageHTML []byte) (Facilities, error)

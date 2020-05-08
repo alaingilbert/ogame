@@ -462,6 +462,20 @@ func (b *Prioritize) GetEspionageReportMessages() ([]EspionageReportSummary, err
 	return b.bot.getEspionageReportMessages()
 }
 
+// CollectAllMarketplaceMessages collect all marketplace messages
+func (b *Prioritize) CollectAllMarketplaceMessages() error {
+	b.begin("CollectAllMarketplaceMessages")
+	defer b.done()
+	return b.bot.collectAllMarketplaceMessages()
+}
+
+// CollectMarketplaceMessage collect marketplace message
+func (b *Prioritize) CollectMarketplaceMessage(msg MarketplaceMessage) error {
+	b.begin("CollectMarketplaceMessage")
+	defer b.done()
+	return b.bot.collectMarketplaceMessage(msg)
+}
+
 // GetExpeditionMessages gets the expedition messages
 func (b *Prioritize) GetExpeditionMessages() ([]ExpeditionMessage, error) {
 	b.begin("GetExpeditionMessages")

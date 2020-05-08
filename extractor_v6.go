@@ -19,6 +19,11 @@ func NewExtractorV6() *ExtractorV6 {
 	return &ExtractorV6{}
 }
 
+// ExtractMarketplaceMessages ...
+func (e ExtractorV6) ExtractMarketplaceMessages(pageHTML []byte, location *time.Location) ([]MarketplaceMessage, int64, error) {
+	panic("implement me")
+}
+
 // ExtractExpeditionMessages ...
 func (e ExtractorV6) ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error) {
 	panic("implement me")

@@ -680,6 +680,20 @@ func TestExtractPlanet_si(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_hu(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/hu/overview.html")
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33621505), &OGame{language: "hu"})
+	assert.Equal(t, "Otthon", planet.Name)
+	assert.Equal(t, int64(12800), planet.Diameter)
+	assert.Equal(t, int64(-18), planet.Temperature.Min)
+	assert.Equal(t, int64(22), planet.Temperature.Max)
+	assert.Equal(t, int64(0), planet.Fields.Built)
+	assert.Equal(t, int64(188), planet.Fields.Total)
+	assert.Equal(t, PlanetID(33621505), planet.ID)
+	assert.Equal(t, Coordinate{1, 162, 12, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_gr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33629206), &OGame{language: "gr"})
@@ -895,6 +909,15 @@ func TestExtractExpeditionMessages(t *testing.T) {
 	assert.Equal(t, Coordinate{1, 8, 16, PlanetType}, msgs[0].Coordinate)
 	assert.Equal(t, `We came across the remains of a previous expedition! Our technicians will try to get some of the ships to work again.<br/><br/>The following ships are now part of the fleet:<br/>Espionage Probe: 1880<br/>Light Fighter: 161<br/>Small Cargo: 156`,
 		msgs[0].Content)
+}
+
+func TestExtractMarketplaceMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/sales_messages.html")
+	msgs, _, _ := NewExtractorV7().ExtractMarketplaceMessages(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 9, len(msgs))
+	assert.Equal(t, int64(12912161), msgs[3].ID)
+	assert.Equal(t, int64(1379), msgs[3].MarketTransactionID)
+	assert.Equal(t, "164ba9f6e5cbfdaa03c061730767d779", msgs[3].Token)
 }
 
 func TestExtractEspionageReportMessageIDs(t *testing.T) {
@@ -1562,6 +1585,14 @@ func TestExtractUserInfos_si(t *testing.T) {
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(59), infos.Rank)
 	assert.Equal(t, int64(60), infos.Total)
+}
+
+func TestExtractUserInfos_hu(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/hu/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "hu")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(635), infos.Rank)
+	assert.Equal(t, int64(636), infos.Total)
 }
 
 func TestExtractUserInfos_gr(t *testing.T) {

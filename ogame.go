@@ -239,6 +239,111 @@ type Params struct {
 	CookiesFilename string
 }
 
+// Register a new gameforge lobby account
+func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
+	var err error
+	client := &http.Client{}
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	if err != nil {
+		return err
+	}
+	var payload struct {
+		Credentials struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		} `json:"credentials"`
+		Language string `json:"language"`
+		Kid      string `json:"kid"`
+	}
+	payload.Credentials.Email = email
+	payload.Credentials.Password = password
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var res struct {
+		MigrationRequired bool   `json:"migrationRequired"`
+		Error             string `json:"error"`
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if res.Error != "" {
+		return errors.New(res.Error)
+	}
+	return nil
+}
+
+func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
+	var newAccount NewAccount
+	var err error
+	client := &http.Client{}
+	client.Jar, _ = cookiejar.New(nil)
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	if err != nil {
+		return newAccount, err
+	}
+	if _, err := getPhpSessionID2(client, "lobby", username, password); err != nil {
+		return newAccount, err
+	}
+	servers, err := getServers2("lobby", client)
+	if err != nil {
+		return newAccount, err
+	}
+	var server Server
+	for _, s := range servers {
+		if s.Name == universe && s.Language == lang {
+			server = s
+			break
+		}
+	}
+	var payload struct {
+		Language string `json:"language"`
+		Number   int64  `json:"number"`
+	}
+	payload.Language = lang
+	payload.Number = server.Number
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return newAccount, err
+	}
+	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return newAccount, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return newAccount, err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return newAccount, err
+	}
+	if err := json.Unmarshal(by, &newAccount); err != nil {
+		return newAccount, err
+	}
+	if newAccount.Error != "" {
+		return newAccount, errors.New(newAccount.Error)
+	}
+	return newAccount, nil
+}
+
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
 	b := NewNoLogin(username, password, universe, lang, "", 0)
@@ -632,6 +737,45 @@ type Server struct {
 // ogame cookie name for php session id
 const phpSessionIDCookieName = "PHPSESSID"
 
+func getPhpSessionID2(client *http.Client, lobby, username, password string) (string, error) {
+	payload := url.Values{
+		"kid":                   {""},
+		"language":              {"en"},
+		"autologin":             {"false"},
+		"credentials[email]":    {username},
+		"credentials[password]": {password},
+	}
+	req, err := http.NewRequest("POST", "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(payload.Encode()))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 500 {
+		return "", errors.New("OGame server error code : " + resp.Status)
+	}
+
+	if resp.StatusCode != 200 {
+		_, _ = ioutil.ReadAll(resp.Body)
+		return "", ErrBadCredentials
+	}
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == phpSessionIDCookieName {
+			return cookie.Value, nil
+		}
+	}
+
+	return "", errors.New(phpSessionIDCookieName + " not found")
+}
+
 func getPhpSessionID(b *OGame, username, password string) (string, error) {
 	payload := url.Values{
 		"kid":                   {""},
@@ -722,6 +866,27 @@ func getUserAccounts(b *OGame) ([]account, error) {
 		return userAccounts, err
 	}
 	return userAccounts, nil
+}
+
+func getServers2(lobby string, client *http.Client) ([]Server, error) {
+	var servers []Server
+	req, err := http.NewRequest("GET", "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
+	if err != nil {
+		return servers, err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return servers, err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return servers, err
+	}
+	if err := json.Unmarshal(by, &servers); err != nil {
+		return servers, err
+	}
+	return servers, nil
 }
 
 func getServers(b *OGame) ([]Server, error) {
@@ -1577,6 +1742,17 @@ func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Resp
 	return
 }
 
+func getTransport(proxy, username, password, proxyType string) (http.RoundTripper, error) {
+	var err error
+	transport := http.DefaultTransport
+	if proxyType == "socks5" {
+		transport, err = getSocks5Transport(proxy, username, password)
+	} else if proxyType == "http" {
+		transport, err = getProxyTransport(proxy, username, password)
+	}
+	return transport, err
+}
+
 // Creates a proxy http transport with optional basic auth
 func getProxyTransport(proxy, username, password string) (*http.Transport, error) {
 	proxyURL, err := url.Parse(proxy)
@@ -1617,19 +1793,11 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 		b.Client.Transport = http.DefaultTransport
 		return nil
 	}
-	var err error
-	transport := http.DefaultTransport
-	if proxyType == "socks5" {
-		transport, err = getSocks5Transport(proxyAddress, username, password)
-	} else if proxyType == "http" {
-		transport, err = getProxyTransport(proxyAddress, username, password)
-	}
+	transport, err := getTransport(proxyAddress, username, password, proxyType)
+	b.loginProxyTransport = transport
+	b.Client.Transport = transport
 	if loginOnly {
-		b.loginProxyTransport = transport
 		b.Client.Transport = http.DefaultTransport
-	} else {
-		b.loginProxyTransport = transport
-		b.Client.Transport = transport
 	}
 	return err
 }
@@ -3941,6 +4109,10 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	payload.Set("deuterium", strconv.FormatInt(newResources.Deuterium, 10))
 	payload.Set("metal", strconv.FormatInt(newResources.Metal, 10))
 	payload.Set("mission", strconv.FormatInt(int64(mission), 10))
+	payload.Set("prioMetal", "1")
+	payload.Set("prioCrystal", "2")
+	payload.Set("prioDeuterium", "3")
+	payload.Set("retreatAfterDefenderRetreat", "0")
 	if mission == Expedition {
 		if expeditiontime <= 0 {
 			expeditiontime = 1
@@ -4350,6 +4522,14 @@ type ExpeditionMessage struct {
 	CreatedAt  time.Time
 }
 
+// MarketplaceMessage ...
+type MarketplaceMessage struct {
+	ID                  int64
+	CreatedAt           time.Time
+	Token               string
+	MarketTransactionID int64
+}
+
 func (b *OGame) getPageMessages(page, tabid int64) ([]byte, error) {
 	payload := url.Values{
 		"messageId":  {"-1"},
@@ -4399,6 +4579,60 @@ func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
 	for page <= nbPage {
 		pageHTML, _ := b.getPageMessages(page, tabid)
 		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
+		msgs = append(msgs, newMessages...)
+		nbPage = newNbPage
+		page++
+	}
+	return msgs, nil
+}
+
+func (b *OGame) collectAllMarketplaceMessages() error {
+	purchases, _ := b.getMarketplacePurchasesMessages()
+	sales, _ := b.getMarketplaceSalesMessages()
+	msgs := make([]MarketplaceMessage, 0)
+	msgs = append(msgs, purchases...)
+	msgs = append(msgs, sales...)
+	for _, msg := range msgs {
+		if msg.MarketTransactionID != 0 {
+			err := b.collectMarketplaceMessage(msg)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (b *OGame) collectMarketplaceMessage(msg MarketplaceMessage) error {
+	payload := url.Values{
+		"page":                {"componentOnly"},
+		"component":           {"marketplace"},
+		"action":              {"collectPrice"},
+		"marketTransactionId": {strconv.FormatInt(msg.MarketTransactionID, 10)},
+		"token":               {msg.Token},
+		"asJson":              {"1"},
+	}
+	_, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
+	return err
+}
+
+func (b *OGame) getMarketplacePurchasesMessages() ([]MarketplaceMessage, error) {
+	return b.getMarketplaceMessages(26)
+}
+
+func (b *OGame) getMarketplaceSalesMessages() ([]MarketplaceMessage, error) {
+	return b.getMarketplaceMessages(27)
+}
+
+// tabID 26: purchases, 27: sales
+func (b *OGame) getMarketplaceMessages(tabID int64) ([]MarketplaceMessage, error) {
+	var tabid int64 = tabID
+	var page int64 = 1
+	var nbPage int64 = 1
+	msgs := make([]MarketplaceMessage, 0)
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractMarketplaceMessages(pageHTML, b.location)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
 		page++
@@ -4640,6 +4874,7 @@ type NewAccount struct {
 		Language string
 		Number   int
 	}
+	Error string
 }
 
 func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
@@ -5322,6 +5557,16 @@ func (b *OGame) GetExpeditionMessages() ([]ExpeditionMessage, error) {
 // GetExpeditionMessageAt gets the expedition message for time t
 func (b *OGame) GetExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
 	return b.WithPriority(Normal).GetExpeditionMessageAt(t)
+}
+
+// CollectAllMarketplaceMessages collect all marketplace messages
+func (b *OGame) CollectAllMarketplaceMessages() error {
+	return b.WithPriority(Normal).CollectAllMarketplaceMessages()
+}
+
+// CollectMarketplaceMessage collect marketplace message
+func (b *OGame) CollectMarketplaceMessage(msg MarketplaceMessage) error {
+	return b.WithPriority(Normal).CollectMarketplaceMessage(msg)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
