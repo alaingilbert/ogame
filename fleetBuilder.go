@@ -23,7 +23,7 @@ func (f FleetBuilderFactory) NewFleet() *FleetBuilder {
 // FleetBuilder ...
 type FleetBuilder struct {
 	b                Wrapper
-	tx               *Prioritize
+	tx               Prioritizable
 	origin           Celestial
 	destination      Coordinate
 	speed            Speed
@@ -51,7 +51,7 @@ func NewFleetBuilder(b Wrapper) *FleetBuilder {
 }
 
 // SetTx ...
-func (f *FleetBuilder) SetTx(tx *Prioritize) *FleetBuilder {
+func (f *FleetBuilder) SetTx(tx Prioritizable) *FleetBuilder {
 	f.tx = tx
 	return f
 }
