@@ -2597,17 +2597,17 @@ func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err erro
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
+	var res SystemInfos
 	if galaxy < 0 || galaxy > b.server.Settings.UniverseSize {
-		return SystemInfos{}, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
+		return res, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
 	}
 	if system < 0 || system > b.serverData.Systems {
-		return SystemInfos{}, errors.New("system must be within [0, " + strconv.FormatInt(b.serverData.Systems, 10) + "]")
+		return res, errors.New("system must be within [0, " + strconv.FormatInt(b.serverData.Systems, 10) + "]")
 	}
 	payload := url.Values{
 		"galaxy": {strconv.FormatInt(galaxy, 10)},
 		"system": {strconv.FormatInt(system, 10)},
 	}
-	var res SystemInfos
 	vals := url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}
 	if b.IsV7() {
 		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
@@ -2616,7 +2616,14 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 	if err != nil {
 		return res, err
 	}
-	return b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	if err != nil {
+		return res, err
+	}
+	if res.galaxy != galaxy || res.system != system {
+		return SystemInfos{}, errors.New("not enough deuterium")
+	}
+	return res, err
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
