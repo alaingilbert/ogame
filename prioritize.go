@@ -31,12 +31,12 @@ func (b *Prioritize) SetInitiator(initiator string) *Prioritize {
 }
 
 // Begin a new transaction. "Done" must be called to release the lock.
-func (b *Prioritize) Begin() *Prioritize {
+func (b *Prioritize) Begin() Prioritizable {
 	return b.BeginNamed("Tx")
 }
 
 // BeginNamed begins a new transaction with a name. "Done" must be called to release the lock.
-func (b *Prioritize) BeginNamed(name string) *Prioritize {
+func (b *Prioritize) BeginNamed(name string) Prioritizable {
 	if name == "" {
 		name = "Tx"
 	}
@@ -67,18 +67,11 @@ func (b *Prioritize) done() {
 }
 
 // Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *Prioritize) Tx(clb func(*Prioritize) error) error {
+func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	tx := b.Begin()
 	defer tx.Done()
 	err := clb(tx)
 	return err
-}
-
-// FakeCall used for debugging
-func (b *Prioritize) FakeCall(name string, delay int) {
-	b.begin("FakeCall")
-	defer b.done()
-	b.bot.fakeCall(name, delay)
 }
 
 // LoginWithExistingCookies to ogame server reusing existing cookies
