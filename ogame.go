@@ -2595,15 +2595,12 @@ func fixAttackEvents(attacks []AttackEvent, planets []Planet) {
 	}
 }
 
-func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err error) {
+func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	params := url.Values{"page": {"eventList"}, "ajax": {"1"}}
 	if b.IsV7() {
 		params = url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
 	}
-	if celestialID != 0 {
-		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
-	}
-	pageHTML, err := b.getPageContent(params)
+	pageHTML, err := b.getPageContent(params, opts...)
 	if err != nil {
 		return
 	}
@@ -4630,13 +4627,8 @@ func (b *OGame) CancelFleet(fleetID FleetID) error {
 }
 
 // GetAttacks get enemy fleets attacking you
-func (b *OGame) GetAttacks() ([]AttackEvent, error) {
-	return b.WithPriority(Normal).GetAttacks()
-}
-
-// GetAttacksUsing get enemy fleets attacking you using a specific celestial to make the check
-func (b *OGame) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, error) {
-	return b.WithPriority(Normal).GetAttacksUsing(celestialID)
+func (b *OGame) GetAttacks(opts ...Option) ([]AttackEvent, error) {
+	return b.WithPriority(Normal).GetAttacks(opts...)
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
