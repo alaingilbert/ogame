@@ -147,8 +147,8 @@ func SkipInterceptor(opt *options) {
 	opt.SkipInterceptor = true
 }
 
-// CurrentPlanet set the cp parameter
-func CurrentPlanet(celestialID CelestialID) Option {
+// ChangePlanet set the cp parameter
+func ChangePlanet(celestialID CelestialID) Option {
 	return func(opt *options) {
 		opt.ChangePlanet = celestialID
 	}
