@@ -4362,22 +4362,25 @@ func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
 }
 
 // WithPriority ...
-func (b *OGame) WithPriority(priority int) *Prioritize {
+func (b *OGame) WithPriority(priority int) Prioritizable {
 	return b.withPriority(priority)
 }
 
 // Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
-func (b *OGame) Begin() *Prioritize {
+func (b *OGame) Begin() Prioritizable {
 	return b.WithPriority(Normal).Begin()
 }
 
 // BeginNamed begins a new transaction with a name. "Done" must be called to release the lock.
-func (b *OGame) BeginNamed(name string) *Prioritize {
+func (b *OGame) BeginNamed(name string) Prioritizable {
 	return b.WithPriority(Normal).BeginNamed(name)
 }
 
+// Done ...
+func (b *OGame) Done() {}
+
 // Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *OGame) Tx(clb func(tx *Prioritize) error) error {
+func (b *OGame) Tx(clb func(tx Prioritizable) error) error {
 	return b.WithPriority(Normal).Tx(clb)
 }
 
