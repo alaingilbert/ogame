@@ -136,6 +136,7 @@ const defaultUserAgent = "" +
 
 type options struct {
 	SkipInterceptor bool
+	ChangePlanet    CelestialID // cp paramter
 }
 
 // Option functions to be passed to public interface to change behaviors
@@ -144,6 +145,13 @@ type Option func(*options)
 // SkipInterceptor option to skip html interceptors
 func SkipInterceptor(opt *options) {
 	opt.SkipInterceptor = true
+}
+
+// CurrentPlanet set the cp parameter
+func CurrentPlanet(celestialID CelestialID) Option {
+	return func(opt *options) {
+		opt.ChangePlanet = celestialID
+	}
 }
 
 // CelestialID represent either a PlanetID or a MoonID
@@ -1345,6 +1353,12 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return []byte{}, err
 	}
 
+	if vals.Get("cp") == "" {
+		if cfg.ChangePlanet != 0 {
+			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+		}
+	}
+
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 
 	allianceID := vals.Get("allianceId")
@@ -1413,6 +1427,12 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 
 	if err := b.preRequestChecks(); err != nil {
 		return []byte{}, err
+	}
+
+	if vals.Get("cp") == "" {
+		if cfg.ChangePlanet != 0 {
+			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+		}
 	}
 
 	if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
