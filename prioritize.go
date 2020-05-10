@@ -74,13 +74,6 @@ func (b *Prioritize) Tx(clb func(*Prioritize) error) error {
 	return err
 }
 
-// FakeCall used for debugging
-func (b *Prioritize) FakeCall(name string, delay int) {
-	b.begin("FakeCall")
-	defer b.done()
-	b.bot.fakeCall(name, delay)
-}
-
 // LoginWithExistingCookies to ogame server reusing existing cookies
 // Returns either or not the bot logged in using the existing cookies
 func (b *Prioritize) LoginWithExistingCookies() (bool, error) {

@@ -4238,17 +4238,6 @@ func (b *OGame) GetCachedCelestialByCoord(coord Coordinate) Celestial {
 	return nil
 }
 
-func (b *OGame) fakeCall(name string, delay int) {
-	fmt.Println("before", name)
-	time.Sleep(time.Duration(delay) * time.Millisecond)
-	fmt.Println("after", name)
-}
-
-// FakeCall used for debugging
-func (b *OGame) FakeCall(priority int, name string, delay int) {
-	b.WithPriority(priority).FakeCall(name, delay)
-}
-
 func (b *OGame) getCachedMoons() []Moon {
 	var moons []Moon
 	for _, p := range b.GetCachedPlanets() {
