@@ -98,11 +98,10 @@ func (b *Prioritize) Logout() {
 }
 
 // GetAlliancePageContent gets the html for a specific ogame page
-func (b *Prioritize) GetAlliancePageContent(vals url.Values) []byte {
+func (b *Prioritize) GetAlliancePageContent(vals url.Values) ([]byte, error) {
 	b.begin("GetAlliancePageContent")
 	defer b.done()
-	pageHTML, _ := b.bot.getAlliancePageContent(vals)
-	return pageHTML
+	return b.bot.getAlliancePageContent(vals)
 }
 
 // GetPageContent gets the html for a specific ogame page
