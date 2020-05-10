@@ -208,6 +208,7 @@ const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gec
 
 type options struct {
 	SkipInterceptor bool
+	ChangePlanet    CelestialID // cp paramter
 }
 
 // Option functions to be passed to public interface to change behaviors
@@ -216,6 +217,13 @@ type Option func(*options)
 // SkipInterceptor option to skip html interceptors
 func SkipInterceptor(opt *options) {
 	opt.SkipInterceptor = true
+}
+
+// ChangePlanet set the cp parameter
+func ChangePlanet(celestialID CelestialID) Option {
+	return func(opt *options) {
+		opt.ChangePlanet = celestialID
+	}
 }
 
 // CelestialID represent either a PlanetID or a MoonID
@@ -2106,6 +2114,12 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return []byte{}, err
 	}
 
+	if vals.Get("cp") == "" {
+		if cfg.ChangePlanet != 0 {
+			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+		}
+	}
+
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 
 	allianceID := vals.Get("allianceId")
@@ -2177,6 +2191,12 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 
 	if err := b.preRequestChecks(); err != nil {
 		return []byte{}, err
+	}
+
+	if vals.Get("cp") == "" {
+		if cfg.ChangePlanet != 0 {
+			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+		}
 	}
 
 	if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
@@ -3352,15 +3372,12 @@ func fixAttackEvents(attacks []AttackEvent, planets []Planet) {
 	}
 }
 
-func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err error) {
+func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	params := url.Values{"page": {"eventList"}, "ajax": {"1"}}
 	if b.IsV7() {
 		params = url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
 	}
-	if celestialID != 0 {
-		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
-	}
-	pageHTML, err := b.getPageContent(params)
+	pageHTML, err := b.getPageContent(params, opts...)
 	if err != nil {
 		return
 	}
@@ -3374,17 +3391,17 @@ func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err erro
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
+	var res SystemInfos
 	if galaxy < 0 || galaxy > b.server.Settings.UniverseSize {
-		return SystemInfos{}, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
+		return res, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
 	}
 	if system < 0 || system > b.serverData.Systems {
-		return SystemInfos{}, errors.New("system must be within [0, " + strconv.FormatInt(b.serverData.Systems, 10) + "]")
+		return res, errors.New("system must be within [0, " + strconv.FormatInt(b.serverData.Systems, 10) + "]")
 	}
 	payload := url.Values{
 		"galaxy": {strconv.FormatInt(galaxy, 10)},
 		"system": {strconv.FormatInt(system, 10)},
 	}
-	var res SystemInfos
 	vals := url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}
 	if b.IsV7() {
 		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
@@ -3393,9 +3410,17 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 	if err != nil {
 		return res, err
 	}
+
 	b.playerMu.RLock()
 	defer b.playerMu.RUnlock()
-	return b.extractor.ExtractGalaxyInfos(pageHTML, b.player.PlayerName, b.player.PlayerID, b.player.Rank)
+	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	if err != nil {
+		return res, err
+	}
+	if res.galaxy != galaxy || res.system != system {
+		return SystemInfos{}, errors.New("not enough deuterium")
+	}
+	return res, err
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
@@ -5391,13 +5416,8 @@ func (b *OGame) CancelFleet(fleetID FleetID) error {
 }
 
 // GetAttacks get enemy fleets attacking you
-func (b *OGame) GetAttacks() ([]AttackEvent, error) {
-	return b.WithPriority(Normal).GetAttacks()
-}
-
-// GetAttacksUsing get enemy fleets attacking you using a specific celestial to make the check
-func (b *OGame) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, error) {
-	return b.WithPriority(Normal).GetAttacksUsing(celestialID)
+func (b *OGame) GetAttacks(opts ...Option) ([]AttackEvent, error) {
+	return b.WithPriority(Normal).GetAttacks(opts...)
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system

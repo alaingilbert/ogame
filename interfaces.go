@@ -62,8 +62,7 @@ type Wrapper interface {
 	GetFleets(...Option) ([]Fleet, Slots)
 	GetFleetsFromEventList() []Fleet
 	CancelFleet(FleetID) error
-	GetAttacks() ([]AttackEvent, error)
-	GetAttacksUsing(CelestialID) ([]AttackEvent, error)
+	GetAttacks(...Option) ([]AttackEvent, error)
 	GalaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error)
 	GetCachedResearch() Researches
 	GetResearch() Researches
