@@ -25,7 +25,7 @@ type Prioritize struct {
 }
 
 // SetInitiator ...
-func (b *Prioritize) SetInitiator(initiator string) *Prioritize {
+func (b *Prioritize) SetInitiator(initiator string) Prioritizable {
 	b.initiator = initiator
 	return b
 }

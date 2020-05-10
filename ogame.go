@@ -4376,6 +4376,11 @@ func (b *OGame) BeginNamed(name string) Prioritizable {
 	return b.WithPriority(Normal).BeginNamed(name)
 }
 
+// SetInitiator ...
+func (b *OGame) SetInitiator(initiator string) Prioritizable {
+	return nil
+}
+
 // Done ...
 func (b *OGame) Done() {}
 
