@@ -23,7 +23,7 @@ func (f FleetBuilderFactory) NewFleet() *FleetBuilder {
 // FleetBuilder ...
 type FleetBuilder struct {
 	b                Wrapper
-	tx               *Prioritize
+	tx               Prioritizable
 	origin           Celestial
 	destination      Coordinate
 	speed            Speed
@@ -51,7 +51,7 @@ func NewFleetBuilder(b Wrapper) *FleetBuilder {
 }
 
 // SetTx ...
-func (f *FleetBuilder) SetTx(tx *Prioritize) *FleetBuilder {
+func (f *FleetBuilder) SetTx(tx Prioritizable) *FleetBuilder {
 	f.tx = tx
 	return f
 }
@@ -185,7 +185,7 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
 }
 
-func (f *FleetBuilder) sendNow(tx *Prioritize) error {
+func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	if f.origin == nil {
 		f.err = errors.New("invalid origin")
 		return f.err
@@ -245,7 +245,7 @@ func (f *FleetBuilder) SendNow() (Fleet, error) {
 	if f.tx != nil {
 		err = f.sendNow(f.tx)
 	} else {
-		err = f.b.Tx(func(tx *Prioritize) error {
+		err = f.b.Tx(func(tx Prioritizable) error {
 			return f.sendNow(tx)
 		})
 	}
