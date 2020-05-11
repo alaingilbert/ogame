@@ -1169,3 +1169,45 @@ func PhalanxHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(fleets))
 }
+
+// JumpGateHandler ...
+func JumpGateHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	if err := c.Request().ParseForm(); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid form"))
+	}
+	moonOriginID, err := strconv.ParseInt(c.Param("moonID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid origin moon id"))
+	}
+	moonDestinationID, err := strconv.ParseInt(c.Request().PostFormValue("moonDestination"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid destination moon id"))
+	}
+	var ships ShipsInfos
+	for key, values := range c.Request().PostForm {
+		switch key {
+		case "ships":
+			for _, s := range values {
+				a := strings.Split(s, ",")
+				shipID, err := strconv.ParseInt(a[0], 10, 64)
+				if err != nil || !IsShipID(shipID) {
+					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ship id "+a[0]))
+				}
+				nbr, err := strconv.ParseInt(a[1], 10, 64)
+				if err != nil || nbr < 0 {
+					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid nbr "+a[1]))
+				}
+				ships.Set(ID(shipID), nbr)
+			}
+		}
+	}
+	success, rechargeCountdown, err := bot.JumpGate(MoonID(moonOriginID), MoonID(moonDestinationID), ships)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(map[string]interface{}{
+		"success":           success,
+		"rechargeCountdown": rechargeCountdown,
+	}))
+}
