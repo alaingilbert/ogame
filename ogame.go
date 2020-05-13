@@ -1294,7 +1294,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.eventboxRespMu.Unlock()
 
 	b.attackEventsMu.Lock()
-	b.attackEvents, _ = b.getAttacks(celestialID)
+	b.attackEvents, _ = b.getAttacks(ChangePlanet(celestialID))
 	b.attackEventsMu.Unlock()
 
 	b.lastActivePlanetMu.Lock()
@@ -3413,7 +3413,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 
 	b.playerMu.RLock()
 	defer b.playerMu.RUnlock()
-	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.player.PlayerName, b.player.PlayerID, b.player.Rank)
 	if err != nil {
 		return res, err
 	}
