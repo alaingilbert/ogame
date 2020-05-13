@@ -2542,7 +2542,7 @@ type ChatPostResp struct {
 	SenderID int    `json:"senderId"`
 	TargetID int    `json:"targetId"`
 	Text     string `json:"text"`
-	Date     int    `json:"date"`
+	Date     int64  `json:"date"`
 	NewToken string `json:"newToken"`
 }
 
