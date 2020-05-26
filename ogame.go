@@ -3765,6 +3765,7 @@ type ExpeditionMessage struct {
 // MarketplaceMessage ...
 type MarketplaceMessage struct {
 	ID                  int64
+	Type                int64 // 26: purchases, 27: sales
 	CreatedAt           time.Time
 	Token               string
 	MarketTransactionID int64
@@ -3832,9 +3833,11 @@ func (b *OGame) collectAllMarketplaceMessages() error {
 	msgs := make([]MarketplaceMessage, 0)
 	msgs = append(msgs, purchases...)
 	msgs = append(msgs, sales...)
+	newToken := ""
+	var err error
 	for _, msg := range msgs {
 		if msg.MarketTransactionID != 0 {
-			err := b.collectMarketplaceMessage(msg)
+			newToken, err = b.collectMarketplaceMessage(msg, newToken)
 			if err != nil {
 				return err
 			}
@@ -3843,17 +3846,37 @@ func (b *OGame) collectAllMarketplaceMessages() error {
 	return nil
 }
 
-func (b *OGame) collectMarketplaceMessage(msg MarketplaceMessage) error {
-	payload := url.Values{
+type collectMarketplaceResponse struct {
+	MarketTransactionID int           `json:"marketTransactionId"`
+	Status              string        `json:"status"`
+	Message             string        `json:"message"`
+	StatusMessage       string        `json:"statusMessage"`
+	NewToken            string        `json:"newToken"`
+	Components          []interface{} `json:"components"`
+}
+
+func (b *OGame) collectMarketplaceMessage(msg MarketplaceMessage, newToken string) (string, error) {
+	params := url.Values{
 		"page":                {"componentOnly"},
 		"component":           {"marketplace"},
-		"action":              {"collectPrice"},
 		"marketTransactionId": {strconv.FormatInt(msg.MarketTransactionID, 10)},
 		"token":               {msg.Token},
 		"asJson":              {"1"},
 	}
-	_, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
-	return err
+	if msg.Type == 26 { // purchase
+		params.Set("action", "collectItem")
+	} else if msg.Type == 27 { // sale
+		params.Set("action", "collectPrice")
+	}
+	payload := url.Values{
+		"newToken": {newToken},
+	}
+	by, err := b.postPageContent(params, payload)
+	var res collectMarketplaceResponse
+	if err := json.Unmarshal(by, &res); err != nil {
+		return "", errors.New("failed to unmarshal json response: " + err.Error())
+	}
+	return res.NewToken, err
 }
 
 func (b *OGame) getMarketplacePurchasesMessages() ([]MarketplaceMessage, error) {
