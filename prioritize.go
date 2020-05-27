@@ -458,7 +458,8 @@ func (b *Prioritize) CollectAllMarketplaceMessages() error {
 func (b *Prioritize) CollectMarketplaceMessage(msg MarketplaceMessage) error {
 	b.begin("CollectMarketplaceMessage")
 	defer b.done()
-	return b.bot.collectMarketplaceMessage(msg)
+	_, err := b.bot.collectMarketplaceMessage(msg, "")
+	return err
 }
 
 // GetExpeditionMessages gets the expedition messages
