@@ -1961,7 +1961,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	}
 
 	// Verify that coordinate is in phalanx range
-	phalanxRange := SensorPhalanx.GetRange(phalanxLvl)
+	phalanxRange := SensorPhalanx.GetRange(phalanxLvl, b.isDiscoverer())
 	if moon.Coordinate.Galaxy != coord.Galaxy ||
 		systemDistance(b.serverData.Systems, moon.Coordinate.System, coord.System, b.serverData.DonutSystem) > phalanxRange {
 		return res, errors.New("coordinate not in phalanx range")
