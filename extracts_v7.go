@@ -702,6 +702,7 @@ func extractExpeditionMessagesFromDocV7(doc *goquery.Document, location *time.Lo
 
 func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.Location) ([]MarketplaceMessage, int64, error) {
 	msgs := make([]MarketplaceMessage, 0)
+	tab, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-tab", ""), 10, 64)
 	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
@@ -719,6 +720,7 @@ func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.L
 					marketTransactionID, _ = strconv.ParseInt(marketTransactionIDStr, 10, 64)
 				}
 				msg := MarketplaceMessage{ID: id}
+				msg.Type = tab
 				msg.CreatedAt, _ = time.ParseInLocation("02.01.2006 15:04:05", s.Find(".msg_date").Text(), location)
 				msg.Token = token
 				msg.MarketTransactionID = marketTransactionID
