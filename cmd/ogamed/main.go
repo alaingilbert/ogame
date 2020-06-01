@@ -396,6 +396,7 @@ func HTMLPlanet(c echo.Context) error {
 	planet, _ := strconv.ParseInt(c.QueryParam("id"), 10, 64)
 	var data = struct {
 		Bot             *ogame.OGame
+      
 		PlanetID        ogame.PlanetID
 		Objs            ogame.ObjsStruct
 		Buildings       []ogame.Building
@@ -404,8 +405,10 @@ func HTMLPlanet(c echo.Context) error {
 		Defenses        []ogame.Defense
 		Technologies    []ogame.Technology
 		Researches      ogame.Researches
+      
 	}{
 		Bot:             bot,
+      
 		PlanetID:        ogame.PlanetID(planet),
 		Objs:            objs,
 		Buildings:       ogame.Buildings,
@@ -413,7 +416,8 @@ func HTMLPlanet(c echo.Context) error {
 		Ships:           ogame.Ships,
 		Defenses:        ogame.Defenses,
 		Technologies:    ogame.Technologies,
-		Researches:      bot.Researches,
+		Researches:      bot.GetResearch(),
+      
 	}
 
 	return c.Render(http.StatusOK, "planet", data)
@@ -441,13 +445,16 @@ func HTMLFlights(c echo.Context) error {
 		Destination  ogame.Planet
 	}{
 		Bot:          bot,
+      /*
 		PlanetShips:  bot.PlanetShipsInfos[ogame.CelestialID(origin)],
+      */
 		Objs:         objs,
 		Buildings:    ogame.Buildings,
 		Ships:        ogame.Ships,
 		Technologies: ogame.Technologies,
 		Origin:       planetOrigin,
 		Destination:  planetDestination,
+      
 	}
 
 	return c.Render(http.StatusOK, "flights", data)

@@ -664,17 +664,4 @@ func (b *Prioritize) GetCachedData() Data {
 	return b.bot.getCachedData()
 }
 
-// SetResearchFinishAt sets b.SetResearchFinishAt
-func (b *Prioritize) SetResearchFinishAt(e int64) {
-	b.begin("SetResearchFinishAt")
-	defer b.done()
-	b.bot.setResearchFinishAt(e)
-}
-
-// GetResearchFinishAt get b.GetResearchFinishAt
-func (b *Prioritize) GetResearchFinishAt() int64 {
-	b.begin("GetResearchFinishAt")
-	defer b.done()
-	return b.bot.getResearchFinishAt()
-}
 

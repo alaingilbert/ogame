@@ -5943,27 +5943,3 @@ func (b *OGame) getCachedData() Data {
 	return data
 }
 
-// SetResearchFinishAt set b.SetResearchFinishAt
-func (b *OGame) SetResearchFinishAt(e int64) {
-	b.WithPriority(Normal).SetResearchFinishAt(e)
-}
-
-// SetResearchFinishAt set b.SetResearchFinishAt
-func (b *OGame) setResearchFinishAt(e int64) {
-	b.researchFinishAtMu.Lock()
-	b.researchFinishAt = e
-	b.researchFinishAtMu.Unlock()
-}
-
-// GetResearchFinishAt get b.SetResearchFinishAt
-func (b *OGame) GetResearchFinishAt() int64{
-	return b.WithPriority(Normal).GetResearchFinishAt()
-}
-
-// GetResearchFinishAt get b.SetResearchFinishAt
-func (b *OGame) getResearchFinishAt() int64{
-	b.researchFinishAtMu.RLock()
-	defer b.researchFinishAtMu.RUnlock()
-	return b.researchFinishAt
-
-}
