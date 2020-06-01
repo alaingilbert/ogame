@@ -300,6 +300,16 @@ func (e ExtractorV6) ExtractOGameSession(pageHTML []byte) string {
 
 // <Extract from doc> ---------------------------------------------------------
 
+// ExtractPlanetTypeFromDoc extracts planet type from doc
+func (e ExtractorV6) ExtractPlanetTypeFromDoc(doc *goquery.Document) (CelestialType, error) {
+	return extractPlanetTypeFromDocV6(doc)
+}
+
+// ExtractPlanetIDFromDoc extracts planet id from doc
+func (e ExtractorV6) ExtractPlanetIDFromDoc(doc *goquery.Document) (CelestialID, error) {
+	return extractPlanetIDFromDocV6(doc)
+}
+
 // ExtractHiddenFieldsFromDoc utils function to extract hidden input from a page
 func (e ExtractorV6) ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values {
 	return extractHiddenFieldsFromDocV6(doc)

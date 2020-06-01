@@ -1447,6 +1447,14 @@ func extractPlanetIDV6(pageHTML []byte) (CelestialID, error) {
 	return CelestialID(planetID), nil
 }
 
+func extractPlanetIDFromDocV6(doc *goquery.Document) (CelestialID, error) {
+	planetID, _ := strconv.ParseInt(doc.Find("meta[name=ogame-planet-id]").AttrOr("content", "0"), 10, 64)
+	if planetID == 0 {
+		return 0, errors.New("planet id not found")
+	}
+	return CelestialID(planetID), nil
+}
+
 func extractOverviewShipSumCountdownFromBytesV6(pageHTML []byte) int64 {
 	var shipSumCountdown int64
 	shipSumCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\('shipSumCount7'\),\d+,\d+,(\d+),`).FindSubmatch(pageHTML)
@@ -1476,6 +1484,19 @@ func extractPlanetTypeV6(pageHTML []byte) (CelestialType, error) {
 		return MoonType, nil
 	}
 	return 0, errors.New("invalid planet type : " + string(m[1]))
+}
+
+func extractPlanetTypeFromDocV6(doc *goquery.Document) (CelestialType, error) {
+	planetType := doc.Find("meta[name=ogame-planet-type]").AttrOr("content", "")
+	if planetType == "" {
+		return 0, errors.New("planet type not found")
+	}
+	if planetType == "planet" {
+		return PlanetType, nil
+	} else if planetType == "moon" {
+		return MoonType, nil
+	}
+	return 0, errors.New("invalid planet type : " + planetType)
 }
 
 func extractAjaxChatTokenV6(pageHTML []byte) (string, error) {

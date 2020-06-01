@@ -352,9 +352,11 @@ type Extractor interface {
 	ExtractNotifAccountFromDoc(doc *goquery.Document) bool
 	ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error)
 	ExtractPlanetID(pageHTML []byte) (CelestialID, error)
+	ExtractPlanetIDFromDoc(doc *goquery.Document) (CelestialID, error)
 	ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64
 	ExtractOGameTimestampFromBytes(pageHTML []byte) int64
 	ExtractPlanetType(pageHTML []byte) (CelestialType, error)
+	ExtractPlanetTypeFromDoc(doc *goquery.Document) (CelestialType, error)
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
 	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
 	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
