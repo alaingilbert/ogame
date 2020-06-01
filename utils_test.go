@@ -58,6 +58,25 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, SolarSatelliteID, ShipName2ID("Satélite solar"))
 	assert.Equal(t, ID(0), ShipName2ID("人中位"))
 
+	// fi
+	assert.Equal(t, LightFighterID, ShipName2ID("Kevyt Hävittäjä"))
+	assert.Equal(t, HeavyFighterID, ShipName2ID("Raskas Hävittäjä"))
+	assert.Equal(t, CruiserID, ShipName2ID("Risteilijä"))
+	assert.Equal(t, BattleshipID, ShipName2ID("Taistelualus"))
+	assert.Equal(t, BattlecruiserID, ShipName2ID("Taisteluristeilijä"))
+	assert.Equal(t, BomberID, ShipName2ID("Pommittaja"))
+	assert.Equal(t, DestroyerID, ShipName2ID("Tuhoaja"))
+	assert.Equal(t, DeathstarID, ShipName2ID("Kuolemantähti"))
+	assert.Equal(t, SmallCargoID, ShipName2ID("Pieni rahtialus"))
+	assert.Equal(t, LargeCargoID, ShipName2ID("Suuri rahtialus"))
+	assert.Equal(t, ColonyShipID, ShipName2ID("Siirtokunta-alus"))
+	assert.Equal(t, RecyclerID, ShipName2ID("Kierrättäjä"))
+	assert.Equal(t, EspionageProbeID, ShipName2ID("Vakoiluluotain"))
+	assert.Equal(t, SolarSatelliteID, ShipName2ID("Aurinkosatelliitti"))
+	assert.Equal(t, CrawlerID, ShipName2ID("Crawler"))
+	assert.Equal(t, ReaperID, ShipName2ID("Reaper"))
+	assert.Equal(t, PathfinderID, ShipName2ID("Pathfinder"))
+
 	// hu
 	assert.Equal(t, LightFighterID, ShipName2ID("Könnyű Harcos"))
 	assert.Equal(t, HeavyFighterID, ShipName2ID("Nehéz Harcos"))

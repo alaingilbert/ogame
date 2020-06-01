@@ -108,6 +108,22 @@ func ShipName2ID(name string) ID {
 		"reaper":         ReaperID,
 		"pathfinder":     PathfinderID,
 
+		// fi
+		"kevythavittaja":     LightFighterID,
+		"raskashavittaja":    HeavyFighterID,
+		"risteilija":         CruiserID,
+		"taistelualus":       BattleshipID,
+		"taisteluristeilija": BattlecruiserID,
+		"pommittaja":         BomberID,
+		"tuhoaja":            DestroyerID,
+		"kuolemantahti":      DeathstarID,
+		"pienirahtialus":     SmallCargoID,
+		"suurirahtialus":     LargeCargoID,
+		"siirtokuntaalus":    ColonyShipID,
+		"kierrattaja":        RecyclerID,
+		"vakoiluluotain":     EspionageProbeID,
+		"aurinkosatelliitti": SolarSatelliteID,
+
 		// hu
 		"konnyuharcos": LightFighterID,
 		"nehezharcos":  HeavyFighterID,
