@@ -323,10 +323,13 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 
 	b.extractor = NewExtractorV71()
 
-	jar, _ := cookiejar.New(&cookiejar.Options{
+	jar, err := cookiejar.New(&cookiejar.Options{
 		Filename:              cookiesFilename,
 		PersistSessionCookies: true,
 	})
+	if err != nil {
+		panic(err.Error())
+	}
 
 	// Ensure we remove any cookies that would set the mobile view
 	cookies := jar.AllCookies()
