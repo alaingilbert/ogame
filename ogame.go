@@ -354,7 +354,10 @@ func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsern
 
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
-	b := NewNoLogin(username, password, universe, lang, "", 0)
+	b, err := NewNoLogin(username, password, universe, lang, "", 0)
+	if err != nil {
+		return nil, err
+	}
 	if _, err := b.LoginWithExistingCookies(); err != nil {
 		return nil, err
 	}
@@ -364,7 +367,10 @@ func New(universe, username, password, lang string) (*OGame, error) {
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b := NewNoLogin(params.Username, params.Password, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID)
+	b, err := NewNoLogin(params.Username, params.Password, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID)
+	if err != nil {
+		return nil, err
+	}
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
@@ -381,7 +387,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, universe, lang, cookiesFilename string, playerID int64) *OGame {
+func NewNoLogin(username, password, universe, lang, cookiesFilename string, playerID int64) (*OGame, error) {
 	b := new(OGame)
 	b.planetActivityMu.Lock()
 	b.planetActivity = map[CelestialID]int64{}
@@ -685,10 +691,13 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 
 	b.extractor = NewExtractorV71()
 
-	jar, _ := cookiejar.New(&cookiejar.Options{
+	jar, err := cookiejar.New(&cookiejar.Options{
 		Filename:              cookiesFilename,
 		PersistSessionCookies: true,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Ensure we remove any cookies that would set the mobile view
 	cookies := jar.AllCookies()
@@ -710,7 +719,7 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 
 	b.wsCallbacks = make(map[string]func([]byte))
 
-	return b
+	return b, nil
 }
 
 // Server ogame information for their servers
