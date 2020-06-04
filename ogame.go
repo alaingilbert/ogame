@@ -38,108 +38,109 @@ import (
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabledAtom         int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedInAtom        int32  // atomic, prevent auto re login if we manually logged out
-	isConnectedAtom       int32  // atomic, either or not communication between the bot and OGame is possible
-	lockedAtom            int32  // atomic, bot state locked/unlocked
-	chatConnectedAtom     int32  // atomic, either or not the chat is connected
-	state                 string // keep name of the function that currently lock the bot
-	stateChangeCallbacks  []func(locked bool, actor string)
-	quiet                 bool
-	player                UserInfos
-	playerMu              sync.RWMutex
-	CachedPreferences     Preferences
-	isVacationModeEnabled bool
+	isEnabledAtom           int32  // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom          int32  // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom         int32  // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom              int32  // atomic, bot state locked/unlocked
+	chatConnectedAtom       int32  // atomic, either or not the chat is connected
+	state                   string // keep name of the function that currently lock the bot
+	stateChangeCallbacks    []func(locked bool, actor string)
+	quiet                   bool
+	player                  UserInfos
+	playerMu                sync.RWMutex
+	CachedPreferences       Preferences
+	isVacationModeEnabled   bool
 	isVacationModeEnabledMu sync.RWMutex
-	researches            *Researches
-	researchesMu		  sync.RWMutex
-	planets               []Planet
-	planetsMu             sync.RWMutex
+	researches              *Researches
+	researchesMu            sync.RWMutex
+	planets                 []Planet
+	planetsMu               sync.RWMutex
+	token                   string
 
-	lastActivePlanet                  CelestialID
-	lastActivePlanetMu				  sync.RWMutex
-	planetActivity                    map[CelestialID]int64
-	planetActivityMu				  sync.RWMutex
-	planetResources                   map[CelestialID]ResourcesDetails
-	planetResourcesMu 				  sync.RWMutex
-	planetResourcesBuildings          map[CelestialID]ResourcesBuildings
-	planetResourcesBuildingsMu		  sync.RWMutex
-	planetFacilities                  map[CelestialID]Facilities
-	planetFacilitiesMu				  sync.RWMutex
-	planetShipsInfos                  map[CelestialID]ShipsInfos
-	planetShipsInfosMu				  sync.RWMutex
-	planetDefensesInfos               map[CelestialID]DefensesInfos
-	planetDefensesInfosMu			  sync.RWMutex
-	planetConstruction                map[CelestialID]Quantifiable
-	planetConstructionMu			  sync.RWMutex
-	planetConstructionFinishAt        map[CelestialID]int64
-	planetConstructionFinishAtMu	  sync.RWMutex
-	planetShipyardProductions         map[CelestialID][]Quantifiable
-	planetShipyardProductionsMu	  	  sync.RWMutex
-	planetShipyardProductionsFinishAt map[CelestialID]int64
-	planetShipyardProductionsFinishAtMu	  	  sync.RWMutex
-	planetQueue                       map[CelestialID][]Quantifiable
-	planetQueueMu					  sync.RWMutex
-	researchesCache					  Researches
-	researchesCacheMu				  sync.RWMutex
-	researchesActive                  Quantifiable
-	researchesActiveMu                sync.RWMutex
-	researchFinishAt                  int64
-	researchFinishAtMu                sync.RWMutex
-	eventboxResp                      eventboxResp
-	eventboxRespMu					  sync.RWMutex
-	attackEvents                      []AttackEvent
+	lastActivePlanet                    CelestialID
+	lastActivePlanetMu                  sync.RWMutex
+	planetActivity                      map[CelestialID]int64
+	planetActivityMu                    sync.RWMutex
+	planetResources                     map[CelestialID]ResourcesDetails
+	planetResourcesMu                   sync.RWMutex
+	planetResourcesBuildings            map[CelestialID]ResourcesBuildings
+	planetResourcesBuildingsMu          sync.RWMutex
+	planetFacilities                    map[CelestialID]Facilities
+	planetFacilitiesMu                  sync.RWMutex
+	planetShipsInfos                    map[CelestialID]ShipsInfos
+	planetShipsInfosMu                  sync.RWMutex
+	planetDefensesInfos                 map[CelestialID]DefensesInfos
+	planetDefensesInfosMu               sync.RWMutex
+	planetConstruction                  map[CelestialID]Quantifiable
+	planetConstructionMu                sync.RWMutex
+	planetConstructionFinishAt          map[CelestialID]int64
+	planetConstructionFinishAtMu        sync.RWMutex
+	planetShipyardProductions           map[CelestialID][]Quantifiable
+	planetShipyardProductionsMu         sync.RWMutex
+	planetShipyardProductionsFinishAt   map[CelestialID]int64
+	planetShipyardProductionsFinishAtMu sync.RWMutex
+	planetQueue                         map[CelestialID][]Quantifiable
+	planetQueueMu                       sync.RWMutex
+	researchesCache                     Researches
+	researchesCacheMu                   sync.RWMutex
+	researchesActive                    Quantifiable
+	researchesActiveMu                  sync.RWMutex
+	researchFinishAt                    int64
+	researchFinishAtMu                  sync.RWMutex
+	eventboxResp                        eventboxResp
+	eventboxRespMu                      sync.RWMutex
+	attackEvents                        []AttackEvent
 	attackEventsMu                      sync.RWMutex
-	movementFleets                    []Fleet
-	movementFleetsMu				  sync.RWMutex
-	slots                             Slots
+	movementFleets                      []Fleet
+	movementFleetsMu                    sync.RWMutex
+	slots                               Slots
 	slotsMu                             sync.RWMutex
 
-	ajaxChatToken         string
-	Universe              string
-	Username              string
-	password              string
-	language              string
-	playerID              int64
-	lobby                 string
-	ogameSession          string
-	sessionChatCounter    int64
-	server                Server
-	serverData            ServerData
-	location              *time.Location
-	serverURL             string
-	Client                *OGameClient
-	logger                *log.Logger
-	chatCallbacks         []func(msg ChatMsg)
-	wsCallbacks           map[string]func(msg []byte)
-	auctioneerCallbacks   []func(packet []byte)
-	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
-	closeChatCh           chan struct{}
-	chatRetry             *ExponentialBackoff
-	ws                    *websocket.Conn
-	tasks                 priorityQueue
-	tasksLock             sync.Mutex
-	tasksPushCh           chan *item
-	tasksPopCh            chan struct{}
-	loginWrapper          func(func() (bool, error)) error
-	loginProxyTransport   http.RoundTripper
-	bytesUploaded         int64
-	bytesDownloaded       int64
-	extractor             Extractor
-	apiNewHostname        string
-	characterClass        CharacterClass
-	characterClassMu	  sync.RWMutex
-	hasCommander          bool
-	hasAdmiral            bool
-	hasEngineer           bool
-	hasGeologist          bool
-	hasTechnocrat         bool
+	ajaxChatToken        string
+	Universe             string
+	Username             string
+	password             string
+	language             string
+	playerID             int64
+	lobby                string
+	ogameSession         string
+	sessionChatCounter   int64
+	server               Server
+	serverData           ServerData
+	location             *time.Location
+	serverURL            string
+	Client               *OGameClient
+	logger               *log.Logger
+	chatCallbacks        []func(msg ChatMsg)
+	wsCallbacks          map[string]func(msg []byte)
+	auctioneerCallbacks  []func(packet []byte)
+	interceptorCallbacks []func(method, url string, params, payload url.Values, pageHTML []byte)
+	closeChatCh          chan struct{}
+	chatRetry            *ExponentialBackoff
+	ws                   *websocket.Conn
+	tasks                priorityQueue
+	tasksLock            sync.Mutex
+	tasksPushCh          chan *item
+	tasksPopCh           chan struct{}
+	loginWrapper         func(func() (bool, error)) error
+	loginProxyTransport  http.RoundTripper
+	bytesUploaded        int64
+	bytesDownloaded      int64
+	extractor            Extractor
+	apiNewHostname       string
+	characterClass       CharacterClass
+	characterClassMu     sync.RWMutex
+	hasCommander         bool
+	hasAdmiral           bool
+	hasEngineer          bool
+	hasGeologist         bool
+	hasTechnocrat        bool
 }
 
 type Data struct {
 	Planets                  []Planet
-	Celestials				 []Celestial
-	LastActivePlanet		 CelestialID
+	Celestials               []Celestial
+	LastActivePlanet         CelestialID
 	PlanetActivity           map[CelestialID]int64
 	PlanetResources          map[CelestialID]ResourcesDetails
 	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
@@ -455,7 +456,6 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 		b.lastActivePlanetMu.Lock()
 		b.lastActivePlanet = data.LastActivePlanet
 		b.lastActivePlanetMu.Unlock()
-
 
 		b.planetResourcesMu.Lock()
 		//b.planetResources = data.PlanetResources
@@ -837,6 +837,89 @@ func getPhpSessionID(b *OGame, username, password string) (string, error) {
 	return "", errors.New(phpSessionIDCookieName + " not found")
 }
 
+func getSessionID(b *OGame, username, password string) (string, error) {
+	var payload struct {
+		Identity                string `json:"identity"`
+		Password                string `json:"password"`
+		Locale                  string `json:"locale"`
+		GfLang                  string `json:"gfLang"`
+		PlatformGameId          string `json:"platformGameId"`
+		GameEnvironmentId       string `json:"gameEnvironmentId"`
+		AutoGameAccountCreation bool   `json:"autoGameAccountCreation"`
+	}
+
+	payload.Identity = username
+	payload.Password = password
+	payload.Locale = "en_EN"
+	payload.GfLang = "en"
+	payload.PlatformGameId = "1dfd8e7e-6e1a-4eb1-8c64-03c3b62efd2f"
+	payload.GameEnvironmentId = "0a31d605-ffaf-43e7-aa02-d06df7116fc8"
+	payload.AutoGameAccountCreation = false
+	jsonPayloadBytes, _ := json.Marshal(&payload)
+
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := b.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+
+	if resp.StatusCode == 201 {
+		var responseType struct {
+			Token                     string
+			IsPlatformLogin           bool
+			IsGameAccountMigrated     bool
+			PlatformUserId            string
+			IsGameAccountCreated      bool
+			HasUnmigratedGameAccounts bool
+		}
+
+		body, readErr := ioutil.ReadAll(resp.Body)
+		if readErr != nil {
+			log.Fatal(readErr)
+		}
+		jsonErr := json.Unmarshal(body, &responseType)
+		if jsonErr != nil {
+			log.Fatal(jsonErr)
+		}
+
+		for _, cookie := range resp.Cookies() {
+			if cookie.Name == phpSessionIDCookieName {
+				return cookie.Value, nil
+			}
+		}
+		b.debug(responseType.Token)
+		return responseType.Token, nil
+	}
+
+	if resp.StatusCode >= 500 {
+		return "", errors.New("OGame server error code : " + resp.Status)
+	}
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == phpSessionIDCookieName {
+			return cookie.Value, nil
+		}
+	}
+
+	if resp.StatusCode != 201 {
+		by, err := ioutil.ReadAll(resp.Body)
+		b.error(resp.StatusCode, string(by), err)
+		return "", ErrBadCredentials
+	}
+
+	return "", errors.New(phpSessionIDCookieName + " not found")
+}
+
 type account struct {
 	Server struct {
 		Language string
@@ -865,6 +948,8 @@ func getUserAccounts(b *OGame) ([]account, error) {
 		return userAccounts, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	b.debug(b.token)
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return userAccounts, err
@@ -882,6 +967,8 @@ func getUserAccounts(b *OGame) ([]account, error) {
 	if err := json.Unmarshal(by, &userAccounts); err != nil {
 		return userAccounts, err
 	}
+	b.debug("success")
+	b.debug(userAccounts)
 	return userAccounts, nil
 }
 
@@ -913,6 +1000,7 @@ func getServers(b *OGame) ([]Server, error) {
 		return servers, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return servers, err
@@ -970,6 +1058,7 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	b.debug("login to universe")
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
@@ -991,6 +1080,9 @@ func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	}()
 	isGzip := false
 	var reader io.ReadCloser
+
+	//b.debug(resp.Header.Get("content-type"))
+
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
 		isGzip = true
@@ -1002,6 +1094,9 @@ func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 		}
 		defer reader.Close()
 	default:
+		// buf := new(bytes.Buffer)
+		// buf.ReadFrom(resp.Body)
+		// newStr := buf.String()
 		reader = resp.Body
 	}
 	by, err := ioutil.ReadAll(reader)
@@ -1022,6 +1117,7 @@ func getLoginLink(b *OGame, userAccount account) (string, error) {
 		return "", err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", err
@@ -1150,9 +1246,13 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 
 func (b *OGame) login() error {
 	b.debug("get session")
-	if _, err := getPhpSessionID(b, b.Username, b.password); err != nil {
+
+	//if _, err := getPhpSessionID(b, b.Username, b.password); err != nil {
+	token, err := getSessionID(b, b.Username, b.password)
+	if err != nil {
 		return err
 	}
+	b.token = "Bearer " + token
 
 	server, userAccount, err := b.loginPart1()
 	if err != nil {
@@ -1164,6 +1264,7 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
+	b.debug("loginLink: " + loginLink)
 	pageHTML, err := execLoginLink(b, loginLink)
 	if err != nil {
 		return err
@@ -1196,6 +1297,7 @@ func (b *OGame) loginPart1() (server Server, userAccount account, err error) {
 	if err != nil {
 		return
 	}
+
 	b.debug("find account & server for universe")
 	userAccount, server, err = findAccount(b.Universe, b.language, b.playerID, accounts, servers)
 	if err != nil {
@@ -1471,18 +1573,18 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	case MovementPage:
 		fleets := b.extractor.ExtractFleets(pageHTML)
 
-		for i := 0; i<len(fleets); i++  {
+		for i := 0; i < len(fleets); i++ {
 			fleets[i].StartTime = b.fixTimezone(fleets[i].StartTime)
 		}
 		b.movementFleetsMu.Lock()
 		b.movementFleets = fleets
 		b.movementFleetsMu.Unlock()
 		/*
-		for i := 0; i<len(b.movementFleets); i++  {
-			loc, _ := time.LoadLocation(b.serverData.Timezone)
-			tmp, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", b.movementFleets[i].StartTime.String(), loc)
-			b.movementFleets[i].StartTime = tmp
-		}
+			for i := 0; i<len(b.movementFleets); i++  {
+				loc, _ := time.LoadLocation(b.serverData.Timezone)
+				tmp, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", b.movementFleets[i].StartTime.String(), loc)
+				b.movementFleets[i].StartTime = tmp
+			}
 		*/
 
 		b.slotsMu.Lock()
@@ -1682,7 +1784,6 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	data.Slots = b.slots
 	b.slotsMu.RUnlock()
 
-
 	data = b.GetCachedData()
 
 	by, _ := json.Marshal(data)
@@ -1697,13 +1798,12 @@ func SaveToFile(filename string, by []byte) {
 	SaveToFileMu.Unlock()
 }
 
-func LoadFromFile(filename string) ([]byte) {
+func LoadFromFile(filename string) []byte {
 	SaveToFileMu.Lock()
 	by, _ := ioutil.ReadFile(filename)
 	SaveToFileMu.Unlock()
 	return by
 }
-
 
 // DefaultLoginWrapper ...
 var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
@@ -2170,7 +2270,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return []byte{}, err
 	}
 
-	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) && vals.Get("return") == "" && page != "fetchResources"{
+	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) && vals.Get("return") == "" && page != "fetchResources" {
 		page := vals.Get("page")
 		component := vals.Get("component")
 		if page != "standalone" && component != "empire" {
@@ -2595,7 +2695,7 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
 	fleets := b.extractor.ExtractFleets(pageHTML)
-	for i := 0; i<len(fleets); i++  {
+	for i := 0; i < len(fleets); i++ {
 		fleets[i].StartTime = b.fixTimezone(fleets[i].StartTime)
 	}
 	slots := b.extractor.ExtractSlots(pageHTML)
@@ -4543,7 +4643,7 @@ type EspionageReportSummary struct {
 	ID             int64
 	Type           EspionageReportType
 	From           string // Fleet Command | Space Monitoring
-	Text		   string
+	Text           string
 	Target         Coordinate
 	LootPercentage float64
 }
@@ -5856,10 +5956,10 @@ func (b *OGame) getCachedData() Data {
 	for k, e := range b.planetResources {
 
 		var resProduction struct {
-			Metal float64
-			Crystal float64
+			Metal     float64
+			Crystal   float64
 			Deuterium float64
-			Energy int64
+			Energy    int64
 		}
 		resProduction.Metal = float64(e.Metal.CurrentProduction) / 3600
 		resProduction.Crystal = float64(e.Crystal.CurrentProduction) / 3600
@@ -5974,4 +6074,3 @@ func (b *OGame) getCachedData() Data {
 
 	return data
 }
-
