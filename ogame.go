@@ -60,6 +60,7 @@ type OGame struct {
 	playerID              int64
 	lobby                 string
 	ogameSession          string
+	token                 string
 	sessionChatCounter    int64
 	server                Server
 	serverData            ServerData
@@ -136,6 +137,7 @@ const defaultUserAgent = "" +
 
 type options struct {
 	SkipInterceptor bool
+	ChangePlanet    CelestialID // cp paramter
 }
 
 // Option functions to be passed to public interface to change behaviors
@@ -144,6 +146,13 @@ type Option func(*options)
 // SkipInterceptor option to skip html interceptors
 func SkipInterceptor(opt *options) {
 	opt.SkipInterceptor = true
+}
+
+// ChangePlanet set the cp parameter
+func ChangePlanet(celestialID CelestialID) Option {
+	return func(opt *options) {
+		opt.ChangePlanet = celestialID
+	}
 }
 
 // CelestialID represent either a PlanetID or a MoonID
@@ -167,9 +176,117 @@ type Params struct {
 	CookiesFilename string
 }
 
+// Register a new gameforge lobby account
+func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
+	var err error
+	client := &http.Client{}
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	if err != nil {
+		return err
+	}
+	var payload struct {
+		Credentials struct {
+			Email    string `json:"email"`
+			Password string `json:"password"`
+		} `json:"credentials"`
+		Language string `json:"language"`
+		Kid      string `json:"kid"`
+	}
+	payload.Credentials.Email = email
+	payload.Credentials.Password = password
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	var res struct {
+		MigrationRequired bool   `json:"migrationRequired"`
+		Error             string `json:"error"`
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if res.Error != "" {
+		return errors.New(res.Error)
+	}
+	return nil
+}
+
+func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
+	var newAccount NewAccount
+	var err error
+	client := &http.Client{}
+	client.Jar, _ = cookiejar.New(nil)
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	if err != nil {
+		return newAccount, err
+	}
+	if _, err := getPhpSessionID2(client, "lobby", username, password); err != nil {
+		return newAccount, err
+	}
+	servers, err := getServers2("lobby", client)
+	if err != nil {
+		return newAccount, err
+	}
+	var server Server
+	for _, s := range servers {
+		if s.Name == universe && s.Language == lang {
+			server = s
+			break
+		}
+	}
+	var payload struct {
+		Language string `json:"language"`
+		Number   int64  `json:"number"`
+	}
+	payload.Language = lang
+	payload.Number = server.Number
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return newAccount, err
+	}
+	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return newAccount, err
+	}
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return newAccount, err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return newAccount, err
+	}
+	if err := json.Unmarshal(by, &newAccount); err != nil {
+		return newAccount, err
+	}
+	if newAccount.Error != "" {
+		return newAccount, errors.New(newAccount.Error)
+	}
+	return newAccount, nil
+}
+
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
-	b := NewNoLogin(username, password, universe, lang, "", 0)
+	b, err := NewNoLogin(username, password, universe, lang, "", 0)
+	if err != nil {
+		return nil, err
+	}
 	if _, err := b.LoginWithExistingCookies(); err != nil {
 		return nil, err
 	}
@@ -178,7 +295,10 @@ func New(universe, username, password, lang string) (*OGame, error) {
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b := NewNoLogin(params.Username, params.Password, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID)
+	b, err := NewNoLogin(params.Username, params.Password, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID)
+	if err != nil {
+		return nil, err
+	}
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
@@ -195,7 +315,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, universe, lang, cookiesFilename string, playerID int64) *OGame {
+func NewNoLogin(username, password, universe, lang, cookiesFilename string, playerID int64) (*OGame, error) {
 	b := new(OGame)
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
@@ -210,10 +330,13 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 
 	b.extractor = NewExtractorV71()
 
-	jar, _ := cookiejar.New(&cookiejar.Options{
+	jar, err := cookiejar.New(&cookiejar.Options{
 		Filename:              cookiesFilename,
 		PersistSessionCookies: true,
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	// Ensure we remove any cookies that would set the mobile view
 	cookies := jar.AllCookies()
@@ -235,7 +358,7 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 
 	b.wsCallbacks = make(map[string]func([]byte))
 
-	return b
+	return b, nil
 }
 
 // Server ogame information for their servers
@@ -269,6 +392,127 @@ type Server struct {
 
 // ogame cookie name for php session id
 const phpSessionIDCookieName = "PHPSESSID"
+
+func getPhpSessionID2(client *http.Client, lobby, username, password string) (string, error) {
+	payload := url.Values{
+		"kid":                   {""},
+		"language":              {"en"},
+		"autologin":             {"false"},
+		"credentials[email]":    {username},
+		"credentials[password]": {password},
+	}
+	req, err := http.NewRequest("POST", "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(payload.Encode()))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 500 {
+		return "", errors.New("OGame server error code : " + resp.Status)
+	}
+
+	if resp.StatusCode != 200 {
+		_, _ = ioutil.ReadAll(resp.Body)
+		return "", ErrBadCredentials
+	}
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == phpSessionIDCookieName {
+			return cookie.Value, nil
+		}
+	}
+
+	return "", errors.New(phpSessionIDCookieName + " not found")
+}
+
+func getSessionID(b *OGame, username, password string) (string, error) {
+	var payload struct {
+		Identity                string `json:"identity"`
+		Password                string `json:"password"`
+		Locale                  string `json:"locale"`
+		GfLang                  string `json:"gfLang"`
+		PlatformGameId          string `json:"platformGameId"`
+		GameEnvironmentId       string `json:"gameEnvironmentId"`
+		AutoGameAccountCreation bool   `json:"autoGameAccountCreation"`
+	}
+
+	payload.Identity = username
+	payload.Password = password
+	payload.Locale = "en_EN"
+	payload.GfLang = "en"
+	payload.PlatformGameId = "1dfd8e7e-6e1a-4eb1-8c64-03c3b62efd2f"
+	payload.GameEnvironmentId = "0a31d605-ffaf-43e7-aa02-d06df7116fc8"
+	payload.AutoGameAccountCreation = false
+	jsonPayloadBytes, _ := json.Marshal(&payload)
+
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := b.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+
+	if resp.StatusCode == 201 {
+		var responseType struct {
+			Token                     string
+			IsPlatformLogin           bool
+			IsGameAccountMigrated     bool
+			PlatformUserId            string
+			IsGameAccountCreated      bool
+			HasUnmigratedGameAccounts bool
+		}
+
+		body, readErr := ioutil.ReadAll(resp.Body)
+		if readErr != nil {
+			log.Fatal(readErr)
+		}
+		jsonErr := json.Unmarshal(body, &responseType)
+		if jsonErr != nil {
+			log.Fatal(jsonErr)
+		}
+
+		for _, cookie := range resp.Cookies() {
+			if cookie.Name == phpSessionIDCookieName {
+				return cookie.Value, nil
+			}
+		}
+		return responseType.Token, nil
+	}
+
+	if resp.StatusCode >= 500 {
+		return "", errors.New("OGame server error code : " + resp.Status)
+	}
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == phpSessionIDCookieName {
+			return cookie.Value, nil
+		}
+	}
+
+	if resp.StatusCode != 201 {
+		by, err := ioutil.ReadAll(resp.Body)
+		b.error(resp.StatusCode, string(by), err)
+		return "", ErrBadCredentials
+	}
+
+	return "", errors.New(phpSessionIDCookieName + " not found")
+}
 
 func getPhpSessionID(b *OGame, username, password string) (string, error) {
 	payload := url.Values{
@@ -342,6 +586,7 @@ func getUserAccounts(b *OGame) ([]account, error) {
 		return userAccounts, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return userAccounts, err
@@ -362,6 +607,27 @@ func getUserAccounts(b *OGame) ([]account, error) {
 	return userAccounts, nil
 }
 
+func getServers2(lobby string, client *http.Client) ([]Server, error) {
+	var servers []Server
+	req, err := http.NewRequest("GET", "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
+	if err != nil {
+		return servers, err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return servers, err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return servers, err
+	}
+	if err := json.Unmarshal(by, &servers); err != nil {
+		return servers, err
+	}
+	return servers, nil
+}
+
 func getServers(b *OGame) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/servers", nil)
@@ -369,6 +635,7 @@ func getServers(b *OGame) ([]Server, error) {
 		return servers, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return servers, err
@@ -426,6 +693,7 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	b.debug("login to universe")
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
@@ -478,6 +746,7 @@ func getLoginLink(b *OGame, userAccount account) (string, error) {
 		return "", err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", err
@@ -606,9 +875,11 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 
 func (b *OGame) login() error {
 	b.debug("get session")
-	if _, err := getPhpSessionID(b, b.Username, b.password); err != nil {
+	token, err := getSessionID(b, b.Username, b.password)
+	if err != nil {
 		return err
 	}
+	b.token = "bearer " + token
 
 	server, userAccount, err := b.loginPart1()
 	if err != nil {
@@ -816,6 +1087,17 @@ func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Resp
 	return
 }
 
+func getTransport(proxy, username, password, proxyType string) (http.RoundTripper, error) {
+	var err error
+	transport := http.DefaultTransport
+	if proxyType == "socks5" {
+		transport, err = getSocks5Transport(proxy, username, password)
+	} else if proxyType == "http" {
+		transport, err = getProxyTransport(proxy, username, password)
+	}
+	return transport, err
+}
+
 // Creates a proxy http transport with optional basic auth
 func getProxyTransport(proxy, username, password string) (*http.Transport, error) {
 	proxyURL, err := url.Parse(proxy)
@@ -856,19 +1138,11 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 		b.Client.Transport = http.DefaultTransport
 		return nil
 	}
-	var err error
-	transport := http.DefaultTransport
-	if proxyType == "socks5" {
-		transport, err = getSocks5Transport(proxyAddress, username, password)
-	} else if proxyType == "http" {
-		transport, err = getProxyTransport(proxyAddress, username, password)
-	}
+	transport, err := getTransport(proxyAddress, username, password, proxyType)
+	b.loginProxyTransport = transport
+	b.Client.Transport = transport
 	if loginOnly {
-		b.loginProxyTransport = transport
 		b.Client.Transport = http.DefaultTransport
-	} else {
-		b.loginProxyTransport = transport
-		b.Client.Transport = transport
 	}
 	return err
 }
@@ -1017,6 +1291,7 @@ func (m ChatMsg) String() string {
 
 func (b *OGame) logout() {
 	_, _ = b.getPage(LogoutPage, CelestialID(0))
+	b.Client.Jar.(*cookiejar.Jar).RemoveAll()
 	if atomic.CompareAndSwapInt32(&b.isLoggedInAtom, 1, 0) {
 		select {
 		case <-b.closeChatCh:
@@ -1176,6 +1451,12 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return []byte{}, err
 	}
 
+	if vals.Get("cp") == "" {
+		if cfg.ChangePlanet != 0 {
+			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+		}
+	}
+
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 
 	allianceID := vals.Get("allianceId")
@@ -1215,7 +1496,14 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	}
 
 	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
-		b.cacheFullPageInfo(page, pageHTMLBytes)
+		page := vals.Get("page")
+		component := vals.Get("component")
+		if page != "standalone" && component != "empire" {
+			if page == "ingame" {
+				page = component
+			}
+			b.cacheFullPageInfo(page, pageHTMLBytes)
+		}
 	}
 
 	if !cfg.SkipInterceptor {
@@ -1237,6 +1525,12 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 
 	if err := b.preRequestChecks(); err != nil {
 		return []byte{}, err
+	}
+
+	if vals.Get("cp") == "" {
+		if cfg.ChangePlanet != 0 {
+			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+		}
 	}
 
 	if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
@@ -1582,7 +1876,7 @@ type ChatPostResp struct {
 	SenderID int    `json:"senderId"`
 	TargetID int    `json:"targetId"`
 	Text     string `json:"text"`
-	Date     int    `json:"date"`
+	Date     int64  `json:"date"`
 	NewToken string `json:"newToken"`
 }
 
@@ -1626,13 +1920,6 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
 	fleets := b.extractor.ExtractFleets(pageHTML)
-	// Set StarTime TimeZone from ServerData
-	for i := 0; i<len(fleets); i++  {
-		loc, _ := time.LoadLocation(b.serverData.Timezone)
-		tmp, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", fleets[i].StartTime.String(), loc)
-		fleets[i].StartTime = tmp
-		log.Println(fleets[i].StartTime)
-	}
 	slots := b.extractor.ExtractSlots(pageHTML)
 	return fleets, slots
 }
@@ -1727,10 +2014,10 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 		}
 		nbr := ships.ByID(ship.GetID())
 		if nbr > 0 {
-			tmpFuel += tmpFn(ship.GetFuelConsumption(techs), nbr, ship.GetSpeed(techs, isCollector, isGeneral))
+			tmpFuel += tmpFn(ship.GetFuelConsumption(techs, fleetDeutSaveFactor, isGeneral), nbr, ship.GetSpeed(techs, isCollector, isGeneral))
 		}
 	}
-	fuel = int64(1 + math.Floor(tmpFuel*fleetDeutSaveFactor))
+	fuel = int64(1 + math.Round(tmpFuel))
 	return
 }
 
@@ -1772,7 +2059,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	}
 
 	// Verify that coordinate is in phalanx range
-	phalanxRange := SensorPhalanx.GetRange(phalanxLvl)
+	phalanxRange := SensorPhalanx.GetRange(phalanxLvl, b.isDiscoverer())
 	if moon.Coordinate.Galaxy != coord.Galaxy ||
 		systemDistance(b.serverData.Systems, moon.Coordinate.System, coord.System, b.serverData.DonutSystem) > phalanxRange {
 		return res, errors.New("coordinate not in phalanx range")
@@ -2012,6 +2299,141 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 		return err
 	}
 	return nil
+}
+
+// marketItemType 3 -> offer buy
+// marketItemType 4 -> offer sell
+// itemID 1 -> metal
+// itemID 2 -> crystal
+// itemID 3 -> deuterium
+// itemID 204 -> light fighter
+// itemID <HASH> -> item
+func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"create_offer"}, "action": {"submitOffer"}, "asJson": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	const (
+		shipsItemType = iota + 1
+		resourcesItemType
+		itemItemType
+	)
+	var itemIDPayload string
+	var itemType int64
+	if itemIDStr, ok := itemID.(string); ok {
+		if len(itemIDStr) == 40 {
+			itemType = itemItemType
+			itemIDPayload = itemIDStr
+		} else {
+			return errors.New("invalid itemID string")
+		}
+	} else if itemIDInt64, ok := itemID.(int64); ok {
+		if itemIDInt64 >= 1 && itemIDInt64 <= 3 {
+			itemType = resourcesItemType
+			itemIDPayload = strconv.FormatInt(itemIDInt64, 10)
+		} else if ID(itemIDInt64).IsShip() {
+			itemType = shipsItemType
+			itemIDPayload = strconv.FormatInt(itemIDInt64, 10)
+		} else {
+			return errors.New("invalid itemID int64")
+		}
+	} else if itemIDInt, ok := itemID.(int); ok {
+		if itemIDInt >= 1 && itemIDInt <= 3 {
+			itemType = resourcesItemType
+			itemIDPayload = strconv.Itoa(itemIDInt)
+		} else if ID(itemIDInt).IsShip() {
+			itemType = shipsItemType
+			itemIDPayload = strconv.Itoa(itemIDInt)
+		} else {
+			return errors.New("invalid itemID int")
+		}
+	} else if itemIDID, ok := itemID.(ID); ok {
+		if itemIDID.IsShip() {
+			itemType = shipsItemType
+			itemIDPayload = strconv.FormatInt(int64(itemIDID), 10)
+		} else {
+			return errors.New("invalid itemID ID")
+		}
+	} else {
+		return errors.New("invalid itemID type")
+	}
+
+	vals := url.Values{
+		"page":      {"ingame"},
+		"component": {"marketplace"},
+		"tab":       {"create_offer"},
+	}
+	pageHTML, err := b.getPageContent(vals)
+	if err != nil {
+		return err
+	}
+	getToken := func(pageHTML []byte) (string, error) {
+		m := regexp.MustCompile(`var token = "([^"]+)"`).FindSubmatch(pageHTML)
+		if len(m) != 2 {
+			return "", errors.New("unable to find token")
+		}
+		return string(m[1]), nil
+	}
+	token, _ := getToken(pageHTML)
+
+	payload := url.Values{
+		"marketItemType": {strconv.FormatInt(marketItemType, 10)},
+		"itemType":       {strconv.FormatInt(itemType, 10)},
+		"itemId":         {itemIDPayload},
+		"quantity":       {strconv.FormatInt(quantity, 10)},
+		"priceType":      {strconv.FormatInt(priceType, 10)},
+		"price":          {strconv.FormatInt(price, 10)},
+		"priceRange":     {strconv.FormatInt(priceRange, 10)},
+		"token":          {token},
+	}
+	var res struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Errors  []struct {
+			Message string `json:"message"`
+			Error   int64  `json:"error"`
+		} `json:"errors"`
+	}
+	by, err := b.postPageContent(params, payload)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if len(res.Errors) > 0 {
+		return errors.New(strconv.FormatInt(res.Errors[0].Error, 10) + " : " + res.Errors[0].Message)
+	}
+	return err
+}
+
+func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error) {
+	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"buying"}, "action": {"acceptRequest"}, "asJson": {"1"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	payload := url.Values{
+		"marketItemId": {strconv.FormatInt(itemID, 10)},
+	}
+	var res struct {
+		Status  string `json:"status"`
+		Message string `json:"message"`
+		Errors  []struct {
+			Message string `json:"message"`
+			Error   int64  `json:"error"`
+		} `json:"errors"`
+	}
+	by, err := b.postPageContent(params, payload)
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if len(res.Errors) > 0 {
+		return errors.New(strconv.FormatInt(res.Errors[0].Error, 10) + " : " + res.Errors[0].Message)
+	}
+	return err
 }
 
 func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
@@ -2271,15 +2693,12 @@ func fixAttackEvents(attacks []AttackEvent, planets []Planet) {
 	}
 }
 
-func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err error) {
+func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	params := url.Values{"page": {"eventList"}, "ajax": {"1"}}
 	if b.IsV7() {
 		params = url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
 	}
-	if celestialID != 0 {
-		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
-	}
-	pageHTML, err := b.getPageContent(params)
+	pageHTML, err := b.getPageContent(params, opts...)
 	if err != nil {
 		return
 	}
@@ -2293,17 +2712,17 @@ func (b *OGame) getAttacks(celestialID CelestialID) (out []AttackEvent, err erro
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
+	var res SystemInfos
 	if galaxy < 0 || galaxy > b.server.Settings.UniverseSize {
-		return SystemInfos{}, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
+		return res, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
 	}
 	if system < 0 || system > b.serverData.Systems {
-		return SystemInfos{}, errors.New("system must be within [0, " + strconv.FormatInt(b.serverData.Systems, 10) + "]")
+		return res, errors.New("system must be within [0, " + strconv.FormatInt(b.serverData.Systems, 10) + "]")
 	}
 	payload := url.Values{
 		"galaxy": {strconv.FormatInt(galaxy, 10)},
 		"system": {strconv.FormatInt(system, 10)},
 	}
-	var res SystemInfos
 	vals := url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}
 	if b.IsV7() {
 		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
@@ -2312,7 +2731,14 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 	if err != nil {
 		return res, err
 	}
-	return b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	if err != nil {
+		return res, err
+	}
+	if res.galaxy != galaxy || res.system != system {
+		return SystemInfos{}, errors.New("not enough deuterium")
+	}
+	return res, err
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
@@ -3022,6 +3448,10 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	payload.Set("deuterium", strconv.FormatInt(newResources.Deuterium, 10))
 	payload.Set("metal", strconv.FormatInt(newResources.Metal, 10))
 	payload.Set("mission", strconv.FormatInt(int64(mission), 10))
+	payload.Set("prioMetal", "1")
+	payload.Set("prioCrystal", "2")
+	payload.Set("prioDeuterium", "3")
+	payload.Set("retreatAfterDefenderRetreat", "0")
 	if mission == Expedition {
 		if expeditiontime <= 0 {
 			expeditiontime = 1
@@ -3422,6 +3852,23 @@ type EspionageReportSummary struct {
 	LootPercentage float64
 }
 
+// ExpeditionMessage ...
+type ExpeditionMessage struct {
+	ID         int64
+	Coordinate Coordinate
+	Content    string
+	CreatedAt  time.Time
+}
+
+// MarketplaceMessage ...
+type MarketplaceMessage struct {
+	ID                  int64
+	Type                int64 // 26: purchases, 27: sales
+	CreatedAt           time.Time
+	Token               string
+	MarketTransactionID int64
+}
+
 func (b *OGame) getPageMessages(page, tabid int64) ([]byte, error) {
 	payload := url.Values{
 		"messageId":  {"-1"},
@@ -3461,6 +3908,119 @@ func (b *OGame) getCombatReportMessages() ([]CombatReportSummary, error) {
 		page++
 	}
 	return msgs, nil
+}
+
+func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
+	var tabid int64 = 22
+	var page int64 = 1
+	var nbPage int64 = 1
+	msgs := make([]ExpeditionMessage, 0)
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
+		msgs = append(msgs, newMessages...)
+		nbPage = newNbPage
+		page++
+	}
+	return msgs, nil
+}
+
+func (b *OGame) collectAllMarketplaceMessages() error {
+	purchases, _ := b.getMarketplacePurchasesMessages()
+	sales, _ := b.getMarketplaceSalesMessages()
+	msgs := make([]MarketplaceMessage, 0)
+	msgs = append(msgs, purchases...)
+	msgs = append(msgs, sales...)
+	newToken := ""
+	var err error
+	for _, msg := range msgs {
+		if msg.MarketTransactionID != 0 {
+			newToken, err = b.collectMarketplaceMessage(msg, newToken)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+type collectMarketplaceResponse struct {
+	MarketTransactionID int           `json:"marketTransactionId"`
+	Status              string        `json:"status"`
+	Message             string        `json:"message"`
+	StatusMessage       string        `json:"statusMessage"`
+	NewToken            string        `json:"newToken"`
+	Components          []interface{} `json:"components"`
+}
+
+func (b *OGame) collectMarketplaceMessage(msg MarketplaceMessage, newToken string) (string, error) {
+	params := url.Values{
+		"page":                {"componentOnly"},
+		"component":           {"marketplace"},
+		"marketTransactionId": {strconv.FormatInt(msg.MarketTransactionID, 10)},
+		"token":               {msg.Token},
+		"asJson":              {"1"},
+	}
+	if msg.Type == 26 { // purchase
+		params.Set("action", "collectItem")
+	} else if msg.Type == 27 { // sale
+		params.Set("action", "collectPrice")
+	}
+	payload := url.Values{
+		"newToken": {newToken},
+	}
+	by, err := b.postPageContent(params, payload)
+	var res collectMarketplaceResponse
+	if err := json.Unmarshal(by, &res); err != nil {
+		return "", errors.New("failed to unmarshal json response: " + err.Error())
+	}
+	return res.NewToken, err
+}
+
+func (b *OGame) getMarketplacePurchasesMessages() ([]MarketplaceMessage, error) {
+	return b.getMarketplaceMessages(26)
+}
+
+func (b *OGame) getMarketplaceSalesMessages() ([]MarketplaceMessage, error) {
+	return b.getMarketplaceMessages(27)
+}
+
+// tabID 26: purchases, 27: sales
+func (b *OGame) getMarketplaceMessages(tabID int64) ([]MarketplaceMessage, error) {
+	var tabid int64 = tabID
+	var page int64 = 1
+	var nbPage int64 = 1
+	msgs := make([]MarketplaceMessage, 0)
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractMarketplaceMessages(pageHTML, b.location)
+		msgs = append(msgs, newMessages...)
+		nbPage = newNbPage
+		page++
+	}
+	return msgs, nil
+}
+
+func (b *OGame) getExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
+	var tabid int64 = 22
+	var page int64 = 1
+	var nbPage int64 = 1
+LOOP:
+	for page <= nbPage {
+		pageHTML, _ := b.getPageMessages(page, tabid)
+		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
+		for _, m := range newMessages {
+			if m.CreatedAt.Unix() == t.Unix() {
+				return m, nil
+			}
+			if m.CreatedAt.Unix() < t.Unix() {
+				break LOOP
+			}
+		}
+		nbPage = newNbPage
+		page++
+	}
+	return ExpeditionMessage{}, errors.New("expedition message not found for " + t.String())
 }
 
 func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error) {
@@ -3675,6 +4235,7 @@ type NewAccount struct {
 		Language string
 		Number   int
 	}
+	Error string
 }
 
 func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
@@ -3796,17 +4357,6 @@ func (b *OGame) GetCachedCelestialByCoord(coord Coordinate) Celestial {
 		}
 	}
 	return nil
-}
-
-func (b *OGame) fakeCall(name string, delay int) {
-	fmt.Println("before", name)
-	time.Sleep(time.Duration(delay) * time.Millisecond)
-	fmt.Println("after", name)
-}
-
-// FakeCall used for debugging
-func (b *OGame) FakeCall(priority int, name string, delay int) {
-	b.WithPriority(priority).FakeCall(name, delay)
 }
 
 func (b *OGame) getCachedMoons() []Moon {
@@ -3933,22 +4483,30 @@ func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
 }
 
 // WithPriority ...
-func (b *OGame) WithPriority(priority int) *Prioritize {
+func (b *OGame) WithPriority(priority int) Prioritizable {
 	return b.withPriority(priority)
 }
 
 // Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
-func (b *OGame) Begin() *Prioritize {
+func (b *OGame) Begin() Prioritizable {
 	return b.WithPriority(Normal).Begin()
 }
 
 // BeginNamed begins a new transaction with a name. "Done" must be called to release the lock.
-func (b *OGame) BeginNamed(name string) *Prioritize {
+func (b *OGame) BeginNamed(name string) Prioritizable {
 	return b.WithPriority(Normal).BeginNamed(name)
 }
 
+// SetInitiator ...
+func (b *OGame) SetInitiator(initiator string) Prioritizable {
+	return nil
+}
+
+// Done ...
+func (b *OGame) Done() {}
+
 // Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *OGame) Tx(clb func(tx *Prioritize) error) error {
+func (b *OGame) Tx(clb func(tx Prioritizable) error) error {
 	return b.WithPriority(Normal).Tx(clb)
 }
 
@@ -4187,13 +4745,8 @@ func (b *OGame) CancelFleet(fleetID FleetID) error {
 }
 
 // GetAttacks get enemy fleets attacking you
-func (b *OGame) GetAttacks() ([]AttackEvent, error) {
-	return b.WithPriority(Normal).GetAttacks()
-}
-
-// GetAttacksUsing get enemy fleets attacking you using a specific celestial to make the check
-func (b *OGame) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, error) {
-	return b.WithPriority(Normal).GetAttacksUsing(celestialID)
+func (b *OGame) GetAttacks(opts ...Option) ([]AttackEvent, error) {
+	return b.WithPriority(Normal).GetAttacks(opts...)
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
@@ -4343,6 +4896,26 @@ func (b *OGame) GetCombatReportSummaryFor(coord Coordinate) (CombatReportSummary
 // GetEspionageReportFor gets the latest espionage report for a given coordinate
 func (b *OGame) GetEspionageReportFor(coord Coordinate) (EspionageReport, error) {
 	return b.WithPriority(Normal).GetEspionageReportFor(coord)
+}
+
+// GetExpeditionMessages gets the expedition messages
+func (b *OGame) GetExpeditionMessages() ([]ExpeditionMessage, error) {
+	return b.WithPriority(Normal).GetExpeditionMessages()
+}
+
+// GetExpeditionMessageAt gets the expedition message for time t
+func (b *OGame) GetExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
+	return b.WithPriority(Normal).GetExpeditionMessageAt(t)
+}
+
+// CollectAllMarketplaceMessages collect all marketplace messages
+func (b *OGame) CollectAllMarketplaceMessages() error {
+	return b.WithPriority(Normal).CollectAllMarketplaceMessages()
+}
+
+// CollectMarketplaceMessage collect marketplace message
+func (b *OGame) CollectMarketplaceMessage(msg MarketplaceMessage) error {
+	return b.WithPriority(Normal).CollectMarketplaceMessage(msg)
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
@@ -4506,4 +5079,19 @@ func (b *OGame) GetItems(celestialID CelestialID) ([]Item, error) {
 // ActivateItem activate an item
 func (b *OGame) ActivateItem(ref string, celestialID CelestialID) error {
 	return b.WithPriority(Normal).ActivateItem(ref, celestialID)
+}
+
+// BuyMarketplace buy an item on the marketplace
+func (b *OGame) BuyMarketplace(itemID int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).BuyMarketplace(itemID, celestialID)
+}
+
+// OfferSellMarketplace sell offer on marketplace
+func (b *OGame) OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).OfferSellMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// OfferBuyMarketplace buy offer on marketplace
+func (b *OGame) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	return b.WithPriority(Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
 }
