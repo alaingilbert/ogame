@@ -82,7 +82,8 @@ func ParseCoord(str string) (coord Coordinate, err error) {
 	return coord, errors.New("unable to parse coordinate")
 }
 
-func name2id(name string) ID {
+// ShipName2ID ...
+func ShipName2ID(name string) ID {
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	name, _, _ = transform.String(t, name)
 	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シα-ωΑ-Ω星殖重小民死輸帶太洋戰艦諜魔間能飛鬥路輕型列探履惡大彈運導衛滅者車收巡陽機回毀船]+")
@@ -106,6 +107,40 @@ func name2id(name string) ID {
 		"crawler":        CrawlerID,
 		"reaper":         ReaperID,
 		"pathfinder":     PathfinderID,
+
+		// fi
+		"kevythavittaja":     LightFighterID,
+		"raskashavittaja":    HeavyFighterID,
+		"risteilija":         CruiserID,
+		"taistelualus":       BattleshipID,
+		"taisteluristeilija": BattlecruiserID,
+		"pommittaja":         BomberID,
+		"tuhoaja":            DestroyerID,
+		"kuolemantahti":      DeathstarID,
+		"pienirahtialus":     SmallCargoID,
+		"suurirahtialus":     LargeCargoID,
+		"siirtokuntaalus":    ColonyShipID,
+		"kierrattaja":        RecyclerID,
+		"vakoiluluotain":     EspionageProbeID,
+		"aurinkosatelliitti": SolarSatelliteID,
+
+		// hu
+		"konnyuharcos": LightFighterID,
+		"nehezharcos":  HeavyFighterID,
+		"cirkalo":      CruiserID,
+		"csatahajo":    BattleshipID,
+		"csatacirkalo": BattlecruiserID,
+		"bombazo":      BomberID,
+		"rombolo":      DestroyerID,
+		"halalcsillag": DeathstarID,
+		"kisszallito":  SmallCargoID,
+		"nagyszallito": LargeCargoID,
+		"koloniahajo":  ColonyShipID,
+		"szemetesek":   RecyclerID,
+		"kemszonda":    EspionageProbeID,
+		"napmuhold":    SolarSatelliteID,
+		"kaszas":       ReaperID,
+		"felderito":    PathfinderID,
 
 		// si
 		"laheklovec":          LightFighterID,
@@ -367,7 +402,7 @@ func name2id(name string) ID {
 		// tr
 		"hafifavc":           LightFighterID,
 		"agravc":             HeavyFighterID,
-		"kruvazoradet":       CruiserID,
+		"kruvazor":           CruiserID,
 		"komutagemisi":       BattleshipID,
 		"firkateyn":          BattlecruiserID,
 		"bombardmangemisi":   BomberID,

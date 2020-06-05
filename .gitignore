@@ -1,7 +1,7 @@
 .idea
 dist
 cmd/scripts/bindata
-cmd/bot1
+cmd/bot*
 *.cover
 cover.out
 vendor

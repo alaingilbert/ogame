@@ -6,6 +6,7 @@ import "time"
 type Fleet struct {
 	Mission        MissionID
 	ReturnFlight   bool
+	InDeepSpace    bool
 	ID             FleetID
 	Resources      Resources
 	Origin         Coordinate

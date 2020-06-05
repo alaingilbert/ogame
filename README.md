@@ -105,7 +105,6 @@ GetFleets(...Option) ([]Fleet, Slots)
 GetFleetsFromEventList() []Fleet
 CancelFleet(FleetID) error
 GetAttacks() ([]AttackEvent, error)
-GetAttacksUsing(CelestialID) ([]AttackEvent, error)
 GalaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error)
 GetCachedResearch() Researches
 GetResearch() Researches
@@ -123,6 +122,10 @@ GetMoon(interface{}) (Moon, error)
 GetCelestial(interface{}) (Celestial, error)
 GetCelestials() ([]Celestial, error)
 Abandon(interface{}) error
+CollectAllMarketplaceMessages() error
+CollectMarketplaceMessage(MarketplaceMessage) error
+GetExpeditionMessages() ([]ExpeditionMessage, error)
+GetExpeditionMessageAt(time.Time) (ExpeditionMessage, error)
 GetEspionageReportMessages() ([]EspionageReportSummary, error)
 GetEspionageReportFor(Coordinate) (EspionageReport, error)
 GetEspionageReport(msgID int64) (EspionageReport, error)

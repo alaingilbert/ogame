@@ -462,9 +462,9 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]At
 				nbrTxt := s.Find("td").Eq(1).Text()
 				nbr := ParseInt(nbrTxt)
 				if name != "" && nbr > 0 {
-					attack.Ships.Set(name2id(name), nbr)
+					attack.Ships.Set(ShipName2ID(name), nbr)
 				} else if nbrTxt == "?" {
-					attack.Ships.Set(name2id(name), -1)
+					attack.Ships.Set(ShipName2ID(name), -1)
 				}
 			})
 		}
@@ -1092,7 +1092,7 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 			name := s.Find("td").Eq(0).Text()
 			nbr := ParseInt(s.Find("td").Eq(1).Text())
 			if name != "" && nbr > 0 {
-				fleet.Ships.Set(name2id(name), nbr)
+				fleet.Ships.Set(ShipName2ID(name), nbr)
 			}
 		})
 		fleet.Origin = extractCoordV6(doc.Find("td.coordsOrigin").Text())
@@ -1159,13 +1159,9 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 
 		missionType, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
 		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
+		inDeepSpace := s.Find("span.fleetDetailButton a").HasClass("fleet_icon_forward_end")
 		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 		endTime, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""), 10, 64)
-		ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
-		secs := arrivalTime - ogameTimestamp
-		if secs < 0 {
-			secs = 0
-		}
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
@@ -1185,6 +1181,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		fleet.Destination = dest
 		fleet.Mission = MissionID(missionType)
 		fleet.ReturnFlight = returnFlight
+		fleet.InDeepSpace = inDeepSpace
 		fleet.Resources = shipment
 		fleet.TargetPlanetID = targetPlanetID
 		fleet.UnionID = unionID
@@ -1216,7 +1213,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			tds := trs.Eq(i).Find("td")
 			name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
 			qty := ParseInt(tds.Eq(1).Text())
-			shipID := name2id(name)
+			shipID := ShipName2ID(name)
 			fleet.Ships.Set(shipID, qty)
 		}
 
@@ -1448,6 +1445,14 @@ func extractPlanetIDV6(pageHTML []byte) (CelestialID, error) {
 	return CelestialID(planetID), nil
 }
 
+func extractPlanetIDFromDocV6(doc *goquery.Document) (CelestialID, error) {
+	planetID, _ := strconv.ParseInt(doc.Find("meta[name=ogame-planet-id]").AttrOr("content", "0"), 10, 64)
+	if planetID == 0 {
+		return 0, errors.New("planet id not found")
+	}
+	return CelestialID(planetID), nil
+}
+
 func extractOverviewShipSumCountdownFromBytesV6(pageHTML []byte) int64 {
 	var shipSumCountdown int64
 	shipSumCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\('shipSumCount7'\),\d+,\d+,(\d+),`).FindSubmatch(pageHTML)
@@ -1477,6 +1482,19 @@ func extractPlanetTypeV6(pageHTML []byte) (CelestialType, error) {
 		return MoonType, nil
 	}
 	return 0, errors.New("invalid planet type : " + string(m[1]))
+}
+
+func extractPlanetTypeFromDocV6(doc *goquery.Document) (CelestialType, error) {
+	planetType := doc.Find("meta[name=ogame-planet-type]").AttrOr("content", "")
+	if planetType == "" {
+		return 0, errors.New("planet type not found")
+	}
+	if planetType == "planet" {
+		return PlanetType, nil
+	} else if planetType == "moon" {
+		return MoonType, nil
+	}
+	return 0, errors.New("invalid planet type : " + planetType)
 }
 
 func extractAjaxChatTokenV6(pageHTML []byte) (string, error) {
@@ -1514,6 +1532,8 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	switch lang {
 	case "fr":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Place ([\d.]+) sur ([\d.]+)\)`)
+	case "hu":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Helyez\\u00e9s \\/ J\\u00e1t\\u00e9kosok: ([\d.]+) \\/ ([\d.]+)\)`)
 	case "si":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Mesto ([\d.]+) od ([\d.]+)\)`)
 	case "sk":
@@ -1554,6 +1574,8 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Placering ([\d.]+) af ([\d.]+)\)`)
 	case "ro":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Locul ([\d.]+) din ([\d.]+)\)`)
+	case "fi":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Sijoitus ([\d.]+) kaikista pelaajista ([\d.]+)\)`)
 	case "ru":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u041c\\u0435\\u0441\\u0442\\u043e ([\d.]+) \\u0438\\u0437 ([\d.]+)\)`)
 	}
@@ -1820,7 +1842,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 				name := s.Find("td").Eq(0).Text()
 				nbr := ParseInt(s.Find("td").Eq(1).Text())
 				if name != "" && nbr > 0 {
-					fleet.Ships.Set(name2id(name), nbr)
+					fleet.Ships.Set(ShipName2ID(name), nbr)
 				}
 			})
 		}
@@ -1950,7 +1972,7 @@ func extractUniverseSpeedV6(pageHTML []byte) int64 {
 	return universeSpeed
 }
 
-var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως)\s*([-\d]+).+C`)
+var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως|:sta)\s*([-\d]+).+C`)
 var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км|χμ) \((\d+)/(\d+)\)`)
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 

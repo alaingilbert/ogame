@@ -39,7 +39,7 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 
 func TestWrapper(t *testing.T) {
 	var bot Wrapper
-	bot = NewNoLogin("", "", "", "", "", 0)
+	bot, _ = NewNoLogin("", "", "", "", "", 0)
 	assert.NotNil(t, bot)
 }
 
@@ -680,6 +680,34 @@ func TestExtractPlanet_si(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_hu(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/hu/overview.html")
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33621505), &OGame{language: "hu"})
+	assert.Equal(t, "Otthon", planet.Name)
+	assert.Equal(t, int64(12800), planet.Diameter)
+	assert.Equal(t, int64(-18), planet.Temperature.Min)
+	assert.Equal(t, int64(22), planet.Temperature.Max)
+	assert.Equal(t, int64(0), planet.Fields.Built)
+	assert.Equal(t, int64(188), planet.Fields.Total)
+	assert.Equal(t, PlanetID(33621505), planet.ID)
+	assert.Equal(t, Coordinate{1, 162, 12, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
+func TestExtractPlanet_fi(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/fi/overview.html")
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33625483), &OGame{language: "fi"})
+	assert.Equal(t, "Kotimaailma", planet.Name)
+	assert.Equal(t, int64(12800), planet.Diameter)
+	assert.Equal(t, int64(15), planet.Temperature.Min)
+	assert.Equal(t, int64(55), planet.Temperature.Max)
+	assert.Equal(t, int64(5), planet.Fields.Built)
+	assert.Equal(t, int64(188), planet.Fields.Total)
+	assert.Equal(t, PlanetID(33625483), planet.ID)
+	assert.Equal(t, Coordinate{1, 94, 6, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_gr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33629206), &OGame{language: "gr"})
@@ -883,6 +911,28 @@ func TestExtractShipsWhileBeingBuilt(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/shipyard_ship_being_built.html")
 	ships, _ := NewExtractorV6().ExtractShips(pageHTMLBytes)
 	assert.Equal(t, int64(213), ships.EspionageProbe)
+}
+
+func TestExtractExpeditionMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/expedition_messages.html")
+	msgs, nbPages, _ := NewExtractorV7().ExtractExpeditionMessages(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, int64(10), nbPages)
+	assert.Equal(t, 10, len(msgs))
+	assert.Equal(t, time.Date(2020, 04, 21, 23, 12, 6, 0, time.UTC), msgs[0].CreatedAt.UTC())
+	assert.Equal(t, int64(11199359), msgs[0].ID)
+	assert.Equal(t, Coordinate{1, 8, 16, PlanetType}, msgs[0].Coordinate)
+	assert.Equal(t, `We came across the remains of a previous expedition! Our technicians will try to get some of the ships to work again.<br/><br/>The following ships are now part of the fleet:<br/>Espionage Probe: 1880<br/>Light Fighter: 161<br/>Small Cargo: 156`,
+		msgs[0].Content)
+}
+
+func TestExtractMarketplaceMessages(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/sales_messages.html")
+	msgs, _, _ := NewExtractorV7().ExtractMarketplaceMessages(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 9, len(msgs))
+	assert.Equal(t, int64(12912161), msgs[3].ID)
+	assert.Equal(t, int64(27), msgs[3].Type)
+	assert.Equal(t, int64(1379), msgs[3].MarketTransactionID)
+	assert.Equal(t, "164ba9f6e5cbfdaa03c061730767d779", msgs[3].Token)
 }
 
 func TestExtractEspionageReportMessageIDs(t *testing.T) {
@@ -1544,12 +1594,28 @@ func TestExtractUserInfos_sk(t *testing.T) {
 	assert.Equal(t, int64(90), infos.Total)
 }
 
+func TestExtractUserInfos_fi(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/fi/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "fi")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(46), infos.Rank)
+	assert.Equal(t, int64(51), infos.Total)
+}
+
 func TestExtractUserInfos_si(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/si/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "si")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(59), infos.Rank)
 	assert.Equal(t, int64(60), infos.Total)
+}
+
+func TestExtractUserInfos_hu(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/hu/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "hu")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(635), infos.Rank)
+	assert.Equal(t, int64(636), infos.Total)
 }
 
 func TestExtractUserInfos_gr(t *testing.T) {
@@ -2170,6 +2236,17 @@ func TestExtractFleet_returning(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 123, Crystal: 456, Deuterium: 789}, fleets[0].Resources)
 }
 
+func TestExtractFleet_deepspace(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/fleets_expeditions.html")
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 5, len(fleets))
+	assert.False(t, fleets[0].InDeepSpace)
+	assert.False(t, fleets[1].InDeepSpace)
+	assert.False(t, fleets[2].InDeepSpace)
+	assert.False(t, fleets[3].InDeepSpace)
+	assert.True(t, fleets[4].InDeepSpace)
+}
+
 func TestExtractFleet_targetPlanetID(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_moon_to_moon.html")
 	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
@@ -2585,16 +2662,53 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
-	secs, fuel = calcFlightTime(Coordinate{1, 162, 1, PlanetType}, Coordinate{4, 144, 1, PlanetType},
-		6, 499, false, false, 0.5, 1, 6, ShipsInfos{LargeCargo: 12428, Deathstar: 1}, Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10}, NoClass)
-	assert.Equal(t, int64(22594), secs)
-	assert.Equal(t, int64(699587), fuel)
+	secs, fuel = calcFlightTime(Coordinate{4, 116, 12, PlanetType}, Coordinate{3, 116, 12, PlanetType},
+		6, 499, true, true, 0.5, 1, 2, ShipsInfos{LargeCargo: 1931}, Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, Discoverer)
+	assert.Equal(t, int64(5406), secs)
+	assert.Equal(t, int64(110336), fuel)
 
 	// Test with solar satellite
 	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
 		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, NoClass)
 	assert.Equal(t, int64(651), secs)
 	assert.Equal(t, int64(612), fuel)
+
+	// General tests
+	secs, fuel = calcFlightTime(
+		Coordinate{2, 68, 4, MoonType},
+		Coordinate{1, 313, 9, PlanetType},
+		5, 499, true, true, 1, 1, 2,
+		ShipsInfos{LightFighter: 1, HeavyFighter: 1, Cruiser: 1, Battleship: 1, SmallCargo: 1, LargeCargo: 1, Recycler: 1, ColonyShip: 1, EspionageProbe: 1},
+		Researches{CombustionDrive: 7, ImpulseDrive: 5, HyperspaceDrive: 0}, Discoverer)
+	assert.Equal(t, int64(13427), secs)
+	assert.Equal(t, int64(3808), fuel)
+
+	secs, fuel = calcFlightTime(
+		Coordinate{1, 230, 7, MoonType},
+		Coordinate{1, 318, 4, MoonType},
+		5, 499, true, true, 0.5, 1, 6,
+		ShipsInfos{LightFighter: 1, HeavyFighter: 1, Cruiser: 1, Battleship: 1, SmallCargo: 1, LargeCargo: 1, Recycler: 1, EspionageProbe: 1, Pathfinder: 1},
+		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, Discoverer)
+	assert.Equal(t, int64(3069), secs)
+	assert.Equal(t, int64(584), fuel)
+
+	secs, fuel = calcFlightTime(
+		Coordinate{1, 230, 7, MoonType},
+		Coordinate{1, 318, 4, MoonType},
+		5, 499, true, true, 0.5, 1, 6,
+		ShipsInfos{EspionageProbe: 9000},
+		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, Discoverer)
+	assert.Equal(t, int64(15), secs)
+	assert.Equal(t, int64(1), fuel)
+
+	secs, fuel = calcFlightTime(
+		Coordinate{1, 230, 7, MoonType},
+		Coordinate{1, 318, 4, MoonType},
+		5, 499, true, true, 1, 1, 6,
+		ShipsInfos{EspionageProbe: 9000},
+		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, General)
+	assert.Equal(t, int64(15), secs)
+	assert.Equal(t, int64(1), fuel)
 }
 
 func TestExtractFleetSlot_FleetDispatch_V7(t *testing.T) {

@@ -25,18 +25,18 @@ type Prioritize struct {
 }
 
 // SetInitiator ...
-func (b *Prioritize) SetInitiator(initiator string) *Prioritize {
+func (b *Prioritize) SetInitiator(initiator string) Prioritizable {
 	b.initiator = initiator
 	return b
 }
 
 // Begin a new transaction. "Done" must be called to release the lock.
-func (b *Prioritize) Begin() *Prioritize {
+func (b *Prioritize) Begin() Prioritizable {
 	return b.BeginNamed("Tx")
 }
 
 // BeginNamed begins a new transaction with a name. "Done" must be called to release the lock.
-func (b *Prioritize) BeginNamed(name string) *Prioritize {
+func (b *Prioritize) BeginNamed(name string) Prioritizable {
 	if name == "" {
 		name = "Tx"
 	}
@@ -67,18 +67,11 @@ func (b *Prioritize) done() {
 }
 
 // Tx locks the bot during the transaction and ensure the lock is released afterward
-func (b *Prioritize) Tx(clb func(*Prioritize) error) error {
+func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	tx := b.Begin()
 	defer tx.Done()
 	err := clb(tx)
 	return err
-}
-
-// FakeCall used for debugging
-func (b *Prioritize) FakeCall(name string, delay int) {
-	b.begin("FakeCall")
-	defer b.done()
-	b.bot.fakeCall(name, delay)
 }
 
 // LoginWithExistingCookies to ogame server reusing existing cookies
@@ -105,11 +98,10 @@ func (b *Prioritize) Logout() {
 }
 
 // GetAlliancePageContent gets the html for a specific ogame page
-func (b *Prioritize) GetAlliancePageContent(vals url.Values) []byte {
+func (b *Prioritize) GetAlliancePageContent(vals url.Values) ([]byte, error) {
 	b.begin("GetAlliancePageContent")
 	defer b.done()
-	pageHTML, _ := b.bot.getAlliancePageContent(vals)
-	return pageHTML
+	return b.bot.getAlliancePageContent(vals)
 }
 
 // GetPageContent gets the html for a specific ogame page
@@ -235,17 +227,10 @@ func (b *Prioritize) CancelFleet(fleetID FleetID) error {
 }
 
 // GetAttacks get enemy fleets attacking you
-func (b *Prioritize) GetAttacks() ([]AttackEvent, error) {
+func (b *Prioritize) GetAttacks(opts ...Option) ([]AttackEvent, error) {
 	b.begin("GetAttacks")
 	defer b.done()
-	return b.bot.getAttacks(0)
-}
-
-// GetAttacksUsing get enemy fleets attacking you using a specific celestial to make the check
-func (b *Prioritize) GetAttacksUsing(celestialID CelestialID) ([]AttackEvent, error) {
-	b.begin("GetAttacksUsing")
-	defer b.done()
-	return b.bot.getAttacks(celestialID)
+	return b.bot.getAttacks(opts...)
 }
 
 // GalaxyInfos get information of all planets and moons of a solar system
@@ -462,6 +447,35 @@ func (b *Prioritize) GetEspionageReportMessages() ([]EspionageReportSummary, err
 	return b.bot.getEspionageReportMessages()
 }
 
+// CollectAllMarketplaceMessages collect all marketplace messages
+func (b *Prioritize) CollectAllMarketplaceMessages() error {
+	b.begin("CollectAllMarketplaceMessages")
+	defer b.done()
+	return b.bot.collectAllMarketplaceMessages()
+}
+
+// CollectMarketplaceMessage collect marketplace message
+func (b *Prioritize) CollectMarketplaceMessage(msg MarketplaceMessage) error {
+	b.begin("CollectMarketplaceMessage")
+	defer b.done()
+	_, err := b.bot.collectMarketplaceMessage(msg, "")
+	return err
+}
+
+// GetExpeditionMessages gets the expedition messages
+func (b *Prioritize) GetExpeditionMessages() ([]ExpeditionMessage, error) {
+	b.begin("GetExpeditionMessages")
+	defer b.done()
+	return b.bot.getExpeditionMessages()
+}
+
+// GetExpeditionMessageAt gets the expedition message for time t
+func (b *Prioritize) GetExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
+	b.begin("GetExpeditionMessageAt")
+	defer b.done()
+	return b.bot.getExpeditionMessageAt(t)
+}
+
 // GetEspionageReport gets a detailed espionage report
 func (b *Prioritize) GetEspionageReport(msgID int64) (EspionageReport, error) {
 	b.begin("GetEspionageReport")
@@ -621,4 +635,25 @@ func (b *Prioritize) ActivateItem(ref string, celestialID CelestialID) error {
 	b.begin("ActivateItem")
 	defer b.done()
 	return b.bot.activateItem(ref, celestialID)
+}
+
+// BuyMarketplace buy an item on the marketplace
+func (b *Prioritize) BuyMarketplace(itemID int64, celestialID CelestialID) error {
+	b.begin("BuyMarketplace")
+	defer b.done()
+	return b.bot.buyMarketplace(itemID, celestialID)
+}
+
+// OfferSellMarketplace ...
+func (b *Prioritize) OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	b.begin("OfferSellMarketplace")
+	defer b.done()
+	return b.bot.offerMarketplace(4, itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// OfferBuyMarketplace ...
+func (b *Prioritize) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+	b.begin("OfferBuyMarketplace")
+	defer b.done()
+	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)
 }

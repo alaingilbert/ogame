@@ -24,6 +24,6 @@ func TestSmallCargoSpeed(t *testing.T) {
 
 func TestSmallCargoFuelConsumption(t *testing.T) {
 	sc := newSmallCargo()
-	assert.Equal(t, int64(10), sc.GetFuelConsumption(Researches{}))
-	assert.Equal(t, int64(20), sc.GetFuelConsumption(Researches{ImpulseDrive: 5}))
+	assert.Equal(t, int64(10), sc.GetFuelConsumption(Researches{}, 1, false))
+	assert.Equal(t, int64(20), sc.GetFuelConsumption(Researches{ImpulseDrive: 5}, 1, false))
 }
