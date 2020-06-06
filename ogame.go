@@ -753,6 +753,7 @@ type Server struct {
 
 // ogame cookie name for php session id
 const phpSessionIDCookieName = "PHPSESSID"
+const gftokenproductionCookieName = "gf-token-production"
 
 func getPhpSessionID2(client *http.Client, lobby, username, password string) (string, error) {
 	payload := url.Values{
@@ -822,7 +823,7 @@ func getPhpSessionID(b *OGame, username, password string) (string, error) {
 		return "", errors.New("OGame server error code : " + resp.Status)
 	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 201 {
 		by, err := ioutil.ReadAll(resp.Body)
 		b.error(resp.StatusCode, string(by), err)
 		return "", ErrBadCredentials
@@ -893,11 +894,11 @@ func getSessionID(b *OGame, username, password string) (string, error) {
 		}
 
 		for _, cookie := range resp.Cookies() {
-			if cookie.Name == phpSessionIDCookieName {
+			if cookie.Name == gftokenproductionCookieName {
+				b.debug("token found")
 				return cookie.Value, nil
 			}
 		}
-		b.debug(responseType.Token)
 		return responseType.Token, nil
 	}
 
@@ -906,7 +907,8 @@ func getSessionID(b *OGame, username, password string) (string, error) {
 	}
 
 	for _, cookie := range resp.Cookies() {
-		if cookie.Name == phpSessionIDCookieName {
+		//if cookie.Name == phpSessionIDCookieName {
+		if cookie.Name == gftokenproductionCookieName {
 			return cookie.Value, nil
 		}
 	}
@@ -941,6 +943,52 @@ type account struct {
 	}
 }
 
+func getUserMe(b *OGame) (string, error) {
+
+	var userMe struct {
+		Id                 int64  `json:"id"`
+		UserId             int64  `json:"userId"`
+		GameforgeAccountId string `json:"gameforgeAccountId"`
+		Validated          bool   `json:"validated"`
+		Portable           bool   `json:"portable"`
+		UnlinkedAccounts   bool   `json:"unlinkedAccounts"`
+		MigrationRequired  bool   `json:"migrationRequired"`
+		FakeEmail          string `json:"fakeEmail,strictnull"`
+		Email              string `json:"email"`
+		UnportableName     string `json:"unportableName"`
+		Mhash              string `json:"mhash"`
+	}
+
+	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/users/me", nil)
+	if err != nil {
+		return "", err
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
+	resp, err := b.Client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+
+	by, err := readBody(b, resp)
+	if err != nil {
+		return "", err
+	}
+	b.bytesUploaded += req.ContentLength
+
+	if err := json.Unmarshal(by, &userMe); err != nil {
+		return "", err
+	}
+	b.debug(userMe.Mhash)
+
+	return "", nil
+}
+
 func getUserAccounts(b *OGame) ([]account, error) {
 	var userAccounts []account
 	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
@@ -948,7 +996,6 @@ func getUserAccounts(b *OGame) ([]account, error) {
 		return userAccounts, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	b.debug(b.token)
 	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
@@ -959,6 +1006,7 @@ func getUserAccounts(b *OGame) ([]account, error) {
 			b.error(err)
 		}
 	}()
+
 	by, err := readBody(b, resp)
 	if err != nil {
 		return userAccounts, err
@@ -967,8 +1015,6 @@ func getUserAccounts(b *OGame) ([]account, error) {
 	if err := json.Unmarshal(by, &userAccounts); err != nil {
 		return userAccounts, err
 	}
-	b.debug("success")
-	b.debug(userAccounts)
 	return userAccounts, nil
 }
 
@@ -1211,20 +1257,26 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
 	found := false
 	for _, c := range cookies {
-		if c.Name == phpSessionIDCookieName {
+		//if c.Name == phpSessionIDCookieName {
+		if c.Name == gftokenproductionCookieName {
 			found = true
+			b.token = "Bearer " + c.Value
+			b.debug("found token " + b.token)
 			break
 		}
 	}
+
 	if !found {
 		err := b.login()
 		return false, err
 	}
+	b.debug("login part1 with existing cookies")
 	server, userAccount, err := b.loginPart1()
 	if err == ErrAccountBlocked {
 		return false, err
 	}
 	if err != nil {
+		b.debug("session not found")
 		err := b.login()
 		return false, err
 	}
@@ -1245,14 +1297,27 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 }
 
 func (b *OGame) login() error {
-	b.debug("get session")
-
 	//if _, err := getPhpSessionID(b, b.Username, b.password); err != nil {
 	token, err := getSessionID(b, b.Username, b.password)
 	if err != nil {
 		return err
 	}
 	b.token = "Bearer " + token
+
+	var cookies []*http.Cookie
+	cookie := &http.Cookie{
+		Name:     "gf-token-production",
+		Value:    "" + token,
+		Path:     "/",
+		Domain:   ".gameforge.com",
+		Secure:   false,
+		HttpOnly: true,
+		Expires:  time.Now().Add(30 * 24 * time.Hour),
+		SameSite: http.SameSiteLaxMode,
+	}
+	cookies = append(cookies, cookie)
+	u, _ := url.Parse("https://gameforge.com")
+	b.Client.Jar.(*cookiejar.Jar).SetCookies(u, cookies)
 
 	server, userAccount, err := b.loginPart1()
 	if err != nil {
@@ -1264,7 +1329,6 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
-	b.debug("loginLink: " + loginLink)
 	pageHTML, err := execLoginLink(b, loginLink)
 	if err != nil {
 		return err
@@ -1273,6 +1337,7 @@ func (b *OGame) login() error {
 	if err := b.loginPart2(server, userAccount); err != nil {
 		return err
 	}
+
 	if err := b.loginPart3(userAccount, pageHTML); err != nil {
 		return err
 	}
