@@ -234,7 +234,12 @@ func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsern
 	if err != nil {
 		return newAccount, err
 	}
-	if _, err := getPhpSessionID2(client, "lobby", username, password); err != nil {
+	gameEnvironmentID, platformGameID, err := getConfiguration2(client, "lobby")
+	if err != nil {
+		return newAccount, err
+	}
+	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password)
+	if err != nil {
 		return newAccount, err
 	}
 	servers, err := getServers2("lobby", client)
@@ -262,6 +267,7 @@ func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsern
 	if err != nil {
 		return newAccount, err
 	}
+	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
 	req.Header.Add("Content-Type", "application/json")
 	resp, err := client.Do(req)
 	if err != nil {
@@ -390,173 +396,8 @@ type Server struct {
 	}
 }
 
-// ogame cookie name for php session id
-const phpSessionIDCookieName = "PHPSESSID"
-
-func getPhpSessionID2(client *http.Client, lobby, username, password string) (string, error) {
-	payload := url.Values{
-		"kid":                   {""},
-		"language":              {"en"},
-		"autologin":             {"false"},
-		"credentials[email]":    {username},
-		"credentials[password]": {password},
-	}
-	req, err := http.NewRequest("POST", "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(payload.Encode()))
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 500 {
-		return "", errors.New("OGame server error code : " + resp.Status)
-	}
-
-	if resp.StatusCode != 200 {
-		_, _ = ioutil.ReadAll(resp.Body)
-		return "", ErrBadCredentials
-	}
-
-	for _, cookie := range resp.Cookies() {
-		if cookie.Name == phpSessionIDCookieName {
-			return cookie.Value, nil
-		}
-	}
-
-	return "", errors.New(phpSessionIDCookieName + " not found")
-}
-
-func getSessionID(b *OGame, username, password string) (string, error) {
-	var payload struct {
-		Identity                string `json:"identity"`
-		Password                string `json:"password"`
-		Locale                  string `json:"locale"`
-		GfLang                  string `json:"gfLang"`
-		PlatformGameId          string `json:"platformGameId"`
-		GameEnvironmentId       string `json:"gameEnvironmentId"`
-		AutoGameAccountCreation bool   `json:"autoGameAccountCreation"`
-	}
-
-	payload.Identity = username
-	payload.Password = password
-	payload.Locale = "en_EN"
-	payload.GfLang = "en"
-	payload.PlatformGameId = "1dfd8e7e-6e1a-4eb1-8c64-03c3b62efd2f"
-	payload.GameEnvironmentId = "0a31d605-ffaf-43e7-aa02-d06df7116fc8"
-	payload.AutoGameAccountCreation = false
-	jsonPayloadBytes, _ := json.Marshal(&payload)
-
-	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(string(jsonPayloadBytes)))
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Add("Content-Type", "application/json")
-	resp, err := b.doReqWithLoginProxyTransport(req)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-
-	if resp.StatusCode == 201 {
-		var responseType struct {
-			Token                     string
-			IsPlatformLogin           bool
-			IsGameAccountMigrated     bool
-			PlatformUserId            string
-			IsGameAccountCreated      bool
-			HasUnmigratedGameAccounts bool
-		}
-
-		body, readErr := ioutil.ReadAll(resp.Body)
-		if readErr != nil {
-			log.Fatal(readErr)
-		}
-		jsonErr := json.Unmarshal(body, &responseType)
-		if jsonErr != nil {
-			log.Fatal(jsonErr)
-		}
-
-		for _, cookie := range resp.Cookies() {
-			if cookie.Name == phpSessionIDCookieName {
-				return cookie.Value, nil
-			}
-		}
-		return responseType.Token, nil
-	}
-
-	if resp.StatusCode >= 500 {
-		return "", errors.New("OGame server error code : " + resp.Status)
-	}
-
-	for _, cookie := range resp.Cookies() {
-		if cookie.Name == phpSessionIDCookieName {
-			return cookie.Value, nil
-		}
-	}
-
-	if resp.StatusCode != 201 {
-		by, err := ioutil.ReadAll(resp.Body)
-		b.error(resp.StatusCode, string(by), err)
-		return "", ErrBadCredentials
-	}
-
-	return "", errors.New(phpSessionIDCookieName + " not found")
-}
-
-func getPhpSessionID(b *OGame, username, password string) (string, error) {
-	payload := url.Values{
-		"kid":                   {""},
-		"language":              {"en"},
-		"autologin":             {"false"},
-		"credentials[email]":    {username},
-		"credentials[password]": {password},
-	}
-	req, err := http.NewRequest("POST", "https://"+b.lobby+".ogame.gameforge.com/api/users", strings.NewReader(payload.Encode()))
-	if err != nil {
-		return "", err
-	}
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	resp, err := b.doReqWithLoginProxyTransport(req)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-
-	if resp.StatusCode >= 500 {
-		return "", errors.New("OGame server error code : " + resp.Status)
-	}
-
-	if resp.StatusCode != 200 {
-		by, err := ioutil.ReadAll(resp.Body)
-		b.error(resp.StatusCode, string(by), err)
-		return "", ErrBadCredentials
-	}
-
-	for _, cookie := range resp.Cookies() {
-		if cookie.Name == phpSessionIDCookieName {
-			return cookie.Value, nil
-		}
-	}
-
-	return "", errors.New(phpSessionIDCookieName + " not found")
-}
+// ogame cookie name for token id
+const gfTokenCookieName = "gf-token-production"
 
 type account struct {
 	Server struct {
@@ -579,14 +420,14 @@ type account struct {
 	}
 }
 
-func getUserAccounts(b *OGame) ([]account, error) {
+func getUserAccounts(b *OGame, token string) ([]account, error) {
 	var userAccounts []account
 	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
+	req.Header.Add("authorization", "Bearer "+token)
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return userAccounts, err
@@ -635,7 +476,6 @@ func getServers(b *OGame) ([]Server, error) {
 		return servers, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return servers, err
@@ -693,7 +533,6 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Add("Authorization", b.token)
 	b.debug("login to universe")
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
@@ -738,15 +577,15 @@ func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	return by, nil
 }
 
-func getLoginLink(b *OGame, userAccount account) (string, error) {
+func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
 	ogURL := fmt.Sprintf("https://"+b.lobby+".ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d",
 		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest("GET", ogURL, nil)
 	if err != nil {
 		return "", err
 	}
+	req.Header.Add("authorization", "Bearer "+token)
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", err
@@ -838,18 +677,18 @@ func (b *OGame) getServerData() (ServerData, error) {
 // Return either or not the bot logged in using the existing cookies.
 func (b *OGame) loginWithExistingCookies() (bool, error) {
 	cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
-	found := false
+	token := ""
 	for _, c := range cookies {
-		if c.Name == phpSessionIDCookieName {
-			found = true
+		if c.Name == gfTokenCookieName {
+			token = c.Value
 			break
 		}
 	}
-	if !found {
+	if token == "" {
 		err := b.login()
 		return false, err
 	}
-	server, userAccount, err := b.loginPart1()
+	server, userAccount, err := b.loginPart1(token)
 	if err == ErrAccountBlocked {
 		return false, err
 	}
@@ -873,21 +712,196 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	return true, nil
 }
 
+func getConfiguration(b *OGame) (string, string, error) {
+	ogURL := "https://" + b.lobby + ".ogame.gameforge.com/config/configuration.js"
+	req, err := http.NewRequest("GET", ogURL, nil)
+	if err != nil {
+		return "", "", err
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	resp, err := b.Client.Do(req)
+	if err != nil {
+		return "", "", err
+	}
+	defer resp.Body.Close()
+	by, err := readBody(b, resp)
+	if err != nil {
+		return "", "", err
+	}
+	b.bytesUploaded += req.ContentLength
+
+	gameEnvironmentIDRgx := regexp.MustCompile(`"gameEnvironmentId":"([^"]+)"`)
+	m := gameEnvironmentIDRgx.FindSubmatch(by)
+	if len(m) != 2 {
+		return "", "", errors.New("failed to get gameEnvironmentId")
+	}
+	gameEnvironmentID := m[1]
+
+	platformGameIDRgx := regexp.MustCompile(`"platformGameId":"([^"]+)"`)
+	m = platformGameIDRgx.FindSubmatch(by)
+	if len(m) != 2 {
+		return "", "", errors.New("failed to get platformGameId")
+	}
+	platformGameID := m[1]
+
+	return string(gameEnvironmentID), string(platformGameID), nil
+}
+
+func getConfiguration2(client *http.Client, lobby string) (string, string, error) {
+	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
+	req, err := http.NewRequest("GET", ogURL, nil)
+	if err != nil {
+		return "", "", err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", "", err
+	}
+	defer resp.Body.Close()
+	by, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", "", err
+	}
+
+	gameEnvironmentIDRgx := regexp.MustCompile(`"gameEnvironmentId":"([^"]+)"`)
+	m := gameEnvironmentIDRgx.FindSubmatch(by)
+	if len(m) != 2 {
+		return "", "", errors.New("failed to get gameEnvironmentId")
+	}
+	gameEnvironmentID := m[1]
+
+	platformGameIDRgx := regexp.MustCompile(`"platformGameId":"([^"]+)"`)
+	m = platformGameIDRgx.FindSubmatch(by)
+	if len(m) != 2 {
+		return "", "", errors.New("failed to get platformGameId")
+	}
+	platformGameID := m[1]
+
+	return string(gameEnvironmentID), string(platformGameID), nil
+}
+
+type postSessionsResponse struct {
+	Token                     string `json:"token"`
+	IsPlatformLogin           bool   `json:"isPlatformLogin"`
+	IsGameAccountMigrated     bool   `json:"isGameAccountMigrated"`
+	PlatformUserID            string `json:"platformUserId"`
+	IsGameAccountCreated      bool   `json:"isGameAccountCreated"`
+	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
+}
+
+func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password string) (postSessionsResponse, error) {
+	var out postSessionsResponse
+	payload := url.Values{
+		"autoGameAccountCreation": {"false"},
+		"gameEnvironmentId":       {gameEnvironmentID},
+		"platformGameId":          {platformGameID},
+		"gfLang":                  {"en"},
+		"locale":                  {"en_GB"},
+		"identity":                {username},
+		"password":                {password},
+	}
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	if err != nil {
+		return out, err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := b.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return out, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 500 {
+		return out, errors.New("OGame server error code : " + resp.Status)
+	}
+
+	by, err := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != 201 {
+		b.error(resp.StatusCode, string(by), err)
+		return out, ErrBadCredentials
+	}
+
+	if err := json.Unmarshal(by, &out); err != nil {
+		b.error(err, string(by))
+		return out, err
+	}
+
+	// put in cookie jar so that we can re-login reusing the cookies
+	u, _ := url.Parse("https://gameforge.com")
+	cookies := b.Client.Jar.Cookies(u)
+	cookie := &http.Cookie{
+		Name:   gfTokenCookieName,
+		Value:  out.Token,
+		Path:   "/",
+		Domain: ".gameforge.com",
+	}
+	cookies = append(cookies, cookie)
+	b.Client.Jar.SetCookies(u, cookies)
+
+	return out, nil
+}
+
+func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password string) (postSessionsResponse, error) {
+	var out postSessionsResponse
+	payload := url.Values{
+		"autoGameAccountCreation": {"false"},
+		"gameEnvironmentId":       {gameEnvironmentID},
+		"platformGameId":          {platformGameID},
+		"gfLang":                  {"en"},
+		"locale":                  {"en_GB"},
+		"identity":                {username},
+		"password":                {password},
+	}
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	if err != nil {
+		return out, err
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return out, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode >= 500 {
+		return out, errors.New("OGame server error code : " + resp.Status)
+	}
+
+	by, err := ioutil.ReadAll(resp.Body)
+	if resp.StatusCode != 201 {
+		return out, ErrBadCredentials
+	}
+
+	if err := json.Unmarshal(by, &out); err != nil {
+		return out, err
+	}
+	return out, nil
+}
+
 func (b *OGame) login() error {
-	b.debug("get session")
-	token, err := getSessionID(b, b.Username, b.password)
+	b.debug("get configuration")
+	gameEnvironmentID, platformGameID, err := getConfiguration(b)
 	if err != nil {
 		return err
 	}
-	b.token = "bearer " + token
 
-	server, userAccount, err := b.loginPart1()
+	b.debug("post sessions")
+	postSessionsRes, err := postSessions(b, gameEnvironmentID, platformGameID, b.Username, b.password)
+	if err != nil {
+		return err
+	}
+
+	server, userAccount, err := b.loginPart1(postSessionsRes.Token)
 	if err != nil {
 		return err
 	}
 
 	b.debug("get login link")
-	loginLink, err := getLoginLink(b, userAccount)
+	loginLink, err := getLoginLink(b, userAccount, postSessionsRes.Token)
 	if err != nil {
 		return err
 	}
@@ -912,9 +926,9 @@ func (b *OGame) login() error {
 	return nil
 }
 
-func (b *OGame) loginPart1() (server Server, userAccount account, err error) {
+func (b *OGame) loginPart1(token string) (server Server, userAccount account, err error) {
 	b.debug("get user accounts")
-	accounts, err := getUserAccounts(b)
+	accounts, err := getUserAccounts(b, token)
 	if err != nil {
 		return
 	}
