@@ -8,3 +8,4 @@ vendor
 *.bat
 *.json
 *.code-workspace
+/ogame.code-workspace
