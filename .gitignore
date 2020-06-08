@@ -5,3 +5,4 @@ cmd/bot*
 *.cover
 cover.out
 vendor
+/ogame.code-workspace
