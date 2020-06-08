@@ -60,6 +60,7 @@ type OGame struct {
 	playerID              int64
 	lobby                 string
 	ogameSession          string
+	token                 string
 	sessionChatCounter    int64
 	server                Server
 	serverData            ServerData
@@ -431,6 +432,88 @@ func getPhpSessionID2(client *http.Client, lobby, username, password string) (st
 	return "", errors.New(phpSessionIDCookieName + " not found")
 }
 
+func getSessionID(b *OGame, username, password string) (string, error) {
+	var payload struct {
+		Identity                string `json:"identity"`
+		Password                string `json:"password"`
+		Locale                  string `json:"locale"`
+		GfLang                  string `json:"gfLang"`
+		PlatformGameId          string `json:"platformGameId"`
+		GameEnvironmentId       string `json:"gameEnvironmentId"`
+		AutoGameAccountCreation bool   `json:"autoGameAccountCreation"`
+	}
+
+	payload.Identity = username
+	payload.Password = password
+	payload.Locale = "en_EN"
+	payload.GfLang = "en"
+	payload.PlatformGameId = "1dfd8e7e-6e1a-4eb1-8c64-03c3b62efd2f"
+	payload.GameEnvironmentId = "0a31d605-ffaf-43e7-aa02-d06df7116fc8"
+	payload.AutoGameAccountCreation = false
+	jsonPayloadBytes, _ := json.Marshal(&payload)
+
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return "", err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := b.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+
+	if resp.StatusCode == 201 {
+		var responseType struct {
+			Token                     string
+			IsPlatformLogin           bool
+			IsGameAccountMigrated     bool
+			PlatformUserId            string
+			IsGameAccountCreated      bool
+			HasUnmigratedGameAccounts bool
+		}
+
+		body, readErr := ioutil.ReadAll(resp.Body)
+		if readErr != nil {
+			log.Fatal(readErr)
+		}
+		jsonErr := json.Unmarshal(body, &responseType)
+		if jsonErr != nil {
+			log.Fatal(jsonErr)
+		}
+
+		for _, cookie := range resp.Cookies() {
+			if cookie.Name == phpSessionIDCookieName {
+				return cookie.Value, nil
+			}
+		}
+		return responseType.Token, nil
+	}
+
+	if resp.StatusCode >= 500 {
+		return "", errors.New("OGame server error code : " + resp.Status)
+	}
+
+	for _, cookie := range resp.Cookies() {
+		if cookie.Name == phpSessionIDCookieName {
+			return cookie.Value, nil
+		}
+	}
+
+	if resp.StatusCode != 201 {
+		by, err := ioutil.ReadAll(resp.Body)
+		b.error(resp.StatusCode, string(by), err)
+		return "", ErrBadCredentials
+	}
+
+	return "", errors.New(phpSessionIDCookieName + " not found")
+}
+
 func getPhpSessionID(b *OGame, username, password string) (string, error) {
 	payload := url.Values{
 		"kid":                   {""},
@@ -503,6 +586,7 @@ func getUserAccounts(b *OGame) ([]account, error) {
 		return userAccounts, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return userAccounts, err
@@ -551,6 +635,7 @@ func getServers(b *OGame) ([]Server, error) {
 		return servers, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return servers, err
@@ -608,6 +693,7 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	b.debug("login to universe")
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
@@ -660,6 +746,7 @@ func getLoginLink(b *OGame, userAccount account) (string, error) {
 		return "", err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.token)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", err
@@ -788,9 +875,11 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 
 func (b *OGame) login() error {
 	b.debug("get session")
-	if _, err := getPhpSessionID(b, b.Username, b.password); err != nil {
+	token, err := getSessionID(b, b.Username, b.password)
+	if err != nil {
 		return err
 	}
+	b.token = "bearer " + token
 
 	server, userAccount, err := b.loginPart1()
 	if err != nil {
