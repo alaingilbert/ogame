@@ -8,6 +8,12 @@ var ErrNotLogged = errors.New("not logged")
 // ErrBadCredentials returned when the provided credentials are invalid
 var ErrBadCredentials = errors.New("bad credentials")
 
+// ErrOTPRequired returned when the otp is required
+var ErrOTPRequired = errors.New("otp required")
+
+// ErrOTPInvalid returned when the otp is invalid
+var ErrOTPInvalid = errors.New("otp invalid")
+
 // ErrAccountNotFound returned when the account is not found
 var ErrAccountNotFound = errors.New("account not found")
 
