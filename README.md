@@ -52,7 +52,7 @@ func main() {
 ```go
 IsV7() bool
 GetExtractor() Extractor
-SetOGameCredentials(username, password string)
+SetOGameCredentials(username, password, otpSecret string)
 SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error
 SetLoginWrapper(func(func() error) error)
 GetClient() *OGameClient

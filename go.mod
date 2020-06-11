@@ -20,6 +20,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/orirawlings/persistent-cookiejar v0.3.0
 	github.com/pkg/errors v0.9.1
+	github.com/pquerna/otp v1.2.0
 	github.com/stretchr/testify v1.4.0
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
