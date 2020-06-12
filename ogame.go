@@ -40,19 +40,64 @@ import (
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
+	isEnabledAtom         int32  // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom        int32  // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom       int32  // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom            int32  // atomic, bot state locked/unlocked
+	chatConnectedAtom     int32  // atomic, either or not the chat is connected
+	state                 string // keep name of the function that currently lock the bot
+	stateChangeCallbacks  []func(locked bool, actor string)
+	quiet                 bool
+	player                UserInfos
+	CachedPreferences     Preferences
+	isVacationModeEnabled bool
+	researches            *Researches
+	planets               []Planet
+	planetsMu             sync.RWMutex
+	ajaxChatToken         string
+	Universe              string
+	Username              string
+	password              string
 	otpSecret             string
-
-	player                  UserInfos
+	language              string
+	playerID              int64
+	lobby                 string
+	ogameSession          string
+	token                 string
+	sessionChatCounter    int64
+	server                Server
+	serverData            ServerData
+	location              *time.Location
+	serverURL             string
+	Client                *OGameClient
+	logger                *log.Logger
+	chatCallbacks         []func(msg ChatMsg)
+	wsCallbacks           map[string]func(msg []byte)
+	auctioneerCallbacks   []func(packet []byte)
+	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
+	closeChatCh           chan struct{}
+	chatRetry             *ExponentialBackoff
+	ws                    *websocket.Conn
+	tasks                 priorityQueue
+	tasksLock             sync.Mutex
+	tasksPushCh           chan *item
+	tasksPopCh            chan struct{}
+	loginWrapper          func(func() (bool, error)) error
+	loginProxyTransport   http.RoundTripper
+	bytesUploaded         int64
+	bytesDownloaded       int64
+	extractor             Extractor
+	apiNewHostname        string
+	characterClass        CharacterClass
+	hasCommander          bool
+	hasAdmiral            bool
+	hasEngineer           bool
+	hasGeologist          bool
+	hasTechnocrat         bool
+   
 	playerMu                sync.RWMutex
-	CachedPreferences       Preferences
-	isVacationModeEnabled   bool
 	isVacationModeEnabledMu sync.RWMutex
-	researches              *Researches
 	researchesMu            sync.RWMutex
-	planets                 []Planet
-	planetsMu               sync.RWMutex
-	token                   string
-
 	lastActivePlanet                    CelestialID
 	lastActivePlanetMu                  sync.RWMutex
 	planetActivity                      map[CelestialID]int64
@@ -91,46 +136,7 @@ type OGame struct {
 	movementFleetsMu                    sync.RWMutex
 	slots                               Slots
 	slotsMu                             sync.RWMutex
-
-	ajaxChatToken        string
-	Universe             string
-	Username             string
-	password             string
-	language             string
-	playerID             int64
-	lobby                string
-	ogameSession         string
-	sessionChatCounter   int64
-	server               Server
-	serverData           ServerData
-	location             *time.Location
-	serverURL            string
-	Client               *OGameClient
-	logger               *log.Logger
-	chatCallbacks        []func(msg ChatMsg)
-	wsCallbacks          map[string]func(msg []byte)
-	auctioneerCallbacks  []func(packet []byte)
-	interceptorCallbacks []func(method, url string, params, payload url.Values, pageHTML []byte)
-	closeChatCh          chan struct{}
-	chatRetry            *ExponentialBackoff
-	ws                   *websocket.Conn
-	tasks                priorityQueue
-	tasksLock            sync.Mutex
-	tasksPushCh          chan *item
-	tasksPopCh           chan struct{}
-	loginWrapper         func(func() (bool, error)) error
-	loginProxyTransport  http.RoundTripper
-	bytesUploaded        int64
-	bytesDownloaded      int64
-	extractor            Extractor
-	apiNewHostname       string
-	characterClass       CharacterClass
-	characterClassMu     sync.RWMutex
-	hasCommander         bool
-	hasAdmiral           bool
-	hasEngineer          bool
-	hasGeologist         bool
-	hasTechnocrat        bool
+	characterClassMu     sync.RWMutex   
 }
 
 type Data struct {
