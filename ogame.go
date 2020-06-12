@@ -29,6 +29,8 @@ import (
 	version "github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"github.com/pkg/errors"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
@@ -38,14 +40,8 @@ import (
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabledAtom           int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedInAtom          int32  // atomic, prevent auto re login if we manually logged out
-	isConnectedAtom         int32  // atomic, either or not communication between the bot and OGame is possible
-	lockedAtom              int32  // atomic, bot state locked/unlocked
-	chatConnectedAtom       int32  // atomic, either or not the chat is connected
-	state                   string // keep name of the function that currently lock the bot
-	stateChangeCallbacks    []func(locked bool, actor string)
-	quiet                   bool
+	otpSecret             string
+
 	player                  UserInfos
 	playerMu                sync.RWMutex
 	CachedPreferences       Preferences
@@ -234,6 +230,7 @@ type CelestialID int64
 type Params struct {
 	Username        string
 	Password        string
+	OTPSecret       string
 	Universe        string
 	Lang            string
 	PlayerID        int64
@@ -361,7 +358,7 @@ func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsern
 
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
-	b, err := NewNoLogin(username, password, universe, lang, "", 0)
+	b, err := NewNoLogin(username, password, "", universe, lang, "", 0)
 	if err != nil {
 		return nil, err
 	}
@@ -374,7 +371,7 @@ func New(universe, username, password, lang string) (*OGame, error) {
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b, err := NewNoLogin(params.Username, params.Password, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID)
+	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID)
 	if err != nil {
 		return nil, err
 	}
@@ -394,7 +391,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, universe, lang, cookiesFilename string, playerID int64) (*OGame, error) {
+func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename string, playerID int64) (*OGame, error) {
 	b := new(OGame)
 	b.planetActivityMu.Lock()
 	b.planetActivity = map[CelestialID]int64{}
@@ -691,7 +688,7 @@ func NewNoLogin(username, password, universe, lang, cookiesFilename string, play
 	b.logger = log.New(os.Stdout, "", 0)
 
 	b.Universe = universe
-	b.SetOGameCredentials(username, password)
+	b.SetOGameCredentials(username, password, otpSecret)
 	b.setOGameLobby("lobby")
 	b.language = lang
 
@@ -1210,7 +1207,7 @@ type postSessionsResponse struct {
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
 
-func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password string) (postSessionsResponse, error) {
+func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
 	var out postSessionsResponse
 	payload := url.Values{
 		"autoGameAccountCreation": {"false"},
@@ -1224,6 +1221,20 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
 	if err != nil {
 		return out, err
+	}
+
+	if otpSecret != "" {
+		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
+			Period:    30,
+			Skew:      1,
+			Digits:    otp.DigitsSix,
+			Algorithm: otp.AlgorithmSHA1,
+		})
+		if err != nil {
+			return out, err
+		}
+		req.Header.Add("tnt-2fa-code", passcode)
+		req.Header.Add("tnt-installation-id", "")
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -1240,6 +1251,12 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 
 	by, err := ioutil.ReadAll(resp.Body)
 	if resp.StatusCode != 201 {
+		if string(by) == `{"reason":"OTP_REQUIRED"}` {
+			return out, ErrOTPRequired
+		}
+		if string(by) == `{"reason":"OTP_INVALID"}` {
+			return out, ErrOTPInvalid
+		}
 		b.error(resp.StatusCode, string(by), err)
 		return out, ErrBadCredentials
 	}
@@ -1312,7 +1329,7 @@ func (b *OGame) login() error {
 
 
 	b.debug("post sessions")
-	postSessionsRes, err := postSessions(b, gameEnvironmentID, platformGameID, b.Username, b.password)
+	postSessionsRes, err := postSessions(b, gameEnvironmentID, platformGameID, b.Username, b.password, b.otpSecret)
 	if err != nil {
 		return err
 	}
@@ -1892,9 +1909,10 @@ func (b *OGame) GetExtractor() Extractor {
 }
 
 // SetOGameCredentials sets ogame credentials for the bot
-func (b *OGame) SetOGameCredentials(username, password string) {
+func (b *OGame) SetOGameCredentials(username, password, otpSecret string) {
 	b.Username = username
 	b.password = password
+	b.otpSecret = otpSecret
 }
 
 func (b *OGame) setOGameLobby(lobby string) {
@@ -2475,7 +2493,10 @@ func (b *OGame) withRetry(fn func() error) error {
 			if loginErr := b.wrapLogin(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
 				if loginErr == ErrAccountNotFound ||
-					loginErr == ErrAccountBlocked {
+					loginErr == ErrAccountBlocked ||
+					loginErr == ErrBadCredentials ||
+					loginErr == ErrOTPRequired ||
+					loginErr == ErrOTPInvalid {
 					return loginErr
 				}
 			}
