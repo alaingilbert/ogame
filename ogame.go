@@ -140,6 +140,7 @@ const defaultUserAgent = "" +
 
 type options struct {
 	SkipInterceptor bool
+	SkipRetry       bool
 	ChangePlanet    CelestialID // cp parameter
 }
 
@@ -149,6 +150,11 @@ type Option func(*options)
 // SkipInterceptor option to skip html interceptors
 func SkipInterceptor(opt *options) {
 	opt.SkipInterceptor = true
+}
+
+// SkipRetry option to skip retry
+func SkipRetry(opt *options) {
+	opt.SkipRetry = true
 }
 
 // ChangePlanet set the cp parameter
@@ -711,8 +717,12 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	}
 
 	vals := url.Values{"page": {"ingame"}, "component": {OverviewPage}}
-	pageHTML, err := b.getPageContent(vals)
+	pageHTML, err := b.getPageContent(vals, SkipRetry)
 	if err != nil {
+		if err == ErrNotLogged {
+			err := b.login()
+			return false, err
+		}
 		return false, err
 	}
 	b.debug("login using existing cookies")
@@ -1536,7 +1546,13 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return nil
 	}
 
-	if err := b.withRetry(clb); err != nil {
+	var err error
+	if cfg.SkipRetry {
+		err = clb()
+	} else {
+		err = b.withRetry(clb)
+	}
+	if err != nil {
 		b.error(err)
 		return []byte{}, err
 	}
