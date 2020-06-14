@@ -710,7 +710,8 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 		return false, err
 	}
 
-	pageHTML, err := b.getPage(OverviewPage, CelestialID(0))
+	vals := url.Values{"page": {"ingame"}, "component": {OverviewPage}}
+	pageHTML, err := b.getPageContent(vals)
 	if err != nil {
 		return false, err
 	}
@@ -1515,7 +1516,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	}
 	var pageHTMLBytes []byte
 
-	if err := b.withRetry(func() (err error) {
+	clb := func() (err error) {
 		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
 		if err != nil {
 			return err
@@ -1533,7 +1534,9 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		}
 
 		return nil
-	}); err != nil {
+	}
+
+	if err := b.withRetry(clb); err != nil {
 		b.error(err)
 		return []byte{}, err
 	}
