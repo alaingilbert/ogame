@@ -140,7 +140,7 @@ const defaultUserAgent = "" +
 
 type options struct {
 	SkipInterceptor bool
-	ChangePlanet    CelestialID // cp paramter
+	ChangePlanet    CelestialID // cp parameter
 }
 
 // Option functions to be passed to public interface to change behaviors
