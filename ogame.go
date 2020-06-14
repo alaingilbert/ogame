@@ -207,12 +207,13 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return err
 	}
@@ -273,12 +274,13 @@ func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsern
 	}
 	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return newAccount, err
 	}
 	defer resp.Body.Close()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return newAccount, err
 	}
@@ -441,7 +443,7 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 			b.error(err)
 		}
 	}()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return userAccounts, err
 	}
@@ -458,12 +460,13 @@ func getServers2(lobby string, client *http.Client) ([]Server, error) {
 	if err != nil {
 		return servers, err
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return servers, err
 	}
 	defer resp.Body.Close()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return servers, err
 	}
@@ -489,7 +492,7 @@ func getServers(b *OGame) ([]Server, error) {
 			b.error(err)
 		}
 	}()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return servers, err
 	}
@@ -548,24 +551,20 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 		}
 	}()
 	b.bytesUploaded += req.ContentLength
-	return readBody(b, resp)
+	return wrapperReadBody(b, resp)
 }
 
-func readBody(b *OGame, resp *http.Response) ([]byte, error) {
-	n := int64(0)
-	defer func() {
-		b.bytesDownloaded += n
-	}()
+func readBody(resp *http.Response) (respContent []byte, bytesDownloaded int64, err error) {
 	isGzip := false
 	var reader io.ReadCloser
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
 		isGzip = true
-		n = resp.ContentLength
+		bytesDownloaded = resp.ContentLength
 		var err error
 		reader, err = gzip.NewReader(resp.Body)
 		if err != nil {
-			return []byte{}, err
+			return []byte{}, bytesDownloaded, err
 		}
 		defer reader.Close()
 	default:
@@ -573,12 +572,18 @@ func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	}
 	by, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return []byte{}, err
+		return []byte{}, bytesDownloaded, err
 	}
 	if !isGzip {
-		n = int64(len(by))
+		bytesDownloaded = int64(len(by))
 	}
-	return by, nil
+	return by, bytesDownloaded, nil
+}
+
+func wrapperReadBody(b *OGame, resp *http.Response) ([]byte, error) {
+	by, n, err := readBody(resp)
+	b.bytesDownloaded += n
+	return by, err
 }
 
 func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
@@ -599,7 +604,7 @@ func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
 			b.error(err)
 		}
 	}()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return "", err
 	}
@@ -667,7 +672,7 @@ func (b *OGame) getServerData() (ServerData, error) {
 			b.error(err)
 		}
 	}()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return serverData, err
 	}
@@ -728,7 +733,7 @@ func getConfiguration(b *OGame) (string, string, error) {
 		return "", "", err
 	}
 	defer resp.Body.Close()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return "", "", err
 	}
@@ -757,12 +762,13 @@ func getConfiguration2(client *http.Client, lobby string) (string, string, error
 	if err != nil {
 		return "", "", err
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", "", err
 	}
 	defer resp.Body.Close()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return "", "", err
 	}
@@ -824,6 +830,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
@@ -835,7 +842,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if resp.StatusCode != 201 {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ErrOTPRequired
@@ -884,6 +891,7 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -895,7 +903,7 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if resp.StatusCode != 201 {
 		return out, ErrBadCredentials
 	}
@@ -1468,7 +1476,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	if resp.StatusCode >= 500 {
 		return []byte{}, err
 	}
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -3820,6 +3828,7 @@ func (b *OGame) getPublicIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
 		return "", err
@@ -3829,7 +3838,7 @@ func (b *OGame) getPublicIP() (string, error) {
 			b.error(err)
 		}
 	}()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return "", err
 	}
@@ -3888,6 +3897,7 @@ func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 		return newAccount, err
 	}
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return newAccount, err
@@ -3897,7 +3907,7 @@ func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 			b.error(err)
 		}
 	}()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return newAccount, err
 	}
