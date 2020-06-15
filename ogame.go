@@ -211,7 +211,8 @@ const defaultUserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gec
 
 type options struct {
 	SkipInterceptor bool
-	ChangePlanet    CelestialID // cp paramter
+	SkipRetry       bool
+	ChangePlanet    CelestialID // cp parameter
 }
 
 // Option functions to be passed to public interface to change behaviors
@@ -220,6 +221,11 @@ type Option func(*options)
 // SkipInterceptor option to skip html interceptors
 func SkipInterceptor(opt *options) {
 	opt.SkipInterceptor = true
+}
+
+// SkipRetry option to skip retry
+func SkipRetry(opt *options) {
+	opt.SkipRetry = true
 }
 
 // ChangePlanet set the cp parameter
@@ -278,12 +284,13 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 		return err
 	}
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return err
 	}
@@ -300,7 +307,7 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 	return nil
 }
 
-func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
+func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
 	var newAccount NewAccount
 	var err error
 	client := &http.Client{}
@@ -313,7 +320,7 @@ func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsern
 	if err != nil {
 		return newAccount, err
 	}
-	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password)
+	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
 	if err != nil {
 		return newAccount, err
 	}
@@ -344,12 +351,13 @@ func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsern
 	}
 	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return newAccount, err
 	}
 	defer resp.Body.Close()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return newAccount, err
 	}
@@ -784,53 +792,6 @@ type account struct {
 	}
 }
 
-
-func getUserMe(b *OGame) (string, error) {
-
-	var userMe struct {
-		Id                 int64  `json:"id"`
-		UserId             int64  `json:"userId"`
-		GameforgeAccountId string `json:"gameforgeAccountId"`
-		Validated          bool   `json:"validated"`
-		Portable           bool   `json:"portable"`
-		UnlinkedAccounts   bool   `json:"unlinkedAccounts"`
-		MigrationRequired  bool   `json:"migrationRequired"`
-		FakeEmail          string `json:"fakeEmail,strictnull"`
-		Email              string `json:"email"`
-		UnportableName     string `json:"unportableName"`
-		Mhash              string `json:"mhash"`
-	}
-
-	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/users/me", nil)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Add("Authorization", b.token)
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-
-	by, err := readBody(b, resp)
-	if err != nil {
-		return "", err
-	}
-	b.bytesUploaded += req.ContentLength
-
-	if err := json.Unmarshal(by, &userMe); err != nil {
-		return "", err
-	}
-	b.debug(userMe.Mhash)
-
-	return "", nil
-}
-
 func getUserAccounts(b *OGame, token string) ([]account, error) {
 	var userAccounts []account
 	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
@@ -848,8 +809,7 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 			b.error(err)
 		}
 	}()
-
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return userAccounts, err
 	}
@@ -866,12 +826,13 @@ func getServers2(lobby string, client *http.Client) ([]Server, error) {
 	if err != nil {
 		return servers, err
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return servers, err
 	}
 	defer resp.Body.Close()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return servers, err
 	}
@@ -898,7 +859,7 @@ func getServers(b *OGame) ([]Server, error) {
 			b.error(err)
 		}
 	}()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return servers, err
 	}
@@ -958,14 +919,10 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 		}
 	}()
 	b.bytesUploaded += req.ContentLength
-	return readBody(b, resp)
+	return wrapperReadBody(b, resp)
 }
 
-func readBody(b *OGame, resp *http.Response) ([]byte, error) {
-	n := int64(0)
-	defer func() {
-		b.bytesDownloaded += n
-	}()
+func readBody(resp *http.Response) (respContent []byte, bytesDownloaded int64, err error) {
 	isGzip := false
 	var reader io.ReadCloser
 
@@ -974,11 +931,11 @@ func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
 		isGzip = true
-		n = resp.ContentLength
+		bytesDownloaded = resp.ContentLength
 		var err error
 		reader, err = gzip.NewReader(resp.Body)
 		if err != nil {
-			return []byte{}, err
+			return []byte{}, bytesDownloaded, err
 		}
 		defer reader.Close()
 	default:
@@ -989,12 +946,18 @@ func readBody(b *OGame, resp *http.Response) ([]byte, error) {
 	}
 	by, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return []byte{}, err
+		return []byte{}, bytesDownloaded, err
 	}
 	if !isGzip {
-		n = int64(len(by))
+		bytesDownloaded = int64(len(by))
 	}
-	return by, nil
+	return by, bytesDownloaded, nil
+}
+
+func wrapperReadBody(b *OGame, resp *http.Response) ([]byte, error) {
+	by, n, err := readBody(resp)
+	b.bytesDownloaded += n
+	return by, err
 }
 
 func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
@@ -1016,7 +979,7 @@ func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
 			b.error(err)
 		}
 	}()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return "", err
 	}
@@ -1084,7 +1047,7 @@ func (b *OGame) getServerData() (ServerData, error) {
 			b.error(err)
 		}
 	}()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return serverData, err
 	}
@@ -1125,8 +1088,13 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 		return false, err
 	}
 
-	pageHTML, err := b.getPage(OverviewPage, CelestialID(0))
+	vals := url.Values{"page": {"ingame"}, "component": {OverviewPage}}
+	pageHTML, err := b.getPageContent(vals, SkipRetry)
 	if err != nil {
+		if err == ErrNotLogged {
+			err := b.login()
+			return false, err
+		}
 		return false, err
 	}
 	b.debug("login using existing cookies")
@@ -1148,7 +1116,7 @@ func getConfiguration(b *OGame) (string, string, error) {
 		return "", "", err
 	}
 	defer resp.Body.Close()
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return "", "", err
 	}
@@ -1177,12 +1145,13 @@ func getConfiguration2(client *http.Client, lobby string) (string, string, error
 	if err != nil {
 		return "", "", err
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", "", err
 	}
 	defer resp.Body.Close()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return "", "", err
 	}
@@ -1244,6 +1213,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
@@ -1255,7 +1225,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if resp.StatusCode != 201 {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ErrOTPRequired
@@ -1287,7 +1257,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	return out, nil
 }
 
-func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password string) (postSessionsResponse, error) {
+func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
 	var out postSessionsResponse
 	payload := url.Values{
 		"autoGameAccountCreation": {"false"},
@@ -1303,7 +1273,22 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 		return out, err
 	}
 
+	if otpSecret != "" {
+		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
+			Period:    30,
+			Skew:      1,
+			Digits:    otp.DigitsSix,
+			Algorithm: otp.AlgorithmSHA1,
+		})
+		if err != nil {
+			return out, err
+		}
+		req.Header.Add("tnt-2fa-code", passcode)
+		req.Header.Add("tnt-installation-id", "")
+	}
+
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -1315,8 +1300,14 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if resp.StatusCode != 201 {
+		if string(by) == `{"reason":"OTP_REQUIRED"}` {
+			return out, ErrOTPRequired
+		}
+		if string(by) == `{"reason":"OTP_INVALID"}` {
+			return out, ErrOTPInvalid
+		}
 		return out, ErrBadCredentials
 	}
 
@@ -1615,28 +1606,6 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 			b.planetShipsInfosMu.Unlock()
 		}
 		break
-	case DefensePage:
-		defenses, err := b.extractor.ExtractDefense(pageHTML)
-		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
-		b.planetShipyardProductionsMu.Lock()
-		b.planetShipyardProductions[celestialID] = ships
-		b.planetShipyardProductionsMu.Unlock()
-		if shipyardCountdown != 0 {
-			b.planetShipyardProductionsFinishAtMu.Lock()
-			b.planetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
-			b.planetShipyardProductionsFinishAtMu.Unlock()
-		} else {
-			b.planetShipyardProductionsFinishAtMu.Lock()
-			b.planetShipyardProductionsFinishAt[celestialID] = 0
-			b.planetShipyardProductionsFinishAtMu.Unlock()
-		}
-
-		if err == nil {
-			b.planetDefensesInfosMu.Lock()
-			b.planetDefensesInfos[celestialID] = defenses
-			b.planetDefensesInfosMu.Unlock()
-		}
-		break
 	case DefensesPage:
 		defenses, err := b.extractor.ExtractDefense(pageHTML)
 		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
@@ -1698,15 +1667,6 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		break
 
 	case FleetdispatchPage:
-		b.planetShipsInfosMu.Lock()
-		si := b.extractor.ExtractFleet1Ships(pageHTML)
-		si.SolarSatellite = b.planetShipsInfos[celestialID].SolarSatellite
-		si.Crawler = b.planetShipsInfos[celestialID].SolarSatellite
-		b.planetShipsInfos[celestialID] = si
-		b.planetShipsInfosMu.Unlock()
-		break
-
-	case Fleet1Page:
 		b.planetShipsInfosMu.Lock()
 		si := b.extractor.ExtractFleet1Ships(pageHTML)
 		si.SolarSatellite = b.planetShipsInfos[celestialID].SolarSatellite
@@ -2175,13 +2135,9 @@ func IsKnowFullPage(vals url.Values) bool {
 		page = vals.Get("component")
 	}
 	return page == OverviewPage ||
-		page == ResourcesPage ||
-		page == StationPage ||
 		page == TraderOverviewPage ||
 		page == ResearchPage ||
 		page == ShipyardPage ||
-		page == DefensePage ||
-		page == Fleet1Page ||
 		page == GalaxyPage ||
 		page == AlliancePage ||
 		page == PremiumPage ||
@@ -2292,7 +2248,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	if resp.StatusCode >= 500 {
 		return []byte{}, err
 	}
-	by, err := readBody(b, resp)
+	by, err := wrapperReadBody(b, resp)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -2332,9 +2288,8 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	}
 	var pageHTMLBytes []byte
 
+	clb := func() (err error) {
 	log.Printf("Visit page: %s (%s)", page, finalURL)
-
-	if err := b.withRetry(func() (err error) {
 		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
 		if err != nil {
 			return err
@@ -2352,7 +2307,15 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		}
 
 		return nil
-	}); err != nil {
+	}
+
+	var err error
+	if cfg.SkipRetry {
+		err = clb()
+	} else {
+		err = b.withRetry(clb)
+	}
+	if err != nil {
 		b.error(err)
 		return []byte{}, err
 	}
@@ -2812,7 +2775,7 @@ type Slots struct {
 }
 
 func (b *OGame) getSlots() Slots {
-	pageHTML, _ := b.getPage(Fleet1Page, CelestialID(0))
+	pageHTML, _ := b.getPage(FleetdispatchPage, CelestialID(0))
 	return b.extractor.ExtractSlots(pageHTML)
 }
 
@@ -2918,7 +2881,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	res := make([]Fleet, 0)
 
 	// Get moon facilities html page (first call to ogame server)
-	moonFacilitiesHTML, _ := b.getPage(StationPage, moonID.Celestial())
+	moonFacilitiesHTML, _ := b.getPage(FacilitiesPage, moonID.Celestial())
 
 	// Extract bunch of infos from the html
 	moon, err := b.extractor.ExtractMoon(moonFacilitiesHTML, b, moonID)
@@ -3572,10 +3535,7 @@ func fixAttackEvents(attacks []AttackEvent, planets []Planet) {
 }
 
 func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
-	params := url.Values{"page": {"eventList"}, "ajax": {"1"}}
-	if b.IsV7() {
-		params = url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
-	}
+	params := url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
 	pageHTML, err := b.getPageContent(params, opts...)
 	if err != nil {
 		return
@@ -3601,10 +3561,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 		"galaxy": {strconv.FormatInt(galaxy, 10)},
 		"system": {strconv.FormatInt(system, 10)},
 	}
-	vals := url.Values{"page": {"galaxyContent"}, "ajax": {"1"}}
-	if b.IsV7() {
-		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
-	}
+	vals := url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
 	pageHTML, err := b.postPageContent(vals, payload, options...)
 	if err != nil {
 		return res, err
@@ -3697,12 +3654,12 @@ func (b *OGame) getResearch() Researches {
 }
 
 func (b *OGame) getResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	pageHTML, _ := b.getPage(ResourcesPage, celestialID)
+	pageHTML, _ := b.getPage(SuppliesPage, celestialID)
 	return b.extractor.ExtractResourcesBuildings(pageHTML)
 }
 
 func (b *OGame) getDefense(celestialID CelestialID) (DefensesInfos, error) {
-	pageHTML, _ := b.getPage(DefensePage, celestialID)
+	pageHTML, _ := b.getPage(DefensesPage, celestialID)
 	return b.extractor.ExtractDefense(pageHTML)
 }
 
@@ -3712,7 +3669,7 @@ func (b *OGame) getShips(celestialID CelestialID) (ShipsInfos, error) {
 }
 
 func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
-	pageHTML, _ := b.getPage(StationPage, celestialID)
+	pageHTML, _ := b.getPage(FacilitiesPage, celestialID)
 	return b.extractor.ExtractFacilities(pageHTML)
 }
 
@@ -3728,24 +3685,12 @@ func (b *OGame) IsV7() bool {
 
 func getToken(b *OGame, page string, celestialID CelestialID) (string, error) {
 	pageHTML, _ := b.getPage(page, celestialID)
-	if b.IsV7() {
-		rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
-		m := rgx.FindSubmatch(pageHTML)
-		if len(m) != 2 {
-			return "", errors.New("unable to find form token")
-		}
-		return string(m[1]), nil
-	}
-
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	if err != nil {
-		return "", err
-	}
-	token, exists := doc.Find("form").Find("input[name=token]").Attr("value")
-	if !exists {
+	rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
+	m := rgx.FindSubmatch(pageHTML)
+	if len(m) != 2 {
 		return "", errors.New("unable to find form token")
 	}
-	return token, nil
+	return string(m[1]), nil
 }
 
 func getDemolishToken(b *OGame, page string, celestialID CelestialID) (string, error) {
@@ -3803,65 +3748,6 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 }
 
 func (b *OGame) build(celestialID CelestialID, id ID, nbr int64) error {
-	if b.IsV7() {
-		return b.buildV7(celestialID, id, nbr)
-	}
-	return b.buildV6(celestialID, id, nbr)
-}
-
-func (b *OGame) buildV6(celestialID CelestialID, id ID, nbr int64) error {
-	var page string
-	if id.IsDefense() {
-		page = "defense"
-	} else if id.IsShip() {
-		page = "shipyard"
-	} else if id.IsBuilding() {
-		page = "resources"
-	} else if id.IsTech() {
-		page = "research"
-	} else {
-		return errors.New("invalid id " + id.String())
-	}
-	payload := url.Values{
-		"modus": {"1"},
-		"type":  {strconv.FormatInt(int64(id), 10)},
-	}
-
-	// Techs don't have a token
-	if !id.IsTech() {
-		token, err := getToken(b, page, celestialID)
-		if err != nil {
-			return err
-		}
-		payload.Add("token", token)
-	}
-
-	if id.IsDefense() || id.IsShip() {
-		var maximumNbr int64 = 99999
-		var err error
-		var token string
-		for nbr > 0 {
-			tmp := int64(math.Min(float64(nbr), float64(maximumNbr)))
-			payload.Set("menge", strconv.FormatInt(tmp, 10))
-			_, err = b.postPageContent(url.Values{"page": {page}, "cp": {strconv.FormatInt(int64(celestialID), 10)}}, payload)
-			if err != nil {
-				break
-			}
-			token, err = getToken(b, page, celestialID)
-			if err != nil {
-				break
-			}
-			payload.Set("token", token)
-			nbr -= maximumNbr
-		}
-		return err
-	}
-
-	_, err := b.postPageContent(url.Values{"page": {page}, "cp": {strconv.FormatInt(int64(celestialID), 10)}}, payload)
-	return err
-}
-
-func (b *OGame) buildV7(celestialID CelestialID, id ID, nbr int64) error {
 	var page string
 	if id.IsDefense() {
 		page = DefensesPage
@@ -3964,13 +3850,8 @@ func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int64, ID,
 }
 
 func (b *OGame) cancel(token string, techID, listID int64) error {
-	if b.IsV7() {
-		_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"overview"}, "modus": {"2"}, "token": {token},
-			"type": {strconv.FormatInt(techID, 10)}, "listid": {strconv.FormatInt(listID, 10)}, "action": {"cancel"}})
-	} else {
-		_, _ = b.getPageContent(url.Values{"page": {"overview"}, "modus": {"2"}, "token": {token},
-			"techid": {strconv.FormatInt(techID, 10)}, "listid": {strconv.FormatInt(listID, 10)}})
-	}
+	_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"overview"}, "modus": {"2"}, "token": {token},
+		"type": {strconv.FormatInt(techID, 10)}, "listid": {strconv.FormatInt(listID, 10)}, "action": {"cancel"}})
 	return nil
 }
 
@@ -4023,23 +3904,13 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 		return 0, errors.New("invalid defense target id")
 	}
 	vals := url.Values{
-		"page":       {"missileattacklayer"},
+		"page":       {"ajax"},
+		"component":  {"missileattacklayer"},
 		"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
 		"system":     {strconv.FormatInt(coord.System, 10)},
 		"position":   {strconv.FormatInt(coord.Position, 10)},
 		"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
 		"cp":         {strconv.FormatInt(int64(planetID), 10)},
-	}
-	if b.IsV7() {
-		vals = url.Values{
-			"page":       {"ajax"},
-			"component":  {"missileattacklayer"},
-			"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
-			"system":     {strconv.FormatInt(coord.System, 10)},
-			"position":   {strconv.FormatInt(coord.Position, 10)},
-			"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
-			"cp":         {strconv.FormatInt(int64(planetID), 10)},
-		}
 	}
 	pageHTML, err := b.getPageContent(vals)
 	if err != nil {
@@ -4052,39 +3923,24 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	if nbr > max {
 		nbr = max
 	}
+	params := url.Values{
+		"page":      {"ajax"},
+		"component": {"missileattacklayer"},
+		"action":    {"sendMissiles"},
+		"ajax":      {"1"},
+		"asJson":    {"1"},
+	}
 	payload := url.Values{
-		"galaxy":     {strconv.FormatInt(coord.Galaxy, 10)},
-		"system":     {strconv.FormatInt(coord.System, 10)},
-		"position":   {strconv.FormatInt(coord.Position, 10)},
-		"planetType": {strconv.FormatInt(int64(coord.Type), 10)},
-		"token":      {token},
-		"anz":        {strconv.FormatInt(nbr, 10)},
-		"pziel":      {},
+		"galaxy":               {strconv.FormatInt(coord.Galaxy, 10)},
+		"system":               {strconv.FormatInt(coord.System, 10)},
+		"position":             {strconv.FormatInt(coord.Position, 10)},
+		"type":                 {strconv.FormatInt(int64(coord.Type), 10)},
+		"token":                {token},
+		"missileCount":         {strconv.FormatInt(nbr, 10)},
+		"missilePrimaryTarget": {},
 	}
 	if priority != 0 {
-		payload.Add("pziel", strconv.FormatInt(int64(priority), 10))
-	}
-	params := url.Values{"page": {"missileattack_execute"}}
-	if b.IsV7() {
-		params = url.Values{
-			"page":      {"ajax"},
-			"component": {"missileattacklayer"},
-			"action":    {"sendMissiles"},
-			"ajax":      {"1"},
-			"asJson":    {"1"},
-		}
-		payload = url.Values{
-			"galaxy":               {strconv.FormatInt(coord.Galaxy, 10)},
-			"system":               {strconv.FormatInt(coord.System, 10)},
-			"position":             {strconv.FormatInt(coord.Position, 10)},
-			"type":                 {strconv.FormatInt(int64(coord.Type), 10)},
-			"token":                {token},
-			"missileCount":         {strconv.FormatInt(nbr, 10)},
-			"missilePrimaryTarget": {},
-		}
-		if priority != 0 {
-			payload.Add("missilePrimaryTarget", strconv.FormatInt(int64(priority), 10))
-		}
+		payload.Add("missilePrimaryTarget", strconv.FormatInt(int64(priority), 10))
 	}
 	by, err := b.postPageContent(params, payload)
 	if err != nil {
@@ -4110,18 +3966,6 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 	}
 
 	return duration, nil
-}
-
-func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64, ensure bool) (Fleet, error) {
-	if b.IsV7() {
-		fleet, err := b.sendFleetV7(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
-		fleet.StartTime = b.fixTimezone(fleet.StartTime)
-		return fleet, err
-	}
-	fleet, err := b.sendFleetV6(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID, ensure)
-	fleet.StartTime = b.fixTimezone(fleet.StartTime)
-	return fleet, err
 }
 
 // CheckTargetResponse ...
@@ -4163,7 +4007,7 @@ type CheckTargetResponse struct {
 	Components []interface{} `json:"components"`
 }
 
-func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
+func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, expeditiontime, unionID int64, ensure bool) (Fleet, error) {
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
@@ -4186,7 +4030,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 	}
 
 	// Page 1 : get to fleet page
-	pageHTML, err := b.getPage(Fleet1Page, celestialID)
+	pageHTML, err := b.getPage(FleetdispatchPage, celestialID)
 	if err != nil {
 		return Fleet{}, err
 	}
@@ -4393,296 +4237,7 @@ func (b *OGame) sendFleetV7(celestialID CelestialID, ships []Quantifiable, speed
 			}
 		}
 		if max.ID > maxInitialFleetID {
-			return max, nil
-		}
-	}
-
-	slots = b.extractor.ExtractSlotsFromDoc(movementDoc)
-	if slots.InUse == slots.Total {
-		return Fleet{}, ErrAllSlotsInUse
-	}
-
-	if mission == Expedition {
-		if slots.ExpInUse == slots.ExpTotal {
-			return Fleet{}, ErrAllSlotsInUse
-		}
-	}
-
-	now := time.Now().Unix()
-	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID, ", ts: ", now)
-	return Fleet{}, errors.New("could not find new fleet ID")
-}
-
-func (b *OGame) sendFleetV6(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64, ensure bool) (Fleet, error) {
-
-	// Get existing fleet, so we can ensure new fleet ID is greater
-	initialFleets, slots := b.getFleets()
-	maxInitialFleetID := FleetID(0)
-	for _, f := range initialFleets {
-		if f.ID > maxInitialFleetID {
-			maxInitialFleetID = f.ID
-		}
-	}
-
-	if slots.InUse == slots.Total {
-		return Fleet{}, ErrAllSlotsInUse
-	}
-
-	if mission == Expedition {
-		if slots.ExpInUse == slots.ExpTotal {
-			return Fleet{}, ErrAllSlotsInUse
-		}
-	}
-
-	// Page 1 : get to fleet page
-	pageHTML, err := b.getPage(Fleet1Page, celestialID)
-	if err != nil {
-		return Fleet{}, err
-	}
-
-	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
-	if fleet1BodyID != "fleet1" {
-		now := time.Now().Unix()
-		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
-		return Fleet{}, ErrInvalidPlanetID
-	}
-
-	if b.extractor.ExtractIsInVacationFromDoc(fleet1Doc) {
-		return Fleet{}, ErrAccountInVacationMode
-	}
-
-	// Ensure we're not trying to attack/spy ourselves
-	destinationIsMyOwnPlanet := false
-	myCelestials, _ := b.extractor.ExtractCelestialsFromDoc(fleet1Doc, b)
-	for _, c := range myCelestials {
-		if c.GetCoordinate().Equal(where) && c.GetID() == celestialID {
-			return Fleet{}, errors.New("origin and destination are the same")
-		}
-		if c.GetCoordinate().Equal(where) {
-			destinationIsMyOwnPlanet = true
-			break
-		}
-	}
-	if destinationIsMyOwnPlanet {
-		switch mission {
-		case Spy:
-			return Fleet{}, errors.New("you cannot spy yourself")
-		case Attack:
-			return Fleet{}, errors.New("you cannot attack yourself")
-		}
-	}
-
-	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
-
-	atLeastOneShipSelected := false
-	if !ensure {
-		for _, ship := range ships {
-			if ship.Nbr > 0 && availableShips.ByID(ship.ID) > 0 {
-				atLeastOneShipSelected = true
-				break
-			}
-		}
-	} else {
-		for _, ship := range ships {
-			if ship.Nbr > availableShips.ByID(ship.ID) {
-				return Fleet{}, ErrNotEnoughShips
-			}
-			atLeastOneShipSelected = true
-		}
-	}
-	if !atLeastOneShipSelected {
-		return Fleet{}, ErrNoShipSelected
-	}
-
-	payload := b.extractor.ExtractHiddenFieldsFromDoc(fleet1Doc)
-	cs := false       // ColonyShip flag for fleet check
-	recycler := false // Recycler flag for fleet check
-	for _, s := range ships {
-		if s.Nbr > 0 {
-			if s.ID == ColonyShipID {
-				cs = true
-			} else if s.ID == RecyclerID {
-				recycler = true
-			}
-			payload.Add("am"+strconv.FormatInt(int64(s.ID), 10), strconv.FormatInt(s.Nbr, 10))
-		}
-	}
-
-	// Page 2 : select ships
-	pageHTML, err = b.postPageContent(url.Values{"page": {"fleet2"}}, payload)
-	if err != nil {
-		return Fleet{}, err
-	}
-	fleet2Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet2BodyID := b.extractor.ExtractBodyIDFromDoc(fleet2Doc)
-	if fleet2BodyID != "fleet2" {
-		now := time.Now().Unix()
-		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
-		return Fleet{}, errors.New("unknown error")
-	}
-
-	payload = b.extractor.ExtractHiddenFieldsFromDoc(fleet2Doc)
-	payload.Add("speed", strconv.FormatInt(int64(speed), 10))
-	payload.Add("galaxy", strconv.FormatInt(where.Galaxy, 10))
-	payload.Add("system", strconv.FormatInt(where.System, 10))
-	payload.Add("position", strconv.FormatInt(where.Position, 10))
-	if mission == RecycleDebrisField {
-		where.Type = DebrisType // Send to debris field
-	} else if mission == Colonize || mission == Expedition {
-		where.Type = PlanetType
-	}
-	payload.Add("type", strconv.FormatInt(int64(where.Type), 10))
-
-	if unionID != 0 {
-		found := false
-		fleet2Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
-			acsValues := s.AttrOr("value", "")
-			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
-			if len(m) == 2 {
-				optUnionID, _ := strconv.ParseInt(m[1], 10, 64)
-				if unionID == optUnionID {
-					found = true
-					payload.Add("acsValues", acsValues)
-					payload.Add("union", m[1])
-					mission = GroupedAttack
-				}
-			}
-		})
-		if !found {
-			return Fleet{}, ErrUnionNotFound
-		}
-	}
-
-	// Check
-	fleetCheckPayload := url.Values{
-		"galaxy": {strconv.FormatInt(where.Galaxy, 10)},
-		"system": {strconv.FormatInt(where.System, 10)},
-		"planet": {strconv.FormatInt(where.Position, 10)},
-		"type":   {strconv.FormatInt(int64(where.Type), 10)},
-	}
-	if cs {
-		fleetCheckPayload.Add("cs", "1")
-	}
-	if recycler {
-		fleetCheckPayload.Add("recycler", "1")
-	}
-	by1, err := b.postPageContent(url.Values{"page": {"fleetcheck"}, "ajax": {"1"}, "espionage": {"0"}}, fleetCheckPayload)
-	if err != nil {
-		return Fleet{}, err
-	}
-	switch string(by1) {
-	case "1":
-		return Fleet{}, ErrUninhabitedPlanet
-	case "1d":
-		return Fleet{}, ErrNoDebrisField
-	case "2":
-		return Fleet{}, ErrPlayerInVacationMode
-	case "3":
-		return Fleet{}, ErrAdminOrGM
-	case "4":
-		return Fleet{}, ErrNoAstrophysics
-	case "5":
-		return Fleet{}, ErrNoobProtection
-	case "6":
-		return Fleet{}, ErrPlayerTooStrong
-	case "10":
-		return Fleet{}, ErrNoMoonAvailable
-	case "11":
-		return Fleet{}, ErrNoRecyclerAvailable
-	case "15":
-		return Fleet{}, ErrNoEventsRunning
-	case "16":
-		return Fleet{}, ErrPlanetAlreadyReservedForRelocation
-	}
-
-	// Page 3 : select coord, mission, speed
-	pageHTML, err = b.postPageContent(url.Values{"page": {"fleet3"}}, payload)
-	if err != nil {
-		return Fleet{}, err
-	}
-
-	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	fleet3BodyID := b.extractor.ExtractBodyIDFromDoc(fleet3Doc)
-	if fleet3BodyID != "fleet3" {
-		now := time.Now().Unix()
-		b.error(errors.New("unknown error").Error()+", planetID:", celestialID, ", ts: ", now)
-		return Fleet{}, errors.New("unknown error")
-	}
-
-	if mission == Spy && fleet3Doc.Find("li#button6").HasClass("off") {
-		return Fleet{}, errors.New("target cannot be spied (button disabled)")
-	} else if mission == Attack && fleet3Doc.Find("li#button1").HasClass("off") {
-		return Fleet{}, errors.New("target cannot be attacked (button disabled)")
-	} else if mission == Transport && fleet3Doc.Find("li#button3").HasClass("off") {
-		return Fleet{}, errors.New("cannot send transport (button disabled)")
-	} else if mission == Park && fleet3Doc.Find("li#button4").HasClass("off") {
-		return Fleet{}, errors.New("cannot send deployment (button disabled)")
-	} else if mission == Colonize && fleet3Doc.Find("li#button7").HasClass("off") {
-		return Fleet{}, errors.New("cannot send colonisation (button disabled)")
-	} else if mission == Expedition && fleet3Doc.Find("li#button15").HasClass("off") {
-		return Fleet{}, errors.New("cannot send expedition (button disabled)")
-	} else if mission == RecycleDebrisField && fleet3Doc.Find("li#button8").HasClass("off") {
-		return Fleet{}, errors.New("cannot recycle (button disabled)")
-		//} else if mission == Transport && fleet3Doc.Find("li#button5").HasClass("off") {
-		//	return Fleet{}, errors.New("cannot acs defend (button disabled)")
-	} else if mission == GroupedAttack && fleet3Doc.Find("li#button2").HasClass("off") {
-		return Fleet{}, errors.New("cannot acs attack (button disabled)")
-	} else if mission == Destroy && fleet3Doc.Find("li#button9").HasClass("off") {
-		return Fleet{}, errors.New("cannot destroy (button disabled)")
-	}
-
-	payload = b.extractor.ExtractHiddenFieldsFromDoc(fleet3Doc)
-	var finalShips ShipsInfos
-	for k, v := range payload {
-		var shipID int
-		if n, err := fmt.Sscanf(k, "am%d", &shipID); err == nil && n == 1 {
-			nbr, _ := strconv.ParseInt(v[0], 10, 64)
-			finalShips.Set(ID(shipID), nbr)
-		}
-	}
-	deutConsumption := ParseInt(fleet3Doc.Find("div#roundup span#consumption").Text())
-	resourcesAvailable := b.extractor.ExtractResourcesFromDoc(fleet3Doc)
-	if deutConsumption > resourcesAvailable.Deuterium {
-		return Fleet{}, fmt.Errorf("not enough deuterium, avail: %d, need: %d", resourcesAvailable.Deuterium, deutConsumption)
-	}
-	// finalCargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
-	baseCargo := finalShips.Cargo(Researches{}, b.GetServer().Settings.EspionageProbeRaids == 1, b.characterClass == Collector)
-	if b.GetServer().Settings.EspionageProbeRaids != 1 {
-		baseCargo += finalShips.EspionageProbe * EspionageProbe.BaseCargoCapacity
-	}
-	if deutConsumption > baseCargo {
-		return Fleet{}, fmt.Errorf("not enough cargo capacity for fuel, avail: %d, need: %d", baseCargo, deutConsumption)
-	}
-	payload.Add("crystal", strconv.FormatInt(resources.Crystal, 10))
-	payload.Add("deuterium", strconv.FormatInt(resources.Deuterium, 10))
-	payload.Add("metal", strconv.FormatInt(resources.Metal, 10))
-	payload.Set("mission", strconv.FormatInt(int64(mission), 10))
-	if mission == Expedition {
-		payload.Set("expeditiontime", strconv.FormatInt(expeditiontime, 10))
-	}
-
-	// Page 4 : send the fleet
-	_, _ = b.postPageContent(url.Values{"page": {"movement"}}, payload)
-
-	// Page 5
-	movementHTML, _ := b.getPage(MovementPage, CelestialID(0))
-	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
-	originCoords, _ := b.extractor.ExtractPlanetCoordinate(movementHTML)
-	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc)
-	if len(fleets) > 0 {
-		max := Fleet{}
-		for i, fleet := range fleets {
-			if fleet.ID > max.ID &&
-				fleet.Origin.Equal(originCoords) &&
-				fleet.Destination.Equal(where) &&
-				fleet.Mission == mission &&
-				!fleet.ReturnFlight {
-				max = fleets[i]
-			}
-		}
-		if max.ID > maxInitialFleetID {
+         fleets[max.ID].StartTime = b.fixTimezone(fleets[max.ID].StartTime)
 			return max, nil
 		}
 	}
@@ -5073,6 +4628,7 @@ func (b *OGame) getPublicIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
 		return "", err
@@ -5082,7 +4638,7 @@ func (b *OGame) getPublicIP() (string, error) {
 			b.error(err)
 		}
 	}()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return "", err
 	}
@@ -5141,6 +4697,7 @@ func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 		return newAccount, err
 	}
 	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return newAccount, err
@@ -5150,7 +4707,7 @@ func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 			b.error(err)
 		}
 	}()
-	by, err := ioutil.ReadAll(resp.Body)
+	by, _, err := readBody(resp)
 	if err != nil {
 		return newAccount, err
 	}

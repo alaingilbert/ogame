@@ -1227,12 +1227,12 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 func extractSlotsFromDocV6(doc *goquery.Document) Slots {
 	slots := Slots{}
 	page := extractBodyIDFromDocV6(doc)
-	if page == "movement" {
+	if page == MovementPage {
 		slots.InUse = ParseInt(doc.Find("span.fleetSlots > span.current").Text())
 		slots.Total = ParseInt(doc.Find("span.fleetSlots > span.all").Text())
 		slots.ExpInUse = ParseInt(doc.Find("span.expSlots > span.current").Text())
 		slots.ExpTotal = ParseInt(doc.Find("span.expSlots > span.all").Text())
-	} else if page == "fleet1" || page == "fleetdispatch" {
+	} else if page == FleetdispatchPage || page == "fleet1" {
 		r := regexp.MustCompile(`(\d+)/(\d+)`)
 		txt := doc.Find("div#slots>div").Eq(0).Text()
 		m := r.FindStringSubmatch(txt)

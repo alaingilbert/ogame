@@ -3,7 +3,6 @@ package ogame
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -907,12 +906,13 @@ func GetStaticHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := bot.Client.Do(req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, _, err := readBody(resp)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -1218,7 +1218,7 @@ func AddAccountHandler(c echo.Context) error {
 	//value, _ := strconv.ParseInt(c.QueryParam("number"), 10, 64)
 	//lang := c.QueryParam("lang")
 	//account, err := bot.AddAccount(int(value), lang)
-	account, err := AddAccount(bot.Username, bot.password, "Libra", "de", "", "","", "")
+	account, err := AddAccount(bot.Username, bot.password, "", "Libra", "de", "", "","", "")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}

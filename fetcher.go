@@ -7,19 +7,18 @@ import (
 
 // Page names
 const (
-	// V6 full pages
 	OverviewPage         = "overview"
 	PreferencesPage      = "preferences"
 	ResourceSettingsPage = "resourceSettings"
-	ResourcesPage        = "resources"
-	DefensePage          = "defense"
+	DefensesPage         = "defenses"
+	SuppliesPage         = "supplies"
+	FacilitiesPage       = "facilities"
+	FleetdispatchPage    = "fleetdispatch"
 	ShipyardPage         = "shipyard"
-	StationPage          = "station"
 	MovementPage         = "movement"
 	ResearchPage         = "research"
 	PlanetlayerPage      = "planetlayer"
 	LogoutPage           = "logout"
-	Fleet1Page           = "fleet1"
 	JumpgatelayerPage    = "jumpgatelayer"
 	FetchResourcesPage   = "fetchResources"
 	TraderOverviewPage   = "traderOverview"
@@ -33,7 +32,7 @@ const (
 	MessagesPage         = "messages"
 	ChatPage             = "chat"
 
-	// V6 ajax pages
+	// ajax pages
 	FetchEventboxAjaxPage      = "fetchEventbox"
 	FetchResourcesAjaxPage     = "fetchResources"
 	GalaxyContentAjaxPage      = "galaxyContent"
@@ -57,28 +56,12 @@ const (
 	BuffActivationAjaxPage     = "buffActivation"
 	AuctioneerAjaxPage         = "auctioneer"
 	HighscoreContentAjaxPage   = "highscoreContent"
-
-	// V7 pages
-	DefensesPage      = "defenses"
-	SuppliesPage      = "supplies"
-	FacilitiesPage    = "facilities"
-	FleetdispatchPage = "fleetdispatch"
 )
 
-var pageV7Mapping = map[string]string{
-	DefensePage:   DefensesPage,
-	ResourcesPage: SuppliesPage,
-	StationPage:   FacilitiesPage,
-	Fleet1Page:    FleetdispatchPage,
-}
-
 func (b *OGame) getPage(page string, celestialID CelestialID, opts ...Option) ([]byte, error) {
-	vals := url.Values{"page": {page}}
-	if b.IsV7() && page != FetchResourcesPage {
-		if newPage, ok := pageV7Mapping[page]; ok {
-			page = newPage
-		}
-		vals = url.Values{"page": {"ingame"}, "component": {page}}
+	vals := url.Values{"page": {"ingame"}, "component": {page}}
+	if page == FetchResourcesPage {
+		vals = url.Values{"page": {page}}
 	}
 	if celestialID != 0 {
 		vals.Add("cp", strconv.FormatInt(int64(celestialID), 10))
