@@ -236,7 +236,7 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 	return nil
 }
 
-func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
+func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
 	var newAccount NewAccount
 	var err error
 	client := &http.Client{}
@@ -249,7 +249,7 @@ func AddAccount(username, password, universe, lang string, proxyAddr, proxyUsern
 	if err != nil {
 		return newAccount, err
 	}
-	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password)
+	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
 	if err != nil {
 		return newAccount, err
 	}
@@ -885,7 +885,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	return out, nil
 }
 
-func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password string) (postSessionsResponse, error) {
+func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
 	var out postSessionsResponse
 	payload := url.Values{
 		"autoGameAccountCreation": {"false"},
@@ -899,6 +899,20 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
 	if err != nil {
 		return out, err
+	}
+
+	if otpSecret != "" {
+		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
+			Period:    30,
+			Skew:      1,
+			Digits:    otp.DigitsSix,
+			Algorithm: otp.AlgorithmSHA1,
+		})
+		if err != nil {
+			return out, err
+		}
+		req.Header.Add("tnt-2fa-code", passcode)
+		req.Header.Add("tnt-installation-id", "")
 	}
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
