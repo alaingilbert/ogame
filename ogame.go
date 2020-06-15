@@ -4237,7 +4237,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 			}
 		}
 		if max.ID > maxInitialFleetID {
-         fleets[max.ID].StartTime = b.fixTimezone(fleets[max.ID].StartTime)
+         max.StartTime = b.fixTimezone(max.StartTime)
 			return max, nil
 		}
 	}
