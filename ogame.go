@@ -930,6 +930,12 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 
 	by, _, err := readBody(resp)
 	if resp.StatusCode != 201 {
+		if string(by) == `{"reason":"OTP_REQUIRED"}` {
+			return out, ErrOTPRequired
+		}
+		if string(by) == `{"reason":"OTP_INVALID"}` {
+			return out, ErrOTPInvalid
+		}
 		return out, ErrBadCredentials
 	}
 
