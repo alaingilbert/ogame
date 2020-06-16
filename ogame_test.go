@@ -1465,6 +1465,21 @@ func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
 	assert.Equal(t, int64(1), infos.ExpeditionDebris.PathfindersNeeded)
 }
 
+func TestExtractGalaxyV7ExpeditionDebris2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_debris16_2.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(7200), infos.ExpeditionDebris.Metal)
+	assert.Equal(t, int64(7200), infos.ExpeditionDebris.Crystal)
+	assert.Equal(t, int64(1), infos.ExpeditionDebris.PathfindersNeeded)
+}
+
+func TestExtractGalaxyV7ExpeditionDebrisMobile(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_debris16_mobile.html")
+	_, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.EqualError(t, err, "mobile view not supported")
+}
+
 func TestExtractGalaxyV7IgnoredPlayer(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_ignored_player.html")
 	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
