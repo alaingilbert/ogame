@@ -2798,11 +2798,11 @@ func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 
 func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
 	var res SystemInfos
-	if galaxy < 0 || galaxy > b.server.Settings.UniverseSize {
-		return res, fmt.Errorf("galaxy must be within [0, %d]", b.server.Settings.UniverseSize)
+	if galaxy < 1 || galaxy > b.server.Settings.UniverseSize {
+		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.Settings.UniverseSize)
 	}
-	if system < 0 || system > b.serverData.Systems {
-		return res, errors.New("system must be within [0, " + strconv.FormatInt(b.serverData.Systems, 10) + "]")
+	if system < 1 || system > b.serverData.Systems {
+		return res, errors.New("system must be within [1, " + strconv.FormatInt(b.serverData.Systems, 10) + "]")
 	}
 	payload := url.Values{
 		"galaxy": {strconv.FormatInt(galaxy, 10)},
