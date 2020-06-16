@@ -361,6 +361,9 @@ func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyU
 	if err != nil {
 		return newAccount, err
 	}
+	if resp.StatusCode == http.StatusBadRequest {
+		return newAccount, errors.New("invalid request, account already in lobby ?")
+	}
 	if err := json.Unmarshal(by, &newAccount); err != nil {
 		return newAccount, err
 	}
