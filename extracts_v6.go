@@ -1672,6 +1672,10 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
 	res.galaxy = ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
 	res.system = ParseInt(doc.Find("table").AttrOr("data-system", "0"))
+	isMobile := doc.Find("span.fright span#filter_empty").Length() == 0
+	if isMobile {
+		return res, errors.New("mobile view not supported")
+	}
 	doc.Find("tr.row").Each(func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")
 		if !strings.Contains(classes, "empty_filter") {
