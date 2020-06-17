@@ -1408,6 +1408,12 @@ func TestExtractCargoCapacity(t *testing.T) {
 	assert.Equal(t, int64(442500), cargo)
 }
 
+func TestExtractGalaxyInfos_vacationMode(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_vacation_mode.html")
+	_, err := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.EqualError(t, err, "you cannot use the galaxy view whilst in vacation mode")
+}
+
 func TestExtractGalaxyInfos_bandit(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_inactive_bandit_lord.html")
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
