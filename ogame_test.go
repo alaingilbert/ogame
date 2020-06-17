@@ -1411,7 +1411,7 @@ func TestExtractCargoCapacity(t *testing.T) {
 func TestExtractGalaxyInfos_vacationMode(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_vacation_mode.html")
 	_, err := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
-	assert.EqualError(t, err, "you cannot use the galaxy view whilst in vacation mode")
+	assert.EqualError(t, err, "account in vacation mode")
 }
 
 func TestExtractGalaxyInfos_bandit(t *testing.T) {
