@@ -19,7 +19,7 @@ func newDeathstar() *deathstar {
 		HeavyFighterID: 100, CruiserID: 33, BattleshipID: 30, ColonyShipID: 250,
 		RecyclerID: 250, EspionageProbeID: 1250, SolarSatelliteID: 1250, BomberID: 25,
 		DestroyerID: 5, RocketLauncherID: 200, LightLaserID: 200, HeavyLaserID: 100,
-		GaussCannonID: 50, IonCannonID: 100, BattlecruiserID: 15}
+		GaussCannonID: 50, IonCannonID: 100, BattlecruiserID: 15, CrawlerID: 1250, PathfinderID: 30, ReaperID: 10}
 	s.Price = Resources{Metal: 5000000, Crystal: 4000000, Deuterium: 1000000}
 	s.Requirements = map[ID]int64{ShipyardID: 12, GravitonTechnologyID: 1, HyperspaceDriveID: 7,
 		HyperspaceTechnology.ID: 6}
