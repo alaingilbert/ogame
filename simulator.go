@@ -1108,7 +1108,6 @@ func (e *entity) reset() {
 	e.Losses = price{Metal: 0, Crystal: 0, Deuterium: 0}
 	e.TotalUnits = 0
 	e.TotalUnits += e.SmallCargo
-	e.TotalUnits += e.SmallCargo
 	e.TotalUnits += e.LargeCargo
 	e.TotalUnits += e.LightFighter
 	e.TotalUnits += e.HeavyFighter
