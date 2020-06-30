@@ -519,11 +519,12 @@ type Highscore struct {
 
 // String ...
 func (h Highscore) String() string {
-	return "NbPage: " + strconv.FormatInt(h.NbPage, 10) + "\n" +
+	return "" +
+		"  NbPage: " + strconv.FormatInt(h.NbPage, 10) + "\n" +
 		"CurrPage: " + strconv.FormatInt(h.CurrPage, 10) + "\n" +
 		"Category: " + strconv.FormatInt(h.Category, 10) + "\n" +
-		"Type: " + strconv.FormatInt(h.Type, 10) + "\n" +
-		"Players:" + strconv.Itoa(len(h.Players)) + "\n"
+		"    Type: " + strconv.FormatInt(h.Type, 10) + "\n" +
+		" Players: " + strconv.Itoa(len(h.Players)) + "\n"
 }
 
 // HighscorePlayer ...
@@ -539,13 +540,14 @@ type HighscorePlayer struct {
 
 // String ...
 func (h HighscorePlayer) String() string {
-	return "Position: " + strconv.FormatInt(h.Position, 10) + "\n" +
-		"ID: " + strconv.FormatInt(h.ID, 10) + "\n" +
-		"Name: " + h.Name + "\n" +
-		"Score: " + strconv.FormatInt(h.Score, 10) + "\n" +
-		"AllianceID: " + strconv.FormatInt(h.AllianceID, 10) + "\n" +
-		"HonourPoints:" + strconv.FormatInt(h.HonourPoints, 10) + "\n" +
-		"Homeworld:" + h.Homeworld.String() + "\n"
+	return "" +
+		"    Position: " + strconv.FormatInt(h.Position, 10) + "\n" +
+		"          ID: " + strconv.FormatInt(h.ID, 10) + "\n" +
+		"        Name: " + h.Name + "\n" +
+		"       Score: " + strconv.FormatInt(h.Score, 10) + "\n" +
+		"  AllianceID: " + strconv.FormatInt(h.AllianceID, 10) + "\n" +
+		"HonourPoints: " + strconv.FormatInt(h.HonourPoints, 10) + "\n" +
+		"   Homeworld: " + h.Homeworld.String() + "\n"
 }
 
 func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error) {
