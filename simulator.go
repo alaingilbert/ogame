@@ -90,6 +90,11 @@ type price struct {
 	Deuterium int
 }
 
+// String ...
+func (p price) String() string {
+	return fmt.Sprintf("[M: %d, C: %d, D: %d]", p.Metal, p.Crystal, p.Deuterium)
+}
+
 func (p price) Total() int {
 	return p.Metal + p.Crystal + p.Deuterium
 }
@@ -1292,4 +1297,19 @@ type SimulatorResult struct {
 	Recycler       int
 	Moonchance     int
 	Logs           string
+}
+
+// String ...
+func (s SimulatorResult) Strnig() string {
+	return "" +
+		"   Simulations: " + strconv.Itoa(s.Simulations) + "\n" +
+		"   AttackerWin: " + strconv.Itoa(s.AttackerWin) + "\n" +
+		"   DefenderWin: " + strconv.Itoa(s.DefenderWin) + "\n" +
+		"          Draw: " + strconv.Itoa(s.Draw) + "\n" +
+		"        Rounds: " + strconv.Itoa(s.Rounds) + "\n" +
+		"AttackerLosses: " + s.AttackerLosses.String() + "\n" +
+		"DefenderLosses: " + s.DefenderLosses.String() + "\n" +
+		"        Debris: " + s.Debris.String() + "\n" +
+		"      Recycler: " + strconv.Itoa(s.Recycler) + "\n" +
+		"    Moonchance: " + strconv.Itoa(s.Moonchance) + "\n"
 }
