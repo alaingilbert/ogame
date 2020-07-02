@@ -1300,7 +1300,7 @@ type SimulatorResult struct {
 }
 
 // String ...
-func (s SimulatorResult) Strnig() string {
+func (s SimulatorResult) String() string {
 	return "" +
 		"   Simulations: " + strconv.Itoa(s.Simulations) + "\n" +
 		"   AttackerWin: " + strconv.Itoa(s.AttackerWin) + "\n" +
