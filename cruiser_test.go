@@ -8,7 +8,7 @@ import (
 
 func TestCruiser_RapidfireAgainst(t *testing.T) {
 	c := newCruiser()
-	assert.Equal(t, map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5, LightFighterID: 6, RocketLauncherID: 10}, c.GetRapidfireAgainst())
+	assert.Equal(t, map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5, LightFighterID: 6, RocketLauncherID: 10, CrawlerID: 5}, c.GetRapidfireAgainst())
 }
 
 func TestCruiser_GetCargoCapacity(t *testing.T) {
