@@ -5,6 +5,9 @@ import "errors"
 // ErrNotLogged returned when the bot is not logged
 var ErrNotLogged = errors.New("not logged")
 
+// ErrMobileView returned when the bot is in mobile view
+var ErrMobileView = errors.New("mobile view not supported")
+
 // ErrBadCredentials returned when the provided credentials are invalid
 var ErrBadCredentials = errors.New("bad credentials")
 

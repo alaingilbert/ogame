@@ -1674,9 +1674,13 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
 	res.galaxy = ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
 	res.system = ParseInt(doc.Find("table").AttrOr("data-system", "0"))
+	isVacationMode := doc.Find("div#warning").Length() == 1
+	if isVacationMode {
+		return res, ErrAccountInVacationMode
+	}
 	isMobile := doc.Find("span.fright span#filter_empty").Length() == 0
 	if isMobile {
-		return res, errors.New("mobile view not supported")
+		return res, ErrMobileView
 	}
 	doc.Find("tr.row").Each(func(i int, s *goquery.Selection) {
 		classes, _ := s.Attr("class")

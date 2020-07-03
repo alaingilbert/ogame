@@ -3080,7 +3080,7 @@ func (b *OGame) highscore(category, typ, page int64) (out Highscore, err error) 
 		return out, errors.New("category must be in [1, 2] (1:player, 2:alliance)")
 	}
 	if typ < 0 || typ > 7 {
-		return out, errors.New("category must be in [0, 7] (0:Total, 1:Economy, 2:Research, 3:Military, 4:Military Built, 5:Military Destroyed, 6:Military Lost, 7:Honor)")
+		return out, errors.New("typ must be in [0, 7] (0:Total, 1:Economy, 2:Research, 3:Military, 4:Military Built, 5:Military Destroyed, 6:Military Lost, 7:Honor)")
 	}
 	if page < 1 {
 		return out, errors.New("page must be greater than or equal to 1")
