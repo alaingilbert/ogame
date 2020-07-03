@@ -708,6 +708,7 @@ func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename s
 	b.SetOGameCredentials(username, password, otpSecret)
 	b.setOGameLobby("lobby")
 	b.language = lang
+	b.playerID = playerID
 
 	b.extractor = NewExtractorV71()
 
