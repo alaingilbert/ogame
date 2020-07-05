@@ -35,6 +35,9 @@ const (
 	plasmaTurretConst
 	smallShieldDomeConst
 	largeShieldDomeConst
+	reaperConst
+	pathfinderConst
+	crawlerConst
 )
 
 func isAlive(unit *CombatUnit) bool {
@@ -87,6 +90,11 @@ type price struct {
 	Deuterium int
 }
 
+// String ...
+func (p price) String() string {
+	return fmt.Sprintf("[M: %d, C: %d, D: %d]", p.Metal, p.Crystal, p.Deuterium)
+}
+
 func (p price) Total() int {
 	return p.Metal + p.Crystal + p.Deuterium
 }
@@ -136,13 +144,19 @@ func getUnitPrice(unitID uint64) price {
 	case gaussCannonConst:
 		return price{20000, 15000, 2000}
 	case ionCannonConst:
-		return price{2000, 6000, 0}
+		return price{5000, 3000, 0}
 	case plasmaTurretConst:
 		return price{50000, 50000, 30000}
 	case smallShieldDomeConst:
 		return price{10000, 10000, 0}
 	case largeShieldDomeConst:
 		return price{50000, 50000, 0}
+	case reaperConst:
+		return price{85000, 55000, 20000}
+	case pathfinderConst:
+		return price{8000, 15000, 8000}
+	case crawlerConst:
+		return price{2000, 2000, 1000}
 	}
 	return price{0, 0, 0}
 }
@@ -193,6 +207,12 @@ func getUnitBaseShield(unitID uint64) int {
 		return 2000
 	case largeShieldDomeConst:
 		return 10000
+	case reaperConst:
+		return 700
+	case pathfinderConst:
+		return 100
+	case crawlerConst:
+		return 1
 	}
 	return 0
 }
@@ -243,6 +263,12 @@ func getUnitBaseWeapon(unitID uint64) uint64 {
 		return 1
 	case largeShieldDomeConst:
 		return 1
+	case reaperConst:
+		return 2800
+	case pathfinderConst:
+		return 200
+	case crawlerConst:
+		return 1
 	}
 	return 0
 }
@@ -256,6 +282,8 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 5
 		case solarSatelliteConst:
 			rf = 5
+		case crawlerConst:
+			rf = 5
 		}
 	case largeCargoConst:
 		switch getUnitID(targetUnit) {
@@ -263,12 +291,16 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 5
 		case solarSatelliteConst:
 			rf = 5
+		case crawlerConst:
+			rf = 5
 		}
 	case lightFighterConst:
 		switch getUnitID(targetUnit) {
 		case espionageProbeConst:
 			rf = 5
 		case solarSatelliteConst:
+			rf = 5
+		case crawlerConst:
 			rf = 5
 		}
 	case heavyFighterConst:
@@ -279,6 +311,8 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 5
 		case smallCargoConst:
 			rf = 3
+		case crawlerConst:
+			rf = 5
 		}
 	case cruiserConst:
 		switch getUnitID(targetUnit) {
@@ -290,12 +324,18 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 6
 		case rocketLauncherConst:
 			rf = 10
+		case crawlerConst:
+			rf = 5
 		}
 	case battleshipConst:
 		switch getUnitID(targetUnit) {
 		case espionageProbeConst:
 			rf = 5
 		case solarSatelliteConst:
+			rf = 5
+		case crawlerConst:
+			rf = 5
+		case pathfinderConst:
 			rf = 5
 		}
 	case colonyShipConst:
@@ -304,12 +344,16 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 5
 		case solarSatelliteConst:
 			rf = 5
+		case crawlerConst:
+			rf = 5
 		}
 	case recyclerConst:
 		switch getUnitID(targetUnit) {
 		case espionageProbeConst:
 			rf = 5
 		case solarSatelliteConst:
+			rf = 5
+		case crawlerConst:
 			rf = 5
 		}
 	case bomberConst:
@@ -326,6 +370,8 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 20
 		case heavyLaserConst:
 			rf = 10
+		case crawlerConst:
+			rf = 5
 		}
 	case destroyerConst:
 		switch getUnitID(targetUnit) {
@@ -337,6 +383,8 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 10
 		case battlecruiserConst:
 			rf = 2
+		case crawlerConst:
+			rf = 5
 		}
 	case deathstarConst:
 		switch getUnitID(targetUnit) {
@@ -376,6 +424,12 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 100
 		case battlecruiserConst:
 			rf = 15
+		case crawlerConst:
+			rf = 1250
+		case pathfinderConst:
+			rf = 30
+		case reaperConst:
+			rf = 10
 		}
 	case battlecruiserConst:
 		switch getUnitID(targetUnit) {
@@ -393,6 +447,43 @@ func getRapidFireAgainst(unit *CombatUnit, targetUnit *CombatUnit) int {
 			rf = 4
 		case battleshipConst:
 			rf = 7
+		case crawlerConst:
+			rf = 5
+		}
+	case pathfinderConst:
+		switch getUnitID(targetUnit) {
+		case espionageProbeConst:
+			rf = 5
+		case solarSatelliteConst:
+			rf = 5
+		case crawlerConst:
+			rf = 5
+		case cruiserConst:
+			rf = 3
+		case lightFighterConst:
+			rf = 3
+		case heavyFighterConst:
+			rf = 2
+		}
+	case reaperConst:
+		switch getUnitID(targetUnit) {
+		case espionageProbeConst:
+			rf = 5
+		case solarSatelliteConst:
+			rf = 5
+		case crawlerConst:
+			rf = 5
+		case battleshipConst:
+			rf = 7
+		case bomberConst:
+			rf = 4
+		case destroyerConst:
+			rf = 3
+		}
+	case ionCannonConst:
+		switch getUnitID(targetUnit) {
+		case reaperConst:
+			rf = 2
 		}
 	}
 	return rf
@@ -444,6 +535,12 @@ func getUnitName(unitID uint64) string {
 		return "Small shield dome"
 	case largeShieldDomeConst:
 		return "Large shield dome"
+	case reaperConst:
+		return "Reaper"
+	case pathfinderConst:
+		return "Pathfinder"
+	case crawlerConst:
+		return "Crawler"
 	}
 	return ""
 }
@@ -490,6 +587,9 @@ type entity struct {
 	Destroyer       int
 	Deathstar       int
 	Battlecruiser   int
+	Reaper          int
+	Pathfinder      int
+	Crawler         int
 	RocketLauncher  int
 	LightLaser      int
 	HeavyLaser      int
@@ -560,6 +660,18 @@ func (e *entity) init() {
 	}
 	for i := 0; i < e.Battlecruiser; i++ {
 		e.Units[idx] = newUnit(e, battlecruiserConst)
+		idx++
+	}
+	for i := 0; i < e.Reaper; i++ {
+		e.Units[idx] = newUnit(e, reaperConst)
+		idx++
+	}
+	for i := 0; i < e.Pathfinder; i++ {
+		e.Units[idx] = newUnit(e, pathfinderConst)
+		idx++
+	}
+	for i := 0; i < e.Crawler; i++ {
+		e.Units[idx] = newUnit(e, crawlerConst)
 		idx++
 	}
 	for i := 0; i < e.RocketLauncher; i++ {
@@ -770,6 +882,12 @@ func isShip(unit *CombatUnit) bool {
 	case deathstarConst:
 		return true
 	case battlecruiserConst:
+		return true
+	case reaperConst:
+		return true
+	case pathfinderConst:
+		return true
+	case crawlerConst:
 		return true
 	}
 	return false
@@ -995,7 +1113,6 @@ func (e *entity) reset() {
 	e.Losses = price{Metal: 0, Crystal: 0, Deuterium: 0}
 	e.TotalUnits = 0
 	e.TotalUnits += e.SmallCargo
-	e.TotalUnits += e.SmallCargo
 	e.TotalUnits += e.LargeCargo
 	e.TotalUnits += e.LightFighter
 	e.TotalUnits += e.HeavyFighter
@@ -1009,6 +1126,9 @@ func (e *entity) reset() {
 	e.TotalUnits += e.Destroyer
 	e.TotalUnits += e.Deathstar
 	e.TotalUnits += e.Battlecruiser
+	e.TotalUnits += e.Reaper
+	e.TotalUnits += e.Pathfinder
+	e.TotalUnits += e.Crawler
 	e.TotalUnits += e.RocketLauncher
 	e.TotalUnits += e.LightLaser
 	e.TotalUnits += e.HeavyLaser
@@ -1177,4 +1297,19 @@ type SimulatorResult struct {
 	Recycler       int
 	Moonchance     int
 	Logs           string
+}
+
+// String ...
+func (s SimulatorResult) String() string {
+	return "" +
+		"   Simulations: " + strconv.Itoa(s.Simulations) + "\n" +
+		"   AttackerWin: " + strconv.Itoa(s.AttackerWin) + "\n" +
+		"   DefenderWin: " + strconv.Itoa(s.DefenderWin) + "\n" +
+		"          Draw: " + strconv.Itoa(s.Draw) + "\n" +
+		"        Rounds: " + strconv.Itoa(s.Rounds) + "\n" +
+		"AttackerLosses: " + s.AttackerLosses.String() + "\n" +
+		"DefenderLosses: " + s.DefenderLosses.String() + "\n" +
+		"        Debris: " + s.Debris.String() + "\n" +
+		"      Recycler: " + strconv.Itoa(s.Recycler) + "\n" +
+		"    Moonchance: " + strconv.Itoa(s.Moonchance) + "\n"
 }
