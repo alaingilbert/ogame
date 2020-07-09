@@ -16,7 +16,9 @@ func newSolarSatellite() *solarSatellite {
 	s.BaseCargoCapacity = 0
 	s.BaseSpeed = 0
 	s.FuelConsumption = 0
-	s.RapidfireFrom = map[ID]int64{DeathstarID: 1250}
+	s.RapidfireFrom = map[ID]int64{LightFighterID: 5, HeavyFighterID: 5, CruiserID: 5, BattleshipID: 5,
+		BattlecruiserID: 5, BomberID: 5, DestroyerID: 5, DeathstarID: 1250, ReaperID: 5, PathfinderID: 5,
+		SmallCargoID: 5, LargeCargoID: 5, ColonyShipID: 5, RecyclerID: 5}
 	s.Price = Resources{Crystal: 2000, Deuterium: 500}
 	s.Requirements = map[ID]int64{ShipyardID: 1}
 	return s
