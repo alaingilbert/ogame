@@ -1642,6 +1642,7 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 
 		if page == "galaxyContent" && !canParseSystemInfos(pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
+			b.error(string(pageHTMLBytes))
 			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
 		}
