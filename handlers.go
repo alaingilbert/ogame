@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"bytes"
+   "crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -887,14 +888,27 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(pageHTML))
 }
 
-func replaceHostname(bot *OGame, html []byte) []byte {
+func replaceHostname(bot *OGame, requestHostname string, html []byte) []byte {
 	serverURLBytes := []byte(bot.serverURL)
-	apiNewHostnameBytes := []byte(bot.apiNewHostname)
+   var apiNewHostnameBytes []byte
+   if len(bot.apiNewHostname) > 0 {
+      apiNewHostnameBytes = []byte(bot.apiNewHostname)
+   } else {
+      apiNewHostnameBytes = []byte(requestHostname)
+   }
 	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
 	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
 	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
 	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
 	return html
+}
+
+//func prepareHostname(tls *tls.ConnectionState, requestHost string, id string) string {
+func prepareHostname(tls *tls.ConnectionState, requestHost string) string {
+	if tls != nil {
+		return "https://" + requestHost
+	}
+	return "http://" + requestHost
 }
 
 // GetStaticHandler ...
@@ -926,7 +940,7 @@ func GetStaticHandler(c echo.Context) error {
 	}
 
 	if strings.Contains(c.Request().URL.String(), ".xml") {
-		body = replaceHostname(bot, body)
+		body = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), body)
 		return c.Blob(http.StatusOK, "application/xml", body)
 	}
 
@@ -950,7 +964,7 @@ func GetFromGameHandler(c echo.Context) error {
 		vals = c.QueryParams()
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
-	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) , pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -963,7 +977,7 @@ func PostToGameHandler(c echo.Context) error {
 	}
 	payload, _ := c.FormParams()
 	pageHTML, _ := bot.PostPageContent(vals, payload)
-	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
