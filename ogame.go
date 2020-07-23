@@ -186,8 +186,14 @@ type Params struct {
 	CookiesFilename string
 }
 
+// Lobby constants
+const (
+	Lobby         = "lobby"
+	LobbyPioneers = "lobby-pioneers"
+)
+
 // Register a new gameforge lobby account
-func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
+func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
 	var err error
 	client := &http.Client{}
 	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
@@ -208,7 +214,7 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest("PUT", "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return err
 	}
@@ -236,7 +242,7 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 	return nil
 }
 
-func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
+func AddAccount(lobby, username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
 	var newAccount NewAccount
 	var err error
 	client := &http.Client{}
@@ -245,7 +251,7 @@ func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyU
 	if err != nil {
 		return newAccount, err
 	}
-	gameEnvironmentID, platformGameID, err := getConfiguration2(client, "lobby")
+	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
 	if err != nil {
 		return newAccount, err
 	}
@@ -253,7 +259,7 @@ func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyU
 	if err != nil {
 		return newAccount, err
 	}
-	servers, err := getServers2("lobby", client)
+	servers, err := getServers2(lobby, client)
 	if err != nil {
 		return newAccount, err
 	}
@@ -274,7 +280,7 @@ func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyU
 	if err != nil {
 		return newAccount, err
 	}
-	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest("PUT", "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return newAccount, err
 	}
