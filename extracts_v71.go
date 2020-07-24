@@ -548,7 +548,8 @@ func (h HighscorePlayer) String() string {
 		"       Score: " + strconv.FormatInt(h.Score, 10) + "\n" +
 		"  AllianceID: " + strconv.FormatInt(h.AllianceID, 10) + "\n" +
 		"HonourPoints: " + strconv.FormatInt(h.HonourPoints, 10) + "\n" +
-		"   Homeworld: " + h.Homeworld.String() + "\n"
+		"   Homeworld: " + h.Homeworld.String() + "\n" +
+		"       Ships: " + strconv.FormatInt(h.Ships, 10) + "\n"
 }
 
 func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error) {
