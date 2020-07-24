@@ -536,6 +536,7 @@ type HighscorePlayer struct {
 	AllianceID   int64
 	HonourPoints int64
 	Homeworld    Coordinate
+	Ships        int64 // When getting military type
 }
 
 // String ...
@@ -609,6 +610,12 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 		}
 		p.HonourPoints = ParseInt(strings.TrimSpace(honorScoreSpan.Text()))
 		p.Score = ParseInt(strings.TrimSpace(s.Find("td.score").Text()))
+		shipsRgx := regexp.MustCompile(`([\d\.]+)`)
+		shipsTitle := strings.TrimSpace(s.Find("td.score").AttrOr("title", "0"))
+		shipsParts := shipsRgx.FindStringSubmatch(shipsTitle)
+		if len(shipsParts) == 2 {
+			p.Ships = ParseInt(shipsParts[1])
+		}
 		out.Players = append(out.Players, p)
 	})
 
