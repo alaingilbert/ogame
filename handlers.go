@@ -755,7 +755,7 @@ func GetPriceHandler(c echo.Context) error {
 }
 
 // SendFleetHandler ...
-// curl 127.0.0.1:1234/bot/planets/123/send-fleet -d 'ships="203,1"&ships="204,10"&speed=10&galaxy=1&system=1&type=1&position=1&mission=3&metal=1&crystal=2&deuterium=3'
+// curl 127.0.0.1:1234/bot/planets/123/send-fleet -d 'ships=203,1&ships=204,10&speed=10&galaxy=1&system=1&type=1&position=1&mission=3&metal=1&crystal=2&deuterium=3'
 func SendFleetHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	planetID, err := strconv.ParseInt(c.Param("planetID"), 10, 64)

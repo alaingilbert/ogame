@@ -2945,6 +2945,11 @@ func TestExtractHighscore(t *testing.T) {
 	assert.Equal(t, "Bob", highscore.Players[7].Name)
 	assert.Equal(t, int64(0), highscore.Players[7].ID)         // Player ID is broken for self
 	assert.Equal(t, int64(0), highscore.Players[7].AllianceID) // Alliance ID is broken for self
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7.1/en/highscore_withShips.html")
+	highscore, _ = NewExtractorV71().ExtractHighscore(pageHTMLBytes)
+	assert.Equal(t, "malakopipis", highscore.Players[0].Name)
+	assert.Equal(t, int64(125758), highscore.Players[0].Ships)
 }
 
 func TestExtractAllResources(t *testing.T) {
