@@ -257,8 +257,14 @@ type Params struct {
 	CookiesFilename string
 }
 
+// Lobby constants
+const (
+	Lobby         = "lobby"
+	LobbyPioneers = "lobby-pioneers"
+)
+
 // Register a new gameforge lobby account
-func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
+func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
 	var err error
 	client := &http.Client{}
 	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
@@ -279,7 +285,7 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest("PUT", "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return err
 	}
@@ -307,7 +313,65 @@ func Register(email, password, proxyAddr, proxyUsername, proxyPassword, proxyTyp
 	return nil
 }
 
-func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
+// RedeemCode ...
+func RedeemCode(lobby, email, password, otpSecret, token, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
+	var err error
+	client := &http.Client{}
+	client.Jar, _ = cookiejar.New(nil)
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	if err != nil {
+		return err
+	}
+	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
+	if err != nil {
+		return err
+	}
+	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, email, password, otpSecret)
+	if err != nil {
+		return err
+	}
+	var payload struct {
+		Token string `json:"token"`
+	}
+	payload.Token = token
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", "https://"+lobby+".ogame.gameforge.com/api/token", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	// {"tokenType":"accountTrading"}
+	type respStruct struct {
+		TokenType string `json:"tokenType"`
+	}
+	var respParsed respStruct
+	by, _, err := readBody(resp)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode == http.StatusBadRequest {
+		return errors.New("invalid request, token invalid ?")
+	}
+	if err := json.Unmarshal(by, &respParsed); err != nil {
+		return err
+	}
+	if respParsed.TokenType != "accountTrading" {
+		return errors.New("tokenType is not accountTrading")
+	}
+	return nil
+}
+
+func AddAccount(lobby, username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
 	var newAccount NewAccount
 	var err error
 	client := &http.Client{}
@@ -316,7 +380,7 @@ func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyU
 	if err != nil {
 		return newAccount, err
 	}
-	gameEnvironmentID, platformGameID, err := getConfiguration2(client, "lobby")
+	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
 	if err != nil {
 		return newAccount, err
 	}
@@ -324,7 +388,7 @@ func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyU
 	if err != nil {
 		return newAccount, err
 	}
-	servers, err := getServers2("lobby", client)
+	servers, err := getServers2(lobby, client)
 	if err != nil {
 		return newAccount, err
 	}
@@ -345,7 +409,7 @@ func AddAccount(username, password, otpSecret, universe, lang, proxyAddr, proxyU
 	if err != nil {
 		return newAccount, err
 	}
-	req, err := http.NewRequest("PUT", "https://lobby.ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest("PUT", "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return newAccount, err
 	}
