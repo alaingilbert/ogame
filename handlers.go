@@ -890,16 +890,19 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 
 func replaceHostname(bot *OGame, requestHostname string, html []byte) []byte {
 	serverURLBytes := []byte(bot.serverURL)
-   var apiNewHostnameBytes []byte
-   if len(bot.apiNewHostname) > 0 {
-      apiNewHostnameBytes = []byte(bot.apiNewHostname)
-   } else {
-      apiNewHostnameBytes = []byte(requestHostname)
-   }
+	var apiNewHostnameBytes []byte
+	if len(bot.apiNewHostname) > 0 {
+		apiNewHostnameBytes = []byte(bot.apiNewHostname)
+	} else {
+		apiNewHostnameBytes = []byte(requestHostname)
+	}
 	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
+	doubleescapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
+	doubleescapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
 	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
+	html = bytes.Replace(html, doubleescapedServerURL, doubleescapedAPINewHostname, -1)
 	return html
 }
 
