@@ -2,7 +2,7 @@ package ogame
 
 import (
 	"bytes"
-   "crypto/tls"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -933,14 +933,15 @@ func GetStaticHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
-
-	// Copy the original HTTP headers to our client
-	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
-		k = http.CanonicalHeaderKey(k)
-		for _, v := range vv {
-			c.Response().Header().Add(k, v)
+	/*
+		// Copy the original HTTP headers to our client
+		for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+			k = http.CanonicalHeaderKey(k)
+			for _, v := range vv {
+				c.Response().Header().Add(k, v)
+			}
 		}
-	}
+	*/
 
 	if strings.Contains(c.Request().URL.String(), ".xml") {
 		body = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), body)
@@ -955,7 +956,6 @@ func GetStaticHandler(c echo.Context) error {
 	} else if strings.Contains(newURL, ".gif") {
 		contentType = "image/gif"
 	}
-
 	return c.Blob(http.StatusOK, contentType, body)
 }
 
@@ -967,7 +967,7 @@ func GetFromGameHandler(c echo.Context) error {
 		vals = c.QueryParams()
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
-	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) , pageHTML)
+	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1235,7 +1235,7 @@ func AddAccountHandler(c echo.Context) error {
 	//value, _ := strconv.ParseInt(c.QueryParam("number"), 10, 64)
 	//lang := c.QueryParam("lang")
 	//account, err := bot.AddAccount(int(value), lang)
-	account, err := AddAccount(bot.Username, bot.password, "", "Libra", "de", "", "","", "")
+	account, err := AddAccount("", bot.Username, bot.password, "", "Libra", "de", "", "", "", "")
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
