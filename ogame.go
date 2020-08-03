@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
+	err2 "errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -46,6 +47,8 @@ type OGame struct {
 	lockedAtom            int32  // atomic, bot state locked/unlocked
 	chatConnectedAtom     int32  // atomic, either or not the chat is connected
 	state                 string // keep name of the function that currently lock the bot
+	ctx                   context.Context
+	cancelCtx             context.CancelFunc
 	stateChangeCallbacks  []func(locked bool, actor string)
 	quiet                 bool
 	Player                UserInfos
@@ -507,6 +510,7 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 	}
 	req.Header.Add("authorization", "Bearer "+token)
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return userAccounts, err
@@ -556,6 +560,7 @@ func getServers(b *OGame) ([]Server, error) {
 		return servers, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return servers, err
@@ -668,6 +673,7 @@ func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
 	}
 	req.Header.Add("authorization", "Bearer "+token)
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", err
@@ -736,6 +742,7 @@ func (b *OGame) getServerData() (ServerData, error) {
 		return serverData, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return serverData, err
@@ -771,6 +778,9 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 		return false, err
 	}
 	server, userAccount, err := b.loginPart1(token)
+	if err2.Is(err, context.Canceled) {
+		return false, err
+	}
 	if err == ErrAccountBlocked {
 		return false, err
 	}
@@ -806,6 +816,7 @@ func getConfiguration(b *OGame) (string, string, error) {
 		return "", "", err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return "", "", err
@@ -1221,6 +1232,7 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 
 // execute a request using the login proxy transport if set
 func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Response, err error) {
+	req = req.WithContext(b.ctx)
 	if b.loginProxyTransport != nil {
 		oldTransport := b.Client.Transport
 		b.Client.Transport = b.loginProxyTransport
@@ -1561,6 +1573,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 		req.Header.Add("X-Requested-With", "XMLHttpRequest")
 	}
 
+	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return []byte{}, err
@@ -1755,13 +1768,18 @@ type eventboxResp struct {
 func (b *OGame) withRetry(fn func() error) error {
 	maxRetry := 10
 	retryInterval := 1
-	retry := func(err error) {
+	retry := func(err error) error {
 		b.error(err.Error())
-		time.Sleep(time.Duration(retryInterval) * time.Second)
+		select {
+		case <-time.After(time.Duration(retryInterval) * time.Second):
+		case <-b.ctx.Done():
+			return ErrBotInactive
+		}
 		retryInterval *= 2
 		if retryInterval > 60 {
 			retryInterval = 60
 		}
+		return nil
 	}
 
 	for {
@@ -1781,7 +1799,9 @@ func (b *OGame) withRetry(fn func() error) error {
 			return errors.Wrap(err, ErrFailedExecuteCallback.Error())
 		}
 
-		retry(err)
+		if retryErr := retry(err); retryErr != nil {
+			return retryErr
+		}
 
 		if err == ErrNotLogged {
 			if loginErr := b.wrapLogin(); loginErr != nil {
@@ -1811,12 +1831,14 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
 }
 
 func (b *OGame) enable() {
+	b.ctx, b.cancelCtx = context.WithCancel(context.Background())
 	atomic.StoreInt32(&b.isEnabledAtom, 1)
 	b.stateChanged(false, "Enable")
 }
 
 func (b *OGame) disable() {
 	atomic.StoreInt32(&b.isEnabledAtom, 0)
+	b.cancelCtx()
 	b.stateChanged(false, "Disable")
 }
 
@@ -2280,6 +2302,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 		return nil, err
 	}
 
+	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -4005,6 +4028,7 @@ func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
 		return newAccount, err
