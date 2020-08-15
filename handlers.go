@@ -933,15 +933,15 @@ func GetStaticHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
-	/*
-		// Copy the original HTTP headers to our client
-		for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
-			k = http.CanonicalHeaderKey(k)
-			for _, v := range vv {
+	// Copy the original HTTP headers to our client
+	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		for _, v := range vv {
+			if k == "Cache-Control" || k == "Last-Modified" || k == "Expires" {
 				c.Response().Header().Add(k, v)
 			}
 		}
-	*/
+	}
 
 	if strings.Contains(c.Request().URL.String(), ".xml") {
 		body = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), body)
