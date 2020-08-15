@@ -891,9 +891,12 @@ func replaceHostname(bot *OGame, html []byte) []byte {
 	serverURLBytes := []byte(bot.serverURL)
 	apiNewHostnameBytes := []byte(bot.apiNewHostname)
 	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
+	doubleescapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
+	doubleescapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
 	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
+	html = bytes.Replace(html, doubleescapedServerURL, doubleescapedAPINewHostname, -1)
 	return html
 }
 
