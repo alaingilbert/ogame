@@ -897,12 +897,12 @@ func replaceHostname(bot *OGame, requestHostname string, html []byte) []byte {
 		apiNewHostnameBytes = []byte(requestHostname)
 	}
 	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
-	doubleescapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte("\\\\\\/"), -1)
+	doubleEscapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
-	doubleescapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte("\\\\\\/"), -1)
+	doubleEscapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
 	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
-	html = bytes.Replace(html, doubleescapedServerURL, doubleescapedAPINewHostname, -1)
+	html = bytes.Replace(html, doubleEscapedServerURL, doubleEscapedAPINewHostname, -1)
 	return html
 }
 
@@ -937,7 +937,8 @@ func GetStaticHandler(c echo.Context) error {
 	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
 		k = http.CanonicalHeaderKey(k)
 		for _, v := range vv {
-			if k == "Cache-Control" || k == "Last-Modified" || k == "Expires" {
+			// Do not copy Header-Fields Content-Length and Content-Encoding
+			if k != "Content-Length" && k != "Content-Encoding" {
 				c.Response().Header().Add(k, v)
 			}
 		}

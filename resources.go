@@ -154,3 +154,13 @@ func (r Resources) Lte(val Resources) bool {
 		r.Crystal <= val.Crystal &&
 		r.Deuterium <= val.Deuterium
 }
+
+
+// SubReal subtract v from r
+func (r Resources) SubReal(v Resources) Resources {
+	return Resources{
+		Metal:     r.Metal-v.Metal,
+		Crystal:   r.Crystal-v.Crystal,
+		Deuterium: r.Deuterium-v.Deuterium,
+	}
+}
