@@ -97,13 +97,13 @@ type OGame struct {
 	hasEngineer           bool
 	hasGeologist          bool
 	hasTechnocrat         bool
-   
-	playerMu                sync.RWMutex
-	isVacationModeEnabledMu sync.RWMutex
-	researchesMu            sync.RWMutex
+
+	playerMu                            sync.RWMutex
+	isVacationModeEnabledMu             sync.RWMutex
+	researchesMu                        sync.RWMutex
 	lastActivePlanet                    CelestialID
 	lastActivePlanetMu                  sync.RWMutex
-	planetActivity                      map[CelestialID]int64
+	planetActivity                      map[CelestialID]time.Time
 	planetActivityMu                    sync.RWMutex
 	planetResources                     map[CelestialID]ResourcesDetails
 	planetResourcesMu                   sync.RWMutex
@@ -139,14 +139,14 @@ type OGame struct {
 	movementFleetsMu                    sync.RWMutex
 	slots                               Slots
 	slotsMu                             sync.RWMutex
-	characterClassMu     sync.RWMutex   
+	characterClassMu                    sync.RWMutex
 }
 
 type Data struct {
 	Planets                  []Planet
 	Celestials               []Celestial
 	LastActivePlanet         CelestialID
-	PlanetActivity           map[CelestialID]int64
+	PlanetActivity           map[CelestialID]time.Time
 	PlanetResources          map[CelestialID]ResourcesDetails
 	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
 	PlanetFacilities         map[CelestialID]Facilities
@@ -478,7 +478,7 @@ func NewWithParams(params Params) (*OGame, error) {
 func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename string, playerID int64) (*OGame, error) {
 	b := new(OGame)
 	b.planetActivityMu.Lock()
-	b.planetActivity = map[CelestialID]int64{}
+	b.planetActivity = map[CelestialID]time.Time{}
 	b.planetActivityMu.Unlock()
 
 	b.planetResourcesMu.Lock()
@@ -651,7 +651,7 @@ func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename s
 		data.LastActivePlanet = b.lastActivePlanet
 		b.lastActivePlanetMu.RUnlock()
 
-		data.PlanetActivity = map[CelestialID]int64{}
+		data.PlanetActivity = map[CelestialID]time.Time{}
 		data.PlanetResources = map[CelestialID]ResourcesDetails{}
 		data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
 		data.PlanetFacilities = map[CelestialID]Facilities{}
@@ -1401,7 +1401,6 @@ func (b *OGame) login() error {
 		return err
 	}
 
-
 	b.debug("post sessions")
 	postSessionsRes, err := postSessions(b, gameEnvironmentID, platformGameID, b.Username, b.password, b.otpSecret)
 	if err != nil {
@@ -1567,7 +1566,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.lastActivePlanetMu.Unlock()
 
 	b.planetActivityMu.Lock()
-	b.planetActivity[celestialID] = b.extractor.ExtractOgameTimestamp(pageHTML)
+	b.planetActivity[celestialID], _ = b.extractor.ExtractServerTime(pageHTML)
 	b.planetActivityMu.Unlock()
 
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
@@ -1789,7 +1788,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 
 	data.Celestials = b.GetCachedCelestials()
 
-	data.PlanetActivity = map[CelestialID]int64{}
+	data.PlanetActivity = map[CelestialID]time.Time{}
 	data.PlanetResources = map[CelestialID]ResourcesDetails{}
 	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
 	data.PlanetFacilities = map[CelestialID]Facilities{}
@@ -2368,7 +2367,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	var pageHTMLBytes []byte
 
 	clb := func() (err error) {
-	log.Printf("Visit page: %s (%s)", page, finalURL)
+		log.Printf("Visit page: %s (%s)", page, finalURL)
 		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
 		if err != nil {
 			return err
@@ -4327,7 +4326,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 			}
 		}
 		if max.ID > maxInitialFleetID {
-         max.StartTime = b.fixTimezone(max.StartTime)
+			max.StartTime = b.fixTimezone(max.StartTime)
 			return max, nil
 		}
 	}
@@ -5612,7 +5611,7 @@ func (b *OGame) UseDM(typ string, celestialID CelestialID) error {
 }
 
 // GetPlanetsActivity return last activity Unix Timestamp of all Planets in map.
-func (b *OGame) GetPlanetsActivity() map[CelestialID]int64 {
+func (b *OGame) GetPlanetsActivity() map[CelestialID]time.Time {
 	b.planetActivityMu.RLock()
 	defer b.planetActivityMu.RUnlock()
 	return b.planetActivity
@@ -5669,7 +5668,7 @@ func (b *OGame) getCachedData() Data {
 	data.LastActivePlanet = b.lastActivePlanet
 	b.lastActivePlanetMu.RUnlock()
 
-	data.PlanetActivity = map[CelestialID]int64{}
+	data.PlanetActivity = map[CelestialID]time.Time{}
 	data.PlanetResources = map[CelestialID]ResourcesDetails{}
 	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
 	data.PlanetFacilities = map[CelestialID]Facilities{}
@@ -5704,7 +5703,7 @@ func (b *OGame) getCachedData() Data {
 		resProduction.Deuterium = float64(e.Deuterium.CurrentProduction) / 3600
 
 		b.planetActivityMu.RLock()
-		timespan := float64(time.Now().Unix() - b.planetActivity[k])
+		timespan := float64(time.Now().Unix() - b.planetActivity[k].Unix())
 		b.planetActivityMu.RUnlock()
 
 		resProduction.Metal = resProduction.Metal * timespan
