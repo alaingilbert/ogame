@@ -891,9 +891,12 @@ func replaceHostname(bot *OGame, html []byte) []byte {
 	serverURLBytes := []byte(bot.serverURL)
 	apiNewHostnameBytes := []byte(bot.apiNewHostname)
 	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
+	doubleEscapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
+	doubleEscapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
 	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
+	html = bytes.Replace(html, doubleEscapedServerURL, doubleEscapedAPINewHostname, -1)
 	return html
 }
 
@@ -920,8 +923,10 @@ func GetStaticHandler(c echo.Context) error {
 	// Copy the original HTTP headers to our client
 	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
 		k = http.CanonicalHeaderKey(k)
-		for _, v := range vv {
-			c.Response().Header().Add(k, v)
+		if k != "Content-Length" && k != "Content-Encoding" { // https://github.com/alaingilbert/ogame/pull/80#issuecomment-674559853
+			for _, v := range vv {
+				c.Response().Header().Add(k, v)
+			}
 		}
 	}
 
@@ -934,7 +939,7 @@ func GetStaticHandler(c echo.Context) error {
 	if strings.Contains(newURL, ".css") {
 		contentType = "text/css"
 	} else if strings.Contains(newURL, ".js") {
-		contentType = "text/javascript"
+		contentType = "application/javascript"
 	} else if strings.Contains(newURL, ".gif") {
 		contentType = "image/gif"
 	}
