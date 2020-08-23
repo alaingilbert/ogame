@@ -939,7 +939,7 @@ func GetStaticHandler(c echo.Context) error {
 	if strings.Contains(newURL, ".css") {
 		contentType = "text/css"
 	} else if strings.Contains(newURL, ".js") {
-		contentType = "text/javascript"
+		contentType = "application/javascript"
 	} else if strings.Contains(newURL, ".gif") {
 		contentType = "image/gif"
 	}
