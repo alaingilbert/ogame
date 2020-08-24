@@ -1539,10 +1539,13 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 
 	return nil
 }
-
+var TranslatedStringsCache TranslatedStrings
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	//b.debug("Cache Run for Page:"+page)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+
+	TranslatedStringsCache.Language = b.language
+
 	b.planetsMu.Lock()
 	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
 	b.planetsMu.Unlock()
@@ -1570,6 +1573,35 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.planetActivityMu.Unlock()
 
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
+
+	// Translate Resources
+	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
+	array := strings.Split(metalDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Metal) == 0  {
+		TranslatedStringsCache.Metal = array[0]
+	}
+	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
+	array = strings.Split(crystalDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Crystal) == 0 {
+		TranslatedStringsCache.Crystal = array[0]
+	}
+	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
+	array = strings.Split(deuteriumDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Deuterium) == 0{
+		TranslatedStringsCache.Deuterium = array[0]
+	}
+	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
+	array = strings.Split(energyDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Energy) == 0 {
+		TranslatedStringsCache.Energy = array[0]
+	}
+	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
+	array = strings.Split(darkmatterDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Darkmatter) == 0 {
+		TranslatedStringsCache.Darkmatter = array[0]
+	}
+	fmt.Printf("%v\n",TranslatedStringsCache)
+	/// END
 
 	switch page {
 	case OverviewPage:
