@@ -2897,6 +2897,12 @@ func TestFixAttackEvents(t *testing.T) {
 	assert.Equal(t, PlanetType, attacks[0].Destination.Type) // Did not change
 }
 
+func TestExtractAuction_ongoing2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.4/en/traderAuctioneer_ongoing.html")
+	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, int64(1800), res.Endtime)
+}
+
 func TestExtractAuction_ongoing(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/traderOverview_ongoing.html")
 	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
