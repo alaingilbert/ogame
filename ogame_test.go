@@ -1599,6 +1599,14 @@ func TestExtractUserInfos_hr(t *testing.T) {
 	assert.Equal(t, int64(252), infos.Total)
 }
 
+func TestExtractUserInfos_tw(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/tw/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "tw")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(212), infos.Rank)
+	assert.Equal(t, int64(212), infos.Total)
+}
+
 func TestExtractUserInfos_no(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/no/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "no")
