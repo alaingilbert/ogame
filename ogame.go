@@ -2661,7 +2661,7 @@ func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
 	if celestialID != 0 {
 		payload.Set("cp", strconv.FormatInt(int64(celestialID), 10))
 	}
-	auctionHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, payload)
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderauctioneer"}}, payload)
 	if err != nil {
 		return Auction{}, err
 	}
