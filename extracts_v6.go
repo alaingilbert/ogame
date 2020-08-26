@@ -1547,7 +1547,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	case "gr":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u039a\\u03b1\\u03c4\\u03ac\\u03c4\\u03b1\\u03be\\u03b7 ([\d.]+) \\u03b1\\u03c0\\u03cc ([\d.]+)\)`)
 	case "tw":
-		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) \u4eba\u4e2d\u7684\u7b2c ([\d.]+) \u4f4d\)`)
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) \\u4eba\\u4e2d\\u7684\\u7b2c ([\d.]+) \\u4f4d\)`)
 	case "cz":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Pozice ([\d.]+) z ([\d.]+)\)`)
 	case "de":
@@ -2149,7 +2149,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	auction.Inventory, _ = strconv.ParseInt(doc.Find("span.level.amount").Text(), 10, 64)
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
-	multiplierRegex := regexp.MustCompile(`multiplier=([^;]+);`).FindStringSubmatch(doc.Text())
+	multiplierRegex := regexp.MustCompile(`multiplier\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(multiplierRegex) != 2 {
 		return Auction{}, errors.New("failed to find auction multiplier")
 	}
@@ -2158,14 +2158,14 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find auctioneer token
-	tokenRegex := regexp.MustCompile(`auctioneerToken="([^"]+)";`).FindStringSubmatch(doc.Text())
+	tokenRegex := regexp.MustCompile(`auctioneerToken\s?=\s?"([^"]+)";`).FindStringSubmatch(doc.Text())
 	if len(tokenRegex) != 2 {
 		return Auction{}, errors.New("failed to find auctioneer token")
 	}
 	auction.Token = tokenRegex[1]
 
 	// Find Planet / Moon resources JSON
-	planetMoonResources := regexp.MustCompile(`planetResources=([^;]+);`).FindStringSubmatch(doc.Text())
+	planetMoonResources := regexp.MustCompile(`planetResources\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(planetMoonResources) != 2 {
 		return Auction{}, errors.New("failed to find planetResources")
 	}

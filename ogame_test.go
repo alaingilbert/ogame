@@ -1599,6 +1599,14 @@ func TestExtractUserInfos_hr(t *testing.T) {
 	assert.Equal(t, int64(252), infos.Total)
 }
 
+func TestExtractUserInfos_tw(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/tw/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "tw")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(212), infos.Rank)
+	assert.Equal(t, int64(212), infos.Total)
+}
+
 func TestExtractUserInfos_no(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/no/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "no")
@@ -2895,6 +2903,12 @@ func TestFixAttackEvents(t *testing.T) {
 	}
 	fixAttackEvents(attacks, planets)
 	assert.Equal(t, PlanetType, attacks[0].Destination.Type) // Did not change
+}
+
+func TestExtractAuction_ongoing2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.4/en/traderAuctioneer_ongoing.html")
+	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, int64(1800), res.Endtime)
 }
 
 func TestExtractAuction_ongoing(t *testing.T) {
