@@ -527,13 +527,13 @@ func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importTo
 	}
 	price = ParseInt(s.Text())
 	script := doc.Find("script").Text()
-	m := regexp.MustCompile(`var importToken="([^"]*)";`).FindSubmatch([]byte(script))
+	m := regexp.MustCompile(`var importToken\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day import token")
 		return
 	}
 	importToken = string(m[1])
-	m = regexp.MustCompile(`var planetResources=({[^;]*});`).FindSubmatch([]byte(script))
+	m = regexp.MustCompile(`var planetResources\s?=\s?({[^;]*});`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day raw planet resources")
 		return
@@ -541,7 +541,7 @@ func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importTo
 	if err = json.Unmarshal(m[1], &planetResources); err != nil {
 		return
 	}
-	m = regexp.MustCompile(`var multiplier=({[^;]*});`).FindSubmatch([]byte(script))
+	m = regexp.MustCompile(`var multiplier\s?=\s?({[^;]*});`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day raw multiplier")
 		return
