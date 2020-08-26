@@ -3589,7 +3589,7 @@ func calcResources(price int64, planetResources PlanetResources, multiplier Mult
 }
 
 func (b *OGame) buyOfferOfTheDay() error {
-	pageHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, url.Values{"show": {"importexport"}, "ajax": {"1"}})
+	pageHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}}, url.Values{"show": {"importexport"}, "ajax": {"1"}})
 	if err != nil {
 		return err
 	}
@@ -3603,7 +3603,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	payload.Add("bid[honor]", "0")
 	payload.Add("token", importToken)
 	payload.Add("ajax", "1")
-	pageHTML1, err := b.postPageContent(url.Values{"page": {"import"}}, payload)
+	pageHTML1, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"trade"}, "asJson": {"1"}}, payload)
 	if err != nil {
 		return err
 	}
@@ -3621,7 +3621,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	}
 
 	payload2 := url.Values{"action": {"takeItem"}, "token": {tmp.NewToken}, "ajax": {"1"}}
-	pageHTML2, err := b.postPageContent(url.Values{"page": {"import"}}, payload2)
+	pageHTML2, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload2)
 	var tmp2 struct {
 		Message  string
 		Error    bool

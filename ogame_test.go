@@ -1217,6 +1217,13 @@ func TestExtractOfferOfTheDayPrice(t *testing.T) {
 	assert.Equal(t, "8128c0ba0c9981599a87d818003f95e1", token)
 }
 
+func TestExtractOfferOfTheDayPrice1(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.4/en/traderOverview.html")
+	price, token, _, _, _ := NewExtractorV6().ExtractOfferOfTheDay(pageHTMLBytes)
+	assert.Equal(t, int64(822159), price)
+	assert.Equal(t, "2c829372796443bf6994cbfa051e4cd2", token)
+}
+
 func TestExtractAttacks(t *testing.T) {
 	clock := clockwork.NewFakeClockAt(time.Date(2016, 8, 23, 17, 48, 13, 0, time.UTC))
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
