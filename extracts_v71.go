@@ -625,7 +625,7 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 
 func extractAllResourcesV71(pageHTML []byte) (out map[CelestialID]Resources, err error) {
 	out = make(map[CelestialID]Resources)
-	m := regexp.MustCompile(`var planetResources=([^;]+);`).FindSubmatch(pageHTML)
+	m := regexp.MustCompile(`var planetResources\s?=\s?([^;]+);`).FindSubmatch(pageHTML)
 	if len(m) != 2 {
 		return out, errors.New("failed to get resources json")
 	}
