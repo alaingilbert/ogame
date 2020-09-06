@@ -5,13 +5,11 @@ import (
 	"net/http"
 	"sync/atomic"
 	"time"
-	//cookiejar "github.com/juju/persistent-cookiejar"
 )
 
 // OGameClient ...
 type OGameClient struct {
 	http.Client
-	//Jar          *cookiejar.Jar
 	UserAgent    string
 	rpsCounter   int32
 	rps          int32
@@ -28,15 +26,14 @@ func NewOGameClient() *OGameClient {
 		maxRPS: 0,
 	}
 
-	const delay = 500
+	const delay = 1
 
 	go func() {
 		for {
 			prevRPS := atomic.SwapInt32(&client.rpsCounter, 0)
 			atomic.StoreInt32(&client.rps, prevRPS/delay)
 			atomic.StoreInt64(&client.rpsStartTime, time.Now().Add(delay*time.Second).UnixNano())
-			//time.Sleep(delay * time.Second)
-			time.Sleep(delay * time.Millisecond)
+			time.Sleep(delay * time.Second)
 		}
 	}()
 

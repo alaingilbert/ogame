@@ -1090,6 +1090,32 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 			if i == 0 {
 				return
 			}
+
+			trIDAttr := s.AttrOr("id", "")
+			r := regexp.MustCompile(`eventRow-(union)?(\d+)`)
+			m := r.FindStringSubmatch(trIDAttr)
+			var id int64
+			if len(m) != 3 {
+				classes := s.AttrOr("class", "")
+				r = regexp.MustCompile(`unionunion(\d+)`)
+				m = r.FindStringSubmatch(classes)
+				if len(m) == 2 {
+					id, _ = strconv.ParseInt(m[1], 10, 64)
+				}
+			} else {
+				id, _ = strconv.ParseInt(m[2], 10, 64)
+			}
+			fleet.ID = FleetID(id)
+
+			fleet.ReturnFlight, _ = strconv.ParseBool(s.AttrOr("data-return-flight", ""))
+
+			missionTypeInt, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
+			arrivalTimeInt, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
+			missionType := MissionID(missionTypeInt)
+			fleet.Mission = missionType
+			fleet.ArrivalTime = time.Unix(arrivalTimeInt, 0)
+			fleet.ArriveIn = int64(time.Now().Unix() - arrivalTimeInt)
+
 			name := s.Find("td").Eq(0).Text()
 			nbr := ParseInt(s.Find("td").Eq(1).Text())
 			if name != "" && nbr > 0 {
@@ -1097,13 +1123,23 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 			}
 		})
 		fleet.Origin = extractCoordV6(doc.Find("td.coordsOrigin").Text())
+		fleet.Origin.Type = PlanetType
+		if s.Find("td.originFleet figure").HasClass("moon") {
+			fleet.Origin.Type = MoonType
+		}
 		fleet.Destination = extractCoordV6(doc.Find("td.destCoords").Text())
+		fleet.Destination.Type = PlanetType
+		if s.Find("td.destFleet figure").HasClass("moon") {
+			fleet.Destination.Type = MoonType
+		}
 
 		res := Resources{}
 		trs := doc2.Find("tr")
 		res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
 		res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
 		res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+
+		fleet.Resources = res
 
 		tmp = append(tmp, Tmp{fleet: fleet, res: res})
 	})

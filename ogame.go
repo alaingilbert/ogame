@@ -137,6 +137,8 @@ type OGame struct {
 	attackEventsMu                      sync.RWMutex
 	movementFleets                      []Fleet
 	movementFleetsMu                    sync.RWMutex
+	eventFleets                         []Fleet
+	eventFleetsMu                       sync.RWMutex
 	slots                               Slots
 	slotsMu                             sync.RWMutex
 	characterClassMu                    sync.RWMutex
@@ -1539,7 +1541,9 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 
 	return nil
 }
+
 var TranslatedStringsCache TranslatedStrings
+
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	//b.debug("Cache Run for Page:"+page)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -1561,7 +1565,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.eventboxRespMu.Unlock()
 
 	b.attackEventsMu.Lock()
-	b.attackEvents, _ = b.getAttacks(ChangePlanet(celestialID))
+	b.attackEvents, _ = b.extractor.ExtractAttacks(pageHTML) //b.getAttacks(ChangePlanet(celestialID))
 	b.attackEventsMu.Unlock()
 
 	b.lastActivePlanetMu.Lock()
@@ -1577,7 +1581,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	// Translate Resources
 	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
 	array := strings.Split(metalDoc.Text(), "|")
-	if len(array) > 0 && len(TranslatedStringsCache.Metal) == 0  {
+	if len(array) > 0 && len(TranslatedStringsCache.Metal) == 0 {
 		TranslatedStringsCache.Metal = array[0]
 	}
 	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
@@ -1587,7 +1591,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	}
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
 	array = strings.Split(deuteriumDoc.Text(), "|")
-	if len(array) > 0 && len(TranslatedStringsCache.Deuterium) == 0{
+	if len(array) > 0 && len(TranslatedStringsCache.Deuterium) == 0 {
 		TranslatedStringsCache.Deuterium = array[0]
 	}
 	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
@@ -1600,8 +1604,14 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	if len(array) > 0 && len(TranslatedStringsCache.Darkmatter) == 0 {
 		TranslatedStringsCache.Darkmatter = array[0]
 	}
-	fmt.Printf("%v\n",TranslatedStringsCache)
+	//fmt.Printf("%v\n", TranslatedStringsCache)
 	/// END
+
+	if b.CachedPreferences.EventsShow > 0 {
+		b.eventFleetsMu.Lock()
+		b.eventFleets = b.extractor.ExtractFleetsFromEventList(pageHTML)
+		b.eventFleetsMu.Unlock()
+	}
 
 	switch page {
 	case OverviewPage:
