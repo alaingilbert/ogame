@@ -3215,7 +3215,8 @@ func (b *OGame) highscore(category, typ, page int64) (out Highscore, err error) 
 
 func (b *OGame) getAllResources() (map[CelestialID]Resources, error) {
 	vals := url.Values{
-		"page": {"traderOverview"},
+		"page":      {"ajax"},
+		"component": {"traderauctioneer"},
 	}
 	payload := url.Values{
 		"show": {"auctioneer"},
