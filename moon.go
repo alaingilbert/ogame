@@ -114,14 +114,14 @@ func (m Moon) CancelResearch() error {
 
 // SendFleet sends a fleet
 func (m Moon) SendFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
-	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime, unionID)
+	mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error) {
+	return m.ogame.SendFleet(CelestialID(m.ID), ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (m Moon) EnsureFleet(ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
-	return m.ogame.EnsureFleet(CelestialID(m.ID), ships, speed, where, mission, resources, expeditiontime, unionID)
+	mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error) {
+	return m.ogame.EnsureFleet(CelestialID(m.ID), ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // GetResources gets moon resources

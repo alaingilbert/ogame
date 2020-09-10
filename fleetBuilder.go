@@ -33,7 +33,7 @@ type FleetBuilder struct {
 	err              error
 	fleet            Fleet
 	minimumDeuterium int64
-	expeditiontime   int64
+	holdingTime      int64
 	unionID          int64
 	allShips         bool
 	recallIn         int64
@@ -137,8 +137,8 @@ func (f *FleetBuilder) SetMission(mission MissionID) *FleetBuilder {
 }
 
 // SetDuration set expedition duration
-func (f *FleetBuilder) SetDuration(expeditiontime int64) *FleetBuilder {
-	f.expeditiontime = expeditiontime
+func (f *FleetBuilder) SetDuration(holdingTime int64) *FleetBuilder {
+	f.holdingTime = holdingTime
 	return f
 }
 
@@ -235,7 +235,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 		}
 	}
 
-	f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.expeditiontime, f.unionID)
+	f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.holdingTime, f.unionID)
 	return f.err
 }
 
