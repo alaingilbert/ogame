@@ -267,7 +267,7 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, ReaperID, ShipName2ID("Segador"))
 	assert.Equal(t, PathfinderID, ShipName2ID("Explorador"))
 
-	//pt
+	// pt
 	assert.Equal(t, LightFighterID, ShipName2ID("Caça Ligeiro"))
 	assert.Equal(t, HeavyFighterID, ShipName2ID("Caça Pesado"))
 	assert.Equal(t, CruiserID, ShipName2ID("Cruzador"))
@@ -286,7 +286,7 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, ReaperID, ShipName2ID("Ceifeira"))
 	assert.Equal(t, PathfinderID, ShipName2ID("Exploradora"))
 
-	//nl
+	// nl
 	assert.Equal(t, LightFighterID, ShipName2ID("Licht gevechtsschip"))
 	assert.Equal(t, HeavyFighterID, ShipName2ID("Zwaar gevechtsschip"))
 	assert.Equal(t, CruiserID, ShipName2ID("Kruiser"))
@@ -301,11 +301,11 @@ func TestName2id(t *testing.T) {
 	assert.Equal(t, RecyclerID, ShipName2ID("Recycler"))
 	assert.Equal(t, EspionageProbeID, ShipName2ID("Spionagesonde"))
 	assert.Equal(t, SolarSatelliteID, ShipName2ID("Zonne-energiesatelliet"))
-	assert.Equal(t, CrawlerID, ShipName2ID("Kruiper"))
-	assert.Equal(t, ReaperID, ShipName2ID("Hein"))
-	assert.Equal(t, PathfinderID, ShipName2ID("Padvinder"))
+	assert.Equal(t, CrawlerID, ShipName2ID("Processer"))
+	assert.Equal(t, ReaperID, ShipName2ID("Ruimer"))
+	assert.Equal(t, PathfinderID, ShipName2ID("Navigator"))
 
-	//dk
+	// dk
 	assert.Equal(t, LightFighterID, ShipName2ID("Lille Jæger"))
 	assert.Equal(t, HeavyFighterID, ShipName2ID("Stor Jæger"))
 	assert.Equal(t, CruiserID, ShipName2ID("Krydser"))
