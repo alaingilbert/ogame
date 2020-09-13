@@ -440,9 +440,9 @@ func ShipName2ID(name string) ID {
 		//"recycler":      RecyclerID,
 		//"spionagesonde":       EspionageProbeID,
 		"zonneenergiesatelliet": SolarSatelliteID,
-		"kruiper":               CrawlerID,
-		"hein":                  ReaperID,
-		"padvinder":             PathfinderID,
+		"processer":             CrawlerID,
+		"ruimer":                ReaperID,
+		"navigator":             PathfinderID,
 
 		//dk
 		"lillejger": LightFighterID,
