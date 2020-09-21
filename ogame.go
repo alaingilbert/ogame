@@ -1573,7 +1573,8 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.lastActivePlanetMu.Unlock()
 
 	b.planetActivityMu.Lock()
-	b.planetActivity[celestialID], _ = b.extractor.ExtractServerTime(pageHTML)
+	//b.planetActivity[celestialID], _ = b.extractor.ExtractServerTime(pageHTML)
+	b.planetActivity[celestialID] = time.Unix(b.extractor.ExtractOgameTimestamp(pageHTML), 0)
 	b.planetActivityMu.Unlock()
 
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
@@ -5856,3 +5857,49 @@ func (b *OGame) getCachedData() Data {
 
 	return data
 }
+
+// HasCommander ...
+func (b *OGame) HasCommander() bool {
+	return b.hasCommander
+}
+
+// HasAdmiral ...
+func (b *OGame) HasAdmiral() bool {
+	return b.hasAdmiral
+}
+
+// HasEngineer ...
+func (b *OGame) HasEngineer() bool {
+	return b.hasEngineer
+}
+
+// HasGeologist ...
+func (b *OGame) HasGeologist() bool {
+	return b.hasGeologist
+}
+
+// HasTechnocrat ...
+func (b *OGame) HasTechnocrat() bool {
+	return b.hasTechnocrat
+}
+
+// IsNoClass ...
+func (b *OGame) IsNoClass() bool {
+	return b.characterClass == NoClass
+}
+
+// IsDiscoverer ...
+func (b *OGame) IsDiscoverer() bool {
+	return b.characterClass == Discoverer
+}
+
+// IsGeneral ...
+func (b *OGame) IsGeneral() bool {
+	return b.characterClass == General
+}
+
+// IsCollector ...
+func (b *OGame) IsCollector() bool {
+	return b.characterClass == Collector
+}
+
