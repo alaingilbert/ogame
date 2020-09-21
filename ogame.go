@@ -1821,6 +1821,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.playerMu.Unlock()
 	} else if page == "preferences" {
 		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
+	} else if page == "research" {
+		researches := b.extractor.ExtractResearchFromDoc(doc)
+		b.researches = &researches
 	}
 
 	var data Data
