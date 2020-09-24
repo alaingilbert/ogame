@@ -664,5 +664,3 @@ func (b *Prioritize) GetCachedData() Data {
 	defer b.done()
 	return b.bot.getCachedData()
 }
-
-

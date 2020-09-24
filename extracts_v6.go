@@ -1200,6 +1200,14 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 		endTime, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""), 10, 64)
 
+		var recallToken string
+		if !returnFlight {
+			recallString := s.Find("span.reversal.reversal_time a").AttrOr("href", "")
+			racallURL, _ := url.Parse(recallString)
+			recallQuery := racallURL.Query()
+			recallToken = recallQuery["token"][0]
+		}
+
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
 		shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
@@ -1254,6 +1262,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			shipID := ShipName2ID(name)
 			fleet.Ships.Set(shipID, qty)
 		}
+		fleet.Token = recallToken
 
 		res = append(res, fleet)
 	})
