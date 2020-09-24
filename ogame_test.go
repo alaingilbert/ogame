@@ -43,6 +43,12 @@ func TestWrapper(t *testing.T) {
 	assert.NotNil(t, bot)
 }
 
+func TestExtractCancelFleetTokenFromDocV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.0/en/cancel_fleet.html")
+	token, _ := NewExtractorV71().ExtractCancelFleetToken(pageHTMLBytes, FleetID(9078407))
+	assert.Equal(t, "db3317fbe004641f7483e8074e34cda1", token)
+}
+
 func TestParseInt2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/deathstar_price.html")
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
