@@ -2896,7 +2896,12 @@ func (b *OGame) fixTimezone(t time.Time) time.Time {
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}, "token": {token}})
+	pageHTML, _ := b.getPage(MovementPage, CelestialID(0))
+	token, err := b.extractor.ExtractCancelFleetToken(pageHTML, fleetID)
+	if err != nil {
+		return err
+	}
+	_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}})
 	/*
 		pageHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
 		fleets := b.extractor.ExtractFleets(pageHTML)
@@ -2906,6 +2911,7 @@ func (b *OGame) cancelFleet(fleetID FleetID) error {
 				token = f.Token
 			}
 		}
+		_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}, "token": {token}})
 	*/
 	return nil
 }
