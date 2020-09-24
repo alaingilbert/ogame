@@ -2103,7 +2103,12 @@ func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}})
+	pageHTML, _ := b.getPage(MovementPage, CelestialID(0))
+	token, err := b.extractor.ExtractCancelFleetToken(pageHTML, fleetID)
+	if err != nil {
+		return err
+	}
+	_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}})
 	return nil
 }
 
