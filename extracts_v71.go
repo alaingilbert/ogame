@@ -482,6 +482,16 @@ func extractFacilitiesFromDocV71(doc *goquery.Document) (Facilities, error) {
 	return res, nil
 }
 
+func extractCancelFleetTokenFromDocV71(doc *goquery.Document, fleetID FleetID) (string, error) {
+	href := doc.Find("#fleet"+string(fleetID)+" a.icon_link").AttrOr("href", "")
+	m := regexp.MustCompile(`token=([^"]+)`).FindStringSubmatch(href)
+	if len(m) != 2 {
+		return "", errors.New("cancel fleet token not found")
+	}
+	token := m[1]
+	return token, nil
+}
+
 func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) {
 	res := make([]Quantifiable, 0)
 	active := doc.Find("table.construction")
