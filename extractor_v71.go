@@ -19,6 +19,17 @@ func NewExtractorV71() *ExtractorV71 {
 	return &ExtractorV71{}
 }
 
+// ExtractCancelFleetToken ...
+func (e ExtractorV71) ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractCancelFleetTokenFromDoc(doc, fleetID)
+}
+
+// ExtractCancelFleetTokenFromDoc ...
+func (e ExtractorV71) ExtractCancelFleetTokenFromDoc(doc *goquery.Document, fleetID FleetID) (string, error) {
+	return extractCancelFleetTokenFromDocV71(doc, fleetID)
+}
+
 // ExtractFacilitiesFromDoc ...
 func (e ExtractorV71) ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error) {
 	return extractFacilitiesFromDocV71(doc)

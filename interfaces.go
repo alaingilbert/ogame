@@ -358,6 +358,7 @@ type Extractor interface {
 	ExtractPlanetType(pageHTML []byte) (CelestialType, error)
 	ExtractPlanetTypeFromDoc(doc *goquery.Document) (CelestialType, error)
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
+	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
 	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
 	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
 	ExtractCoord(v string) (coord Coordinate)
