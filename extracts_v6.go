@@ -2219,7 +2219,15 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find already-bid
-	auction.AlreadyBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_alreadyBidden").Text())
+	m := regexp.MustCompile(`var playerBid = ([^;]+);`).FindStringSubmatch(doc.Text())
+	if len(m) != 2 {
+		return Auction{}, errors.New("failed to get playerBid")
+	}
+	var alreadyBid int64
+	if m[1] != "false" {
+		alreadyBid, _ = strconv.ParseInt(m[1], 10, 64)
+	}
+	auction.AlreadyBid = alreadyBid
 
 	// Find min-bid
 	auction.MinimumBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
