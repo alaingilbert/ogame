@@ -1185,6 +1185,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.Player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
 	} else if page == "preferences" {
 		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
+	} else if page == "research" {
+		researches := b.extractor.ExtractResearchFromDoc(doc)
+		b.researches = &researches
 	}
 }
 
@@ -2100,7 +2103,12 @@ func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}})
+	pageHTML, _ := b.getPage(MovementPage, CelestialID(0))
+	token, err := b.extractor.ExtractCancelFleetToken(pageHTML, fleetID)
+	if err != nil {
+		return err
+	}
+	_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}})
 	return nil
 }
 
@@ -2429,7 +2437,8 @@ func (b *OGame) highscore(category, typ, page int64) (out Highscore, err error) 
 
 func (b *OGame) getAllResources() (map[CelestialID]Resources, error) {
 	vals := url.Values{
-		"page": {"traderOverview"},
+		"page":      {"ajax"},
+		"component": {"traderauctioneer"},
 	}
 	payload := url.Values{
 		"show": {"auctioneer"},
@@ -2661,7 +2670,7 @@ func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
 	if celestialID != 0 {
 		payload.Set("cp", strconv.FormatInt(int64(celestialID), 10))
 	}
-	auctionHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, payload)
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderauctioneer"}}, payload)
 	if err != nil {
 		return Auction{}, err
 	}
@@ -2803,7 +2812,7 @@ func calcResources(price int64, planetResources PlanetResources, multiplier Mult
 }
 
 func (b *OGame) buyOfferOfTheDay() error {
-	pageHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, url.Values{"show": {"importexport"}, "ajax": {"1"}})
+	pageHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}}, url.Values{"show": {"importexport"}, "ajax": {"1"}})
 	if err != nil {
 		return err
 	}
@@ -2817,7 +2826,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	payload.Add("bid[honor]", "0")
 	payload.Add("token", importToken)
 	payload.Add("ajax", "1")
-	pageHTML1, err := b.postPageContent(url.Values{"page": {"import"}}, payload)
+	pageHTML1, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"trade"}, "asJson": {"1"}}, payload)
 	if err != nil {
 		return err
 	}
@@ -2835,7 +2844,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	}
 
 	payload2 := url.Values{"action": {"takeItem"}, "token": {tmp.NewToken}, "ajax": {"1"}}
-	pageHTML2, err := b.postPageContent(url.Values{"page": {"import"}}, payload2)
+	pageHTML2, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload2)
 	var tmp2 struct {
 		Message  string
 		Error    bool
@@ -3340,7 +3349,7 @@ type CheckTargetResponse struct {
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64, ensure bool) (Fleet, error) {
+	mission MissionID, resources Resources, holdingTime, unionID int64, ensure bool) (Fleet, error) {
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
 	initialFleets, slots := b.getFleets()
@@ -3513,11 +3522,13 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Set("prioCrystal", "2")
 	payload.Set("prioDeuterium", "3")
 	payload.Set("retreatAfterDefenderRetreat", "0")
-	if mission == Expedition {
-		if expeditiontime <= 0 {
-			expeditiontime = 1
+	if mission == ParkInThatAlly || mission == Expedition {
+		if mission == Expedition { // Expedition 1 to 18
+			holdingTime = Clamp(holdingTime, 1, 18)
+		} else if mission == ParkInThatAlly { // ParkInThatAlly 0, 1, 2, 4, 8, 16, 32
+			holdingTime = Clamp(holdingTime, 0, 32)
 		}
-		payload.Set("holdingtime", strconv.FormatInt(expeditiontime, 10))
+		payload.Set("holdingtime", strconv.FormatInt(holdingTime, 10))
 	}
 
 	// Page 4 : send the fleet
@@ -4647,14 +4658,14 @@ func (b *OGame) GetResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
-	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID)
+	mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error) {
+	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
-	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID)
+	mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error) {
+	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // SendIPM sends IPM

@@ -440,9 +440,9 @@ func ShipName2ID(name string) ID {
 		//"recycler":      RecyclerID,
 		//"spionagesonde":       EspionageProbeID,
 		"zonneenergiesatelliet": SolarSatelliteID,
-		"kruiper":               CrawlerID,
-		"hein":                  ReaperID,
-		"padvinder":             PathfinderID,
+		"processer":             CrawlerID,
+		"ruimer":                ReaperID,
+		"navigator":             PathfinderID,
 
 		//dk
 		"lillejger": LightFighterID,
@@ -502,4 +502,11 @@ func MaxInt(vals ...int64) int64 {
 		}
 	}
 	return max
+}
+
+// Clamp ensure the value is within a range
+func Clamp(val, min, max int64) int64 {
+	val = MinInt(val, max)
+	val = MaxInt(val, min)
+	return val
 }

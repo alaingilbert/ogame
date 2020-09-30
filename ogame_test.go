@@ -43,6 +43,12 @@ func TestWrapper(t *testing.T) {
 	assert.NotNil(t, bot)
 }
 
+func TestExtractCancelFleetTokenFromDocV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.0/en/cancel_fleet.html")
+	token, _ := NewExtractorV71().ExtractCancelFleetToken(pageHTMLBytes, FleetID(9078407))
+	assert.Equal(t, "db3317fbe004641f7483e8074e34cda1", token)
+}
+
 func TestParseInt2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/deathstar_price.html")
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
@@ -1217,6 +1223,13 @@ func TestExtractOfferOfTheDayPrice(t *testing.T) {
 	assert.Equal(t, "8128c0ba0c9981599a87d818003f95e1", token)
 }
 
+func TestExtractOfferOfTheDayPrice1(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.4/en/traderOverview.html")
+	price, token, _, _, _ := NewExtractorV6().ExtractOfferOfTheDay(pageHTMLBytes)
+	assert.Equal(t, int64(822159), price)
+	assert.Equal(t, "2c829372796443bf6994cbfa051e4cd2", token)
+}
+
 func TestExtractAttacks(t *testing.T) {
 	clock := clockwork.NewFakeClockAt(time.Date(2016, 8, 23, 17, 48, 13, 0, time.UTC))
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
@@ -1597,6 +1610,14 @@ func TestExtractUserInfos_hr(t *testing.T) {
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(214), infos.Rank)
 	assert.Equal(t, int64(252), infos.Total)
+}
+
+func TestExtractUserInfos_tw(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/tw/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "tw")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(212), infos.Rank)
+	assert.Equal(t, int64(212), infos.Total)
 }
 
 func TestExtractUserInfos_no(t *testing.T) {
@@ -2895,6 +2916,24 @@ func TestFixAttackEvents(t *testing.T) {
 	}
 	fixAttackEvents(attacks, planets)
 	assert.Equal(t, PlanetType, attacks[0].Destination.Type) // Did not change
+}
+
+func TestExtractAuction_playerBid(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.0/en/auction_player_bid.html")
+	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, int64(1603000), res.AlreadyBid)
+}
+
+func TestExtractAuction_noPlayerBid(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.0/en/auction_no_player_bid.html")
+	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, int64(0), res.AlreadyBid)
+}
+
+func TestExtractAuction_ongoing2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.4/en/traderAuctioneer_ongoing.html")
+	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, int64(1800), res.Endtime)
 }
 
 func TestExtractAuction_ongoing(t *testing.T) {

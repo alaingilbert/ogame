@@ -80,7 +80,7 @@ type Prioritizable interface {
 	CancelBuilding(CelestialID) error
 	CancelResearch(CelestialID) error
 	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
-	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error)
+	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
 	GetDefense(CelestialID) (DefensesInfos, error)
 	GetFacilities(CelestialID) (Facilities, error)
 	GetProduction(CelestialID) ([]Quantifiable, int64, error)
@@ -88,7 +88,7 @@ type Prioritizable interface {
 	GetResourcesBuildings(CelestialID) (ResourcesBuildings, error)
 	GetResourcesDetails(CelestialID) (ResourcesDetails, error)
 	GetShips(CelestialID) (ShipsInfos, error)
-	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error)
+	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
 	TearDown(celestialID CelestialID, id ID) error
 
 	// Planet specific functions
@@ -358,6 +358,7 @@ type Extractor interface {
 	ExtractPlanetType(pageHTML []byte) (CelestialType, error)
 	ExtractPlanetTypeFromDoc(doc *goquery.Document) (CelestialType, error)
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
+	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
 	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
 	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
 	ExtractCoord(v string) (coord Coordinate)

@@ -527,13 +527,13 @@ func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importTo
 	}
 	price = ParseInt(s.Text())
 	script := doc.Find("script").Text()
-	m := regexp.MustCompile(`var importToken="([^"]*)";`).FindSubmatch([]byte(script))
+	m := regexp.MustCompile(`var importToken\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day import token")
 		return
 	}
 	importToken = string(m[1])
-	m = regexp.MustCompile(`var planetResources=({[^;]*});`).FindSubmatch([]byte(script))
+	m = regexp.MustCompile(`var planetResources\s?=\s?({[^;]*});`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day raw planet resources")
 		return
@@ -541,7 +541,7 @@ func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importTo
 	if err = json.Unmarshal(m[1], &planetResources); err != nil {
 		return
 	}
-	m = regexp.MustCompile(`var multiplier=({[^;]*});`).FindSubmatch([]byte(script))
+	m = regexp.MustCompile(`var multiplier\s?=\s?({[^;]*});`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day raw multiplier")
 		return
@@ -1545,7 +1545,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	case "gr":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u039a\\u03b1\\u03c4\\u03ac\\u03c4\\u03b1\\u03be\\u03b7 ([\d.]+) \\u03b1\\u03c0\\u03cc ([\d.]+)\)`)
 	case "tw":
-		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) \u4eba\u4e2d\u7684\u7b2c ([\d.]+) \u4f4d\)`)
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) \\u4eba\\u4e2d\\u7684\\u7b2c ([\d.]+) \\u4f4d\)`)
 	case "cz":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Pozice ([\d.]+) z ([\d.]+)\)`)
 	case "de":
@@ -2147,7 +2147,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	auction.Inventory, _ = strconv.ParseInt(doc.Find("span.level.amount").Text(), 10, 64)
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
-	multiplierRegex := regexp.MustCompile(`multiplier=([^;]+);`).FindStringSubmatch(doc.Text())
+	multiplierRegex := regexp.MustCompile(`multiplier\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(multiplierRegex) != 2 {
 		return Auction{}, errors.New("failed to find auction multiplier")
 	}
@@ -2156,14 +2156,14 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find auctioneer token
-	tokenRegex := regexp.MustCompile(`auctioneerToken="([^"]+)";`).FindStringSubmatch(doc.Text())
+	tokenRegex := regexp.MustCompile(`auctioneerToken\s?=\s?"([^"]+)";`).FindStringSubmatch(doc.Text())
 	if len(tokenRegex) != 2 {
 		return Auction{}, errors.New("failed to find auctioneer token")
 	}
 	auction.Token = tokenRegex[1]
 
 	// Find Planet / Moon resources JSON
-	planetMoonResources := regexp.MustCompile(`planetResources=([^;]+);`).FindStringSubmatch(doc.Text())
+	planetMoonResources := regexp.MustCompile(`planetResources\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(planetMoonResources) != 2 {
 		return Auction{}, errors.New("failed to find planetResources")
 	}
@@ -2172,7 +2172,15 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find already-bid
-	auction.AlreadyBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_alreadyBidden").Text())
+	m := regexp.MustCompile(`var playerBid = ([^;]+);`).FindStringSubmatch(doc.Text())
+	if len(m) != 2 {
+		return Auction{}, errors.New("failed to get playerBid")
+	}
+	var alreadyBid int64
+	if m[1] != "false" {
+		alreadyBid, _ = strconv.ParseInt(m[1], 10, 64)
+	}
+	auction.AlreadyBid = alreadyBid
 
 	// Find min-bid
 	auction.MinimumBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
