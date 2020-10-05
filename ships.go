@@ -59,12 +59,12 @@ func (s ShipsInfos) HasMovableShips() bool {
 
 		}
 		switch ship.GetID() {
-			case SolarSatelliteID:
-			case CrawlerID:
-			default:
-				if s.ByID(ship.GetID()) > 0 {
-					return true
-				}
+		case SolarSatelliteID:
+		case CrawlerID:
+		default:
+			if s.ByID(ship.GetID()) > 0 {
+				return true
+			}
 		}
 	}
 	return false
@@ -116,6 +116,14 @@ func (s ShipsInfos) FromQuantifiables(in []Quantifiable) (out ShipsInfos) {
 func (s ShipsInfos) Cargo(techs Researches, probeRaids, isCollector bool) (out int64) {
 	for _, ship := range Ships {
 		out += ship.GetCargoCapacity(techs, probeRaids, isCollector) * s.ByID(ship.GetID())
+	}
+	return
+}
+
+// FuelCapacity returns the total Capacity for fuel
+func (s ShipsInfos) FuelCapacity() (out int64) {
+	for _, ship := range Ships {
+		out += ship.GetFuelCapacity() * s.ByID(ship.GetID())
 	}
 	return
 }

@@ -21,6 +21,11 @@ func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids, isCollector boo
 	return cargo
 }
 
+// GetFuelCapacity returns ship fuel capacity
+func (b BaseShip) GetFuelCapacity() int64 {
+	return b.FuelCapacity
+}
+
 // GetFuelConsumption returns ship fuel consumption
 func (b BaseShip) GetFuelConsumption(techs Researches, fleetDeutSaveFactor float64, isGeneral bool) int64 {
 	fuelConsumption := b.FuelConsumption

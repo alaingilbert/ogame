@@ -206,6 +206,7 @@ type Ship interface {
 	GetCargoCapacity(techs Researches, probeRaids, isCollector bool) int64
 	GetSpeed(techs Researches, isCollector, isGeneral bool) int64
 	GetFuelConsumption(techs Researches, fleetDeutSaveFactor float64, isGeneral bool) int64
+	GetFuelCapacity() int64
 }
 
 // Defense interface implemented by all defenses units
