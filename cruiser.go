@@ -14,6 +14,7 @@ func newCruiser() *cruiser {
 	s.BaseCargoCapacity = 800
 	s.BaseSpeed = 15000
 	s.FuelConsumption = 300
+	s.FuelCapacity = 800
 	s.RapidfireFrom = map[ID]int64{BattlecruiserID: 4, DeathstarID: 33, PathfinderID: 3}
 	s.RapidfireAgainst = map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5,
 		LightFighterID: 6, RocketLauncherID: 10, CrawlerID: 5}

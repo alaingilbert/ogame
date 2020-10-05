@@ -6,6 +6,7 @@ type BaseShip struct {
 	BaseCargoCapacity int64
 	BaseSpeed         int64
 	FuelConsumption   int64
+	FuelCapacity      int64
 }
 
 // GetCargoCapacity returns ship cargo capacity
