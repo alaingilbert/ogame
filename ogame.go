@@ -582,6 +582,9 @@ func getServers(b *OGame) ([]Server, error) {
 }
 
 func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
+	if lang == "ba" {
+		lang = "yu"
+	}
 	var server Server
 	var acc account
 	for _, s := range servers {
