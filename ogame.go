@@ -1104,8 +1104,12 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 		return err
 	}
 	b.serverData = serverData
-	b.language = userAccount.Server.Language
-	b.serverURL = "https://s" + strconv.FormatInt(server.Number, 10) + "-" + server.Language + ".ogame.gameforge.com"
+	lang := server.Language
+	if server.Language == "yu" {
+		lang = "ba"
+	}
+	b.language = lang
+	b.serverURL = "https://s" + strconv.FormatInt(server.Number, 10) + "-" + lang + ".ogame.gameforge.com"
 	b.debug("get server data", time.Since(start))
 	return nil
 }
