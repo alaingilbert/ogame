@@ -35,7 +35,7 @@ func (m MissionID) String() string {
 }
 
 // Speed represent a fleet speed
-type Speed int
+type Speed float64
 
 // Int64 returns an integer value of the speed
 func (s Speed) Int64() int64 {
@@ -197,14 +197,24 @@ const (
 	Expedition         MissionID = 15
 
 	// Speeds
-	TenPercent     Speed = 1
-	TwentyPercent  Speed = 2
-	ThirtyPercent  Speed = 3
-	FourtyPercent  Speed = 4
-	FiftyPercent   Speed = 5
-	SixtyPercent   Speed = 6
-	SeventyPercent Speed = 7
-	EightyPercent  Speed = 8
-	NinetyPercent  Speed = 9
-	HundredPercent Speed = 10
+	TenPercent         Speed = 1
+	TwentyPercent      Speed = 2
+	ThirtyPercent      Speed = 3
+	FourtyPercent      Speed = 4
+	FiftyPercent       Speed = 5
+	SixtyPercent       Speed = 6
+	SeventyPercent     Speed = 7
+	EightyPercent      Speed = 8
+	NinetyPercent      Speed = 9
+	HundredPercent     Speed = 10
+	FivePercent        Speed = 0.5 // General class only detailed speeds
+	FifteenPercent     Speed = 1.5
+	TwentyFivePercent  Speed = 2.5
+	ThirtyFivePercent  Speed = 3.5
+	FourtyFivePercent  Speed = 4.5
+	FiftyFivePercent   Speed = 5.5
+	SixtyFivePercent   Speed = 6.5
+	SeventyFivePercent Speed = 7.5
+	EightyFivePercent  Speed = 8.5
+	NinetyFivePercent  Speed = 9.5
 )
