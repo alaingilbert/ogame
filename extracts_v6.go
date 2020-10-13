@@ -2174,7 +2174,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find already-bid
-	m := regexp.MustCompile(`var playerBid = ([^;]+);`).FindStringSubmatch(doc.Text())
+	m := regexp.MustCompile(`var playerBid\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(m) != 2 {
 		return Auction{}, errors.New("failed to get playerBid")
 	}
