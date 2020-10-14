@@ -250,6 +250,11 @@ func ShipName2ID(name string) ID {
 		"zetelac":           ReaperID,
 		"krcilac":           PathfinderID,
 
+		// ba
+		"krstarice":      CruiserID,
+		"borbenibrodovi": BattleshipID,
+		"razaraci":       DestroyerID,
+
 		// mx
 		"navedelacolonia": ColonyShipID,
 		"taladrador":      CrawlerID,

@@ -1624,6 +1624,8 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Locul ([\d.]+) din ([\d.]+)\)`)
 	case "fi":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Sijoitus ([\d.]+) kaikista pelaajista ([\d.]+)\)`)
+	case "ba":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Mjesto ([\d.]+) od ([\d.]+)\)`)
 	case "ru":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u041c\\u0435\\u0441\\u0442\\u043e ([\d.]+) \\u0438\\u0437 ([\d.]+)\)`)
 	}
@@ -2220,7 +2222,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find already-bid
-	m := regexp.MustCompile(`var playerBid = ([^;]+);`).FindStringSubmatch(doc.Text())
+	m := regexp.MustCompile(`var playerBid\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(m) != 2 {
 		return Auction{}, errors.New("failed to get playerBid")
 	}
