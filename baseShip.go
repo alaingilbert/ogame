@@ -75,7 +75,7 @@ func (b BaseShip) GetSpeed(techs Researches, isCollector, isGeneral bool) int64 
 	speed := baseSpeed + (baseSpeed*driveFactor)*techDriveLvl
 	if isCollector && (b.ID == SmallCargoID || b.ID == LargeCargoID) {
 		speed += baseSpeed
-	} else if isGeneral && (b.ID == RecyclerID || b.ID.IsCombatShip()) {
+	} else if isGeneral && (b.ID == RecyclerID || b.ID.IsCombatShip()) && b.ID != DeathstarID {
 		speed += baseSpeed
 	}
 	return int64(speed) * multiplier
