@@ -1860,6 +1860,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 		fleet.Mission = MissionID(mission)
 		fleet.ReturnFlight = returning
 		fleet.ArriveIn = arriveIn
+		fleet.ArrivalTime = time.Unix(arrivalTime, 0)
 		fleet.Origin = extractCoordV6(originTxt)
 		fleet.Origin.Type = PlanetType
 		if originFleetFigure.HasClass("moon") {
