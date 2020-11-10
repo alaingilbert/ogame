@@ -105,7 +105,7 @@ func extractResourcesBuildingsFromDocV7(doc *goquery.Document) (ResourcesBuildin
 	res.DeuteriumSynthesizer = getNbrV7(doc, "deuteriumSynthesizer")
 	res.SolarPlant = getNbrV7(doc, "solarPlant")
 	res.FusionReactor = getNbrV7(doc, "fusionPlant")
-	res.SolarSatellite = getNbrV7(doc, "solarSatellite")
+	res.SolarSatellite = getNbrV7Ships(doc, "solarSatellite")
 	res.MetalStorage = getNbrV7(doc, "metalStorage")
 	res.CrystalStorage = getNbrV7(doc, "crystalStorage")
 	res.DeuteriumTank = getNbrV7(doc, "deuteriumStorage")
