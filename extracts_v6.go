@@ -1908,6 +1908,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 		fleet.Mission = MissionID(mission)
 		fleet.ReturnFlight = returning
 		fleet.ArriveIn = arriveIn
+		fleet.ArrivalTime = time.Unix(arrivalTime, 0)
 		fleet.Origin = extractCoordV6(originTxt)
 		fleet.Origin.Type = PlanetType
 		if originFleetFigure.HasClass("moon") {
@@ -2031,7 +2032,7 @@ func extractUniverseSpeedV6(pageHTML []byte) int64 {
 }
 
 var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως|:sta)\s*([-\d]+).+C`)
-var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км|χμ) \((\d+)/(\d+)\)`)
+var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|χμ|公里) \((\d+)/(\d+)\)`)
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
 func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error) {

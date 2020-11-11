@@ -203,6 +203,21 @@ func TestExtractResourcesDetailsFromFullPageV7(t *testing.T) {
 	assert.Equal(t, int64(19348523), res.Darkmatter.Found)
 }
 
+func TestExtractPhalanx_75(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.1/en/phalanx_returning.html")
+	res, err := NewExtractorV6().ExtractPhalanx(pageHTMLBytes)
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 11, 4, 0, 25, 29, 0, time.UTC))
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(res))
+	assert.Equal(t, Transport, res[0].Mission)
+	assert.Equal(t, true, res[0].ReturnFlight)
+	assert.NotNil(t, res[0].ArriveIn)
+	assert.Equal(t, clock.Now().Add(10*time.Minute), res[0].ArrivalTime.UTC())
+	assert.Equal(t, Coordinate{4, 116, 9, PlanetType}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 10, PlanetType}, res[0].Destination)
+	assert.Equal(t, int64(19), res[0].Ships.SmallCargo)
+}
+
 func TestExtractPhalanx(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
 	res, err := NewExtractorV6().ExtractPhalanx(pageHTMLBytes)
