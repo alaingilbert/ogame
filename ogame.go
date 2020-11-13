@@ -1571,6 +1571,16 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
 
+	// Translate Resources
+	//metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
+	//b.debug("extract metal?")
+	//b.debug(metalDoc.Text())
+	//crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
+	//deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
+	//energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
+	//darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
+	/// END
+
 	switch page {
 	case OverviewPage:
 		buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
