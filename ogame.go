@@ -137,6 +137,8 @@ type OGame struct {
 	attackEventsMu                      sync.RWMutex
 	movementFleets                      []Fleet
 	movementFleetsMu                    sync.RWMutex
+	eventFleets                         []Fleet
+	eventFleetsMu                       sync.RWMutex
 	slots                               Slots
 	slotsMu                             sync.RWMutex
 	characterClassMu                    sync.RWMutex
@@ -943,6 +945,9 @@ func getServers(b *OGame) ([]Server, error) {
 }
 
 func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
+	if lang == "ba" {
+		lang = "yu"
+	}
 	var server Server
 	var acc account
 	for _, s := range servers {
@@ -1474,8 +1479,12 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 		return err
 	}
 	b.serverData = serverData
-	b.language = userAccount.Server.Language
-	b.serverURL = "https://s" + strconv.FormatInt(server.Number, 10) + "-" + server.Language + ".ogame.gameforge.com"
+	lang := server.Language
+	if server.Language == "yu" {
+		lang = "ba"
+	}
+	b.language = lang
+	b.serverURL = "https://s" + strconv.FormatInt(server.Number, 10) + "-" + lang + ".ogame.gameforge.com"
 	b.debug("get server data", time.Since(start))
 	return nil
 }
@@ -1540,9 +1549,14 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	return nil
 }
 
+var TranslatedStringsCache TranslatedStrings
+
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	//b.debug("Cache Run for Page:"+page)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+
+	TranslatedStringsCache.Language = b.language
+
 	b.planetsMu.Lock()
 	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
 	b.planetsMu.Unlock()
@@ -1558,7 +1572,7 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.eventboxRespMu.Unlock()
 
 	b.attackEventsMu.Lock()
-	b.attackEvents, _ = b.getAttacks(ChangePlanet(celestialID))
+	b.attackEvents, _ = b.extractor.ExtractAttacks(pageHTML) //b.getAttacks(ChangePlanet(celestialID))
 	b.attackEventsMu.Unlock()
 
 	b.lastActivePlanetMu.Lock()
@@ -1566,10 +1580,46 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.lastActivePlanetMu.Unlock()
 
 	b.planetActivityMu.Lock()
-	b.planetActivity[celestialID], _ = b.extractor.ExtractServerTime(pageHTML)
+	//b.planetActivity[celestialID], _ = b.extractor.ExtractServerTime(pageHTML)
+	b.planetActivity[celestialID] = time.Unix(b.extractor.ExtractOgameTimestamp(pageHTML), 0)
 	b.planetActivityMu.Unlock()
 
 	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
+
+	// Translate Resources
+	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
+	array := strings.Split(metalDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Metal) == 0 {
+		TranslatedStringsCache.Metal = array[0]
+	}
+	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
+	array = strings.Split(crystalDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Crystal) == 0 {
+		TranslatedStringsCache.Crystal = array[0]
+	}
+	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
+	array = strings.Split(deuteriumDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Deuterium) == 0 {
+		TranslatedStringsCache.Deuterium = array[0]
+	}
+	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
+	array = strings.Split(energyDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Energy) == 0 {
+		TranslatedStringsCache.Energy = array[0]
+	}
+	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
+	array = strings.Split(darkmatterDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Darkmatter) == 0 {
+		TranslatedStringsCache.Darkmatter = array[0]
+	}
+	//fmt.Printf("%v\n", TranslatedStringsCache)
+	/// END
+
+	if b.CachedPreferences.EventsShow > 0 {
+		b.eventFleetsMu.Lock()
+		b.eventFleets = b.extractor.ExtractFleetsFromEventList(pageHTML)
+		b.eventFleetsMu.Unlock()
+	}
 
 	// Translate Resources
 	//metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
@@ -1580,7 +1630,6 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	//energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
 	//darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
 	/// END
-
 	switch page {
 	case OverviewPage:
 		buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
@@ -1788,6 +1837,9 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		b.playerMu.Unlock()
 	} else if page == "preferences" {
 		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
+	} else if page == "research" {
+		researches := b.extractor.ExtractResearchFromDoc(doc)
+		b.researches = &researches
 	}
 
 	var data Data
@@ -2860,7 +2912,23 @@ func (b *OGame) fixTimezone(t time.Time) time.Time {
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}})
+	pageHTML, _ := b.getPage(MovementPage, CelestialID(0))
+	token, err := b.extractor.ExtractCancelFleetToken(pageHTML, fleetID)
+	if err != nil {
+		return err
+	}
+	_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}})
+	/*
+		pageHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
+		fleets := b.extractor.ExtractFleets(pageHTML)
+		var token string
+		for _, f := range fleets {
+			if !f.ReturnFlight {
+				token = f.Token
+			}
+		}
+		_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}, "token": {token}})
+	*/
 	return nil
 }
 
@@ -3193,7 +3261,8 @@ func (b *OGame) highscore(category, typ, page int64) (out Highscore, err error) 
 
 func (b *OGame) getAllResources() (map[CelestialID]Resources, error) {
 	vals := url.Values{
-		"page": {"traderOverview"},
+		"page":      {"ajax"},
+		"component": {"traderauctioneer"},
 	}
 	payload := url.Values{
 		"show": {"auctioneer"},
@@ -3425,7 +3494,7 @@ func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
 	if celestialID != 0 {
 		payload.Set("cp", strconv.FormatInt(int64(celestialID), 10))
 	}
-	auctionHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, payload)
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderauctioneer"}}, payload)
 	if err != nil {
 		return Auction{}, err
 	}
@@ -3567,7 +3636,7 @@ func calcResources(price int64, planetResources PlanetResources, multiplier Mult
 }
 
 func (b *OGame) buyOfferOfTheDay() error {
-	pageHTML, err := b.postPageContent(url.Values{"page": {"traderOverview"}}, url.Values{"show": {"importexport"}, "ajax": {"1"}})
+	pageHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}}, url.Values{"show": {"importexport"}, "ajax": {"1"}})
 	if err != nil {
 		return err
 	}
@@ -3581,7 +3650,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	payload.Add("bid[honor]", "0")
 	payload.Add("token", importToken)
 	payload.Add("ajax", "1")
-	pageHTML1, err := b.postPageContent(url.Values{"page": {"import"}}, payload)
+	pageHTML1, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"trade"}, "asJson": {"1"}}, payload)
 	if err != nil {
 		return err
 	}
@@ -3599,7 +3668,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	}
 
 	payload2 := url.Values{"action": {"takeItem"}, "token": {tmp.NewToken}, "ajax": {"1"}}
-	pageHTML2, err := b.postPageContent(url.Values{"page": {"import"}}, payload2)
+	pageHTML2, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload2)
 	var tmp2 struct {
 		Message  string
 		Error    bool
@@ -4107,7 +4176,7 @@ type CheckTargetResponse struct {
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64, ensure bool) (Fleet, error) {
+	mission MissionID, resources Resources, holdingTime, unionID int64, ensure bool) (Fleet, error) {
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
 	initialFleets, slots := b.getFleets()
@@ -4280,11 +4349,13 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Set("prioCrystal", "2")
 	payload.Set("prioDeuterium", "3")
 	payload.Set("retreatAfterDefenderRetreat", "0")
-	if mission == Expedition {
-		if expeditiontime <= 0 {
-			expeditiontime = 1
+	if mission == ParkInThatAlly || mission == Expedition {
+		if mission == Expedition { // Expedition 1 to 18
+			holdingTime = Clamp(holdingTime, 1, 18)
+		} else if mission == ParkInThatAlly { // ParkInThatAlly 0, 1, 2, 4, 8, 16, 32
+			holdingTime = Clamp(holdingTime, 0, 32)
 		}
-		payload.Set("holdingtime", strconv.FormatInt(expeditiontime, 10))
+		payload.Set("holdingtime", strconv.FormatInt(holdingTime, 10))
 	}
 
 	// Page 4 : send the fleet
@@ -5420,14 +5491,14 @@ func (b *OGame) GetResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 
 // SendFleet sends a fleet
 func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
-	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID)
+	mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error) {
+	return b.WithPriority(Normal).SendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
 func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
-	mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error) {
-	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, expeditiontime, unionID)
+	mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error) {
+	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // SendIPM sends IPM
@@ -5820,4 +5891,49 @@ func (b *OGame) getCachedData() Data {
 	b.slotsMu.RUnlock()
 
 	return data
+}
+
+// HasCommander ...
+func (b *OGame) HasCommander() bool {
+	return b.hasCommander
+}
+
+// HasAdmiral ...
+func (b *OGame) HasAdmiral() bool {
+	return b.hasAdmiral
+}
+
+// HasEngineer ...
+func (b *OGame) HasEngineer() bool {
+	return b.hasEngineer
+}
+
+// HasGeologist ...
+func (b *OGame) HasGeologist() bool {
+	return b.hasGeologist
+}
+
+// HasTechnocrat ...
+func (b *OGame) HasTechnocrat() bool {
+	return b.hasTechnocrat
+}
+
+// IsNoClass ...
+func (b *OGame) IsNoClass() bool {
+	return b.characterClass == NoClass
+}
+
+// IsDiscoverer ...
+func (b *OGame) IsDiscoverer() bool {
+	return b.characterClass == Discoverer
+}
+
+// IsGeneral ...
+func (b *OGame) IsGeneral() bool {
+	return b.characterClass == General
+}
+
+// IsCollector ...
+func (b *OGame) IsCollector() bool {
+	return b.characterClass == Collector
 }

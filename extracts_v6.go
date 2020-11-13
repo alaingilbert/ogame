@@ -527,13 +527,13 @@ func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importTo
 	}
 	price = ParseInt(s.Text())
 	script := doc.Find("script").Text()
-	m := regexp.MustCompile(`var importToken="([^"]*)";`).FindSubmatch([]byte(script))
+	m := regexp.MustCompile(`var importToken\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day import token")
 		return
 	}
 	importToken = string(m[1])
-	m = regexp.MustCompile(`var planetResources=({[^;]*});`).FindSubmatch([]byte(script))
+	m = regexp.MustCompile(`var planetResources\s?=\s?({[^;]*});`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day raw planet resources")
 		return
@@ -541,7 +541,7 @@ func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importTo
 	if err = json.Unmarshal(m[1], &planetResources); err != nil {
 		return
 	}
-	m = regexp.MustCompile(`var multiplier=({[^;]*});`).FindSubmatch([]byte(script))
+	m = regexp.MustCompile(`var multiplier\s?=\s?({[^;]*});`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day raw multiplier")
 		return
@@ -1090,6 +1090,32 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 			if i == 0 {
 				return
 			}
+
+			trIDAttr := s.AttrOr("id", "")
+			r := regexp.MustCompile(`eventRow-(union)?(\d+)`)
+			m := r.FindStringSubmatch(trIDAttr)
+			var id int64
+			if len(m) != 3 {
+				classes := s.AttrOr("class", "")
+				r = regexp.MustCompile(`unionunion(\d+)`)
+				m = r.FindStringSubmatch(classes)
+				if len(m) == 2 {
+					id, _ = strconv.ParseInt(m[1], 10, 64)
+				}
+			} else {
+				id, _ = strconv.ParseInt(m[2], 10, 64)
+			}
+			fleet.ID = FleetID(id)
+
+			fleet.ReturnFlight, _ = strconv.ParseBool(s.AttrOr("data-return-flight", ""))
+
+			missionTypeInt, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
+			arrivalTimeInt, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
+			missionType := MissionID(missionTypeInt)
+			fleet.Mission = missionType
+			fleet.ArrivalTime = time.Unix(arrivalTimeInt, 0)
+			fleet.ArriveIn = int64(time.Now().Unix() - arrivalTimeInt)
+
 			name := s.Find("td").Eq(0).Text()
 			nbr := ParseInt(s.Find("td").Eq(1).Text())
 			if name != "" && nbr > 0 {
@@ -1097,13 +1123,23 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 			}
 		})
 		fleet.Origin = extractCoordV6(doc.Find("td.coordsOrigin").Text())
+		fleet.Origin.Type = PlanetType
+		if s.Find("td.originFleet figure").HasClass("moon") {
+			fleet.Origin.Type = MoonType
+		}
 		fleet.Destination = extractCoordV6(doc.Find("td.destCoords").Text())
+		fleet.Destination.Type = PlanetType
+		if s.Find("td.destFleet figure").HasClass("moon") {
+			fleet.Destination.Type = MoonType
+		}
 
 		res := Resources{}
 		trs := doc2.Find("tr")
 		res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
 		res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
 		res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+
+		fleet.Resources = res
 
 		tmp = append(tmp, Tmp{fleet: fleet, res: res})
 	})
@@ -1163,6 +1199,15 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		inDeepSpace := s.Find("span.fleetDetailButton a").HasClass("fleet_icon_forward_end")
 		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 		endTime, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""), 10, 64)
+		/*
+			var recallToken string
+			if !returnFlight {
+				recallString := s.Find("span.reversal.reversal_time a").AttrOr("href", "")
+				racallURL, _ := url.Parse(recallString)
+				recallQuery := racallURL.Query()
+				recallToken = recallQuery["token"][0]
+			}
+		*/
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
@@ -1218,6 +1263,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			shipID := ShipName2ID(name)
 			fleet.Ships.Set(shipID, qty)
 		}
+		//fleet.Token = recallToken
 
 		res = append(res, fleet)
 	})
@@ -1547,7 +1593,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	case "gr":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u039a\\u03b1\\u03c4\\u03ac\\u03c4\\u03b1\\u03be\\u03b7 ([\d.]+) \\u03b1\\u03c0\\u03cc ([\d.]+)\)`)
 	case "tw":
-		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) \u4eba\u4e2d\u7684\u7b2c ([\d.]+) \u4f4d\)`)
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(([\d.]+) \\u4eba\\u4e2d\\u7684\\u7b2c ([\d.]+) \\u4f4d\)`)
 	case "cz":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Pozice ([\d.]+) z ([\d.]+)\)`)
 	case "de":
@@ -1578,6 +1624,8 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Locul ([\d.]+) din ([\d.]+)\)`)
 	case "fi":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Sijoitus ([\d.]+) kaikista pelaajista ([\d.]+)\)`)
+	case "ba":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Mjesto ([\d.]+) od ([\d.]+)\)`)
 	case "ru":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u041c\\u0435\\u0441\\u0442\\u043e ([\d.]+) \\u0438\\u0437 ([\d.]+)\)`)
 	}
@@ -1860,6 +1908,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 		fleet.Mission = MissionID(mission)
 		fleet.ReturnFlight = returning
 		fleet.ArriveIn = arriveIn
+		fleet.ArrivalTime = time.Unix(arrivalTime, 0)
 		fleet.Origin = extractCoordV6(originTxt)
 		fleet.Origin.Type = PlanetType
 		if originFleetFigure.HasClass("moon") {
@@ -1983,7 +2032,7 @@ func extractUniverseSpeedV6(pageHTML []byte) int64 {
 }
 
 var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως|:sta)\s*([-\d]+).+C`)
-var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км|χμ) \((\d+)/(\d+)\)`)
+var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|χμ|公里) \((\d+)/(\d+)\)`)
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
 func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error) {
@@ -2149,7 +2198,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	auction.Inventory, _ = strconv.ParseInt(doc.Find("span.level.amount").Text(), 10, 64)
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
-	multiplierRegex := regexp.MustCompile(`multiplier=([^;]+);`).FindStringSubmatch(doc.Text())
+	multiplierRegex := regexp.MustCompile(`multiplier\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(multiplierRegex) != 2 {
 		return Auction{}, errors.New("failed to find auction multiplier")
 	}
@@ -2158,14 +2207,14 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find auctioneer token
-	tokenRegex := regexp.MustCompile(`auctioneerToken="([^"]+)";`).FindStringSubmatch(doc.Text())
+	tokenRegex := regexp.MustCompile(`auctioneerToken\s?=\s?"([^"]+)";`).FindStringSubmatch(doc.Text())
 	if len(tokenRegex) != 2 {
 		return Auction{}, errors.New("failed to find auctioneer token")
 	}
 	auction.Token = tokenRegex[1]
 
 	// Find Planet / Moon resources JSON
-	planetMoonResources := regexp.MustCompile(`planetResources=([^;]+);`).FindStringSubmatch(doc.Text())
+	planetMoonResources := regexp.MustCompile(`planetResources\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(planetMoonResources) != 2 {
 		return Auction{}, errors.New("failed to find planetResources")
 	}
@@ -2174,7 +2223,15 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find already-bid
-	auction.AlreadyBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_alreadyBidden").Text())
+	m := regexp.MustCompile(`var playerBid\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
+	if len(m) != 2 {
+		return Auction{}, errors.New("failed to get playerBid")
+	}
+	var alreadyBid int64
+	if m[1] != "false" {
+		alreadyBid, _ = strconv.ParseInt(m[1], 10, 64)
+	}
+	auction.AlreadyBid = alreadyBid
 
 	// Find min-bid
 	auction.MinimumBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())

@@ -14,6 +14,7 @@ func newDeathstar() *deathstar {
 	s.BaseCargoCapacity = 1000000
 	s.BaseSpeed = 100
 	s.FuelConsumption = 1
+	s.FuelCapacity = 1000000
 	s.RapidfireFrom = map[ID]int64{}
 	s.RapidfireAgainst = map[ID]int64{SmallCargoID: 250, LargeCargoID: 250, LightFighterID: 200,
 		HeavyFighterID: 100, CruiserID: 33, BattleshipID: 30, ColonyShipID: 250,

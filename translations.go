@@ -27,7 +27,7 @@ type TranslatedStrings struct {
 	AllianceDepot string
 	MissileSilo string
 	NaniteFactory string
-	Transfomer string
+	Terraformer string
 	SpaceDock string
 	// Moon Buildings
 	LunarBase string

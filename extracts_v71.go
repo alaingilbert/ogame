@@ -482,6 +482,16 @@ func extractFacilitiesFromDocV71(doc *goquery.Document) (Facilities, error) {
 	return res, nil
 }
 
+func extractCancelFleetTokenFromDocV71(doc *goquery.Document, fleetID FleetID) (string, error) {
+	href := doc.Find("div#fleet"+strconv.FormatInt(int64(fleetID), 10)+" a.icon_link").AttrOr("href", "")
+	m := regexp.MustCompile(`token=([^"]+)`).FindStringSubmatch(href)
+	if len(m) != 2 {
+		return "", errors.New("cancel fleet token not found")
+	}
+	token := m[1]
+	return token, nil
+}
+
 func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) {
 	res := make([]Quantifiable, 0)
 	active := doc.Find("table.construction")
@@ -625,7 +635,7 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 
 func extractAllResourcesV71(pageHTML []byte) (out map[CelestialID]Resources, err error) {
 	out = make(map[CelestialID]Resources)
-	m := regexp.MustCompile(`var planetResources=([^;]+);`).FindSubmatch(pageHTML)
+	m := regexp.MustCompile(`var planetResources\s?=\s?([^;]+);`).FindSubmatch(pageHTML)
 	if len(m) != 2 {
 		return out, errors.New("failed to get resources json")
 	}

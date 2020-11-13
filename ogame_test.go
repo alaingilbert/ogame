@@ -43,6 +43,12 @@ func TestWrapper(t *testing.T) {
 	assert.NotNil(t, bot)
 }
 
+func TestExtractCancelFleetTokenFromDocV71(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.0/en/cancel_fleet.html")
+	token, _ := NewExtractorV71().ExtractCancelFleetToken(pageHTMLBytes, FleetID(9078407))
+	assert.Equal(t, "db3317fbe004641f7483e8074e34cda1", token)
+}
+
 func TestParseInt2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/deathstar_price.html")
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
@@ -195,6 +201,21 @@ func TestExtractResourcesDetailsFromFullPageV7(t *testing.T) {
 	assert.Equal(t, int64(19348523), res.Darkmatter.Available)
 	assert.Equal(t, int64(0), res.Darkmatter.Purchased)
 	assert.Equal(t, int64(19348523), res.Darkmatter.Found)
+}
+
+func TestExtractPhalanx_75(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.1/en/phalanx_returning.html")
+	res, err := NewExtractorV6().ExtractPhalanx(pageHTMLBytes)
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 11, 4, 0, 25, 29, 0, time.UTC))
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(res))
+	assert.Equal(t, Transport, res[0].Mission)
+	assert.Equal(t, true, res[0].ReturnFlight)
+	assert.NotNil(t, res[0].ArriveIn)
+	assert.Equal(t, clock.Now().Add(10*time.Minute), res[0].ArrivalTime.UTC())
+	assert.Equal(t, Coordinate{4, 116, 9, PlanetType}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 10, PlanetType}, res[0].Destination)
+	assert.Equal(t, int64(19), res[0].Ships.SmallCargo)
 }
 
 func TestExtractPhalanx(t *testing.T) {
@@ -708,6 +729,20 @@ func TestExtractPlanet_fi(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_ba(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.1/ba/overview.html")
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33621433), &OGame{language: "ba"})
+	assert.Equal(t, "Glavni Planet", planet.Name)
+	assert.Equal(t, int64(12800), planet.Diameter)
+	assert.Equal(t, int64(70), planet.Temperature.Min)
+	assert.Equal(t, int64(110), planet.Temperature.Max)
+	assert.Equal(t, int64(5), planet.Fields.Built)
+	assert.Equal(t, int64(193), planet.Fields.Total)
+	assert.Equal(t, PlanetID(33621433), planet.ID)
+	assert.Equal(t, Coordinate{1, 55, 4, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_gr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33629206), &OGame{language: "gr"})
@@ -1217,6 +1252,13 @@ func TestExtractOfferOfTheDayPrice(t *testing.T) {
 	assert.Equal(t, "8128c0ba0c9981599a87d818003f95e1", token)
 }
 
+func TestExtractOfferOfTheDayPrice1(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.4/en/traderOverview.html")
+	price, token, _, _, _ := NewExtractorV6().ExtractOfferOfTheDay(pageHTMLBytes)
+	assert.Equal(t, int64(822159), price)
+	assert.Equal(t, "2c829372796443bf6994cbfa051e4cd2", token)
+}
+
 func TestExtractAttacks(t *testing.T) {
 	clock := clockwork.NewFakeClockAt(time.Date(2016, 8, 23, 17, 48, 13, 0, time.UTC))
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
@@ -1599,6 +1641,14 @@ func TestExtractUserInfos_hr(t *testing.T) {
 	assert.Equal(t, int64(252), infos.Total)
 }
 
+func TestExtractUserInfos_tw(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/tw/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "tw")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(212), infos.Rank)
+	assert.Equal(t, int64(212), infos.Total)
+}
+
 func TestExtractUserInfos_no(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/no/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "no")
@@ -1782,6 +1832,15 @@ func TestExtractUserInfos_ru(t *testing.T) {
 	assert.Equal(t, int64(1067), infos.Rank)
 	assert.Equal(t, int64(1068), infos.Total)
 	assert.Equal(t, "Viceregent Horizon", infos.PlayerName)
+}
+
+func TestExtractUserInfos_ba(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.1/ba/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "ba")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(138), infos.Rank)
+	assert.Equal(t, int64(139), infos.Total)
+	assert.Equal(t, "Governor Hunter", infos.PlayerName)
 }
 
 func TestExtractMoons(t *testing.T) {
@@ -2895,6 +2954,24 @@ func TestFixAttackEvents(t *testing.T) {
 	}
 	fixAttackEvents(attacks, planets)
 	assert.Equal(t, PlanetType, attacks[0].Destination.Type) // Did not change
+}
+
+func TestExtractAuction_playerBid(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.0/en/auction_player_bid.html")
+	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, int64(1603000), res.AlreadyBid)
+}
+
+func TestExtractAuction_noPlayerBid(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.0/en/auction_no_player_bid.html")
+	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, int64(0), res.AlreadyBid)
+}
+
+func TestExtractAuction_ongoing2(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.4/en/traderAuctioneer_ongoing.html")
+	res, _ := NewExtractorV6().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, int64(1800), res.Endtime)
 }
 
 func TestExtractAuction_ongoing(t *testing.T) {

@@ -159,8 +159,8 @@ ActivateItem(string, CelestialID) error
 // Planet or Moon functions
 GetResources(CelestialID) (Resources, error)
 GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error)
-EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, expeditiontime, unionID int64) (Fleet, error)
+SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
+EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
 Build(celestialID CelestialID, id ID, nbr int64) error
 BuildCancelable(CelestialID, ID) error
 BuildProduction(celestialID CelestialID, id ID, nbr int64) error

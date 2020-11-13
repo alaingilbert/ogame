@@ -6,6 +6,7 @@ type BaseShip struct {
 	BaseCargoCapacity int64
 	BaseSpeed         int64
 	FuelConsumption   int64
+	FuelCapacity      int64
 }
 
 // GetCargoCapacity returns ship cargo capacity
@@ -18,6 +19,11 @@ func (b BaseShip) GetCargoCapacity(techs Researches, probeRaids, isCollector boo
 		cargo += int64(float64(b.BaseCargoCapacity) * 0.25)
 	}
 	return cargo
+}
+
+// GetFuelCapacity returns ship fuel capacity
+func (b BaseShip) GetFuelCapacity() int64 {
+	return b.FuelCapacity
 }
 
 // GetFuelConsumption returns ship fuel consumption
@@ -69,7 +75,7 @@ func (b BaseShip) GetSpeed(techs Researches, isCollector, isGeneral bool) int64 
 	speed := baseSpeed + (baseSpeed*driveFactor)*techDriveLvl
 	if isCollector && (b.ID == SmallCargoID || b.ID == LargeCargoID) {
 		speed += baseSpeed
-	} else if isGeneral && (b.ID == RecyclerID || b.ID.IsCombatShip()) {
+	} else if isGeneral && (b.ID == RecyclerID || b.ID.IsCombatShip()) && b.ID != DeathstarID {
 		speed += baseSpeed
 	}
 	return int64(speed) * multiplier

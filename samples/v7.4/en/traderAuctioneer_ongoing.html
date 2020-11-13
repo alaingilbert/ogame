@@ -1,0 +1,687 @@
+<div id='trader/auctioneer'><div id="div_traderAuctioneer" class="div_trader" style="display:none;">
+        <div class="header">
+            <h2>Auctioneer</h2>
+        </div>
+        <div class="content">
+            <p class="stimulus">
+                <a title="Rules|At the auctioneer, auctions start in regular intervals between the times of 6 and 23. Bids can be made by using resources or by using honour points.&lt;br /&gt;&lt;br /&gt;&lt;b&gt;However, all bid resources and honour points will not be refunded.&lt;/b&gt;&lt;br /&gt;&lt;br /&gt;
+Your stakes will always be lost – no matter whether you win or not. If you are outbid, you can raise your previous  bid. For example: if someone bids 1.000 resources and is then outbid by another player who enters 3.000, the first player can raise his original bid by 3.000 resources to bring it to 4.000. The old bid will only be deleted after the auction is completed.&lt;br /&gt;&lt;br /&gt;
+Note: when creating a bid, crystal and deuterium are worth 1.5 and 3 more than metal respectively.&lt;br /&gt;&lt;br /&gt;
+The higher the quality of the equipment is (bronze, silver or gold), the rarer it is that they will be up for auction. 23"
+                   href="javascript:void(0);"
+                   class="tooltipHTML help rules"></a>
+                Items are offered here daily and can be purchased using resources.<br/>
+                If you are outbid, you can increase your previous bid. <b><span style="color:#99CC00;">However, bid resources and honour points will never be refunded.</span></b>
+            </p>
+            <!-- <div class="left_box_wrap"> -->
+            <div class="left_box">
+                <div class="left_header">
+                    <h2>Auctions in progress</h2>
+                </div>
+                <div class="left_content">
+                    <div class="overlay"></div>
+                    <div class="image_140px">
+                        <img alt="Energy Booster Bronze" src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/daba686ad7f01a5d1e8b28bd13a1a9d1b8efe19c-140x.png"
+                             height="136" width="136"
+                             style="margin: 2px;"/>
+                        <a class="detail_button tooltipHTML js_hideTipOnMobile slideIn r_common_140px" href="javascript:void(0);"
+                           title="Energy Booster Bronze|+20% more energy production on a planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 78"
+                           ref="3f6f381dc9b92822406731a942c028adf8dc978f">
+                                    <span class="ecke">
+                                        <span class="level amount">78</span>
+                                    </span>
+                        </a>
+                    </div>
+                    <p class="auction_info"><span style="color:#99CC00;"><b>approx. 30m</b></span> remaining until the auction ends</p>
+                    <label class="auction_detail odd info_label">Current bid: </label>
+                    <div class="detail_value odd currentSum">0</div>
+
+                    <label class="auction_detail even info_label">Number of bids: </label>
+                    <div class="detail_value even numberOfBids">0</div>
+
+                    <label class="auction_detail odd info_label">Highest bidder: </label>
+                    <a href="javascript:void(0);" class="detail_value odd currentPlayer"></a>
+                </div>
+                <div class="left_footer"></div>
+            </div> <!--  left_box End -->
+            <!-- </div> -->
+
+            <div class="right_box">
+                <div class="noAuctionOverlay" style="display: none;"></div>
+                <div class="right_header">
+                    <h2>Submit bid</h2>
+                </div>
+
+                <div class="right_content">
+                    <div class="resourceSelection">
+                        <div class="selectWrapper">
+                            <a href="javascript:void(0);" alt="Select resources from your planets"
+                               class="tooltip js_hideTipOnMobile source planet js_planet selected"
+                               title="Select resources from your planets"></a>
+                            <a href="javascript:void(0);" alt="Select resources from your moons"
+                               class="tooltip js_hideTipOnMobile source moon js_moon "
+                               title="Select resources from your moons"></a>
+                            <a href="javascript:void(0);" alt="Exchange your honour points"
+                               class="tooltip js_hideTipOnMobile source honor js_honor"
+                               title="Exchange your honour points"></a>
+
+                            <a id="js_toggleLinkAuctioneer" href="#togglePanel" class="js_valSourcePlanet toggleHidden toggleLink">
+                                <img alt="Homeworld" src="https://gf1.geo.gfsrv.net/cdn9e/6183cba4025fe240b2d2fe7dc84f92.png" width="18" height="18" >
+                                <span class="option_source">Homeworld</span>
+                            </a>
+                        </div>
+                        <table class="table_ressources" cellspacing="0" cellpadding="0">
+                            <tr class="normalResource">
+                                <td><div class="resourceIcon metal resource_label"></div></td>
+                                <td class="multiplier undermark tooltip" title="Each Metal unit has a value of 1.">
+                                    <span class="dark_highlight_tablet">x 1</span>
+                                </td>
+                                <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderMetalInput js_metal checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                                <td><a class="value-control more js_sliderMetalMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+                                <td><a class="value-control max js_sliderMetalMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+                            </tr>
+                            <tr class="normalResource">
+                                <td colspan="2">&nbsp;</td>
+                                <td><div class="max_hint">(max. <span class="max_planet_res max_planet_metal">272.243.414</span>)</div></td>
+                                <td colspan="2">&nbsp;</td>
+                            </tr>
+                            <tr class="normalResource">
+                                <td><div class="resourceIcon crystal resource_label"></div></td>
+                                <td class="multiplier undermark tooltip" title="Each Crystal unit has a value of 1.5.">
+                                    <span class="dark_highlight_tablet">x 1.5</span>
+                                </td>
+                                <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderCrystalInput js_crystal checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                                <td><a class="value-control more js_sliderCrystalMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+                                <td><a class="value-control max js_sliderCrystalMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+                            </tr>
+                            <tr class="normalResource">
+                                <td colspan="2">&nbsp;</td>
+                                <td><div class="max_hint">(max. <span class="max_planet_res max_planet_crystal">111.243.080.776</span>)</div></td>
+                                <td colspan="2">&nbsp;</td>
+                            </tr>
+                            <tr class="normalResource">
+                                <td><div class="resourceIcon deuterium resource_label"></div></td>
+                                <td class="multiplier undermark tooltip" title="Each Deuterium unit has a value of 3.">
+                                    <span class="dark_highlight_tablet">x 3</span>
+                                </td>
+                                <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderDeuteriumInput js_deuterium checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                                <td><a class="value-control more js_sliderDeuteriumMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 resources">+</a></td>
+                                <td><a class="value-control max js_sliderDeuteriumMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+                            </tr>
+                            <tr class="normalResource">
+                                <td colspan="2">&nbsp;</td>
+                                <td><div class="max_hint">(max. <span class="max_planet_res max_planet_deuterium">55.882.134.222</span>)</div></td>
+                                <td colspan="2">&nbsp;</td>
+                            </tr>
+                            <tr class="honorResource" style="display: none">
+                                <td><img src="https://s152-en.ogame.gameforge.com/cdn/img/trader/honorPointsLarge.png" alt="Honour points" class="resource_label" /></td>
+                                <td class="multiplier undermark tooltip" title="Each Honour points unit has a value of 100.">
+                                    <span class="dark_highlight_tablet">x 100</span>
+                                </td>
+                                <td><input type="text" pattern="[0-9,.]*"  class="resourceAmount js_amount js_sliderHonorInput js_honor checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                                <td><a class="value-control more js_sliderHonorMore js_valButton tooltip js_hideTipOnMobile" title="Bid +1000 Honour points">+</a></td>
+                                <td><a class="value-control max js_sliderHonorMax js_valButton tooltipRight js_hideTipOnMobile" title="Bid as much as is required / possible">>></a></td>
+                            </tr>
+                            <tr class="honorResource" style="display: none">
+                                <td colspan="2">&nbsp;</td>
+                                <td><div class="max_hint">(max. <span class="max_planet_res max_planet_honor">380217</span>)</div></td>
+                                <td colspan="2">&nbsp;</td>
+                            </tr>
+                        </table>
+                        <div id="js_togglePanelAuctioneer" class="togglePanel" style="display: none;">
+                            <ul class="planet
+    active"
+
+                            >
+                                <li id="33698658" class="dark_highlight_tablet selected">
+                                    <img alt="Homeworld" src="https://gf1.geo.gfsrv.net/cdn9e/6183cba4025fe240b2d2fe7dc84f92.png" width="18" height="18" />
+                                    <span class="option_source">Homeworld [4:116:12]</span>
+                                </li>
+                                <li id="33702461" class="dark_highlight_tablet ">
+                                    <img alt="Colony" src="https://gf1.geo.gfsrv.net/cdn07/66f44c7a5a76f653320c621afcd0c7.png" width="18" height="18" />
+                                    <span class="option_source">Colony [4:117:9]</span>
+                                </li>
+                                <li id="33709974" class="dark_highlight_tablet ">
+                                    <img alt="Colony" src="https://gf1.geo.gfsrv.net/cdn9d/d88d769ee3243e00e216fe96e18663.png" width="18" height="18" />
+                                    <span class="option_source">Colony [4:119:8]</span>
+                                </li>
+                                <li id="33710470" class="dark_highlight_tablet ">
+                                    <img alt="Colony" src="https://gf2.geo.gfsrv.net/cdna7/731eb88bbcd40dcfe4ca066db1e6df.png" width="18" height="18" />
+                                    <span class="option_source">Colony [4:126:8]</span>
+                                </li>
+                                <li id="33719721" class="dark_highlight_tablet ">
+                                    <img alt="Colony" src="https://gf1.geo.gfsrv.net/cdnf2/32926d2ee2884eab5015c14c73afa3.png" width="18" height="18" />
+                                    <span class="option_source">Colony [4:208:10]</span>
+                                </li>
+                                <li id="33735905" class="dark_highlight_tablet ">
+                                    <img alt="Colony" src="https://gf1.geo.gfsrv.net/cdnf9/b8a5ac08d95fc0fc02abea130bb7f9.png" width="18" height="18" />
+                                    <span class="option_source">Colony [4:116:1]</span>
+                                </li>
+                                <li id="33736200" class="dark_highlight_tablet ">
+                                    <img alt="Colony" src="https://gf2.geo.gfsrv.net/cdna7/731eb88bbcd40dcfe4ca066db1e6df.png" width="18" height="18" />
+                                    <span class="option_source">Colony [4:116:8]</span>
+                                </li>
+                                <li id="33803877" class="dark_highlight_tablet ">
+                                    <img alt="Colony" src="https://gf3.geo.gfsrv.net/cdn8a/a53d828535504560c6c2ddedb88429.png" width="18" height="18" />
+                                    <span class="option_source">Colony [4:115:9]</span>
+                                </li>
+                            </ul>
+                            <ul class="moon
+    "
+                                style="display:none"
+                            >
+                                <li id="33743183" class="dark_highlight_tablet ">
+                                    <img alt="Averylong moonname" src="https://gf2.geo.gfsrv.net/cdnad/9c9f0a78e85bcf40c2ccfc08db5cb4.gif" width="18" height="18" />
+                                    <span class="option_source">Averylong... [4:126:8]</span>
+                                </li>
+                                <li id="33764913" class="dark_highlight_tablet ">
+                                    <img alt="Moon" src="https://gf2.geo.gfsrv.net/cdnad/9c9f0a78e85bcf40c2ccfc08db5cb4.gif" width="18" height="18" />
+                                    <span class="option_source">Moon [4:116:8]</span>
+                                </li>
+                                <li id="33780773" class="dark_highlight_tablet ">
+                                    <img alt="Moon" src="https://gf3.geo.gfsrv.net/cdn2f/6c86116a2c1d0fc00f3b17a2b6ff49.gif" width="18" height="18" />
+                                    <span class="option_source">Moon [4:117:9]</span>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </div>
+
+                    <table class="table_ressources_sum" cellspacing="0" cellpadding="0">
+                        <tr class="even">
+                            <td class="auctionInfo js_bidRise tooltip" title="The amount of resources that you raised your last bid by.">Bid increased by:</td>
+                            <td class="auctionInfo sum js_auctioneerSum green_text tooltip" title="The amount of resources that you raised your last bid by.">0</td>
+                        </tr>
+                        <tr class="odd">
+                            <td width="40%" class="auctionInfo tooltip" title="The amount of resources that you are bidding in the current auction.">Your bid:</td>
+                            <td width="60%" class="auctionInfo js_alreadyBidden">0</td>
+                        </tr>
+                        <tr class="odd">
+                            <td class="auctionInfo tooltip" title="The minimum amount of resources that you have to bid.">Minimum bid:</td>
+                            <td class="auctionInfo js_price">1.000</td>
+                        </tr>
+                        <tr class="even">
+                            <td class="auctionInfo tooltip" title="The amount of resources required to reach the minimum bid.">Shortfall:</td>
+                            <td class="auctionInfo js_deficit">0</td>
+                        </tr>
+                    </table>
+
+                    <p class="overbid_text">You have been outbid!</p>
+                    <a href="javascript:void(0);" class="pay disabled">Submit bid</a>
+                    <br class="clearfloat" />
+                </div>
+                <div class="right_footer"></div>
+            </div> <!-- right_box End -->
+            <br class="clearfloat" />
+            <div class="auction_history">
+                <div class="history_header">
+                    <h2>Previous auctions</h2>
+                </div>
+                <div class="history_content">
+                    <ul>
+                        <li class="even ">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="422db99aac4ec594d483d8ef7faadc5d40d6f7d3">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/a703be5a40a8fe8128466721f5f925ae1e86d13a-small.png"
+                                     alt="" title="Silver Crystal Booster|+20% more Crystal Mine production on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 7.500 Dark Matter&lt;br /&gt;
+In Inventory: 26"
+                                     class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                            </a>
+
+                            <span class="detail sum">0</span>
+
+                            <span class="detail player">Not sold</span>
+
+                            <span class="detail date_time">17:37:55</span>
+                        </li>
+                        <li class="odd ">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="da4a2a1bb9afd410be07bc9736d87f1c8059e66d">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/2a974711651e1b38cb8d840ccc15259c49726b75-small.png"
+                                     alt="" title="NEWTRON Bronze|Reduces research time for all research that is currently in progress by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 161"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">0</span>
+
+                            <span class="detail player">Not sold</span>
+
+                            <span class="detail date_time">16:34:20</span>
+                        </li>
+                        <li class="even ">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="da4a2a1bb9afd410be07bc9736d87f1c8059e66d">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/2a974711651e1b38cb8d840ccc15259c49726b75-small.png"
+                                     alt="" title="NEWTRON Bronze|Reduces research time for all research that is currently in progress by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 161"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">2.002</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=3&amp;system=336">
+                                    Spinner
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">15:30:18</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="35d96e441c21ef112a84c618934d9d0f026998fd">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/5650071c78c9fcf9681fc2c780694de96de29c1b-small.png"
+                                     alt="" title="Platinum Crystal Booster|+40% more Crystal Mine production on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 30.000 Dark Matter&lt;br /&gt;
+In Inventory: 4"
+                                     class="item_img tooltipHTML tooltipLeft r_epic"/>
+                            </a>
+
+                            <span class="detail sum">1.002</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=48">
+                                    Gryff
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">14:33:55</span>
+                        </li>
+                        <li class="even more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="3f6f381dc9b92822406731a942c028adf8dc978f">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/a020705ab782f54a75244eefaee69019d4f25abb-small.png"
+                                     alt="" title="Energy Booster Bronze|+20% more energy production on a planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 78"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">2.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=3&amp;system=336">
+                                    Spinner
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">13:43:41</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="de922af379061263a56d7204d1c395cefcfb7d75">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/cea22d098a0b48c8960101e05c0bd2a7fadc72c5-small.png"
+                                     alt="" title="Bronze Metal Booster|+10% more Metal Mine extraction on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 125"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">1.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=3&amp;system=336">
+                                    Spinner
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">12:30:38</span>
+                        </li>
+                        <li class="even more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="0968999df2fe956aa4a07aea74921f860af7d97f">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/f46e7c8bdd1ea9bed4f0cb998199c478762a18a7-small.png"
+                                     alt="" title="DETROID Gold|Reduces the construction time of current shipyard-contracts by &lt;b&gt;6h&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 17"
+                                     class="item_img tooltipHTML tooltipLeft r_rare"/>
+                            </a>
+
+                            <span class="detail sum">1.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=2&amp;system=131">
+                                    sam
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">11:42:14</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="3c9f85221807b8d593fa5276cdf7af9913c4a35d">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/286f3eaf6072f55d8858514b159d1df5f16a5654-small.png"
+                                     alt="" title="Bronze Crystal Booster|+10% more Crystal Mine production on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 131"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">1.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=4&amp;system=387">
+                                    Huchting
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">10:44:26</span>
+                        </li>
+                        <li class="even more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="d3d541ecc23e4daa0c698e44c32f04afd2037d84">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/610b867a8841d4a4c949d8a59719243580456452-small.png"
+                                     alt="" title="DETROID Bronze|Reduces the construction time of current shipyard-contracts by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 164"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">1.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=4&amp;system=387">
+                                    Huchting
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">09:34:22</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="c2bad58fcec374d709099d11d0549e59ea7e233e">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/162edd06c200f8eb655f31e5c6b98c89fabd7f82-small.png"
+                                     alt="" title="Energy Booster Silver|+40% more energy production on a planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 7.500 Dark Matter&lt;br /&gt;
+In Inventory: 30"
+                                     class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                            </a>
+
+                            <span class="detail sum">0</span>
+
+                            <span class="detail player">Not sold</span>
+
+                            <span class="detail date_time">08:41:02</span>
+                        </li>
+                        <li class="even more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="d9fa5f359e80ff4f4c97545d07c66dbadab1d1be">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/f0e514af79d0808e334e9b6b695bf864b861bdfa-small.png"
+                                     alt="" title="Bronze Deuterium Booster|+10% more Deuterium Synthesizer harvest on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 123"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">0</span>
+
+                            <span class="detail player">Not sold</span>
+
+                            <span class="detail date_time">07:38:44</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/7dcc0cb51f4514a339847e7f9129c99457066b50-small.png"
+                                     alt="" title="KRAKEN Silver|Reduces the building time of buildings currently under construction by &lt;b&gt;2h&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 53"
+                                     class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                            </a>
+
+                            <span class="detail sum">2.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=3&amp;system=336">
+                                    Spinner
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">06:42:10</span>
+                        </li>
+                        <li class="even more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="3c9f85221807b8d593fa5276cdf7af9913c4a35d">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/286f3eaf6072f55d8858514b159d1df5f16a5654-small.png"
+                                     alt="" title="Bronze Crystal Booster|+10% more Crystal Mine production on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 131"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">3.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=2&amp;system=131">
+                                    sam
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">23:31:53</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="d9fa5f359e80ff4f4c97545d07c66dbadab1d1be">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/f0e514af79d0808e334e9b6b695bf864b861bdfa-small.png"
+                                     alt="" title="Bronze Deuterium Booster|+10% more Deuterium Synthesizer harvest on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 123"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">2.001</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=48">
+                                    Gryff
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">22:39:17</span>
+                        </li>
+                        <li class="even more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="40f6c78e11be01ad3389b7dccd6ab8efa9347f3c">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/bc4e2315f7db4286ba72a424a32c920e78af8e27-small.png"
+                                     alt="" title="KRAKEN Bronze|Reduces the building time of buildings currently under construction by &lt;b&gt;30m&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 196"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">1.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=2&amp;system=131">
+                                    sam
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">21:43:54</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="05294270032e5dc968672425ab5611998c409166">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/780aa9d6619ae572a318dacc29e7bb77ad980380-small.png"
+                                     alt="" title="Gold Metal Booster|+30% more Metal Mine extraction on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 20.000 Dark Matter&lt;br /&gt;
+In Inventory: 14"
+                                     class="item_img tooltipHTML tooltipLeft r_rare"/>
+                            </a>
+
+                            <span class="detail sum">1.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=4&amp;system=387">
+                                    Huchting
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">20:30:18</span>
+                        </li>
+                        <li class="even more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="3c9f85221807b8d593fa5276cdf7af9913c4a35d">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/286f3eaf6072f55d8858514b159d1df5f16a5654-small.png"
+                                     alt="" title="Bronze Crystal Booster|+10% more Crystal Mine production on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 131"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">1.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=2&amp;system=131">
+                                    sam
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">19:40:49</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="de922af379061263a56d7204d1c395cefcfb7d75">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/cea22d098a0b48c8960101e05c0bd2a7fadc72c5-small.png"
+                                     alt="" title="Bronze Metal Booster|+10% more Metal Mine extraction on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 125"
+                                     class="item_img tooltipHTML tooltipLeft r_common"/>
+                            </a>
+
+                            <span class="detail sum">0</span>
+
+                            <span class="detail player">Not sold</span>
+
+                            <span class="detail date_time">18:38:21</span>
+                        </li>
+                        <li class="even more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/7dcc0cb51f4514a339847e7f9129c99457066b50-small.png"
+                                     alt="" title="KRAKEN Silver|Reduces the building time of buildings currently under construction by &lt;b&gt;2h&lt;/b&gt;.&lt;br /&gt;&lt;br /&gt;
+Duration: now&lt;br /&gt;&lt;br /&gt;
+Price: --- &lt;br /&gt;
+In Inventory: 53"
+                                     class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                            </a>
+
+                            <span class="detail sum">1.000</span>
+
+                            <span class="detail player">
+                                <a href="https://www.ogame.ninja/bots/1/browser/html/s152-en?page=ingame&amp;component=galaxy&amp;galaxy=4&amp;system=387">
+                                    Huchting
+                                </a>
+                            </span>
+
+                            <span class="detail date_time">17:32:39</span>
+                        </li>
+                        <li class="odd more_auctions_li">
+                            <a href="javascript:void(0);"
+                               class="slideIn"
+                               ref="5560a1580a0330e8aadf05cb5bfe6bc3200406e2">
+                                <img height="30" width="30"
+                                     src="https://s152-en.ogame.gameforge.com/cdn/img/item-images/db408084e3b2b7b0e1fe13d9f234d2ebd76f11c5-small.png"
+                                     alt="" title="Gold Deuterium Booster|+30% more Deuterium Synthesizer harvest on one planet&lt;br /&gt;&lt;br /&gt;
+Duration: 1w&lt;br /&gt;&lt;br /&gt;
+Price: 20.000 Dark Matter&lt;br /&gt;
+In Inventory: 8"
+                                     class="item_img tooltipHTML tooltipLeft r_rare"/>
+                            </a>
+
+                            <span class="detail sum">0</span>
+
+                            <span class="detail player">Not sold</span>
+
+                            <span class="detail date_time">16:37:27</span>
+                        </li>
+                    </ul>
+                    <a href="javascript:void(0);" class="more dark_highlight_tablet" style="">
+                        [show more]
+                    </a>
+                    <br class="clearfloat" />
+                </div>
+                <div class="history_footer"></div>
+            </div>
+
+
+        </div>  <!-- content End -->
+        <div class="footer"></div>
+    </div><!--  Trader auctioneer End -->
+    <script type="text/javascript">
+        var planetResources = {"33698658":{"input":{"metal":272243414,"crystal":111243080,"deuterium":55882134},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"ice_9","name":"Homeworld","otherPlanet":null},"33702461":{"input":{"metal":142460,"crystal":79746,"deuterium":69012},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"water_7","name":"Colony","otherPlanet":33780773},"33709974":{"input":{"metal":129333,"crystal":72309,"deuterium":62613},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"water_8","name":"Colony","otherPlanet":null},"33710470":{"input":{"metal":169899,"crystal":57370,"deuterium":64689},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"jungle_5","name":"Colony","otherPlanet":33743183},"33719721":{"input":{"metal":33005000,"crystal":29165,"deuterium":19254},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"water_9","name":"Colony","otherPlanet":null},"33735905":{"input":{"metal":67647,"crystal":49082,"deuterium":12197},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"desert_8","name":"Colony","otherPlanet":null},"33736200":{"input":{"metal":86250,"crystal":37165,"deuterium":29289},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"jungle_5","name":"Colony","otherPlanet":33764913},"33743183":{"input":{"metal":0,"crystal":0,"deuterium":0},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":true,"imageFileName":"moon_5","name":"Averylong moonname","otherPlanet":33710470},"33764913":{"input":{"metal":0,"crystal":0,"deuterium":0},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":true,"imageFileName":"moon_5","name":"Moon","otherPlanet":33736200},"33780773":{"input":{"metal":0,"crystal":0,"deuterium":0},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":true,"imageFileName":"moon_2","name":"Moon","otherPlanet":33702461},"33803877":{"input":{"metal":22044,"crystal":8450,"deuterium":13614},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"water_5","name":"Colony","otherPlanet":null}};
+        var playerBid = false;
+        var auctionFinished = false;
+        var AuctionIdOflastPlayerBid = "14368";
+        var auctionId = "16126";
+        var auctionUrl = "https:\/\/www.ogame.ninja\/bots\/1\/browser\/html\/s152-en?page=ajax&component=traderauctioneer&ajax=1&action=submitBid&asJson=1";
+        var auctioneerToken = "3667fc6516ddae49cc16b9813c4369ff";
+        var multiplier = {"metal":1,"crystal":1.5,"deuterium":3,"honor":100};
+
+        auctioneer.initialize();
+        initThousandSeparator();
+    </script>
+</div>
