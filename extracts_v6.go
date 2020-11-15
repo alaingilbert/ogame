@@ -683,7 +683,7 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 					report.Destination.Type = PlanetType
 				}
 				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
-				m := regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
+				m := regexp.MustCompile(`([\d.,]+)<br/>[^\d]*([\d.,]+)<br/>[^\d]*([\d.,]+)`).FindStringSubmatch(resTitle)
 				if len(m) == 4 {
 					report.Metal = ParseInt(m[1])
 					report.Crystal = ParseInt(m[2])
@@ -692,7 +692,7 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 				debrisFieldTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(2).AttrOr("title", "0")
 				report.DebrisField = ParseInt(debrisFieldTitle)
 				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
-				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
+				m = regexp.MustCompile(`[\d.,]+[^\d]*([\d.,]+)`).FindStringSubmatch(resText)
 				if len(m) == 2 {
 					report.Loot = ParseInt(m[1])
 				}
@@ -1649,7 +1649,7 @@ func extractCoordV6(v string) (coord Coordinate) {
 }
 
 func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error) {
-	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.,]+)`)
 
 	extractActivity := func(activityDiv *goquery.Selection) int64 {
 		var activity int64

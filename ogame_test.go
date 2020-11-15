@@ -1513,6 +1513,15 @@ func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
 	assert.Equal(t, int64(1), infos.ExpeditionDebris.PathfindersNeeded)
 }
 
+func TestExtractGalaxyV752TWExpeditionDebris(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.2/tw/galaxy_debris16.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(4275000), infos.ExpeditionDebris.Metal)
+	assert.Equal(t, int64(2953000), infos.ExpeditionDebris.Crystal)
+	assert.Equal(t, int64(467), infos.ExpeditionDebris.PathfindersNeeded)
+}
+
 func TestExtractGalaxyV7ExpeditionDebris2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_debris16_2.html")
 	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
@@ -2597,6 +2606,7 @@ func TestExtractEspionageReportV71(t *testing.T) {
 	assert.Equal(t, int64(66331), infos.Metal)
 	assert.Equal(t, int64(58452), infos.Crystal)
 	assert.Equal(t, int64(0), infos.Deuterium)
+	assert.Equal(t, Collector, infos.CharacterClass)
 }
 
 func TestExtractEspionageReportHonorableV71(t *testing.T) {
