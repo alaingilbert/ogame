@@ -1649,7 +1649,7 @@ func extractCoordV6(v string) (coord Coordinate) {
 }
 
 func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error) {
-	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.,]+)`)
 
 	extractActivity := func(activityDiv *goquery.Selection) int64 {
 		var activity int64
