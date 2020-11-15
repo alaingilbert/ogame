@@ -2606,6 +2606,7 @@ func TestExtractEspionageReportV71(t *testing.T) {
 	assert.Equal(t, int64(66331), infos.Metal)
 	assert.Equal(t, int64(58452), infos.Crystal)
 	assert.Equal(t, int64(0), infos.Deuterium)
+	assert.Equal(t, Collector, infos.CharacterClass)
 }
 
 func TestExtractEspionageReportHonorableV71(t *testing.T) {
