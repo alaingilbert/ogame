@@ -875,3 +875,53 @@ func extractIsMobileFromDocV71(doc *goquery.Document) bool {
 	}
 	return false
 }
+
+type shipsOnPlanetV71 struct {
+	ID                  int64  `json:"id"`
+	Name                string `json:"name"`
+	BaseFuelConsumption int64  `json:"baseFuelConsumption"`
+	BaseFuelCapacity    int64  `json:"baseFuelCapacity"`
+	BaseCargoCapacity   int64  `json:"baseCargoCapacity"`
+	FuelConsumption     int64  `json:"fuelConsumption"`
+	BaseSpeed           int64  `json:"baseSpeed"`
+	Speed               int64  `json:"speed"`
+	CargoCapacity       int64  `json:"cargoCapacity"`
+	FuelCapacity        int64  `json:"fuelCapacity"`
+	Number              int64  `json:"number"`
+	RecycleMode         int64  `json:"recycleMode"`
+}
+
+// extractShipsOnPlanetV71 ... extracts varr ShipsOnPlanet = [] -> []shipsOnPlanetV71
+func extractShipsOnPlanetV71(pageHTML []byte) (out shipsOnPlanetV71, err error) {
+	var result1 = regexp.MustCompile(`(?m) var shipsOnPlanet = (.+)[;]`)
+	result2 := result1.FindStringSubmatch(string(pageHTML))
+	var result3 []byte
+	if len(result2) == 2 {
+		result3 = []byte(result2[1])
+	}
+
+	var r []shipsOnPlanetV71
+	if err = json.Unmarshal(result3, &r); err != nil {
+		if isLogged(pageHTML) {
+			return out, ErrInvalidPlanetID
+		}
+		return
+	}
+
+	for _, res := range r {
+		out.ID = int64(res.ID)
+		out.Name = res.Name
+		out.BaseFuelConsumption = res.BaseFuelConsumption
+		out.BaseFuelCapacity = res.BaseFuelCapacity
+		out.BaseCargoCapacity = res.BaseCargoCapacity
+		out.FuelConsumption = res.FuelConsumption
+		out.BaseSpeed = res.BaseSpeed
+		out.Speed = res.Speed
+		out.CargoCapacity = res.CargoCapacity
+		out.FuelCapacity = res.FuelCapacity
+		out.Number = res.Number
+		out.RecycleMode = res.RecycleMode
+	}
+
+	return
+}

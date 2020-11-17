@@ -68,6 +68,7 @@ type Prioritizable interface {
 	SetInitiator(initiator string) Prioritizable
 	Tx(clb func(tx Prioritizable) error) error
 	UseDM(string, CelestialID) error
+	GetCachedData() Data
 
 	// Planet or Moon functions
 	Build(celestialID CelestialID, id ID, nbr int64) error
