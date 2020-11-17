@@ -182,6 +182,51 @@ func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err erro
 	return
 }
 
+// ar, Argentina           -> Recolector, General, Descubridor
+// ba, Balkan              -> Sakupljač, General, Otkrivač
+// br, Brasil              -> Coletor, General, Descobridor
+// dk, Danmark             -> Samleren, Generalen, Opdageren
+// de, Deutschland         -> Kollektor, General, Entdecker
+// es, España              -> Recolector, General, Descubridor
+// fr, France              -> Le collecteur, Général, L`explorateur
+// hr, Hrvatska            -> Sakupljač, General, Otkrivač
+// it, Italia              -> Collezionista, Generale, Esploratore
+// hu, Magyarország        -> Gyűjtő, Tábornok, Felfedező
+// mx, México              -> Recolector, General, Descubridor
+// nl, Netherlands         -> Verzamelaar, Generaal, Ontdekker
+// no, Norge               -> Collector, General, Discoverer (no i18n)
+// pl, Polska              -> Zbieracz, Generał, Odkrywca
+// pt, Portugal            -> Colecionador, General, Descobridor
+// ro, Romania             -> Colecționarul, General, Exploratorul
+// si, Slovenija           -> Zbiralec, Splošno, Odkritelj
+// sk, Slovensko           -> Zberateľ, Generál, Objaviteľ
+// fi, Suomi               -> Keräilijä, Komentaja, Löytäjä
+// se, Sverige             -> Samlare, General, Upptäckare
+// tr, Türkiye             -> Koleksiyoncu, General, Kaşif
+// us, USA                 -> Collector, General, Discoverer
+// en, United Kingdom      -> Collector, General, Discoverer
+// cz, Če Republika        -> Sběratel, Generál, Průzkumník
+// gr, Ελλάδα              -> Συλλέκτης, Στρατηγός, Εξερευνητής
+// ru, Российс Федерация   -> Коллекционер, Генерал, Исследователь
+// tw, 台灣                 -> 採礦師, 將軍, 探險家
+// jp, 日本                 -> 回収船, 将軍, 探索船
+func getCharacterClass(characterClassStr string) CharacterClass {
+	switch characterClassStr {
+	case "Recolector", "Sakupljač", "Coletor", "Samleren", "Kollektor", "Le collecteur", "Collezionista", "Gyűjtő",
+		"Verzamelaar", "Collector", "Zbieracz", "Colecionador", "Colecționarul", "Zbiralec", "Zberateľ", "Keräilijä",
+		"Samlare", "Koleksiyoncu", "Sběratel", "Συλλέκτης", "Коллекционер", "採礦師", "回収船":
+		return Collector
+	case "General", "Generalen", "Général", "Generale", "Tábornok", "Generaal", "Generał", "Splošno", "Generál",
+		"Komentaja", "Στρατηγός", "Генерал", "將軍", "将軍":
+		return General
+	case "Descubridor", "Otkrivač", "Descobridor", "Opdageren", "Entdecker", "L`explorateur", "Esploratore",
+		"Felfedező", "Ontdekker", "Discoverer", "Odkrywca", "Exploratorul", "Odkritelj", "Objaviteľ", "Löytäjä",
+		"Upptäckare", "Kaşif", "Průzkumník", "Εξερευνητής", "Исследователь", "探險家", "探索船":
+		return Discoverer
+	}
+	return NoClass
+}
+
 func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
 	report.ID, _ = strconv.ParseInt(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"), 10, 64)
@@ -217,6 +262,9 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	if len(split) > 0 {
 		report.Username = strings.TrimSpace(split[0])
 	}
+	characterClassStr := doc.Find("div.detail_txt").Eq(1).Find("span span").First().Text()
+	characterClassStr = strings.TrimSpace(characterClassStr)
+	report.CharacterClass = getCharacterClass(characterClassStr)
 
 	// Bandit, Starlord
 	banditstarlord := doc.Find("div.detail_txt").First().Find("span")
