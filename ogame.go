@@ -121,6 +121,7 @@ type Preferences struct {
 	EconomyNotifications         bool
 	ShowActivityMinutes          bool
 	PreserveSystemOnPlanetChange bool
+	UrlaubsModus                 bool // Vacation mode
 
 	// Mobile only
 	Notifications struct {

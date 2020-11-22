@@ -1099,6 +1099,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences.html")
 	prefs := NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(10), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar)
 	assert.False(t, prefs.DisableOutlawWarning)
 	assert.False(t, prefs.MobileVersion)
@@ -1122,6 +1123,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_reverse.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(2), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.True(t, prefs.DisableChatBar)
 	assert.True(t, prefs.DisableOutlawWarning)
 	assert.False(t, prefs.MobileVersion)
@@ -1145,6 +1147,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_mobile.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(3), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar) // no mobile
 	assert.False(t, prefs.DisableOutlawWarning)
 	assert.True(t, prefs.MobileVersion)
@@ -1177,6 +1180,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_reverse_mobile.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(2), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar) // no mobile
 	assert.True(t, prefs.DisableOutlawWarning)
 	assert.True(t, prefs.MobileVersion)

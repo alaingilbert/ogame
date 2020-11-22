@@ -1025,6 +1025,7 @@ func extractPreferencesFromDocV6(doc *goquery.Document) Preferences {
 		EconomyNotifications:         extractEconomyNotificationsFromDocV6(doc),
 		ShowActivityMinutes:          extractShowActivityMinutesFromDocV6(doc),
 		PreserveSystemOnPlanetChange: extractPreserveSystemOnPlanetChangeFromDocV6(doc),
+		UrlaubsModus:                 extractUrlaubsModus(doc),
 	}
 	if prefs.MobileVersion {
 		prefs.Notifications.BuildList = extractNotifBuildListFromDocV6(doc)
@@ -1281,6 +1282,11 @@ func extractDisableOutlawWarningFromDocV6(doc *goquery.Document) bool {
 
 func extractMobileVersionFromDocV6(doc *goquery.Document) bool {
 	_, exists := doc.Find("input[name=mobileVersion]").Attr("checked")
+	return exists
+}
+
+func extractUrlaubsModus(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=urlaubs_modus]").Attr("checked")
 	return exists
 }
 
