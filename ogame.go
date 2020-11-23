@@ -52,7 +52,6 @@ type OGame struct {
 	stateChangeCallbacks  []func(locked bool, actor string)
 	quiet                 bool
 	player                UserInfos
-	CachedPreferences     Preferences
 	isVacationModeEnabled bool
 	researches            *Researches
 	planets               []Planet
@@ -451,7 +450,6 @@ func New(universe, username, password, lang string) (*OGame, error) {
 	if _, err := b.LoginWithExistingCookies(); err != nil {
 		return nil, err
 	}
-
 	return b, nil
 }
 
@@ -1430,7 +1428,6 @@ func (b *OGame) login() error {
 	if err := b.loginPart2(server, userAccount); err != nil {
 		return err
 	}
-
 	if err := b.loginPart3(userAccount, pageHTML); err != nil {
 		return err
 	}
@@ -1455,7 +1452,6 @@ func (b *OGame) loginPart1(token string) (server Server, userAccount account, er
 	if err != nil {
 		return
 	}
-
 	b.debug("find account & server for universe")
 	userAccount, server, err = findAccount(b.Universe, b.language, b.playerID, accounts, servers)
 	if err != nil {
@@ -2420,7 +2416,6 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	}
 
 	page := vals.Get("page")
-
 	if page == "ingame" ||
 		(page == "componentOnly" && vals.Get("component") == "fetchEventbox") ||
 		(page == "componentOnly" && vals.Get("component") == "eventList" && vals.Get("action") != "fetchEventBox") {
@@ -2912,12 +2907,17 @@ func (b *OGame) fixTimezone(t time.Time) time.Time {
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	pageHTML, _ := b.getPage(MovementPage, CelestialID(0))
+	pageHTML, err := b.getPage(MovementPage, CelestialID(0))
+	if err != nil {
+		return err
+	}
 	token, err := b.extractor.ExtractCancelFleetToken(pageHTML, fleetID)
 	if err != nil {
 		return err
 	}
-	_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}})
+	if _, err = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}}); err != nil {
+		return err
+	}
 	/*
 		pageHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
 		fleets := b.extractor.ExtractFleets(pageHTML)
@@ -3031,7 +3031,6 @@ func calcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 	}
 	isCollector := characterClass == Collector
 	isGeneral := characterClass == General
-
 	s := speed
 	v := float64(findSlowestSpeed(ships, techs, isCollector, isGeneral))
 	a := float64(universeSpeedFleet)
