@@ -52,6 +52,7 @@ type OGame struct {
 	stateChangeCallbacks  []func(locked bool, actor string)
 	quiet                 bool
 	player                UserInfos
+   CachedPreferences     Preferences
 	isVacationModeEnabled bool
 	researches            *Researches
 	planets               []Planet
