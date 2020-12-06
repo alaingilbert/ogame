@@ -225,3 +225,16 @@ func (r EspionageReport) Loot(characterClass CharacterClass) Resources {
 		Deuterium: int64(float64(r.Deuterium) * plunderRatio),
 	}
 }
+
+// IsDefenceless returns either or not the scanned planet has any defense (either ships or defense) against an attack
+// with ships. If no ShipsInfos or DefensesInfos is including in the espionage report due to the lack of enough probes,
+// the planet is assumed to be not defenceless.
+func (r EspionageReport) IsDefenceless() bool {
+	if r.ShipsInfos() == nil || r.ShipsInfos().HasShips() {
+		return false
+	}
+	if r.DefensesInfos() == nil || r.DefensesInfos().HasShipDefense() {
+		return false
+	}
+	return true
+}

@@ -30,6 +30,16 @@ func TestEspionageReport_Loot(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 50}, er.Loot(NoClass))
 }
 
+func TestEspionageReport_IsDefenceless(t *testing.T) {
+	two := int64(2)
+	assert.True(t, EspionageReport{Resources: Resources{Metal: 100}, HasFleetInformation: true, HasDefensesInformation: true}.IsDefenceless())
+	assert.False(t, EspionageReport{Resources: Resources{Metal: 100}, HasFleetInformation: true, HasDefensesInformation: true, LightFighter: &two}.IsDefenceless())
+	assert.False(t, EspionageReport{Resources: Resources{Metal: 100}, HasFleetInformation: true, HasDefensesInformation: true, RocketLauncher: &two}.IsDefenceless())
+	assert.False(t, EspionageReport{Resources: Resources{Metal: 100}, HasFleetInformation: true, HasDefensesInformation: false}.IsDefenceless())
+	assert.False(t, EspionageReport{Resources: Resources{Metal: 100}, HasFleetInformation: false, HasDefensesInformation: true}.IsDefenceless())
+	assert.False(t, EspionageReport{Resources: Resources{Metal: 100}, HasFleetInformation: false, HasDefensesInformation: false}.IsDefenceless())
+}
+
 func TestShipsInfos(t *testing.T) {
 	er := EspionageReport{HasFleetInformation: true, SmallCargo: I64Ptr(3), LightFighter: I64Ptr(5)}
 	assert.Equal(t, int64(8), er.ShipsInfos().CountShips())
