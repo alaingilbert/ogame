@@ -192,6 +192,7 @@ type Preferences struct {
 	EconomyNotifications         bool
 	ShowActivityMinutes          bool
 	PreserveSystemOnPlanetChange bool
+	UrlaubsModus                 bool // Vacation mode
 
 	// Mobile only
 	Notifications struct {
@@ -3025,7 +3026,8 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 	return
 }
 
-func calcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
+// CalcFlightTime ...
+func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, characterClass CharacterClass) (secs, fuel int64) {
 	if !ships.HasMovableShips() {
 		return

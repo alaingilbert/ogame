@@ -1099,6 +1099,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences.html")
 	prefs := NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(10), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar)
 	assert.False(t, prefs.DisableOutlawWarning)
 	assert.False(t, prefs.MobileVersion)
@@ -1122,6 +1123,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_reverse.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(2), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.True(t, prefs.DisableChatBar)
 	assert.True(t, prefs.DisableOutlawWarning)
 	assert.False(t, prefs.MobileVersion)
@@ -1145,6 +1147,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_mobile.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(3), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar) // no mobile
 	assert.False(t, prefs.DisableOutlawWarning)
 	assert.True(t, prefs.MobileVersion)
@@ -1177,6 +1180,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_reverse_mobile.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(2), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar) // no mobile
 	assert.True(t, prefs.DisableOutlawWarning)
 	assert.True(t, prefs.MobileVersion)
@@ -2746,25 +2750,25 @@ func TestDistance(t *testing.T) {
 
 func TestCalcFlightTime(t *testing.T) {
 	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
-	secs, fuel := calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
+	secs, fuel := CalcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
 		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7}, NoClass)
 	assert.Equal(t, int64(4966), secs)
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
-	secs, fuel = calcFlightTime(Coordinate{4, 116, 12, PlanetType}, Coordinate{3, 116, 12, PlanetType},
+	secs, fuel = CalcFlightTime(Coordinate{4, 116, 12, PlanetType}, Coordinate{3, 116, 12, PlanetType},
 		6, 499, true, true, 0.5, 1, 2, ShipsInfos{LargeCargo: 1931}, Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, Discoverer)
 	assert.Equal(t, int64(5406), secs)
 	assert.Equal(t, int64(110336), fuel)
 
 	// Test with solar satellite
-	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
+	secs, fuel = CalcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
 		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, NoClass)
 	assert.Equal(t, int64(651), secs)
 	assert.Equal(t, int64(612), fuel)
 
 	// General tests
-	secs, fuel = calcFlightTime(
+	secs, fuel = CalcFlightTime(
 		Coordinate{2, 68, 4, MoonType},
 		Coordinate{1, 313, 9, PlanetType},
 		5, 499, true, true, 1, 1, 2,
@@ -2773,7 +2777,7 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(13427), secs)
 	assert.Equal(t, int64(3808), fuel)
 
-	secs, fuel = calcFlightTime(
+	secs, fuel = CalcFlightTime(
 		Coordinate{1, 230, 7, MoonType},
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 0.5, 1, 6,
@@ -2782,7 +2786,7 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(3069), secs)
 	assert.Equal(t, int64(584), fuel)
 
-	secs, fuel = calcFlightTime(
+	secs, fuel = CalcFlightTime(
 		Coordinate{1, 230, 7, MoonType},
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 0.5, 1, 6,
@@ -2791,7 +2795,7 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(15), secs)
 	assert.Equal(t, int64(1), fuel)
 
-	secs, fuel = calcFlightTime(
+	secs, fuel = CalcFlightTime(
 		Coordinate{1, 230, 7, MoonType},
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 1, 1, 6,
