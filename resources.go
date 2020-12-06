@@ -4,7 +4,7 @@ import (
 	"fmt"
 	stdmath "math"
 
-	"github.com/dustin/go-humanize"
+	humanize "github.com/dustin/go-humanize"
 	"github.com/google/gxui/math"
 )
 
@@ -62,7 +62,7 @@ type Resources struct {
 
 func (r Resources) String() string {
 	return fmt.Sprintf("[%s|%s|%s]",
-		humanize.Comma(int64(r.Metal)), humanize.Comma(int64(r.Crystal)), humanize.Comma(int64(r.Deuterium)))
+		humanize.Comma(r.Metal), humanize.Comma(r.Crystal), humanize.Comma(r.Deuterium))
 }
 
 // Total returns the sum of resources
