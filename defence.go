@@ -19,7 +19,7 @@ type DefensesInfos struct {
 // HasShipDefense returns either or not at least one defense which can attack ships is present i.e., excluding
 // AntiBallisticMissiles
 func (d DefensesInfos) HasShipDefense() bool {
-	return d.AttackableValue() > 0
+	return d.CountShipDefenses() > 0
 }
 
 // HasMissilesDefense returns either or not AntiBallisticMissiles are present
