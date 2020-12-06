@@ -16,6 +16,27 @@ type DefensesInfos struct {
 	InterplanetaryMissiles int64
 }
 
+// HasShipDefense returns either or not at least one defense which can attack ships is present i.e., excluding
+// AntiBallisticMissiles
+func (d DefensesInfos) HasShipDefense() bool {
+	return d.CountShipDefenses() > 0
+}
+
+// HasMissilesDefense returns either or not AntiBallisticMissiles are present
+func (d DefensesInfos) HasMissilesDefense() bool {
+	return d.AntiBallisticMissiles > 0
+}
+
+// CountShipDefenses returns the count of defenses which can attack ships i.e., excluding AntiBallisticMissiles
+func (d DefensesInfos) CountShipDefenses() (out int64) {
+	for _, defense := range Defenses {
+		if defense != InterplanetaryMissiles && defense != AntiBallisticMissiles {
+			out += d.ByID(defense.GetID())
+		}
+	}
+	return
+}
+
 // AttackableValue returns the value of the defenses that can be attacked
 func (d DefensesInfos) AttackableValue() int64 {
 	val := d.RocketLauncher * RocketLauncher.Price.Total()
