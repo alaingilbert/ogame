@@ -77,3 +77,21 @@ func TestDefenceSet(t *testing.T) {
 	assert.Equal(t, int64(9), s.ByID(AntiBallisticMissilesID))
 	assert.Equal(t, int64(10), s.ByID(InterplanetaryMissilesID))
 }
+
+func TestDefence_HasMissilesDefenses(t *testing.T) {
+	assert.True(t, DefensesInfos{RocketLauncher: 2, PlasmaTurret: 3, InterplanetaryMissiles: 5, AntiBallisticMissiles: 2}.HasMissilesDefense())
+	assert.False(t, DefensesInfos{}.HasMissilesDefense())
+	assert.False(t, DefensesInfos{InterplanetaryMissiles: 2}.HasMissilesDefense())
+	assert.True(t, DefensesInfos{InterplanetaryMissiles: 2, AntiBallisticMissiles: 3}.HasMissilesDefense())
+}
+
+func TestDefence_HasShipDefenses(t *testing.T) {
+	assert.True(t, DefensesInfos{RocketLauncher: 2, PlasmaTurret: 3, InterplanetaryMissiles: 5, AntiBallisticMissiles: 2}.HasShipDefense())
+	assert.False(t, DefensesInfos{}.HasShipDefense())
+	assert.False(t, DefensesInfos{InterplanetaryMissiles: 2}.HasShipDefense())
+	assert.False(t, DefensesInfos{InterplanetaryMissiles: 2, AntiBallisticMissiles: 3}.HasShipDefense())
+}
+
+func TestDefence_CountShipDefenses(t *testing.T) {
+	assert.Equal(t, int64(5), DefensesInfos{RocketLauncher: 2, PlasmaTurret: 3, AntiBallisticMissiles: 4, InterplanetaryMissiles: 5}.CountShipDefenses())
+}
