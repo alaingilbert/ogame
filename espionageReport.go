@@ -230,11 +230,8 @@ func (r EspionageReport) Loot(characterClass CharacterClass) Resources {
 // with ships. If no ShipsInfos or DefensesInfos is including in the espionage report due to the lack of enough probes,
 // the planet is assumed to be not defenceless.
 func (r EspionageReport) IsDefenceless() bool {
-	if r.ShipsInfos() == nil || r.ShipsInfos().HasShips() {
-		return false
-	}
-	if r.DefensesInfos() == nil || r.DefensesInfos().HasShipDefense() {
-		return false
-	}
-	return true
+	return r.HasFleetInformation &&
+		r.HasDefensesInformation &&
+		!r.ShipsInfos().HasShips() &&
+		!r.DefensesInfos().HasShipDefense()
 }
