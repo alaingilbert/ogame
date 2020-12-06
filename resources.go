@@ -158,5 +158,9 @@ func (r Resources) Lte(val Resources) bool {
 
 // FitsIn get the number of ships required to transport the resource
 func (r Resources) FitsIn(ship Ship, techs Researches, probeRaids, isCollector bool) int64 {
-	return int64(stdmath.Ceil(float64(r.Total()) / float64(ship.GetCargoCapacity(techs, probeRaids, isCollector))))
+	cargo := ship.GetCargoCapacity(techs, probeRaids, isCollector)
+	if cargo == 0 {
+		return 0
+	}
+	return int64(stdmath.Ceil(float64(r.Total()) / float64(cargo)))
 }
