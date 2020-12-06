@@ -24,10 +24,7 @@ func (d DefensesInfos) HasShipDefense() bool {
 
 // HasMissilesDefense returns either or not AntiBallisticMissiles are present
 func (d DefensesInfos) HasMissilesDefense() bool {
-	if d.ByID(AntiBallisticMissiles.GetID()) > 0 {
-		return true
-	}
-	return false
+	return d.AntiBallisticMissiles > 0
 }
 
 // CountShipDefenses returns the count of defenses which can attack ships i.e., excluding AntiBallisticMissiles
