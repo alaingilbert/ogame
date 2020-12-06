@@ -5,9 +5,8 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/abiosoft/ishell.v2"
-
 	"github.com/alaingilbert/ogame"
+	"gopkg.in/abiosoft/ishell.v2"
 )
 
 const ascii = "" +
