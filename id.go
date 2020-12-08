@@ -12,7 +12,6 @@ func (o ID) IsSet() bool {
 
 // Int64 returns an integer value of the id
 func (o ID) Int64() int64 {
-	o.Int()
 	return int64(o)
 }
 
