@@ -1816,7 +1816,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
 	if eventFleet.Size() == 0 {
-		txt := doc.Find("div#phalanxEventContent").Text()
+		txt := strings.TrimSpace(doc.Find("div#phalanxEventContent").Text())
 		// TODO: 'fleet' and 'deuterium' won't work in other languages
 		if strings.Contains(txt, "fleet") {
 			return res, nil
