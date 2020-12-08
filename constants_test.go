@@ -57,3 +57,24 @@ func TestConstants_CelestialType_Int64(t *testing.T) {
 func TestConstants_CelestialType_Int(t *testing.T) {
 	assert.Equal(t, int64(1), PlanetType.Int())
 }
+
+func TestCharacterClass_isCollector(t *testing.T) {
+	assert.Equal(t, false, NoClass.IsCollector())
+	assert.Equal(t, true, Collector.IsCollector())
+	assert.Equal(t, false, General.IsCollector())
+	assert.Equal(t, false, Discoverer.IsCollector())
+}
+
+func TestCharacterClass_isGeneral(t *testing.T) {
+	assert.Equal(t, false, NoClass.IsGeneral())
+	assert.Equal(t, false, Collector.IsGeneral())
+	assert.Equal(t, true, General.IsGeneral())
+	assert.Equal(t, false, Discoverer.IsGeneral())
+}
+
+func TestCharacterClass_isDiscoverer(t *testing.T) {
+	assert.Equal(t, false, NoClass.IsDiscoverer())
+	assert.Equal(t, false, Collector.IsDiscoverer())
+	assert.Equal(t, false, General.IsDiscoverer())
+	assert.Equal(t, true, Discoverer.IsDiscoverer())
+}
