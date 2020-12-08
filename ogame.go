@@ -52,7 +52,7 @@ type OGame struct {
 	stateChangeCallbacks  []func(locked bool, actor string)
 	quiet                 bool
 	player                UserInfos
-   CachedPreferences     Preferences
+	CachedPreferences     Preferences
 	isVacationModeEnabled bool
 	researches            *Researches
 	planets               []Planet
@@ -2888,7 +2888,7 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 }
 
 func (b *OGame) getFleetsFromEventList() []Fleet {
-	pageHTML, _ := b.getPageContent(url.Values{"eventList": {"movement"}, "ajax": {"1"}})
+	pageHTML, _ := b.getPageContent(url.Values{"eventList": {"eventList"}, "ajax": {"1"}})
 	return b.extractor.ExtractFleetsFromEventList(pageHTML)
 }
 
