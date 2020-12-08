@@ -213,10 +213,10 @@ func (b *Prioritize) GetFleets(opts ...Option) ([]Fleet, Slots) {
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
-func (b *Prioritize) GetFleetsFromEventList() []Fleet {
+func (b *Prioritize) GetFleetsFromEventList(opts ...Option) []Fleet {
 	b.begin("GetFleets")
 	defer b.done()
-	return b.bot.getFleetsFromEventList()
+	return b.bot.getFleetsFromEventList(opts...)
 }
 
 // CancelFleet cancel a fleet

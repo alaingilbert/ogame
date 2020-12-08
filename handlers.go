@@ -221,8 +221,15 @@ func SendMessageHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(nil))
 }
 
+// GetFleetsFromEventListHandler ...
+func GetFleetsFromEventListHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	fleets := bot.GetFleetsFromEventList()
+	return c.JSON(http.StatusOK, SuccessResp(fleets))
+}
+
 // GetFleetsHandler ...
-func GetFleetsHandler(c echo.Context) error {
+func GetFleetsEventListHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	fleets, _ := bot.GetFleets()
 	return c.JSON(http.StatusOK, SuccessResp(fleets))

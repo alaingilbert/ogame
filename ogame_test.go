@@ -2168,9 +2168,9 @@ func TestGetConstructionsV7(t *testing.T) {
 }
 
 func TestExtractFleetsFromEventList(t *testing.T) {
-	//pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_test.html")
-	//fleets := NewExtractorV6().ExtractFleetsFromEventList(pageHTMLBytes)
-	//assert.Equal(t, 4, len(fleets))
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_test.html")
+	fleets := NewExtractorV6().ExtractFleetsFromEventList(pageHTMLBytes)
+	assert.Equal(t, 3, len(fleets))
 }
 
 func TestExtractIPM(t *testing.T) {

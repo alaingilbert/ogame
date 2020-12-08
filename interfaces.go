@@ -43,7 +43,7 @@ type Prioritizable interface {
 	GetExpeditionMessageAt(time.Time) (ExpeditionMessage, error)
 	GetExpeditionMessages() ([]ExpeditionMessage, error)
 	GetFleets(...Option) ([]Fleet, Slots)
-	GetFleetsFromEventList() []Fleet
+	GetFleetsFromEventList(...Option) []Fleet
 	GetItems(CelestialID) ([]Item, error)
 	GetMoon(interface{}) (Moon, error)
 	GetMoons() []Moon

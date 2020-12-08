@@ -2887,8 +2887,9 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 	return nil
 }
 
-func (b *OGame) getFleetsFromEventList() []Fleet {
-	pageHTML, _ := b.getPageContent(url.Values{"eventList": {"eventList"}, "ajax": {"1"}})
+func (b *OGame) getFleetsFromEventList(opts ...Option) []Fleet {
+	params := url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
+	pageHTML, _ := b.getPageContent(params, opts...)
 	return b.extractor.ExtractFleetsFromEventList(pageHTML)
 }
 
@@ -5355,8 +5356,8 @@ func (b *OGame) GetFleets(opts ...Option) ([]Fleet, Slots) {
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
-func (b *OGame) GetFleetsFromEventList() []Fleet {
-	return b.WithPriority(Normal).GetFleetsFromEventList()
+func (b *OGame) GetFleetsFromEventList(opts ...Option) []Fleet {
+	return b.WithPriority(Normal).GetFleetsFromEventList(opts...)
 }
 
 // CancelFleet cancel a fleet
