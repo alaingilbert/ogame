@@ -2234,6 +2234,13 @@ func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 	return
 }
 
+// CalcFlightTime calculates the flight time and the fuel consumption
+func (b *OGame) CalcFlightTime(origin, destination Coordinate, speed float64, ships ShipsInfos) (secs, fuel int64) {
+	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
+		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, b.serverData.SpeedFleet, ships,
+		b.GetCachedResearch(), b.characterClass)
+}
+
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
 func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	res := make([]Fleet, 0)
