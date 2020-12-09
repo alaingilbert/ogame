@@ -182,7 +182,11 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 			ships, _ = f.b.GetShips(f.origin.GetID())
 		}
 	}
-	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
+	secs, fuel = f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
+	if (f.mission == Expedition || f.mission == ParkInThatAlly) && f.holdingTime > 0 {
+		secs += f.holdingTime * 3600
+	}
+	return
 }
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {
