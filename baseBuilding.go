@@ -32,7 +32,7 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Fa
 	naniteLvl := float64(facilities.NaniteFactory)
 	hours := (metalCost + crystalCost) / (2500 * (1 + roboticLvl) * float64(universeSpeed) * math.Pow(2, naniteLvl))
 	secs := hours * 3600
-	if (level - 1) < 5 {
+	if b.ID != NaniteFactoryID && (level-1) < 5 {
 		secs = secs * (2 / (7 - (float64(level) - 1)))
 	}
 	secs = math.Max(1, secs)
