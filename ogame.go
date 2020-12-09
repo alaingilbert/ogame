@@ -2888,7 +2888,7 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 }
 
 func (b *OGame) getFleetsFromEventList(opts ...Option) []Fleet {
-	params := url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
+	params := url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"0"}}
 	pageHTML, _ := b.getPageContent(params, opts...)
 	return b.extractor.ExtractFleetsFromEventList(pageHTML)
 }

@@ -224,7 +224,7 @@ func SendMessageHandler(c echo.Context) error {
 // GetFleetsFromEventListHandler ...
 func GetFleetsFromEventListHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	fleets := bot.GetFleetsFromEventListHandler()
+	fleets := bot.GetFleetsFromEventList()
 	return c.JSON(http.StatusOK, SuccessResp(fleets))
 }
 
