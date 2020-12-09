@@ -24,7 +24,7 @@ func TestConstants_Speed_String(t *testing.T) {
 	assert.Equal(t, "80%", Speed(8).String())
 	assert.Equal(t, "90%", Speed(9).String())
 	assert.Equal(t, "100%", Speed(10).String())
-	assert.Equal(t, "11", Speed(11).String())
+	assert.Equal(t, "11.0", Speed(11).String())
 }
 
 func TestConstants_MissionID_String(t *testing.T) {
