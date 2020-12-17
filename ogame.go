@@ -774,6 +774,8 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	for _, c := range cookies {
 		if c.Name == gfTokenCookieName {
 			token = c.Value
+			b.token = "Bearer " + c.Value
+			b.debug("found token " + b.token)
 			break
 		}
 	}
@@ -789,6 +791,7 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 		return false, err
 	}
 	if err != nil {
+		b.debug("session not found")
 		err := b.login()
 		return false, err
 	}
@@ -801,15 +804,37 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	pageHTML, err := b.getPageContent(vals, SkipRetry)
 	if err != nil {
 		if err == ErrNotLogged {
-			err := b.login()
-			return false, err
+			b.debug("get login link")
+			loginLink, err := getLoginLink(b, userAccount, token)
+			if err != nil {
+				return true, err
+			}
+			pageHTML, err := execLoginLink(b, loginLink)
+			if err != nil {
+				return true, err
+			}
+			pageHTML, err = b.getPageContent(vals, SkipRetry)
+			b.debug("login using existing cookies")
+			if err := b.loginPart3(userAccount, pageHTML); err != nil {
+				return false, err
+			}
+			b.debug("Saving Cookies")
+			if err := b.Client.Jar.(*cookiejar.Jar).Save(); err != nil {
+				return false, err
+			}
+			b.debug("Cookies has been saved ")
+			for _, fn := range b.interceptorCallbacks {
+				fn("GET", loginLink, nil, nil, pageHTML)
+			}
+			return true, nil
 		}
-		return false, err
 	}
+
 	b.debug("login using existing cookies")
 	if err := b.loginPart3(userAccount, pageHTML); err != nil {
 		return false, err
 	}
+
 	return true, nil
 }
 
