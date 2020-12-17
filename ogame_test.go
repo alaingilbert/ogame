@@ -203,6 +203,21 @@ func TestExtractResourcesDetailsFromFullPageV7(t *testing.T) {
 	assert.Equal(t, int64(19348523), res.Darkmatter.Found)
 }
 
+func TestExtractPhalanx_75(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.1/en/phalanx_returning.html")
+	res, err := NewExtractorV6().ExtractPhalanx(pageHTMLBytes)
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 11, 4, 0, 25, 29, 0, time.UTC))
+	assert.Nil(t, err)
+	assert.Equal(t, 1, len(res))
+	assert.Equal(t, Transport, res[0].Mission)
+	assert.Equal(t, true, res[0].ReturnFlight)
+	assert.NotNil(t, res[0].ArriveIn)
+	assert.Equal(t, clock.Now().Add(10*time.Minute), res[0].ArrivalTime.UTC())
+	assert.Equal(t, Coordinate{4, 116, 9, PlanetType}, res[0].Origin)
+	assert.Equal(t, Coordinate{4, 116, 10, PlanetType}, res[0].Destination)
+	assert.Equal(t, int64(19), res[0].Ships.SmallCargo)
+}
+
 func TestExtractPhalanx(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/phalanx.html")
 	res, err := NewExtractorV6().ExtractPhalanx(pageHTMLBytes)
@@ -714,6 +729,20 @@ func TestExtractPlanet_fi(t *testing.T) {
 	assert.Nil(t, planet.Moon)
 }
 
+func TestExtractPlanet_ba(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.1/ba/overview.html")
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33621433), &OGame{language: "ba"})
+	assert.Equal(t, "Glavni Planet", planet.Name)
+	assert.Equal(t, int64(12800), planet.Diameter)
+	assert.Equal(t, int64(70), planet.Temperature.Min)
+	assert.Equal(t, int64(110), planet.Temperature.Max)
+	assert.Equal(t, int64(5), planet.Fields.Built)
+	assert.Equal(t, int64(193), planet.Fields.Total)
+	assert.Equal(t, PlanetID(33621433), planet.ID)
+	assert.Equal(t, Coordinate{1, 55, 4, PlanetType}, planet.Coordinate)
+	assert.Nil(t, planet.Moon)
+}
+
 func TestExtractPlanet_gr(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, PlanetID(33629206), &OGame{language: "gr"})
@@ -1070,6 +1099,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences.html")
 	prefs := NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(10), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar)
 	assert.False(t, prefs.DisableOutlawWarning)
 	assert.False(t, prefs.MobileVersion)
@@ -1093,6 +1123,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_reverse.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(2), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.True(t, prefs.DisableChatBar)
 	assert.True(t, prefs.DisableOutlawWarning)
 	assert.False(t, prefs.MobileVersion)
@@ -1116,6 +1147,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_mobile.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(3), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar) // no mobile
 	assert.False(t, prefs.DisableOutlawWarning)
 	assert.True(t, prefs.MobileVersion)
@@ -1148,6 +1180,7 @@ func TestExtractPreferences(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/preferences_reverse_mobile.html")
 	prefs = NewExtractorV6().ExtractPreferences(pageHTMLBytes)
 	assert.Equal(t, int64(2), prefs.SpioAnz)
+	assert.False(t, prefs.UrlaubsModus)
 	assert.False(t, prefs.DisableChatBar) // no mobile
 	assert.True(t, prefs.DisableOutlawWarning)
 	assert.True(t, prefs.MobileVersion)
@@ -1484,6 +1517,15 @@ func TestExtractGalaxyV7ExpeditionDebris(t *testing.T) {
 	assert.Equal(t, int64(1), infos.ExpeditionDebris.PathfindersNeeded)
 }
 
+func TestExtractGalaxyV752TWExpeditionDebris(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.2/tw/galaxy_debris16.html")
+	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(4275000), infos.ExpeditionDebris.Metal)
+	assert.Equal(t, int64(2953000), infos.ExpeditionDebris.Crystal)
+	assert.Equal(t, int64(467), infos.ExpeditionDebris.PathfindersNeeded)
+}
+
 func TestExtractGalaxyV7ExpeditionDebris2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/galaxy_debris16_2.html")
 	infos, err := NewExtractorV7().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
@@ -1803,6 +1845,15 @@ func TestExtractUserInfos_ru(t *testing.T) {
 	assert.Equal(t, int64(1067), infos.Rank)
 	assert.Equal(t, int64(1068), infos.Total)
 	assert.Equal(t, "Viceregent Horizon", infos.PlayerName)
+}
+
+func TestExtractUserInfos_ba(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.5.1/ba/overview.html")
+	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "ba")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(138), infos.Rank)
+	assert.Equal(t, int64(139), infos.Total)
+	assert.Equal(t, "Governor Hunter", infos.PlayerName)
 }
 
 func TestExtractMoons(t *testing.T) {
@@ -2559,6 +2610,7 @@ func TestExtractEspionageReportV71(t *testing.T) {
 	assert.Equal(t, int64(66331), infos.Metal)
 	assert.Equal(t, int64(58452), infos.Crystal)
 	assert.Equal(t, int64(0), infos.Deuterium)
+	assert.Equal(t, Collector, infos.CharacterClass)
 }
 
 func TestExtractEspionageReportHonorableV71(t *testing.T) {
@@ -2698,25 +2750,25 @@ func TestDistance(t *testing.T) {
 
 func TestCalcFlightTime(t *testing.T) {
 	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
-	secs, fuel := calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
+	secs, fuel := CalcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
 		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7}, NoClass)
 	assert.Equal(t, int64(4966), secs)
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
-	secs, fuel = calcFlightTime(Coordinate{4, 116, 12, PlanetType}, Coordinate{3, 116, 12, PlanetType},
+	secs, fuel = CalcFlightTime(Coordinate{4, 116, 12, PlanetType}, Coordinate{3, 116, 12, PlanetType},
 		6, 499, true, true, 0.5, 1, 2, ShipsInfos{LargeCargo: 1931}, Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, Discoverer)
 	assert.Equal(t, int64(5406), secs)
 	assert.Equal(t, int64(110336), fuel)
 
 	// Test with solar satellite
-	secs, fuel = calcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
+	secs, fuel = CalcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
 		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, NoClass)
 	assert.Equal(t, int64(651), secs)
 	assert.Equal(t, int64(612), fuel)
 
 	// General tests
-	secs, fuel = calcFlightTime(
+	secs, fuel = CalcFlightTime(
 		Coordinate{2, 68, 4, MoonType},
 		Coordinate{1, 313, 9, PlanetType},
 		5, 499, true, true, 1, 1, 2,
@@ -2725,7 +2777,7 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(13427), secs)
 	assert.Equal(t, int64(3808), fuel)
 
-	secs, fuel = calcFlightTime(
+	secs, fuel = CalcFlightTime(
 		Coordinate{1, 230, 7, MoonType},
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 0.5, 1, 6,
@@ -2734,7 +2786,7 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(3069), secs)
 	assert.Equal(t, int64(584), fuel)
 
-	secs, fuel = calcFlightTime(
+	secs, fuel = CalcFlightTime(
 		Coordinate{1, 230, 7, MoonType},
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 0.5, 1, 6,
@@ -2743,7 +2795,7 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(15), secs)
 	assert.Equal(t, int64(1), fuel)
 
-	secs, fuel = calcFlightTime(
+	secs, fuel = CalcFlightTime(
 		Coordinate{1, 230, 7, MoonType},
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 1, 1, 6,

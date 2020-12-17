@@ -683,7 +683,7 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 					report.Destination.Type = PlanetType
 				}
 				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
-				m := regexp.MustCompile(`([\d.]+)<br/>[^\d]*([\d.]+)<br/>[^\d]*([\d.]+)`).FindStringSubmatch(resTitle)
+				m := regexp.MustCompile(`([\d.,]+)<br/>[^\d]*([\d.,]+)<br/>[^\d]*([\d.,]+)`).FindStringSubmatch(resTitle)
 				if len(m) == 4 {
 					report.Metal = ParseInt(m[1])
 					report.Crystal = ParseInt(m[2])
@@ -692,7 +692,7 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 				debrisFieldTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(2).AttrOr("title", "0")
 				report.DebrisField = ParseInt(debrisFieldTitle)
 				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
-				m = regexp.MustCompile(`[\d.]+[^\d]*([\d.]+)`).FindStringSubmatch(resText)
+				m = regexp.MustCompile(`[\d.,]+[^\d]*([\d.,]+)`).FindStringSubmatch(resText)
 				if len(m) == 2 {
 					report.Loot = ParseInt(m[1])
 				}
@@ -1025,6 +1025,7 @@ func extractPreferencesFromDocV6(doc *goquery.Document) Preferences {
 		EconomyNotifications:         extractEconomyNotificationsFromDocV6(doc),
 		ShowActivityMinutes:          extractShowActivityMinutesFromDocV6(doc),
 		PreserveSystemOnPlanetChange: extractPreserveSystemOnPlanetChangeFromDocV6(doc),
+		UrlaubsModus:                 extractUrlaubsModus(doc),
 	}
 	if prefs.MobileVersion {
 		prefs.Notifications.BuildList = extractNotifBuildListFromDocV6(doc)
@@ -1281,6 +1282,11 @@ func extractDisableOutlawWarningFromDocV6(doc *goquery.Document) bool {
 
 func extractMobileVersionFromDocV6(doc *goquery.Document) bool {
 	_, exists := doc.Find("input[name=mobileVersion]").Attr("checked")
+	return exists
+}
+
+func extractUrlaubsModus(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=urlaubs_modus]").Attr("checked")
 	return exists
 }
 
@@ -1576,6 +1582,8 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Locul ([\d.]+) din ([\d.]+)\)`)
 	case "fi":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Sijoitus ([\d.]+) kaikista pelaajista ([\d.]+)\)`)
+	case "ba":
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Mjesto ([\d.]+) od ([\d.]+)\)`)
 	case "ru":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(\\u041c\\u0435\\u0441\\u0442\\u043e ([\d.]+) \\u0438\\u0437 ([\d.]+)\)`)
 	}
@@ -1647,7 +1655,7 @@ func extractCoordV6(v string) (coord Coordinate) {
 }
 
 func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error) {
-	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.]+)`)
+	prefixedNumRgx := regexp.MustCompile(`.*: ([\d.,]+)`)
 
 	extractActivity := func(activityDiv *goquery.Selection) int64 {
 		var activity int64
@@ -1808,7 +1816,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
 	if eventFleet.Size() == 0 {
-		txt := doc.Find("div#phalanxEventContent").Text()
+		txt := strings.TrimSpace(doc.Find("div#phalanxEventContent").Text())
 		// TODO: 'fleet' and 'deuterium' won't work in other languages
 		if strings.Contains(txt, "fleet") {
 			return res, nil
@@ -1858,6 +1866,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 		fleet.Mission = MissionID(mission)
 		fleet.ReturnFlight = returning
 		fleet.ArriveIn = arriveIn
+		fleet.ArrivalTime = time.Unix(arrivalTime, 0)
 		fleet.Origin = extractCoordV6(originTxt)
 		fleet.Origin.Type = PlanetType
 		if originFleetFigure.HasClass("moon") {
@@ -1981,7 +1990,7 @@ func extractUniverseSpeedV6(pageHTML []byte) int64 {
 }
 
 var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως|:sta)\s*([-\d]+).+C`)
-var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.]+)(?i)(?:km|км|χμ) \((\d+)/(\d+)\)`)
+var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|χμ|公里) \((\d+)/(\d+)\)`)
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
 func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error) {
@@ -2172,7 +2181,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find already-bid
-	m := regexp.MustCompile(`var playerBid = ([^;]+);`).FindStringSubmatch(doc.Text())
+	m := regexp.MustCompile(`var playerBid\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
 	if len(m) != 2 {
 		return Auction{}, errors.New("failed to get playerBid")
 	}

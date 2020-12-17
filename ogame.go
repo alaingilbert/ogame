@@ -121,6 +121,7 @@ type Preferences struct {
 	EconomyNotifications         bool
 	ShowActivityMinutes          bool
 	PreserveSystemOnPlanetChange bool
+	UrlaubsModus                 bool // Vacation mode
 
 	// Mobile only
 	Notifications struct {
@@ -582,6 +583,9 @@ func getServers(b *OGame) ([]Server, error) {
 }
 
 func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
+	if lang == "ba" {
+		lang = "yu"
+	}
 	var server Server
 	var acc account
 	for _, s := range servers {
@@ -1101,8 +1105,12 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 		return err
 	}
 	b.serverData = serverData
-	b.language = userAccount.Server.Language
-	b.serverURL = "https://s" + strconv.FormatInt(server.Number, 10) + "-" + server.Language + ".ogame.gameforge.com"
+	lang := server.Language
+	if server.Language == "yu" {
+		lang = "ba"
+	}
+	b.language = lang
+	b.serverURL = "https://s" + strconv.FormatInt(server.Number, 10) + "-" + lang + ".ogame.gameforge.com"
 	b.debug("get server data", time.Since(start))
 	return nil
 }
@@ -2103,12 +2111,17 @@ func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	pageHTML, _ := b.getPage(MovementPage, CelestialID(0))
+	pageHTML, err := b.getPage(MovementPage, CelestialID(0))
+	if err != nil {
+		return err
+	}
 	token, err := b.extractor.ExtractCancelFleetToken(pageHTML, fleetID)
 	if err != nil {
 		return err
 	}
-	_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}})
+	if _, err = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}}); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -2204,7 +2217,8 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 	return
 }
 
-func calcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
+// CalcFlightTime ...
+func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, characterClass CharacterClass) (secs, fuel int64) {
 	if !ships.HasShips() {
 		return
