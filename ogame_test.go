@@ -6,7 +6,6 @@ import (
 	"regexp"
 	"testing"
 	"time"
-   "fmt"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -3129,12 +3128,3 @@ func TestExtractIsMobile(t *testing.T) {
 	isMobile = NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
 	assert.True(t, isMobile)
 }
-
-func TestNaniteFactoryConstructionTime(t *testing.T) {
-	nf := newNaniteFactory()
-	ct := nf.ConstructionTime(8, 5, Facilities{NaniteFactory: 7, RoboticsFactory: 10}, false, false)
-	fmt.Println(ct)
-	assert.Equal(t, 39272*time.Second, ct)
-}
-
-
