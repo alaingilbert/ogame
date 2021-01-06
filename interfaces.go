@@ -124,6 +124,7 @@ type Wrapper interface {
 	GetCachedPlayer() UserInfos
 	GetCachedPreferences() Preferences
 	GetClient() *OGameClient
+	SetClient(*OGameClient)
 	GetExtractor() Extractor
 	GetLanguage() string
 	GetNbSystems() int64

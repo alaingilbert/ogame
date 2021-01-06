@@ -4276,6 +4276,11 @@ func (b *OGame) GetClient() *OGameClient {
 	return b.Client
 }
 
+// SetClient set the http client used by the bot
+func (b *OGame) SetClient(client *OGameClient) {
+	b.Client = client
+}
+
 // GetPublicIP get the public IP used by the bot
 func (b *OGame) GetPublicIP() (string, error) {
 	return b.getPublicIP()
