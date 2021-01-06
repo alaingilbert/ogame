@@ -175,6 +175,7 @@ type CelestialID int64
 type Params struct {
 	Username        string
 	Password        string
+	BearerToken     string // Gameforge auth bearer token
 	OTPSecret       string
 	Universe        string
 	Lang            string
@@ -397,8 +398,14 @@ func NewWithParams(params Params) (*OGame, error) {
 		}
 	}
 	if params.AutoLogin {
-		if _, err := b.LoginWithExistingCookies(); err != nil {
-			return nil, err
+		if params.BearerToken != "" {
+			if _, err := b.LoginWithBearerToken(params.BearerToken); err != nil {
+				return nil, err
+			}
+		} else {
+			if _, err := b.LoginWithExistingCookies(); err != nil {
+				return nil, err
+			}
 		}
 	}
 	return b, nil
@@ -772,16 +779,8 @@ func (b *OGame) getServerData() (ServerData, error) {
 	return serverData, nil
 }
 
-// Return either or not the bot logged in using the existing cookies.
-func (b *OGame) loginWithExistingCookies() (bool, error) {
-	cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
-	token := ""
-	for _, c := range cookies {
-		if c.Name == gfTokenCookieName {
-			token = c.Value
-			break
-		}
-	}
+// Return either or not the bot logged in using the provided bearer token.
+func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if token == "" {
 		err := b.login()
 		return false, err
@@ -841,6 +840,19 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+// Return either or not the bot logged in using the existing cookies.
+func (b *OGame) loginWithExistingCookies() (bool, error) {
+	cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
+	token := ""
+	for _, c := range cookies {
+		if c.Name == gfTokenCookieName {
+			token = c.Value
+			break
+		}
+	}
+	return b.loginWithBearerToken(token)
 }
 
 func getConfiguration(b *OGame) (string, string, error) {
@@ -1233,6 +1245,14 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
 	_, err := loginFn()
 	return err
+}
+
+func (b *OGame) wrapLoginWithBearerToken(token string) (useToken bool, err error) {
+	fn := func() (bool, error) {
+		useToken, err = b.loginWithBearerToken(token)
+		return useToken, err
+	}
+	return useToken, b.loginWrapper(fn)
 }
 
 func (b *OGame) wrapLoginWithExistingCookies() (useCookies bool, err error) {
@@ -4367,6 +4387,11 @@ func (b *OGame) GetLanguage() string {
 // SetUserAgent change the user-agent used by the http client
 func (b *OGame) SetUserAgent(newUserAgent string) {
 	b.Client.UserAgent = newUserAgent
+}
+
+// LoginWithBearerToken to ogame server reusing existing token
+func (b *OGame) LoginWithBearerToken(token string) (bool, error) {
+	return b.WithPriority(Normal).LoginWithBearerToken(token)
 }
 
 // LoginWithExistingCookies to ogame server reusing existing cookies

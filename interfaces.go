@@ -57,6 +57,7 @@ type Prioritizable interface {
 	Highscore(category, typ, page int64) (Highscore, error)
 	IsUnderAttack() (bool, error)
 	Login() error
+	LoginWithBearerToken(token string) (bool, error)
 	LoginWithExistingCookies() (bool, error)
 	Logout()
 	OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error

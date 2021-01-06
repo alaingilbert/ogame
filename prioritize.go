@@ -74,6 +74,14 @@ func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	return err
 }
 
+// LoginWithBearerToken to ogame server reusing existing token
+// Returns either or not the bot logged in using the existing cookies
+func (b *Prioritize) LoginWithBearerToken(token string) (bool, error) {
+	b.begin("LoginWithBearerToken")
+	defer b.done()
+	return b.bot.wrapLoginWithBearerToken(token)
+}
+
 // LoginWithExistingCookies to ogame server reusing existing cookies
 // Returns either or not the bot logged in using the existing cookies
 func (b *Prioritize) LoginWithExistingCookies() (bool, error) {
