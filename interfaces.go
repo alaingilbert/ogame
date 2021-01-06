@@ -111,6 +111,7 @@ type Wrapper interface {
 	AddAccount(number int, lang string) (NewAccount, error)
 	BytesDownloaded() int64
 	BytesUploaded() int64
+	IsPioneers() bool
 	CharacterClass() CharacterClass
 	Disable()
 	Distance(origin, destination Coordinate) int64

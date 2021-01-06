@@ -4413,6 +4413,11 @@ func (b *OGame) GetUniverseSpeedFleet() int64 {
 	return b.getUniverseSpeedFleet()
 }
 
+// IsPioneers either or not the bot use lobby-pioneers
+func (b *OGame) IsPioneers() bool {
+	return b.lobby == LobbyPioneers
+}
+
 // IsDonutGalaxy shortcut to get ogame galaxy donut config
 func (b *OGame) IsDonutGalaxy() bool {
 	return b.isDonutGalaxy()
