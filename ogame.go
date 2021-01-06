@@ -413,7 +413,7 @@ func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename s
 
 	b.Universe = universe
 	b.SetOGameCredentials(username, password, otpSecret)
-	b.setOGameLobby("lobby")
+	b.setOGameLobby(Lobby)
 	b.language = lang
 	b.playerID = playerID
 
@@ -1255,8 +1255,8 @@ func (b *OGame) SetOGameCredentials(username, password, otpSecret string) {
 }
 
 func (b *OGame) setOGameLobby(lobby string) {
-	if lobby != "lobby-pioneers" {
-		lobby = "lobby"
+	if lobby != LobbyPioneers {
+		lobby = Lobby
 	}
 	b.lobby = lobby
 }
