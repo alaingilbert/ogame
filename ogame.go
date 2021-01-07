@@ -76,7 +76,7 @@ type OGame struct {
 	logger                *log.Logger
 	chatCallbacks         []func(msg ChatMsg)
 	wsCallbacks           map[string]func(msg []byte)
-	auctioneerCallbacks   []func(packet []byte)
+	auctioneerCallbacks   []func(interface{})
 	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
 	closeChatCh           chan struct{}
 	chatRetry             *ExponentialBackoff
@@ -1443,11 +1443,77 @@ LOOP:
 		} else if bytes.Equal(msg, []byte("2::")) {
 			_, _ = b.ws.Write([]byte("2::"))
 		} else if regexp.MustCompile(`\d+::/auctioneer`).Match(msg) {
+			// 5::/auctioneer:{"name":"timeLeft","args":["Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">598</span>"]}
 			// 5::/auctioneer:{"name":"timeLeft","args":["<span style=\"color:#FFA500;\"><b>approx. 10m</b></span> remaining until the auction ends"]} // every minute
+			// 5::/auctioneer:{"name":"new auction","args":[{"info":"<span style=\"color:#99CC00;\"><b>approx. 45m</b></span> remaining until the auction ends","item":{"uuid":"118d34e685b5d1472267696d1010a393a59aed03","image":"bdb4508609de1df58bf4a6108fff73078c89f777","rarity":"rare"},"oldAuction":{"item":{"uuid":"8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b","imageSmall":"014827f6d1d5b78b1edd0d4476db05639e7d9367","rarity":"rare"},"time":"06.01.2021 17:35:05","bids":1,"sum":1000,"player":{"id":111106,"name":"Governor Skat","link":"http://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=1&system=218"}},"auctionId":18550}]}
 			// 5::/auctioneer:{"name":"new bid","args":[{"player":{"id":106734,"name":"Someone","link":"https://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"sum":2000,"price":3000,"bids":2,"auctionId":"13355"}]}
 			// 5::/auctioneer:{"name":"auction finished","args":[{"sum":2000,"player":{"id":106734,"name":"Someone","link":"http://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"bids":2,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1390</span>","time":"06:36"}]}
+			msg = bytes.TrimPrefix(msg, []byte("5::/auctioneer:"))
+			var pck interface{} = string(msg)
+			var out map[string]interface{}
+			_ = json.Unmarshal(msg, &out)
+			if args, ok := out["args"].([]interface{}); ok {
+				if len(args) > 0 {
+					if name, ok := out["name"].(string); ok && name == "new bid" {
+						if firstArg, ok := args[0].(map[string]interface{}); ok {
+							auctionID, _ := strconv.ParseInt(firstArg["auctionId"].(string), 10, 64)
+							pck1 := AuctioneerNewBid{
+								Sum:       int64(firstArg["sum"].(float64)),
+								Price:     int64(firstArg["price"].(float64)),
+								Bids:      int64(firstArg["bids"].(float64)),
+								AuctionID: auctionID,
+							}
+							pck1.Player.ID = int64(firstArg["player"].(map[string]interface{})["id"].(float64))
+							pck1.Player.Name = firstArg["player"].(map[string]interface{})["name"].(string)
+							pck1.Player.Link = firstArg["player"].(map[string]interface{})["link"].(string)
+							pck = pck1
+						}
+					} else if name, ok := out["name"].(string); ok && name == "timeLeft" {
+						if timeLeftMsg, ok := args[0].(string); ok {
+							if strings.Contains(timeLeftMsg, "color:") {
+								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
+								rgx := regexp.MustCompile(`\d+`)
+								txt := rgx.FindString(doc.Find("b").Text())
+								approx, _ := strconv.ParseInt(txt, 10, 64)
+								pck = AuctioneerTimeRemaining{Approx: approx * 60}
+							} else if strings.Contains(timeLeftMsg, "nextAuction") {
+								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
+								rgx := regexp.MustCompile(`\d+`)
+								txt := rgx.FindString(doc.Find("span").Text())
+								secs, _ := strconv.ParseInt(txt, 10, 64)
+								pck = AuctioneerNextAuction{Secs: secs}
+							}
+						}
+					} else if name, ok := out["name"].(string); ok && name == "new auction" {
+						if firstArg, ok := args[0].(map[string]interface{}); ok {
+							pck1 := AuctioneerNewAuction{
+								AuctionID: int64(firstArg["auctionId"].(float64)),
+							}
+							if infoMsg, ok := args[0].(string); ok {
+								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
+								rgx := regexp.MustCompile(`\d+`)
+								txt := rgx.FindString(doc.Find("b").Text())
+								approx, _ := strconv.ParseInt(txt, 10, 64)
+								pck1.Approx = approx * 60
+							}
+							pck = pck1
+						}
+					} else if name, ok := out["name"].(string); ok && name == "auction finished" {
+						if firstArg, ok := args[0].(map[string]interface{}); ok {
+							pck1 := AuctioneerAuctionFinished{
+								Sum:  int64(firstArg["sum"].(float64)),
+								Bids: int64(firstArg["bids"].(float64)),
+							}
+							pck1.Player.ID = int64(firstArg["player"].(map[string]interface{})["id"].(float64))
+							pck1.Player.Name = firstArg["player"].(map[string]interface{})["name"].(string)
+							pck1.Player.Link = firstArg["player"].(map[string]interface{})["link"].(string)
+							pck = pck1
+						}
+					}
+				}
+			}
 			for _, clb := range b.auctioneerCallbacks {
-				clb(msg)
+				clb(pck)
 			}
 		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).Match(msg) {
 			b.debug("chat connected")
@@ -1470,6 +1536,52 @@ LOOP:
 			time.Sleep(time.Second)
 		}
 	}
+}
+
+// AuctioneerNewBid ...
+type AuctioneerNewBid struct {
+	Sum       int64
+	Price     int64
+	Bids      int64
+	AuctionID int64
+	Player    struct {
+		ID   int64
+		Name string
+		Link string
+	}
+}
+
+// AuctioneerNewAuction ...
+// 5::/auctioneer:{"name":"new auction","args":[{"info":"<span style=\"color:#99CC00;\"><b>approx. 45m</b></span> remaining until the auction ends","item":{"uuid":"118d34e685b5d1472267696d1010a393a59aed03","image":"bdb4508609de1df58bf4a6108fff73078c89f777","rarity":"rare"},"oldAuction":{"item":{"uuid":"8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b","imageSmall":"014827f6d1d5b78b1edd0d4476db05639e7d9367","rarity":"rare"},"time":"06.01.2021 17:35:05","bids":1,"sum":1000,"player":{"id":111106,"name":"Governor Skat","link":"http://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=1&system=218"}},"auctionId":18550}]}
+type AuctioneerNewAuction struct {
+	AuctionID int64
+	Approx    int64
+}
+
+// AuctioneerAuctionFinished ...
+// 5::/auctioneer:{"name":"auction finished","args":[{"sum":2000,"player":{"id":106734,"name":"Someone","link":"http://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"bids":2,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1390</span>","time":"06:36"}]}
+type AuctioneerAuctionFinished struct {
+	Sum         int64
+	Bids        int64
+	NextAuction int64
+	Time        string
+	Player      struct {
+		ID   int64
+		Name string
+		Link string
+	}
+}
+
+// AuctioneerTimeRemaining ...
+// 5::/auctioneer:{"name":"timeLeft","args":["<span style=\"color:#FFA500;\"><b>approx. 10m</b></span> remaining until the auction ends"]} // every minute
+type AuctioneerTimeRemaining struct {
+	Approx int64
+}
+
+// AuctioneerNextAuction ...
+// 5::/auctioneer:{"name":"timeLeft","args":["Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">598</span>"]}
+type AuctioneerNextAuction struct {
+	Secs int64
 }
 
 // ReconnectChat ...
@@ -4843,7 +4955,7 @@ func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 }
 
 // RegisterAuctioneerCallback register a callback that is called when auctioneer packets are received
-func (b *OGame) RegisterAuctioneerCallback(fn func(packet []byte)) {
+func (b *OGame) RegisterAuctioneerCallback(fn func(packet interface{})) {
 	b.auctioneerCallbacks = append(b.auctioneerCallbacks, fn)
 }
 

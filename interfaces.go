@@ -152,7 +152,7 @@ type Wrapper interface {
 	OnStateChange(clb func(locked bool, actor string))
 	Quiet(bool)
 	ReconnectChat() bool
-	RegisterAuctioneerCallback(func([]byte))
+	RegisterAuctioneerCallback(func(interface{}))
 	RegisterChatCallback(func(ChatMsg))
 	RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
 	RegisterWSCallback(string, func([]byte))
