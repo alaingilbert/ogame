@@ -161,6 +161,12 @@ func GetUserInfosHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(bot.GetUserInfos()))
 }
 
+// GetUserInfosHandler ...
+func GetUserClassHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	return c.JSON(http.StatusOK, SuccessResp(bot.CharacterClass()))
+}
+
 // GetEspionageReportMessagesHandler ...
 func GetEspionageReportMessagesHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
