@@ -246,6 +246,7 @@ func start(c *cli.Context) error {
 	e.GET("/bot/server/time", ogame.ServerTimeHandler)
 	e.GET("/bot/is-under-attack", ogame.IsUnderAttackHandler)
 	e.GET("/bot/user-infos", ogame.GetUserInfosHandler)
+	e.GET("/bot/user-class", ogame.GetUserClassHandler)
 	e.POST("/bot/send-message", ogame.SendMessageHandler)
 	e.GET("/bot/fleets", ogame.GetFleetsHandler)
 	e.GET("/bot/fleets/slots", ogame.GetSlotsHandler)
