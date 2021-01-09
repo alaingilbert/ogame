@@ -1456,16 +1456,18 @@ LOOP:
 				if len(args) > 0 {
 					if name, ok := out["name"].(string); ok && name == "new bid" {
 						if firstArg, ok := args[0].(map[string]interface{}); ok {
-							auctionID, _ := strconv.ParseInt(firstArg["auctionId"].(string), 10, 64)
+							auctionID, _ := strconv.ParseInt(doCastStr(firstArg["auctionId"]), 10, 64)
 							pck1 := AuctioneerNewBid{
-								Sum:       int64(firstArg["sum"].(float64)),
-								Price:     int64(firstArg["price"].(float64)),
-								Bids:      int64(firstArg["bids"].(float64)),
+								Sum:       int64(doCastF64(firstArg["sum"])),
+								Price:     int64(doCastF64(firstArg["price"])),
+								Bids:      int64(doCastF64(firstArg["bids"])),
 								AuctionID: auctionID,
 							}
-							pck1.Player.ID = int64(firstArg["player"].(map[string]interface{})["id"].(float64))
-							pck1.Player.Name = firstArg["player"].(map[string]interface{})["name"].(string)
-							pck1.Player.Link = firstArg["player"].(map[string]interface{})["link"].(string)
+							if player, ok := firstArg["player"].(map[string]interface{}); ok {
+								pck1.Player.ID = int64(doCastF64(player["id"]))
+								pck1.Player.Name = doCastStr(player["name"])
+								pck1.Player.Link = doCastStr(player["link"])
+							}
 							pck = pck1
 						}
 					} else if name, ok := out["name"].(string); ok && name == "timeLeft" {
@@ -1487,7 +1489,7 @@ LOOP:
 					} else if name, ok := out["name"].(string); ok && name == "new auction" {
 						if firstArg, ok := args[0].(map[string]interface{}); ok {
 							pck1 := AuctioneerNewAuction{
-								AuctionID: int64(firstArg["auctionId"].(float64)),
+								AuctionID: int64(doCastF64(firstArg["auctionId"])),
 							}
 							if infoMsg, ok := args[0].(string); ok {
 								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
@@ -1501,12 +1503,14 @@ LOOP:
 					} else if name, ok := out["name"].(string); ok && name == "auction finished" {
 						if firstArg, ok := args[0].(map[string]interface{}); ok {
 							pck1 := AuctioneerAuctionFinished{
-								Sum:  int64(firstArg["sum"].(float64)),
-								Bids: int64(firstArg["bids"].(float64)),
+								Sum:  int64(doCastF64(firstArg["sum"])),
+								Bids: int64(doCastF64(firstArg["bids"])),
 							}
-							pck1.Player.ID = int64(firstArg["player"].(map[string]interface{})["id"].(float64))
-							pck1.Player.Name = firstArg["player"].(map[string]interface{})["name"].(string)
-							pck1.Player.Link = firstArg["player"].(map[string]interface{})["link"].(string)
+							if player, ok := firstArg["player"].(map[string]interface{}); ok {
+								pck1.Player.ID = int64(doCastF64(player["id"]))
+								pck1.Player.Name = doCastStr(player["name"])
+								pck1.Player.Link = doCastStr(player["link"])
+							}
 							pck = pck1
 						}
 					}
@@ -1536,6 +1540,20 @@ LOOP:
 			time.Sleep(time.Second)
 		}
 	}
+}
+
+func doCastF64(v interface{}) float64 {
+	if f, ok := v.(float64); ok {
+		return f
+	}
+	return 0
+}
+
+func doCastStr(v interface{}) string {
+	if str, ok := v.(string); ok {
+		return str
+	}
+	return ""
 }
 
 // AuctioneerNewBid ...
