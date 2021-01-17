@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"container/heap"
 	"context"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/xml"
@@ -186,6 +187,7 @@ type Params struct {
 	ProxyPassword   string
 	ProxyType       string
 	ProxyLoginOnly  bool
+	TLSConfig       *tls.Config
 	Lobby           string
 	APINewHostname  string
 	CookiesFilename string
@@ -199,10 +201,10 @@ const (
 )
 
 // Register a new gameforge lobby account
-func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
+func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) error {
 	var err error
 	client := &http.Client{}
-	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
 	if err != nil {
 		return err
 	}
@@ -249,11 +251,11 @@ func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, p
 }
 
 // RedeemCode ...
-func RedeemCode(lobby, email, password, otpSecret, token, proxyAddr, proxyUsername, proxyPassword, proxyType string) error {
+func RedeemCode(lobby, email, password, otpSecret, token, proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) error {
 	var err error
 	client := &http.Client{}
 	client.Jar, _ = cookiejar.New(nil)
-	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
 	if err != nil {
 		return err
 	}
@@ -306,12 +308,12 @@ func RedeemCode(lobby, email, password, otpSecret, token, proxyAddr, proxyUserna
 	return nil
 }
 
-func AddAccount(lobby, username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string) (NewAccount, error) {
+func AddAccount(lobby, username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) (NewAccount, error) {
 	var newAccount NewAccount
 	var err error
 	client := &http.Client{}
 	client.Jar, _ = cookiejar.New(nil)
-	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType)
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
 	if err != nil {
 		return newAccount, err
 	}
@@ -393,7 +395,7 @@ func NewWithParams(params Params) (*OGame, error) {
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
-		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly); err != nil {
+		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
 			return nil, err
 		}
 	}
@@ -1305,14 +1307,15 @@ func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Resp
 	return
 }
 
-func getTransport(proxy, username, password, proxyType string) (http.RoundTripper, error) {
+func getTransport(proxy, username, password, proxyType string, config *tls.Config) (http.RoundTripper, error) {
 	var err error
-	transport := http.DefaultTransport
+	transport := http.DefaultTransport.(*http.Transport).Clone()
 	if proxyType == "socks5" {
 		transport, err = getSocks5Transport(proxy, username, password)
 	} else if proxyType == "http" {
 		transport, err = getProxyTransport(proxy, username, password)
 	}
+	transport.TLSClientConfig = config
 	return transport, err
 }
 
@@ -1347,7 +1350,7 @@ func getSocks5Transport(proxyAddress, username, password string) (*http.Transpor
 	return transport, nil
 }
 
-func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error {
+func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error {
 	if proxyType == "" {
 		proxyType = "socks5"
 	}
@@ -1356,7 +1359,7 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 		b.Client.Transport = http.DefaultTransport
 		return nil
 	}
-	transport, err := getTransport(proxyAddress, username, password, proxyType)
+	transport, err := getTransport(proxyAddress, username, password, proxyType, config)
 	b.loginProxyTransport = transport
 	b.Client.Transport = transport
 	if loginOnly {
@@ -1368,8 +1371,8 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 // SetProxy this will change the bot http transport object.
 // proxyType can be "http" or "socks5".
 // An empty proxyAddress will reset the client transport to default value.
-func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error {
-	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly)
+func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error {
+	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly, config)
 }
 
 func (b *OGame) connectChat(host, port string) {
@@ -4434,6 +4437,11 @@ func (b *OGame) GetClient() *OGameClient {
 // SetClient set the http client used by the bot
 func (b *OGame) SetClient(client *OGameClient) {
 	b.Client = client
+}
+
+// GetLoginClient get the http client used by the bot for login operations
+func (b *OGame) GetLoginClient() *OGameClient {
+	return b.Client
 }
 
 // GetPublicIP get the public IP used by the bot

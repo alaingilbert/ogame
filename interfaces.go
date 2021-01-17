@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"crypto/tls"
 	"net/http"
 	"net/url"
 	"time"
@@ -161,7 +162,7 @@ type Wrapper interface {
 	ServerVersion() string
 	SetLoginWrapper(func(func() (bool, error)) error)
 	SetOGameCredentials(username, password, otpSecret string)
-	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error
+	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
 	WithPriority(priority int) Prioritizable
 }
