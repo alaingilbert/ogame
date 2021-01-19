@@ -1315,7 +1315,9 @@ func getTransport(proxy, username, password, proxyType string, config *tls.Confi
 	} else if proxyType == "http" {
 		transport, err = getProxyTransport(proxy, username, password)
 	}
-	transport.TLSClientConfig = config
+	if transport != nil {
+		transport.TLSClientConfig = config
+	}
 	return transport, err
 }
 
