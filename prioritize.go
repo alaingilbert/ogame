@@ -427,6 +427,13 @@ func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, 
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID, true)
 }
 
+// DestroyRockets destroys anti-ballistic & inter-planetary missiles
+func (b *Prioritize) DestroyRockets(planetID PlanetID, abm, ipm int64) error {
+	b.begin("DestroyRockets")
+	defer b.done()
+	return b.bot.destroyRockets(planetID, abm, ipm)
+}
+
 // SendIPM sends IPM
 func (b *Prioritize) SendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
 	b.begin("SendIPM")

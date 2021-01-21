@@ -2922,6 +2922,14 @@ func TestGetResourcesDetailsV71(t *testing.T) {
 	assert.Equal(t, int64(8000), res.Darkmatter.Found)
 }
 
+func TestExtractDestroyRockets(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.2/en/destroy_rockets.html")
+	abm, ipm, token, _ := NewExtractorV71().ExtractDestroyRockets(pageHTMLBytes)
+	assert.Equal(t, "3a1148bb0d2c6a18f323cf7f0ce09d2b", token)
+	assert.Equal(t, int64(24), abm)
+	assert.Equal(t, int64(6), ipm)
+}
+
 func TestExtractIPMV71(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/nl/ipm_missile_launch.html")
 	duration, max, token := NewExtractorV71().ExtractIPM(pageHTMLBytes)

@@ -97,6 +97,7 @@ type Prioritizable interface {
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
 	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
+	DestroyRockets(PlanetID, int64, int64) error
 	SendIPM(PlanetID, Coordinate, int64, ID) (int64, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
 
@@ -259,6 +260,7 @@ type Extractor interface {
 	ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error)
 	ExtractServerTime(pageHTML []byte) (time.Time, error)
 	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
+	ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error)
 	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
 	ExtractFleets(pageHTML []byte) (res []Fleet)
 	ExtractSlots(pageHTML []byte) Slots

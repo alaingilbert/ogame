@@ -3439,6 +3439,63 @@ func (b *OGame) getResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 	return b.fetchResources(celestialID)
 }
 
+func (b *OGame) destroyRockets(planetID PlanetID, abm, ipm int64) error {
+	vals := url.Values{
+		"page":      {"ajax"},
+		"component": {"rocketlayer"},
+		"overlay":   {"1"},
+		"cp":        {strconv.FormatInt(int64(planetID), 10)},
+	}
+	pageHTML, err := b.getPageContent(vals)
+	if err != nil {
+		return err
+	}
+	maxABM, maxIPM, token, err := b.extractor.ExtractDestroyRockets(pageHTML)
+	if err != nil {
+		return err
+	}
+	if maxABM == 0 && maxIPM == 0 {
+		return errors.New("no missile to destroy")
+	}
+	if abm > maxABM {
+		abm = maxABM
+	}
+	if ipm > maxIPM {
+		ipm = maxIPM
+	}
+	params := url.Values{
+		"page":      {"ajax"},
+		"component": {"rocketlayer"},
+		"action":    {"destroy"},
+		"ajax":      {"1"},
+		"asJson":    {"1"},
+	}
+	payload := url.Values{
+		"interceptorMissile":    {strconv.FormatInt(abm, 10)},
+		"interplanetaryMissile": {strconv.FormatInt(ipm, 10)},
+		"token":                 {token},
+	}
+	by, err := b.postPageContent(params, payload)
+	if err != nil {
+		return err
+	}
+	// {"status":"success","message":"The following missiles have been destroyed:\nInterplanetary missiles: 1\nAnti-ballistic missiles: 2","components":[],"newAjaxToken":"ec306346888f14e38c4248aa78e56610"}
+	var resp struct {
+		Status       string `json:"status"`
+		Message      string `json:"message"`
+		NewAjaxToken string `json:"newAjaxToken"`
+		// components??
+	}
+	if err := json.Unmarshal(by, &resp); err != nil {
+		return err
+	}
+	if resp.Status != "success" {
+		return errors.New(resp.Message)
+	}
+
+	return nil
+}
+
 func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
 	if priority != 0 && (!priority.IsDefense() || priority == AntiBallisticMissilesID || priority == InterplanetaryMissilesID) {
 		return 0, errors.New("invalid defense target id")
@@ -4885,6 +4942,11 @@ func (b *OGame) SendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 func (b *OGame) EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error) {
 	return b.WithPriority(Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
+}
+
+// DestroyRockets destroys anti-ballistic & inter-planetary missiles
+func (b *OGame) DestroyRockets(planetID PlanetID, abm, ipm int64) error {
+	return b.WithPriority(Normal).DestroyRockets(planetID, abm, ipm)
 }
 
 // SendIPM sends IPM
