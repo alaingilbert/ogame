@@ -126,6 +126,13 @@ func (b *Prioritize) IsUnderAttack() (bool, error) {
 	return b.bot.isUnderAttack()
 }
 
+// IsVacationModeEnabled returns true if the user is in vacation mode, false otherwise
+func (b *Prioritize) IsVacationModeEnabled() bool {
+	b.begin("IsVacationModeEnabled")
+	defer b.done()
+	return b.bot.IsVacationModeEnabled()
+}
+
 // GetPlanets returns the user planets
 func (b *Prioritize) GetPlanets() []Planet {
 	b.begin("GetPlanets")
