@@ -58,6 +58,12 @@ func GetServerHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(bot.GetServer()))
 }
 
+// GetServerDataHandler ...
+func GetServerDataHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	return c.JSON(http.StatusOK, SuccessResp(bot.serverData))
+}
+
 // SetUserAgentHandler ...
 // curl 127.0.0.1:1234/bot/set-user-agent -d 'userAgent="New user agent"'
 func SetUserAgentHandler(c echo.Context) error {
@@ -155,13 +161,20 @@ func IsUnderAttackHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(isUnderAttack))
 }
 
+// IsVacationModeHandler ...
+func IsVacationModeHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	isVacationMode := bot.isVacationModeEnabled
+	return c.JSON(http.StatusOK, SuccessResp(isVacationMode))
+}
+
 // GetUserInfosHandler ...
 func GetUserInfosHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	return c.JSON(http.StatusOK, SuccessResp(bot.GetUserInfos()))
 }
 
-// GetUserInfosHandler ...
+// GetUserClassHandler ...
 func GetUserClassHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	return c.JSON(http.StatusOK, SuccessResp(bot.CharacterClass()))
@@ -408,6 +421,20 @@ func GetPlanetByCoordHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(planet))
+}
+
+// GetResourceProductionHandler ...
+func GetResourceProductionHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	planetID, err := strconv.ParseInt(c.Param("planetID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+	res, err := bot.GetResourcesProductions(PlanetID(planetID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(res))
 }
 
 // GetResourceSettingsHandler ...
