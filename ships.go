@@ -52,6 +52,19 @@ func (s ShipsInfos) HasShips() bool {
 	return false
 }
 
+// HasFlyableShips returns either or not at least one flyable ship is present
+func (s ShipsInfos) HasFlyableShips() bool {
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		if shipID.IsFlyableShip() {
+			if s.ByID(shipID) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // Speed returns the speed of the slowest ship
 func (s ShipsInfos) Speed(techs Researches, isCollector, isGeneral bool) int64 {
 	var minSpeed int64 = math.MaxInt64
