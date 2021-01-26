@@ -3690,7 +3690,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	payload := b.extractor.ExtractHiddenFieldsFromDoc(fleet1Doc)
 	for _, s := range ships {
-		if s.Nbr > 0 {
+		if s.ID.IsFlyableShip() && s.Nbr > 0 {
 			payload.Set("am"+strconv.FormatInt(int64(s.ID), 10), strconv.FormatInt(s.Nbr, 10))
 		}
 	}
