@@ -513,6 +513,20 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	return report, nil
 }
 
+func extractDestroyRocketsFromDocV71(doc *goquery.Document) (abm, ipm int64, token string, err error) {
+	scriptTxt := doc.Find("script").Text()
+	r := regexp.MustCompile(`missileToken = "([^"]+)"`)
+	m := r.FindStringSubmatch(scriptTxt)
+	if len(m) != 2 {
+		err = errors.New("failed to find missile token")
+		return
+	}
+	token = m[1]
+	abm, _ = strconv.ParseInt(doc.Find("table tr").Eq(1).Find("td").Eq(1).Text(), 10, 64)
+	ipm, _ = strconv.ParseInt(doc.Find("table tr").Eq(2).Find("td").Eq(1).Text(), 10, 64)
+	return
+}
+
 func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
 	durationFloat, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
 	duration = int64(math.Ceil(durationFloat))
