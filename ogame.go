@@ -2898,7 +2898,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	var tmp struct {
 		Message  string
 		Error    bool
-		NewToken string
+		NewAjaxToken string
 	}
 	if err := json.Unmarshal(pageHTML1, &tmp); err != nil {
 		return err
@@ -2907,12 +2907,12 @@ func (b *OGame) buyOfferOfTheDay() error {
 		return errors.New(tmp.Message)
 	}
 
-	payload2 := url.Values{"action": {"takeItem"}, "token": {tmp.NewToken}, "ajax": {"1"}}
+	payload2 := url.Values{"action": {"takeItem"}, "token": {tmp.NewAjaxToken}, "ajax": {"1"}}
 	pageHTML2, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload2)
 	var tmp2 struct {
 		Message  string
 		Error    bool
-		NewToken string
+		NewAjaxToken string
 	}
 	if err := json.Unmarshal(pageHTML2, &tmp2); err != nil {
 		return err
