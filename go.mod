@@ -3,12 +3,17 @@ module github.com/0xE232FE/ogame.mod
 go 1.12
 
 require (
+	github.com/0xE232FE/ogame v0.0.0-20200717113236-b456618f1664
+	github.com/Code-Hex/echo-static v0.0.0-20170113092151-aa7c0382cfa1
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/abiosoft/ishell v2.0.0+incompatible // indirect
 	github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db // indirect
 	github.com/alaingilbert/clockwork v0.1.1-0.20200117075841-891256a24209
+	github.com/alaingilbert/ogame v0.0.0-20201209221001-e466844dcd01
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.0
+	github.com/elazarl/go-bindata-assetfs v1.0.1
+	github.com/emnl/goods v0.0.0-20121027070824-3805483b57d8
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/go-errors/errors v1.0.1
@@ -17,11 +22,14 @@ require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/magiconair/properties v1.8.1
+	github.com/mattn/anko v0.1.8
+	github.com/mattn/go-sqlite3 v1.14.6
+	github.com/mitchellh/mapstructure v1.4.1
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/orirawlings/persistent-cookiejar v0.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.2.0
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
 	go4.org v0.0.0-20200411211856-f5505b9728dd // indirect
@@ -31,5 +39,6 @@ require (
 	golang.org/x/text v0.3.2
 	gopkg.in/abiosoft/ishell.v2 v2.0.0
 	gopkg.in/retry.v1 v1.0.3 // indirect
+	gopkg.in/tucnak/telebot.v2 v2.3.5
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8
 )

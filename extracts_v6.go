@@ -1198,7 +1198,7 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 		missionType := MissionID(missionTypeInt)
 		fleet.Mission = missionType
 		fleet.ArrivalTime = time.Unix(arrivalTimeInt, 0)
-		fleet.ArriveIn = int64(time.Now().Unix() - arrivalTimeInt)
+		fleet.ArriveIn = int64(arrivalTimeInt - time.Now().Unix())
 
 		fleet.Origin = extractCoordV6(doc.Find("td.coordsOrigin").Text())
 		fleet.Origin.Type = PlanetType
@@ -1212,10 +1212,13 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 		}
 
 		res := Resources{}
-		trs := doc2.Find("tr")
-		res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
-		res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
-		res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+		if doc2.Find("th").Size() == 2 {
+			trs := doc2.Find("tr")
+			res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
+			res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
+			res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+		}
+
 
 		fleet.Resources = res
 
