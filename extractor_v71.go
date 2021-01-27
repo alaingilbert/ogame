@@ -46,6 +46,11 @@ func (e ExtractorV71) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDet
 	return extractResourcesDetailsV71(pageHTML)
 }
 
+// ExtractTechs ...
+func (e ExtractorV71) ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error) {
+	return extractTechsV71(pageHTML)
+}
+
 // ExtractEspionageReport ...
 func (e ExtractorV71) ExtractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
