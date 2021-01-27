@@ -1252,12 +1252,10 @@ func AddAccountHandler(c echo.Context) error {
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	//TEXT: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/text?1611748479816
-	//IMG: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/drag-icons?1611748479816
 	html := "<img style=\"background-color:black;\" src='/bot/captcha/text'/><br/>" +
 		"<img style=\"background-color:black;\" src='/bot/captcha/img'/><br/>" +
 		"<form action='/bot/captcha/solve' method='POST'>" +
-		"Enter 0,1,2 or 4 and press Enter <input name='answer'/>" +
+		"Enter 0,1,2 or 3 and press Enter <input name='answer'/>" +
 		"</form>"+bot.ChallengeID
 
 	return c.HTML(http.StatusOK, html)
