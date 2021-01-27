@@ -19,6 +19,11 @@ func NewExtractorV6() *ExtractorV6 {
 	return &ExtractorV6{}
 }
 
+// ExtractDestroyRockets ...
+func (e ExtractorV6) ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error) {
+	panic("implement me")
+}
+
 // ExtractCancelFleetToken ...
 func (e ExtractorV6) ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error) {
 	panic("implement me")

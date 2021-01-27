@@ -15,6 +15,6 @@ func TestColonyShip_GetSpeed(t *testing.T) {
 
 func TestColony_GetCargoCapacity(t *testing.T) {
 	cs := newColonyShip()
-	assert.Equal(t, int64(10500), cs.GetCargoCapacity(Researches{HyperspaceTechnology: 8}, false, false))
+	assert.Equal(t, int64(10500), cs.GetCargoCapacity(Researches{HyperspaceTechnology: 8}, false, false, false))
 
 }

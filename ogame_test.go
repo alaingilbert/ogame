@@ -39,7 +39,7 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 
 func TestWrapper(t *testing.T) {
 	var bot Wrapper
-	bot, _ = NewNoLogin("", "", "", "", "", "", 0)
+	bot, _ = NewNoLogin("", "", "", "", "", "", 0, nil)
 	assert.NotNil(t, bot)
 }
 
@@ -2920,6 +2920,14 @@ func TestGetResourcesDetailsV71(t *testing.T) {
 	assert.Equal(t, int64(8000), res.Darkmatter.Available)
 	assert.Equal(t, int64(0), res.Darkmatter.Purchased)
 	assert.Equal(t, int64(8000), res.Darkmatter.Found)
+}
+
+func TestExtractDestroyRockets(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.2/en/destroy_rockets.html")
+	abm, ipm, token, _ := NewExtractorV71().ExtractDestroyRockets(pageHTMLBytes)
+	assert.Equal(t, "3a1148bb0d2c6a18f323cf7f0ce09d2b", token)
+	assert.Equal(t, int64(24), abm)
+	assert.Equal(t, int64(6), ipm)
 }
 
 func TestExtractIPMV71(t *testing.T) {
