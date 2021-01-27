@@ -220,7 +220,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
 		// Calculate cargo
 		techs := tx.GetResearch()
-		cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
+		cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector, f.b.IsPioneers())
 		if f.minimumDeuterium <= 0 {
 			planetResources, _ = tx.GetResources(f.origin.GetID())
 		}

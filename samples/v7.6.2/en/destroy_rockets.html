@@ -1,0 +1,43 @@
+<div id='rocketlayer'><div id="rocketsilo">
+        <div id="inner">
+            <div class="fleft sprite building large building44"></div>
+            <div class="content">
+                <p>Missile silos are used to construct, store and launch interplanetary and anti-ballistic missiles. With each level of the silo, five interplanetary missiles or ten anti-ballistic missiles can be stored. One Interplanetary missile uses the same space as two Anti-Ballistic missiles. Storage of both Interplanetary missiles and Anti-Ballistic missiles in the same silo is allowed.</p>
+                <span class="capacity">A missile silo on level 4 can hold 20 interplanetary missiles or 40 anti-ballistic missiles.</span>
+                <form id="rocketForm">
+                    <table border="0" cellpadding="0" cellspacing="0">
+                        <tbody>
+                        <tr>
+                            <th>Type</th>
+                            <th class="textCenter">Number</th>
+                            <th class="textCenter">Tear down</th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <td>Anti-Ballistic Missiles</td>
+                            <td class="textCenter">24</td>
+                            <td class="textCenter"><input type="text" pattern="[0-9]*" value="" class="txt" size="4" maxlength="4" name="destroy_502" id="destroy_502"/></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Interplanetary Missiles</td>
+                            <td class="textCenter">6</td>
+                            <td class="textCenter"><input type="text" pattern="[0-9]*" value="" class="txt" size="4" maxlength="4" name="destroy_503" id="destroy_503"/></td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <input type="button" class="btn_blue float_right" id="destroyMissiles" value="Proceed"/>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var missileToken = "3a1148bb0d2c6a18f323cf7f0ce09d2b";
+        var interceptor = 502;
+        var maxInterceptor = 6;
+        var interplanetary = 503;
+        var maxInterplanetary = 6;
+        var urlMissileDestroy = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=ajax&component=rocketlayer&component=rocketlayer&action=destroy&ajax=1&asJson=1";
+        var missilie = new Missile(window)
+    </script></div>
