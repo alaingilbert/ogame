@@ -63,11 +63,11 @@ type OGame struct {
 	Username              string
 	password              string
 	otpSecret             string
+	bearerToken           string
 	language              string
 	playerID              int64
 	lobby                 string
 	ogameSession          string
-	token                 string
 	sessionChatCounter    int64
 	server                Server
 	serverData            ServerData
@@ -376,7 +376,7 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang, proxyAddr,
 
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
-	b, err := NewNoLogin(username, password, "", universe, lang, "", 0, nil)
+	b, err := NewNoLogin(username, password, "", "", universe, lang, "", 0, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +388,7 @@ func New(universe, username, password, lang string) (*OGame, error) {
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID, params.Client)
+	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.BearerToken, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID, params.Client)
 	if err != nil {
 		return nil, err
 	}
@@ -414,7 +414,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
+func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
 	b := new(OGame)
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
@@ -422,7 +422,7 @@ func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename s
 	b.logger = log.New(os.Stdout, "", 0)
 
 	b.Universe = universe
-	b.SetOGameCredentials(username, password, otpSecret)
+	b.SetOGameCredentials(username, password, otpSecret, bearerToken)
 	b.setOGameLobby(Lobby)
 	b.language = lang
 	b.playerID = playerID
@@ -846,12 +846,16 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 
 // Return either or not the bot logged in using the existing cookies.
 func (b *OGame) loginWithExistingCookies() (bool, error) {
-	cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
 	token := ""
-	for _, c := range cookies {
-		if c.Name == gfTokenCookieName {
-			token = c.Value
-			break
+	if b.bearerToken != "" {
+		token = b.bearerToken
+	} else {
+		cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
+		for _, c := range cookies {
+			if c.Name == gfTokenCookieName {
+				token = c.Value
+				break
+			}
 		}
 	}
 	return b.loginWithBearerToken(token)
@@ -979,6 +983,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
 		// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
 		// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
+		//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
 		gfChallengeID := resp.Header.Get("gf-challenge-id") // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
@@ -1287,10 +1292,11 @@ func (b *OGame) GetExtractor() Extractor {
 }
 
 // SetOGameCredentials sets ogame credentials for the bot
-func (b *OGame) SetOGameCredentials(username, password, otpSecret string) {
+func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
 	b.Username = username
 	b.password = password
 	b.otpSecret = otpSecret
+	b.bearerToken = bearerToken
 }
 
 func (b *OGame) setOGameLobby(lobby string) {

@@ -163,7 +163,7 @@ type Wrapper interface {
 	ServerURL() string
 	ServerVersion() string
 	SetLoginWrapper(func(func() (bool, error)) error)
-	SetOGameCredentials(username, password, otpSecret string)
+	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
 	WithPriority(priority int) Prioritizable
