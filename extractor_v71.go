@@ -57,6 +57,17 @@ func (e ExtractorV71) ExtractEspionageReportFromDoc(doc *goquery.Document, locat
 	return extractEspionageReportFromDocV71(doc, location)
 }
 
+// ExtractDestroyRockets ...
+func (e ExtractorV71) ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractDestroyRocketsFromDoc(doc)
+}
+
+// ExtractDestroyRocketsFromDoc ...
+func (e ExtractorV71) ExtractDestroyRocketsFromDoc(doc *goquery.Document) (abm, ipm int64, token string, err error) {
+	return extractDestroyRocketsFromDocV71(doc)
+}
+
 // ExtractIPM ...
 func (e ExtractorV71) ExtractIPM(pageHTML []byte) (duration int64, max int64, token string) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))

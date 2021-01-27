@@ -1236,19 +1236,6 @@ func JumpGateHandler(c echo.Context) error {
 	}))
 }
 
-// AddAccountHandler ...
-func AddAccountHandler(c echo.Context) error {
-	bot := c.Get("bot").(*OGame)
-	//value, _ := strconv.ParseInt(c.QueryParam("number"), 10, 64)
-	//lang := c.QueryParam("lang")
-	//account, err := bot.AddAccount(int(value), lang)
-	account, err := AddAccount("", bot.Username, bot.password, "", "Libra", "de", "", "", "", "")
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
-	}
-	return c.JSON(http.StatusOK, SuccessResp(account.Server))
-}
-
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
