@@ -1368,7 +1368,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 
 ///////////////////
 	if resp.StatusCode == 409 {
-
+		return out, ErrNotLogged
 		var temp struct {
 			ID                     string `json:"id"`
 			LastUpdated           int   `json:"lastUpdated"`
@@ -1388,7 +1388,6 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 			b.error(err, string(data))
 			return out, err
 		}
-
 
 		b.CaptchaText = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text?"+strconv.Itoa(temp.LastUpdated)
 		b.CaptchaImg = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons?"+strconv.Itoa(temp.LastUpdated)
