@@ -182,6 +182,8 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 			ships, _ = f.b.GetShips(f.origin.GetID())
 		}
 	}
+	ships.SolarSatellite = 0
+	ships.Crawler = 0
 	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
 }
 
@@ -195,6 +197,9 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	if f.allShips {
 		f.ships, _ = tx.GetShips(f.origin.GetID())
 	}
+	// Don't send SolarSatellite or Crawlers!
+	f.ships.SolarSatellite = 0
+	f.ships.Crawler = 0
 
 	var fuel int64
 	var planetResources Resources
