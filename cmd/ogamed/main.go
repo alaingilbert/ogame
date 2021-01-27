@@ -9,7 +9,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/0xE232FE/ogame"
+	"github.com/0xE232FE/ogame.mod"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/urfave/cli.v2"
@@ -244,6 +244,7 @@ func start(c *cli.Context) error {
 	e.GET("/flights", HTMLFlights)
 	e.GET("/planet", HTMLPlanet)
 	e.GET("/browser", HTMLBrowser)
+	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)

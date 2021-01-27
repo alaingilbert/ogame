@@ -142,6 +142,9 @@ type OGame struct {
 	slots                               Slots
 	slotsMu                             sync.RWMutex
 	characterClassMu                    sync.RWMutex
+	ChallengeID string
+	CaptchaText string
+	CaptchaImg	string
 }
 
 type Data struct {
@@ -843,6 +846,7 @@ type Server struct {
 
 // ogame cookie name for token id
 const gfTokenCookieName = "gf-token-production"
+const gfChallengeID = "gf-challenge-id"
 
 type account struct {
 	Server struct {
@@ -1340,10 +1344,49 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 
 	resp, err := b.doReqWithLoginProxyTransport(req)
+
+///////////////////
+	if resp.StatusCode == 409 {
+
+		var temp struct {
+			ID                     string `json:"id"`
+			LastUpdated           int   `json:"lastUpdated"`
+			Status     string   `json:"status"`
+		}
+
+		challengeID := resp.Header.Get(gfChallengeID)
+		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
+		b.debug("ChallengeID: " + challengeID)
+
+		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
+		resp, err = b.doReqWithLoginProxyTransport(req)
+		defer resp.Body.Close()
+
+		data, _, _ := readBody(resp)
+		if err := json.Unmarshal(data, &temp); err != nil {
+			b.error(err, string(data))
+			return out, err
+		}
+
+
+		b.CaptchaText = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text?"+strconv.Itoa(temp.LastUpdated)
+		b.CaptchaImg = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons?"+strconv.Itoa(temp.LastUpdated)
+		b.ChallengeID = challengeID
+		//TEXT: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/text?1611748479816
+		//IMG: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/drag-icons?1611748479816
+	}
+//////////////////
+	if err != nil {
+		return out, err
+	}
+
+
 	if err != nil {
 		return out, err
 	}
 	defer resp.Body.Close()
+
+
 
 	if resp.StatusCode >= 500 {
 		return out, errors.New("OGame server error code : " + resp.Status)
@@ -2347,6 +2390,7 @@ func IsAjaxPage(vals url.Values) bool {
 	asJson := vals.Get("asJson")
 	return page == FetchEventboxAjaxPage ||
 		page == FetchResourcesAjaxPage ||
+		page == FetchTechsAjaxPage ||
 		page == GalaxyContentAjaxPage ||
 		page == EventListAjaxPage ||
 		page == AjaxChatAjaxPage ||
@@ -3073,7 +3117,9 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 // CalcFlightTime ...
 func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, characterClass CharacterClass) (secs, fuel int64) {
-	if !ships.HasMovableShips() {
+	ships.SolarSatellite = 0
+	ships.Crawler = 0
+	if !ships.HasShips() {
 		return
 	}
 	isCollector := characterClass == Collector
@@ -4112,6 +4158,7 @@ func (b *OGame) getResources(celestialID CelestialID) (Resources, error) {
 func (b *OGame) getResourcesDetails(celestialID CelestialID) (ResourcesDetails, error) {
 	return b.fetchResources(celestialID)
 }
+
 
 func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
 	if priority != 0 && (!priority.IsDefense() || priority == AntiBallisticMissilesID || priority == InterplanetaryMissilesID) {
