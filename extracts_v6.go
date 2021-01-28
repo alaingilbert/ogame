@@ -4,18 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
+	lua "github.com/yuin/gopher-lua"
+	"golang.org/x/net/html"
 	"math"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
-	"fmt"
-
-	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/clockwork"
-	lua "github.com/yuin/gopher-lua"
-	"golang.org/x/net/html"
 )
 
 func extractIsInVacationFromDocV6(doc *goquery.Document) bool {
@@ -2344,7 +2342,6 @@ func extractTechInfosV6(pageHTML []byte) (TechInfos, error) {
 	}
 
 	for id, val := range objMap {
-		fmt.Printf("[ID: %d, Nbr: %d]\n",id,val)
 		out.Set(ID(id), val)
 	}
 	return out, nil

@@ -55,6 +55,24 @@ type TechInfos struct {
 	LargeShieldDome        int64
 	AntiBallisticMissiles  int64
 	InterplanetaryMissiles int64
+
+	// Researches
+	EnergyTechnology             int64
+	LaserTechnology              int64
+	IonTechnology                int64
+	HyperspaceTechnology         int64
+	PlasmaTechnology             int64
+	CombustionDrive              int64
+	ImpulseDrive                 int64
+	HyperspaceDrive              int64
+	EspionageTechnology          int64
+	ComputerTechnology           int64
+	Astrophysics                 int64
+	IntergalacticResearchNetwork int64
+	GravitonTechnology           int64
+	WeaponsTechnology            int64
+	ShieldingTechnology          int64
+	ArmourTechnology             int64
 }
 
 // ToPtr returns a pointer to self
@@ -167,6 +185,40 @@ func (s TechInfos) ByID(id ID) int64 {
 	case InterplanetaryMissilesID:
 		return s.InterplanetaryMissiles
 
+// Researches
+	case EnergyTechnologyID:
+		return s.EnergyTechnology
+	case LaserTechnologyID:
+		return s.LaserTechnology
+	case IonTechnologyID:
+		return s.IonTechnology
+	case HyperspaceTechnologyID:
+		return s.HyperspaceTechnology
+	case PlasmaTechnologyID:
+		return s.PlasmaTechnology
+	case CombustionDriveID:
+		return s.CombustionDrive
+	case ImpulseDriveID:
+		return s.ImpulseDrive
+	case HyperspaceDriveID:
+		return s.HyperspaceDrive
+	case EspionageTechnologyID:
+		return s.EspionageTechnology
+	case ComputerTechnologyID:
+		return s.ComputerTechnology
+	case AstrophysicsID:
+		return s.Astrophysics
+	case IntergalacticResearchNetworkID:
+		return s.IntergalacticResearchNetwork
+	case GravitonTechnologyID:
+		return s.GravitonTechnology
+	case WeaponsTechnologyID:
+		return s.WeaponsTechnology
+	case ShieldingTechnologyID:
+		return s.ShieldingTechnology
+	case ArmourTechnologyID:
+		return s.ArmourTechnology
+
 	default:
 		return 0
 	}
@@ -277,6 +329,40 @@ func (s *TechInfos) Set(id ID, val int64) {
 		s.AntiBallisticMissiles = val
 	case InterplanetaryMissilesID:
 		s.InterplanetaryMissiles = val
+
+		// Researches
+	case EnergyTechnologyID:
+		s.EnergyTechnology = val
+	case LaserTechnologyID:
+		s.LaserTechnology = val
+	case IonTechnologyID:
+		s.IonTechnology = val
+	case HyperspaceTechnologyID:
+		s.HyperspaceTechnology = val
+	case PlasmaTechnologyID:
+		s.PlasmaTechnology = val
+	case CombustionDriveID:
+		s.CombustionDrive = val
+	case ImpulseDriveID:
+		s.ImpulseDrive = val
+	case HyperspaceDriveID:
+		s.HyperspaceDrive = val
+	case EspionageTechnologyID:
+		s.EspionageTechnology = val
+	case ComputerTechnologyID:
+		s.ComputerTechnology = val
+	case AstrophysicsID:
+		s.Astrophysics = val
+	case IntergalacticResearchNetworkID:
+		s.IntergalacticResearchNetwork = val
+	case GravitonTechnologyID:
+		s.GravitonTechnology = val
+	case WeaponsTechnologyID:
+		s.WeaponsTechnology = val
+	case ShieldingTechnologyID:
+		s.ShieldingTechnology = val
+	case ArmourTechnologyID:
+		s.ArmourTechnology	 = val
 	}
 }
 
@@ -342,6 +428,23 @@ func (s TechInfos) ToQuantifiables() []Quantifiable {
 	out = append(out, Quantifiable{ID: LargeShieldDomeID, Nbr: s.LargeShieldDome})
 	out = append(out, Quantifiable{ID: AntiBallisticMissilesID, Nbr: s.AntiBallisticMissiles})
 	out = append(out, Quantifiable{ID: InterplanetaryMissilesID, Nbr: s.InterplanetaryMissiles})
+
+	out = append(out, Quantifiable{ID: EnergyTechnologyID, Nbr: s.EnergyTechnology})
+	out = append(out, Quantifiable{ID: LaserTechnologyID, Nbr: s.LaserTechnology})
+	out = append(out, Quantifiable{ID: IonTechnologyID, Nbr: s.IonTechnology})
+	out = append(out, Quantifiable{ID: HyperspaceTechnologyID, Nbr: s.HyperspaceTechnology})
+	out = append(out, Quantifiable{ID: PlasmaTechnologyID, Nbr: s.PlasmaTechnology})
+	out = append(out, Quantifiable{ID: CombustionDriveID, Nbr: s.CombustionDrive})
+	out = append(out, Quantifiable{ID: ImpulseDriveID, Nbr: s.ImpulseDrive})
+	out = append(out, Quantifiable{ID: HyperspaceDriveID, Nbr: s.HyperspaceDrive})
+	out = append(out, Quantifiable{ID: EspionageTechnologyID, Nbr: s.EspionageTechnology})
+	out = append(out, Quantifiable{ID: ComputerTechnologyID, Nbr: s.ComputerTechnology})
+	out = append(out, Quantifiable{ID: AstrophysicsID, Nbr: s.Astrophysics})
+	out = append(out, Quantifiable{ID: IntergalacticResearchNetworkID, Nbr: s.IntergalacticResearchNetwork})
+	out = append(out, Quantifiable{ID: GravitonTechnologyID, Nbr: s.GravitonTechnology})
+	out = append(out, Quantifiable{ID: WeaponsTechnologyID, Nbr: s.WeaponsTechnology})
+	out = append(out, Quantifiable{ID: ShieldingTechnologyID, Nbr: s.ShieldingTechnology})
+	out = append(out, Quantifiable{ID: ArmourTechnologyID, Nbr: s.ArmourTechnology})
 
 	return out
 }
