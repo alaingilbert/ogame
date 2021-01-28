@@ -679,3 +679,10 @@ func (b *Prioritize) GetCachedData() Data {
 	defer b.done()
 	return b.bot.getCachedData()
 }
+
+// GetTechInfos fetches celestials TechInfos ...
+func (b *Prioritize) GetTechInfos(celestialID CelestialID) (TechInfos, error) {
+	b.begin("GetTechInfos")
+	defer b.done()
+	return b.bot.getTechInfos(celestialID)
+}
