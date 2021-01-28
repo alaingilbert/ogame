@@ -106,6 +106,9 @@ type Prioritizable interface {
 	JumpGateDestinations(origin MoonID) ([]MoonID, int64, error)
 	Phalanx(MoonID, Coordinate) ([]Fleet, error)
 	UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
+
+	// TechInfos
+	GetTechInfos(celestialID CelestialID) (TechInfos, error)
 }
 
 // Wrapper all available functions to control ogame bot
@@ -397,4 +400,5 @@ type Extractor interface {
 	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
 	ExtractIsMobile(pageHTML []byte) bool
 	ExtractIsMobileFromDoc(doc *goquery.Document) bool
+	ExtractTechInfos(pageHTML []byte) (TechInfos, error)
 }

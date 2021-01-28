@@ -35,6 +35,7 @@ const (
 	// ajax pages
 	FetchEventboxAjaxPage      = "fetchEventbox"
 	FetchResourcesAjaxPage     = "fetchResources"
+	FetchTechsAjaxPage 		   = "fetchTechs"
 	GalaxyContentAjaxPage      = "galaxyContent"
 	EventListAjaxPage          = "eventList"
 	AjaxChatAjaxPage           = "ajaxChat"
@@ -61,6 +62,9 @@ const (
 func (b *OGame) getPage(page string, celestialID CelestialID, opts ...Option) ([]byte, error) {
 	vals := url.Values{"page": {"ingame"}, "component": {page}}
 	if page == FetchResourcesPage {
+		vals = url.Values{"page": {page}}
+	}
+	if page == FetchTechsAjaxPage {
 		vals = url.Values{"page": {page}}
 	}
 	if celestialID != 0 {

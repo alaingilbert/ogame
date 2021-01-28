@@ -672,3 +672,10 @@ func (b *Prioritize) OfferBuyMarketplace(itemID interface{}, quantity, priceType
 	defer b.done()
 	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)
 }
+
+// GetTechInfos fetches celestials TechInfos ...
+func (b *Prioritize) GetTechInfos(celestialID CelestialID) (TechInfos, error) {
+	b.begin("GetTechInfos")
+	defer b.done()
+	return b.bot.getTechInfos(celestialID)
+}

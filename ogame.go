@@ -5161,3 +5161,22 @@ func (b *OGame) OfferSellMarketplace(itemID interface{}, quantity, priceType, pr
 func (b *OGame) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	return b.WithPriority(Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
 }
+
+func (b *OGame) fetchTechInfos(celestialID CelestialID) (TechInfos, error) {
+	out := TechInfos{}
+	b.getPage(TraderOverviewPage, celestialID)
+	pageJSON, err := b.getPage(FetchTechsAjaxPage, celestialID)
+	if err != nil {
+		return out, err
+	}
+	return b.extractor.ExtractTechInfos(pageJSON)
+}
+
+func (b *OGame) getTechInfos(celestialID CelestialID) (TechInfos, error) {
+	return b.fetchTechInfos(celestialID)
+}
+
+// GetTechInfos gets TechInfos from Celestial
+func (b *OGame) GetTechInfos(celestialID CelestialID) (TechInfos, error) {
+	return b.WithPriority(Normal).GetTechInfos(celestialID)
+}

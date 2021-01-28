@@ -2204,3 +2204,17 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 
 	return auction, nil
 }
+
+// extractTechInfosV6 ...
+func extractTechInfosV6(pageHTML []byte) (TechInfos, error) {
+	out := TechInfos{}
+	objMap := map[int64]int64{}
+	err := json.Unmarshal(pageHTML, &objMap)
+	if err != nil {
+		return out, err
+	}
+	for id, val := range objMap {
+		out.Set(ID(id), val)
+	}
+	return out, nil
+}
