@@ -98,6 +98,9 @@ type OGame struct {
 	hasEngineer           bool
 	hasGeologist          bool
 	hasTechnocrat         bool
+	ChallengeID 		  string
+	CaptchaText 		  string
+	CaptchaImg	          string
 }
 
 // Preferences ...
@@ -495,6 +498,7 @@ type Server struct {
 
 // ogame cookie name for token id
 const gfTokenCookieName = "gf-token-production"
+const gfChallengeID = "gf-challenge-id"
 
 type account struct {
 	Server struct {

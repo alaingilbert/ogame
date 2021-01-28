@@ -230,6 +230,13 @@ func start(c *cli.Context) error {
 	e.Debug = false
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/tasks", ogame.TasksHandler)
+
+	// CAPTCHA Handler
+	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
+	e.GET("/bot/captcha/img", ogame.GetCaptchaImgHandler)
+	e.GET("/bot/captcha/text", ogame.GetCaptchaTextHandler)
+	e.POST("/bot/captcha/solve", ogame.GetCaptchaSolverHandler)
+
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
