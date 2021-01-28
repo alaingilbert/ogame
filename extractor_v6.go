@@ -832,3 +832,8 @@ func (e ExtractorV6) ExtractIsMobile(pageHTML []byte) bool {
 func (e ExtractorV6) ExtractIsMobileFromDoc(doc *goquery.Document) bool {
 	panic("not implemented")
 }
+
+// ExtractTechInfos ...
+func (e ExtractorV6) ExtractTechInfos(pageHTML []byte) (TechInfos, error) {
+	return extractTechInfosV6(pageHTML)
+}

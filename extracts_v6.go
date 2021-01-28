@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -2331,4 +2332,20 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	// bid = max(auction.DeficitBid, auction.MinimumBid - auction.AlreadyBid)
 
 	return auction, nil
+}
+
+// extractTechInfosV6 ...
+func extractTechInfosV6(pageHTML []byte) (TechInfos, error) {
+	out := TechInfos{}
+	objMap := map[int64]int64{}
+	err := json.Unmarshal(pageHTML, &objMap)
+	if err != nil {
+		return out, err
+	}
+
+	for id, val := range objMap {
+		fmt.Printf("[ID: %d, Nbr: %d]\n",id,val)
+		out.Set(ID(id), val)
+	}
+	return out, nil
 }

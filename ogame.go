@@ -1368,6 +1368,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 
 ///////////////////
 	if resp.StatusCode == 409 {
+		b.debug("409 Conflict - Captcha detected <a href=\"/bot/captcha\">solve</a>")
 		return out, ErrNotLogged
 		var temp struct {
 			ID                     string `json:"id"`
@@ -6271,4 +6272,34 @@ func (b *OGame) IsGeneral() bool {
 // IsCollector ...
 func (b *OGame) IsCollector() bool {
 	return b.characterClass == Collector
+}
+
+/*
+func (b *OGame) fetchResources(celestialID CelestialID) (ResourcesDetails, error) {
+	pageJSON, err := b.getPage(FetchResourcesPage, celestialID)
+	if err != nil {
+		return ResourcesDetails{}, err
+	}
+	return b.extractor.ExtractResourcesDetails(pageJSON)
+}
+ */
+
+func (b *OGame) fetchTechInfos(celestialID CelestialID) (TechInfos, error) {
+	out := TechInfos{}
+	b.getPage(TraderOverviewPage, celestialID)
+
+	pageJSON, err := b.getPage(FetchTechsAjaxPage, celestialID)
+	if err != nil {
+		return out, err
+	}
+	return b.extractor.ExtractTechInfos(pageJSON)
+}
+
+func (b *OGame) getTechInfos(celestialID CelestialID) (TechInfos, error) {
+	return b.fetchTechInfos(celestialID)
+}
+
+// GetTechInfos gets TechInfos from Celestial
+func (b *OGame) GetTechInfos(celestialID CelestialID) (TechInfos, error) {
+	return b.WithPriority(Normal).GetTechInfos(celestialID)
 }

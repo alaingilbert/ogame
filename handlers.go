@@ -1376,3 +1376,18 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	//data, _, _ := readBody(resp)
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
+
+
+// GetGetTechInfosHandler ...
+func GetGetTechInfosHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+	items, err := bot.GetTechInfos(CelestialID(celestialID))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(items))
+}

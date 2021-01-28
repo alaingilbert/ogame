@@ -735,3 +735,4 @@ func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.L
 	})
 	return msgs, nbPage, nil
 }
+
