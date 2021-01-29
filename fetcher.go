@@ -65,12 +65,8 @@ func (b *OGame) getPage(page string, celestialID CelestialID, opts ...Option) ([
 	if page == FetchResourcesPage || page == FetchTechs {
 		vals = url.Values{"page": {page}}
 	}
-	if page == FetchTechsAjaxPage {
-		vals = url.Values{"page": {page}}
-	}
 	if celestialID != 0 {
 		vals.Add("cp", strconv.FormatInt(int64(celestialID), 10))
-		//vals.Add("ajax", "1")
 	}
 	return b.getPageContent(vals, opts...)
 }
