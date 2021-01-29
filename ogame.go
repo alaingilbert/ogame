@@ -212,7 +212,7 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 }
 
 // Register a new gameforge lobby account
-func Register(lobby, email, password string, client *http.Client) error {
+func Register(lobby, email, password, challengeID string, client *http.Client) error {
 	var payload struct {
 		Credentials struct {
 			Email    string `json:"email"`
@@ -230,6 +230,9 @@ func Register(lobby, email, password string, client *http.Client) error {
 	req, err := http.NewRequest("PUT", "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return err
+	}
+	if challengeID != "" {
+		req.Header.Add("gf-challenge-id", challengeID)
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
