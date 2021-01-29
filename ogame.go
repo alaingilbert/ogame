@@ -6274,16 +6274,6 @@ func (b *OGame) IsCollector() bool {
 	return b.characterClass == Collector
 }
 
-/*
-func (b *OGame) fetchResources(celestialID CelestialID) (ResourcesDetails, error) {
-	pageJSON, err := b.getPage(FetchResourcesPage, celestialID)
-	if err != nil {
-		return ResourcesDetails{}, err
-	}
-	return b.extractor.ExtractResourcesDetails(pageJSON)
-}
- */
-
 func (b *OGame) fetchTechInfos(celestialID CelestialID) (TechInfos, error) {
 	out := TechInfos{}
 	b.getPage(TraderOverviewPage, celestialID)

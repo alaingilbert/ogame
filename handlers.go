@@ -1377,7 +1377,6 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
 
-
 // GetGetTechInfosHandler ...
 func GetGetTechInfosHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
