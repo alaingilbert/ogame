@@ -350,6 +350,7 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 	if err != nil {
 		return newAccount, err
 	}
+	newAccount.BearerToken = postSessionsRes.Token
 	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
@@ -4303,7 +4304,8 @@ type NewAccount struct {
 		Language string
 		Number   int
 	}
-	Error string
+	BearerToken string
+	Error       string
 }
 
 func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
