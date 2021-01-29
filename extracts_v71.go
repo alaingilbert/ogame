@@ -241,15 +241,17 @@ type planetTechsRespV71 struct {
 	Num404 int64 `json:"404"`
 	Num405 int64 `json:"405"`
 	Num406 int64 `json:"406"`
+	Num407 int64 `json:"407"`
+	Num408 int64 `json:"408"`
 	Num502 int64 `json:"502"`
 	Num503 int64 `json:"503"`
 }
 
-func extractTechsV71(pageHTML []byte) (supplies ResourcesBuildings, facilities Facilities, shipsInfos ShipsInfos, researches Researches, err error) {
+func extractTechsV71(pageHTML []byte) (supplies ResourcesBuildings, facilities Facilities, shipsInfos ShipsInfos, researches Researches, defenses DefensesInfos, err error) {
 	var res planetTechsRespV71
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if isLogged(pageHTML) {
-			return supplies, facilities, shipsInfos, researches, ErrInvalidPlanetID
+			return supplies, facilities, shipsInfos, researches, defenses, ErrInvalidPlanetID
 		}
 		return
 	}
@@ -313,6 +315,18 @@ func extractTechsV71(pageHTML []byte) (supplies ResourcesBuildings, facilities F
 		WeaponsTechnology:            res.Num109,
 		ShieldingTechnology:          res.Num110,
 		ArmourTechnology:             res.Num111,
+	}
+	defenses = DefensesInfos{
+		RocketLauncher:               res.Num401,
+		LightLaser:                   res.Num402,
+		HeavyLaser:                   res.Num403,
+		GaussCannon:                  res.Num404,
+		IonCannon:                    res.Num405,
+		PlasmaTurret:                 res.Num406,
+		SmallShieldDome:              res.Num407,
+		LargeShieldDome:              res.Num408,
+		AntiBallisticMissiles:        res.Num502,
+		InterplanetaryMissiles:       res.Num503,
 	}
 	return
 }

@@ -310,6 +310,8 @@ func start(c *cli.Context) error {
 	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", ogame.PhalanxHandler)
 	e.POST("/bot/moons/:moonID/jump-gate", ogame.JumpGateHandler)
 	e.GET("/bot/techinfos/:celestialID", ogame.GetGetTechInfosHandler)
+	e.GET("/bot/techs/:celestialID", ogame.GetGetTechsHandler)
+
 	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 
 	// Get/Post Page Content

@@ -4076,7 +4076,7 @@ func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
 	return b.extractor.ExtractFacilities(pageHTML)
 }
 
-func (b *OGame) getTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error) {
+func (b *OGame) getTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, DefensesInfos, error) {
 	pageJSON, _ := b.getPage(FetchTechs, celestialID)
 	return b.extractor.ExtractTechs(pageJSON)
 }
@@ -5807,7 +5807,7 @@ func (b *OGame) GetResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *OGame) GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error) {
+func (b *OGame) GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, DefensesInfos, error) {
 	return b.WithPriority(Normal).GetTechs(celestialID)
 }
 

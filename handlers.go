@@ -1390,3 +1390,30 @@ func GetGetTechInfosHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(items))
 }
+
+// GetGetTechInfosHandler ...
+func GetGetTechsHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+	resourcesBuildings, facilities, shipsInfos, researches, defenses, err := bot.GetTechs(CelestialID(celestialID))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	items := struct {
+		ResourcesBuildings ResourcesBuildings
+		Facilities Facilities
+		ShipsInfos ShipsInfos
+		Researches		Researches
+		DefensesInfos DefensesInfos
+	} {
+		ResourcesBuildings: resourcesBuildings,
+		Facilities: facilities,
+		ShipsInfos: shipsInfos,
+		Researches: researches,
+		DefensesInfos: defenses,
+	}
+	return c.JSON(http.StatusOK, SuccessResp(items))
+}
