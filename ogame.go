@@ -63,11 +63,11 @@ type OGame struct {
 	Username              string
 	password              string
 	otpSecret             string
+	bearerToken           string
 	language              string
 	playerID              int64
 	lobby                 string
 	ogameSession          string
-	token                 string
 	sessionChatCounter    int64
 	server                Server
 	serverData            ServerData
@@ -451,7 +451,7 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang, proxyAddr,
 
 // New creates a new instance of OGame wrapper.
 func New(universe, username, password, lang string) (*OGame, error) {
-	b, err := NewNoLogin(username, password, "", universe, lang, "", 0, nil)
+	b, err := NewNoLogin(username, password, "", "", universe, lang, "", 0, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -463,7 +463,7 @@ func New(universe, username, password, lang string) (*OGame, error) {
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID, params.Client)
+	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.BearerToken, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID, params.Client)
 	if err != nil {
 		return nil, err
 	}
@@ -489,7 +489,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
+func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
 	b := new(OGame)
 	b.planetActivityMu.Lock()
 	b.planetActivity = map[CelestialID]time.Time{}
@@ -786,7 +786,7 @@ func NewNoLogin(username, password, otpSecret, universe, lang, cookiesFilename s
 	b.logger = log.New(os.Stdout, "", 0)
 
 	b.Universe = universe
-	b.SetOGameCredentials(username, password, otpSecret)
+	b.SetOGameCredentials(username, password, otpSecret, bearerToken)
 	b.setOGameLobby(Lobby)
 	b.language = lang
 	b.playerID = playerID
@@ -1001,7 +1001,7 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Add("Authorization", b.token)
+	req.Header.Add("Authorization", b.bearerToken)
 	b.debug("login to universe")
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
@@ -1241,12 +1241,16 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 
 // Return either or not the bot logged in using the existing cookies.
 func (b *OGame) loginWithExistingCookies() (bool, error) {
-	cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
 	token := ""
-	for _, c := range cookies {
-		if c.Name == gfTokenCookieName {
-			token = c.Value
-			break
+	if b.bearerToken != "" {
+		token = b.bearerToken
+	} else {
+		cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
+		for _, c := range cookies {
+			if c.Name == gfTokenCookieName {
+				token = c.Value
+				break
+			}
 		}
 	}
 	return b.loginWithBearerToken(token)
@@ -1366,48 +1370,24 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 
 	resp, err := b.doReqWithLoginProxyTransport(req)
 
-///////////////////
-	if resp.StatusCode == 409 {
-		b.debug("409 Conflict - Captcha detected <a href=\"/bot/captcha\">solve</a>")
-		return out, ErrNotLogged
-		var temp struct {
-			ID                     string `json:"id"`
-			LastUpdated           int   `json:"lastUpdated"`
-			Status     string   `json:"status"`
-		}
-
-		challengeID := resp.Header.Get(gfChallengeID)
-		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
-		b.debug("ChallengeID: " + challengeID)
-
-		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
-		resp, err = b.doReqWithLoginProxyTransport(req)
-		defer resp.Body.Close()
-
-		data, _, _ := readBody(resp)
-		if err := json.Unmarshal(data, &temp); err != nil {
-			b.error(err, string(data))
-			return out, err
-		}
-
-		b.CaptchaText = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text?"+strconv.Itoa(temp.LastUpdated)
-		b.CaptchaImg = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons?"+strconv.Itoa(temp.LastUpdated)
-		b.ChallengeID = challengeID
-		//TEXT: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/text?1611748479816
-		//IMG: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/drag-icons?1611748479816
-	}
-//////////////////
 	if err != nil {
 		return out, err
 	}
 
-
-	if err != nil {
-		return out, err
-	}
 	defer resp.Body.Close()
 
-
+	if resp.StatusCode == 409 {
+		// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
+		// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
+		// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
+		//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
+		gfChallengeID := resp.Header.Get("gf-challenge-id") // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		if gfChallengeID != "" {
+			parts := strings.Split(gfChallengeID, ";")
+			challengeID := parts[0]
+			return out, errors.New("captcha required, " + challengeID)
+		}
+	}
 
 	if resp.StatusCode >= 500 {
 		return out, errors.New("OGame server error code : " + resp.Status)
@@ -2126,10 +2106,11 @@ func (b *OGame) GetExtractor() Extractor {
 }
 
 // SetOGameCredentials sets ogame credentials for the bot
-func (b *OGame) SetOGameCredentials(username, password, otpSecret string) {
+func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
 	b.Username = username
 	b.password = password
 	b.otpSecret = otpSecret
+	b.bearerToken = bearerToken
 }
 
 func (b *OGame) setOGameLobby(lobby string) {
@@ -2853,7 +2834,7 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 
 		if err == ErrNotLogged {
-			if loginErr := b.wrapLogin(); loginErr != nil {
+			if _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
 				if loginErr == ErrAccountNotFound ||
 					loginErr == ErrAccountBlocked ||
@@ -4093,6 +4074,11 @@ func (b *OGame) getShips(celestialID CelestialID) (ShipsInfos, error) {
 func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
 	pageHTML, _ := b.getPage(FacilitiesPage, celestialID)
 	return b.extractor.ExtractFacilities(pageHTML)
+}
+
+func (b *OGame) getTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error) {
+	pageJSON, _ := b.getPage(FetchTechs, celestialID)
+	return b.extractor.ExtractTechs(pageJSON)
 }
 
 func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
@@ -5818,6 +5804,11 @@ func (b *OGame) GetResources(celestialID CelestialID) (Resources, error) {
 // GetResourcesDetails gets user resources
 func (b *OGame) GetResourcesDetails(celestialID CelestialID) (ResourcesDetails, error) {
 	return b.WithPriority(Normal).GetResourcesDetails(celestialID)
+}
+
+// GetTechs gets a celestial supplies/facilities/ships/researches
+func (b *OGame) GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error) {
+	return b.WithPriority(Normal).GetTechs(celestialID)
 }
 
 // SendFleet sends a fleet
