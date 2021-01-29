@@ -201,14 +201,14 @@ const (
 )
 
 // GetClientWithProxy ...
-func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) error {
+func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) (*http.Client, error) {
 	var err error
 	client := &http.Client{}
 	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return client, nil
 }
 
 // Register a new gameforge lobby account
