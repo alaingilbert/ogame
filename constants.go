@@ -37,6 +37,11 @@ func (m MissionID) String() string {
 // Speed represent a fleet speed
 type Speed float64
 
+// Float64 returns a float64 value of the speed
+func (s Speed) Float64() float64 {
+	return float64(s)
+}
+
 // Int64 returns an integer value of the speed
 func (s Speed) Int64() int64 {
 	return int64(s)
@@ -50,28 +55,48 @@ func (s Speed) Int() int64 {
 
 func (s Speed) String() string {
 	switch s {
+	case FivePercent:
+		return "5%"
 	case TenPercent:
 		return "10%"
+	case FifteenPercent:
+		return "15%"
 	case TwentyPercent:
 		return "20%"
+	case TwentyFivePercent:
+		return "25%"
 	case ThirtyPercent:
 		return "30%"
+	case ThirtyFivePercent:
+		return "35%"
 	case FourtyPercent:
 		return "40%"
+	case FourtyFivePercent:
+		return "45%"
 	case FiftyPercent:
 		return "50%"
+	case FiftyFivePercent:
+		return "55%"
 	case SixtyPercent:
 		return "60%"
+	case SixtyFivePercent:
+		return "65%"
 	case SeventyPercent:
 		return "70%"
+	case SeventyFivePercent:
+		return "75%"
 	case EightyPercent:
 		return "80%"
+	case EightyFivePercent:
+		return "85%"
 	case NinetyPercent:
 		return "90%"
+	case NinetyFivePercent:
+		return "95%"
 	case HundredPercent:
 		return "100%"
 	default:
-		return strconv.FormatInt(int64(s), 10)
+		return strconv.FormatFloat(float64(s), 'f', 1, 64)
 	}
 }
 

@@ -1258,7 +1258,7 @@ func extractServerTimeFromDocV6(doc *goquery.Document) (time.Time, error) {
 
 	u1 := time.Now().UTC().Unix()
 	u2 := serverTime.Unix()
-	n := int(math.Round(float64(u2-u1)/15)) * 15
+	n := int(math.Round(float64(u2-u1)/900)) * 900 // u2-u1 should be close to 0, round to nearest 15min difference
 
 	serverTime = serverTime.Add(time.Duration(-n) * time.Second).In(time.FixedZone("OGT", n))
 
@@ -1817,7 +1817,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
 	if eventFleet.Size() == 0 {
-		txt := doc.Find("div#phalanxEventContent").Text()
+		txt := strings.TrimSpace(doc.Find("div#phalanxEventContent").Text())
 		// TODO: 'fleet' and 'deuterium' won't work in other languages
 		if strings.Contains(txt, "fleet") {
 			return res, nil

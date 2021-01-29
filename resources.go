@@ -103,7 +103,7 @@ func (r Resources) Mul(scalar int64) Resources {
 }
 
 func min64(values ...int64) int64 {
-	var m int64 = int64(math.MaxInt)
+	m := int64(math.MaxInt)
 	for _, v := range values {
 		if v < m {
 			m = v
@@ -124,7 +124,7 @@ func max64(values ...int64) int64 {
 
 // Div finds how many price a res can afford
 func (r Resources) Div(price Resources) int64 {
-	var nb int64 = int64(math.MaxInt)
+	nb := int64(math.MaxInt)
 	if price.Metal > 0 {
 		nb = r.Metal / price.Metal
 	}
@@ -134,7 +134,7 @@ func (r Resources) Div(price Resources) int64 {
 	if price.Deuterium > 0 {
 		nb = min64(r.Deuterium/price.Deuterium, nb)
 	}
-	return int64(nb)
+	return nb
 }
 
 // CanAfford alias to Gte
@@ -157,8 +157,8 @@ func (r Resources) Lte(val Resources) bool {
 }
 
 // FitsIn get the number of ships required to transport the resource
-func (r Resources) FitsIn(ship Ship, techs Researches, probeRaids, isCollector bool) int64 {
-	cargo := ship.GetCargoCapacity(techs, probeRaids, isCollector)
+func (r Resources) FitsIn(ship Ship, techs Researches, probeRaids, isCollector, isPioneers bool) int64 {
+	cargo := ship.GetCargoCapacity(techs, probeRaids, isCollector, isPioneers)
 	if cargo == 0 {
 		return 0
 	}
