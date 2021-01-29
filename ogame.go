@@ -233,6 +233,14 @@ func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, p
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == 409 {
+		gfChallengeID := resp.Header.Get("gf-challenge-id") // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		if gfChallengeID != "" {
+			parts := strings.Split(gfChallengeID, ";")
+			challengeID := parts[0]
+			return errors.New("captcha required, " + challengeID)
+		}
+	}
 	by, _, err := readBody(resp)
 	if err != nil {
 		return err
