@@ -2018,7 +2018,7 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 
 		if err == ErrNotLogged {
-			if loginErr := b.wrapLogin(); loginErr != nil {
+			if _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
 				if loginErr == ErrAccountNotFound ||
 					loginErr == ErrAccountBlocked ||
