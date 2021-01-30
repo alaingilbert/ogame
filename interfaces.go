@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"crypto/tls"
 	"net/http"
 	"net/url"
 	"time"
@@ -57,6 +58,7 @@ type Prioritizable interface {
 	Highscore(category, typ, page int64) (Highscore, error)
 	IsUnderAttack() (bool, error)
 	Login() error
+	LoginWithBearerToken(token string) (bool, error)
 	LoginWithExistingCookies() (bool, error)
 	Logout()
 	OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
@@ -95,6 +97,7 @@ type Prioritizable interface {
 	GetResourceSettings(PlanetID) (ResourceSettings, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
 	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
+	DestroyRockets(PlanetID, int64, int64) error
 	SendIPM(PlanetID, Coordinate, int64, ID) (int64, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
 
@@ -111,6 +114,7 @@ type Wrapper interface {
 	AddAccount(number int, lang string) (NewAccount, error)
 	BytesDownloaded() int64
 	BytesUploaded() int64
+	IsPioneers() bool
 	CharacterClass() CharacterClass
 	Disable()
 	Distance(origin, destination Coordinate) int64
@@ -123,6 +127,7 @@ type Wrapper interface {
 	GetCachedPlayer() UserInfos
 	GetCachedPreferences() Preferences
 	GetClient() *OGameClient
+	SetClient(*OGameClient)
 	GetExtractor() Extractor
 	GetLanguage() string
 	GetNbSystems() int64
@@ -149,7 +154,7 @@ type Wrapper interface {
 	OnStateChange(clb func(locked bool, actor string))
 	Quiet(bool)
 	ReconnectChat() bool
-	RegisterAuctioneerCallback(func([]byte))
+	RegisterAuctioneerCallback(func(interface{}))
 	RegisterChatCallback(func(ChatMsg))
 	RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
 	RegisterWSCallback(string, func([]byte))
@@ -158,7 +163,7 @@ type Wrapper interface {
 	ServerVersion() string
 	SetLoginWrapper(func(func() (bool, error)) error)
 	SetOGameCredentials(username, password, otpSecret string)
-	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error
+	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
 	WithPriority(priority int) Prioritizable
 }
@@ -203,7 +208,7 @@ type DefenderObj interface {
 // Ship interface implemented by all ships units
 type Ship interface {
 	DefenderObj
-	GetCargoCapacity(techs Researches, probeRaids, isCollector bool) int64
+	GetCargoCapacity(techs Researches, probeRaids, isCollector, isPioneers bool) int64
 	GetSpeed(techs Researches, isCollector, isGeneral bool) int64
 	GetFuelConsumption(techs Researches, fleetDeutSaveFactor float64, isGeneral bool) int64
 }
@@ -255,6 +260,7 @@ type Extractor interface {
 	ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error)
 	ExtractServerTime(pageHTML []byte) (time.Time, error)
 	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
+	ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error)
 	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
 	ExtractFleets(pageHTML []byte) (res []Fleet)
 	ExtractSlots(pageHTML []byte) Slots

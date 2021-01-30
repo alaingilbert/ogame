@@ -251,6 +251,14 @@ func (o ID) IsShip() bool {
 		o == PathfinderID
 }
 
+// IsFlyableShip returns either or not the id is a ship that can fly
+func (o ID) IsFlyableShip() bool {
+	if o == SolarSatelliteID || o == CrawlerID {
+		return false
+	}
+	return o.IsShip()
+}
+
 // IsCombatShip ...
 func (o ID) IsCombatShip() bool {
 	return o == LightFighterID ||

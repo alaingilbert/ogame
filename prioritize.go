@@ -74,6 +74,14 @@ func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	return err
 }
 
+// LoginWithBearerToken to ogame server reusing existing token
+// Returns either or not the bot logged in using the existing cookies
+func (b *Prioritize) LoginWithBearerToken(token string) (bool, error) {
+	b.begin("LoginWithBearerToken")
+	defer b.done()
+	return b.bot.wrapLoginWithBearerToken(token)
+}
+
 // LoginWithExistingCookies to ogame server reusing existing cookies
 // Returns either or not the bot logged in using the existing cookies
 func (b *Prioritize) LoginWithExistingCookies() (bool, error) {
@@ -424,6 +432,13 @@ func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, 
 	b.begin("EnsureFleet")
 	defer b.done()
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID, true)
+}
+
+// DestroyRockets destroys anti-ballistic & inter-planetary missiles
+func (b *Prioritize) DestroyRockets(planetID PlanetID, abm, ipm int64) error {
+	b.begin("DestroyRockets")
+	defer b.done()
+	return b.bot.destroyRockets(planetID, abm, ipm)
 }
 
 // SendIPM sends IPM
