@@ -95,7 +95,7 @@ type Prioritizable interface {
 	TearDown(celestialID CelestialID, id ID) error
 
 	// Planet specific functions
-	GetResourceSettings(PlanetID) (ResourceSettings, error)
+	GetResourceSettings(PlanetID, ...Option) (ResourceSettings, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
 	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
 	DestroyRockets(PlanetID, int64, int64) error
@@ -229,15 +229,15 @@ type Celestial interface {
 	GetFields() Fields
 	GetResources() (Resources, error)
 	GetResourcesDetails() (ResourcesDetails, error)
-	GetFacilities() (Facilities, error)
+	GetFacilities(...Option) (Facilities, error)
 	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
 	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
-	GetDefense() (DefensesInfos, error)
-	GetShips() (ShipsInfos, error)
+	GetDefense(...Option) (DefensesInfos, error)
+	GetShips(...Option) (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int64) error
 	ConstructionsBeingBuilt() (ID, int64, ID, int64)
 	GetProduction() ([]Quantifiable, int64, error)
-	GetResourcesBuildings() (ResourcesBuildings, error)
+	GetResourcesBuildings(...Option) (ResourcesBuildings, error)
 	Build(id ID, nbr int64) error
 	BuildBuilding(buildingID ID) error
 	BuildTechnology(technologyID ID) error

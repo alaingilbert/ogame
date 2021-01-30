@@ -249,10 +249,10 @@ func (b *Prioritize) GalaxyInfos(galaxy, system int64, options ...Option) (Syste
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
-func (b *Prioritize) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
+func (b *Prioritize) GetResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
 	b.begin("GetResourceSettings")
 	defer b.done()
-	return b.bot.getResourceSettings(planetID)
+	return b.bot.getResourceSettings(planetID, options...)
 }
 
 // SetResourceSettings set the resources settings on a planet

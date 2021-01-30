@@ -3157,8 +3157,8 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 	return res, err
 }
 
-func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
-	pageHTML, _ := b.getPage(ResourceSettingsPage, planetID.Celestial())
+func (b *OGame) getResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
+	pageHTML, _ := b.getPage(ResourceSettingsPage, planetID.Celestial(), options...)
 	return b.extractor.ExtractResourceSettings(pageHTML)
 }
 
@@ -4859,7 +4859,7 @@ func (b *OGame) GalaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
-func (b *OGame) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
+func (b *OGame) GetResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
 	return b.WithPriority(Normal).GetResourceSettings(planetID)
 }
 

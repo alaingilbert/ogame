@@ -87,23 +87,23 @@ func (p *Planet) GetResourceSettings() (ResourceSettings, error) {
 }
 
 // GetResourcesBuildings gets the resources buildings levels
-func (p Planet) GetResourcesBuildings() (ResourcesBuildings, error) {
-	return p.ogame.GetResourcesBuildings(p.ID.Celestial())
+func (p Planet) GetResourcesBuildings(options ...Option) (ResourcesBuildings, error) {
+	return p.ogame.GetResourcesBuildings(p.ID.Celestial(), options...)
 }
 
 // GetDefense gets all the defenses units information
-func (p Planet) GetDefense() (DefensesInfos, error) {
-	return p.ogame.GetDefense(p.ID.Celestial())
+func (p Planet) GetDefense(options ...Option) (DefensesInfos, error) {
+	return p.ogame.GetDefense(p.ID.Celestial(), options...)
 }
 
 // GetShips gets all ships units information
-func (p Planet) GetShips() (ShipsInfos, error) {
-	return p.ogame.GetShips(p.ID.Celestial())
+func (p Planet) GetShips(options ...Option) (ShipsInfos, error) {
+	return p.ogame.GetShips(p.ID.Celestial(), options...)
 }
 
 // GetFacilities  gets all facilities information
-func (p Planet) GetFacilities() (Facilities, error) {
-	return p.ogame.GetFacilities(p.ID.Celestial())
+func (p Planet) GetFacilities(options ...Option) (Facilities, error) {
+	return p.ogame.GetFacilities(p.ID.Celestial(), options...)
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
