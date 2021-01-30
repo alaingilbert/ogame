@@ -1071,6 +1071,15 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == 409 {
+		gfChallengeID := resp.Header.Get("gf-challenge-id")
+		if gfChallengeID != "" {
+			parts := strings.Split(gfChallengeID, ";")
+			challengeID := parts[0]
+			return out, errors.New("captcha required, " + challengeID)
+		}
+	}
+
 	if resp.StatusCode >= 500 {
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
