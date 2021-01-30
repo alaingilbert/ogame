@@ -3231,23 +3231,23 @@ func (b *OGame) getResearch() Researches {
 	return researches
 }
 
-func (b *OGame) getResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	pageHTML, _ := b.getPage(SuppliesPage, celestialID)
+func (b *OGame) getResourcesBuildings(celestialID CelestialID, options ...Option) (ResourcesBuildings, error) {
+	pageHTML, _ := b.getPage(SuppliesPage, celestialID, options...)
 	return b.extractor.ExtractResourcesBuildings(pageHTML)
 }
 
-func (b *OGame) getDefense(celestialID CelestialID) (DefensesInfos, error) {
-	pageHTML, _ := b.getPage(DefensesPage, celestialID)
+func (b *OGame) getDefense(celestialID CelestialID, options ...Option) (DefensesInfos, error) {
+	pageHTML, _ := b.getPage(DefensesPage, celestialID, options...)
 	return b.extractor.ExtractDefense(pageHTML)
 }
 
-func (b *OGame) getShips(celestialID CelestialID) (ShipsInfos, error) {
-	pageHTML, _ := b.getPage(ShipyardPage, celestialID)
+func (b *OGame) getShips(celestialID CelestialID, options ...Option) (ShipsInfos, error) {
+	pageHTML, _ := b.getPage(ShipyardPage, celestialID, options...)
 	return b.extractor.ExtractShips(pageHTML)
 }
 
-func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
-	pageHTML, _ := b.getPage(FacilitiesPage, celestialID)
+func (b *OGame) getFacilities(celestialID CelestialID, options ...Option) (Facilities, error) {
+	pageHTML, _ := b.getPage(FacilitiesPage, celestialID, options...)
 	return b.extractor.ExtractFacilities(pageHTML)
 }
 
@@ -4869,24 +4869,24 @@ func (b *OGame) SetResourceSettings(planetID PlanetID, settings ResourceSettings
 }
 
 // GetResourcesBuildings gets the resources buildings levels
-func (b *OGame) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	return b.WithPriority(Normal).GetResourcesBuildings(celestialID)
+func (b *OGame) GetResourcesBuildings(celestialID CelestialID, options ...Option) (ResourcesBuildings, error) {
+	return b.WithPriority(Normal).GetResourcesBuildings(celestialID, options...)
 }
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
-func (b *OGame) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
-	return b.WithPriority(Normal).GetDefense(celestialID)
+func (b *OGame) GetDefense(celestialID CelestialID, options ...Option) (DefensesInfos, error) {
+	return b.WithPriority(Normal).GetDefense(celestialID, options...)
 }
 
 // GetShips gets all ships units information of a planet
-func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
-	return b.WithPriority(Normal).GetShips(celestialID)
+func (b *OGame) GetShips(celestialID CelestialID, options ...Option) (ShipsInfos, error) {
+	return b.WithPriority(Normal).GetShips(celestialID, options...)
 }
 
 // GetFacilities gets all facilities information of a planet
-func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
-	return b.WithPriority(Normal).GetFacilities(celestialID)
+func (b *OGame) GetFacilities(celestialID CelestialID, options ...Option) (Facilities, error) {
+	return b.WithPriority(Normal).GetFacilities(celestialID, options...)
 }
 
 // GetProduction get what is in the production queue.

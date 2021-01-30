@@ -83,14 +83,14 @@ type Prioritizable interface {
 	CancelResearch(CelestialID) error
 	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
 	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
-	GetDefense(CelestialID) (DefensesInfos, error)
-	GetFacilities(CelestialID) (Facilities, error)
+	GetDefense(CelestialID, ...Option) (DefensesInfos, error)
+	GetFacilities(CelestialID, ...Option) (Facilities, error)
 	GetProduction(CelestialID) ([]Quantifiable, int64, error)
 	GetResources(CelestialID) (Resources, error)
-	GetResourcesBuildings(CelestialID) (ResourcesBuildings, error)
+	GetResourcesBuildings(CelestialID, ...Option) (ResourcesBuildings, error)
 	GetResourcesDetails(CelestialID) (ResourcesDetails, error)
 	GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error)
-	GetShips(CelestialID) (ShipsInfos, error)
+	GetShips(CelestialID, ...Option) (ShipsInfos, error)
 	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
 	TearDown(celestialID CelestialID, id ID) error
 
