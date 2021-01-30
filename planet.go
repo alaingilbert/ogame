@@ -82,8 +82,8 @@ func (p Planet) GetProduction() ([]Quantifiable, int64, error) {
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
-func (p *Planet) GetResourceSettings() (ResourceSettings, error) {
-	return p.ogame.GetResourceSettings(p.ID)
+func (p *Planet) GetResourceSettings(options ...Option) (ResourceSettings, error) {
+	return p.ogame.GetResourceSettings(p.ID, options...)
 }
 
 // GetResourcesBuildings gets the resources buildings levels
