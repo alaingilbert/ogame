@@ -1054,7 +1054,7 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	by, _, err := readBody(resp)
+	by, _, _ := readBody(resp)
 	if resp.StatusCode != 201 {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ErrOTPRequired
@@ -2419,6 +2419,13 @@ func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 	return
 }
 
+// CalcFlightTime calculates the flight time and the fuel consumption
+func (b *OGame) CalcFlightTime(origin, destination Coordinate, speed float64, ships ShipsInfos) (secs, fuel int64) {
+	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
+		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, b.serverData.SpeedFleet, ships,
+		b.GetCachedResearch(), b.characterClass)
+}
+
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
 func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	res := make([]Fleet, 0)
@@ -2888,7 +2895,7 @@ func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources
 	}
 
 	payload := url.Values{}
-	for auctionCelestialIDString, _ := range auction.Resources {
+	for auctionCelestialIDString := range auction.Resources {
 		payload.Set("bid[planets]["+auctionCelestialIDString+"][metal]", "0")
 		payload.Set("bid[planets]["+auctionCelestialIDString+"][crystal]", "0")
 		payload.Set("bid[planets]["+auctionCelestialIDString+"][deuterium]", "0")
@@ -3043,7 +3050,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	}
 
 	payload2 := url.Values{"action": {"takeItem"}, "token": {tmp.NewAjaxToken}, "ajax": {"1"}}
-	pageHTML2, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload2)
+	pageHTML2, _ := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload2)
 	var tmp2 struct {
 		Message      string
 		Error        bool
@@ -3759,7 +3766,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		newResources.Crystal = int64(math.Min(float64(resources.Crystal), float64(cargo)))
 		cargo -= newResources.Crystal
 		newResources.Metal = int64(math.Min(float64(resources.Metal), float64(cargo)))
-		cargo -= newResources.Metal
 	} else {
 		newResources = resources
 	}

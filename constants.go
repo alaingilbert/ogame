@@ -130,6 +130,18 @@ func (d CelestialType) Int() int64 {
 // CharacterClass ...
 type CharacterClass int64
 
+func (c CharacterClass) IsCollector() bool {
+	return c == Collector
+}
+
+func (c CharacterClass) IsGeneral() bool {
+	return c == General
+}
+
+func (c CharacterClass) IsDiscoverer() bool {
+	return c == Discoverer
+}
+
 // OGame constants
 const (
 	NoClass    CharacterClass = 0

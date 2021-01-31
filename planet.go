@@ -1,6 +1,9 @@
 package ogame
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 // Fields planet fields stats
 type Fields struct {
@@ -35,6 +38,11 @@ type Planet struct {
 	Fields      Fields
 	Temperature Temperature
 	Moon        *Moon
+}
+
+// String ..
+func (p Planet) String() string {
+	return fmt.Sprintf("%s %s", p.Name, p.Coordinate)
 }
 
 // GetName ...

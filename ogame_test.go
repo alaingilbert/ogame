@@ -1281,11 +1281,11 @@ func TestExtractAttacksFromFullPage(t *testing.T) {
 	assert.Equal(t, int64(1), attacks[0].Ships.SmallCargo)
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/overview_active.html")
-	attacks, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	_, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
 	assert.EqualError(t, err, ErrEventsBoxNotDisplayed.Error())
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/eventlist_loggedout.html")
-	attacks, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	_, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
 	assert.EqualError(t, err, ErrNotLogged.Error())
 }
 
