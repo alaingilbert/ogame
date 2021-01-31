@@ -1303,11 +1303,11 @@ func GetCaptchaHandler(c echo.Context) error {
 		bot.CaptchaImg = "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/drag-icons?" + strconv.Itoa(temp.LastUpdated)
 		bot.ChallengeID = challengeID
 
-		html := "<img style=\"background-color:black;\" src='/bot/captcha/text'/><br/>" +
-			"<img style=\"background-color:black;\" src='/bot/captcha/img'/><br/>" +
-			"<form action='/bot/captcha/solve' method='POST'>" +
-			"Enter 0,1,2 or 3 and press Enter <input name='answer'/>" +
-			"</form>" + bot.ChallengeID
+		html := `<img style="background-color: black;" src="/bot/captcha/text" /><br />
+<img style="background-color: black;" src="/bot/captcha/img" /><br />
+<form action="/bot/captcha/solve" method="POST">
+	Enter 0,1,2 or 3 and press Enter <input type="number" name="answer" />" +
+</form>` + bot.ChallengeID
 
 		return c.HTML(http.StatusOK, html)
 	}
