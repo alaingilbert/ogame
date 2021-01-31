@@ -93,7 +93,7 @@ func PageContentHandler(c echo.Context) error {
 // LoginHandler ...
 func LoginHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	if err := bot.Login(); err != nil {
+	if _, err := bot.LoginWithExistingCookies(); err != nil {
 		if err == ErrBadCredentials {
 			return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 		}
@@ -1243,7 +1243,6 @@ func JumpGateHandler(c echo.Context) error {
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
 	gameEnvironmentID, platformGameID, err := getConfiguration(bot)
 	if err != nil {
 		return err
@@ -1280,15 +1279,16 @@ func GetCaptchaHandler(c echo.Context) error {
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
 
 	resp, err := bot.doReqWithLoginProxyTransport(req)
-
+/*
 	if resp.StatusCode == 403 {
 		defer resp.Body.Close()
 		data403, _, _ := readBody(resp)
 		return c.HTML(http.StatusOK, string(data403))
 	}
-
+*/
 	if resp.StatusCode == 409 {
 
 		var temp struct {
@@ -1315,13 +1315,8 @@ func GetCaptchaHandler(c echo.Context) error {
 		bot.CaptchaImg = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons?"+strconv.Itoa(temp.LastUpdated)
 		bot.ChallengeID = challengeID
 
+		html := "<form action=\"/bot/captcha/solve\" method=\"post\">\n        <input type=\"hidden\" name=\"challenge_id\" value=\"+bot.ChallengeID+\">\n        <div class=\"form-group mt-3\">\n            <table>\n                <tbody><tr><td colspan=\"5\" style=\"background-color: #6c7d8e;\"><img src=\"/bot/captcha/text\"></td></tr>\n                <tr><td colspan=\"4\" style=\"width: 240px\"><img src=\"/bot/captcha/img\"></td><td></td></tr>\n                <tr>\n                    <td class=\"text-center\" style=\"width: 60px;\"><input name=\"answer\" type=\"radio\" value=\"0\" id=\"ans0\"> <label for=\"ans0\">0</label></td>\n                    <td class=\"text-center\" style=\"width: 60px;\"><input name=\"answer\" type=\"radio\" value=\"1\" id=\"ans1\"> <label for=\"ans1\">1</label></td>\n                    <td class=\"text-center\" style=\"width: 60px;\"><input name=\"answer\" type=\"radio\" value=\"2\" id=\"ans2\"> <label for=\"ans2\">2</label></td>\n                    <td class=\"text-center\" style=\"width: 60px;\"><input name=\"answer\" type=\"radio\" value=\"3\" id=\"ans3\"> <label for=\"ans3\">3</label></td>\n                    <td></td>\n                </tr>\n            </tbody></table>\n        </div>\n        <div class=\"form-group\">\n            <button type=\"submit\" class=\"btn btn-primary\">Submit</button>\n        </div>\n    </form>"
 
-
-		html := "<img style=\"background-color:black;\" src='/bot/captcha/text'/><br/>" +
-			"<img style=\"background-color:black;\" src='/bot/captcha/img'/><br/>" +
-			"<form action='/bot/captcha/solve' method='POST'>" +
-			"Enter 0,1,2 or 3 and press Enter <input name='answer'/>" +
-			"</form>"+bot.ChallengeID
 
 		return c.HTML(http.StatusOK, html)
 	}
@@ -1372,9 +1367,8 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	if !bot.IsLoggedIn() {
 		bot.Login()
 	}
-
-	//data, _, _ := readBody(resp)
-	return c.Redirect(http.StatusTemporaryRedirect, "/")
+	//return c.Redirect(http.StatusTemporaryRedirect, "/bot/login")
+	return c.Redirect(http.StatusOK, "/bot/login")
 }
 
 // GetGetTechInfosHandler ...
