@@ -230,6 +230,13 @@ func start(c *cli.Context) error {
 	e.Debug = false
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/tasks", ogame.TasksHandler)
+
+	// CAPTCHA Handler
+	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
+	e.GET("/bot/captcha/icons/:challengeID", ogame.GetCaptchaImgHandler)
+	e.GET("/bot/captcha/question/:challengeID", ogame.GetCaptchaTextHandler)
+	e.POST("/bot/captcha/solve", ogame.GetCaptchaSolverHandler)
+
 	e.GET("/bot/server", ogame.GetServerHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
@@ -294,6 +301,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", ogame.PhalanxHandler)
 	e.POST("/bot/moons/:moonID/jump-gate", ogame.JumpGateHandler)
+	e.GET("/bot/techs", ogame.TechsHandler)
 	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 
 	// Get/Post Page Content

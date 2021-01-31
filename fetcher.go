@@ -21,6 +21,7 @@ const (
 	LogoutPage           = "logout"
 	JumpgatelayerPage    = "jumpgatelayer"
 	FetchResourcesPage   = "fetchResources"
+	FetchTechs           = "fetchTechs"
 	TraderOverviewPage   = "traderOverview"
 	GalaxyPage           = "galaxy"
 	AlliancePage         = "alliance"
@@ -60,7 +61,7 @@ const (
 
 func (b *OGame) getPage(page string, celestialID CelestialID, opts ...Option) ([]byte, error) {
 	vals := url.Values{"page": {"ingame"}, "component": {page}}
-	if page == FetchResourcesPage {
+	if page == FetchResourcesPage || page == FetchTechs {
 		vals = url.Values{"page": {page}}
 	}
 	if celestialID != 0 {

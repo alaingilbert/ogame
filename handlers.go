@@ -2,11 +2,16 @@ package ogame
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 
 	"github.com/labstack/echo"
 )
@@ -1215,4 +1220,160 @@ func JumpGateHandler(c echo.Context) error {
 		"success":           success,
 		"rechargeCountdown": rechargeCountdown,
 	}))
+}
+
+// TechsHandler ...
+func TechsHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+	supplies, facilities, ships, researches, err := bot.GetTechs(CelestialID(celestialID))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(map[string]interface{}{
+		"supplies":   supplies,
+		"facilities": facilities,
+		"ships":      ships,
+		"researches": researches,
+	}))
+}
+
+// GetCaptchaHandler ...
+func GetCaptchaHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+
+	gameEnvironmentID, platformGameID, err := getConfiguration(bot)
+	if err != nil {
+		return c.HTML(http.StatusOK, err.Error())
+	}
+
+	//var out postSessionsResponse
+	payload := url.Values{
+		"autoGameAccountCreation": {"false"},
+		"gameEnvironmentId":       {gameEnvironmentID},
+		"platformGameId":          {platformGameID},
+		"gfLang":                  {"en"},
+		"locale":                  {"en_GB"},
+		"identity":                {bot.Username},
+		"password":                {bot.password},
+	}
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	if err != nil {
+		return c.HTML(http.StatusOK, err.Error())
+	}
+
+	if bot.otpSecret != "" {
+		passcode, err := totp.GenerateCodeCustom(bot.otpSecret, time.Now(), totp.ValidateOpts{
+			Period:    30,
+			Skew:      1,
+			Digits:    otp.DigitsSix,
+			Algorithm: otp.AlgorithmSHA1,
+		})
+		if err != nil {
+			return c.HTML(http.StatusOK, err.Error())
+		}
+		req.Header.Add("tnt-2fa-code", passcode)
+		req.Header.Add("tnt-installation-id", "")
+	}
+
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+
+	resp, err := bot.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return c.HTML(http.StatusOK, err.Error())
+	}
+	if resp.StatusCode == 403 {
+		defer resp.Body.Close()
+		data403, _, _ := readBody(resp)
+		return c.HTML(http.StatusOK, string(data403))
+	}
+
+	if resp.StatusCode == 409 {
+		var temp struct {
+			ID          string `json:"id"`
+			LastUpdated int    `json:"lastUpdated"`
+			Status      string `json:"status"`
+		}
+
+		challengeID := resp.Header.Get(gfChallengeID)
+		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
+
+		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
+		if err != nil {
+			return c.HTML(http.StatusOK, err.Error())
+		}
+		resp, err = bot.doReqWithLoginProxyTransport(req)
+		if err != nil {
+			return c.HTML(http.StatusOK, err.Error())
+		}
+		defer resp.Body.Close()
+
+		data, _, _ := readBody(resp)
+		if err := json.Unmarshal(data, &temp); err != nil {
+			return c.HTML(http.StatusOK, err.Error())
+		}
+
+		html := `<img style="background-color: black;" src="/bot/captcha/question/` + challengeID + `" /><br />
+<img style="background-color: black;" src="/bot/captcha/icons/` + challengeID + `" /><br />
+<form action="/bot/captcha/solve" method="POST">
+	<input type="hidden" name="challenge_id" value="` + challengeID + `" />
+	Enter 0,1,2 or 3 and press Enter <input type="number" name="answer" />" +
+</form>` + challengeID
+
+		return c.HTML(http.StatusOK, html)
+	}
+	return c.HTML(http.StatusOK, "no captcha found")
+}
+
+// GetCaptchaHandler ...
+func GetCaptchaImgHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	challengeID := c.Param("challengeID")
+	req, _ := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons", nil)
+	resp, _ := bot.doReqWithLoginProxyTransport(req)
+	//IMG: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/drag-icons?1611748479816
+	defer resp.Body.Close()
+	data, _, _ := readBody(resp)
+	if data == nil {
+		return c.HTML(http.StatusNotFound, "File not Found")
+	}
+	return c.Blob(http.StatusOK, "image/png", data)
+}
+
+// GetCaptchaTextHandler ...
+func GetCaptchaTextHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	challengeID := c.Param("challengeID")
+	//TEXT: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/text?1611748479816
+	req, _ := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text", nil)
+	resp, _ := bot.doReqWithLoginProxyTransport(req)
+	defer resp.Body.Close()
+	data, _, _ := readBody(resp)
+	if data == nil {
+		return c.HTML(http.StatusNotFound, "File not Found")
+	}
+	return c.Blob(http.StatusOK, "image/png", data)
+}
+
+// GetCaptchaSolverHandler ...
+func GetCaptchaSolverHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	challengeID := c.Request().PostFormValue("challenge_id")
+	answer := c.Request().PostFormValue("answer")
+	payload := `{"answer":` + answer + `}`
+	req, _ := http.NewRequest("POST", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload))
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	resp, _ := bot.doReqWithLoginProxyTransport(req)
+	defer resp.Body.Close()
+	if !bot.IsLoggedIn() {
+		if err := bot.Login(); err != nil {
+			bot.error(err)
+		}
+	}
+	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }

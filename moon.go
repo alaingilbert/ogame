@@ -63,18 +63,18 @@ func (m Moon) ConstructionsBeingBuilt() (ID, int64, ID, int64) {
 }
 
 // GetResourcesBuildings gets the resources buildings levels
-func (m Moon) GetResourcesBuildings() (ResourcesBuildings, error) {
-	return m.ogame.GetResourcesBuildings(m.ID.Celestial())
+func (m Moon) GetResourcesBuildings(options ...Option) (ResourcesBuildings, error) {
+	return m.ogame.GetResourcesBuildings(m.ID.Celestial(), options...)
 }
 
 // GetDefense gets all the defenses units information
-func (m Moon) GetDefense() (DefensesInfos, error) {
-	return m.ogame.GetDefense(m.ID.Celestial())
+func (m Moon) GetDefense(options ...Option) (DefensesInfos, error) {
+	return m.ogame.GetDefense(m.ID.Celestial(), options...)
 }
 
 // GetShips gets all ships units information
-func (m Moon) GetShips() (ShipsInfos, error) {
-	return m.ogame.GetShips(m.ID.Celestial())
+func (m Moon) GetShips(options ...Option) (ShipsInfos, error) {
+	return m.ogame.GetShips(m.ID.Celestial(), options...)
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
@@ -135,8 +135,8 @@ func (m Moon) GetResourcesDetails() (ResourcesDetails, error) {
 }
 
 // GetFacilities gets the moon facilities
-func (m Moon) GetFacilities() (Facilities, error) {
-	return m.ogame.GetFacilities(m.ID.Celestial())
+func (m Moon) GetFacilities(options ...Option) (Facilities, error) {
+	return m.ogame.GetFacilities(m.ID.Celestial(), options...)
 }
 
 // GetItems get all items information

@@ -249,10 +249,10 @@ func (b *Prioritize) GalaxyInfos(galaxy, system int64, options ...Option) (Syste
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
-func (b *Prioritize) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
+func (b *Prioritize) GetResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
 	b.begin("GetResourceSettings")
 	defer b.done()
-	return b.bot.getResourceSettings(planetID)
+	return b.bot.getResourceSettings(planetID, options...)
 }
 
 // SetResourceSettings set the resources settings on a planet
@@ -263,32 +263,32 @@ func (b *Prioritize) SetResourceSettings(planetID PlanetID, settings ResourceSet
 }
 
 // GetResourcesBuildings gets the resources buildings levels
-func (b *Prioritize) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
+func (b *Prioritize) GetResourcesBuildings(celestialID CelestialID, options ...Option) (ResourcesBuildings, error) {
 	b.begin("GetResourcesBuildings")
 	defer b.done()
-	return b.bot.getResourcesBuildings(celestialID)
+	return b.bot.getResourcesBuildings(celestialID, options...)
 }
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
-func (b *Prioritize) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
+func (b *Prioritize) GetDefense(celestialID CelestialID, options ...Option) (DefensesInfos, error) {
 	b.begin("GetDefense")
 	defer b.done()
-	return b.bot.getDefense(celestialID)
+	return b.bot.getDefense(celestialID, options...)
 }
 
 // GetShips gets all ships units information of a planet
-func (b *Prioritize) GetShips(celestialID CelestialID) (ShipsInfos, error) {
+func (b *Prioritize) GetShips(celestialID CelestialID, options ...Option) (ShipsInfos, error) {
 	b.begin("GetShips")
 	defer b.done()
-	return b.bot.getShips(celestialID)
+	return b.bot.getShips(celestialID, options...)
 }
 
 // GetFacilities gets all facilities information of a planet
-func (b *Prioritize) GetFacilities(celestialID CelestialID) (Facilities, error) {
+func (b *Prioritize) GetFacilities(celestialID CelestialID, options ...Option) (Facilities, error) {
 	b.begin("GetFacilities")
 	defer b.done()
-	return b.bot.getFacilities(celestialID)
+	return b.bot.getFacilities(celestialID, options...)
 }
 
 // GetProduction get what is in the production queue.
@@ -409,6 +409,13 @@ func (b *Prioritize) GetResourcesDetails(celestialID CelestialID) (ResourcesDeta
 	b.begin("GetResourcesDetails")
 	defer b.done()
 	return b.bot.getResourcesDetails(celestialID)
+}
+
+// GetTechs gets a celestial supplies/facilities/ships/researches
+func (b *Prioritize) GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error) {
+	b.begin("GetTechs")
+	defer b.done()
+	return b.bot.getTechs(celestialID)
 }
 
 // SendFleet sends a fleet

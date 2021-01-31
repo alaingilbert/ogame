@@ -83,18 +83,19 @@ type Prioritizable interface {
 	CancelResearch(CelestialID) error
 	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
 	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
-	GetDefense(CelestialID) (DefensesInfos, error)
-	GetFacilities(CelestialID) (Facilities, error)
+	GetDefense(CelestialID, ...Option) (DefensesInfos, error)
+	GetFacilities(CelestialID, ...Option) (Facilities, error)
 	GetProduction(CelestialID) ([]Quantifiable, int64, error)
 	GetResources(CelestialID) (Resources, error)
-	GetResourcesBuildings(CelestialID) (ResourcesBuildings, error)
+	GetResourcesBuildings(CelestialID, ...Option) (ResourcesBuildings, error)
 	GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-	GetShips(CelestialID) (ShipsInfos, error)
+	GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error)
+	GetShips(CelestialID, ...Option) (ShipsInfos, error)
 	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
 	TearDown(celestialID CelestialID, id ID) error
 
 	// Planet specific functions
-	GetResourceSettings(PlanetID) (ResourceSettings, error)
+	GetResourceSettings(PlanetID, ...Option) (ResourceSettings, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
 	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
 	DestroyRockets(PlanetID, int64, int64) error
@@ -162,7 +163,7 @@ type Wrapper interface {
 	ServerURL() string
 	ServerVersion() string
 	SetLoginWrapper(func(func() (bool, error)) error)
-	SetOGameCredentials(username, password, otpSecret string)
+	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
 	WithPriority(priority int) Prioritizable
@@ -228,15 +229,15 @@ type Celestial interface {
 	GetFields() Fields
 	GetResources() (Resources, error)
 	GetResourcesDetails() (ResourcesDetails, error)
-	GetFacilities() (Facilities, error)
+	GetFacilities(...Option) (Facilities, error)
 	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
 	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
-	GetDefense() (DefensesInfos, error)
-	GetShips() (ShipsInfos, error)
+	GetDefense(...Option) (DefensesInfos, error)
+	GetShips(...Option) (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int64) error
 	ConstructionsBeingBuilt() (ID, int64, ID, int64)
 	GetProduction() ([]Quantifiable, int64, error)
-	GetResourcesBuildings() (ResourcesBuildings, error)
+	GetResourcesBuildings(...Option) (ResourcesBuildings, error)
 	Build(id ID, nbr int64) error
 	BuildBuilding(buildingID ID) error
 	BuildTechnology(technologyID ID) error
@@ -367,6 +368,7 @@ type Extractor interface {
 	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
 	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
 	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
+	ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error)
 	ExtractCoord(v string) (coord Coordinate)
 	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error)
 	ExtractPhalanx(pageHTML []byte) ([]Fleet, error)
