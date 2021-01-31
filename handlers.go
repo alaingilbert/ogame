@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/pquerna/otp"
-	"github.com/pquerna/otp/totp"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 
 	"github.com/labstack/echo"
 )
@@ -1227,7 +1228,7 @@ func GetCaptchaHandler(c echo.Context) error {
 
 	gameEnvironmentID, platformGameID, err := getConfiguration(bot)
 	if err != nil {
-		return err
+		return c.HTML(http.StatusOK, err.Error())
 	}
 
 	//var out postSessionsResponse
@@ -1242,7 +1243,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	}
 	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
 	if err != nil {
-		return err
+		return c.HTML(http.StatusOK, err.Error())
 	}
 
 	if bot.otpSecret != "" {
@@ -1253,7 +1254,7 @@ func GetCaptchaHandler(c echo.Context) error {
 			Algorithm: otp.AlgorithmSHA1,
 		})
 		if err != nil {
-			return err
+			return c.HTML(http.StatusOK, err.Error())
 		}
 		req.Header.Add("tnt-2fa-code", passcode)
 		req.Header.Add("tnt-installation-id", "")
@@ -1263,7 +1264,9 @@ func GetCaptchaHandler(c echo.Context) error {
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 
 	resp, err := bot.doReqWithLoginProxyTransport(req)
-
+	if err != nil {
+		return c.HTML(http.StatusOK, err.Error())
+	}
 	if resp.StatusCode == 403 {
 		defer resp.Body.Close()
 		data403, _, _ := readBody(resp)
@@ -1271,11 +1274,10 @@ func GetCaptchaHandler(c echo.Context) error {
 	}
 
 	if resp.StatusCode == 409 {
-
 		var temp struct {
-			ID                     string `json:"id"`
-			LastUpdated           int   `json:"lastUpdated"`
-			Status     string   `json:"status"`
+			ID          string `json:"id"`
+			LastUpdated int    `json:"lastUpdated"`
+			Status      string `json:"status"`
 		}
 
 		challengeID := resp.Header.Get(gfChallengeID)
@@ -1283,26 +1285,29 @@ func GetCaptchaHandler(c echo.Context) error {
 		bot.debug("ChallengeID: " + challengeID)
 
 		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
+		if err != nil {
+			return c.HTML(http.StatusOK, err.Error())
+		}
 		resp, err = bot.doReqWithLoginProxyTransport(req)
+		if err != nil {
+			return c.HTML(http.StatusOK, err.Error())
+		}
 		defer resp.Body.Close()
 
 		data, _, _ := readBody(resp)
 		if err := json.Unmarshal(data, &temp); err != nil {
-			bot.error(err, string(data))
-			return err
+			return c.HTML(http.StatusOK, err.Error())
 		}
 
-		bot.CaptchaText = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text?"+strconv.Itoa(temp.LastUpdated)
-		bot.CaptchaImg = "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons?"+strconv.Itoa(temp.LastUpdated)
+		bot.CaptchaText = "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/text?" + strconv.Itoa(temp.LastUpdated)
+		bot.CaptchaImg = "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/drag-icons?" + strconv.Itoa(temp.LastUpdated)
 		bot.ChallengeID = challengeID
-
-
 
 		html := "<img style=\"background-color:black;\" src='/bot/captcha/text'/><br/>" +
 			"<img style=\"background-color:black;\" src='/bot/captcha/img'/><br/>" +
 			"<form action='/bot/captcha/solve' method='POST'>" +
 			"Enter 0,1,2 or 3 and press Enter <input name='answer'/>" +
-			"</form>"+bot.ChallengeID
+			"</form>" + bot.ChallengeID
 
 		return c.HTML(http.StatusOK, html)
 	}
@@ -1342,9 +1347,9 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	bot.debug("Solve Captcha")
 	answer := c.Request().PostFormValue("answer")
-	payload := "{\"answer\":"+answer+"}"
-	bot.debug("Answer: " + answer + " Payload: " + payload )
-	req, _ := http.NewRequest("POST", "https://image-drop-challenge.gameforge.com/challenge/" + bot.ChallengeID + "/en-GB", strings.NewReader(payload))
+	payload := "{\"answer\":" + answer + "}"
+	bot.debug("Answer: " + answer + " Payload: " + payload)
+	req, _ := http.NewRequest("POST", "https://image-drop-challenge.gameforge.com/challenge/"+bot.ChallengeID+"/en-GB", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, _ := bot.doReqWithLoginProxyTransport(req)
