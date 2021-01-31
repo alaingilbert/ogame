@@ -98,9 +98,6 @@ type OGame struct {
 	hasEngineer           bool
 	hasGeologist          bool
 	hasTechnocrat         bool
-	ChallengeID 		  string
-	CaptchaText 		  string
-	CaptchaImg	          string
 }
 
 // Preferences ...

@@ -1282,7 +1282,6 @@ func GetCaptchaHandler(c echo.Context) error {
 
 		challengeID := resp.Header.Get(gfChallengeID)
 		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
-		bot.debug("ChallengeID: " + challengeID)
 
 		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
 		if err != nil {
@@ -1299,15 +1298,12 @@ func GetCaptchaHandler(c echo.Context) error {
 			return c.HTML(http.StatusOK, err.Error())
 		}
 
-		bot.CaptchaText = "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/text?" + strconv.Itoa(temp.LastUpdated)
-		bot.CaptchaImg = "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/drag-icons?" + strconv.Itoa(temp.LastUpdated)
-		bot.ChallengeID = challengeID
-
-		html := `<img style="background-color: black;" src="/bot/captcha/text" /><br />
-<img style="background-color: black;" src="/bot/captcha/img" /><br />
+		html := `<img style="background-color: black;" src="/bot/captcha/question/` + challengeID + `" /><br />
+<img style="background-color: black;" src="/bot/captcha/icons/` + challengeID + `" /><br />
 <form action="/bot/captcha/solve" method="POST">
+	<input type="hidden" name="challenge_id" value="` + challengeID + `" />
 	Enter 0,1,2 or 3 and press Enter <input type="number" name="answer" />" +
-</form>` + bot.ChallengeID
+</form>` + challengeID
 
 		return c.HTML(http.StatusOK, html)
 	}
@@ -1317,8 +1313,8 @@ func GetCaptchaHandler(c echo.Context) error {
 // GetCaptchaHandler ...
 func GetCaptchaImgHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	bot.debug("Get: " + bot.CaptchaImg)
-	req, _ := http.NewRequest("GET", bot.CaptchaImg, nil)
+	challengeID := c.Param("challengeID")
+	req, _ := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons", nil)
 	resp, _ := bot.doReqWithLoginProxyTransport(req)
 	//IMG: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/drag-icons?1611748479816
 	defer resp.Body.Close()
@@ -1331,10 +1327,10 @@ func GetCaptchaImgHandler(c echo.Context) error {
 
 func GetCaptchaTextHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
+	challengeID := c.Param("challengeID")
 	//TEXT: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/text?1611748479816
-	req, _ := http.NewRequest("GET", bot.CaptchaText, nil)
+	req, _ := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text", nil)
 	resp, _ := bot.doReqWithLoginProxyTransport(req)
-	bot.debug("Get: " + bot.CaptchaText)
 	defer resp.Body.Close()
 	data, _, _ := readBody(resp)
 	if data == nil {
@@ -1345,20 +1341,18 @@ func GetCaptchaTextHandler(c echo.Context) error {
 
 func GetCaptchaSolverHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	bot.debug("Solve Captcha")
+	challengeID := c.Request().PostFormValue("challenge_id")
 	answer := c.Request().PostFormValue("answer")
-	payload := "{\"answer\":" + answer + "}"
-	bot.debug("Answer: " + answer + " Payload: " + payload)
-	req, _ := http.NewRequest("POST", "https://image-drop-challenge.gameforge.com/challenge/"+bot.ChallengeID+"/en-GB", strings.NewReader(payload))
+	payload := `{"answer":` + answer + `}`
+	req, _ := http.NewRequest("POST", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload))
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, _ := bot.doReqWithLoginProxyTransport(req)
-	bot.debug("POST: " + "https://image-drop-challenge.gameforge.com/challenge/" + bot.ChallengeID + "/en-GB")
 	defer resp.Body.Close()
 	if !bot.IsLoggedIn() {
-		bot.Login()
+		if err := bot.Login(); err != nil {
+			bot.error(err)
+		}
 	}
-
-	//data, _, _ := readBody(resp)
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
