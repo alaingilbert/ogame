@@ -174,8 +174,8 @@ func GetUserInfosHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(bot.GetUserInfos()))
 }
 
-// GetUserClassHandler ...
-func GetUserClassHandler(c echo.Context) error {
+// GetCharacterClassHandler ...
+func GetCharacterClassHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	return c.JSON(http.StatusOK, SuccessResp(bot.CharacterClass()))
 }
@@ -423,18 +423,18 @@ func GetPlanetByCoordHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(planet))
 }
 
-// GetResourceProductionHandler ...
-func GetResourceProductionHandler(c echo.Context) error {
+// GetResourcesDetailsHandler ...
+func GetResourcesDetailsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	planetID, err := strconv.ParseInt(c.Param("planetID"), 10, 64)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-	res, err := bot.GetResourcesProductions(PlanetID(planetID))
+	resources, err := bot.GetResourcesDetails(CelestialID(planetID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
-	return c.JSON(http.StatusOK, SuccessResp(res))
+	return c.JSON(http.StatusOK, SuccessResp(resources))
 }
 
 // GetResourceSettingsHandler ...
