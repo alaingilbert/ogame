@@ -1069,7 +1069,7 @@ type defenderInfo struct {
 }
 
 func printResult(result SimulatorResult) {
-	fmt.Println(fmt.Sprintf("| Results (%d simulations | ~%d rounds)", result.Simulations, result.Rounds))
+	fmt.Printf("| Results (%d simulations | ~%d rounds)\n", result.Simulations, result.Rounds)
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetBorders(tablewriter.Border{Left: true, Top: true, Right: true, Bottom: true})
 	data2 := [][]string{

@@ -1862,7 +1862,7 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			planetInfos.Name = planetName
 			planetInfos.Img = planetImg
 			planetInfos.Inactive = strings.Contains(classes, "inactive_filter")
-			planetInfos.StrongPlayer = strings.Contains(classes, "strong_filter")
+			planetInfos.StrongPlayer = s.Find("span.status_abbr_strong").Size() > 0
 			planetInfos.Newbie = strings.Contains(classes, "newbie_filter")
 			planetInfos.Vacation = strings.Contains(classes, "vacation_filter")
 			planetInfos.HonorableTarget = s.Find("span.status_abbr_honorableTarget").Size() > 0
@@ -1873,6 +1873,7 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			planetInfos.Player.IsStarlord = tdPlayername.HasClass("rank_starlord1") || tdPlayername.HasClass("rank_starlord2") || tdPlayername.HasClass("rank_starlord3")
 			planetInfos.Coordinate = extractCoordV6(coordsRaw)
 			planetInfos.Coordinate.Type = PlanetType
+			planetInfos.Date = time.Now()
 
 			var playerID int64
 			var playerName string

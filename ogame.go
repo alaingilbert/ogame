@@ -274,14 +274,19 @@ const (
 	LobbyPioneers = "lobby-pioneers"
 )
 
-// Register a new gameforge lobby account
-func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) error {
+// GetClientWithProxy ...
+func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) (*http.Client, error) {
 	var err error
 	client := &http.Client{}
 	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	return client, nil
+}
+
+// Register a new gameforge lobby account
+func Register(lobby, email, password, challengeID string, client *http.Client) error {
 	var payload struct {
 		Credentials struct {
 			Email    string `json:"email"`
@@ -300,6 +305,9 @@ func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, p
 	if err != nil {
 		return err
 	}
+	if challengeID != "" {
+		req.Header.Add(gfChallengeID, challengeID)
+	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
@@ -307,6 +315,14 @@ func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, p
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == 409 {
+		gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		if gfChallengeID != "" {
+			parts := strings.Split(gfChallengeID, ";")
+			challengeID := parts[0]
+			return errors.New("captcha required, " + challengeID)
+		}
+	}
 	by, _, err := readBody(resp)
 	if err != nil {
 		return err
@@ -325,14 +341,7 @@ func Register(lobby, email, password, proxyAddr, proxyUsername, proxyPassword, p
 }
 
 // RedeemCode ...
-func RedeemCode(lobby, email, password, otpSecret, token, proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) error {
-	var err error
-	client := &http.Client{}
-	client.Jar, _ = cookiejar.New(nil)
-	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
-	if err != nil {
-		return err
-	}
+func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Client) error {
 	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
 	if err != nil {
 		return err
@@ -382,15 +391,9 @@ func RedeemCode(lobby, email, password, otpSecret, token, proxyAddr, proxyUserna
 	return nil
 }
 
-func AddAccount(lobby, username, password, otpSecret, universe, lang, proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) (NewAccount, error) {
+// AddAccount adds an account to an gameforge lobby
+func AddAccount(lobby, username, password, otpSecret, universe, lang string, client *http.Client) (NewAccount, error) {
 	var newAccount NewAccount
-	var err error
-	client := &http.Client{}
-	client.Jar, _ = cookiejar.New(nil)
-	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
-	if err != nil {
-		return newAccount, err
-	}
 	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
 	if err != nil {
 		return newAccount, err
@@ -424,6 +427,7 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang, proxyAddr,
 	if err != nil {
 		return newAccount, err
 	}
+	newAccount.BearerToken = postSessionsRes.Token
 	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
@@ -1220,7 +1224,6 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 func (b *OGame) loginWithExistingCookies() (bool, error) {
 	token := ""
 	if b.bearerToken != "" {
-		b.debug("bearerToken is set already")
 		token = b.bearerToken
 	} else {
 		cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
@@ -1403,11 +1406,10 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
 		// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
 		//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
-		gfChallengeID := resp.Header.Get("gf-challenge-id") // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
-			b.debug("captcha required, " + challengeID)
 			return out, errors.New("captcha required, " + challengeID)
 		}
 	}
@@ -1487,11 +1489,20 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode == 409 {
+		gfChallengeID := resp.Header.Get(gfChallengeID)
+		if gfChallengeID != "" {
+			parts := strings.Split(gfChallengeID, ";")
+			challengeID := parts[0]
+			return out, errors.New("captcha required, " + challengeID)
+		}
+	}
+
 	if resp.StatusCode >= 500 {
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	by, _, err := readBody(resp)
+	by, _, _ := readBody(resp)
 	if resp.StatusCode != 201 {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ErrOTPRequired
@@ -3302,6 +3313,13 @@ func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 	return
 }
 
+// CalcFlightTime calculates the flight time and the fuel consumption
+func (b *OGame) CalcFlightTime(origin, destination Coordinate, speed float64, ships ShipsInfos) (secs, fuel int64) {
+	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
+		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, b.serverData.SpeedFleet, ships,
+		b.GetCachedResearch(), b.characterClass)
+}
+
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
 func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	res := make([]Fleet, 0)
@@ -3773,7 +3791,7 @@ func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources
 	}
 
 	payload := url.Values{}
-	for auctionCelestialIDString, _ := range auction.Resources {
+	for auctionCelestialIDString := range auction.Resources {
 		payload.Set("bid[planets]["+auctionCelestialIDString+"][metal]", "0")
 		payload.Set("bid[planets]["+auctionCelestialIDString+"][crystal]", "0")
 		payload.Set("bid[planets]["+auctionCelestialIDString+"][deuterium]", "0")
@@ -3928,7 +3946,7 @@ func (b *OGame) buyOfferOfTheDay() error {
 	}
 
 	payload2 := url.Values{"action": {"takeItem"}, "token": {tmp.NewAjaxToken}, "ajax": {"1"}}
-	pageHTML2, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload2)
+	pageHTML2, _ := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload2)
 	var tmp2 struct {
 		Message      string
 		Error        bool
@@ -4007,8 +4025,8 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 	return res, err
 }
 
-func (b *OGame) getResourceSettings(planetID PlanetID) (ResourceSettings, error) {
-	pageHTML, _ := b.getPage(ResourceSettingsPage, planetID.Celestial())
+func (b *OGame) getResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
+	pageHTML, _ := b.getPage(ResourceSettingsPage, planetID.Celestial(), options...)
 	return b.extractor.ExtractResourceSettings(pageHTML)
 }
 
@@ -4081,23 +4099,23 @@ func (b *OGame) getResearch() Researches {
 	return researches
 }
 
-func (b *OGame) getResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	pageHTML, _ := b.getPage(SuppliesPage, celestialID)
+func (b *OGame) getResourcesBuildings(celestialID CelestialID, options ...Option) (ResourcesBuildings, error) {
+	pageHTML, _ := b.getPage(SuppliesPage, celestialID, options...)
 	return b.extractor.ExtractResourcesBuildings(pageHTML)
 }
 
-func (b *OGame) getDefense(celestialID CelestialID) (DefensesInfos, error) {
-	pageHTML, _ := b.getPage(DefensesPage, celestialID)
+func (b *OGame) getDefense(celestialID CelestialID, options ...Option) (DefensesInfos, error) {
+	pageHTML, _ := b.getPage(DefensesPage, celestialID, options...)
 	return b.extractor.ExtractDefense(pageHTML)
 }
 
-func (b *OGame) getShips(celestialID CelestialID) (ShipsInfos, error) {
-	pageHTML, _ := b.getPage(ShipyardPage, celestialID)
+func (b *OGame) getShips(celestialID CelestialID, options ...Option) (ShipsInfos, error) {
+	pageHTML, _ := b.getPage(ShipyardPage, celestialID, options...)
 	return b.extractor.ExtractShips(pageHTML)
 }
 
-func (b *OGame) getFacilities(celestialID CelestialID) (Facilities, error) {
-	pageHTML, _ := b.getPage(FacilitiesPage, celestialID)
+func (b *OGame) getFacilities(celestialID CelestialID, options ...Option) (Facilities, error) {
+	pageHTML, _ := b.getPage(FacilitiesPage, celestialID, options...)
 	return b.extractor.ExtractFacilities(pageHTML)
 }
 
@@ -4652,7 +4670,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		newResources.Crystal = int64(math.Min(float64(resources.Crystal), float64(cargo)))
 		cargo -= newResources.Crystal
 		newResources.Metal = int64(math.Min(float64(resources.Metal), float64(cargo)))
-		cargo -= newResources.Metal
 	} else {
 		newResources = resources
 	}
@@ -5169,7 +5186,8 @@ type NewAccount struct {
 		Language string
 		Number   int
 	}
-	Error string
+	BearerToken string
+	Error       string
 }
 
 func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
@@ -5715,7 +5733,7 @@ func (b *OGame) GalaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
-func (b *OGame) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
+func (b *OGame) GetResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
 	return b.WithPriority(Normal).GetResourceSettings(planetID)
 }
 
@@ -5725,24 +5743,24 @@ func (b *OGame) SetResourceSettings(planetID PlanetID, settings ResourceSettings
 }
 
 // GetResourcesBuildings gets the resources buildings levels
-func (b *OGame) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
-	return b.WithPriority(Normal).GetResourcesBuildings(celestialID)
+func (b *OGame) GetResourcesBuildings(celestialID CelestialID, options ...Option) (ResourcesBuildings, error) {
+	return b.WithPriority(Normal).GetResourcesBuildings(celestialID, options...)
 }
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
-func (b *OGame) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
-	return b.WithPriority(Normal).GetDefense(celestialID)
+func (b *OGame) GetDefense(celestialID CelestialID, options ...Option) (DefensesInfos, error) {
+	return b.WithPriority(Normal).GetDefense(celestialID, options...)
 }
 
 // GetShips gets all ships units information of a planet
-func (b *OGame) GetShips(celestialID CelestialID) (ShipsInfos, error) {
-	return b.WithPriority(Normal).GetShips(celestialID)
+func (b *OGame) GetShips(celestialID CelestialID, options ...Option) (ShipsInfos, error) {
+	return b.WithPriority(Normal).GetShips(celestialID, options...)
 }
 
 // GetFacilities gets all facilities information of a planet
-func (b *OGame) GetFacilities(celestialID CelestialID) (Facilities, error) {
-	return b.WithPriority(Normal).GetFacilities(celestialID)
+func (b *OGame) GetFacilities(celestialID CelestialID, options ...Option) (Facilities, error) {
+	return b.WithPriority(Normal).GetFacilities(celestialID, options...)
 }
 
 // GetProduction get what is in the production queue.
