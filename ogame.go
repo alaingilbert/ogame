@@ -232,7 +232,7 @@ func Register(lobby, email, password, challengeID string, client *http.Client) e
 		return err
 	}
 	if challengeID != "" {
-		req.Header.Add("gf-challenge-id", challengeID)
+		req.Header.Add(gfChallengeID, challengeID)
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
@@ -242,7 +242,7 @@ func Register(lobby, email, password, challengeID string, client *http.Client) e
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 409 {
-		gfChallengeID := resp.Header.Get("gf-challenge-id") // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
@@ -989,7 +989,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
 		// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
 		//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
-		gfChallengeID := resp.Header.Get("gf-challenge-id") // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
@@ -1073,7 +1073,7 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 	defer resp.Body.Close()
 
 	if resp.StatusCode == 409 {
-		gfChallengeID := resp.Header.Get("gf-challenge-id")
+		gfChallengeID := resp.Header.Get(gfChallengeID)
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
