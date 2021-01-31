@@ -1222,6 +1222,25 @@ func JumpGateHandler(c echo.Context) error {
 	}))
 }
 
+// TechsHandler ...
+func TechsHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+	supplies, facilities, ships, researches, err := bot.GetTechs(CelestialID(celestialID))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(map[string]interface{}{
+		"supplies":   supplies,
+		"facilities": facilities,
+		"ships":      ships,
+		"researches": researches,
+	}))
+}
+
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
