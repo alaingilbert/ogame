@@ -1325,6 +1325,7 @@ func GetCaptchaImgHandler(c echo.Context) error {
 	return c.Blob(http.StatusOK, "image/png", data)
 }
 
+// GetCaptchaTextHandler ...
 func GetCaptchaTextHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	challengeID := c.Param("challengeID")
@@ -1339,6 +1340,7 @@ func GetCaptchaTextHandler(c echo.Context) error {
 	return c.Blob(http.StatusOK, "image/png", data)
 }
 
+// GetCaptchaSolverHandler ...
 func GetCaptchaSolverHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	challengeID := c.Request().PostFormValue("challenge_id")
