@@ -240,12 +240,20 @@ func start(c *cli.Context) error {
 	e.Debug = true
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/tasks", ogame.TasksHandler)
+
+	// CAPTCHA Handler
+	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
+	e.GET("/bot/captcha/icons/:challengeID", ogame.GetCaptchaImgHandler)
+	e.GET("/bot/captcha/question/:challengeID", ogame.GetCaptchaTextHandler)
+	e.POST("/bot/captcha/solve", ogame.GetCaptchaSolverHandler)
+
 	e.GET("/empire", HTMLEmpire)
 	e.GET("/flights", HTMLFlights)
 	e.GET("/planet", HTMLPlanet)
 	e.GET("/browser", HTMLBrowser)
 	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
 	e.GET("/bot/server", ogame.GetServerHandler)
+	e.GET("/bot/server-data", ogame.GetServerDataHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
 	e.GET("/bot/language", ogame.GetLanguageHandler)
@@ -260,7 +268,9 @@ func start(c *cli.Context) error {
 	e.GET("/bot/server/version", ogame.ServerVersionHandler)
 	e.GET("/bot/server/time", ogame.ServerTimeHandler)
 	e.GET("/bot/is-under-attack", ogame.IsUnderAttackHandler)
+	e.GET("/bot/is-vacation-mode", ogame.IsVacationModeHandler)
 	e.GET("/bot/user-infos", ogame.GetUserInfosHandler)
+	e.GET("/bot/character-class", ogame.GetCharacterClassHandler)
 	e.POST("/bot/send-message", ogame.SendMessageHandler)
 	e.GET("/bot/fleets", ogame.GetFleetsHandler)
 	e.GET("/bot/fleets/slots", ogame.GetSlotsHandler)
@@ -286,6 +296,7 @@ func start(c *cli.Context) error {
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
+	e.GET("/bot/planets/:planetID/resources-details", ogame.GetResourcesDetailsHandler)
 	e.GET("/bot/planets/:planetID/resource-settings", ogame.GetResourceSettingsHandler)
 	e.POST("/bot/planets/:planetID/resource-settings", ogame.SetResourceSettingsHandler)
 	e.GET("/bot/planets/:planetID/resources-buildings", ogame.GetResourcesBuildingsHandler)
@@ -309,7 +320,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", ogame.PhalanxHandler)
 	e.POST("/bot/moons/:moonID/jump-gate", ogame.JumpGateHandler)
-	e.GET("/bot/techinfos/:celestialID", ogame.GetGetTechInfosHandler)
+	e.GET("/bot/techs/:celestialID", ogame.TechsHandler)
 	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 
 	// Get/Post Page Content

@@ -10,3 +10,4 @@ vendor
 *.code-workspace
 /ogame.code-workspace
 /cmd/ogb
+cmd/ogamed/bin
