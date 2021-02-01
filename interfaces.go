@@ -89,7 +89,7 @@ type Prioritizable interface {
 	GetResources(CelestialID) (Resources, error)
 	GetResourcesBuildings(CelestialID, ...Option) (ResourcesBuildings, error)
 	GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-	GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error)
+	GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
 	GetShips(CelestialID, ...Option) (ShipsInfos, error)
 	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
 	TearDown(celestialID CelestialID, id ID) error
@@ -368,7 +368,7 @@ type Extractor interface {
 	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
 	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
 	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
-	ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error)
+	ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
 	ExtractCoord(v string) (coord Coordinate)
 	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error)
 	ExtractPhalanx(pageHTML []byte) ([]Fleet, error)

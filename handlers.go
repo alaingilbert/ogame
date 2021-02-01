@@ -1262,7 +1262,7 @@ func TechsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
 	}
-	supplies, facilities, ships, researches, err := bot.GetTechs(CelestialID(celestialID))
+	supplies, facilities, ships, defenses, researches, err := bot.GetTechs(CelestialID(celestialID))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
@@ -1270,6 +1270,7 @@ func TechsHandler(c echo.Context) error {
 		"supplies":   supplies,
 		"facilities": facilities,
 		"ships":      ships,
+		"defenses":   defenses,
 		"researches": researches,
 	}))
 }
