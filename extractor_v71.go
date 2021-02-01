@@ -47,7 +47,7 @@ func (e ExtractorV71) ExtractResourcesDetails(pageHTML []byte) (out ResourcesDet
 }
 
 // ExtractTechs ...
-func (e ExtractorV71) ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, Researches, error) {
+func (e ExtractorV71) ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error) {
 	return extractTechsV71(pageHTML)
 }
 
