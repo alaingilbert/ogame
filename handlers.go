@@ -9,10 +9,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/pquerna/otp"
-	"github.com/pquerna/otp/totp"
 
 	"github.com/labstack/echo"
 )
@@ -1303,63 +1299,27 @@ func GetCaptchaHandler(c echo.Context) error {
 		return c.HTML(http.StatusOK, err.Error())
 	}
 
-	//var out postSessionsResponse
-	payload := url.Values{
-		"autoGameAccountCreation": {"false"},
-		"gameEnvironmentId":       {gameEnvironmentID},
-		"platformGameId":          {platformGameID},
-		"gfLang":                  {"en"},
-		"locale":                  {"en_GB"},
-		"identity":                {bot.Username},
-		"password":                {bot.password},
-	}
-	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	challengeID, err := checkForCaptcha(bot, gameEnvironmentID, platformGameID, bot.Username, bot.password, bot.otpSecret)
 	if err != nil {
-		return c.HTML(http.StatusOK, err.Error())
+		fmt.Println("Check CAPTCHA Error")
+		fmt.Println(err)
 	}
 
-	if bot.otpSecret != "" {
-		passcode, err := totp.GenerateCodeCustom(bot.otpSecret, time.Now(), totp.ValidateOpts{
-			Period:    30,
-			Skew:      1,
-			Digits:    otp.DigitsSix,
-			Algorithm: otp.AlgorithmSHA1,
-		})
-		if err != nil {
-			return c.HTML(http.StatusOK, err.Error())
-		}
-		req.Header.Add("tnt-2fa-code", passcode)
-		req.Header.Add("tnt-installation-id", "")
-	}
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-
-	resp, err := bot.doReqWithLoginProxyTransport(req)
-	if err != nil {
-		return c.HTML(http.StatusOK, err.Error())
-	}
-	if resp.StatusCode == 403 {
-		defer resp.Body.Close()
-		data403, _, _ := readBody(resp)
-		return c.HTML(http.StatusOK, string(data403))
-	}
-
-	if resp.StatusCode == 409 {
+	if challengeID != "" {
+		fmt.Println("Found Challenge ID: " + challengeID)
 		var temp struct {
 			ID          string `json:"id"`
 			LastUpdated int    `json:"lastUpdated"`
 			Status      string `json:"status"`
 		}
 
-		challengeID := resp.Header.Get(gfChallengeID)
 		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
 
-		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
+		req, err := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", nil)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
-		resp, err = bot.doReqWithLoginProxyTransport(req)
+		resp, err := bot.doReqWithLoginProxyTransport(req)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
@@ -1374,7 +1334,14 @@ func GetCaptchaHandler(c echo.Context) error {
 <img style="background-color: black;" src="/bot/captcha/icons/` + challengeID + `" /><br />
 <form action="/bot/captcha/solve" method="POST">
 	<input type="hidden" name="challenge_id" value="` + challengeID + `" />
-	Enter 0,1,2 or 3 and press Enter <input type="number" name="answer" />" +
+	<input name="answer" type="radio" value="0" /> <label for="ans0">1</label></span>
+	<input name="answer" type="radio" value="1" /> <label for="ans1">2</label></span>
+	<input name="answer" type="radio" value="2"" /> <label for="ans1">3</label></span>
+	<input name="answer" type="radio" value="3"" /> <label for="ans1">4</label></span>
+<br/>
+<button type="submit" class="btn btn-primary">Submit</button>
+"
+
 </form>` + challengeID
 
 		return c.HTML(http.StatusOK, html)

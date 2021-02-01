@@ -1236,7 +1236,7 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	}
 	return b.loginWithBearerToken(token)
 }
-//req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
+
 func getConfiguration(b *OGame) (string, string, error) {
 	ogURL := "https://" + b.lobby + ".ogame.gameforge.com/config/configuration.js"
 	req, err := http.NewRequest("GET", ogURL, nil)
@@ -1321,21 +1321,51 @@ type postSessionsResponse struct {
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
 
-func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
-	var out postSessionsResponse
-	payload := url.Values{
-		"autoGameAccountCreation": {"false"},
-		"gameEnvironmentId":       {gameEnvironmentID},
-		"platformGameId":          {platformGameID},
-		"gfLang":                  {"en"},
-		"locale":                  {"en_GB"},
-		"identity":                {username},
-		"password":                {password},
-	}
-	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+func checkForCaptcha(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (string, error) {
+	var out string
+	jsonPayload := `{"autoGameAccountCreation":false
+					,"gameEnvironmentId":"`+gameEnvironmentID+`"
+					,"platformGameId":"`+platformGameID+`"
+					,"gfLang":"en"
+					,"locale":"en_GB"
+					,"identity":"`+username+`"
+					,"password":"`+password+`"}`
+
+	reqOptions, err := http.NewRequest("OPTIONS", "https://gameforge.com/api/v1/auth/thin/sessions", nil)
 	if err != nil {
 		return out, err
 	}
+	reqOptions.Header.Add("Host", "gameforge.com")
+	reqOptions.Header.Add("Accept", "*/*")
+	reqOptions.Header.Add("Accept-Language", "en-US,en;q=0.5")
+	reqOptions.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	reqOptions.Header.Add("Access-Control-Request-Method", "POST")
+	reqOptions.Header.Add("Access-Control-Request-Headers", "content-type,tnt-installation-id")
+	reqOptions.Header.Add("Referer", "https://"+b.lobby+".ogame.gameforge.com/")
+	reqOptions.Header.Add("Origin", "https://"+b.lobby+".ogame.gameforge.com")
+	respOptions, err := b.doReqWithLoginProxyTransport(reqOptions)
+	if err != nil {
+		return out, err
+	}
+	defer respOptions.Body.Close()
+	if respOptions.StatusCode == 403 {
+		b.debug("Get OPTIONS Cloudflare Error")
+		b.debug("Get OPTIONS Status " + respOptions.Status)
+		b.debug("Login Request Status: " + respOptions.Status)
+
+		byOPTIONS, _, err := readBody(respOptions)
+		b.debug(string(byOPTIONS))
+
+		return out, err
+	}
+	b.debug("Get OPTIONS Status " + respOptions.Status)
+
+	//req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(jsonPayload))
+	if err != nil {
+		return out, err
+	}
+
 	if otpSecret != "" {
 		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
 			Period:    30,
@@ -1347,59 +1377,142 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 			return out, err
 		}
 		req.Header.Add("tnt-2fa-code", passcode)
-		req.Header.Add("tnt-installation-id", "")
+		//req.Header.Add("tnt-installation-id", "")
 	}
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	req.Header.Add("Host", "gameforge.com")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.Header.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-	//req.Header.Add("Accept", "*/*")
-	// test
-	/*
-	req.Header.Add("Cache-Control", "no-cache")
+	req.Header.Add("Accept", "*/*")
 	req.Header.Add("Accept-Language", "en-US,en;q=0.5")
-	req.Header.Add("Pragma", "no-cache")
 	req.Header.Add("Referer", "https://lobby.ogame.gameforge.com/")
-	req.Header.Add("TE", "Trailers")
-	*/
+	req.Header.Add("TNT-Installation-Id", "")
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Origin", "https://lobby.ogame.gameforge.com")
 
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
 		return out, err
 	}
-	// Loop over header names
-	for name, values := range resp.Header {
-		// Loop over all values for the name.
-		for _, value := range values {
-			fmt.Println(name, value)
+
+	if resp.StatusCode == 409 {
+		// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
+		// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
+		// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
+		//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
+		gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		if gfChallengeID != "" {
+			parts := strings.Split(gfChallengeID, ";")
+			challengeID := parts[0]
+			return challengeID, nil
 		}
 	}
-/*
-	cookies2 := b.Client.Jar.(*cookiejar.Jar).AllCookies()
-	for _, cookie := range cookies2 {
-		b.debug(cookie)
+
+	if resp.StatusCode >= 500 {
+		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	if err := b.Client.Jar.(*cookiejar.Jar).Save(); err != nil {
+	by, _, err := readBody(resp)
+	if resp.StatusCode != 201 {
+		if string(by) == `{"reason":"OTP_REQUIRED"}` {
+			return out, ErrOTPRequired
+		}
+		if string(by) == `{"reason":"OTP_INVALID"}` {
+			return out, ErrOTPInvalid
+		}
+		b.error(resp.StatusCode, string(by), err)
+		return out, ErrBadCredentials
+	}
+	return out, nil
+}
+
+func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
+	var out postSessionsResponse
+	//payload := url.Values{
+	//	"autoGameAccountCreation": {"false"},
+	//	"gameEnvironmentId":       {gameEnvironmentID},
+	//	"platformGameId":          {platformGameID},
+	//	"gfLang":                  {"en"},
+	//	"locale":                  {"en_GB"},
+	//	"identity":                {username},
+	//	"password":                {password},
+	//}
+
+	jsonPayload := `{"autoGameAccountCreation":false
+					,"gameEnvironmentId":"`+gameEnvironmentID+`"
+					,"platformGameId":"`+platformGameID+`"
+					,"gfLang":"en"
+					,"locale":"en_GB"
+					,"identity":"`+username+`"
+					,"password":"`+password+`"}`
+
+	b.debug("JSON STRING: "+jsonPayload)
+	//Host: gameforge.com
+	//User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101 Firefox/78.0
+	//Accept: */*
+	//Accept-Language: en-US,en;q=0.5
+	//Accept-Encoding: gzip, deflate, br
+	//Access-Control-Request-Method: POST
+	//Access-Control-Request-Headers: content-type,tnt-installation-id
+	//Referer: https://lobby.ogame.gameforge.com/
+	//Origin: https://lobby.ogame.gameforge.com
+	reqOptions, err := http.NewRequest("OPTIONS", "https://gameforge.com/api/v1/auth/thin/sessions", nil)
+	if err != nil {
+		return out, err
+	}
+	reqOptions.Header.Add("Host", "gameforge.com")
+	reqOptions.Header.Add("Accept", "*/*")
+	reqOptions.Header.Add("Accept-Language", "en-US,en;q=0.5")
+	reqOptions.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	reqOptions.Header.Add("Access-Control-Request-Method", "POST")
+	reqOptions.Header.Add("Access-Control-Request-Headers", "content-type,tnt-installation-id")
+	reqOptions.Header.Add("Referer", "https://lobby.ogame.gameforge.com/")
+	reqOptions.Header.Add("Origin", "https://lobby.ogame.gameforge.com")
+	respOptions, err := b.doReqWithLoginProxyTransport(reqOptions)
+	if err != nil {
+		return out, err
+	}
+	if respOptions.StatusCode == 403 {
+		b.debug("Get OPTIONS Cloudflare Error")
+		return out, err
+	}
+	b.debug("Get OPTIONS Status " + respOptions.Status)
+
+	//req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(jsonPayload))
+	if err != nil {
 		return out, err
 	}
 
-	defer resp.Body.Close()
-/*
-	// Print out all header fields
-	for name, values := range resp.Header {
-		// Loop over all values for the name.
-		for _, value := range values {
-			fmt.Println(name, value)
+	if otpSecret != "" {
+		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
+			Period:    30,
+			Skew:      1,
+			Digits:    otp.DigitsSix,
+			Algorithm: otp.AlgorithmSHA1,
+		})
+		if err != nil {
+			return out, err
 		}
+		req.Header.Add("tnt-2fa-code", passcode)
+		//req.Header.Add("tnt-installation-id", "")
 	}
-*/
-	if resp.StatusCode == 403 {
-		b.debug("Error 403 detected")
-		req.Header.Add("Cf-Ray", resp.Header.Get("Cf-Ray"))
-		req.Header.Add("Cf-Request-Id", resp.Header.Get("Cf-Request-Id"))
-		req.Header.Add("Cf-Chl-Bypass", resp.Header.Get("Cf-Chl-Bypass"))
-		return out, errors.New("OGame server error code : " + resp.Status)
+
+	req.Header.Add("Host", "gameforge.com")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Accept", "*/*")
+	req.Header.Add("Accept-Language", "en-US,en;q=0.5")
+	req.Header.Add("Referer", "https://lobby.ogame.gameforge.com/")
+	req.Header.Add("TNT-Installation-Id", "")
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("Origin", "https://lobby.ogame.gameforge.com")
+
+	resp, err := b.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return out, err
 	}
+	defer resp.Body.Close()
+
+	b.debug("Login Request Status: " + resp.Status)
 
 	if resp.StatusCode == 409 {
 		// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
@@ -1419,6 +1532,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	}
 
 	by, _, err := readBody(resp)
+	b.debug(string(by))
 	if resp.StatusCode != 201 {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ErrOTPRequired
@@ -1527,6 +1641,13 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
+
+	//b.debug("check for CAPTCHA")
+	//gfchallengeID, err := checkForCaptcha(b, gameEnvironmentID, platformGameID, b.Username, b.password, b.otpSecret)
+	//if err != nil {
+	//	b.debug("Challenge Found: " + gfchallengeID)
+	//	b.debug(err)
+	//}
 
 	b.debug("post sessions")
 	postSessionsRes, err := postSessions(b, gameEnvironmentID, platformGameID, b.Username, b.password, b.otpSecret)
