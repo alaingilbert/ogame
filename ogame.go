@@ -1528,7 +1528,7 @@ LOOP:
 							pck1 := AuctioneerNewAuction{
 								AuctionID: int64(doCastF64(firstArg["auctionId"])),
 							}
-							if infoMsg, ok := args[0].(string); ok {
+							if infoMsg, ok := firstArg["info"].(string); ok {
 								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
 								rgx := regexp.MustCompile(`\d+`)
 								txt := rgx.FindString(doc.Find("b").Text())
