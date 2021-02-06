@@ -1298,11 +1298,16 @@ func GetCaptchaHandler(c echo.Context) error {
 	if err != nil {
 		return c.HTML(http.StatusOK, err.Error())
 	}
-
-	challengeID, err := checkForCaptcha(bot, gameEnvironmentID, platformGameID, bot.Username, bot.password, bot.otpSecret)
-	if err != nil {
-		fmt.Println("Check CAPTCHA Error")
-		fmt.Println(err)
+	var challengeID string
+	if bot.ChallengeID != "" {
+		cID, err := checkForCaptcha(bot, gameEnvironmentID, platformGameID, bot.Username, bot.password, bot.otpSecret)
+		if err != nil {
+			fmt.Println("Check CAPTCHA Error")
+			fmt.Println(err)
+		}
+		challengeID = cID
+	} else {
+		challengeID = bot.ChallengeID
 	}
 
 	if challengeID != "" {
@@ -1379,6 +1384,12 @@ func GetCaptchaTextHandler(c echo.Context) error {
 	return c.Blob(http.StatusOK, "image/png", data)
 }
 
+type captchaSolver struct {
+	ID string
+	LastUpdated int64
+	Status string
+}
+
 // GetCaptchaSolverHandler ...
 func GetCaptchaSolverHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
@@ -1389,11 +1400,33 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, _ := bot.doReqWithLoginProxyTransport(req)
+	//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
+
 	defer resp.Body.Close()
+	var out captchaSolver
+	by, _, err := readBody(resp)
+	if err != nil{
+		bot.error(err, string(by))
+	}
+	if err := json.Unmarshal(by, &out); err != nil {
+		bot.error(err, string(by))
+	}
+	if out.Status == "solved" {
+		bot.ChallengeID = ""
+	}
 	if !bot.IsLoggedIn() {
 		if err := bot.Login(); err != nil {
 			bot.error(err)
 		}
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
+}
+
+// GetServersHandler ...
+func GetServersHandler(c echo.Context) error {
+	servers, err := GetServers()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(servers))
 }

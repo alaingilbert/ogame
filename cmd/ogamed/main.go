@@ -240,6 +240,7 @@ func start(c *cli.Context) error {
 	e.Debug = true
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/tasks", ogame.TasksHandler)
+	e.GET("/api/v1/servers", ogame.GetServersHandler)
 
 	// CAPTCHA Handler
 	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
