@@ -5,12 +5,11 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/labstack/echo"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-
-	"github.com/labstack/echo"
 )
 
 // APIResp ...
@@ -1293,21 +1292,18 @@ func TechsHandler(c echo.Context) error {
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
+	var challengeID string
 	gameEnvironmentID, platformGameID, err := getConfiguration(bot)
 	if err != nil {
-		return c.HTML(http.StatusOK, err.Error())
+		return c.HTML(http.StatusBadGateway, err.Error())
 	}
-	var challengeID string
-	if bot.ChallengeID != "" {
-		cID, err := checkForCaptcha(bot, gameEnvironmentID, platformGameID, bot.Username, bot.password, bot.otpSecret)
-		if err != nil {
-			fmt.Println("Check CAPTCHA Error")
-			fmt.Println(err)
-		}
-		challengeID = cID
-	} else {
+	postSession, err := postSessions(bot, gameEnvironmentID,platformGameID, bot.Username, bot.password, bot.otpSecret)
+	if err != nil {
 		challengeID = bot.ChallengeID
+	}
+
+	if postSession.Token == "" {
+
 	}
 
 	if challengeID != "" {

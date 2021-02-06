@@ -1422,7 +1422,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
 			b.ChallengeID = challengeID
-			return out, errors.New("captcha required, " + challengeID)
+			return out, errors.New("captcha required," + challengeID)
 		}
 	}
 
