@@ -152,6 +152,12 @@ func main() {
 			Value:   true,
 			EnvVars: []string{"CORS_ENABLED"},
 		},
+		&cli.StringFlag{
+			Name:    "nja-api-key",
+			Usage:   "Ninja API key",
+			Value:   "",
+			EnvVars: []string{"NJA_API_KEY"},
+		},
 	}
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
@@ -181,8 +187,9 @@ func start(c *cli.Context) error {
 	basicAuthPassword := c.String("basic-auth-password")
 	cookiesFilename := c.String("cookies-filename")
 	corsEnabled := c.Bool("cors-enabled")
+	njaApiKey := c.String("nja-api-key")
 
-	bot, err := ogame.NewWithParams(ogame.Params{
+	params := ogame.Params{
 		Universe:        universe,
 		Username:        username,
 		Password:        password,
@@ -196,7 +203,12 @@ func start(c *cli.Context) error {
 		Lobby:           lobby,
 		APINewHostname:  apiNewHostname,
 		CookiesFilename: cookiesFilename,
-	})
+	}
+	if njaApiKey != "" {
+		params.CaptchaCallback = ogame.NinjaSolver(njaApiKey)
+	}
+
+	bot, err := ogame.NewWithParams(params)
 	if err != nil {
 		return err
 	}
