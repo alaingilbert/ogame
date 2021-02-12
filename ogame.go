@@ -2058,6 +2058,14 @@ func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
 	return nil
 }
 
+func (b *OGame) constructionTime(id ID, nbr int64, facilities Facilities) time.Duration {
+	obj := Objs.ByID(id)
+	if obj == nil {
+		return 0
+	}
+	return obj.ConstructionTime(nbr, b.getUniverseSpeed(), facilities, b.hasTechnocrat, b.isDiscoverer())
+}
+
 func (b *OGame) enable() {
 	b.ctx, b.cancelCtx = context.WithCancel(context.Background())
 	atomic.StoreInt32(&b.isEnabledAtom, 1)
@@ -4702,6 +4710,11 @@ func (b *OGame) IsDonutGalaxy() bool {
 // IsDonutSystem shortcut to get ogame system donut config
 func (b *OGame) IsDonutSystem() bool {
 	return b.isDonutSystem()
+}
+
+// ConstructionTime get duration to build something
+func (b *OGame) ConstructionTime(id ID, nbr int64, facilities Facilities) time.Duration {
+	return b.constructionTime(id, nbr, facilities)
 }
 
 // FleetDeutSaveFactor returns the fleet deut save factor
