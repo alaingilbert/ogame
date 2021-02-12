@@ -98,6 +98,7 @@ type OGame struct {
 	hasEngineer           bool
 	hasGeologist          bool
 	hasTechnocrat         bool
+	captchaCallback       func(question, icons []byte) (int64, error)
 }
 
 // Preferences ...
@@ -192,6 +193,7 @@ type Params struct {
 	APINewHostname  string
 	CookiesFilename string
 	Client          *OGameClient
+	CaptchaCallback func(question, icons []byte) (int64, error)
 }
 
 // Lobby constants
@@ -396,6 +398,7 @@ func NewWithParams(params Params) (*OGame, error) {
 	if err != nil {
 		return nil, err
 	}
+	b.captchaCallback = params.CaptchaCallback
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
@@ -946,91 +949,172 @@ type postSessionsResponse struct {
 }
 
 func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
-	var out postSessionsResponse
-	payload := url.Values{
-		"autoGameAccountCreation": {"false"},
-		"gameEnvironmentId":       {gameEnvironmentID},
-		"platformGameId":          {platformGameID},
-		"gfLang":                  {"en"},
-		"locale":                  {"en_GB"},
-		"identity":                {username},
-		"password":                {password},
-	}
-	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
-	if err != nil {
-		return out, err
+	if b.loginProxyTransport != nil {
+		oldTransport := b.Client.Transport
+		b.Client.Transport = b.loginProxyTransport
+		defer func() {
+			b.Client.Transport = oldTransport
+		}()
 	}
 
-	if otpSecret != "" {
-		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
-			Period:    30,
-			Skew:      1,
-			Digits:    otp.DigitsSix,
-			Algorithm: otp.AlgorithmSHA1,
-		})
+	challengeID := ""
+	tried := false
+	for {
+		var out postSessionsResponse
+		payload := url.Values{
+			"autoGameAccountCreation": {"false"},
+			"gameEnvironmentId":       {gameEnvironmentID},
+			"platformGameId":          {platformGameID},
+			"gfLang":                  {"en"},
+			"locale":                  {"en_GB"},
+			"identity":                {username},
+			"password":                {password},
+		}
+		if challengeID != "" {
+			payload.Set("gf-challenge-id", challengeID)
+		}
+		req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
 		if err != nil {
 			return out, err
 		}
-		req.Header.Add("tnt-2fa-code", passcode)
-		req.Header.Add("tnt-installation-id", "")
+
+		if otpSecret != "" {
+			passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
+				Period:    30,
+				Skew:      1,
+				Digits:    otp.DigitsSix,
+				Algorithm: otp.AlgorithmSHA1,
+			})
+			if err != nil {
+				return out, err
+			}
+			req.Header.Add("tnt-2fa-code", passcode)
+			req.Header.Add("tnt-installation-id", "")
+		}
+
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+		req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+
+		resp, err := b.Client.Do(req)
+		if err != nil {
+			return out, err
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode == 409 {
+			// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
+			// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
+			// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
+			//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
+			gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+			if gfChallengeID != "" {
+				parts := strings.Split(gfChallengeID, ";")
+				challengeID = parts[0]
+
+				if tried {
+					return out, errors.New("captcha required, " + challengeID)
+				}
+				tried = true
+
+				if b.captchaCallback != nil {
+					questionRaw, iconsRaw, err := startCaptchaChallenge(&b.Client.Client, challengeID)
+					if err != nil {
+						return out, errors.New("failed to start captcha challenge: " + err.Error())
+					}
+					answer, err := b.captchaCallback(questionRaw, iconsRaw)
+					if err != nil {
+						return out, errors.New("failed to get answer for captcha challenge: " + err.Error())
+					}
+					if err := solveChallenge(&b.Client.Client, challengeID, answer); err != nil {
+						return out, errors.New("failed to solve captcha challenge: " + err.Error())
+					}
+					continue
+				}
+
+				return out, errors.New("captcha required, " + challengeID)
+			}
+		}
+
+		if resp.StatusCode >= 500 {
+			return out, errors.New("OGame server error code : " + resp.Status)
+		}
+
+		by, _, err := readBody(resp)
+		if resp.StatusCode != 201 {
+			if string(by) == `{"reason":"OTP_REQUIRED"}` {
+				return out, ErrOTPRequired
+			}
+			if string(by) == `{"reason":"OTP_INVALID"}` {
+				return out, ErrOTPInvalid
+			}
+			b.error(resp.StatusCode, string(by), err)
+			return out, ErrBadCredentials
+		}
+
+		if err := json.Unmarshal(by, &out); err != nil {
+			b.error(err, string(by))
+			return out, err
+		}
+
+		// put in cookie jar so that we can re-login reusing the cookies
+		u, _ := url.Parse("https://gameforge.com")
+		cookies := b.Client.Jar.Cookies(u)
+		cookie := &http.Cookie{
+			Name:   gfTokenCookieName,
+			Value:  out.Token,
+			Path:   "/",
+			Domain: ".gameforge.com",
+		}
+		cookies = append(cookies, cookie)
+		b.Client.Jar.SetCookies(u, cookies)
+
+		return out, nil
 	}
+}
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-
-	resp, err := b.doReqWithLoginProxyTransport(req)
+func startCaptchaChallenge(client *http.Client, challengeID string) (questionRaw, iconsRaw []byte, err error) {
+	challengeResp, err := client.Get("https://challenge.gameforge.com/challenge/" + challengeID)
 	if err != nil {
-		return out, err
+		return
 	}
-	defer resp.Body.Close()
+	defer challengeResp.Body.Close()
+	_, _ = ioutil.ReadAll(challengeResp.Body)
 
-	if resp.StatusCode == 409 {
-		// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
-		// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
-		// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
-		//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
-		gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
-		if gfChallengeID != "" {
-			parts := strings.Split(gfChallengeID, ";")
-			challengeID := parts[0]
-			return out, errors.New("captcha required, " + challengeID)
-		}
+	challengePresentedResp, err := client.Get("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB")
+	if err != nil {
+		return
 	}
+	defer challengePresentedResp.Body.Close()
+	_, _ = ioutil.ReadAll(challengePresentedResp.Body)
 
-	if resp.StatusCode >= 500 {
-		return out, errors.New("OGame server error code : " + resp.Status)
+	questionResp, err := client.Get("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/text")
+	if err != nil {
+		return
 	}
+	defer questionResp.Body.Close()
+	questionRaw, _ = ioutil.ReadAll(questionResp.Body)
 
-	by, _, err := readBody(resp)
-	if resp.StatusCode != 201 {
-		if string(by) == `{"reason":"OTP_REQUIRED"}` {
-			return out, ErrOTPRequired
-		}
-		if string(by) == `{"reason":"OTP_INVALID"}` {
-			return out, ErrOTPInvalid
-		}
-		b.error(resp.StatusCode, string(by), err)
-		return out, ErrBadCredentials
+	iconsResp, err := client.Get("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/drag-icons")
+	if err != nil {
+		return
 	}
+	defer iconsResp.Body.Close()
+	iconsRaw, _ = ioutil.ReadAll(iconsResp.Body)
+	return
+}
 
-	if err := json.Unmarshal(by, &out); err != nil {
-		b.error(err, string(by))
-		return out, err
+func solveChallenge(client *http.Client, challengeID string, answer int64) error {
+	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
+	req, _ := http.NewRequest(http.MethodPost, challengeURL, strings.NewReader(`{"answer":`+strconv.FormatInt(answer, 10)+`}`))
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
 	}
-
-	// put in cookie jar so that we can re-login reusing the cookies
-	u, _ := url.Parse("https://gameforge.com")
-	cookies := b.Client.Jar.Cookies(u)
-	cookie := &http.Cookie{
-		Name:   gfTokenCookieName,
-		Value:  out.Token,
-		Path:   "/",
-		Domain: ".gameforge.com",
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to solve captcha (%s)", resp.Status)
 	}
-	cookies = append(cookies, cookie)
-	b.Client.Jar.SetCookies(u, cookies)
-
-	return out, nil
+	return nil
 }
 
 func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
