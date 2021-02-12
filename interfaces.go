@@ -146,6 +146,7 @@ type Wrapper interface {
 	IsConnected() bool
 	IsDonutGalaxy() bool
 	IsDonutSystem() bool
+	ConstructionTime(id ID, nbr int64, facilities Facilities) time.Duration
 	IsEnabled() bool
 	IsLocked() bool
 	IsLoggedIn() bool
