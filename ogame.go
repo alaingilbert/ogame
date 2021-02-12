@@ -15,6 +15,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math"
+	"mime/multipart"
 	"net"
 	"net/http"
 	"net/url"
@@ -98,8 +99,11 @@ type OGame struct {
 	hasEngineer           bool
 	hasGeologist          bool
 	hasTechnocrat         bool
-	captchaCallback       func(question, icons []byte) (int64, error)
+	captchaCallback       CaptchaCallback
 }
+
+// CaptchaCallback ...
+type CaptchaCallback func(question, icons []byte) (int64, error)
 
 // Preferences ...
 type Preferences struct {
@@ -937,6 +941,40 @@ func getConfiguration2(client *http.Client, lobby string) (string, string, error
 	platformGameID := m[1]
 
 	return string(gameEnvironmentID), string(platformGameID), nil
+}
+
+// NinjaSolver direct integration of ogame.ninja captcha auto solver service
+func NinjaSolver(apiKey string) CaptchaCallback {
+	return func(question, icons []byte) (int64, error) {
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+		part, _ := writer.CreateFormFile("question", "question.png")
+		_, _ = io.Copy(part, bytes.NewReader(question))
+		part1, _ := writer.CreateFormFile("icons", "icons.png")
+		_, _ = io.Copy(part1, bytes.NewReader(icons))
+		_ = writer.Close()
+
+		req, _ := http.NewRequest(http.MethodPost, "https://www.ogame.ninja/api/v1/captcha/solve", body)
+		req.Header.Add("Content-Type", writer.FormDataContentType())
+		req.Header.Set("NJA_API_KEY", apiKey)
+		resp, _ := http.DefaultClient.Do(req)
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			by, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return 0, errors.New("failed to auto solve captcha: " + err.Error())
+			}
+			return 0, errors.New("failed to auto solve captcha: " + string(by))
+		}
+		by, _ := ioutil.ReadAll(resp.Body)
+		var answerJson struct {
+			Answer int64 `json:"answer"`
+		}
+		if err := json.Unmarshal(by, &answerJson); err != nil {
+			return 0, errors.New("failed to auto solve captcha: " + err.Error())
+		}
+		return answerJson.Answer, nil
+	}
 }
 
 type postSessionsResponse struct {
