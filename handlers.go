@@ -6,10 +6,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/labstack/echo"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // APIResp ...
@@ -1300,35 +1303,69 @@ func TechsHandler(c echo.Context) error {
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	var challengeID string
+
 	gameEnvironmentID, platformGameID, err := getConfiguration(bot)
 	if err != nil {
 		return c.HTML(http.StatusOK, err.Error())
 	}
-	postSession, err := postSessions(bot, gameEnvironmentID,platformGameID, bot.Username, bot.password, bot.otpSecret)
+
+	//var out postSessionsResponse
+	payload := url.Values{
+		"autoGameAccountCreation": {"false"},
+		"gameEnvironmentId":       {gameEnvironmentID},
+		"platformGameId":          {platformGameID},
+		"gfLang":                  {"en"},
+		"locale":                  {"en_GB"},
+		"identity":                {bot.Username},
+		"password":                {bot.password},
+	}
+	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
 	if err != nil {
-		challengeID = bot.ChallengeID
+		return c.HTML(http.StatusOK, err.Error())
 	}
 
-	if postSession.Token == "" {
-
+	if bot.otpSecret != "" {
+		passcode, err := totp.GenerateCodeCustom(bot.otpSecret, time.Now(), totp.ValidateOpts{
+			Period:    30,
+			Skew:      1,
+			Digits:    otp.DigitsSix,
+			Algorithm: otp.AlgorithmSHA1,
+		})
+		if err != nil {
+			return c.HTML(http.StatusOK, err.Error())
+		}
+		req.Header.Add("tnt-2fa-code", passcode)
+		req.Header.Add("tnt-installation-id", "")
 	}
 
-	if challengeID != "" {
-		fmt.Println("Found Challenge ID: " + challengeID)
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+
+	resp, err := bot.doReqWithLoginProxyTransport(req)
+	if err != nil {
+		return c.HTML(http.StatusOK, err.Error())
+	}
+	if resp.StatusCode == 403 {
+		defer resp.Body.Close()
+		data403, _, _ := readBody(resp)
+		return c.HTML(http.StatusOK, string(data403))
+	}
+
+	if resp.StatusCode == 409 {
 		var temp struct {
 			ID          string `json:"id"`
 			LastUpdated int    `json:"lastUpdated"`
 			Status      string `json:"status"`
 		}
 
+		challengeID := resp.Header.Get(gfChallengeID)
 		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
 
 		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
-		resp, err := bot.doReqWithLoginProxyTransport(req)
+		resp, err = bot.doReqWithLoginProxyTransport(req)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
