@@ -1008,7 +1008,15 @@ func GetFromGameHandler(c echo.Context) error {
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
 	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), pageHTML)
+	pageHTML = disableCookiebanner1(pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
+}
+
+func disableCookiebanner1(pageHTML []byte) []byte{
+	pageString := string(pageHTML)
+	pageString = strings.Replace(pageString, "<title>", "<style>.cookiebanner1{display: none;}</style><title>", -1)
+	pageHTML = []byte(pageString)
+	return pageHTML
 }
 
 // PostToGameHandler ...
