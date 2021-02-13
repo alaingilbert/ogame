@@ -412,7 +412,7 @@ func (b *Prioritize) GetResourcesDetails(celestialID CelestialID) (ResourcesDeta
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *Prioritize) GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, Researches, DefensesInfos, error) {
+func (b *Prioritize) GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error) {
 	b.begin("GetTechs")
 	defer b.done()
 	return b.bot.getTechs(celestialID)

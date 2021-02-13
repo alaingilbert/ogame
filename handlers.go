@@ -1284,7 +1284,7 @@ func TechsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
 	}
-	supplies, facilities, ships, researches, defenses, err := bot.GetTechs(CelestialID(celestialID))
+	supplies, facilities, ships, defenses, researches, err := bot.GetTechs(CelestialID(celestialID))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
@@ -1292,8 +1292,8 @@ func TechsHandler(c echo.Context) error {
 		"supplies":   supplies,
 		"facilities": facilities,
 		"ships":      ships,
+		"defenses":   defenses,
 		"researches": researches,
-		"defenses": defenses,
 	}))
 }
 
@@ -1303,7 +1303,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	var challengeID string
 	gameEnvironmentID, platformGameID, err := getConfiguration(bot)
 	if err != nil {
-		return c.HTML(http.StatusBadGateway, err.Error())
+		return c.HTML(http.StatusOK, err.Error())
 	}
 	postSession, err := postSessions(bot, gameEnvironmentID,platformGameID, bot.Username, bot.password, bot.otpSecret)
 	if err != nil {
@@ -1324,7 +1324,7 @@ func GetCaptchaHandler(c echo.Context) error {
 
 		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
 
-		req, err := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", nil)
+		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
