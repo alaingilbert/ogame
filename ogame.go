@@ -272,6 +272,34 @@ func Register(lobby, email, password, challengeID string, client *http.Client) e
 	return nil
 }
 
+// ValidateAccount validate a gameforge account
+func ValidateAccount(code string, client *http.Client) error {
+	if len(code) != 36 {
+		return errors.New("invalid validation code")
+	}
+	req, err := http.NewRequest(http.MethodGet, "https://lobby.ogame.gameforge.com/validation/"+code, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
+}
+
+func (b *OGame) validateAccount(code string) error {
+	if b.loginProxyTransport != nil {
+		oldTransport := b.Client.Transport
+		b.Client.Transport = b.loginProxyTransport
+		defer func() {
+			b.Client.Transport = oldTransport
+		}()
+	}
+	return ValidateAccount(code, &b.Client.Client)
+}
+
 // RedeemCode ...
 func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Client) error {
 	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
@@ -4680,6 +4708,11 @@ func (b *OGame) GetLoginClient() *OGameClient {
 // GetPublicIP get the public IP used by the bot
 func (b *OGame) GetPublicIP() (string, error) {
 	return b.getPublicIP()
+}
+
+// ValidateAccount validate a gameforge account
+func (b *OGame) ValidateAccount(code string) error {
+	return b.validateAccount(code)
 }
 
 // OnStateChange register a callback that is notified when the bot state changes

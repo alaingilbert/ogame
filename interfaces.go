@@ -112,6 +112,7 @@ type Prioritizable interface {
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	Prioritizable
+	ValidateAccount(code string) error
 	AddAccount(number int, lang string) (NewAccount, error)
 	BytesDownloaded() int64
 	BytesUploaded() int64
