@@ -229,6 +229,7 @@ func Register(lobby, email, password, challengeID string, client *http.Client) e
 	}
 	payload.Credentials.Email = email
 	payload.Credentials.Password = password
+	payload.Language = "en"
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return err
