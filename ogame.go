@@ -281,7 +281,7 @@ func ValidateAccount(code string, client *http.Client) error {
 	if len(code) != 36 {
 		return errors.New("invalid validation code")
 	}
-	req, err := http.NewRequest(http.MethodGet, "https://lobby.ogame.gameforge.com/validation/"+code, nil)
+	req, err := http.NewRequest(http.MethodPut, "https://lobby.ogame.gameforge.com/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
 	if err != nil {
 		return err
 	}
