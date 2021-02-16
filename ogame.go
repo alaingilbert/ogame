@@ -218,7 +218,10 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 }
 
 // Register a new gameforge lobby account
-func Register(lobby, email, password, challengeID string, client *http.Client) error {
+func Register(lobby, email, password, challengeID, lang string, client *http.Client) error {
+	if lang == "" {
+		lang = "en"
+	}
 	var payload struct {
 		Credentials struct {
 			Email    string `json:"email"`
@@ -229,7 +232,7 @@ func Register(lobby, email, password, challengeID string, client *http.Client) e
 	}
 	payload.Credentials.Email = email
 	payload.Credentials.Password = password
-	payload.Language = "en"
+	payload.Language = lang
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return err
