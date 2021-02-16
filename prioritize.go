@@ -531,7 +531,7 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuilding
 	resSettings ResourceSettings, temp Temperature) Resources {
 	b.begin("GetResourcesProductionsLight")
 	defer b.done()
-	return b.bot.getResourcesProductionsLight(resBuildings, researches, resSettings, temp)
+	return getResourcesProductionsLight(resBuildings, researches, resSettings, temp, b.bot.serverData.Speed)
 }
 
 // FlightTime calculate flight time and fuel needed

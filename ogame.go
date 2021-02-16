@@ -4414,9 +4414,8 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	return productions, nil
 }
 
-func (b *OGame) getResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
-	resSettings ResourceSettings, temp Temperature) Resources {
-	universeSpeed := b.serverData.Speed
+func getResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
+	resSettings ResourceSettings, temp Temperature, universeSpeed int64) Resources {
 	ratio := productionRatio(temp, resBuildings, resSettings, researches.EnergyTechnology)
 	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, temp, ratio)
 	return productions
