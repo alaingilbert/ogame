@@ -25,6 +25,11 @@ type Researches struct {
 	ArmourTechnology             int64
 }
 
+// ToPtr returns a pointer to self
+func (s Researches) ToPtr() *Researches {
+	return &s
+}
+
 // Lazy returns a function that return self
 func (s Researches) Lazy() LazyResearches {
 	return func() Researches { return s }
