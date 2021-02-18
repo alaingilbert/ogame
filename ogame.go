@@ -6457,3 +6457,8 @@ func GetServers() ([]Server, error) {
 	servers, err := getServers2(Lobby, client)
 	return servers, err
 }
+
+// GetAccounts ..
+func (b *OGame) GetAccounts() ([]account, error) {
+	return getUserAccounts(b, b.bearerToken)
+}

@@ -29,6 +29,10 @@ github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db h1:CjPUSXOiYptLb
 github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db/go.mod h1:rB3B4rKii8V21ydCbIzH5hZiCQE7f5E9SzUb/ZZx530=
 github.com/alaingilbert/clockwork v0.1.1-0.20200117075841-891256a24209 h1:X2PLaXYK9kPDScClx4IdBOZvJsRHx6LnA++VCa0lY58=
 github.com/alaingilbert/clockwork v0.1.1-0.20200117075841-891256a24209/go.mod h1:YeWgj4cWbHxtx84adUefC05mTiKGZfjKNwGGVnA1W6g=
+github.com/alaingilbert/clockwork v0.1.1-0.20200407024756-4c71fad7dddc h1:AK0iQEPPmPmywLYxQ8/s1K74YY3SPfphgl0ZxzUxLFQ=
+github.com/alaingilbert/clockwork v0.1.1-0.20200407024756-4c71fad7dddc/go.mod h1:F4PPq632NzLCBNRh6F0HsS3mmg6IR0sG/K1Uq5kOVLw=
+github.com/alaingilbert/cron v0.0.0-20200417234126-ae6b2ac944b5 h1:CBhgtIsq54Qj1g1J6yYC3q95flswcbULo91KWG49Bss=
+github.com/alaingilbert/cron v0.0.0-20200417234126-ae6b2ac944b5/go.mod h1:H0UN6XB3vuipHhk+C5OkDc/DHEcvpWm0DCZMZjkJfFo=
 github.com/alaingilbert/ogame v0.0.0-20201209221001-e466844dcd01 h1:crn0rFjh6a+8+A6Zrx/4go5BHscn8YjjBWsXGQG5sKg=
 github.com/alaingilbert/ogame v0.0.0-20201209221001-e466844dcd01/go.mod h1:ihD/w68SBzy+9w3+4X0gYvmH+HHVlCCKe4kbdCsu0M8=
 github.com/andybalholm/cascadia v1.1.0 h1:BuuO6sSfQNFRu1LppgbD25Hr2vLYW25JvxHs5zzsLTo=
@@ -99,10 +103,6 @@ github.com/hashicorp/go-version v1.2.0 h1:3vNe/fWF5CBgRIguda1meWhsZHy3m8gCJ5wx+d
 github.com/hashicorp/go-version v1.2.0/go.mod h1:fltr4n8CU8Ke44wwGCBoEymUuxUHl09ZGVZPK5anwXA=
 github.com/hashicorp/golang-lru v0.5.0/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
 github.com/hashicorp/golang-lru v0.5.1/go.mod h1:/m3WP610KZHVQ1SGc6re/UDhFvYD7pJ4Ao+sR/qLZy8=
-github.com/headzoo/surf v1.0.0 h1:d2h9ftKeQYj7tKqAjQtAA0lJVkO8cTxvzdXLynmNnHM=
-github.com/headzoo/surf v1.0.0/go.mod h1:/bct0m/iMNEqpn520y01yoaWxsAEigGFPnvyR1ewR5M=
-github.com/headzoo/ut v0.0.0-20181013193318-a13b5a7a02ca h1:utFgFwgxaqx5OthzE3DSGrtOq7rox5r2sxZ2wbfTuK0=
-github.com/headzoo/ut v0.0.0-20181013193318-a13b5a7a02ca/go.mod h1:8926sG02TCOX4RFRzIMFIzRw4xuc/TwO2gtN7teMJZ4=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024/go.mod h1:6v2b51hI/fHJwM22ozAgKL4VKDeJcHhJFhtBdhmNjmU=
 github.com/jstemmer/go-junit-report v0.9.1/go.mod h1:Brl9GWCQeLvo8nXZwPNNblvFj/XSXhF0NWZEnDohbsk=
@@ -330,8 +330,6 @@ gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 h1:qIbj1fsPNlZgppZ+VLlY7N33q108Sa+fhmuc+sWQYwY=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
-gopkg.in/headzoo/surf.v1 v1.0.0 h1:Ti4LagTvHxSdHYHf5DTqJRhY4+pQYZ0slBPlxo2IWGU=
-gopkg.in/headzoo/surf.v1 v1.0.0/go.mod h1:T0BH8276y+OPL0E4tisxCFjBVIAKGbwdYU7AS7/EpQQ=
 gopkg.in/mgo.v2 v2.0.0-20180705113604-9856a29383ce/go.mod h1:yeKp02qBN3iKW1OzL3MGk2IdtZzaj7SFntXj72NppTA=
 gopkg.in/retry.v1 v1.0.0-20161025181430-c09f6b86ba4d/go.mod h1:vVowKz5q49oxHG8AyXjsr6MGDyX2pQRrhjrsAou+stU=
 gopkg.in/retry.v1 v1.0.3 h1:a9CArYczAVv6Qs6VGoLMio99GEs7kY9UzSF9+LD+iGs=

@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
+	"golang.org/x/net/websocket"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -943,6 +944,7 @@ func replaceHostname(bot *OGame, requestHostname string, html []byte) []byte {
 	doubleEscapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte("\\\\\\/"), -1)
 	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
 	doubleEscapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte("\\\\\\/"), -1)
+
 	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
 	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
 	html = bytes.Replace(html, doubleEscapedServerURL, doubleEscapedAPINewHostname, -1)
@@ -976,6 +978,7 @@ func GetStaticHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
+
 	// Copy the original HTTP headers to our client
 	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
 		k = http.CanonicalHeaderKey(k)
@@ -999,7 +1002,146 @@ func GetStaticHandler(c echo.Context) error {
 	} else if strings.Contains(newURL, ".gif") {
 		contentType = "image/gif"
 	}
+
 	return c.Blob(http.StatusOK, contentType, body)
+}
+
+// GetStaticHandler ...
+func GetStaticHandler2(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	id := c.Get("id").(int64)
+	ids := strconv.FormatInt(id, 10)
+
+	newURL := bot.serverURL + strings.Replace(c.Request().URL.String(), `/` + ids, `/`, -1)
+	req, err := http.NewRequest("GET", newURL, nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	resp, err := bot.Client.Do(req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	defer resp.Body.Close()
+	body, _, err := readBody(resp)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	// Copy the original HTTP headers to our client
+	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		if k != "Content-Length" && k != "Content-Encoding" { // https://github.com/alaingilbert/ogame/pull/80#issuecomment-674559853
+			for _, v := range vv {
+				c.Response().Header().Add(k, v)
+			}
+		}
+	}
+
+	if strings.Contains(c.Request().URL.String(), ".xml") {
+		body = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), body)
+		return c.Blob(http.StatusOK, "application/xml", body)
+	}
+
+	contentType := http.DetectContentType(body)
+
+	pageHTMLString := string(body)
+	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='` + bot.serverURL + `/cdn/`, -1 )
+
+	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/` + ids + `/cdn/`, -1 )
+
+	pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
+
+	body = []byte(pageHTMLString)
+
+	if strings.Contains(newURL, ".css") {
+		contentType = "text/css"
+	} else if strings.Contains(newURL, ".js") {
+		contentType = "application/javascript"
+	} else if strings.Contains(newURL, ".gif") {
+		contentType = "image/gif"
+	}
+	return c.Blob(http.StatusOK, contentType, body)
+}
+
+// GetStaticHandler ...
+func GetStaticHandler3(c echo.Context) error {
+	newURL := "https://s1-en.ogame.gameforge.com/" + c.Request().URL.String()
+	client := http.Client{}
+	req, err := http.NewRequest("GET", newURL, nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	resp, err := client.Do(req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	defer resp.Body.Close()
+	body, _, err := readBody(resp)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+
+	// Copy the original HTTP headers to our client
+	for k, vv := range resp.Header { // duplicate headers are acceptable in HTTP spec, so add all of them individually: https://stackoverflow.com/questions/4371328/are-duplicate-http-response-headers-acceptable
+		k = http.CanonicalHeaderKey(k)
+		if k != "Content-Length" && k != "Content-Encoding" { // https://github.com/alaingilbert/ogame/pull/80#issuecomment-674559853
+			for _, v := range vv {
+				c.Response().Header().Add(k, v)
+			}
+		}
+	}
+
+
+	contentType := http.DetectContentType(body)
+	if strings.Contains(newURL, ".css") {
+		contentType = "text/css"
+	} else if strings.Contains(newURL, ".js") {
+		contentType = "application/javascript"
+	} else if strings.Contains(newURL, ".gif") {
+		contentType = "image/gif"
+	}
+
+	return c.Blob(http.StatusOK, contentType, body)
+}
+
+// GetFromGameHandler ...
+func GetFromGameHandler2(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	id := c.Get("id").(int64)
+	ids := strconv.FormatInt(id, 10)
+	//id, _ := strconv.ParseInt(c.Get("id"), 10, 64)
+	vals := url.Values{"page": {"ingame"}, "component": {"overview"}}
+	if len(c.QueryParams()) > 0 {
+		vals = c.QueryParams()
+	}
+	pageHTML, _ := bot.GetPageContent(vals)
+
+	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) + "/" + ids, pageHTML)
+
+	pageHTMLString := string(pageHTML)
+	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='` + bot.serverURL + `/cdn/`, -1 )
+
+	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/` + ids + `/cdn/`, -1 )
+
+	pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
+
+	pageHTML = []byte(pageHTMLString)
+
+	pageHTML = disableCookiebanner1(pageHTML)
+	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
 // GetFromGameHandler ...
@@ -1011,15 +1153,7 @@ func GetFromGameHandler(c echo.Context) error {
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
 	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), pageHTML)
-	pageHTML = disableCookiebanner1(pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
-}
-
-func disableCookiebanner1(pageHTML []byte) []byte{
-	pageString := string(pageHTML)
-	pageString = strings.Replace(pageString, "<title>", "<style>.cookiebanner1{display: none;}</style><title>", -1)
-	pageHTML = []byte(pageString)
-	return pageHTML
 }
 
 // PostToGameHandler ...
@@ -1032,6 +1166,45 @@ func PostToGameHandler(c echo.Context) error {
 	payload, _ := c.FormParams()
 	pageHTML, _ := bot.PostPageContent(vals, payload)
 	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), pageHTML)
+	return c.HTMLBlob(http.StatusOK, pageHTML)
+}
+
+func disableCookiebanner1(pageHTML []byte) []byte{
+	pageString := string(pageHTML)
+	pageString = strings.Replace(pageString, "<title>", "<style>.cookiebanner1{display: none;}</style><title>", -1)
+	pageHTML = []byte(pageString)
+	return pageHTML
+}
+
+// PostToGameHandler2 ...
+func PostToGameHandler2(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	id := c.Get("id").(int64)
+	ids := strconv.FormatInt(id, 10)
+
+	vals := url.Values{"page": {"ingame"}, "component": {"overview"}}
+	if len(c.QueryParams()) > 0 {
+		vals = c.QueryParams()
+	}
+	payload, _ := c.FormParams()
+	pageHTML, _ := bot.PostPageContent(vals, payload)
+
+	pageHTMLString := string(pageHTML)
+	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='` + bot.serverURL + `/cdn/`, -1 )
+
+	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/` + ids + `/cdn/`, -1 )
+
+	pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
+	pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
+
+	pageHTML = []byte(pageHTMLString)
+
+	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) + "/" + ids, pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1300,6 +1473,26 @@ func TechsHandler(c echo.Context) error {
 	}))
 }
 
+// AbandonHandler ...
+func AbandonHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := strconv.ParseInt(c.Param("celestialID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+
+	celestial, err := bot.getCelestial(CelestialID(celestialID))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "Can not getCelestial invalid celestial id"))
+	}
+
+	err = bot.Abandon(celestial.GetCoordinate())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp("Deleted Celestia ID: " + strconv.FormatInt(celestialID,10) ))
+}
+
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
@@ -1376,9 +1569,9 @@ func GetCaptchaHandler(c echo.Context) error {
 			return c.HTML(http.StatusOK, err.Error())
 		}
 
-		html := `<img style="background-color: black;" src="/bot/captcha/question/` + challengeID + `" /><br />
-<img style="background-color: black;" src="/bot/captcha/icons/` + challengeID + `" /><br />
-<form action="/bot/captcha/solve" method="POST">
+		html := `<img style="background-color: black;" src="captcha/question/` + challengeID + `" /><br />
+<img style="background-color: black;" src="captcha/icons/` + challengeID + `" /><br />
+<form action="captcha/solve" method="POST">
 	<input type="hidden" name="challenge_id" value="` + challengeID + `" />
 	<input name="answer" type="radio" value="0" /> <label for="ans0">1</label></span>
 	<input name="answer" type="radio" value="1" /> <label for="ans1">2</label></span>
@@ -1456,11 +1649,12 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 		bot.ChallengeID = ""
 	}
 	if !bot.IsLoggedIn() {
-		if err := bot.Login(); err != nil {
+		if _, err := bot.LoginWithExistingCookies(); err != nil {
 			bot.error(err)
+			return c.JSON(http.StatusConflict, SuccessResp(out.Status))
 		}
 	}
-	return c.Redirect(http.StatusTemporaryRedirect, "/")
+	return c.JSON(http.StatusOK, SuccessResp(out))
 }
 
 // GetServersHandler ...
@@ -1470,4 +1664,41 @@ func GetServersHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(servers))
+}
+
+// GetTransferHandler ...
+func GetTransferHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	data := struct {
+		Upload int64
+		Download int64
+	} {
+		bot.BytesUploaded(),
+		bot.BytesDownloaded(),
+	}
+	return c.JSON(http.StatusOK, SuccessResp(data))
+}
+
+// GetWebsocket ...
+func GetWebsocket(c echo.Context) error {
+	//bot := c.Get("bot").(*OGame)
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+		for {
+			// Write
+			err := websocket.Message.Send(ws, "Hello, Client!")
+			if err != nil {
+				c.Logger().Error(err)
+			}
+
+			// Read
+			msg := ""
+			err = websocket.Message.Receive(ws, &msg)
+			if err != nil {
+				c.Logger().Error(err)
+			}
+			fmt.Printf("%s\n", msg)
+		}
+	}).ServeHTTP(c.Response(), c.Request())
+	return nil
 }

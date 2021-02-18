@@ -252,6 +252,7 @@ func start(c *cli.Context) error {
 	e.Debug = true
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/tasks", ogame.TasksHandler)
+	e.GET("/transfer", ogame.GetTransferHandler)
 	e.GET("/api/v1/servers", ogame.GetServersHandler)
 
 	// CAPTCHA Handler
@@ -306,6 +307,9 @@ func start(c *cli.Context) error {
 	e.GET("/bot/moons/:galaxy/:system/:position", ogame.GetMoonByCoordHandler)
 	e.GET("/bot/celestials/:celestialID/items", ogame.GetCelestialItemsHandler)
 	e.GET("/bot/celestials/:celestialID/items/:itemRef/activate", ogame.ActivateCelestialItemHandler)
+	e.GET("/bot/celestials/:celestialID/techs", ogame.TechsHandler)
+	e.GET("/bot/celestials/:celestialID/abandon", ogame.AbandonHandler)
+
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
