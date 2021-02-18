@@ -309,7 +309,6 @@ func start(c *cli.Context) error {
 	e.GET("/bot/celestials/:celestialID/items/:itemRef/activate", ogame.ActivateCelestialItemHandler)
 	e.GET("/bot/celestials/:celestialID/techs", ogame.TechsHandler)
 	e.GET("/bot/celestials/:celestialID/abandon", ogame.AbandonHandler)
-
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
@@ -337,7 +336,6 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", ogame.PhalanxHandler)
 	e.POST("/bot/moons/:moonID/jump-gate", ogame.JumpGateHandler)
-	e.GET("/bot/techs/:celestialID", ogame.TechsHandler)
 	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 
 	// Get/Post Page Content
