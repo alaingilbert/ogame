@@ -20,7 +20,7 @@ func NewExtractorV6() *ExtractorV6 {
 }
 
 // ExtractTechs ...
-func (e ExtractorV6) ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, Researches, DefensesInfos, error) {
+func (e ExtractorV6) ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error) {
 	panic("implement me")
 }
 

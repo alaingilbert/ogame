@@ -156,6 +156,12 @@ func main() {
 			Value:   true,
 			EnvVars: []string{"CORS_ENABLED"},
 		},
+		&cli.StringFlag{
+			Name:    "nja-api-key",
+			Usage:   "Ninja API key",
+			Value:   "",
+			EnvVars: []string{"NJA_API_KEY"},
+		},
 	}
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
@@ -185,8 +191,9 @@ func start(c *cli.Context) error {
 	basicAuthPassword := c.String("basic-auth-password")
 	cookiesFilename := c.String("cookies-filename")
 	corsEnabled := c.Bool("cors-enabled")
+	njaApiKey := c.String("nja-api-key")
 
-	bot, err := ogame.NewWithParams(ogame.Params{
+	params := ogame.Params{
 		Universe:        universe,
 		Username:        username,
 		Password:        password,
@@ -200,7 +207,12 @@ func start(c *cli.Context) error {
 		Lobby:           lobby,
 		APINewHostname:  apiNewHostname,
 		CookiesFilename: cookiesFilename,
-	})
+	}
+	if njaApiKey != "" {
+		params.CaptchaCallback = ogame.NinjaSolver(njaApiKey)
+	}
+
+	bot, err := ogame.NewWithParams(params)
 	if err != nil {
 		return err
 	}
@@ -240,6 +252,8 @@ func start(c *cli.Context) error {
 	e.Debug = true
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/tasks", ogame.TasksHandler)
+	e.GET("/transfer", ogame.GetTransferHandler)
+	e.GET("/api/v1/servers", ogame.GetServersHandler)
 
 	// CAPTCHA Handler
 	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
@@ -293,6 +307,8 @@ func start(c *cli.Context) error {
 	e.GET("/bot/moons/:galaxy/:system/:position", ogame.GetMoonByCoordHandler)
 	e.GET("/bot/celestials/:celestialID/items", ogame.GetCelestialItemsHandler)
 	e.GET("/bot/celestials/:celestialID/items/:itemRef/activate", ogame.ActivateCelestialItemHandler)
+	e.GET("/bot/celestials/:celestialID/techs", ogame.TechsHandler)
+	e.GET("/bot/celestials/:celestialID/abandon", ogame.AbandonHandler)
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
@@ -320,7 +336,6 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", ogame.PhalanxHandler)
 	e.POST("/bot/moons/:moonID/jump-gate", ogame.JumpGateHandler)
-	e.GET("/bot/techs/:celestialID", ogame.TechsHandler)
 	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 
 	// Get/Post Page Content

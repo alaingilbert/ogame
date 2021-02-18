@@ -247,11 +247,11 @@ type planetTechsRespV71 struct {
 	Num503 int64 `json:"503"`
 }
 
-func extractTechsV71(pageHTML []byte) (supplies ResourcesBuildings, facilities Facilities, shipsInfos ShipsInfos, researches Researches, defenses DefensesInfos, err error) {
+func extractTechsV71(pageHTML []byte) (supplies ResourcesBuildings, facilities Facilities, shipsInfos ShipsInfos, defenses DefensesInfos, researches Researches, err error) {
 	var res planetTechsRespV71
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if isLogged(pageHTML) {
-			return supplies, facilities, shipsInfos, researches, defenses, ErrInvalidPlanetID
+			return supplies, facilities, shipsInfos, defenses, researches, ErrInvalidPlanetID
 		}
 		return
 	}
@@ -298,6 +298,18 @@ func extractTechsV71(pageHTML []byte) (supplies ResourcesBuildings, facilities F
 		Reaper:         res.Num218,
 		Pathfinder:     res.Num219,
 	}
+	defenses = DefensesInfos{
+		RocketLauncher:         res.Num401,
+		LightLaser:             res.Num402,
+		HeavyLaser:             res.Num403,
+		GaussCannon:            res.Num404,
+		IonCannon:              res.Num405,
+		PlasmaTurret:           res.Num406,
+		SmallShieldDome:        res.Num407,
+		LargeShieldDome:        res.Num408,
+		AntiBallisticMissiles:  res.Num502,
+		InterplanetaryMissiles: res.Num503,
+	}
 	researches = Researches{
 		EnergyTechnology:             res.Num113,
 		LaserTechnology:              res.Num120,
@@ -315,18 +327,6 @@ func extractTechsV71(pageHTML []byte) (supplies ResourcesBuildings, facilities F
 		WeaponsTechnology:            res.Num109,
 		ShieldingTechnology:          res.Num110,
 		ArmourTechnology:             res.Num111,
-	}
-	defenses = DefensesInfos{
-		RocketLauncher:               res.Num401,
-		LightLaser:                   res.Num402,
-		HeavyLaser:                   res.Num403,
-		GaussCannon:                  res.Num404,
-		IonCannon:                    res.Num405,
-		PlasmaTurret:                 res.Num406,
-		SmallShieldDome:              res.Num407,
-		LargeShieldDome:              res.Num408,
-		AntiBallisticMissiles:        res.Num502,
-		InterplanetaryMissiles:       res.Num503,
 	}
 	return
 }
