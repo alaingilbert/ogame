@@ -12,6 +12,7 @@ import (
 
 // Prioritizable ...
 type Prioritizable interface {
+	RecruitOfficer(typ, days int64) error
 	Abandon(interface{}) error
 	ActivateItem(string, CelestialID) error
 	Begin() Prioritizable
@@ -256,6 +257,7 @@ type Extractor interface {
 	ExtractPlanets(pageHTML []byte, b *OGame) []Planet
 	ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error)
 	ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error)
+	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
 	ExtractMoons(pageHTML []byte, b *OGame) []Moon
 	ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error)
 	ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error)

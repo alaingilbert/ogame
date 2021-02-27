@@ -2354,6 +2354,29 @@ func (b *OGame) getCelestial(v interface{}) (Celestial, error) {
 	return b.extractor.ExtractCelestial(pageHTML, b, v)
 }
 
+func (b *OGame) recruitOfficer(typ, days int64) error {
+	if typ != 2 && typ != 3 && typ != 4 && typ != 5 && typ != 6 {
+		return errors.New("invalid officer type")
+	}
+	if days != 7 && days != 90 {
+		return errors.New("invalid days")
+	}
+	pageHTML, err := b.getPageContent(url.Values{"page": {"premium"}, "ajax": {"1"}, "type": {strconv.FormatInt(typ, 10)}})
+	if err != nil {
+		return err
+	}
+	token, err := b.extractor.ExtractPremiumToken(pageHTML, days)
+	if err != nil {
+		return err
+	}
+	if _, err := b.getPageContent(url.Values{"page": {"premium"}, "buynow": {"1"},
+		"type": {strconv.FormatInt(typ, 10)}, "days": {strconv.FormatInt(days, 10)},
+		"token": {token}}); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (b *OGame) abandon(v interface{}) error {
 	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
 	var planetID PlanetID
@@ -4962,6 +4985,13 @@ func (b *OGame) GetMoon(v interface{}) (Moon, error) {
 // GetCelestials get the player's planets & moons
 func (b *OGame) GetCelestials() ([]Celestial, error) {
 	return b.WithPriority(Normal).GetCelestials()
+}
+
+// RecruitOfficer recruit an officer.
+// Typ 2: Commander, 3: Admiral, 4: Engineer, 5: Geologist, 6: Technocrat
+// Days: 7 or 90
+func (b *OGame) RecruitOfficer(typ, days int64) error {
+	return b.WithPriority(Normal).RecruitOfficer(typ, days)
 }
 
 // Abandon a planet
