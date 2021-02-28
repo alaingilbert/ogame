@@ -170,6 +170,15 @@ func (b *Prioritize) GetCelestials() ([]Celestial, error) {
 	return b.bot.getCelestials()
 }
 
+// RecruitOfficer recruit an officer.
+// Typ 2: Commander, 3: Admiral, 4: Engineer, 5: Geologist, 6: Technocrat
+// Days: 7 or 90
+func (b *Prioritize) RecruitOfficer(typ, days int64) error {
+	b.begin("RecruitOfficer")
+	defer b.done()
+	return b.bot.recruitOfficer(typ, days)
+}
+
 // Abandon a planet. Warning: this is irreversible
 func (b *Prioritize) Abandon(v interface{}) error {
 	b.begin("Abandon")
@@ -531,7 +540,7 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuilding
 	resSettings ResourceSettings, temp Temperature) Resources {
 	b.begin("GetResourcesProductionsLight")
 	defer b.done()
-	return b.bot.getResourcesProductionsLight(resBuildings, researches, resSettings, temp)
+	return getResourcesProductionsLight(resBuildings, researches, resSettings, temp, b.bot.serverData.Speed)
 }
 
 // FlightTime calculate flight time and fuel needed

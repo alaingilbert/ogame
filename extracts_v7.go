@@ -23,6 +23,16 @@ func getNbrV7Ships(doc *goquery.Document, name string) int64 {
 	return val
 }
 
+func extractPremiumTokenV7(pageHTML []byte, days int64) (token string, err error) {
+	rgx := regexp.MustCompile(`\?page=premium&buynow=1&type=\d&days=` + strconv.FormatInt(days, 10) + `&token=(\w+)`)
+	m := rgx.FindSubmatch(pageHTML)
+	if len(m) < 2 {
+		return "", errors.New("unable to find token")
+	}
+	token = string(m[1])
+	return
+}
+
 func extractResourcesDetailsFromFullPageFromDocV7(doc *goquery.Document) ResourcesDetails {
 	out := ResourcesDetails{}
 	out.Metal.Available = ParseInt(strings.Split(doc.Find("span#resources_metal").AttrOr("data-raw", "0"), ".")[0])
