@@ -1883,6 +1883,15 @@ func TestExtractUserInfos_ba(t *testing.T) {
 	assert.Equal(t, "Governor Hunter", infos.PlayerName)
 }
 
+func TestExtractUserInfos_es(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.5/es/overview.html")
+	infos, _ := NewExtractorV7().ExtractUserInfos(pageHTMLBytes, "es")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(2976), infos.Rank)
+	assert.Equal(t, int64(2977), infos.Total)
+	assert.Equal(t, "Commodore Navi", infos.PlayerName)
+}
+
 func TestExtractMoons(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
 	moons := NewExtractorV6().ExtractMoons(pageHTMLBytes, &OGame{language: "en"})
