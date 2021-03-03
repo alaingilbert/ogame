@@ -1138,10 +1138,46 @@ func GetFromGameHandler2(c echo.Context) error {
 	pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
 	pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
 
+	pageHTMLString = strings.Replace(pageHTMLString,`var nodeUrl = "http:\/\/`+c.Request().Host +``, `var nodeUrl = "`+bot.serverURL, -1)
+
 	pageHTML = []byte(pageHTMLString)
 
 	pageHTML = disableCookiebanner1(pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
+}
+
+// GetOGameJavascriptHandler
+func GetOGameJavascriptHandler(c echo.Context ) error {
+	bot := c.Get("bot").(*OGame)
+	newURL := c.QueryParam("url")
+
+	req, err := http.NewRequest("GET", newURL, nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	resp, err := bot.Client.Do(req)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	defer resp.Body.Close()
+	body, _, err := readBody(resp)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+
+	body = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), body)
+
+
+	contentType := http.DetectContentType(body)
+	if strings.Contains(newURL, ".css") {
+		contentType = "text/css"
+	} else if strings.Contains(newURL, ".js") {
+		contentType = "application/javascript"
+	} else if strings.Contains(newURL, ".gif") {
+		contentType = "image/gif"
+	}
+	return c.Blob(http.StatusOK, contentType, body)
 }
 
 // GetFromGameHandler ...
@@ -1153,6 +1189,8 @@ func GetFromGameHandler(c echo.Context) error {
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
 	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), pageHTML)
+	pageHTML = disableCookiebanner1(pageHTML)
+
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1541,7 +1579,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	if resp.StatusCode == 403 {
 		defer resp.Body.Close()
 		data403, _, _ := readBody(resp)
-		return c.HTML(http.StatusOK, string(data403))
+		return c.HTML(resp.StatusCode, string(data403))
 	}
 
 	if resp.StatusCode == 409 {
@@ -1566,7 +1604,7 @@ func GetCaptchaHandler(c echo.Context) error {
 
 		data, _, _ := readBody(resp)
 		if err := json.Unmarshal(data, &temp); err != nil {
-			return c.HTML(http.StatusOK, err.Error())
+			return c.HTML(resp.StatusCode, err.Error())
 		}
 
 		html := `<img style="background-color: black;" src="captcha/question/` + challengeID + `" /><br />
@@ -1585,7 +1623,8 @@ func GetCaptchaHandler(c echo.Context) error {
 
 		return c.HTML(http.StatusOK, html)
 	}
-	return c.HTML(http.StatusOK, "no captcha found")
+
+	return c.HTML(resp.StatusCode, "no captcha found")
 }
 
 // GetCaptchaHandler ...
@@ -1659,6 +1698,7 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 
 // GetServersHandler ...
 func GetServersHandler(c echo.Context) error {
+	//selectedLobby := c.QueryParam("lobby")
 	servers, err := GetServers()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
@@ -1680,8 +1720,7 @@ func GetTransferHandler(c echo.Context) error {
 }
 
 // GetWebsocket ...
-func GetWebsocket(c echo.Context) error {
-	//bot := c.Get("bot").(*OGame)
+func WSHandler(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 		for {

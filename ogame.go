@@ -177,6 +177,7 @@ type Data struct {
 	EventboxResp     eventboxResp
 	AttackEvents     []AttackEvent
 	MovementFleets   []Fleet
+	EventFleets []Fleet
 	Slots            Slots
 }
 
@@ -2242,8 +2243,8 @@ func (b *OGame) wrapLoginWithExistingCookies() (useCookies bool, err error) {
 }
 
 func (b *OGame) wrapLogin() error {
-	//return b.loginWrapper(func() (bool, error) { return false, b.login() })
-	return b.loginWrapper(func() (bool, error) { return b.loginWithExistingCookies() })
+	return b.loginWrapper(func() (bool, error) { return false, b.login() })
+	//return b.loginWrapper(func() (bool, error) { return b.loginWithExistingCookies() })
 }
 
 // GetExtractor gets extractor object
@@ -6454,8 +6455,49 @@ func (b *OGame) GetTechInfos(celestialID CelestialID) (TechInfos, error) {
 // GetServers ...
 func GetServers() ([]Server, error) {
 	client := &http.Client{}
-	servers, err := getServers2(Lobby, client)
-	return servers, err
+
+	//selectedLobby := c.QueryParam("lobby")
+	servers, _ := getServers2("lobby", client)
+	serversPioneers, _ := getServers2("lobby", client)
+
+
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+
+	ServersPioneers := make(map[string][]Server)
+	for _, v := range serversPioneers {
+		ServersPioneers[v.Language] = append(ServersPioneers[v.Language], v)
+	}
+
+	return getServers2(Lobby, client)
+}
+
+// GetServers ...
+func GetLobbyServers() (map[string][]Server, error) {
+	client := &http.Client{}
+	servers, _ := getServers2(Lobby, client)
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+	return Servers, nil
+}
+
+// GetServers ...
+func GetLobbyPioneersServers() (map[string][]Server, error) {
+	client := &http.Client{}
+	servers, _ := getServers2(LobbyPioneers, client)
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+	ServersPioneers := make(map[string][]Server)
+	for _, v := range servers {
+		ServersPioneers[v.Language] = append(ServersPioneers[v.Language], v)
+	}
+	return ServersPioneers, nil
 }
 
 // GetAccounts ..
