@@ -441,6 +441,33 @@ func TestExtractDefenseV7(t *testing.T) {
 	assert.Equal(t, int64(0), defense.InterplanetaryMissiles)
 }
 
+//func TestGetResourcesProductionsLight(t *testing.T) {
+//	supplies := ResourcesBuildings{
+//		MetalMine:            32,
+//		CrystalMine:          28,
+//		DeuteriumSynthesizer: 28,
+//		SolarPlant:           30,
+//		FusionReactor:        9,
+//		SolarSatellite:       0,
+//	}
+//	researches := Researches{
+//		EnergyTechnology: 18,
+//		PlasmaTechnology: 15,
+//	}
+//	resSettings := ResourceSettings{
+//		MetalMine:            100,
+//		CrystalMine:          100,
+//		DeuteriumSynthesizer: 60,
+//		SolarPlant:           100,
+//		FusionReactor:        0,
+//		SolarSatellite:       100,
+//		Crawler:              0,
+//	}
+//	temp := Temperature{Min: -23, Max: 17}
+//	prod := getResourcesProductionsLight(supplies, researches, resSettings, temp, 7)
+//	assert.Equal(t, Resources{Metal: 109444, Crystal: 41697, Deuterium: 16347, Energy: -5169}, prod)
+//}
+
 func TestProductionRatio(t *testing.T) {
 	ratio := productionRatio(
 		Temperature{-23, 17},
@@ -1854,6 +1881,15 @@ func TestExtractUserInfos_ba(t *testing.T) {
 	assert.Equal(t, int64(138), infos.Rank)
 	assert.Equal(t, int64(139), infos.Total)
 	assert.Equal(t, "Governor Hunter", infos.PlayerName)
+}
+
+func TestExtractUserInfos_es(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.5/es/overview.html")
+	infos, _ := NewExtractorV7().ExtractUserInfos(pageHTMLBytes, "es")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(2976), infos.Rank)
+	assert.Equal(t, int64(2977), infos.Total)
+	assert.Equal(t, "Commodore Navi", infos.PlayerName)
 }
 
 func TestExtractMoons(t *testing.T) {

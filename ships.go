@@ -172,6 +172,16 @@ func (s *ShipsInfos) Add(v ShipsInfos) {
 	}
 }
 
+// AddShips adds some ships
+func (s *ShipsInfos) AddShips(shipID ID, nb int64) {
+	s.Set(shipID, s.ByID(shipID)+nb)
+}
+
+// SubShips subtracts some ships
+func (s *ShipsInfos) SubShips(shipID ID, nb int64) {
+	s.AddShips(shipID, -1*nb)
+}
+
 // ByID get number of ships by ship id
 func (s ShipsInfos) ByID(id ID) int64 {
 	switch id {

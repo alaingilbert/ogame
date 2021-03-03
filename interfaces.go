@@ -12,6 +12,7 @@ import (
 
 // Prioritizable ...
 type Prioritizable interface {
+	RecruitOfficer(typ, days int64) error
 	Abandon(interface{}) error
 	ActivateItem(string, CelestialID) error
 	Begin() Prioritizable
@@ -116,6 +117,7 @@ type Prioritizable interface {
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	Prioritizable
+	ValidateAccount(code string) error
 	AddAccount(number int, lang string) (NewAccount, error)
 	BytesDownloaded() int64
 	BytesUploaded() int64
@@ -260,6 +262,7 @@ type Extractor interface {
 	ExtractPlanets(pageHTML []byte, b *OGame) []Planet
 	ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error)
 	ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error)
+	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
 	ExtractMoons(pageHTML []byte, b *OGame) []Moon
 	ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error)
 	ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error)
