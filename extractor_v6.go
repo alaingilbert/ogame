@@ -19,6 +19,11 @@ func NewExtractorV6() *ExtractorV6 {
 	return &ExtractorV6{}
 }
 
+// ExtractPremiumToken ...
+func (e ExtractorV6) ExtractPremiumToken(pageHTML []byte, days int64) (string, error) {
+	panic("implement me")
+}
+
 // ExtractTechs ...
 func (e ExtractorV6) ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error) {
 	panic("implement me")

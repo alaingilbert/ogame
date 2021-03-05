@@ -18,6 +18,11 @@ func NewExtractorV7() *ExtractorV7 {
 	return &ExtractorV7{}
 }
 
+// ExtractPremiumToken ...
+func (e ExtractorV7) ExtractPremiumToken(pageHTML []byte, days int64) (string, error) {
+	return extractPremiumTokenV7(pageHTML, days)
+}
+
 // ExtractResourcesDetailsFromFullPage ...
 func (e ExtractorV7) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))

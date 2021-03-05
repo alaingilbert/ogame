@@ -177,6 +177,7 @@ type Data struct {
 	EventboxResp     eventboxResp
 	AttackEvents     []AttackEvent
 	MovementFleets   []Fleet
+	EventFleets []Fleet
 	Slots            Slots
 }
 
@@ -293,7 +294,10 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 }
 
 // Register a new gameforge lobby account
-func Register(lobby, email, password, challengeID string, client *http.Client) error {
+func Register(lobby, email, password, challengeID, lang string, client *http.Client) error {
+	if lang == "" {
+		lang = "en"
+	}
 	var payload struct {
 		Credentials struct {
 			Email    string `json:"email"`
@@ -304,6 +308,7 @@ func Register(lobby, email, password, challengeID string, client *http.Client) e
 	}
 	payload.Credentials.Email = email
 	payload.Credentials.Password = password
+	payload.Language = lang
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return err
@@ -345,6 +350,34 @@ func Register(lobby, email, password, challengeID string, client *http.Client) e
 		return errors.New(res.Error)
 	}
 	return nil
+}
+
+// ValidateAccount validate a gameforge account
+func ValidateAccount(code string, client *http.Client) error {
+	if len(code) != 36 {
+		return errors.New("invalid validation code")
+	}
+	req, err := http.NewRequest(http.MethodPut, "https://lobby.ogame.gameforge.com/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
+	if err != nil {
+		return err
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
+}
+
+func (b *OGame) validateAccount(code string) error {
+	if b.loginProxyTransport != nil {
+		oldTransport := b.Client.Transport
+		b.Client.Transport = b.loginProxyTransport
+		defer func() {
+			b.Client.Transport = oldTransport
+		}()
+	}
+	return ValidateAccount(code, &b.Client.Client)
 }
 
 // RedeemCode ...
@@ -2242,8 +2275,8 @@ func (b *OGame) wrapLoginWithExistingCookies() (useCookies bool, err error) {
 }
 
 func (b *OGame) wrapLogin() error {
-	//return b.loginWrapper(func() (bool, error) { return false, b.login() })
-	return b.loginWrapper(func() (bool, error) { return b.loginWithExistingCookies() })
+	return b.loginWrapper(func() (bool, error) { return false, b.login() })
+	//return b.loginWrapper(func() (bool, error) { return b.loginWithExistingCookies() })
 }
 
 // GetExtractor gets extractor object
@@ -3146,6 +3179,29 @@ func (b *OGame) getCelestials() ([]Celestial, error) {
 func (b *OGame) getCelestial(v interface{}) (Celestial, error) {
 	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
 	return b.extractor.ExtractCelestial(pageHTML, b, v)
+}
+
+func (b *OGame) recruitOfficer(typ, days int64) error {
+	if typ != 2 && typ != 3 && typ != 4 && typ != 5 && typ != 6 {
+		return errors.New("invalid officer type")
+	}
+	if days != 7 && days != 90 {
+		return errors.New("invalid days")
+	}
+	pageHTML, err := b.getPageContent(url.Values{"page": {"premium"}, "ajax": {"1"}, "type": {strconv.FormatInt(typ, 10)}})
+	if err != nil {
+		return err
+	}
+	token, err := b.extractor.ExtractPremiumToken(pageHTML, days)
+	if err != nil {
+		return err
+	}
+	if _, err := b.getPageContent(url.Values{"page": {"premium"}, "buynow": {"1"},
+		"type": {strconv.FormatInt(typ, 10)}, "days": {strconv.FormatInt(days, 10)},
+		"token": {token}}); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b *OGame) abandon(v interface{}) error {
@@ -5223,7 +5279,7 @@ func getProductions(resBuildings ResourcesBuildings, resSettings ResourceSetting
 	return Resources{
 		Metal:     MetalMine.Production(universeSpeed, metalSetting, globalRatio, researches.PlasmaTechnology, resBuildings.MetalMine),
 		Crystal:   CrystalMine.Production(universeSpeed, crystalSetting, globalRatio, researches.PlasmaTechnology, resBuildings.CrystalMine),
-		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), deutSetting, globalRatio, resBuildings.DeuteriumSynthesizer) - FusionReactor.GetFuelConsumption(universeSpeed, globalRatio, resBuildings.FusionReactor),
+		Deuterium: DeuteriumSynthesizer.Production(universeSpeed, temp.Mean(), deutSetting, globalRatio, researches.PlasmaTechnology, resBuildings.DeuteriumSynthesizer) - FusionReactor.GetFuelConsumption(universeSpeed, float64(resSettings.FusionReactor)/100, resBuildings.FusionReactor),
 		Energy:    energyProduced - energyNeeded,
 	}
 }
@@ -5239,9 +5295,8 @@ func (b *OGame) getResourcesProductions(planetID PlanetID) (Resources, error) {
 	return productions, nil
 }
 
-func (b *OGame) getResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
-	resSettings ResourceSettings, temp Temperature) Resources {
-	universeSpeed := b.serverData.Speed
+func getResourcesProductionsLight(resBuildings ResourcesBuildings, researches Researches,
+	resSettings ResourceSettings, temp Temperature, universeSpeed int64) Resources {
 	ratio := productionRatio(temp, resBuildings, resSettings, researches.EnergyTechnology)
 	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, temp, ratio)
 	return productions
@@ -5539,6 +5594,11 @@ func (b *OGame) GetPublicIP() (string, error) {
 	return b.getPublicIP()
 }
 
+// ValidateAccount validate a gameforge account
+func (b *OGame) ValidateAccount(code string) error {
+	return b.validateAccount(code)
+}
+
 // OnStateChange register a callback that is notified when the bot state changes
 func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
 	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
@@ -5787,6 +5847,13 @@ func (b *OGame) GetMoon(v interface{}) (Moon, error) {
 // GetCelestials get the player's planets & moons
 func (b *OGame) GetCelestials() ([]Celestial, error) {
 	return b.WithPriority(Normal).GetCelestials()
+}
+
+// RecruitOfficer recruit an officer.
+// Typ 2: Commander, 3: Admiral, 4: Engineer, 5: Geologist, 6: Technocrat
+// Days: 7 or 90
+func (b *OGame) RecruitOfficer(typ, days int64) error {
+	return b.WithPriority(Normal).RecruitOfficer(typ, days)
 }
 
 // Abandon a planet
@@ -6454,8 +6521,49 @@ func (b *OGame) GetTechInfos(celestialID CelestialID) (TechInfos, error) {
 // GetServers ...
 func GetServers() ([]Server, error) {
 	client := &http.Client{}
-	servers, err := getServers2(Lobby, client)
-	return servers, err
+
+	//selectedLobby := c.QueryParam("lobby")
+	servers, _ := getServers2("lobby", client)
+	serversPioneers, _ := getServers2("lobby", client)
+
+
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+
+	ServersPioneers := make(map[string][]Server)
+	for _, v := range serversPioneers {
+		ServersPioneers[v.Language] = append(ServersPioneers[v.Language], v)
+	}
+
+	return getServers2(Lobby, client)
+}
+
+// GetServers ...
+func GetLobbyServers() (map[string][]Server, error) {
+	client := &http.Client{}
+	servers, _ := getServers2(Lobby, client)
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+	return Servers, nil
+}
+
+// GetServers ...
+func GetLobbyPioneersServers() (map[string][]Server, error) {
+	client := &http.Client{}
+	servers, _ := getServers2(LobbyPioneers, client)
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+	ServersPioneers := make(map[string][]Server)
+	for _, v := range servers {
+		ServersPioneers[v.Language] = append(ServersPioneers[v.Language], v)
+	}
+	return ServersPioneers, nil
 }
 
 // GetAccounts ..

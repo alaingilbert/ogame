@@ -19,6 +19,9 @@ builds:
   - "386"
   goarm:
   - "6"
+  ignore:
+  - goos: darwin
+    goarch: 386
   main: ./cmd/ogamed/main.go
   ldflags: -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
   binary: ogamed
