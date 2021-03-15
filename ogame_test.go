@@ -1504,13 +1504,15 @@ func TestExtractGalaxyInfos_starlord(t *testing.T) {
 func TestExtractGalaxyInfos_destroyedPlanet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_destroyed_planet.html")
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
-	assert.Nil(t, infos.Position(8))
+	assert.NotNil(t, infos.Position(8))
+	assert.True(t, infos.Position(8).Destroyed)
 }
 
 func TestExtractGalaxyInfos_destroyedPlanetAndMoon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_destroyed_planet_and_moon2.html")
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
-	assert.Nil(t, infos.Position(15))
+	assert.NotNil(t, infos.Position(15))
+	assert.True(t, infos.Position(15).Destroyed)
 }
 
 func TestExtractGalaxyInfos_banned(t *testing.T) {
