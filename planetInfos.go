@@ -91,6 +91,7 @@ type PlanetInfos struct {
 	Img             string
 	Coordinate      Coordinate
 	Administrator   bool
+	Destroyed       bool
 	Inactive        bool
 	Vacation        bool
 	StrongPlayer    bool
