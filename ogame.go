@@ -6329,10 +6329,20 @@ func (b *OGame) getCachedData() Data {
 	}
 	b.planetActivityMu.RUnlock()
 
-	b.planetResourcesMu.RLock()
+	b.planetResourcesMu.Lock()
 	//data.PlanetResources = b.planetResources
 	for k, e := range b.planetResources {
-
+		celTmp := b.getCachedCelestials()
+		var ownCelestialID bool
+		for _, celTmpValue := range celTmp {
+			if celTmpValue.GetID() == k {
+				ownCelestialID = true
+			}
+		}
+		if !ownCelestialID {
+			delete(b.planetResources, k)
+			continue
+		}
 		var resProduction struct {
 			Metal     float64
 			Crystal   float64
@@ -6357,7 +6367,7 @@ func (b *OGame) getCachedData() Data {
 
 		data.PlanetResources[k] = e
 	}
-	b.planetResourcesMu.RUnlock()
+	b.planetResourcesMu.Unlock()
 
 	b.planetResourcesBuildingsMu.RLock()
 	//data.PlanetResourcesBuildings = b.planetResourcesBuildings
