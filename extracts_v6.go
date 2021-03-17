@@ -1684,7 +1684,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	case "de":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Platz ([\d.]+) von ([\d.]+)\)`)
 	case "es":
-		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posici\\u00f3n ([\d.]+) de ([\d.]+)\)`)
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posición\\u00f3n ([\d.]+) de ([\d.]+)\)`)
 	case "ar":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Lugar ([\d.]+) de ([\d.]+)\)`)
 	case "mx":

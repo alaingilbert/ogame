@@ -14,18 +14,21 @@ type ResourcesDetails struct {
 		Available         int64
 		StorageCapacity   int64
 		CurrentProduction int64
+		BaseProduction    float64 // Production per Second
 		// DenCapacity       int
 	}
 	Crystal struct {
 		Available         int64
 		StorageCapacity   int64
 		CurrentProduction int64
+		BaseProduction    float64 // Production per Second
 		// DenCapacity       int
 	}
 	Deuterium struct {
 		Available         int64
 		StorageCapacity   int64
 		CurrentProduction int64
+		BaseProduction    float64 // Production per Second
 		// DenCapacity       int
 	}
 	Energy struct {

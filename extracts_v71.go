@@ -20,16 +20,19 @@ type resourcesRespV71 struct {
 		Metal struct {
 			Amount  float64 `json:"amount"`
 			Storage float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
 			Tooltip string  `json:"tooltip"`
 		} `json:"metal"`
 		Crystal struct {
 			Amount  float64 `json:"amount"`
 			Storage float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
 			Tooltip string  `json:"tooltip"`
 		} `json:"crystal"`
 		Deuterium struct {
 			Amount  float64 `json:"amount"`
 			Storage float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
 			Tooltip string  `json:"tooltip"`
 		} `json:"deuterium"`
 		Energy struct {
@@ -161,12 +164,16 @@ func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err erro
 	}
 	out.Metal.Available = int64(res.Resources.Metal.Amount)
 	out.Metal.StorageCapacity = int64(res.Resources.Metal.Storage)
+	out.Metal.BaseProduction = res.Resources.Metal.BaseProduction
 	out.Crystal.Available = int64(res.Resources.Crystal.Amount)
 	out.Crystal.StorageCapacity = int64(res.Resources.Crystal.Storage)
+	out.Crystal.BaseProduction = res.Resources.Crystal.BaseProduction
 	out.Deuterium.Available = int64(res.Resources.Deuterium.Amount)
 	out.Deuterium.StorageCapacity = int64(res.Resources.Deuterium.Storage)
+	out.Deuterium.BaseProduction = res.Resources.Deuterium.BaseProduction
 	out.Energy.Available = int64(res.Resources.Energy.Amount)
 	out.Darkmatter.Available = int64(res.Resources.Darkmatter.Amount)
+
 	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Metal.Tooltip))
 	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Crystal.Tooltip))
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Deuterium.Tooltip))

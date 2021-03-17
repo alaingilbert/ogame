@@ -9,6 +9,7 @@ import (
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/net/websocket"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -1012,7 +1013,8 @@ func GetStaticHandler2(c echo.Context) error {
 	id := c.Get("id").(int64)
 	ids := strconv.FormatInt(id, 10)
 
-	newURL := bot.serverURL + strings.Replace(c.Request().URL.String(), `/` + ids, `/`, -1)
+	//newURL := bot.serverURL + strings.Replace(c.Request().URL.String(), `/bots/` + ids, `/`, -1)
+	newURL := bot.serverURL + strings.Replace(c.Request().URL.String(), `/bots/` + ids, `/`, -1)
 	req, err := http.NewRequest("GET", newURL, nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
@@ -1049,13 +1051,13 @@ func GetStaticHandler2(c echo.Context) error {
 	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
 	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='` + bot.serverURL + `/cdn/`, -1 )
 
-	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/` + ids + `/cdn/`, -1 )
-
-	pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/` + ids + `/cdn/`, -1 )
+	//
+	//pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
 
 	body = []byte(pageHTMLString)
 
@@ -1071,7 +1073,7 @@ func GetStaticHandler2(c echo.Context) error {
 
 // GetStaticHandler ...
 func GetStaticHandler3(c echo.Context) error {
-	newURL := "https://s1-en.ogame.gameforge.com/" + c.Request().URL.String()
+	newURL := "https://s1-de.ogame.gameforge.com/" + c.Request().URL.String()
 	client := http.Client{}
 	req, err := http.NewRequest("GET", newURL, nil)
 	if err != nil {
@@ -1097,8 +1099,6 @@ func GetStaticHandler3(c echo.Context) error {
 			}
 		}
 	}
-
-
 	contentType := http.DetectContentType(body)
 	if strings.Contains(newURL, ".css") {
 		contentType = "text/css"
@@ -1121,24 +1121,52 @@ func GetFromGameHandler2(c echo.Context) error {
 	if len(c.QueryParams()) > 0 {
 		vals = c.QueryParams()
 	}
-	pageHTML, _ := bot.GetPageContent(vals)
-
-	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) + "/" + ids, pageHTML)
+	pageHTML, err := bot.GetPageContent(vals)
+	if err != nil {
+		log.Println("FEHELR: " + err.Error())
+	}
 
 	pageHTMLString := string(pageHTML)
-	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='` + bot.serverURL + `/cdn/`, -1 )
+	maskedServerURL := strings.Replace(bot.serverURL, `/`, `\/`, -1)
+	pageHTMLString = strings.Replace(pageHTMLString,`var nodeUrl = "`+maskedServerURL+`:19489\/socket.io\/socket.io.js"`, `var nodeUrl = "\/ogws\/socket.io\/socket.io.js"`, -1)
+	pageHTMLString = strings.Replace(pageHTMLString,`var nodeParams = {"port":19489,"secure":true}`, `var nodeParams={"resource": "ogws/`+ids+`/socket.io", "secure":true};`, -1)
+	pageHTMLString = strings.Replace(pageHTMLString,`var nodeUrl="`+maskedServerURL+`:19489\/socket.io\/socket.io.js"`, `var nodeUrl = "\/ogws\/socket.io\/socket.io.js"`, -1)
+	pageHTMLString = strings.Replace(pageHTMLString,`var nodeParams={"port":19489,"secure":true}`, `var nodeParams={"resource": "ogws/`+ids+`/socket.io", "secure":true};`, -1)
 
-	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/` + ids + `/cdn/`, -1 )
+	pageHTML = []byte(pageHTMLString)
 
-	pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
+	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) + "/bots/" + ids, pageHTML)
+	pageHTMLString = string(pageHTML)
 
-	pageHTMLString = strings.Replace(pageHTMLString,`var nodeUrl = "http:\/\/`+c.Request().Host +``, `var nodeUrl = "`+bot.serverURL, -1)
+
+	//pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='` + bot.serverURL + `/cdn/`, -1 )
+	//
+	//pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/bots/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/bots/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/bots/` + ids + `/cdn/`, -1 )
+	//
+	//pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/bots/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/bots/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/bots/` + ids + `/cdn/`, -1 )
+
+	//pageHTMLString = strings.Replace(pageHTMLString,`var nodeUrl = "http:\/\/`+c.Request().Host +``, `var nodeUrl = "`+bot.serverURL, -1)
+	//var nodeUrl="http:\/\/localhost:8080\/bots\/1:19489\/socket.io\/socket.io.js";
+
+	pageHTMLString = strings.Replace(pageHTMLString,`https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js`, prepareHostname(c.Request().TLS, c.Request().Host) +`/bots/`+ ids + `/ogame.js?url=https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js`, -1)
+	pageHTMLString = strings.Replace(pageHTMLString,`https://gf1.geo.gfsrv.net/cdn67/fcb375651c0c3542cb6492c9e3341d.js`, prepareHostname(c.Request().TLS, c.Request().Host) +`/bots/`+ ids + `/ogame.js?url=https://gf1.geo.gfsrv.net/cdn67/fcb375651c0c3542cb6492c9e3341d.js`, -1)
+	pageHTMLString = strings.Replace(pageHTMLString,`https://gf2.geo.gfsrv.net/cdn49/422728156f2b26a567b1c04eb5c316.js`, prepareHostname(c.Request().TLS, c.Request().Host) +`/bots/`+ ids + `/ogame.js?url=https://gf2.geo.gfsrv.net/cdn49/422728156f2b26a567b1c04eb5c316.js`, -1)
+
+	//pageHTMLString = strings.Replace(pageHTMLString,`var nodeUrl="http:\/\/`+c.Request().Host +`\/bots\/`+ids+`:19489`, `var nodeUrl="http:\/\/`+c.Request().Host +`\/bots\/`+ids, -1)
+
+
+	//pageHTMLString = strings.Replace(pageHTMLString,`:19489`, ``, 2)
+	//pageHTMLString = strings.Replace(pageHTMLString,`var nodePort = 19489`, `var nodePort = 19489;`, 1)
+
+
+
+
 
 	pageHTML = []byte(pageHTMLString)
 
@@ -1149,6 +1177,8 @@ func GetFromGameHandler2(c echo.Context) error {
 // GetOGameJavascriptHandler
 func GetOGameJavascriptHandler(c echo.Context ) error {
 	bot := c.Get("bot").(*OGame)
+	id := c.Get("id").(int64)
+	ids := strconv.FormatInt(id, 10)
 	newURL := c.QueryParam("url")
 
 	req, err := http.NewRequest("GET", newURL, nil)
@@ -1166,7 +1196,10 @@ func GetOGameJavascriptHandler(c echo.Context ) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 
-	body = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), body)
+	body = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) + "/bots/" + ids, body)
+	pageHTMLString := string(body)
+	pageHTMLString = strings.Replace(pageHTMLString,`/game/index.php?page=ajaxChatToggleVisibility`, prepareHostname(c.Request().TLS, c.Request().Host) +`/bots/`+ids+`/game/index.php?page=ajaxChatToggleVisibility`, -1)
+	body = []byte(pageHTMLString)
 
 
 	contentType := http.DetectContentType(body)
@@ -1187,9 +1220,20 @@ func GetFromGameHandler(c echo.Context) error {
 	if len(c.QueryParams()) > 0 {
 		vals = c.QueryParams()
 	}
-	pageHTML, _ := bot.GetPageContent(vals)
+	var pageHTML []byte
+	var err error
+	if bot.state == "Manuel Mode" {
+		pageHTML, err = bot.getPageContent(vals)
+	} else {
+		pageHTML, err = bot.GetPageContent(vals)
+	}
+
 	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), pageHTML)
 	pageHTML = disableCookiebanner1(pageHTML)
+
+	if err != nil {
+		c.HTMLBlob(http.StatusOK, []byte(err.Error()))
+	}
 
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
@@ -1202,7 +1246,10 @@ func PostToGameHandler(c echo.Context) error {
 		vals = c.QueryParams()
 	}
 	payload, _ := c.FormParams()
-	pageHTML, _ := bot.PostPageContent(vals, payload)
+	pageHTML, err := bot.PostPageContent(vals, payload)
+	if err != nil {
+		c.HTMLBlob(http.StatusOK, []byte(err.Error()))
+	}
 	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host), pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
@@ -1232,17 +1279,17 @@ func PostToGameHandler2(c echo.Context) error {
 	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `src="` + bot.serverURL + `/cdn/`, -1 )
 	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='` + bot.serverURL + `/cdn/`, -1 )
 
-	pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/` + ids + `/cdn/`, -1 )
-
-	pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
-	pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `src="/cdn/`, `src="/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `src='/cdn/`, `src='/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `href="/cdn/`, `href="/` + ids + `/cdn/`, -1 )
+	//
+	//pageHTMLString = strings.Replace(pageHTMLString, `url(/cdn/`, `url(/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `url('/cdn/`, `url('/` + ids + `/cdn/`, -1 )
+	//pageHTMLString = strings.Replace(pageHTMLString, `url("/cdn/`, `url("/` + ids + `/cdn/`, -1 )
 
 	pageHTML = []byte(pageHTMLString)
 
-	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) + "/" + ids, pageHTML)
+	pageHTML = replaceHostname(bot, prepareHostname(c.Request().TLS, c.Request().Host) + "/bots/" + ids, pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1721,6 +1768,8 @@ func GetTransferHandler(c echo.Context) error {
 
 // GetWebsocket ...
 func WSHandler(c echo.Context) error {
+	//bot := c.Get("bot").(*OGame)
+
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 		for {
@@ -1740,4 +1789,32 @@ func WSHandler(c echo.Context) error {
 		}
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil
+}
+
+// ManualMode ...
+func ManuelModeEnableHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	bot.BeginNamed("Manuel Mode")
+	return nil
+}
+
+// ManualMode ...
+func ManuelModeDisableHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	bot.Done()
+	return nil
+}
+
+// GetStateHandler ...
+func GetStateHandler (c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	locked, state := bot.GetState()
+	data := struct {
+		State string
+		Lock bool
+	} {
+		State: state,
+		Lock: locked,
+	}
+	return c.JSON(http.StatusOK, SuccessResp(data))
 }
