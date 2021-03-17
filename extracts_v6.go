@@ -1891,11 +1891,11 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			if playerName == "" {
 				playerName := strings.TrimSpace(s.Find("td.playername").Find("span").Text())
 				if playerName == "" {
-					return
+					planetInfos.Destroyed = true
 				}
 			}
 
-			if playerID == 0 {
+			if !planetInfos.Destroyed && playerID == 0 {
 				playerID = botPlayerID
 				playerName = botPlayerName
 				playerRank = botPlayerRank
