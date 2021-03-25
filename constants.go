@@ -1,6 +1,11 @@
 package ogame
 
-import "strconv"
+import (
+	"database/sql/driver"
+	"errors"
+	"log"
+	"strconv"
+)
 
 // MissionID represent a mission id
 type MissionID int
@@ -102,6 +107,21 @@ func (s Speed) String() string {
 
 // CelestialType destination type might be planet/moon/debris
 type CelestialType int64
+
+// Scan scan value into Jsonb, implements sql.Scanner interface
+func (j *CelestialType) Scan(value interface{}) error {
+	v, ok := value.(int64)
+	if !ok {
+		return errors.New("Failed to scan CelestialType with value: " + value))
+	}
+	*j = CelestialType(v)
+	return nil
+}
+
+// Value return json value, implement driver.Valuer interface
+func (j CelestialType) Value() (driver.Value, error) {
+	return j.Int64(), nil
+}
 
 func (d CelestialType) String() string {
 	switch d {

@@ -23,10 +23,10 @@ func NewOGameClient() *OGameClient {
 		Client: http.Client{
 			Timeout: 30 * time.Second,
 		},
-		maxRPS: 0,
+		maxRPS: 1,
 	}
 
-	const delay = 1
+	const delay = 10
 
 	go func() {
 		for {

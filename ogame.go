@@ -145,10 +145,10 @@ type OGame struct {
 	slots                               Slots
 	slotsMu                             sync.RWMutex
 	characterClassMu                    sync.RWMutex
-	ChallengeID string
-	CaptchaText string
-	CaptchaImg	string
-	cookiesFilename string
+	ChallengeID                         string
+	CaptchaText                         string
+	CaptchaImg                          string
+	cookiesFilename                     string
 }
 
 // CaptchaCallback ...
@@ -177,7 +177,7 @@ type Data struct {
 	EventboxResp     eventboxResp
 	AttackEvents     []AttackEvent
 	MovementFleets   []Fleet
-	EventFleets []Fleet
+	EventFleets      []Fleet
 	Slots            Slots
 }
 
@@ -6535,7 +6535,6 @@ func GetServers() ([]Server, error) {
 	//selectedLobby := c.QueryParam("lobby")
 	servers, _ := getServers2("lobby", client)
 	serversPioneers, _ := getServers2("lobby", client)
-
 
 	Servers := make(map[string][]Server)
 	for _, v := range servers {

@@ -18,22 +18,22 @@ import (
 type resourcesRespV71 struct {
 	Resources struct {
 		Metal struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
 			BaseProduction float64 `json:"baseProduction"`
-			Tooltip string  `json:"tooltip"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"metal"`
 		Crystal struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
 			BaseProduction float64 `json:"baseProduction"`
-			Tooltip string  `json:"tooltip"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"crystal"`
 		Deuterium struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
 			BaseProduction float64 `json:"baseProduction"`
-			Tooltip string  `json:"tooltip"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"deuterium"`
 		Energy struct {
 			Amount  float64 `json:"amount"`
