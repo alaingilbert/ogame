@@ -3,7 +3,6 @@ package ogame
 import (
 	"database/sql/driver"
 	"errors"
-	"log"
 	"strconv"
 )
 
@@ -112,7 +111,7 @@ type CelestialType int64
 func (j *CelestialType) Scan(value interface{}) error {
 	v, ok := value.(int64)
 	if !ok {
-		return errors.New("Failed to scan CelestialType with value: " + value))
+		return errors.New("Failed to scan CelestialType with value:" + strconv.FormatInt(v, 10))
 	}
 	*j = CelestialType(v)
 	return nil
