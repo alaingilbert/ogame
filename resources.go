@@ -54,6 +54,28 @@ func (r ResourcesDetails) Available() Resources {
 	}
 }
 
+// Production returns the resources currently Produced
+func (r ResourcesDetails) Production() Resources {
+	return Resources{
+		Metal:      r.Metal.CurrentProduction,
+		Crystal:    r.Crystal.CurrentProduction,
+		Deuterium:  r.Deuterium.CurrentProduction,
+		Energy:     r.Energy.CurrentProduction,
+		Darkmatter: 0,
+	}
+}
+
+// Storage returns the resources that can be stored
+func (r ResourcesDetails) Storage() Resources {
+	return Resources{
+		Metal:      r.Metal.StorageCapacity,
+		Crystal:    r.Crystal.StorageCapacity,
+		Deuterium:  r.Deuterium.StorageCapacity,
+		Energy:     0,
+		Darkmatter: 0,
+	}
+}
+
 // Resources represent ogame resources
 type Resources struct {
 	Metal      int64
@@ -168,12 +190,11 @@ func (r Resources) FitsIn(ship Ship, techs Researches, probeRaids, isCollector, 
 	return int64(stdmath.Ceil(float64(r.Total()) / float64(cargo)))
 }
 
-
 // SubReal subtract v from r
 func (r Resources) SubReal(v Resources) Resources {
 	return Resources{
-		Metal:     r.Metal-v.Metal,
-		Crystal:   r.Crystal-v.Crystal,
-		Deuterium: r.Deuterium-v.Deuterium,
+		Metal:     r.Metal - v.Metal,
+		Crystal:   r.Crystal - v.Crystal,
+		Deuterium: r.Deuterium - v.Deuterium,
 	}
 }

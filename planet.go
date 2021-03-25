@@ -31,7 +31,7 @@ func (t Temperature) Mean() int64 {
 type Planet struct {
 	ogame       *OGame `gorm:"-"`
 	Img         string
-	ID          PlanetID `gorm:"embedded;column:PlanetID"`
+	ID          PlanetID `gorm:"column:planetID"`
 	Name        string
 	Diameter    int64
 	Coordinate  Coordinate  `gorm:"embedded"`
