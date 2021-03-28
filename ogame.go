@@ -899,7 +899,7 @@ type Server struct {
 		PremiumValidationGift    int64
 		DebrisFieldFactorShips   int64
 		DebrisFieldFactorDefence int64
-	}
+	} `gorm:"embedded;embeddedPrefix:settings_"`
 }
 
 // ogame cookie name for token id

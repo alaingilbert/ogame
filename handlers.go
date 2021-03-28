@@ -1812,3 +1812,37 @@ func GetStateHandler(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, SuccessResp(data))
 }
+
+func GetUniverseHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	var universe Universe
+	universe, err := bot.GetUniverse()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, SuccessResp(universe))
+}
+
+func GetPlayersHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	var players XMLPlayers
+	players, err := bot.GetPlayers()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, SuccessResp(players))
+}
+
+func GetPlayerDataHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	playerID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid msgid id"))
+	}
+	var playerData PlayerData
+	playerData, err = bot.GetPlayerData(playerID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err)
+	}
+	return c.JSON(http.StatusOK, SuccessResp(playerData))
+}

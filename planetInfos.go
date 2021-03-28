@@ -14,11 +14,11 @@ type SystemInfos struct {
 		Metal             int64
 		Crystal           int64
 		PathfindersNeeded int64
-	}
+	} `gorm:"embedded;embeddedPrefix:expedition_debris_"`
 	Events struct {
 		Darkmatter  int64
 		HasAsteroid bool
-	}
+	} `gorm:"embedded;embeddedPrefix:events_"`
 }
 
 // Galaxy returns galaxy info
@@ -89,7 +89,7 @@ type PlanetInfos struct {
 	Activity        int64 // no activity: 0, active: 15, inactive: [16, 59]
 	Name            string
 	Img             string
-	Coordinate      Coordinate
+	Coordinate      Coordinate `gorm:"embedded"`
 	Administrator   bool
 	Destroyed       bool
 	Inactive        bool
@@ -102,15 +102,15 @@ type PlanetInfos struct {
 		Metal           int64
 		Crystal         int64
 		RecyclersNeeded int64
-	}
-	Moon   *MoonInfos
+	} `gorm:"embedded;embeddedPrefix:debris_"`
+	Moon   *MoonInfos `gorm:"embedded;embeddedPrefix:moon_"`
 	Player struct {
 		ID         int64
 		Name       string
 		Rank       int64
 		IsBandit   bool
 		IsStarlord bool
-	}
-	Alliance *AllianceInfos
+	} `gorm:"embedded;embeddedPrefix:player_"`
+	Alliance *AllianceInfos `gorm:"embedded;embeddedPrefix:alliance_infos_"`
 	Date     time.Time
 }
