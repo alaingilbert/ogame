@@ -12,13 +12,13 @@ func (m MoonID) Celestial() CelestialID {
 
 // Moon ogame moon object
 type Moon struct {
-	ogame      *OGame
-	ID         MoonID
+	ogame      *OGame `gorm:"-"`
+	ID         MoonID `gorm:"column:planet_id"`
 	Img        string
 	Name       string
 	Diameter   int64
-	Coordinate Coordinate
-	Fields     Fields
+	Coordinate Coordinate `gorm:"embedded"`
+	Fields     Fields     `gorm:"embedded;embeddedPrefix:fields_"`
 }
 
 // GetName ...

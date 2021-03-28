@@ -4,16 +4,17 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/clockwork"
-	lua "github.com/yuin/gopher-lua"
-	"golang.org/x/net/html"
 	"math"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
+	lua "github.com/yuin/gopher-lua"
+	"golang.org/x/net/html"
 )
 
 func extractIsInVacationFromDocV6(doc *goquery.Document) bool {
@@ -1217,7 +1218,6 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 			res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
 			res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
 		}
-
 
 		fleet.Resources = res
 
