@@ -1626,7 +1626,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	if resp.StatusCode == 409 {
 		var temp struct {
 			ID          string `json:"id"`
-			LastUpdated int    `json:"lastUpdated"`
+			LastUpdated int64  `json:"lastUpdated"`
 			Status      string `json:"status"`
 		}
 
@@ -1699,9 +1699,9 @@ func GetCaptchaTextHandler(c echo.Context) error {
 }
 
 type captchaSolver struct {
-	ID          string
-	LastUpdated int64
-	Status      string
+	ID          string `json:"id"`
+	LastUpdated int64  `json:"lastUpdated"`
+	Status      string `json:"status"`
 }
 
 // GetCaptchaSolverHandler ...

@@ -160,3 +160,8 @@ func (b *OGame) getPlayerData(playerID int64) (PlayerData, error) {
 func (b *OGame) GetPlayerData(playerID int64) (PlayerData, error) {
 	return b.getPlayerData(playerID)
 }
+
+// TOTP
+func (b *OGame) RegisterTOTP() {
+
+}
