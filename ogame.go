@@ -268,7 +268,7 @@ func Register(lobby, email, password, challengeID, lang string, client *http.Cli
 		Error             string `json:"error"`
 	}
 	if err := json.Unmarshal(by, &res); err != nil {
-		return err
+		return errors.New(err.Error() + " : " + string(by))
 	}
 	if res.Error != "" {
 		return errors.New(res.Error)
@@ -347,7 +347,7 @@ func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Cl
 		return errors.New("invalid request, token invalid ?")
 	}
 	if err := json.Unmarshal(by, &respParsed); err != nil {
-		return err
+		return errors.New(err.Error() + " : " + string(by))
 	}
 	if respParsed.TokenType != "accountTrading" {
 		return errors.New("tokenType is not accountTrading")
@@ -408,7 +408,7 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 		return newAccount, errors.New("invalid request, account already in lobby ?")
 	}
 	if err := json.Unmarshal(by, &newAccount); err != nil {
-		return newAccount, err
+		return newAccount, errors.New(err.Error() + " : " + string(by))
 	}
 	if newAccount.Error != "" {
 		return newAccount, errors.New(newAccount.Error)
@@ -585,7 +585,7 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 	}
 	b.bytesUploaded += req.ContentLength
 	if err := json.Unmarshal(by, &userAccounts); err != nil {
-		return userAccounts, err
+		return userAccounts, errors.New("failed to get user accounts : " + err.Error() + " : " + string(by))
 	}
 	return userAccounts, nil
 }
@@ -607,7 +607,7 @@ func getServers2(lobby string, client *http.Client) ([]Server, error) {
 		return servers, err
 	}
 	if err := json.Unmarshal(by, &servers); err != nil {
-		return servers, err
+		return servers, errors.New("failed to get servers : " + err.Error() + " : " + string(by))
 	}
 	return servers, nil
 }
@@ -635,7 +635,7 @@ func getServers(b *OGame) ([]Server, error) {
 	}
 	b.bytesUploaded += req.ContentLength
 	if err := json.Unmarshal(by, &servers); err != nil {
-		return servers, err
+		return servers, errors.New("failed to get servers : " + err.Error() + " : " + string(by))
 	}
 	return servers, nil
 }
@@ -754,7 +754,7 @@ func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
 		URL string
 	}
 	if err := json.Unmarshal(by, &loginLink); err != nil {
-		return "", err
+		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by))
 	}
 	return loginLink.URL, nil
 }
@@ -4540,7 +4540,7 @@ func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 	b.bytesUploaded += req.ContentLength
 	b.bytesDownloaded += int64(len(by))
 	if err := json.Unmarshal(by, &newAccount); err != nil {
-		return newAccount, err
+		return newAccount, errors.New(err.Error() + " : " + string(by))
 	}
 	return newAccount, nil
 }
