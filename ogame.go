@@ -3054,6 +3054,52 @@ func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
 	return
 }
 
+type MessageSuccess struct {
+	Buff          string `json:"buff"`
+	Status        string `json:"status"`
+	Duration      int    `json:"duration"`
+	Extendable    bool   `json:"extendable"`
+	TotalDuration int    `json:"totalDuration"`
+	Tooltip       string `json:"tooltip"`
+	Reload        bool   `json:"reload"`
+	BuffID        string `json:"buffId"`
+	Item          struct {
+		Name                    string      `json:"name"`
+		Image                   string      `json:"image"`
+		ImageLarge              string      `json:"imageLarge"`
+		Title                   string      `json:"title"`
+		Effect                  string      `json:"effect"`
+		Ref                     string      `json:"ref"`
+		Rarity                  string      `json:"rarity"`
+		Amount                  int         `json:"amount"`
+		AmountFree              int         `json:"amount_free"`
+		AmountBought            int         `json:"amount_bought"`
+		Category                []string    `json:"category"`
+		Currency                string      `json:"currency"`
+		Costs                   string      `json:"costs"`
+		IsReduced               bool        `json:"isReduced"`
+		Buyable                 bool        `json:"buyable"`
+		CanBeActivated          bool        `json:"canBeActivated"`
+		CanBeBoughtAndActivated bool        `json:"canBeBoughtAndActivated"`
+		IsAnUpgrade             bool        `json:"isAnUpgrade"`
+		IsCharacterClassItem    bool        `json:"isCharacterClassItem"`
+		HasEnoughCurrency       bool        `json:"hasEnoughCurrency"`
+		Cooldown                int         `json:"cooldown"`
+		Duration                int         `json:"duration"`
+		DurationExtension       interface{} `json:"durationExtension"`
+		TotalTime               int         `json:"totalTime"`
+		TimeLeft                int         `json:"timeLeft"`
+		Status                  string      `json:"status"`
+		Extendable              bool        `json:"extendable"`
+		FirstStatus             string      `json:"firstStatus"`
+		ToolTip                 string      `json:"toolTip"`
+		BuyTitle                string      `json:"buyTitle"`
+		ActivationTitle         string      `json:"activationTitle"`
+		MoonOnlyItem            bool        `json:"moonOnlyItem"`
+	} `json:"item"`
+	Message string `json:"message"`
+}
+
 func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
 	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
 	if celestialID != 0 {
@@ -3072,8 +3118,9 @@ func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
 		"item":         {ref},
 	}
 	var res struct {
-		Message string `json:"message"`
-		Error   bool   `json:"error"`
+		Message  interface{} `json:"message"`
+		Error    bool        `json:"error"`
+		NewToken string      `json:"newToken"`
 	}
 	by, err := b.postPageContent(params, payload)
 	if err != nil {
@@ -3083,7 +3130,10 @@ func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
 		return err
 	}
 	if res.Error {
-		return errors.New(res.Message)
+		if msg, ok := res.Message.(string); ok {
+			return errors.New(msg)
+		}
+		return errors.New("unknown error")
 	}
 	return err
 }
