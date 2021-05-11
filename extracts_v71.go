@@ -1074,6 +1074,27 @@ func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items
 	return
 }
 
+func extractActiveItemsFromDocV71(doc *goquery.Document) (items []ActiveItem, err error) {
+	doc.Find("ul.active_items div").Each(func(i int, s *goquery.Selection) {
+		dataID := ParseInt(s.AttrOr("data-id", ""))
+		if dataID == 0 {
+			return
+		}
+		durationDiv := s.Find("div.js_duration").First()
+		aTitle := s.Find("a").AttrOr("title", "")
+		imgSrc := s.Find("img").AttrOr("src", "")
+		item := ActiveItem{}
+		item.Ref = s.AttrOr("data-uuid", "")
+		item.ID = dataID
+		item.TotalDuration = ParseInt(durationDiv.AttrOr("data-total-duration", ""))
+		item.TimeRemaining = ParseInt(durationDiv.Text())
+		item.Name = strings.TrimSpace(strings.Split(aTitle, "|")[0])
+		item.ImgSmall = imgSrc
+		items = append(items, item)
+	})
+	return
+}
+
 func extractIsMobileFromDocV71(doc *goquery.Document) bool {
 	r := regexp.MustCompile(`var isMobile = (true|false);`)
 	scripts := doc.Find("script")

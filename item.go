@@ -34,3 +34,13 @@ type Item struct {
 	//buyTitle                string
 	//activationTitle         string
 }
+
+// ActiveItem ...
+type ActiveItem struct {
+	ID            int64
+	Ref           string
+	Name          string
+	TimeRemaining int64
+	TotalDuration int64
+	ImgSmall      string
+}

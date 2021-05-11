@@ -3054,6 +3054,16 @@ func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
 	return
 }
 
+func (b *OGame) getActiveItems(celestialID CelestialID) (items []ActiveItem, err error) {
+	params := url.Values{"page": {"ingame"}, "component": {"overview"}}
+	if celestialID != 0 {
+		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
+	}
+	pageHTML, _ := b.getPageContent(params)
+	items, err = b.extractor.ExtractActiveItems(pageHTML)
+	return
+}
+
 type MessageSuccess struct {
 	Buff          string `json:"buff"`
 	Status        string `json:"status"`
@@ -5440,6 +5450,11 @@ func (b *OGame) UseDM(typ string, celestialID CelestialID) error {
 // GetItems get all items information
 func (b *OGame) GetItems(celestialID CelestialID) ([]Item, error) {
 	return b.WithPriority(Normal).GetItems(celestialID)
+}
+
+// GetActiveItems ...
+func (b *OGame) GetActiveItems(celestialID CelestialID) ([]ActiveItem, error) {
+	return b.WithPriority(Normal).GetActiveItems(celestialID)
 }
 
 // ActivateItem activate an item

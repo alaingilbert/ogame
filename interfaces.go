@@ -47,6 +47,7 @@ type Prioritizable interface {
 	GetFleets(...Option) ([]Fleet, Slots)
 	GetFleetsFromEventList() []Fleet
 	GetItems(CelestialID) ([]Item, error)
+	GetActiveItems(CelestialID) ([]ActiveItem, error)
 	GetMoon(interface{}) (Moon, error)
 	GetMoons() []Moon
 	GetPageContent(url.Values) ([]byte, error)
@@ -401,6 +402,7 @@ type Extractor interface {
 	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
 	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
 	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
+	ExtractActiveItems(pageHTML []byte) ([]ActiveItem, error)
 	ExtractIsMobile(pageHTML []byte) bool
 	ExtractIsMobileFromDoc(doc *goquery.Document) bool
 }

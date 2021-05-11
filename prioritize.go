@@ -661,6 +661,13 @@ func (b *Prioritize) GetItems(celestialID CelestialID) ([]Item, error) {
 	return b.bot.getItems(celestialID)
 }
 
+// GetActiveItems ...
+func (b *Prioritize) GetActiveItems(celestialID CelestialID) ([]ActiveItem, error) {
+	b.begin("GetActiveItems")
+	defer b.done()
+	return b.bot.getActiveItems(celestialID)
+}
+
 // ActivateItem activate an item
 func (b *Prioritize) ActivateItem(ref string, celestialID CelestialID) error {
 	b.begin("ActivateItem")
