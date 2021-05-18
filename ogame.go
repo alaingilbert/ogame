@@ -3512,6 +3512,11 @@ func (b *OGame) IsV7() bool {
 	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '7'
 }
 
+// IsV8 ...
+func (b *OGame) IsV8() bool {
+	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '8'
+}
+
 func getToken(b *OGame, page string, celestialID CelestialID) (string, error) {
 	pageHTML, _ := b.getPage(page, celestialID)
 	rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
@@ -3889,8 +3894,9 @@ type CheckTargetResponse struct {
 		Message string `json:"message"`
 		Error   int    `json:"error"`
 	} `json:"errors"`
-	TargetOk   bool          `json:"targetOk"`
-	Components []interface{} `json:"components"`
+	TargetOk     bool          `json:"targetOk"`
+	Components   []interface{} `json:"components"`
+	NewAjaxToken string        `json:"newAjaxToken"`
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
@@ -3985,6 +3991,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
+	if b.IsV8() {
+		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
+	}
 	if len(tokenM) != 2 {
 		return Fleet{}, errors.New("token not found")
 	}
@@ -4057,6 +4066,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	newResources.Deuterium = MaxInt(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
+	if b.IsV8() {
+		payload.Set("token", checkRes.NewAjaxToken)
+	}
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
 	payload.Set("crystal", strconv.FormatInt(newResources.Crystal, 10))
 	payload.Set("deuterium", strconv.FormatInt(newResources.Deuterium, 10))
