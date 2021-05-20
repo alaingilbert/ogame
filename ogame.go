@@ -1563,7 +1563,7 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly, config)
 }
 
-func (b *OGame) connectChatV7(host, port string) {
+func (b *OGame) connectChat(host, port string) {
 	if b.IsV8() {
 		b.connectChatV8(host, port)
 	} else {
