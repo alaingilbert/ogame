@@ -1563,7 +1563,207 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly, config)
 }
 
-func (b *OGame) connectChat(host, port string) {
+func (b *OGame) connectChatV7(host, port string) {
+	if b.IsV8() {
+		b.connectChatV8(host, port)
+	} else {
+		b.connectChatV7(host, port)
+	}
+}
+
+// Socket IO v3 timestamp encoding
+// https://github.com/unshiftio/yeast/blob/28d15f72fc5a4273592bc209056c328a54e2b522/index.js#L17
+// fmt.Println(yeast(time.Now().UnixNano() / 1000000))
+func yeast(num int64) (encoded string) {
+	alphabet := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_"
+	length := int64(len(alphabet))
+	for num > 0 {
+		encoded = string(alphabet[int(num%length)]) + encoded
+		num = int64(math.Floor(float64(num / length)))
+	}
+	return
+}
+
+func (b *OGame) connectChatV8(host, port string) {
+	token := yeast(time.Now().UnixNano() / 1000000)
+	req, err := http.NewRequest("GET", "https://"+host+":"+port+"/socket.io/?EIO=4&transport=polling&t="+token, nil)
+	if err != nil {
+		b.error("failed to create request:", err)
+		return
+	}
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		b.error("failed to get socket.io token:", err)
+		return
+	}
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			b.error(err)
+		}
+	}()
+	b.chatRetry.Reset()
+	by, _ := ioutil.ReadAll(resp.Body)
+	m := regexp.MustCompile(`"sid":"([^"]+)"`).FindSubmatch(by)
+	if len(m) != 2 {
+		b.error("failed to get websocket sid:", err)
+		return
+	}
+	sid := string(m[1])
+
+	origin := "https://" + host + ":" + port + "/"
+	wssURL := "wss://" + host + ":" + port + "/socket.io/?EIO=4&transport=websocket&sid=" + sid
+	b.ws, err = websocket.Dial(wssURL, "", origin)
+	if err != nil {
+		b.error("failed to dial websocket:", err)
+		return
+	}
+	_, _ = b.ws.Write([]byte("2probe"))
+
+	// Recv msgs
+LOOP:
+	for {
+		select {
+		case <-b.closeChatCh:
+			break LOOP
+		default:
+		}
+
+		var buf = make([]byte, 1024*1024)
+		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+			b.error("failed to set read deadline:", err)
+		}
+		n, err := b.ws.Read(buf)
+		if err != nil {
+			if err == io.EOF {
+				b.error("chat eof:", err)
+				break
+			} else if strings.HasSuffix(err.Error(), "use of closed network connection") {
+				break
+			} else if strings.HasSuffix(err.Error(), "i/o timeout") {
+				continue
+			} else {
+				b.error("chat unexpected error", err)
+				// connection reset by peer
+				break
+			}
+		}
+		for _, clb := range b.wsCallbacks {
+			go clb(buf[0:n])
+		}
+		msg := bytes.Trim(buf, "\x00")
+		if bytes.Equal(msg, []byte("3probe")) {
+			_, _ = b.ws.Write([]byte("5"))
+			_, _ = b.ws.Write([]byte("40/chat,"))
+			_, _ = b.ws.Write([]byte(`40/auctioneer,`))
+		} else if bytes.Equal(msg, []byte("2")) {
+			_, _ = b.ws.Write([]byte("3"))
+		} else if regexp.MustCompile(`40/auctioneer,{"sid":"[^"]+"}`).Match(msg) {
+			b.debug("got auctioneer sid")
+		} else if regexp.MustCompile(`40/chat,{"sid":"[^"]+"}`).Match(msg) {
+			b.debug("got chat sid")
+			_, _ = b.ws.Write([]byte(`42/chat,` + strconv.FormatInt(b.sessionChatCounter, 10) + `["authorize","` + b.ogameSession + `"]`))
+			b.sessionChatCounter++
+		} else if regexp.MustCompile(`43/chat,\d+\[true]`).Match(msg) {
+			b.debug("chat connected")
+		} else if regexp.MustCompile(`43/chat,\d+\[false]`).Match(msg) {
+			b.error("Failed to connect to chat")
+		} else if bytes.HasPrefix(msg, []byte(`42/chat,["chat",`)) {
+			payload := bytes.TrimPrefix(msg, []byte(`42/chat,["chat",`))
+			payload = bytes.TrimSuffix(payload, []byte(`]`))
+			var chatMsg ChatMsg
+			if err := json.Unmarshal(payload, &chatMsg); err != nil {
+				b.error("Unable to unmarshal chat payload", err, payload)
+				continue
+			}
+			for _, clb := range b.chatCallbacks {
+				clb(chatMsg)
+			}
+		} else if regexp.MustCompile(`^\d+/auctioneer`).Match(msg) {
+			// 42/auctioneer,["timeLeft","<span style=\"color:#99CC00;\"><b>approx. 30m</b></span> remaining until the auction ends"] // every minute
+			// 42/auctioneer,["timeLeft","Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">117</span>"]
+			// 42/auctioneer,["new bid",{"player":{"id":219657,"name":"Payback","link":"https://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"sum":5000,"price":6000,"bids":5,"auctionId":"42894"}]
+			// 42/auctioneer,["new auction",{"info":"<span style=\"color:#99CC00;\"><b>approx. 35m</b></span> remaining until the auction ends","item":{"uuid":"0968999df2fe956aa4a07aea74921f860af7d97f","image":"55d4b1750985e4843023d7d0acd2b9bafb15f0b7","rarity":"rare"},"oldAuction":{"item":{"uuid":"3c9f85221807b8d593fa5276cdf7af9913c4a35d","imageSmall":"286f3eaf6072f55d8858514b159d1df5f16a5654","rarity":"common"},"time":"20.05.2021 08:42:07","bids":5,"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"}},"auctionId":42895}]
+			// 42/auctioneer,["auction finished",{"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"bids":5,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1072</span>","time":"08:42"}]
+			parts := bytes.SplitN(msg, []byte(","), 2)
+			msg := parts[1]
+			var pck interface{} = string(msg)
+			var out []interface{}
+			_ = json.Unmarshal(msg, &out)
+			if name, ok := out[0].(string); ok {
+				arg := out[1]
+				if name == "new bid" {
+					if firstArg, ok := arg.(map[string]interface{}); ok {
+						auctionID, _ := strconv.ParseInt(doCastStr(firstArg["auctionId"]), 10, 64)
+						pck1 := AuctioneerNewBid{
+							Sum:       int64(doCastF64(firstArg["sum"])),
+							Price:     int64(doCastF64(firstArg["price"])),
+							Bids:      int64(doCastF64(firstArg["bids"])),
+							AuctionID: auctionID,
+						}
+						if player, ok := firstArg["player"].(map[string]interface{}); ok {
+							pck1.Player.ID = int64(doCastF64(player["id"]))
+							pck1.Player.Name = doCastStr(player["name"])
+							pck1.Player.Link = doCastStr(player["link"])
+						}
+						pck = pck1
+					}
+				} else if name == "timeLeft" {
+					if timeLeftMsg, ok := arg.(string); ok {
+						if strings.Contains(timeLeftMsg, "color:") {
+							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
+							rgx := regexp.MustCompile(`\d+`)
+							txt := rgx.FindString(doc.Find("b").Text())
+							approx, _ := strconv.ParseInt(txt, 10, 64)
+							pck = AuctioneerTimeRemaining{Approx: approx * 60}
+						} else if strings.Contains(timeLeftMsg, "nextAuction") {
+							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
+							rgx := regexp.MustCompile(`\d+`)
+							txt := rgx.FindString(doc.Find("span").Text())
+							secs, _ := strconv.ParseInt(txt, 10, 64)
+							pck = AuctioneerNextAuction{Secs: secs}
+						}
+					}
+				} else if name == "new auction" {
+					if firstArg, ok := arg.(map[string]interface{}); ok {
+						pck1 := AuctioneerNewAuction{
+							AuctionID: int64(doCastF64(firstArg["auctionId"])),
+						}
+						if infoMsg, ok := firstArg["info"].(string); ok {
+							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
+							rgx := regexp.MustCompile(`\d+`)
+							txt := rgx.FindString(doc.Find("b").Text())
+							approx, _ := strconv.ParseInt(txt, 10, 64)
+							pck1.Approx = approx * 60
+						}
+						pck = pck1
+					}
+				} else if name == "auction finished" {
+					if firstArg, ok := arg.(map[string]interface{}); ok {
+						pck1 := AuctioneerAuctionFinished{
+							Sum:  int64(doCastF64(firstArg["sum"])),
+							Bids: int64(doCastF64(firstArg["bids"])),
+						}
+						if player, ok := firstArg["player"].(map[string]interface{}); ok {
+							pck1.Player.ID = int64(doCastF64(player["id"]))
+							pck1.Player.Name = doCastStr(player["name"])
+							pck1.Player.Link = doCastStr(player["link"])
+						}
+						pck = pck1
+					}
+				}
+			}
+			for _, clb := range b.auctioneerCallbacks {
+				clb(pck)
+			}
+		} else {
+			b.error("unknown message received:", string(buf))
+			time.Sleep(time.Second)
+		}
+	}
+}
+
+func (b *OGame) connectChatV7(host, port string) {
 	req, err := http.NewRequest("GET", "https://"+host+":"+port+"/socket.io/1/?t="+strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10), nil)
 	if err != nil {
 		b.error("failed to create request:", err)
