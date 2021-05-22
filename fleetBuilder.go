@@ -100,6 +100,24 @@ func (f *FleetBuilder) SetResources(resources Resources) *FleetBuilder {
 	return f
 }
 
+// SetMetal ...
+func (f *FleetBuilder) SetMetal(metal int64) *FleetBuilder {
+	f.resources.Metal = MaxInt(metal, -1)
+	return f
+}
+
+// SetCrystal ...
+func (f *FleetBuilder) SetCrystal(crystal int64) *FleetBuilder {
+	f.resources.Crystal = MaxInt(crystal, -1)
+	return f
+}
+
+// SetDeuterium ...
+func (f *FleetBuilder) SetDeuterium(deuterium int64) *FleetBuilder {
+	f.resources.Deuterium = MaxInt(deuterium, -1)
+	return f
+}
+
 // SetAllResources will send all resources from the origin
 func (f *FleetBuilder) SetAllResources() *FleetBuilder {
 	f.resources = Resources{Metal: -1, Crystal: -1, Deuterium: -1}
