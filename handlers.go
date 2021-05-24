@@ -182,6 +182,41 @@ func GetCharacterClassHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(bot.CharacterClass()))
 }
 
+// HasCommanderHandler ...
+func HasCommanderHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	hasCommander := bot.hasCommander
+	return c.JSON(http.StatusOK, SuccessResp(hasCommander))
+}
+
+// HasAdmiralHandler ...
+func HasAdmiralHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	hasAdmiral := bot.hasAdmiral
+	return c.JSON(http.StatusOK, SuccessResp(hasAdmiral))
+}
+
+// HasCommanderHandler ...
+func HasEngineerHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	hasEngineer := bot.hasEngineer
+	return c.JSON(http.StatusOK, SuccessResp(hasEngineer))
+}
+
+// HasGeologistHandler ...
+func HasGeologistHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	hasGeologist := bot.hasGeologist
+	return c.JSON(http.StatusOK, SuccessResp(hasGeologist))
+}
+
+// HasTechnocratHandler ...
+func HasTechnocratHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	hasTechnocrat := bot.hasTechnocrat
+	return c.JSON(http.StatusOK, SuccessResp(hasTechnocrat))
+}
+
 // GetEspionageReportMessagesHandler ...
 func GetEspionageReportMessagesHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)

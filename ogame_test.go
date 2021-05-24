@@ -3174,3 +3174,22 @@ func TestExtractIsMobile(t *testing.T) {
 	isMobile = NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
 	assert.True(t, isMobile)
 }
+
+func TestExtractActiveItems(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.6/en/overview_with_active_items.html")
+	items, _ := NewExtractorV71().ExtractActiveItems(pageHTMLBytes)
+	assert.Equal(t, 2, len(items))
+	assert.Equal(t, int64(69994), items[0].ID)
+	assert.Equal(t, "ba85cc2b8a5d986bbfba6954e2164ef71af95d4a", items[0].Ref)
+	assert.Equal(t, "Silver Metal Booster", items[0].Name)
+	assert.Equal(t, int64(604800), items[0].TotalDuration)
+	assert.Equal(t, int64(579307), items[0].TimeRemaining)
+	assert.Equal(t, "https://s152-en.ogame.gameforge.com/cdn/img/item-images/1ab70d0954b4ebbb91e020c60afbaacb28707e5d-small.png", items[0].ImgSmall)
+
+	assert.Equal(t, int64(69995), items[1].ID)
+	assert.Equal(t, "5560a1580a0330e8aadf05cb5bfe6bc3200406e2", items[1].Ref)
+	assert.Equal(t, "Gold Deuterium Booster", items[1].Name)
+	assert.Equal(t, int64(604800), items[1].TotalDuration)
+	assert.Equal(t, int64(579827), items[1].TimeRemaining)
+	assert.Equal(t, "https://s152-en.ogame.gameforge.com/cdn/img/item-images/db408084e3b2b7b0e1fe13d9f234d2ebd76f11c5-small.png", items[1].ImgSmall)
+}
