@@ -2707,7 +2707,7 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 
 func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
-	fleets := b.extractor.ExtractFleets(pageHTML)
+	fleets := b.extractor.ExtractFleets(pageHTML, b.location)
 	slots := b.extractor.ExtractSlots(pageHTML)
 	return fleets, slots
 }
@@ -4323,7 +4323,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	movementHTML, _ := b.getPage(MovementPage, CelestialID(0))
 	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
 	originCoords, _ := b.extractor.ExtractPlanetCoordinate(movementHTML)
-	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc)
+	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc, b.location)
 	if len(fleets) > 0 {
 		max := Fleet{}
 		for i, fleet := range fleets {
