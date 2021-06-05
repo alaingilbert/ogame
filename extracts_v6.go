@@ -644,7 +644,6 @@ func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]Espiona
 				}
 				report := EspionageReportSummary{ID: id, Type: messageType}
 				report.From = s.Find("span.msg_sender").Text()
-				report.Text = s.Find("span.espionageDefText").Text()
 				spanLink := s.Find("span.msg_title a")
 				targetStr := spanLink.Text()
 				report.Target = extractCoordV6(targetStr)
@@ -1070,91 +1069,10 @@ func extractResourceSettingsFromDocV6(doc *goquery.Document) (ResourceSettings, 
 	return res, nil
 }
 
-func extractFleetsFromEventListFromDocV6_v2(doc *goquery.Document, clock clockwork.Clock) ([]FriendlyEvent, error) {
-	attacks := make([]*FriendlyEvent, 0)
-	out := make([]FriendlyEvent, 0)
-
-	if doc.Find("body").Size() == 1 && extractOGameSessionFromDocV6(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
-		return out, ErrEventsBoxNotDisplayed
-	} else if doc.Find("div#eventListWrap").Size() == 0 {
-		return out, ErrNotLogged
-	}
-
-	tmp := func(i int, s *goquery.Selection) {
-		td := s.Find("td.countDown")
-		isFriendly := td.HasClass("neutral") || td.Find("span.neutral").Size() > 0
-		if !isFriendly {
-			return
-		}
-		missionTypeInt, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
-		arrivalTimeInt, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
-		missionType := MissionID(missionTypeInt)
-		if missionType != Attack && missionType != GroupedAttack && missionType != Destroy &&
-			missionType != MissileAttack && missionType != Spy {
-			return
-		}
-		attack := &FriendlyEvent{}
-		attack.MissionType = missionType
-		if missionType == Transport || missionType == ParkInThatAlly || missionType == Expedition { // friendly Actions
-			linkSendMail := s.Find("a.sendMail")
-			attack.PlayerID, _ = strconv.ParseInt(linkSendMail.AttrOr("data-playerid", ""), 10, 64)
-			attack.PlayerName = linkSendMail.AttrOr("title", "")
-			if attack.PlayerID != 0 {
-				coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
-				attack.Origin = extractCoordV6(coordsOrigin)
-				attack.Origin.Type = PlanetType
-				if s.Find("td.originFleet figure").HasClass("moon") {
-					attack.Origin.Type = MoonType
-				}
-			}
-		}
-
-		// Get ships infos if available
-		if movement, exists := s.Find("td.icon_movement span").Attr("title"); exists {
-			root, err := html.Parse(strings.NewReader(movement))
-			if err != nil {
-				return
-			}
-			attack.Ships = new(ShipsInfos)
-			q := goquery.NewDocumentFromNode(root)
-			q.Find("tr").Each(func(i int, s *goquery.Selection) {
-				name := s.Find("td").Eq(0).Text()
-				nbrTxt := s.Find("td").Eq(1).Text()
-				nbr := ParseInt(nbrTxt)
-				if name != "" && nbr > 0 {
-					attack.Ships.Set(ShipName2ID(name), nbr)
-				} else if nbrTxt == "?" {
-					attack.Ships.Set(ShipName2ID(name), -1)
-				}
-			})
-		}
-
-		destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
-		attack.Destination = extractCoordV6(destCoords)
-		attack.Destination.Type = PlanetType
-		if s.Find("td.destFleet figure").HasClass("moon") {
-			attack.Destination.Type = MoonType
-		}
-		attack.DestinationName = strings.TrimSpace(s.Find("td.destFleet").Text())
-
-		attack.ArrivalTime = time.Unix(arrivalTimeInt, 0)
-		attack.ArriveIn = int64(clock.Until(attack.ArrivalTime).Seconds())
-	}
-	doc.Find("tr.allianceAttack").Each(tmp)
-	doc.Find("tr.eventFleet").Each(tmp)
-
-	for _, a := range attacks {
-		out = append(out, *a)
-	}
-
-	return out, nil
-}
-
 func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
-
 	type Tmp struct {
-		Fleet Fleet
-		Res   Resources
+		fleet Fleet
+		res   Resources
 	}
 	tmp := make([]Tmp, 0)
 	res := make([]Fleet, 0)
@@ -1162,70 +1080,36 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 		fleet := Fleet{}
 
 		movement := s.Find("td span.tooltip").AttrOr("title", "")
+		if movement == "" {
+			return
+		}
+
 		root, _ := html.Parse(strings.NewReader(movement))
 		doc2 := goquery.NewDocumentFromNode(root)
 		doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
 			if i == 0 {
 				return
 			}
-
 			name := s.Find("td").Eq(0).Text()
 			nbr := ParseInt(s.Find("td").Eq(1).Text())
 			if name != "" && nbr > 0 {
 				fleet.Ships.Set(ShipName2ID(name), nbr)
 			}
 		})
-
-		trIDAttr := s.AttrOr("id", "")
-		r := regexp.MustCompile(`eventRow-(union)?(\d+)`)
-		m := r.FindStringSubmatch(trIDAttr)
-		var id int64
-		if len(m) != 3 {
-			classes := s.AttrOr("class", "")
-			r = regexp.MustCompile(`unionunion(\d+)`)
-			m = r.FindStringSubmatch(classes)
-			if len(m) == 2 {
-				id, _ = strconv.ParseInt(m[1], 10, 64)
-			}
-		} else {
-			id, _ = strconv.ParseInt(m[2], 10, 64)
-		}
-		fleet.ID = FleetID(id)
-
-		fleet.ReturnFlight, _ = strconv.ParseBool(s.AttrOr("data-return-flight", ""))
-		missionTypeInt, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
-		arrivalTimeInt, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
-		missionType := MissionID(missionTypeInt)
-		fleet.Mission = missionType
-		fleet.ArrivalTime = time.Unix(arrivalTimeInt, 0)
-		fleet.ArriveIn = int64(arrivalTimeInt - time.Now().Unix())
-
 		fleet.Origin = extractCoordV6(doc.Find("td.coordsOrigin").Text())
-		fleet.Origin.Type = PlanetType
-		if s.Find("td.originFleet figure").HasClass("moon") {
-			fleet.Origin.Type = MoonType
-		}
 		fleet.Destination = extractCoordV6(doc.Find("td.destCoords").Text())
-		fleet.Destination.Type = PlanetType
-		if s.Find("td.destFleet figure").HasClass("moon") {
-			fleet.Destination.Type = MoonType
-		}
 
 		res := Resources{}
-		if doc2.Find("th").Size() == 2 {
-			trs := doc2.Find("tr")
-			res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
-			res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
-			res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
-		}
+		trs := doc2.Find("tr")
+		res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
+		res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
+		res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
 
-		fleet.Resources = res
-
-		tmp = append(tmp, Tmp{Fleet: fleet, Res: res})
+		tmp = append(tmp, Tmp{fleet: fleet, res: res})
 	})
 
 	for _, t := range tmp {
-		res = append(res, t.Fleet)
+		res = append(res, t.fleet)
 	}
 
 	return res
@@ -1238,7 +1122,7 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 	return
 }
 
-func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
+func extractFleetsFromDocV6(doc *goquery.Document, location *time.Location) (res []Fleet) {
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1279,15 +1163,6 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		inDeepSpace := s.Find("span.fleetDetailButton a").HasClass("fleet_icon_forward_end")
 		arrivalTime, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 		endTime, _ := strconv.ParseInt(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""), 10, 64)
-		/*
-			var recallToken string
-			if !returnFlight {
-				recallString := s.Find("span.reversal.reversal_time a").AttrOr("href", "")
-				racallURL, _ := url.Parse(recallString)
-				recallQuery := racallURL.Query()
-				recallToken = recallQuery["token"][0]
-			}
-		*/
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
@@ -1330,11 +1205,10 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		if startTimeStringExists {
 			startTimeArray := strings.Split(startTimeString, ":| ")
 			if len(startTimeArray) == 2 {
-				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
+				startTime, _ = time.ParseInLocation("02.01.2006<br>15:04:05", startTimeArray[1], location)
 			}
 		}
-
-		fleet.StartTime = startTime
+		fleet.StartTime = startTime.Local()
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
@@ -1343,7 +1217,6 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 			shipID := ShipName2ID(name)
 			fleet.Ships.Set(shipID, qty)
 		}
-		//fleet.Token = recallToken
 
 		res = append(res, fleet)
 	})
@@ -1684,7 +1557,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	case "de":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Platz ([\d.]+) von ([\d.]+)\)`)
 	case "es":
-		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posición\\u00f3n ([\d.]+) de ([\d.]+)\)`)
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posici\\u00f3n ([\d.]+) de ([\d.]+)\)`)
 	case "ar":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Lugar ([\d.]+) de ([\d.]+)\)`)
 	case "mx":
@@ -2331,19 +2204,4 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	// bid = max(auction.DeficitBid, auction.MinimumBid - auction.AlreadyBid)
 
 	return auction, nil
-}
-
-// extractTechInfosV6 ...
-func extractTechInfosV6(pageHTML []byte) (TechInfos, error) {
-	out := TechInfos{}
-	objMap := map[int64]int64{}
-	err := json.Unmarshal(pageHTML, &objMap)
-	if err != nil {
-		return out, err
-	}
-
-	for id, val := range objMap {
-		out.Set(ID(id), val)
-	}
-	return out, nil
 }

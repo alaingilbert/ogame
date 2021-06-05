@@ -2024,22 +2024,10 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 		}
 		break
 	case MovementPage:
-		fleets := b.extractor.ExtractFleets(pageHTML)
-
-		for i := 0; i < len(fleets); i++ {
-			fleets[i].StartTime = b.fixTimezone(fleets[i].StartTime)
-		}
+		fleets := b.extractor.ExtractFleets(pageHTML, b.location)
 		b.movementFleetsMu.Lock()
 		b.movementFleets = fleets
 		b.movementFleetsMu.Unlock()
-		/*
-			for i := 0; i<len(b.movementFleets); i++  {
-				loc, _ := time.LoadLocation(b.serverData.Timezone)
-				tmp, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", b.movementFleets[i].StartTime.String(), loc)
-				b.movementFleets[i].StartTime = tmp
-			}
-		*/
-
 		b.slotsMu.Lock()
 		b.slots = b.extractor.ExtractSlots(pageHTML)
 		b.slotsMu.Unlock()
@@ -3535,18 +3523,9 @@ func (b *OGame) getFleetsFromEventList(opts ...Option) []Fleet {
 
 func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
-	fleets := b.extractor.ExtractFleets(pageHTML)
-	for i := 0; i < len(fleets); i++ {
-		fleets[i].StartTime = b.fixTimezone(fleets[i].StartTime)
-	}
+	fleets := b.extractor.ExtractFleets(pageHTML, b.location)
 	slots := b.extractor.ExtractSlots(pageHTML)
 	return fleets, slots
-}
-
-func (b *OGame) fixTimezone(t time.Time) time.Time {
-	loc, _ := time.LoadLocation(b.serverData.Timezone)
-	tFixed, _ := time.ParseInLocation("2006-01-02 15:04:05 +0000 UTC", t.String(), loc)
-	return tFixed
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
@@ -3561,17 +3540,7 @@ func (b *OGame) cancelFleet(fleetID FleetID) error {
 	if _, err = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}}); err != nil {
 		return err
 	}
-	/*
-		pageHTML, _ := b.getPageContent(url.Values{"page": {"movement"}})
-		fleets := b.extractor.ExtractFleets(pageHTML)
-		var token string
-		for _, f := range fleets {
-			if !f.ReturnFlight {
-				token = f.Token
-			}
-		}
-		_, _ = b.getPageContent(url.Values{"page": {"movement"}, "return": {fleetID.String()}, "token": {token}})
-	*/
+
 	return nil
 }
 
@@ -3670,8 +3639,7 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 // CalcFlightTime ...
 func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, characterClass CharacterClass) (secs, fuel int64) {
-	ships.SolarSatellite = 0
-	ships.Crawler = 0
+
 	if !ships.HasShips() {
 		return
 	}
@@ -3683,7 +3651,7 @@ func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	secs = int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
 	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, isCollector, isGeneral)
-	//cargo = ships.Cargo(techs, false, isCollector)
+
 	return
 }
 
@@ -5179,7 +5147,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	movementHTML, _ := b.getPage(MovementPage, CelestialID(0))
 	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
 	originCoords, _ := b.extractor.ExtractPlanetCoordinate(movementHTML)
-	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc)
+	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc, b.location)
 	if len(fleets) > 0 {
 		max := Fleet{}
 		for i, fleet := range fleets {
@@ -5192,7 +5160,6 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 			}
 		}
 		if max.ID > maxInitialFleetID {
-			max.StartTime = b.fixTimezone(max.StartTime)
 			return max, nil
 		}
 	}
@@ -6783,26 +6750,6 @@ func (b *OGame) IsGeneral() bool {
 // IsCollector ...
 func (b *OGame) IsCollector() bool {
 	return b.characterClass == Collector
-}
-
-func (b *OGame) fetchTechInfos(celestialID CelestialID) (TechInfos, error) {
-	out := TechInfos{}
-	b.getPage(TraderOverviewPage, celestialID)
-
-	pageJSON, err := b.getPage(FetchTechsAjaxPage, celestialID)
-	if err != nil {
-		return out, err
-	}
-	return b.extractor.ExtractTechInfos(pageJSON)
-}
-
-func (b *OGame) getTechInfos(celestialID CelestialID) (TechInfos, error) {
-	return b.fetchTechInfos(celestialID)
-}
-
-// GetTechInfos gets TechInfos from Celestial
-func (b *OGame) GetTechInfos(celestialID CelestialID) (TechInfos, error) {
-	return b.WithPriority(Normal).GetTechInfos(celestialID)
 }
 
 // GetServers ...

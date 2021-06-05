@@ -132,13 +132,13 @@ func (e ExtractorV6) ExtractIPM(pageHTML []byte) (duration, max int64, token str
 }
 
 // ExtractFleets ...
-func (e ExtractorV6) ExtractFleets(pageHTML []byte) (res []Fleet) {
-	return e.extractFleets(pageHTML, clockwork.NewRealClock())
+func (e ExtractorV6) ExtractFleets(pageHTML []byte, location *time.Location) (res []Fleet) {
+	return e.extractFleets(pageHTML, location)
 }
 
-func (e ExtractorV6) extractFleets(pageHTML []byte, clock clockwork.Clock) (res []Fleet) {
+func (e ExtractorV6) extractFleets(pageHTML []byte, location *time.Location) (res []Fleet) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.extractFleetsFromDoc(doc, clock)
+	return e.extractFleetsFromDoc(doc, location)
 }
 
 // ExtractSlots ...
@@ -516,12 +516,12 @@ func (e ExtractorV6) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int
 }
 
 // ExtractFleetsFromDoc ...
-func (e ExtractorV6) ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
-	return e.extractFleetsFromDoc(doc, clockwork.NewRealClock())
+func (e ExtractorV6) ExtractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []Fleet) {
+	return e.extractFleetsFromDoc(doc, location)
 }
 
-func (e ExtractorV6) extractFleetsFromDoc(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
-	return extractFleetsFromDocV6(doc, clock)
+func (e ExtractorV6) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []Fleet) {
+	return extractFleetsFromDocV6(doc, location)
 }
 
 // ExtractSlotsFromDoc extract fleet slots from page "fleet1"
@@ -846,9 +846,4 @@ func (e ExtractorV6) ExtractIsMobile(pageHTML []byte) bool {
 // ExtractIsMobileFromDoc ...
 func (e ExtractorV6) ExtractIsMobileFromDoc(doc *goquery.Document) bool {
 	panic("not implemented")
-}
-
-// ExtractTechInfos ...
-func (e ExtractorV6) ExtractTechInfos(pageHTML []byte) (TechInfos, error) {
-	return extractTechInfosV6(pageHTML)
 }

@@ -110,9 +110,6 @@ type Prioritizable interface {
 	JumpGateDestinations(origin MoonID) ([]MoonID, int64, error)
 	Phalanx(MoonID, Coordinate) ([]Fleet, error)
 	UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
-
-	// TechInfos
-	GetTechInfos(celestialID CelestialID) (TechInfos, error)
 }
 
 // Wrapper all available functions to control ogame bot
@@ -273,7 +270,7 @@ type Extractor interface {
 	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
 	ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error)
 	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
-	ExtractFleets(pageHTML []byte) (res []Fleet)
+	ExtractFleets(pageHTML []byte, location *time.Location) (res []Fleet)
 	ExtractSlots(pageHTML []byte) Slots
 	ExtractOgameTimestamp(pageHTML []byte) int64
 	ExtractResources(pageHTML []byte) Resources
@@ -336,7 +333,7 @@ type Extractor interface {
 	ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error)
 	ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet
 	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string)
-	ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet)
+	ExtractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []Fleet)
 	ExtractSlotsFromDoc(doc *goquery.Document) Slots
 	ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error)
 	ExtractSpioAnzFromDoc(doc *goquery.Document) int64
@@ -410,5 +407,4 @@ type Extractor interface {
 	ExtractActiveItems(pageHTML []byte) ([]ActiveItem, error)
 	ExtractIsMobile(pageHTML []byte) bool
 	ExtractIsMobileFromDoc(doc *goquery.Document) bool
-	ExtractTechInfos(pageHTML []byte) (TechInfos, error)
 }
