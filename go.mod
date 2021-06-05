@@ -13,6 +13,7 @@ require (
 	github.com/elazarl/go-bindata-assetfs v1.0.1
 	github.com/emnl/goods v0.0.0-20121027070824-3805483b57d8
 	github.com/go-errors/errors v1.0.1
+	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible // indirect
 	github.com/google/gxui v0.0.0-20151028112939-f85e0a97b3a4
 	github.com/hashicorp/go-version v1.2.0
 	github.com/labstack/echo v3.3.10+incompatible
@@ -25,6 +26,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.2.0
 	github.com/stretchr/testify v1.5.1
+	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
 	golang.org/x/net v0.0.0-20200528225125-3c3fba18258b
 	golang.org/x/text v0.3.2
