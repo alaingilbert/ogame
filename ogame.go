@@ -11,6 +11,9 @@ import (
 	"encoding/xml"
 	err2 "errors"
 	"fmt"
+	"image"
+	"image/color"
+	"image/png"
 	"io"
 	"io/ioutil"
 	"log"
@@ -29,6 +32,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	version "github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"github.com/pkg/errors"
@@ -273,7 +277,7 @@ type Params struct {
 	APINewHostname  string
 	CookiesFilename string
 	Client          *OGameClient
-	CaptchaCallback func(question, icons []byte) (int64, error)
+	CaptchaCallback CaptchaCallback
 }
 
 // Lobby constants
@@ -1379,6 +1383,55 @@ func getConfiguration2(client *http.Client, lobby string) (string, string, error
 	platformGameID := m[1]
 
 	return string(gameEnvironmentID), string(platformGameID), nil
+}
+
+// TelegramSolver ...
+func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
+	return func(question, icons []byte) (int64, error) {
+		tgBot, _ := tgbotapi.NewBotAPI(tgBotToken)
+		keyboard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
+			tgbotapi.NewInlineKeyboardButtonData("0", "0"),
+			tgbotapi.NewInlineKeyboardButtonData("1", "1"),
+			tgbotapi.NewInlineKeyboardButtonData("2", "2"),
+			tgbotapi.NewInlineKeyboardButtonData("3", "3"),
+		))
+		questionImgOrig, _ := png.Decode(bytes.NewReader(question))
+		bounds := questionImgOrig.Bounds()
+		upLeft := image.Point{X: 0, Y: 0}
+		lowRight := bounds.Max
+		img := image.NewRGBA(image.Rectangle{Min: upLeft, Max: lowRight})
+		for y := 0; y < lowRight.Y; y++ {
+			for x := 0; x < lowRight.X; x++ {
+				c := questionImgOrig.At(x, y)
+				r, g, b, _ := c.RGBA()
+				img.Set(x, y, color.RGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 255})
+			}
+		}
+		buf := bytes.NewBuffer(nil)
+		_ = png.Encode(buf, img)
+		questionImg := tgbotapi.FileBytes{Name: "question", Bytes: buf.Bytes()}
+		iconsImg := tgbotapi.FileBytes{Name: "icons", Bytes: icons}
+		_, _ = tgBot.Send(tgbotapi.NewPhotoUpload(tgChatID, questionImg))
+		_, _ = tgBot.Send(tgbotapi.NewPhotoUpload(tgChatID, iconsImg))
+		msg := tgbotapi.NewMessage(tgChatID, "Pick one")
+		msg.ReplyMarkup = keyboard
+		_, _ = tgBot.Send(msg)
+		u := tgbotapi.NewUpdate(0)
+		u.Timeout = 60
+		updates, _ := tgBot.GetUpdatesChan(u)
+		for update := range updates {
+			if update.CallbackQuery != nil {
+				_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
+				_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
+				v, err := strconv.ParseInt(update.CallbackQuery.Data, 10, 64)
+				if err != nil {
+					return 0, err
+				}
+				return v, nil
+			}
+		}
+		return 0, errors.New("failed to get answer")
+	}
 }
 
 // NinjaSolver direct integration of ogame.ninja captcha auto solver service
@@ -3535,7 +3588,7 @@ func (b *OGame) getFleetsFromEventList(opts ...Option) []Fleet {
 
 func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
 	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
-	fleets := b.extractor.ExtractFleets(pageHTML)
+	fleets := b.extractor.ExtractFleets(pageHTML, b.location)
 	for i := 0; i < len(fleets); i++ {
 		fleets[i].StartTime = b.fixTimezone(fleets[i].StartTime)
 	}
@@ -5179,7 +5232,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	movementHTML, _ := b.getPage(MovementPage, CelestialID(0))
 	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
 	originCoords, _ := b.extractor.ExtractPlanetCoordinate(movementHTML)
-	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc)
+	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc, b.location)
 	if len(fleets) > 0 {
 		max := Fleet{}
 		for i, fleet := range fleets {

@@ -1238,7 +1238,7 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 	return
 }
 
-func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
+func extractFleetsFromDocV6(doc *goquery.Document, location *time.Location) (res []Fleet) {
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1330,11 +1330,10 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		if startTimeStringExists {
 			startTimeArray := strings.Split(startTimeString, ":| ")
 			if len(startTimeArray) == 2 {
-				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
+				startTime, _ = time.ParseInLocation("02.01.2006<br>15:04:05", startTimeArray[1], location)
 			}
 		}
-
-		fleet.StartTime = startTime
+		fleet.StartTime = startTime.Local()
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
