@@ -12,6 +12,7 @@ require (
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/go-errors/errors v1.0.1
+	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/google/gxui v0.0.0-20151028112939-f85e0a97b3a4
 	github.com/hashicorp/go-version v1.2.0
 	github.com/labstack/echo v3.3.10+incompatible
@@ -22,6 +23,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.2.0
 	github.com/stretchr/testify v1.4.0
+	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
 	go4.org v0.0.0-20200411211856-f5505b9728dd // indirect
