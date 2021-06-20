@@ -12,18 +12,6 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    - name: Notify slack success
-      if: success()
-      id: slack # IMPORTANT: reference this step ID value in future Slack steps
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      uses: voxmedia/github-action-slack-notify-build@v1
-      with:
-        channel: general
-        status: STARTING
-        color: warning
-          
-          
 
     - name: Set up Go 1.14
       uses: actions/setup-go@v1
