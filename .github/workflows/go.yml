@@ -27,6 +27,12 @@ jobs:
             #env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV
             env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV
           done
+          for GOARCHV in arm; do
+            env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV
+          done
+          for GOARCHV in arm64; do
+            env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV
+          done
         done
         for GOOSV in windows; do
           for GOARCHV in 386 amd64; do
