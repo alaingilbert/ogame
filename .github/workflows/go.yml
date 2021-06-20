@@ -17,12 +17,9 @@ jobs:
       with:
         go-version: 1.15
     
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
 
     - name: Build
       run: |
-        sed -i "s/var IsDevelopment = true/var IsDevelopment = false/g" Logger/Logger.go
         #for GOOSV in darwin linux; do
           #for GOARCHV in 386 amd64; do
         for GOOSV in linux; do
