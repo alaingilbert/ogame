@@ -52,30 +52,6 @@ jobs:
             env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV.exe
           done
         done
-        
-    - name: Notify slack success
-      if: success()
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      uses: voxmedia/github-action-slack-notify-build@v1
-      with:
-        message_id: ${{ steps.slack.outputs.message_id }}
-        channel: general
-        status: SUCCESS
-        color: good
-
-    - name: Notify slack fail
-      if: failure()
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      uses: voxmedia/github-action-slack-notify-build@v1
-      with:
-        message_id: ${{ steps.slack.outputs.message_id }}
-        channel: general
-        status: FAILED
-        color: danger
-       
-
 
     - name: Release
       uses: softprops/action-gh-release@v1
