@@ -1,0 +1,101 @@
+name: Go
+
+on:
+  create:
+    tags:
+      - v*
+
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notify slack success
+      if: success()
+      id: slack # IMPORTANT: reference this step ID value in future Slack steps
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        channel: general
+        status: STARTING
+        color: warning
+          
+          
+
+    - name: Set up Go 1.14
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.14
+      id: go
+
+    - name: clone OGame Base
+      env:
+        SUPER_SECRET: ${{ secrets.BITBUCKETPASS }}
+      run: git clone https://github.com/0xE232FE/ogame.mod.git ../ogame
+      
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        if [ -f Gopkg.toml ]; then
+            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure
+        fi
+    - name: Build
+      run: |
+        zip -r template.zip template/
+        sed -i "s/var IsDevelopment = true/var IsDevelopment = false/g" Logger/Logger.go
+        #for GOOSV in darwin linux; do
+          #for GOARCHV in 386 amd64; do
+        for GOOSV in linux; do
+          for GOARCHV in amd64; do
+            #env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV
+            env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV
+          done
+        done
+        for GOOSV in windows; do
+          for GOARCHV in 386 amd64; do
+            #env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV.exe
+            env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV.exe
+          done
+        done
+        
+    - name: Notify slack success
+      if: success()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel: general
+        status: SUCCESS
+        color: good
+
+    - name: Notify slack fail
+      if: failure()
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      uses: voxmedia/github-action-slack-notify-build@v1
+      with:
+        message_id: ${{ steps.slack.outputs.message_id }}
+        channel: general
+        status: FAILED
+        color: danger
+       
+
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          ./bin/ogame-bot*
+          template.zip
+          updateApp.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
