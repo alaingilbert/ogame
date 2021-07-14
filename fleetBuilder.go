@@ -200,7 +200,7 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 			ships, _ = f.b.GetShips(f.origin.GetID())
 		}
 	}
-	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
+	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
 }
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {
@@ -218,7 +218,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	var planetResources Resources
 	if f.minimumDeuterium > 0 {
 		planetResources, _ = tx.GetResources(f.origin.GetID())
-		_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
+		_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships, f.mission)
 	}
 
 	if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
