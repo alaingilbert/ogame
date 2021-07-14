@@ -194,8 +194,8 @@ func (p *Planet) GetResourcesProductions() (Resources, error) {
 }
 
 // FlightTime calculate flight time and fuel needed
-func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64) {
-	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships)
+func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
+	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships, missionID)
 }
 
 // SendIPM send interplanetary missiles
