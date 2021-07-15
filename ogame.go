@@ -1146,7 +1146,10 @@ type ServerData struct {
 	Domain                        string  `xml:"domain"`                        // s157-ru.ogame.gameforge.com
 	Version                       string  `xml:"version"`                       // 6.8.8-pl2
 	Speed                         int64   `xml:"speed"`                         // 6
-	SpeedFleet                    int64   `xml:"speedFleet"`                    // 6
+	SpeedFleet                    int64   `xml:"speedFleet"`                    // 6 // Deprecated in 8.1.0
+	SpeedFleetPeaceful            int64   `xml:"speedFleetPeaceful"`            // 1
+	SpeedFleetWar                 int64   `xml:"speedFleetWar"`                 // 1
+	SpeedFleetHolding             int64   `xml:"speedFleetHolding"`             // 1
 	Galaxies                      int64   `xml:"galaxies"`                      // 4
 	Systems                       int64   `xml:"systems"`                       // 499
 	ACS                           bool    `xml:"aCS"`                           // 1
@@ -1793,6 +1796,18 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 	serverData, err := b.getServerData()
 	if err != nil {
 		return err
+	}
+	if serverData.SpeedFleetWar == 0 {
+		serverData.SpeedFleetWar = 1
+	}
+	if serverData.SpeedFleetPeaceful == 0 {
+		serverData.SpeedFleetPeaceful = 1
+	}
+	if serverData.SpeedFleetHolding == 0 {
+		serverData.SpeedFleetHolding = 1
+	}
+	if serverData.SpeedFleet == 0 {
+		serverData.SpeedFleet = serverData.SpeedFleetPeaceful
 	}
 	b.serverData = serverData
 	lang := server.Language
@@ -3709,9 +3724,9 @@ func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 }
 
 // CalcFlightTime calculates the flight time and the fuel consumption
-func (b *OGame) CalcFlightTime(origin, destination Coordinate, speed float64, ships ShipsInfos) (secs, fuel int64) {
+func (b *OGame) CalcFlightTime(origin, destination Coordinate, speed float64, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
 	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
-		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, b.serverData.SpeedFleet, ships,
+		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(b.IsV81(), b.serverData, missionID), ships,
 		b.GetCachedResearch(), b.characterClass)
 }
 
@@ -4592,6 +4607,11 @@ func (b *OGame) IsV7() bool {
 // IsV8 ...
 func (b *OGame) IsV8() bool {
 	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '8'
+}
+
+// IsV81 ...
+func (b *OGame) IsV81() bool {
+	return len(b.ServerVersion()) > 0 && strings.HasPrefix(b.ServerVersion(), "8.1")
 }
 
 func getToken(b *OGame, page string, celestialID CelestialID) (string, error) {
@@ -6420,8 +6440,8 @@ func (b *OGame) GetResourcesProductionsLight(resBuildings ResourcesBuildings, re
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64) {
-	return b.WithPriority(Normal).FlightTime(origin, destination, speed, ships)
+func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
+	return b.WithPriority(Normal).FlightTime(origin, destination, speed, ships, missionID)
 }
 
 // Distance return distance between two coordinates

@@ -27,7 +27,7 @@ type Prioritizable interface {
 	Done()
 	DeleteAllMessagesFromTab(tabID int64) error
 	DeleteMessage(msgID int64) error
-	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
+	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos, mission MissionID) (secs, fuel int64)
 	GalaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error)
 	GetAlliancePageContent(url.Values) ([]byte, error)
 	GetAllResources() (map[CelestialID]Resources, error)
