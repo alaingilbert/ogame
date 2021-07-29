@@ -99,7 +99,7 @@ func PageContentHandler(c echo.Context) error {
 // LoginHandler ...
 func LoginHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	if err := bot.Login(); err != nil {
+	if err := bot.LoginWithExistingCookies(); err != nil {
 		if err == ErrBadCredentials {
 			return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 		}
