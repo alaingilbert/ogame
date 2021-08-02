@@ -194,7 +194,7 @@ func HasAdmiralHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(hasAdmiral))
 }
 
-// HasCommanderHandler ...
+// HasEngineerHandler ...
 func HasEngineerHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	hasEngineer := bot.hasEngineer
@@ -1398,7 +1398,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, "no captcha found")
 }
 
-// GetCaptchaHandler ...
+// GetCaptchaImgHandler ...
 func GetCaptchaImgHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	challengeID := c.Param("challengeID")
