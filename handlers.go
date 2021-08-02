@@ -194,7 +194,7 @@ func HasAdmiralHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(hasAdmiral))
 }
 
-// HasCommanderHandler ...
+// HasEngineerHandler ...
 func HasEngineerHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	hasEngineer := bot.hasEngineer
