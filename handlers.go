@@ -1398,7 +1398,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, "no captcha found")
 }
 
-// GetCaptchaHandler ...
+// GetCaptchaImgHandler ...
 func GetCaptchaImgHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	challengeID := c.Param("challengeID")
