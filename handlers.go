@@ -1446,3 +1446,112 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
+
+// FlightTimeHandler ...
+// curl 127.0.0.1:1234/bot/planets/123/flighttime -d 'ships=203,1&ships=204,10&speed=10&galaxy=1&system=1&type=1&position=1&mission=3&metal=1&crystal=2&deuterium=3'
+func FlightTimeHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	planetID, err := strconv.ParseInt(c.Param("planetID"), 10, 64)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+
+	if err := c.Request().ParseForm(); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid form"))
+	}
+
+	var ships []Quantifiable
+	where := Coordinate{Type: PlanetType}
+	mission := Transport
+	payload := Resources{}
+	speed := HundredPercent
+	for key, values := range c.Request().PostForm {
+		switch key {
+		case "ships":
+			for _, s := range values {
+				a := strings.Split(s, ",")
+				shipID, err := strconv.ParseInt(a[0], 10, 64)
+				if err != nil || !IsShipID(shipID) {
+					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ship id "+a[0]))
+				}
+				nbr, err := strconv.ParseInt(a[1], 10, 64)
+				if err != nil || nbr < 0 {
+					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid nbr "+a[1]))
+				}
+				ships = append(ships, Quantifiable{ID: ID(shipID), Nbr: nbr})
+			}
+		case "speed":
+			speedInt, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil || speedInt < 0 || speedInt > 10 {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid speed"))
+			}
+			speed = Speed(speedInt)
+		case "galaxy":
+			galaxy, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+			}
+			where.Galaxy = galaxy
+		case "system":
+			system, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+			}
+			where.System = system
+		case "position":
+			position, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+			}
+			where.Position = position
+		case "type":
+			t, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid type"))
+			}
+			where.Type = CelestialType(t)
+		case "mission":
+			missionInt, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid mission"))
+			}
+			mission = MissionID(missionInt)
+		case "metal":
+			metal, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil || metal < 0 {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid metal"))
+			}
+			payload.Metal = metal
+		case "crystal":
+			crystal, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil || crystal < 0 {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid crystal"))
+			}
+			payload.Crystal = crystal
+		case "deuterium":
+			deuterium, err := strconv.ParseInt(values[0], 10, 64)
+			if err != nil || deuterium < 0 {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid deuterium"))
+			}
+			payload.Deuterium = deuterium
+		}
+	}
+
+	origin := bot.GetCachedCelestialByID(CelestialID(planetID))
+	var shipsinfo ShipsInfos
+
+	//secsCalc, fuelCalc := bot.CalcFlightTime(origin.GetCoordinate(), where, speed.Float64(), shipsinfo.FromQuantifiables(ships), mission)
+	secs, fuel := bot.FlightTime(origin.GetCoordinate(), where, speed, shipsinfo.FromQuantifiables(ships), mission)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, SuccessResp(struct {
+		Secs int64
+		Fuel int64
+	}{
+		Secs: secs,
+		Fuel: fuel,
+	}))
+
+}

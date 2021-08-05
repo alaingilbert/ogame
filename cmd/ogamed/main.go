@@ -319,6 +319,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/cancel-building", ogame.CancelBuildingHandler)
 	e.POST("/bot/planets/:planetID/cancel-research", ogame.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", ogame.GetResourcesHandler)
+	e.POST("/bot/planets/:planetID/flighttime", ogame.FlightTimeHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
 	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
 	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", ogame.PhalanxHandler)
