@@ -146,6 +146,24 @@ func (d CelestialType) Int() int64 {
 	return int64(d)
 }
 
+// AllianceClass ...
+type AllianceClass int64
+
+// IsWarrior ...
+func (c AllianceClass) IsWarrior() bool {
+	return c == Warrior
+}
+
+// IsTrader ...
+func (c AllianceClass) IsTrader() bool {
+	return c == Trader
+}
+
+// IsResearcher ...
+func (c AllianceClass) IsResearcher() bool {
+	return c == Researcher
+}
+
 // CharacterClass ...
 type CharacterClass int64
 
@@ -167,6 +185,11 @@ const (
 	Collector  CharacterClass = 1
 	General    CharacterClass = 2
 	Discoverer CharacterClass = 3
+
+	NoAllianceClass AllianceClass = 0
+	Warrior         AllianceClass = 1
+	Trader          AllianceClass = 2
+	Researcher      AllianceClass = 3
 
 	PlanetType CelestialType = 1
 	DebrisType CelestialType = 2

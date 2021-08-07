@@ -8,6 +8,7 @@ type EspionageReport struct {
 	ID                           int64
 	Username                     string
 	CharacterClass               CharacterClass `gorm:"embedded"`
+	AllianceClass                AllianceClass `gorm:"embedded"`
 	LastActivity                 int64
 	CounterEspionage             int64
 	APIKey                       string
