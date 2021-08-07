@@ -1,9 +1,9 @@
 name: Go
 
-on: push
-  #create:
-  #  tags:
-  #    - v*
+on:
+  create:
+    tags:
+      - v*
 
 jobs:
 
