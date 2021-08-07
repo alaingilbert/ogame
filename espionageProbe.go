@@ -14,6 +14,7 @@ func newEspionageProbe() *espionageProbe {
 	s.BaseCargoCapacity = 5
 	s.BaseSpeed = 100000000
 	s.FuelConsumption = 1
+	s.FuelCapacity = 5
 	s.RapidfireFrom = map[ID]int64{BattlecruiserID: 5, DestroyerID: 5, BomberID: 5,
 		RecyclerID: 5, ColonyShipID: 5, BattleshipID: 5, CruiserID: 5,
 		HeavyFighterID: 5, LightFighterID: 5, LargeCargoID: 5, DeathstarID: 1250,

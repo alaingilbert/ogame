@@ -3,6 +3,9 @@ package ogame
 import "errors"
 
 // ErrNotLogged returned when the bot is not logged
+var ErrCaptcha = errors.New("CAPTCHA detected!")
+
+// ErrNotLogged returned when the bot is not logged
 var ErrNotLogged = errors.New("not logged")
 
 // ErrMobileView returned when the bot is in mobile view

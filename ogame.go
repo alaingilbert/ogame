@@ -57,7 +57,7 @@ type OGame struct {
 	cancelCtx             context.CancelFunc
 	stateChangeCallbacks  []func(locked bool, actor string)
 	quiet                 bool
-	Player                UserInfos
+	player                UserInfos
 	CachedPreferences     Preferences
 	isVacationModeEnabled bool
 	researches            *Researches
@@ -104,10 +104,86 @@ type OGame struct {
 	hasGeologist          bool
 	hasTechnocrat         bool
 	captchaCallback       CaptchaCallback
+
+	playerMu                            sync.RWMutex
+	isVacationModeEnabledMu             sync.RWMutex
+	researchesMu                        sync.RWMutex
+	lastActivePlanet                    CelestialID
+	lastActivePlanetMu                  sync.RWMutex
+	planetActivity                      map[CelestialID]time.Time
+	planetActivityMu                    sync.RWMutex
+	planetResources                     map[CelestialID]ResourcesDetails
+	planetResourcesMu                   sync.RWMutex
+	planetResourcesBuildings            map[CelestialID]ResourcesBuildings
+	planetResourcesBuildingsMu          sync.RWMutex
+	planetFacilities                    map[CelestialID]Facilities
+	planetFacilitiesMu                  sync.RWMutex
+	planetShipsInfos                    map[CelestialID]ShipsInfos
+	planetShipsInfosMu                  sync.RWMutex
+	planetDefensesInfos                 map[CelestialID]DefensesInfos
+	planetDefensesInfosMu               sync.RWMutex
+	planetConstruction                  map[CelestialID]Quantifiable
+	planetConstructionMu                sync.RWMutex
+	planetConstructionFinishAt          map[CelestialID]int64
+	planetConstructionFinishAtMu        sync.RWMutex
+	planetShipyardProductions           map[CelestialID][]Quantifiable
+	planetShipyardProductionsMu         sync.RWMutex
+	planetShipyardProductionsFinishAt   map[CelestialID]int64
+	planetShipyardProductionsFinishAtMu sync.RWMutex
+	planetQueue                         map[CelestialID][]Quantifiable
+	planetQueueMu                       sync.RWMutex
+	researchesCache                     Researches
+	researchesCacheMu                   sync.RWMutex
+	researchesActive                    Quantifiable
+	researchesActiveMu                  sync.RWMutex
+	researchFinishAt                    int64
+	researchFinishAtMu                  sync.RWMutex
+	eventboxResp                        eventboxResp
+	eventboxRespMu                      sync.RWMutex
+	attackEvents                        []AttackEvent
+	attackEventsMu                      sync.RWMutex
+	movementFleets                      []Fleet
+	movementFleetsMu                    sync.RWMutex
+	eventFleets                         []Fleet
+	eventFleetsMu                       sync.RWMutex
+	slots                               Slots
+	slotsMu                             sync.RWMutex
+	characterClassMu                    sync.RWMutex
+	ChallengeID                         string
+	CaptchaText                         string
+	CaptchaImg                          string
+	cookiesFilename                     string
 }
 
 // CaptchaCallback ...
 type CaptchaCallback func(question, icons []byte) (int64, error)
+
+type Data struct {
+	Planets                  []Planet
+	Celestials               []Celestial
+	LastActivePlanet         CelestialID
+	PlanetActivity           map[CelestialID]time.Time
+	PlanetResources          map[CelestialID]ResourcesDetails
+	PlanetResourcesBuildings map[CelestialID]ResourcesBuildings
+	PlanetFacilities         map[CelestialID]Facilities
+	PlanetShipsInfos         map[CelestialID]ShipsInfos
+	PlanetDefensesInfos      map[CelestialID]DefensesInfos
+
+	PlanetConstruction                map[CelestialID]Quantifiable
+	PlanetConstructionFinishAt        map[CelestialID]int64
+	PlanetShipyardProductions         map[CelestialID][]Quantifiable
+	PlanetShipyardProductionsFinishAt map[CelestialID]int64
+	PlanetQueue                       map[CelestialID][]Quantifiable
+	ResearchFinishAt                  int64
+
+	Researches       Researches
+	ResearchesActive Quantifiable
+	EventboxResp     eventboxResp
+	AttackEvents     []AttackEvent
+	MovementFleets   []Fleet
+	EventFleets      []Fleet
+	Slots            Slots
+}
 
 // Preferences ...
 type Preferences struct {
@@ -463,6 +539,295 @@ func NewWithParams(params Params) (*OGame, error) {
 // NewNoLogin does not auto login.
 func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
 	b := new(OGame)
+	b.planetActivityMu.Lock()
+	b.planetActivity = map[CelestialID]time.Time{}
+	b.planetActivityMu.Unlock()
+
+	b.planetResourcesMu.Lock()
+	b.planetResources = map[CelestialID]ResourcesDetails{}
+	b.planetResourcesMu.Unlock()
+
+	b.planetResourcesBuildingsMu.Lock()
+	b.planetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+	b.planetResourcesBuildingsMu.Unlock()
+
+	b.planetFacilitiesMu.Lock()
+	b.planetFacilities = map[CelestialID]Facilities{}
+	b.planetFacilitiesMu.Unlock()
+
+	b.planetShipsInfosMu.Lock()
+	b.planetShipsInfos = map[CelestialID]ShipsInfos{}
+	b.planetShipsInfosMu.Unlock()
+
+	b.planetDefensesInfosMu.Lock()
+	b.planetDefensesInfos = map[CelestialID]DefensesInfos{}
+	b.planetDefensesInfosMu.Unlock()
+
+	b.planetConstructionMu.Lock()
+	b.planetConstruction = map[CelestialID]Quantifiable{}
+	b.planetConstructionMu.Unlock()
+
+	b.planetConstructionFinishAtMu.Lock()
+	b.planetConstructionFinishAt = map[CelestialID]int64{}
+	b.planetConstructionFinishAtMu.Unlock()
+
+	b.planetShipyardProductionsMu.Lock()
+	b.planetShipyardProductions = map[CelestialID][]Quantifiable{}
+	b.planetShipyardProductionsMu.Unlock()
+
+	b.planetShipyardProductionsFinishAtMu.Lock()
+	b.planetShipyardProductionsFinishAt = map[CelestialID]int64{}
+	b.planetShipyardProductionsFinishAtMu.Unlock()
+
+	b.planetQueueMu.Lock()
+	b.planetQueue = map[CelestialID][]Quantifiable{}
+	b.planetQueueMu.Unlock()
+
+	filename := username + "_" + universe + "_" + lang + "_data.json"
+	info, err := os.Stat(filename)
+	if !os.IsNotExist(err) && !info.IsDir() {
+		var data Data
+
+		file := LoadFromFile(filename)
+		json.Unmarshal(file, &data)
+
+		b.planetsMu.Lock()
+		b.planets = data.Planets
+		b.planetsMu.Unlock()
+
+		b.planetActivityMu.Lock()
+		//b.planetActivity = data.PlanetActivity
+		for k, e := range data.PlanetActivity {
+			b.planetActivity[k] = e
+		}
+		b.planetActivityMu.Unlock()
+
+		b.lastActivePlanetMu.Lock()
+		b.lastActivePlanet = data.LastActivePlanet
+		b.lastActivePlanetMu.Unlock()
+
+		b.planetResourcesMu.Lock()
+		//b.planetResources = data.PlanetResources
+		for k, e := range data.PlanetResources {
+			b.planetResources[k] = e
+		}
+		b.planetResourcesMu.Unlock()
+
+		b.planetResourcesBuildingsMu.Lock()
+		//b.planetResourcesBuildings = data.PlanetResourcesBuildings
+		for k, e := range data.PlanetResourcesBuildings {
+			b.planetResourcesBuildings[k] = e
+		}
+		b.planetResourcesBuildingsMu.Unlock()
+
+		b.planetFacilitiesMu.Lock()
+		//b.planetFacilities = data.PlanetFacilities
+		for k, e := range data.PlanetFacilities {
+			b.planetFacilities[k] = e
+		}
+		b.planetFacilitiesMu.Unlock()
+
+		b.planetShipsInfosMu.Lock()
+		//b.planetShipsInfos = data.PlanetShipsInfos
+		for k, e := range data.PlanetShipsInfos {
+			b.planetShipsInfos[k] = e
+		}
+		b.planetShipsInfosMu.Unlock()
+
+		b.planetDefensesInfosMu.Lock()
+		//b.planetDefensesInfos = data.PlanetDefensesInfos
+		for k, e := range data.PlanetDefensesInfos {
+			b.planetDefensesInfos[k] = e
+		}
+		b.planetDefensesInfosMu.Unlock()
+
+		b.planetConstructionMu.Lock()
+		//b.planetConstruction = data.PlanetConstruction
+		for k, e := range data.PlanetConstruction {
+			b.planetConstruction[k] = e
+		}
+		b.planetConstructionMu.Unlock()
+
+		b.planetConstructionFinishAtMu.Lock()
+		//b.planetConstructionFinishAt = data.PlanetConstructionFinishAt
+		for k, e := range data.PlanetConstructionFinishAt {
+			b.planetConstructionFinishAt[k] = e
+		}
+		b.planetConstructionFinishAtMu.Unlock()
+
+		b.planetShipyardProductionsMu.Lock()
+		//b.planetShipyardProductions = data.PlanetShipyardProductions
+		for k, e := range data.PlanetShipyardProductions {
+			b.planetShipyardProductions[k] = e
+		}
+		b.planetShipyardProductionsMu.Unlock()
+
+		b.planetShipyardProductionsFinishAtMu.Lock()
+		//b.planetShipyardProductionsFinishAt = data.PlanetShipyardProductionsFinishAt
+		for k, e := range data.PlanetShipyardProductionsFinishAt {
+			b.planetShipyardProductionsFinishAt[k] = e
+		}
+		b.planetShipyardProductionsFinishAtMu.Unlock()
+
+		b.planetQueueMu.Lock()
+		//b.planetQueue = data.PlanetQueue
+		for k, e := range data.PlanetQueue {
+			b.planetQueue[k] = e
+		}
+		b.planetQueueMu.Unlock()
+
+		b.researchesCacheMu.Lock()
+		b.researchesCache = data.Researches
+		b.researchesCacheMu.Unlock()
+
+		b.researchesActiveMu.Lock()
+		b.researchesActive = data.ResearchesActive
+		b.researchesActiveMu.Unlock()
+
+		b.researchFinishAtMu.Lock()
+		b.researchFinishAt = data.ResearchFinishAt
+		b.researchFinishAtMu.Unlock()
+		//b.SetResearchFinishAt(data.ResearchFinishAt)
+
+		b.eventboxRespMu.Lock()
+		b.eventboxResp = data.EventboxResp
+		b.eventboxRespMu.Unlock()
+
+		b.movementFleetsMu.Lock()
+		b.movementFleets = data.MovementFleets
+		b.movementFleetsMu.Unlock()
+
+		b.slotsMu.Lock()
+		b.slots = data.Slots
+		b.slotsMu.Unlock()
+	} else {
+		var data Data
+
+		b.planetsMu.RLock()
+		data.Planets = b.planets
+		b.planetsMu.RUnlock()
+
+		data.Celestials = b.GetCachedCelestials()
+
+		b.lastActivePlanetMu.RLock()
+		data.LastActivePlanet = b.lastActivePlanet
+		b.lastActivePlanetMu.RUnlock()
+
+		data.PlanetActivity = map[CelestialID]time.Time{}
+		data.PlanetResources = map[CelestialID]ResourcesDetails{}
+		data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+		data.PlanetFacilities = map[CelestialID]Facilities{}
+		data.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
+		data.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+
+		data.PlanetConstruction = map[CelestialID]Quantifiable{}
+		data.PlanetConstructionFinishAt = map[CelestialID]int64{}
+		data.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
+		data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+		data.PlanetQueue = map[CelestialID][]Quantifiable{}
+
+		b.planetActivityMu.RLock()
+		//data.PlanetActivity = b.planetActivity
+		for k, e := range b.planetActivity {
+			data.PlanetActivity[k] = e
+		}
+		b.planetActivityMu.RUnlock()
+
+		b.planetResourcesMu.RLock()
+		//data.PlanetResources = b.planetResources
+		for k, e := range b.planetResources {
+			data.PlanetResources[k] = e
+		}
+		b.planetResourcesMu.RUnlock()
+
+		b.planetResourcesBuildingsMu.RLock()
+		//data.PlanetResourcesBuildings = b.planetResourcesBuildings
+		for k, e := range b.planetResourcesBuildings {
+			data.PlanetResourcesBuildings[k] = e
+		}
+		b.planetResourcesBuildingsMu.RUnlock()
+
+		b.planetFacilitiesMu.RLock()
+		//data.PlanetFacilities = b.planetFacilities
+		for k, e := range b.planetFacilities {
+			data.PlanetFacilities[k] = e
+		}
+
+		b.planetFacilitiesMu.RUnlock()
+
+		b.planetShipsInfosMu.RLock()
+		//data.PlanetShipsInfos = b.planetShipsInfos
+		for k, e := range b.planetShipsInfos {
+			data.PlanetShipsInfos[k] = e
+		}
+		b.planetShipsInfosMu.RUnlock()
+
+		b.planetDefensesInfosMu.RLock()
+		//data.PlanetDefensesInfos = b.planetDefensesInfos
+		for k, e := range b.planetDefensesInfos {
+			data.PlanetDefensesInfos[k] = e
+		}
+		b.planetDefensesInfosMu.RUnlock()
+
+		b.planetConstructionMu.RLock()
+		//data.PlanetConstruction = b.planetConstruction
+		for k, e := range b.planetConstruction {
+			data.PlanetConstruction[k] = e
+		}
+		b.planetConstructionMu.RUnlock()
+
+		b.planetConstructionFinishAtMu.RLock()
+		//data.PlanetConstructionFinishAt = b.planetConstructionFinishAt
+		for k, e := range b.planetConstructionFinishAt {
+			data.PlanetConstructionFinishAt[k] = e
+		}
+		b.planetConstructionFinishAtMu.RUnlock()
+
+		b.planetShipyardProductionsMu.RLock()
+		//data.PlanetShipyardProductions = b.planetShipyardProductions
+		for k, e := range b.planetShipyardProductions {
+			data.PlanetShipyardProductions[k] = e
+		}
+		b.planetShipyardProductionsMu.RUnlock()
+
+		b.planetShipyardProductionsFinishAtMu.RLock()
+		//data.PlanetShipyardProductionsFinishAt = b.planetShipyardProductionsFinishAt
+		for k, e := range b.planetShipyardProductionsFinishAt {
+			data.PlanetShipyardProductionsFinishAt[k] = e
+		}
+		b.planetShipyardProductionsFinishAtMu.RUnlock()
+
+		b.planetQueueMu.RLock()
+		//data.PlanetQueue = b.planetQueue
+		for k, e := range b.planetQueue {
+			data.PlanetQueue[k] = e
+		}
+		b.planetQueueMu.RUnlock()
+
+		b.researchesCacheMu.RLock()
+		data.Researches = b.researchesCache
+		b.researchesCacheMu.RUnlock()
+
+		b.researchesActiveMu.RLock()
+		data.ResearchesActive = b.researchesActive
+		b.researchesActiveMu.RUnlock()
+
+		b.eventboxRespMu.RLock()
+		data.EventboxResp = b.eventboxResp
+		b.eventboxRespMu.RUnlock()
+
+		b.movementFleetsMu.RLock()
+		data.MovementFleets = b.movementFleets
+		b.movementFleetsMu.RUnlock()
+
+		b.slotsMu.RLock()
+		data.Slots = b.slots
+		b.slotsMu.RUnlock()
+
+		by, _ := json.Marshal(data)
+		SaveToFile(filename, by)
+	}
+
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
 	b.quiet = false
@@ -477,6 +842,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	b.extractor = NewExtractorV71()
 
 	if client == nil {
+		b.cookiesFilename = cookiesFilename
 		jar, err := cookiejar.New(&cookiejar.Options{
 			Filename:              cookiesFilename,
 			PersistSessionCookies: true,
@@ -537,7 +903,7 @@ type Server struct {
 		PremiumValidationGift    int64
 		DebrisFieldFactorShips   int64
 		DebrisFieldFactorDefence int64
-	}
+	} `gorm:"embedded;embeddedPrefix:settings_"`
 }
 
 // ogame cookie name for token id
@@ -684,6 +1050,7 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 		return nil, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Authorization", b.bearerToken)
 	b.debug("login to universe")
 	resp, err := b.doReqWithLoginProxyTransport(req)
 	if err != nil {
@@ -701,6 +1068,9 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 func readBody(resp *http.Response) (respContent []byte, bytesDownloaded int64, err error) {
 	isGzip := false
 	var reader io.ReadCloser
+
+	//b.debug(resp.Header.Get("content-type"))
+
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
 		isGzip = true
@@ -712,6 +1082,9 @@ func readBody(resp *http.Response) (respContent []byte, bytesDownloaded int64, e
 		}
 		defer reader.Close()
 	default:
+		// buf := new(bytes.Buffer)
+		// buf.ReadFrom(resp.Body)
+		// newStr := buf.String()
 		reader = resp.Body
 	}
 	by, err := ioutil.ReadAll(reader)
@@ -838,6 +1211,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		err := b.login()
 		return false, err
 	}
+	b.debug("login with bearer Token: " + token)
 	server, userAccount, err := b.loginPart1(token)
 	if err2.Is(err, context.Canceled) {
 		return false, err
@@ -846,6 +1220,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		return false, err
 	}
 	if err != nil {
+		b.debug("session not found")
 		err := b.login()
 		return false, err
 	}
@@ -853,7 +1228,6 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if err := b.loginPart2(server, userAccount); err != nil {
 		return false, err
 	}
-
 	vals := url.Values{"page": {"ingame"}, "component": {OverviewPage}}
 	pageHTML, err := b.getPageContent(vals, SkipRetry)
 	if err != nil {
@@ -866,6 +1240,9 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			pageHTML, err := execLoginLink(b, loginLink)
 			if err != nil {
 				return true, err
+			}
+			if err := b.Client.Jar.(*cookiejar.Jar).Save(); err != nil {
+				return false, err
 			}
 			pageHTML, err = b.getPageContent(vals, SkipRetry)
 			if err != nil {
@@ -886,17 +1263,39 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			}
 			return true, nil
 		}
-		return false, err
 	}
 	b.debug("login using existing cookies")
 	if err := b.loginPart3(userAccount, pageHTML); err != nil {
 		return false, err
+	}
+
+	if token != "" {
+		// put in cookie jar so that we can re-login reusing the cookies
+		u, _ := url.Parse("https://gameforge.com")
+		cookies := b.Client.Jar.Cookies(u)
+		cookie := &http.Cookie{
+			Name:   gfTokenCookieName,
+			Value:  token,
+			Path:   "/",
+			Domain: ".gameforge.com",
+		}
+		cookies = append(cookies, cookie)
+		b.Client.Jar.SetCookies(u, cookies)
+		if err := b.Client.Jar.(*cookiejar.Jar).Save(); err != nil {
+			return false, err
+		}
 	}
 	return true, nil
 }
 
 // Return either or not the bot logged in using the existing cookies.
 func (b *OGame) loginWithExistingCookies() (bool, error) {
+	jar, _ := cookiejar.New(&cookiejar.Options{
+		Filename:              b.cookiesFilename,
+		PersistSessionCookies: true,
+	})
+	b.Client.Jar = jar
+
 	token := ""
 	if b.bearerToken != "" {
 		token = b.bearerToken
@@ -919,6 +1318,9 @@ func getConfiguration(b *OGame) (string, string, error) {
 		return "", "", err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Add("Accept", "*/*")
+	req.Header.Add("Referer", "https://"+b.lobby+".ogame.gameforge.com/en_GB/")
+
 	req = req.WithContext(b.ctx)
 	resp, err := b.Client.Do(req)
 	if err != nil {
@@ -944,6 +1346,10 @@ func getConfiguration(b *OGame) (string, string, error) {
 		return "", "", errors.New("failed to get platformGameId")
 	}
 	platformGameID := m[1]
+
+	if err := b.Client.Jar.(*cookiejar.Jar).Save(); err != nil {
+		return "", "", err
+	}
 
 	return string(gameEnvironmentID), string(platformGameID), nil
 }
@@ -1313,6 +1719,8 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 }
 
 func (b *OGame) login() error {
+	b.debug("Normal Login with Lobby login")
+
 	b.debug("get configuration")
 	gameEnvironmentID, platformGameID, err := getConfiguration(b)
 	if err != nil {
@@ -1472,14 +1880,270 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	return nil
 }
 
+var TranslatedStringsCache TranslatedStrings
+
 func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
+	//b.debug("Cache Run for Page:"+page)
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+
+	TranslatedStringsCache.Language = b.language
+
 	b.planetsMu.Lock()
 	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
 	b.planetsMu.Unlock()
+
+	celestialID, _ := b.extractor.ExtractPlanetID(pageHTML)
+
+	b.planetResourcesMu.Lock()
+	b.planetResources[celestialID], _ = b.fetchResources(celestialID)
+	b.planetResourcesMu.Unlock()
+
+	b.eventboxRespMu.Lock()
+	b.eventboxResp, _ = b.fetchEventbox()
+	b.eventboxRespMu.Unlock()
+
+	b.attackEventsMu.Lock()
+	b.attackEvents, _ = b.extractor.ExtractAttacks(pageHTML) //b.getAttacks(ChangePlanet(celestialID))
+	b.attackEventsMu.Unlock()
+
+	b.lastActivePlanetMu.Lock()
+	b.lastActivePlanet, _ = b.extractor.ExtractPlanetID(pageHTML)
+	b.lastActivePlanetMu.Unlock()
+
+	b.planetActivityMu.Lock()
+	//b.planetActivity[celestialID], _ = b.extractor.ExtractServerTime(pageHTML)
+	b.planetActivity[celestialID] = time.Unix(b.extractor.ExtractOgameTimestamp(pageHTML), 0)
+	b.planetActivityMu.Unlock()
+
+	timestamp := b.extractor.ExtractOgameTimestamp(pageHTML)
+
+	// Translate Resources
+	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
+	array := strings.Split(metalDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Metal) == 0 {
+		TranslatedStringsCache.Metal = array[0]
+	}
+	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
+	array = strings.Split(crystalDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Crystal) == 0 {
+		TranslatedStringsCache.Crystal = array[0]
+	}
+	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
+	array = strings.Split(deuteriumDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Deuterium) == 0 {
+		TranslatedStringsCache.Deuterium = array[0]
+	}
+	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
+	array = strings.Split(energyDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Energy) == 0 {
+		TranslatedStringsCache.Energy = array[0]
+	}
+	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
+	array = strings.Split(darkmatterDoc.Text(), "|")
+	if len(array) > 0 && len(TranslatedStringsCache.Darkmatter) == 0 {
+		TranslatedStringsCache.Darkmatter = array[0]
+	}
+	//fmt.Printf("%v\n", TranslatedStringsCache)
+	/// END
+
+	if b.CachedPreferences.EventsShow > 0 {
+		b.eventFleetsMu.Lock()
+		b.eventFleets = b.extractor.ExtractFleetsFromEventList(pageHTML)
+		b.eventFleetsMu.Unlock()
+	}
+
+	// Translate Resources
+	//metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
+	//b.debug("extract metal?")
+	//b.debug(metalDoc.Text())
+	//crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
+	//deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
+	//energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
+	//darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
+	/// END
+	switch page {
+	case OverviewPage:
+		buildingID, buildingCountdown, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
+		b.planetConstructionMu.Lock()
+		b.planetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Unlock()
+		if buildingID.Int64() != 0 && buildingCountdown != 0 {
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Unlock()
+		} else {
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Unlock()
+		}
+
+		b.researchesActiveMu.Lock()
+		b.researchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		b.researchesActiveMu.Unlock()
+		if researchID != 0 && researchCountdown != 0 {
+			b.researchFinishAtMu.Lock()
+			b.researchFinishAt = researchCountdown + time.Now().Unix()
+			b.researchFinishAtMu.Unlock()
+			//b.SetResearchFinishAt(researchCountdown + time.Now().Unix())
+		} else {
+			b.researchFinishAtMu.Lock()
+			b.researchFinishAt = 0
+			b.researchFinishAtMu.Unlock()
+		}
+
+		ships, shipyardCountdown, _ := b.extractor.ExtractOverviewProduction(pageHTML)
+		b.planetShipyardProductionsMu.Lock()
+		b.planetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Unlock()
+		if shipyardCountdown != 0 {
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Unlock()
+		} else {
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = 0
+			b.planetShipyardProductionsFinishAtMu.Unlock()
+		}
+
+		break
+	case SuppliesPage:
+		buildingID, buildingCountdown, _, _ := b.extractor.ExtractConstructions(pageHTML)
+		b.planetConstructionMu.Lock()
+		b.planetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Unlock()
+		if buildingID.Int64() != 0 && buildingCountdown != 0 {
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Unlock()
+		} else {
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Unlock()
+		}
+
+		res, err := b.extractor.ExtractResourcesBuildings(pageHTML)
+		if err == nil {
+			b.planetResourcesBuildingsMu.Lock()
+			b.planetResourcesBuildings[celestialID] = res
+			b.planetResourcesBuildingsMu.Unlock()
+		}
+		break
+	case FacilitiesPage:
+		buildingID, buildingCountdown, _, _ := b.extractor.ExtractConstructions(pageHTML)
+		b.planetConstructionMu.Lock()
+		b.planetConstruction[celestialID] = Quantifiable{ID: buildingID, Nbr: buildingCountdown}
+		b.planetConstructionMu.Unlock()
+		if buildingID.Int64() != 0 && buildingCountdown != 0 {
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = timestamp + buildingCountdown
+			b.planetConstructionFinishAtMu.Unlock()
+		} else {
+			b.planetConstructionFinishAtMu.Lock()
+			b.planetConstructionFinishAt[celestialID] = 0
+			b.planetConstructionFinishAtMu.Unlock()
+		}
+
+		fac, err := b.extractor.ExtractFacilities(pageHTML)
+		if err == nil {
+			b.planetFacilitiesMu.Lock()
+			b.planetFacilities[celestialID] = fac
+			b.planetFacilitiesMu.Unlock()
+		}
+		break
+	case ShipyardPage:
+		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
+		b.planetShipyardProductionsMu.Lock()
+		b.planetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Unlock()
+		if shipyardCountdown != 0 {
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Unlock()
+		} else {
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = 0
+			b.planetShipyardProductionsFinishAtMu.Unlock()
+		}
+
+		shipyard, err := b.extractor.ExtractShips(pageHTML)
+		if err == nil {
+			b.planetShipsInfosMu.Lock()
+			b.planetShipsInfos[celestialID] = shipyard
+			b.planetShipsInfosMu.Unlock()
+		}
+		break
+	case DefensesPage:
+		defenses, err := b.extractor.ExtractDefense(pageHTML)
+		ships, shipyardCountdown, _ := b.extractor.ExtractProduction(pageHTML)
+		b.planetShipyardProductionsMu.Lock()
+		b.planetShipyardProductions[celestialID] = ships
+		b.planetShipyardProductionsMu.Unlock()
+		if shipyardCountdown != 0 {
+			b.planetShipyardProductionsFinishAtMu.Lock()
+			b.planetShipyardProductionsFinishAt[celestialID] = timestamp + shipyardCountdown
+			b.planetShipyardProductionsFinishAtMu.Unlock()
+
+		}
+
+		if err == nil {
+			b.planetDefensesInfosMu.Lock()
+			b.planetDefensesInfos[celestialID] = defenses
+			b.planetDefensesInfosMu.Unlock()
+		}
+		break
+	case MovementPage:
+		fleets := b.extractor.ExtractFleets(pageHTML, b.location)
+		b.movementFleetsMu.Lock()
+		b.movementFleets = fleets
+		b.movementFleetsMu.Unlock()
+		b.slotsMu.Lock()
+		b.slots = b.extractor.ExtractSlots(pageHTML)
+		b.slotsMu.Unlock()
+		break
+
+	case ResearchPage:
+		_, _, researchID, researchCountdown := b.extractor.ExtractConstructions(pageHTML)
+		b.researchesActiveMu.Lock()
+		b.researchesActive = Quantifiable{ID: researchID, Nbr: researchCountdown}
+		b.researchesActiveMu.Unlock()
+		if researchID != 0 && researchCountdown != 0 {
+			b.researchFinishAtMu.Lock()
+			b.researchFinishAt = researchCountdown + time.Now().Unix()
+			b.researchFinishAtMu.Unlock()
+		} else {
+			b.researchFinishAtMu.Lock()
+			b.researchFinishAt = 0
+			b.researchFinishAtMu.Unlock()
+		}
+		b.researchesCacheMu.Lock()
+		b.researchesCache = b.extractor.ExtractResearch(pageHTML)
+		b.researchesCacheMu.Unlock()
+		break
+
+	case FleetdispatchPage:
+		b.planetShipsInfosMu.Lock()
+		si := b.extractor.ExtractFleet1Ships(pageHTML)
+		si.SolarSatellite = b.planetShipsInfos[celestialID].SolarSatellite
+		si.Crawler = b.planetShipsInfos[celestialID].SolarSatellite
+		b.planetShipsInfos[celestialID] = si
+		b.planetShipsInfosMu.Unlock()
+		break
+
+	case ResourceSettingsPage:
+
+		break
+	}
+
+	b.isVacationModeEnabledMu.Lock()
 	b.isVacationModeEnabled = b.extractor.ExtractIsInVacationFromDoc(doc)
+	b.isVacationModeEnabledMu.Unlock()
+
 	b.ajaxChatToken, _ = b.extractor.ExtractAjaxChatToken(pageHTML)
+
+	b.characterClassMu.Lock()
 	b.characterClass, _ = b.extractor.ExtractCharacterClassFromDoc(doc)
+	b.characterClassMu.Unlock()
+
 	b.hasCommander = b.extractor.ExtractCommanderFromDoc(doc)
 	b.hasAdmiral = b.extractor.ExtractAdmiralFromDoc(doc)
 	b.hasEngineer = b.extractor.ExtractEngineerFromDoc(doc)
@@ -1487,13 +2151,161 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.hasTechnocrat = b.extractor.ExtractTechnocratFromDoc(doc)
 
 	if page == "overview" {
-		b.Player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
+		b.playerMu.Lock()
+		b.player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
+		b.playerMu.Unlock()
 	} else if page == "preferences" {
 		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
 	} else if page == "research" {
 		researches := b.extractor.ExtractResearchFromDoc(doc)
 		b.researches = &researches
 	}
+
+	var data Data
+	var filename string = b.Username + "_" + b.Universe + "_" + b.language + "_data.json"
+	b.planetsMu.RLock()
+	data.Planets = b.planets
+	b.planetsMu.RUnlock()
+
+	data.Celestials = b.GetCachedCelestials()
+
+	data.PlanetActivity = map[CelestialID]time.Time{}
+	data.PlanetResources = map[CelestialID]ResourcesDetails{}
+	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+	data.PlanetFacilities = map[CelestialID]Facilities{}
+	data.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
+	data.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+
+	data.PlanetConstruction = map[CelestialID]Quantifiable{}
+	data.PlanetConstructionFinishAt = map[CelestialID]int64{}
+	data.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
+	data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+	data.PlanetQueue = map[CelestialID][]Quantifiable{}
+
+	b.researchFinishAtMu.RLock()
+	data.ResearchFinishAt = b.researchFinishAt
+	b.researchFinishAtMu.RUnlock()
+
+	b.planetActivityMu.RLock()
+	//data.PlanetActivity = b.planetActivity
+	for k, e := range b.planetActivity {
+		data.PlanetActivity[k] = e
+	}
+	b.planetActivityMu.RUnlock()
+
+	b.planetResourcesMu.RLock()
+	//data.PlanetResources = b.planetResources
+	for k, e := range b.planetResources {
+		data.PlanetResources[k] = e
+	}
+	b.planetResourcesMu.RUnlock()
+
+	b.planetResourcesBuildingsMu.RLock()
+	//data.PlanetResourcesBuildings = b.planetResourcesBuildings
+	for k, e := range b.planetResourcesBuildings {
+		data.PlanetResourcesBuildings[k] = e
+	}
+	b.planetResourcesBuildingsMu.RUnlock()
+
+	b.planetFacilitiesMu.RLock()
+	//data.PlanetFacilities = b.planetFacilities
+	for k, e := range b.planetFacilities {
+		data.PlanetFacilities[k] = e
+	}
+	b.planetFacilitiesMu.RUnlock()
+
+	b.planetShipsInfosMu.RLock()
+	//data.PlanetShipsInfos = b.planetShipsInfos
+	for k, e := range b.planetShipsInfos {
+		data.PlanetShipsInfos[k] = e
+	}
+	b.planetShipsInfosMu.RUnlock()
+
+	b.planetDefensesInfosMu.RLock()
+	//data.PlanetDefensesInfos = b.planetDefensesInfos
+	for k, e := range b.planetDefensesInfos {
+		data.PlanetDefensesInfos[k] = e
+	}
+	b.planetDefensesInfosMu.RUnlock()
+
+	b.planetConstructionMu.RLock()
+	//data.PlanetConstruction = b.planetConstruction
+	for k, e := range b.planetConstruction {
+		data.PlanetConstruction[k] = e
+	}
+	b.planetConstructionMu.RUnlock()
+
+	b.planetConstructionFinishAtMu.RLock()
+	//data.PlanetConstructionFinishAt = b.planetConstructionFinishAt
+	for k, e := range b.planetConstructionFinishAt {
+		data.PlanetConstructionFinishAt[k] = e
+	}
+	b.planetConstructionFinishAtMu.RUnlock()
+
+	b.planetShipyardProductionsMu.RLock()
+	//data.PlanetShipyardProductions = b.planetShipyardProductions
+	for k, e := range b.planetShipyardProductions {
+		data.PlanetShipyardProductions[k] = e
+	}
+	b.planetShipyardProductionsMu.RUnlock()
+
+	b.planetShipyardProductionsFinishAtMu.RLock()
+	//data.PlanetShipyardProductionsFinishAt = b.planetShipyardProductionsFinishAt
+	for k, e := range b.planetShipyardProductionsFinishAt {
+		data.PlanetShipyardProductionsFinishAt[k] = e
+	}
+	b.planetShipyardProductionsFinishAtMu.RUnlock()
+
+	b.planetQueueMu.RLock()
+	//data.PlanetQueue = b.planetQueue
+	for k, e := range b.planetQueue {
+		data.PlanetQueue[k] = e
+	}
+	b.planetQueueMu.RUnlock()
+
+	b.researchesCacheMu.RLock()
+	data.Researches = b.researchesCache
+	b.researchesCacheMu.RUnlock()
+
+	b.researchesActiveMu.RLock()
+	data.ResearchesActive = b.researchesActive
+	b.researchesActiveMu.RUnlock()
+
+	b.eventboxRespMu.RLock()
+	data.EventboxResp = b.eventboxResp
+	b.eventboxRespMu.RUnlock()
+
+	b.attackEventsMu.RLock()
+	data.AttackEvents = b.attackEvents
+	b.attackEventsMu.RUnlock()
+
+	b.movementFleetsMu.RLock()
+	data.MovementFleets = b.movementFleets
+	b.movementFleetsMu.RUnlock()
+
+	b.slotsMu.RLock()
+	data.Slots = b.slots
+	b.slotsMu.RUnlock()
+
+	data = b.GetCachedData()
+
+	by, _ := json.Marshal(data)
+	SaveToFile(filename, by)
+}
+
+var SaveToFileMu sync.Mutex
+
+func SaveToFile(filename string, by []byte) {
+	SaveToFileMu.Lock()
+	ioutil.WriteFile(filename, by, 0644)
+	SaveToFileMu.Unlock()
+}
+
+func LoadFromFile(filename string) []byte {
+	SaveToFileMu.Lock()
+	by, _ := ioutil.ReadFile(filename)
+	SaveToFileMu.Unlock()
+	return by
 }
 
 // DefaultLoginWrapper ...
@@ -1520,6 +2332,7 @@ func (b *OGame) wrapLoginWithExistingCookies() (useCookies bool, err error) {
 
 func (b *OGame) wrapLogin() error {
 	return b.loginWrapper(func() (bool, error) { return false, b.login() })
+	//return b.loginWrapper(func() (bool, error) { return b.loginWithExistingCookies() })
 }
 
 // GetExtractor gets extractor object
@@ -2155,6 +2968,7 @@ func IsAjaxPage(vals url.Values) bool {
 	asJson := vals.Get("asJson")
 	return page == FetchEventboxAjaxPage ||
 		page == FetchResourcesAjaxPage ||
+		page == FetchTechsAjaxPage ||
 		page == GalaxyContentAjaxPage ||
 		page == EventListAjaxPage ||
 		page == AjaxChatAjaxPage ||
@@ -2277,6 +3091,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	var pageHTMLBytes []byte
 
 	clb := func() (err error) {
+		log.Printf("Visit page: %s (%s)", page, finalURL)
 		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
 		if err != nil {
 			return err
@@ -2307,7 +3122,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return []byte{}, err
 	}
 
-	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
+	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) && vals.Get("return") == "" { // Original if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
 		page := vals.Get("page")
 		component := vals.Get("component")
 		if page != "standalone" && component != "empire" {
@@ -2768,8 +3583,9 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 	return nil
 }
 
-func (b *OGame) getFleetsFromEventList() []Fleet {
-	pageHTML, _ := b.getPageContent(url.Values{"eventList": {"movement"}, "ajax": {"1"}})
+func (b *OGame) getFleetsFromEventList(opts ...Option) []Fleet {
+	params := url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"0"}}
+	pageHTML, _ := b.getPageContent(params, opts...)
 	return b.extractor.ExtractFleetsFromEventList(pageHTML)
 }
 
@@ -2792,6 +3608,7 @@ func (b *OGame) cancelFleet(fleetID FleetID) error {
 	if _, err = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "return": {fleetID.String()}, "token": {token}}); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -2890,6 +3707,7 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 // CalcFlightTime ...
 func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, characterClass CharacterClass) (secs, fuel int64) {
+
 	if !ships.HasShips() {
 		return
 	}
@@ -2901,6 +3719,7 @@ func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	secs = int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
 	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, isCollector, isGeneral)
+
 	return
 }
 
@@ -2946,7 +3765,9 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		return res, errors.New("invalid planet coordinate")
 	}
 	// Ensure you are not scanning your own planet
-	if target.Player.ID == b.Player.PlayerID {
+	b.playerMu.RLock()
+	defer b.playerMu.RUnlock()
+	if target.Player.ID == b.player.PlayerID {
 		return res, errors.New("cannot scan own planet")
 	}
 
@@ -3661,7 +4482,10 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 	if err != nil {
 		return res, err
 	}
-	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+
+	b.playerMu.RLock()
+	defer b.playerMu.RUnlock()
+	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.player.PlayerName, b.player.PlayerID, b.player.Rank)
 	if err != nil {
 		return res, err
 	}
@@ -4459,6 +5283,7 @@ type EspionageReportSummary struct {
 	ID             int64
 	Type           EspionageReportType
 	From           string // Fleet Command | Space Monitoring
+	Text           string
 	Target         Coordinate
 	LootPercentage float64
 }
@@ -5271,7 +6096,9 @@ func (b *OGame) IsUnderAttack() (bool, error) {
 
 // GetCachedPlayer returns cached player infos
 func (b *OGame) GetCachedPlayer() UserInfos {
-	return b.Player
+	b.playerMu.RLock()
+	defer b.playerMu.RUnlock()
+	return b.player
 }
 
 // GetCachedPreferences returns cached preferences
@@ -5281,6 +6108,8 @@ func (b *OGame) GetCachedPreferences() Preferences {
 
 // IsVacationModeEnabled returns either or not the bot is in vacation mode
 func (b *OGame) IsVacationModeEnabled() bool {
+	b.isVacationModeEnabledMu.RLock()
+	defer b.isVacationModeEnabledMu.RUnlock()
 	return b.isVacationModeEnabled
 }
 
@@ -5386,8 +6215,8 @@ func (b *OGame) GetFleets(opts ...Option) ([]Fleet, Slots) {
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
-func (b *OGame) GetFleetsFromEventList() []Fleet {
-	return b.WithPriority(Normal).GetFleetsFromEventList()
+func (b *OGame) GetFleetsFromEventList(opts ...Option) []Fleet {
+	return b.WithPriority(Normal).GetFleetsFromEventList(opts...)
 }
 
 // CancelFleet cancel a fleet
@@ -5694,6 +6523,8 @@ func (b *OGame) GetEmpire(nbr int64) (interface{}, error) {
 
 // CharacterClass returns the bot character class
 func (b *OGame) CharacterClass() CharacterClass {
+	b.characterClassMu.RLock()
+	defer b.characterClassMu.RUnlock()
 	return b.characterClass
 }
 
@@ -5732,6 +6563,20 @@ func (b *OGame) UseDM(typ string, celestialID CelestialID) error {
 	return b.WithPriority(Normal).UseDM(typ, celestialID)
 }
 
+// GetPlanetsActivity return last activity Unix Timestamp of all Planets in map.
+func (b *OGame) GetPlanetsActivity() map[CelestialID]time.Time {
+	b.planetActivityMu.RLock()
+	defer b.planetActivityMu.RUnlock()
+	return b.planetActivity
+}
+
+// GetPlanetsResources returns the cached PlanetsResources in map.
+func (b *OGame) GetPlanetsResources() map[CelestialID]ResourcesDetails {
+	b.planetResourcesMu.RLock()
+	defer b.planetResourcesMu.RUnlock()
+	return b.planetResources
+}
+
 // GetItems get all items information
 func (b *OGame) GetItems(celestialID CelestialID) ([]Item, error) {
 	return b.WithPriority(Normal).GetItems(celestialID)
@@ -5760,4 +6605,274 @@ func (b *OGame) OfferSellMarketplace(itemID interface{}, quantity, priceType, pr
 // OfferBuyMarketplace buy offer on marketplace
 func (b *OGame) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	return b.WithPriority(Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// GetCachedData gets all Cached Data
+func (b *OGame) GetCachedData() Data {
+	return b.getCachedData()
+	//return b.WithPriority(Normal).GetCachedData()
+}
+
+// GetCachedData gets all Cached Data
+func (b *OGame) getCachedData() Data {
+	var data Data
+
+	b.planetsMu.RLock()
+	data.Planets = b.planets
+	data.Celestials = b.GetCachedCelestials()
+	b.planetsMu.RUnlock()
+
+	b.lastActivePlanetMu.RLock()
+	data.LastActivePlanet = b.lastActivePlanet
+	b.lastActivePlanetMu.RUnlock()
+
+	data.PlanetActivity = map[CelestialID]time.Time{}
+	data.PlanetResources = map[CelestialID]ResourcesDetails{}
+	data.PlanetResourcesBuildings = map[CelestialID]ResourcesBuildings{}
+	data.PlanetFacilities = map[CelestialID]Facilities{}
+	data.PlanetShipsInfos = map[CelestialID]ShipsInfos{}
+	data.PlanetDefensesInfos = map[CelestialID]DefensesInfos{}
+
+	data.PlanetConstruction = map[CelestialID]Quantifiable{}
+	data.PlanetConstructionFinishAt = map[CelestialID]int64{}
+	data.PlanetShipyardProductions = map[CelestialID][]Quantifiable{}
+	data.PlanetShipyardProductionsFinishAt = map[CelestialID]int64{}
+	data.PlanetQueue = map[CelestialID][]Quantifiable{}
+
+	b.planetActivityMu.RLock()
+	//data.PlanetActivity = b.planetActivity
+	for k, e := range b.planetActivity {
+		data.PlanetActivity[k] = e
+	}
+	b.planetActivityMu.RUnlock()
+
+	b.planetResourcesMu.Lock()
+	//data.PlanetResources = b.planetResources
+	for k, e := range b.planetResources {
+		celTmp := b.getCachedCelestials()
+		var ownCelestialID bool
+		for _, celTmpValue := range celTmp {
+			if celTmpValue.GetID() == k {
+				ownCelestialID = true
+			}
+		}
+		if !ownCelestialID {
+			delete(b.planetResources, k)
+			continue
+		}
+		var resProduction struct {
+			Metal     float64
+			Crystal   float64
+			Deuterium float64
+			Energy    int64
+		}
+		resProduction.Metal = float64(e.Metal.CurrentProduction) / 3600
+		resProduction.Crystal = float64(e.Crystal.CurrentProduction) / 3600
+		resProduction.Deuterium = float64(e.Deuterium.CurrentProduction) / 3600
+
+		b.planetActivityMu.RLock()
+		timespan := float64(time.Now().Unix() - b.planetActivity[k].Unix())
+		b.planetActivityMu.RUnlock()
+
+		resProduction.Metal = resProduction.Metal * timespan
+		resProduction.Crystal = resProduction.Crystal * timespan
+		resProduction.Deuterium = resProduction.Deuterium * timespan
+
+		e.Metal.Available = e.Metal.Available + int64(resProduction.Metal)
+		e.Crystal.Available = e.Crystal.Available + int64(resProduction.Crystal)
+		e.Deuterium.Available = e.Deuterium.Available + int64(resProduction.Deuterium)
+
+		data.PlanetResources[k] = e
+	}
+	b.planetResourcesMu.Unlock()
+
+	b.planetResourcesBuildingsMu.RLock()
+	//data.PlanetResourcesBuildings = b.planetResourcesBuildings
+	for k, e := range b.planetResourcesBuildings {
+		data.PlanetResourcesBuildings[k] = e
+	}
+	b.planetResourcesBuildingsMu.RUnlock()
+
+	b.planetFacilitiesMu.RLock()
+	//data.PlanetFacilities = b.planetFacilities
+	for k, e := range b.planetFacilities {
+		data.PlanetFacilities[k] = e
+	}
+	b.planetFacilitiesMu.RUnlock()
+
+	b.planetShipsInfosMu.RLock()
+	//data.PlanetShipsInfos = b.planetShipsInfos
+	for k, e := range b.planetShipsInfos {
+		data.PlanetShipsInfos[k] = e
+	}
+	b.planetShipsInfosMu.RUnlock()
+
+	b.planetDefensesInfosMu.RLock()
+	//data.PlanetDefensesInfos = b.planetDefensesInfos
+	for k, e := range b.planetDefensesInfos {
+		data.PlanetDefensesInfos[k] = e
+	}
+	b.planetDefensesInfosMu.RUnlock()
+
+	b.planetConstructionMu.RLock()
+	//data.PlanetConstruction = b.planetConstruction
+	for k, e := range b.planetConstruction {
+		data.PlanetConstruction[k] = e
+	}
+	b.planetConstructionMu.RUnlock()
+
+	b.planetConstructionFinishAtMu.RLock()
+	//data.PlanetConstructionFinishAt = b.planetConstructionFinishAt
+	for k, e := range b.planetConstructionFinishAt {
+		data.PlanetConstructionFinishAt[k] = e
+	}
+	b.planetConstructionFinishAtMu.RUnlock()
+
+	b.planetShipyardProductionsMu.RLock()
+	//data.PlanetShipyardProductions = b.planetShipyardProductions
+	for k, e := range b.planetShipyardProductions {
+		data.PlanetShipyardProductions[k] = e
+	}
+	b.planetShipyardProductionsMu.RUnlock()
+
+	b.planetShipyardProductionsFinishAtMu.RLock()
+	//data.PlanetShipyardProductionsFinishAt = b.planetShipyardProductionsFinishAt
+	for k, e := range b.planetShipyardProductionsFinishAt {
+		data.PlanetShipyardProductionsFinishAt[k] = e
+	}
+	b.planetShipyardProductionsFinishAtMu.RUnlock()
+
+	b.planetQueueMu.RLock()
+	//data.PlanetQueue = b.planetQueue
+	for k, e := range b.planetQueue {
+		data.PlanetQueue[k] = e
+	}
+	b.planetQueueMu.RUnlock()
+
+	b.researchesCacheMu.RLock()
+	data.Researches = b.researchesCache
+	b.researchesCacheMu.RUnlock()
+
+	b.researchesActiveMu.RLock()
+	data.ResearchesActive = b.researchesActive
+	b.researchesActiveMu.RUnlock()
+
+	b.researchFinishAtMu.RLock()
+	data.ResearchFinishAt = b.researchFinishAt
+	b.researchFinishAtMu.RUnlock()
+
+	b.eventboxRespMu.RLock()
+	data.EventboxResp = b.eventboxResp
+	b.eventboxRespMu.RUnlock()
+
+	b.attackEventsMu.RLock()
+	data.AttackEvents = b.attackEvents
+	b.attackEventsMu.RUnlock()
+
+	b.movementFleetsMu.RLock()
+	data.MovementFleets = b.movementFleets
+	b.movementFleetsMu.RUnlock()
+
+	b.slotsMu.RLock()
+	data.Slots = b.slots
+	b.slotsMu.RUnlock()
+
+	return data
+}
+
+// HasCommander ...
+func (b *OGame) HasCommander() bool {
+	return b.hasCommander
+}
+
+// HasAdmiral ...
+func (b *OGame) HasAdmiral() bool {
+	return b.hasAdmiral
+}
+
+// HasEngineer ...
+func (b *OGame) HasEngineer() bool {
+	return b.hasEngineer
+}
+
+// HasGeologist ...
+func (b *OGame) HasGeologist() bool {
+	return b.hasGeologist
+}
+
+// HasTechnocrat ...
+func (b *OGame) HasTechnocrat() bool {
+	return b.hasTechnocrat
+}
+
+// IsNoClass ...
+func (b *OGame) IsNoClass() bool {
+	return b.characterClass == NoClass
+}
+
+// IsDiscoverer ...
+func (b *OGame) IsDiscoverer() bool {
+	return b.characterClass == Discoverer
+}
+
+// IsGeneral ...
+func (b *OGame) IsGeneral() bool {
+	return b.characterClass == General
+}
+
+// IsCollector ...
+func (b *OGame) IsCollector() bool {
+	return b.characterClass == Collector
+}
+
+// GetServers ...
+func GetServers() ([]Server, error) {
+	client := &http.Client{}
+
+	//selectedLobby := c.QueryParam("lobby")
+	servers, _ := getServers2("lobby", client)
+	serversPioneers, _ := getServers2("lobby", client)
+
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+
+	ServersPioneers := make(map[string][]Server)
+	for _, v := range serversPioneers {
+		ServersPioneers[v.Language] = append(ServersPioneers[v.Language], v)
+	}
+
+	return getServers2(Lobby, client)
+}
+
+// GetServers ...
+func GetLobbyServers() (map[string][]Server, error) {
+	client := &http.Client{}
+	servers, _ := getServers2(Lobby, client)
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+	return Servers, nil
+}
+
+// GetServers ...
+func GetLobbyPioneersServers() (map[string][]Server, error) {
+	client := &http.Client{}
+	servers, _ := getServers2(LobbyPioneers, client)
+	Servers := make(map[string][]Server)
+	for _, v := range servers {
+		Servers[v.Language] = append(Servers[v.Language], v)
+	}
+	ServersPioneers := make(map[string][]Server)
+	for _, v := range servers {
+		ServersPioneers[v.Language] = append(ServersPioneers[v.Language], v)
+	}
+	return ServersPioneers, nil
+}
+
+// GetAccounts ..
+func (b *OGame) GetAccounts() ([]account, error) {
+	return getUserAccounts(b, b.bearerToken)
 }

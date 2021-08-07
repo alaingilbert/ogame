@@ -45,7 +45,7 @@ type Prioritizable interface {
 	GetExpeditionMessageAt(time.Time) (ExpeditionMessage, error)
 	GetExpeditionMessages() ([]ExpeditionMessage, error)
 	GetFleets(...Option) ([]Fleet, Slots)
-	GetFleetsFromEventList() []Fleet
+	GetFleetsFromEventList(...Option) []Fleet
 	GetItems(CelestialID) ([]Item, error)
 	GetActiveItems(CelestialID) ([]ActiveItem, error)
 	GetMoon(interface{}) (Moon, error)
@@ -72,6 +72,7 @@ type Prioritizable interface {
 	SetInitiator(initiator string) Prioritizable
 	Tx(clb func(tx Prioritizable) error) error
 	UseDM(string, CelestialID) error
+	GetCachedData() Data
 
 	// Planet or Moon functions
 	Build(celestialID CelestialID, id ID, nbr int64) error
@@ -216,6 +217,7 @@ type Ship interface {
 	GetCargoCapacity(techs Researches, probeRaids, isCollector, isPioneers bool) int64
 	GetSpeed(techs Researches, isCollector, isGeneral bool) int64
 	GetFuelConsumption(techs Researches, fleetDeutSaveFactor float64, isGeneral bool) int64
+	GetFuelCapacity() int64
 }
 
 // Defense interface implemented by all defenses units

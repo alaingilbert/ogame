@@ -5,5 +5,9 @@ cmd/bot*
 *.cover
 cover.out
 vendor
+*.bat
+*.json
+*.code-workspace
 /ogame.code-workspace
+/cmd/ogb
 cmd/ogamed/bin

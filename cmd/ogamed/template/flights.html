@@ -1,0 +1,39 @@
+{{define "flights"}}
+{{template "header" .}}
+<div class="content">
+	<h2>Main</h2>
+	<div>This is the Main Page!</div>
+	<div>
+		<div>
+			<form Method='GET'>
+				<select name='origin' onchange="this.form.submit();">
+					<option value=''>--- Select Origin ---</option>
+					{{range $k, $v := .Bot.Planets}}
+						<option value='{{$v.GetID}}'>{{$v.GetID}} {{$v.GetCoordinate}}</option>
+					{{end}}
+				</select>
+			</form>
+		</div>
+		<form method="GET">
+			<input type="hidden" name="origin" value="{{.Origin.GetCoordinate}}"/>
+			<input type="submit" name="Submit" />
+		</form>
+
+		<div>
+		<table>
+			{{$PlanetShips := .PlanetShips}}
+			{{range $k, $v := .Ships}}
+			<tr>
+				<td>{{$v.GetName}}</td>
+				<td>
+					Maximal: ({{$.PlanetShips.ByID $v.GetID}})
+					<input id='{{$v.GetID}}' value='0' />
+				</td>
+			</tr>
+			{{end}}
+		</table>
+		</div>
+	</div>
+</div>
+{{template "footer" .}}
+{{end}}

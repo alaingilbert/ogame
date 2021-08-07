@@ -1,0 +1,73 @@
+{{define "empire"}}
+{{template "header" .}}
+
+{{$r := .}}
+{{$bot := .Bot}}
+
+{{$obj := .Objs}}
+<div class="content">
+
+	<h2>Empire</h2>
+	
+	<div>
+	
+<table>
+<tr>
+	<td>	
+		<table>
+		<tr>
+		<td><strong>{{.Bot.Player.PlayerName}}</strong> ({{.Bot.Player.PlayerID}})</td>
+		<td></td>
+		</tr>
+		<tr>
+		<td>Points:</td>
+		<td>{{.Bot.Player.Points}}</td>
+		</tr>
+		<tr>
+		<td>Rank:</td>
+		<td>{{.Bot.Player.Rank}} / {{.Bot.Player.Total}}</td>
+		</tr>	
+		<td>Honour points:</td>
+		<td>{{.Bot.Player.HonourPoints}}</td>
+		</tr>		
+		
+		{{range $key, $tech := .Technologies}}
+		<tr>
+		<td>{{$tech.GetName}}</td>
+		<td>{{$bot.Researches.ByID $tech.GetID}}</td>
+		</tr>
+		{{end}}
+		</table>
+	</td>
+	<td>
+		<table>
+			<tr>
+				<td></td>
+				<td>Sum</td>
+				{{range $key, $planet := .Bot.Planets}}
+				<td>{{$planet.Name }}</td>
+				{{end}}
+			</tr>
+			
+			{{range $key, $building := .Buildings}}
+			<tr>
+					<td></td>
+					<td>{{$building.GetName}}</td>
+
+					{{range $key, $value := $bot.PlanetResourcesBuildings}}
+						<td>
+						{{$value.ByID $building.GetID}}
+						</td>
+					
+					{{end}}
+					<td>{{$building.GetName}}</td>
+			</tr>
+			{{end}}
+			
+		</table>
+	</td>
+</table>		
+	</div>
+</div>
+{{template "footer" .}}
+{{end}}

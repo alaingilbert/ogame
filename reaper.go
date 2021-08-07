@@ -14,6 +14,7 @@ func newReaper() *reaper {
 	r.BaseCargoCapacity = 10000
 	r.BaseSpeed = 7000
 	r.FuelConsumption = 1100
+	r.FuelCapacity = 10000
 	r.RapidfireFrom = map[ID]int64{DeathstarID: 10, IonCannonID: 2}
 	r.RapidfireAgainst = map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5, CrawlerID: 5, BattleshipID: 7, BattlecruiserID: 7, BomberID: 4, DestroyerID: 3}
 	r.Price = Resources{Metal: 85000, Crystal: 55000, Deuterium: 20000}

@@ -1,0 +1,45 @@
+name: Go
+
+on:
+  create:
+    tags:
+      - v*
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.15
+    
+
+    - name: Build
+      run: |
+        #for GOOSV in darwin linux; do
+          #for GOARCHV in 386 amd64; do
+        for GOOSV in linux; do
+          for GOARCHV in amd64 arm arm64; do
+            #env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV
+            env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV
+          done
+        done
+        for GOOSV in windows; do
+          for GOARCHV in 386 amd64; do
+            #env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV.exe
+            env GOOS=$GOOSV GOARCH=$GOARCHV CGO_ENABLED=0 go build -v -a -ldflags '-s -w' -o ./bin/ogame-bot-$GOOSV-$GOARCHV.exe
+          done
+        done
+        
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          ./bin/ogame-bot*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

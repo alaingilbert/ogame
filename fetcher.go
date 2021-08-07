@@ -36,6 +36,7 @@ const (
 	// ajax pages
 	FetchEventboxAjaxPage      = "fetchEventbox"
 	FetchResourcesAjaxPage     = "fetchResources"
+	FetchTechsAjaxPage = "fetchTechs"
 	GalaxyContentAjaxPage      = "galaxyContent"
 	EventListAjaxPage          = "eventList"
 	AjaxChatAjaxPage           = "ajaxChat"

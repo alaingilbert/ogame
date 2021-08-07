@@ -7,7 +7,7 @@ type EspionageReport struct {
 	Resources
 	ID                           int64
 	Username                     string
-	CharacterClass               CharacterClass
+	CharacterClass               CharacterClass `gorm:"embedded"`
 	AllianceClass                AllianceClass
 	LastActivity                 int64
 	CounterEspionage             int64
@@ -83,8 +83,8 @@ type EspionageReport struct {
 	Crawler                      *int64
 	Reaper                       *int64
 	Pathfinder                   *int64
-	Coordinate                   Coordinate
-	Type                         EspionageReportType
+	Coordinate                   Coordinate          `gorm:"embedded"`
+	Type                         EspionageReportType `gorm:"embedded"`
 	Date                         time.Time
 }
 

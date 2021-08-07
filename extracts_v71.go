@@ -18,19 +18,22 @@ import (
 type resourcesRespV71 struct {
 	Resources struct {
 		Metal struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
-			Tooltip string  `json:"tooltip"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"metal"`
 		Crystal struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
-			Tooltip string  `json:"tooltip"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"crystal"`
 		Deuterium struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
-			Tooltip string  `json:"tooltip"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"deuterium"`
 		Energy struct {
 			Amount  float64 `json:"amount"`
@@ -161,12 +164,16 @@ func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err erro
 	}
 	out.Metal.Available = int64(res.Resources.Metal.Amount)
 	out.Metal.StorageCapacity = int64(res.Resources.Metal.Storage)
+	out.Metal.BaseProduction = res.Resources.Metal.BaseProduction
 	out.Crystal.Available = int64(res.Resources.Crystal.Amount)
 	out.Crystal.StorageCapacity = int64(res.Resources.Crystal.Storage)
+	out.Crystal.BaseProduction = res.Resources.Crystal.BaseProduction
 	out.Deuterium.Available = int64(res.Resources.Deuterium.Amount)
 	out.Deuterium.StorageCapacity = int64(res.Resources.Deuterium.Storage)
+	out.Deuterium.BaseProduction = res.Resources.Deuterium.BaseProduction
 	out.Energy.Available = int64(res.Resources.Energy.Amount)
 	out.Darkmatter.Available = int64(res.Resources.Darkmatter.Amount)
+
 	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Metal.Tooltip))
 	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Crystal.Tooltip))
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Deuterium.Tooltip))
@@ -1116,4 +1123,54 @@ func extractIsMobileFromDocV71(doc *goquery.Document) bool {
 		}
 	}
 	return false
+}
+
+type shipsOnPlanetV71 struct {
+	ID                  int64  `json:"id"`
+	Name                string `json:"name"`
+	BaseFuelConsumption int64  `json:"baseFuelConsumption"`
+	BaseFuelCapacity    int64  `json:"baseFuelCapacity"`
+	BaseCargoCapacity   int64  `json:"baseCargoCapacity"`
+	FuelConsumption     int64  `json:"fuelConsumption"`
+	BaseSpeed           int64  `json:"baseSpeed"`
+	Speed               int64  `json:"speed"`
+	CargoCapacity       int64  `json:"cargoCapacity"`
+	FuelCapacity        int64  `json:"fuelCapacity"`
+	Number              int64  `json:"number"`
+	RecycleMode         int64  `json:"recycleMode"`
+}
+
+// extractShipsOnPlanetV71 ... extracts varr ShipsOnPlanet = [] -> []shipsOnPlanetV71
+func extractShipsOnPlanetV71(pageHTML []byte) (out shipsOnPlanetV71, err error) {
+	var result1 = regexp.MustCompile(`(?m) var shipsOnPlanet = (.+)[;]`)
+	result2 := result1.FindStringSubmatch(string(pageHTML))
+	var result3 []byte
+	if len(result2) == 2 {
+		result3 = []byte(result2[1])
+	}
+
+	var r []shipsOnPlanetV71
+	if err = json.Unmarshal(result3, &r); err != nil {
+		if isLogged(pageHTML) {
+			return out, ErrInvalidPlanetID
+		}
+		return
+	}
+
+	for _, res := range r {
+		out.ID = int64(res.ID)
+		out.Name = res.Name
+		out.BaseFuelConsumption = res.BaseFuelConsumption
+		out.BaseFuelCapacity = res.BaseFuelCapacity
+		out.BaseCargoCapacity = res.BaseCargoCapacity
+		out.FuelConsumption = res.FuelConsumption
+		out.BaseSpeed = res.BaseSpeed
+		out.Speed = res.Speed
+		out.CargoCapacity = res.CargoCapacity
+		out.FuelCapacity = res.FuelCapacity
+		out.Number = res.Number
+		out.RecycleMode = res.RecycleMode
+	}
+
+	return
 }

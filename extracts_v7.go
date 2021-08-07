@@ -13,6 +13,11 @@ import (
 	"github.com/alaingilbert/clockwork"
 )
 
+func getNameV7(doc *goquery.Document, name string) string {
+	val := doc.Find("span."+name).First().AttrOr("aria-label", "0")
+	return val
+}
+
 func getNbrV7(doc *goquery.Document, name string) int64 {
 	val, _ := strconv.ParseInt(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"), 10, 64)
 	return val
@@ -765,3 +770,4 @@ func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.L
 	})
 	return msgs, nbPage, nil
 }
+

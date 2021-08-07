@@ -1,0 +1,127 @@
+{{define "planet"}}
+{{template "header" .}}
+<div class="content">
+    <div class="w3">
+        <div class="w3-bar w3-green">
+            {{range $k, $v := .Bot.Planets}}
+               <a href="/planet?id={{$v.GetID}}" class="w3-bar-item w3-button">
+                <p><img src="{{$v.Img}}" alt="{{$v.Coordinate}}"></p>
+                <p>{{$v.GetName}}</p>
+                </a>
+            {{end}}
+        </div>
+    </div>
+    <br/>
+
+    <table>
+        <tr><td>
+                <button id="updateResearch"> Update</button>
+            <script>
+                $(document).ready(function(){
+                    $("#updateResearch").click(function(){
+                        $.getJSON("/bot/get-research", function(result){
+                            $.each(result, function(i, field){
+                                $("div").append(field + " ");
+                            });
+                        });
+                    });
+                });            
+            </script>
+            <table class="w3-table w3-striped">
+            {{range $k, $v := .Technologies}}
+            <tr>
+                <td>{{$v.GetName}}</td>
+                <td>{{$.Researches.ByID $v.GetID}}</td>
+            </tr>
+            {{end}}
+            </table>
+        </td>
+        <td>
+            <table class="w3-table w3-striped">
+                {{range $k, $v := .PlanetBuildings}}
+                <tr>
+                    <td>{{$v.GetName}}</td>
+                    <td>{{with (index $.Bot.PlanetResourcesBuildings $.PlanetID.Celestial)}}
+                            {{.ByID $v.GetID}}
+                        {{end}}</td>
+                </tr>
+                {{end}}
+                </table>
+        </td>
+
+        <td>
+            <table class="w3-table w3-striped">
+                {{range $k, $v := .Ships}}
+                <tr>
+                    <td>{{$v.GetName}}</td>
+                    <td>{{with (index $.Bot.PlanetShipsInfos $.PlanetID.Celestial)}}
+                            {{$s := .ByID $v.GetID}}
+                            {{$v.GetPrice 1}}
+                            {{$r := index $.Bot.PlanetResources $.PlanetID.Celestial}}
+                            (max {{$r.Available.Div ($v.GetPrice 1)}})
+                        {{end}}</td>
+                </tr>
+                {{end}}
+            </table>
+        </td>
+        <td>
+            <table class="w3-table w3-striped">
+                    {{range $k, $v := .Defenses}}
+                    <tr>
+                        <td>{{$v.GetName}}</td>
+                        <td>{{with (index $.Bot.PlanetDefensesInfos $.PlanetID.Celestial)}}
+                                {{$s := .ByID $v.GetID}}
+                                {{$v.GetPrice 1}}
+                                {{$r := index $.Bot.PlanetResources $.PlanetID.Celestial}}
+                                (max {{$r.Available.Div ($v.GetPrice 1)}})
+                            {{end}}</td>
+                    </tr>
+                    {{end}}
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td>
+                        <p>Available: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} {{.Metal.Available}} {{end}}</p>
+                        <p>Production: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} +{{.Metal.CurrentProduction}} {{end}}</p>
+                        <p>Storage: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} {{.Metal.StorageCapacity}} {{end}}</p>
+                    </td>
+                    <td>
+                        <p>Available: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} {{.Crystal.Available}} {{end}}</p>
+                        <p>Production: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} +{{.Crystal.CurrentProduction}} {{end}}</p>
+                        <p>Storage: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} {{.Crystal.StorageCapacity}} {{end}}</p>
+                    </td>
+                    <td>
+                        <p>Available: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} {{.Deuterium.Available}} {{end}}</p>
+                        <p>Production: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} +{{.Deuterium.CurrentProduction}} {{end}}</p>
+                        <p>Storage: {{with (index $.Bot.PlanetResources $.PlanetID.Celestial)}} {{.Deuterium.StorageCapacity}} {{end}}</p>
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <br>
+            <table class="w3-table w3-striped">
+                    <tr>
+                            <th><h2>Queue</h2></th>
+                            <th></th>
+                        </tr>
+                    <tr>
+                        <td>No Processing</td>
+                        <td>Nothing in BuildingsQueue</td>
+                    </tr>
+                    <tr>
+                        <td>No Processing</td>
+                        <td>Nothing in ResearchQueue</td>
+                    </tr>
+                    <tr>
+                        <td>No Processing</td>
+                        <td>Nothing in ShipyardQueue</td>
+                    </tr>
+            </table>
+        </td>
+        </tr>
+    </table>
+</div>
+{{template "footer" .}}
+{{end}}

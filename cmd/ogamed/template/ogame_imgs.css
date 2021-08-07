@@ -1,0 +1,176 @@
+
+.simg_MetalMine              { background: url(/public/img/small.png)   -0px   -0px; display: block; width: 28px; height: 28px; }
+.simg_CrystalMine            { background: url(/public/img/small.png)  -28px   -0px; display: block; width: 28px; height: 28px; }
+.simg_DeuteriumSynthesizer   { background: url(/public/img/small.png)  -56px   -0px; display: block; width: 28px; height: 28px; }
+.simg_SolarPlant             { background: url(/public/img/small.png)  -84px   -0px; display: block; width: 28px; height: 28px; }
+.simg_FusionReactor          { background: url(/public/img/small.png) -112px   -0px; display: block; width: 28px; height: 28px; }
+.simg_MetalStorage           { background: url(/public/img/small.png) -224px   -0px; display: block; width: 28px; height: 28px; }
+.simg_CrystalStorage         { background: url(/public/img/small.png)   -0px  -28px; display: block; width: 28px; height: 28px; }
+.simg_DeuteriumTank          { background: url(/public/img/small.png)  -28px  -28px; display: block; width: 28px; height: 28px; }
+.simg_ShieldedMetalDen       { background: url(/public/img/small.png)  -56px  -28px; display: block; width: 28px; height: 28px; }
+.simg_UndergroundCrystalDen  { background: url(/public/img/small.png)  -84px  -28px; display: block; width: 28px; height: 28px; }
+.simg_SeabedDeuteriumDen     { background: url(/public/img/small.png) -112px  -28px; display: block; width: 28px; height: 28px; }
+.simg_AllianceDepot          { background: url(/public/img/small.png) -196px  -28px; display: block; width: 28px; height: 28px; }
+.simg_LunarBase              { background: url(/public/img/small.png) -224px  -28px; display: block; width: 28px; height: 28px; }
+.simg_SensorPhalanx          { background: url(/public/img/small.png)   -0px  -56px; display: block; width: 28px; height: 28px; }
+.simg_JumpGate               { background: url(/public/img/small.png)  -28px  -56px; display: block; width: 28px; height: 28px; }
+.simg_RoboticsFactory        { background: url(/public/img/small.png) -140px   -0px; display: block; width: 28px; height: 28px; }
+.simg_Shipyard               { background: url(/public/img/small.png) -196px   -0px; display: block; width: 28px; height: 28px; }
+.simg_ResearchLab            { background: url(/public/img/small.png) -140px  -28px; display: block; width: 28px; height: 28px; }
+.simg_MissileSilo            { background: url(/public/img/small.png)  -56px  -56px; display: block; width: 28px; height: 28px; }
+.simg_NaniteFactory          { background: url(/public/img/small.png) -168px   -0px; display: block; width: 28px; height: 28px; }
+.simg_Terraformer            { background: url(/public/img/small.png) -168px  -28px; display: block; width: 28px; height: 28px; }
+.simg_SpaceDock              { background: url(/public/img/small.png) -196px -168px; display: block; width: 28px; height: 28px; }
+.simg_RocketLauncher         { background: url(/public/img/small.png) -168px -140px; display: block; width: 28px; height: 28px; }
+.simg_LightLaser             { background: url(/public/img/small.png) -196px -140px; display: block; width: 28px; height: 28px; }
+.simg_HeavyLaser             { background: url(/public/img/small.png) -224px -140px; display: block; width: 28px; height: 28px; }
+.simg_GaussCannon            { background: url(/public/img/small.png)   -0px -168px; display: block; width: 28px; height: 28px; }
+.simg_IonCannon              { background: url(/public/img/small.png)  -28px -168px; display: block; width: 28px; height: 28px; }
+.simg_PlasmaTurret           { background: url(/public/img/small.png)  -56px -168px; display: block; width: 28px; height: 28px; }
+.simg_SmallShieldDome        { background: url(/public/img/small.png)  -84px -168px; display: block; width: 28px; height: 28px; }
+.simg_LargeShieldDome        { background: url(/public/img/small.png) -112px -168px; display: block; width: 28px; height: 28px; }
+.simg_AntiBallisticMissiles  { background: url(/public/img/small.png) -140px -168px; display: block; width: 28px; height: 28px; }
+.simg_InterplanetaryMissiles { background: url(/public/img/small.png) -168px -168px; display: block; width: 28px; height: 28px; }
+.simg_SmallCargo             { background: url(/public/img/small.png)  -28px -112px; display: block; width: 28px; height: 28px; }
+.simg_LargeCargo             { background: url(/public/img/small.png)  -56px -112px; display: block; width: 28px; height: 28px; }
+.simg_LightFighter           { background: url(/public/img/small.png)  -84px -112px; display: block; width: 28px; height: 28px; }
+.simg_HeavyFighter           { background: url(/public/img/small.png) -112px -112px; display: block; width: 28px; height: 28px; }
+.simg_Cruiser                { background: url(/public/img/small.png) -140px -112px; display: block; width: 28px; height: 28px; }
+.simg_Battleship             { background: url(/public/img/small.png) -168px -112px; display: block; width: 28px; height: 28px; }
+.simg_ColonyShip             { background: url(/public/img/small.png) -196px -112px; display: block; width: 28px; height: 28px; }
+.simg_Recycler               { background: url(/public/img/small.png) -224px -112px; display: block; width: 28px; height: 28px; }
+.simg_EspionageProbe         { background: url(/public/img/small.png)   -0px -140px; display: block; width: 28px; height: 28px; }
+.simg_Bomber                 { background: url(/public/img/small.png)  -28px -140px; display: block; width: 28px; height: 28px; }
+.simg_SolarSatellite         { background: url(/public/img/small.png)  -56px -140px; display: block; width: 28px; height: 28px; }
+.simg_Destroyer              { background: url(/public/img/small.png)  -84px -140px; display: block; width: 28px; height: 28px; }
+.simg_Deathstar              { background: url(/public/img/small.png) -112px -140px; display: block; width: 28px; height: 28px; }
+.simg_Battlecruiser          { background: url(/public/img/small.png) -140px -140px; display: block; width: 28px; height: 28px; }
+.simg_Reaper                 { background: url(/public/img/small.png)   -0px -196px; display: block; width: 28px; height: 28px; }
+.simg_Pathfinder             { background: url(/public/img/small.png)  -28px -196px; display: block; width: 28px; height: 28px; }
+.simg_Crawler                { background: url(/public/img/small.png)  -56px -196px; display: block; width: 28px; height: 28px; }
+
+.simg_EnergyTechnology             { background: url(/public/img/small.png) -224px  -56px; display: block; width: 28px; height: 28px; }
+.simg_LaserTechnology              { background: url(/public/img/small.png) -112px  -84px; display: block; width: 28px; height: 28px; }
+.simg_IonTechnology                { background: url(/public/img/small.png) -140px  -84px; display: block; width: 28px; height: 28px; }
+.simg_HyperspaceTechnology         { background: url(/public/img/small.png)   -0px  -84px; display: block; width: 28px; height: 28px; }
+.simg_PlasmaTechnology             { background: url(/public/img/small.png) -168px  -84px; display: block; width: 28px; height: 28px; }
+.simg_CombustionDrive              { background: url(/public/img/small.png)  -28px  -84px; display: block; width: 28px; height: 28px; }
+.simg_ImpulseDrive                 { background: url(/public/img/small.png)  -56px  -84px; display: block; width: 28px; height: 28px; }
+.simg_HyperspaceDrive              { background: url(/public/img/small.png)  -84px  -84px; display: block; width: 28px; height: 28px; }
+.simg_EspionageTechnology          { background: url(/public/img/small.png)  -84px  -56px; display: block; width: 28px; height: 28px; }
+.simg_ComputerTechnology           { background: url(/public/img/small.png) -112px  -56px; display: block; width: 28px; height: 28px; }
+.simg_Astrophysics                 { background: url(/public/img/small.png) -224px  -84px; display: block; width: 28px; height: 28px; }
+.simg_IntergalacticResearchNetwork { background: url(/public/img/small.png) -196px  -84px; display: block; width: 28px; height: 28px; }
+.simg_GravitonTechnology           { background: url(/public/img/small.png)   -0px -112px; display: block; width: 28px; height: 28px; }
+.simg_WeaponsTechnology            { background: url(/public/img/small.png) -140px  -56px; display: block; width: 28px; height: 28px; }
+.simg_ShieldingTechnology          { background: url(/public/img/small.png) -168px  -56px; display: block; width: 28px; height: 28px; }
+.simg_ArmourTechnology             { background: url(/public/img/small.png) -196px  -56px; display: block; width: 28px; height: 28px; }
+
+.img_Metal      { background: url(/public/img/resources.png)    0px -160px; width: 48px; height: 32px; }
+.img_Crystal    { background: url(/public/img/resources.png)  -48px -160px; width: 48px; height: 32px; }
+.img_Deuterium  { background: url(/public/img/resources.png)  -96px -160px; width: 48px; height: 32px; }
+.img_Energy     { background: url(/public/img/resources.png) -144px -160px; width: 48px; height: 32px; }
+.img_DarkMatter { background: url(/public/img/resources.png) -192px -160px; width: 48px; height: 32px; }
+
+.simg_Metal      { background: url(/public/img/resources.png); background-size: 250px 120px; background-position: 0 -100px; width: 30px; height: 20px; }
+.simg_Crystal    { background: url(/public/img/resources.png); background-size: 250px 120px; background-position: -30px -100px; width: 30px; height: 20px; }
+.simg_Deuterium  { background: url(/public/img/resources.png); background-size: 250px 120px; background-position: -60px -100px; width: 30px; height: 20px; }
+
+.img_MetalMine              { background: url(/public/img/resourcesBuildings.png) -100px    0px; width: 100px; height: 100px; }
+.img_CrystalMine            { background: url(/public/img/resourcesBuildings.png) -400px    0px; width: 100px; height: 100px; }
+.img_DeuteriumSynthesizer   { background: url(/public/img/resourcesBuildings.png) -300px    0px; width: 100px; height: 100px; }
+.img_SolarPlant             { background: url(/public/img/resourcesBuildings.png) -200px    0px; width: 100px; height: 100px; }
+.img_FusionReactor          { background: url(/public/img/resourcesBuildings.png)    0px    0px; width: 100px; height: 100px; }
+.img_MetalStorage           { background: url(/public/img/storages.jpg)   -0px    0px; width: 80px; height: 80px; }
+.img_CrystalStorage         { background: url(/public/img/storages.jpg)  -80px    0px; width: 80px; height: 80px; }
+.img_DeuteriumTank          { background: url(/public/img/storages.jpg) -160px    0px; width: 80px; height: 80px; }
+.img_ShieldedMetalDen       { background: url(/public/img/storages.jpg) -240px    0px; width: 80px; height: 80px; }
+.img_UndergroundCrystalDen  { background: url(/public/img/storages.jpg) -320px    0px; width: 80px; height: 80px; }
+.img_SeabedDeuteriumDen     { background: url(/public/img/storages.jpg) -400px    0px; width: 80px; height: 80px; }
+.img_AllianceDepot          { background: url(/public/img/facilities.png)  -200px   -0px; width: 100px; height: 100px; }
+.img_RoboticsFactory        { background: url(/public/img/facilities.png)    -0px   -0px; width: 100px; height: 100px; }
+.img_Shipyard               { background: url(/public/img/facilities.png)  -300px   -0px; width: 100px; height: 100px; }
+.img_ResearchLab            { background: url(/public/img/facilities.png)  -100px   -0px; width: 100px; height: 100px; }
+.img_MissileSilo            { background: url(/public/img/facilities.png)  -600px   -0px; width: 100px; height: 100px; }
+.img_NaniteFactory          { background: url(/public/img/facilities.png)  -400px   -0px; width: 100px; height: 100px; }
+.img_Terraformer            { background: url(/public/img/facilities.png)  -500px   -0px; width: 100px; height: 100px; }
+.img_SpaceDock              { background: url(/public/img/facilities.png) -1000px   -0px; width: 100px; height: 100px; }
+.img_LunarBase              { background: url(/public/img/facilities.png)  -700px   -0px; width: 100px; height: 100px; }
+.img_SensorPhalanx          { background: url(/public/img/facilities.png)  -800px   -0px; width: 100px; height: 100px; }
+.img_JumpGate               { background: url(/public/img/facilities.png)  -900px   -0px; width: 100px; height: 100px; }
+.img_RocketLauncher         { background: url(/public/img/defences.png)   -0px 0; width: 80px; height: 80px; }
+.img_LightLaser             { background: url(/public/img/defences.png)  -80px 0; width: 80px; height: 80px; }
+.img_HeavyLaser             { background: url(/public/img/defences.png) -160px 0; width: 80px; height: 80px; }
+.img_GaussCannon            { background: url(/public/img/defences.png) -240px 0; width: 80px; height: 80px; }
+.img_IonCannon              { background: url(/public/img/defences.png) -320px 0; width: 80px; height: 80px; }
+.img_PlasmaTurret           { background: url(/public/img/defences.png) -400px 0; width: 80px; height: 80px; }
+.img_SmallShieldDome        { background: url(/public/img/defences.png) -480px 0; width: 80px; height: 80px; }
+.img_LargeShieldDome        { background: url(/public/img/defences.png) -560px 0; width: 80px; height: 80px; }
+.img_AntiBallisticMissiles  { background: url(/public/img/defences.png) -640px 0; width: 80px; height: 80px; }
+.img_InterplanetaryMissiles { background: url(/public/img/defences.png) -720px 0; width: 80px; height: 80px; }
+.img_SmallCargo             { background: url(/public/img/ships.png)      -0px 0; width: 80px; height: 80px; }
+.img_LargeCargo             { background: url(/public/img/ships.png)     -80px 0; width: 80px; height: 80px; }
+.img_LightFighter           { background: url(/public/img/ships.png)    -160px 0; width: 80px; height: 80px; }
+.img_HeavyFighter           { background: url(/public/img/ships.png)    -240px 0; width: 80px; height: 80px; }
+.img_Cruiser                { background: url(/public/img/ships.png)    -320px 0; width: 80px; height: 80px; }
+.img_Battleship             { background: url(/public/img/ships.png)    -400px 0; width: 80px; height: 80px; }
+.img_ColonyShip             { background: url(/public/img/ships.png)    -480px 0; width: 80px; height: 80px; }
+.img_Recycler               { background: url(/public/img/ships.png)    -560px 0; width: 80px; height: 80px; }
+.img_EspionageProbe         { background: url(/public/img/ships.png)    -640px 0; width: 80px; height: 80px; }
+.img_Bomber                 { background: url(/public/img/ships.png)    -720px 0; width: 80px; height: 80px; }
+.img_SolarSatellite         { background: url(/public/img/ships.png)    -800px 0; width: 80px; height: 80px; }
+.img_Destroyer              { background: url(/public/img/ships.png)    -880px 0; width: 80px; height: 80px; }
+.img_Deathstar              { background: url(/public/img/ships.png)    -960px 0; width: 80px; height: 80px; }
+.img_Battlecruiser          { background: url(/public/img/ships.png)   -1040px 0; width: 80px; height: 80px; }
+.img_Reaper                 { background: url(/public/img/ships.png)   -1120px 0; width: 80px; height: 80px; }
+.img_Pathfinder             { background: url(/public/img/ships.png)   -1200px 0; width: 80px; height: 80px; }
+.img_Crawler                { background: url(/public/img/ships.png)   -1280px 0; width: 80px; height: 80px; }
+
+.img_EnergyTechnology             { background: url(/public/img/researches.png)  -400px 0; display: block; width: 80px; height: 80px; }
+.img_LaserTechnology              { background: url(/public/img/researches.png)  -800px 0; display: block; width: 80px; height: 80px; }
+.img_IonTechnology                { background: url(/public/img/researches.png)  -880px 0; display: block; width: 80px; height: 80px; }
+.img_HyperspaceTechnology         { background: url(/public/img/researches.png)  -480px 0; display: block; width: 80px; height: 80px; }
+.img_PlasmaTechnology             { background: url(/public/img/researches.png)  -960px 0; display: block; width: 80px; height: 80px; }
+.img_CombustionDrive              { background: url(/public/img/researches.png)  -560px 0; display: block; width: 80px; height: 80px; }
+.img_ImpulseDrive                 { background: url(/public/img/researches.png)  -640px 0; display: block; width: 80px; height: 80px; }
+.img_HyperspaceDrive              { background: url(/public/img/researches.png)  -720px 0; display: block; width: 80px; height: 80px; }
+.img_EspionageTechnology          { background: url(/public/img/researches.png)    -0px 0; display: block; width: 80px; height: 80px; }
+.img_ComputerTechnology           { background: url(/public/img/researches.png)   -80px 0; display: block; width: 80px; height: 80px; }
+.img_Astrophysics                 { background: url(/public/img/researches.png) -1200px 0; display: block; width: 80px; height: 80px; }
+.img_IntergalacticResearchNetwork { background: url(/public/img/researches.png) -1040px 0; display: block; width: 80px; height: 80px; }
+.img_GravitonTechnology           { background: url(/public/img/researches.png) -1120px 0; display: block; width: 80px; height: 80px; }
+.img_WeaponsTechnology            { background: url(/public/img/researches.png)  -160px 0; display: block; width: 80px; height: 80px; }
+.img_ShieldingTechnology          { background: url(/public/img/researches.png)  -240px 0; display: block; width: 80px; height: 80px; }
+.img_ArmourTechnology             { background: url(/public/img/researches.png)  -320px 0; display: block; width: 80px; height: 80px; }
+
+.star_lord     { background: url(/public/img/ranks.png) -75px 0; width: 15px; height: 15px; }
+.emperor       { background: url(/public/img/ranks.png) -60px 0; width: 15px; height: 15px; }
+.grand_emperor { background: url(/public/img/ranks.png) -45px 0; width: 15px; height: 15px; }
+.bandit        { background: url(/public/img/ranks.png) -30px 0; width: 15px; height: 15px; }
+.bandit_lord   { background: url(/public/img/ranks.png) -15px 0; width: 15px; height: 15px; }
+.bandit_king   { background: url(/public/img/ranks.png)  -0px 0; width: 15px; height: 15px; }
+
+.img_expedition   { background: url(/public/img/missions.jpg)     0px 0; display: inline-block; width: 54px; height: 54px; }
+.img_colonisation { background: url(/public/img/missions.jpg)  -108px 0; display: inline-block; width: 54px; height: 54px; }
+.img_park         { background: url(/public/img/missions.jpg)  -162px 0; display: inline-block; width: 54px; height: 54px; }
+.img_recycle      { background: url(/public/img/missions.jpg)  -216px 0; display: inline-block; width: 54px; height: 54px; }
+.img_transport    { background: url(/public/img/missions.jpg)  -270px 0; display: inline-block; width: 54px; height: 54px; }
+.img_spy          { background: url(/public/img/missions.jpg)  -324px 0; display: inline-block; width: 54px; height: 54px; }
+.img_acs_defend   { background: url(/public/img/missions.jpg)  -378px 0; display: inline-block; width: 54px; height: 54px; }
+.img_attack       { background: url(/public/img/missions.jpg)  -432px 0; display: inline-block; width: 54px; height: 54px; }
+.img_destruction  { background: url(/public/img/missions.jpg)  -486px 0; display: inline-block; width: 54px; height: 54px; }
+.img_acs_attack   { background: url(/public/img/missions.jpg)  -540px 0; display: inline-block; width: 54px; height: 54px; }
+
+.simg_expedition   { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position:    0px 0; width: 27px; height: 27px; }
+.simg_colonisation { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position:  -54px 0; width: 27px; height: 27px; }
+.simg_park         { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position:  -81px 0; width: 27px; height: 27px; }
+.simg_recycle       { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position: -108px 0; width: 27px; height: 27px; }
+.simg_transport     { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position: -135px 0; width: 27px; height: 27px; }
+.simg_spy           { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position: -162px 0; width: 27px; height: 27px; }
+.simg_acs_defend    { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position: -189px 0; width: 27px; height: 27px; }
+.simg_attack        { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position: -216px 0; width: 27px; height: 27px; }
+.simg_destruction   { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position: -243px 0; width: 27px; height: 27px; }
+.simg_acs_attack    { background: url(/public/img/missions.jpg); display: inline-block; background-size: 297px 107px; background-position: -270px 0; width: 27px; height: 27px; }
+
+.mission_selected { background-position-y: -27px; }
+.mission_disabled { background-position-y: -54px; }
