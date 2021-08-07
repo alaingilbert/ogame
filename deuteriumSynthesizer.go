@@ -21,6 +21,6 @@ func (b *deuteriumSynthesizer) EnergyConsumption(level int64) int64 {
 }
 
 // Production returns the deuterium production of the mine
-func (b *deuteriumSynthesizer) Production(universeSpeed, avgTemp int64, productionRatio, globalRatio float64, level int64) int64 {
-	return int64(math.Round(10 * float64(level) * math.Pow(1.1, float64(level)) * (-0.004*float64(avgTemp) + 1.36) * float64(universeSpeed) * productionRatio * globalRatio))
+func (b *deuteriumSynthesizer) Production(universeSpeed, avgTemp int64, productionRatio, globalRatio float64, plasmaTech, level int64) int64 {
+	return int64(math.Round(10 * (1 + float64(plasmaTech)*0.0033) * float64(level) * math.Pow(1.1, float64(level)) * (-0.004*float64(avgTemp) + 1.36) * float64(universeSpeed) * productionRatio * globalRatio))
 }

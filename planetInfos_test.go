@@ -3,6 +3,7 @@ package ogame
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -37,6 +38,7 @@ func TestSystemInfos_MarshalJSON(t *testing.T) {
 	planetInfos.Player.ID = 1
 	planetInfos.Player.Name = "player name"
 	planetInfos.Player.Rank = 2
+	planetInfos.Date = time.Time{}
 	si := SystemInfos{}
 	si.galaxy = 1
 	si.system = 2
@@ -45,9 +47,9 @@ func TestSystemInfos_MarshalJSON(t *testing.T) {
 	expected := `{"Galaxy":1,"System":2,` +
 		`"Planets":[null,` +
 		`{"ID":1,"Activity":15,"Name":"name","Img":"img","Coordinate":{"Galaxy":1,"System":2,"Position":3,"Type":1},` +
-		`"Administrator":false,"Inactive":false,"Vacation":false,"StrongPlayer":false,"Newbie":false,` +
+		`"Administrator":false,"Destroyed":false,"Inactive":false,"Vacation":false,"StrongPlayer":false,"Newbie":false,` +
 		`"HonorableTarget":false,"Banned":false,"Debris":{"Metal":1,"Crystal":2,"RecyclersNeeded":3},"Moon":null,` +
-		`"Player":{"ID":1,"Name":"player name","Rank":2,"IsBandit":false,"IsStarlord":false},"Alliance":null},` +
+		`"Player":{"ID":1,"Name":"player name","Rank":2,"IsBandit":false,"IsStarlord":false},"Alliance":null,"Date":"0001-01-01T00:00:00Z"},` +
 		`null,null,null,null,null,null,null,null,null,null,null,null,null],"ExpeditionDebris":{"Metal":0,"Crystal":0,"PathfindersNeeded":0}}`
 	assert.Equal(t, expected, string(by))
 }

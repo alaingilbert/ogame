@@ -100,6 +100,24 @@ func (f *FleetBuilder) SetResources(resources Resources) *FleetBuilder {
 	return f
 }
 
+// SetMetal ...
+func (f *FleetBuilder) SetMetal(metal int64) *FleetBuilder {
+	f.resources.Metal = MaxInt(metal, -1)
+	return f
+}
+
+// SetCrystal ...
+func (f *FleetBuilder) SetCrystal(crystal int64) *FleetBuilder {
+	f.resources.Crystal = MaxInt(crystal, -1)
+	return f
+}
+
+// SetDeuterium ...
+func (f *FleetBuilder) SetDeuterium(deuterium int64) *FleetBuilder {
+	f.resources.Deuterium = MaxInt(deuterium, -1)
+	return f
+}
+
 // SetAllResources will send all resources from the origin
 func (f *FleetBuilder) SetAllResources() *FleetBuilder {
 	f.resources = Resources{Metal: -1, Crystal: -1, Deuterium: -1}
@@ -182,7 +200,7 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 			ships, _ = f.b.GetShips(f.origin.GetID())
 		}
 	}
-	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships)
+	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
 }
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {
@@ -200,7 +218,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	var planetResources Resources
 	if f.minimumDeuterium > 0 {
 		planetResources, _ = tx.GetResources(f.origin.GetID())
-		_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships)
+		_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships, f.mission)
 	}
 
 	if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
@@ -215,7 +233,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
 		// Calculate cargo
 		techs := tx.GetResearch()
-		cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector)
+		cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == Collector, f.b.IsPioneers())
 		if f.minimumDeuterium <= 0 {
 			planetResources, _ = tx.GetResources(f.origin.GetID())
 		}

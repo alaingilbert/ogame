@@ -1122,7 +1122,7 @@ func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token stri
 	return
 }
 
-func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
+func extractFleetsFromDocV6(doc *goquery.Document, location *time.Location) (res []Fleet) {
 	res = make([]Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1205,10 +1205,10 @@ func extractFleetsFromDocV6(doc *goquery.Document, clock clockwork.Clock) (res [
 		if startTimeStringExists {
 			startTimeArray := strings.Split(startTimeString, ":| ")
 			if len(startTimeArray) == 2 {
-				startTime, _ = time.Parse("02.01.2006<br>15:04:05", startTimeArray[1])
+				startTime, _ = time.ParseInLocation("02.01.2006<br>15:04:05", startTimeArray[1], location)
 			}
 		}
-		fleet.StartTime = startTime
+		fleet.StartTime = startTime.Local()
 
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
@@ -1258,7 +1258,7 @@ func extractServerTimeFromDocV6(doc *goquery.Document) (time.Time, error) {
 
 	u1 := time.Now().UTC().Unix()
 	u2 := serverTime.Unix()
-	n := int(math.Round(float64(u2-u1)/15)) * 15
+	n := int(math.Round(float64(u2-u1)/900)) * 900 // u2-u1 should be close to 0, round to nearest 15min difference
 
 	serverTime = serverTime.Add(time.Duration(-n) * time.Second).In(time.FixedZone("OGT", n))
 
@@ -1557,7 +1557,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	case "de":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Platz ([\d.]+) von ([\d.]+)\)`)
 	case "es":
-		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Lugar ([\d.]+) de ([\d.]+)\)`)
+		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Posici\\u00f3n ([\d.]+) de ([\d.]+)\)`)
 	case "ar":
 		infosRgx = regexp.MustCompile(`([\d\\.]+) \(Lugar ([\d.]+) de ([\d.]+)\)`)
 	case "mx":
@@ -1735,7 +1735,7 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			planetInfos.Name = planetName
 			planetInfos.Img = planetImg
 			planetInfos.Inactive = strings.Contains(classes, "inactive_filter")
-			planetInfos.StrongPlayer = strings.Contains(classes, "strong_filter")
+			planetInfos.StrongPlayer = s.Find("span.status_abbr_strong").Size() > 0
 			planetInfos.Newbie = strings.Contains(classes, "newbie_filter")
 			planetInfos.Vacation = strings.Contains(classes, "vacation_filter")
 			planetInfos.HonorableTarget = s.Find("span.status_abbr_honorableTarget").Size() > 0
@@ -1746,6 +1746,7 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			planetInfos.Player.IsStarlord = tdPlayername.HasClass("rank_starlord1") || tdPlayername.HasClass("rank_starlord2") || tdPlayername.HasClass("rank_starlord3")
 			planetInfos.Coordinate = extractCoordV6(coordsRaw)
 			planetInfos.Coordinate.Type = PlanetType
+			planetInfos.Date = time.Now()
 
 			var playerID int64
 			var playerName string
@@ -1763,11 +1764,11 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			if playerName == "" {
 				playerName := strings.TrimSpace(s.Find("td.playername").Find("span").Text())
 				if playerName == "" {
-					return
+					planetInfos.Destroyed = true
 				}
 			}
 
-			if playerID == 0 {
+			if !planetInfos.Destroyed && playerID == 0 {
 				playerID = botPlayerID
 				playerName = botPlayerName
 				playerRank = botPlayerRank

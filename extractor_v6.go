@@ -19,6 +19,26 @@ func NewExtractorV6() *ExtractorV6 {
 	return &ExtractorV6{}
 }
 
+// ExtractActiveItems ...
+func (e ExtractorV6) ExtractActiveItems(pageHTML []byte) ([]ActiveItem, error) {
+	panic("implement me")
+}
+
+// ExtractPremiumToken ...
+func (e ExtractorV6) ExtractPremiumToken(pageHTML []byte, days int64) (string, error) {
+	panic("implement me")
+}
+
+// ExtractTechs ...
+func (e ExtractorV6) ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error) {
+	panic("implement me")
+}
+
+// ExtractDestroyRockets ...
+func (e ExtractorV6) ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error) {
+	panic("implement me")
+}
+
 // ExtractCancelFleetToken ...
 func (e ExtractorV6) ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error) {
 	panic("implement me")
@@ -112,13 +132,13 @@ func (e ExtractorV6) ExtractIPM(pageHTML []byte) (duration, max int64, token str
 }
 
 // ExtractFleets ...
-func (e ExtractorV6) ExtractFleets(pageHTML []byte) (res []Fleet) {
-	return e.extractFleets(pageHTML, clockwork.NewRealClock())
+func (e ExtractorV6) ExtractFleets(pageHTML []byte, location *time.Location) (res []Fleet) {
+	return e.extractFleets(pageHTML, location)
 }
 
-func (e ExtractorV6) extractFleets(pageHTML []byte, clock clockwork.Clock) (res []Fleet) {
+func (e ExtractorV6) extractFleets(pageHTML []byte, location *time.Location) (res []Fleet) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.extractFleetsFromDoc(doc, clock)
+	return e.extractFleetsFromDoc(doc, location)
 }
 
 // ExtractSlots ...
@@ -496,12 +516,12 @@ func (e ExtractorV6) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int
 }
 
 // ExtractFleetsFromDoc ...
-func (e ExtractorV6) ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet) {
-	return e.extractFleetsFromDoc(doc, clockwork.NewRealClock())
+func (e ExtractorV6) ExtractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []Fleet) {
+	return e.extractFleetsFromDoc(doc, location)
 }
 
-func (e ExtractorV6) extractFleetsFromDoc(doc *goquery.Document, clock clockwork.Clock) (res []Fleet) {
-	return extractFleetsFromDocV6(doc, clock)
+func (e ExtractorV6) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []Fleet) {
+	return extractFleetsFromDocV6(doc, location)
 }
 
 // ExtractSlotsFromDoc extract fleet slots from page "fleet1"

@@ -39,7 +39,7 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 
 func TestWrapper(t *testing.T) {
 	var bot Wrapper
-	bot, _ = NewNoLogin("", "", "", "", "", "", 0)
+	bot, _ = NewNoLogin("", "", "", "", "", "", "", 0, nil)
 	assert.NotNil(t, bot)
 }
 
@@ -440,6 +440,33 @@ func TestExtractDefenseV7(t *testing.T) {
 	assert.Equal(t, int64(0), defense.AntiBallisticMissiles)
 	assert.Equal(t, int64(0), defense.InterplanetaryMissiles)
 }
+
+//func TestGetResourcesProductionsLight(t *testing.T) {
+//	supplies := ResourcesBuildings{
+//		MetalMine:            32,
+//		CrystalMine:          28,
+//		DeuteriumSynthesizer: 28,
+//		SolarPlant:           30,
+//		FusionReactor:        9,
+//		SolarSatellite:       0,
+//	}
+//	researches := Researches{
+//		EnergyTechnology: 18,
+//		PlasmaTechnology: 15,
+//	}
+//	resSettings := ResourceSettings{
+//		MetalMine:            100,
+//		CrystalMine:          100,
+//		DeuteriumSynthesizer: 60,
+//		SolarPlant:           100,
+//		FusionReactor:        0,
+//		SolarSatellite:       100,
+//		Crawler:              0,
+//	}
+//	temp := Temperature{Min: -23, Max: 17}
+//	prod := getResourcesProductionsLight(supplies, researches, resSettings, temp, 7)
+//	assert.Equal(t, Resources{Metal: 109444, Crystal: 41697, Deuterium: 16347, Energy: -5169}, prod)
+//}
 
 func TestProductionRatio(t *testing.T) {
 	ratio := productionRatio(
@@ -1281,11 +1308,11 @@ func TestExtractAttacksFromFullPage(t *testing.T) {
 	assert.Equal(t, int64(1), attacks[0].Ships.SmallCargo)
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/overview_active.html")
-	attacks, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	_, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
 	assert.EqualError(t, err, ErrEventsBoxNotDisplayed.Error())
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/eventlist_loggedout.html")
-	attacks, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	_, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
 	assert.EqualError(t, err, ErrNotLogged.Error())
 }
 
@@ -1477,13 +1504,15 @@ func TestExtractGalaxyInfos_starlord(t *testing.T) {
 func TestExtractGalaxyInfos_destroyedPlanet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_destroyed_planet.html")
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
-	assert.Nil(t, infos.Position(8))
+	assert.NotNil(t, infos.Position(8))
+	assert.True(t, infos.Position(8).Destroyed)
 }
 
 func TestExtractGalaxyInfos_destroyedPlanetAndMoon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/galaxy_destroyed_planet_and_moon2.html")
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
-	assert.Nil(t, infos.Position(15))
+	assert.NotNil(t, infos.Position(15))
+	assert.True(t, infos.Position(15).Destroyed)
 }
 
 func TestExtractGalaxyInfos_banned(t *testing.T) {
@@ -1856,6 +1885,15 @@ func TestExtractUserInfos_ba(t *testing.T) {
 	assert.Equal(t, "Governor Hunter", infos.PlayerName)
 }
 
+func TestExtractUserInfos_es(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.5/es/overview.html")
+	infos, _ := NewExtractorV7().ExtractUserInfos(pageHTMLBytes, "es")
+	assert.Equal(t, int64(0), infos.Points)
+	assert.Equal(t, int64(2976), infos.Rank)
+	assert.Equal(t, int64(2977), infos.Total)
+	assert.Equal(t, "Commodore Navi", infos.PlayerName)
+}
+
 func TestExtractMoons(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
 	moons := NewExtractorV6().ExtractMoons(pageHTMLBytes, &OGame{language: "en"})
@@ -2183,7 +2221,7 @@ func TestExtractIPM(t *testing.T) {
 
 func TestExtractFleetV71(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, 1, len(fleets))
 	assert.Equal(t, int64(8271), fleets[0].ArriveIn)
 	assert.Equal(t, int64(16545), fleets[0].BackIn)
@@ -2199,8 +2237,8 @@ func TestExtractFleetV71(t *testing.T) {
 
 func TestExtractFleetV72(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/de/movement.html")
-	clock := clockwork.NewFakeClockAt(time.Date(2020, 3, 6, 12, 43, 15, 0, time.UTC))
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	clock := clockwork.NewFakeClockAt(time.Date(2020, 3, 6, 11, 43, 15, 0, time.UTC))
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, clock.Now().Add(-5031*time.Second), fleets[0].StartTime.UTC())
 	assert.Equal(t, clock.Now().Add(-5041*time.Second), fleets[1].StartTime.UTC())
 }
@@ -2208,7 +2246,7 @@ func TestExtractFleetV72(t *testing.T) {
 func TestExtractFleetV71_2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/movement2.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2020, 1, 12, 1, 45, 34, 0, time.UTC))
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 0))
 	assert.Equal(t, 2, len(fleets))
 	assert.Equal(t, int64(621), fleets[0].ArriveIn)
 	assert.Equal(t, int64(1245), fleets[0].BackIn)
@@ -2237,9 +2275,18 @@ func TestExtractFleetV71_2(t *testing.T) {
 	assert.Equal(t, clock.Now().Add(2815*time.Second), fleets[1].BackTime.UTC())
 }
 
+func TestExtractFleetV767(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.7/en/movement.html")
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, 1, len(fleets))
+	assert.Equal(t, time.Date(2021, 6, 1, 9, 28, 2, 0, time.UTC), fleets[0].StartTime.UTC())
+	assert.Equal(t, time.Date(2021, 6, 1, 9, 51, 10, 0, time.UTC), fleets[0].ArrivalTime.UTC())
+	assert.Equal(t, time.Date(2021, 6, 1, 10, 14, 18, 0, time.UTC), fleets[0].BackTime.UTC())
+}
+
 func TestExtractFleetV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/movement.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, 1, len(fleets))
 	assert.Equal(t, int64(1010), fleets[0].ArriveIn)
 	assert.Equal(t, int64(2030), fleets[0].BackIn)
@@ -2254,7 +2301,7 @@ func TestExtractFleetV7(t *testing.T) {
 
 func TestExtractFleet(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_1.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, 1, len(fleets))
 	assert.Equal(t, int64(4134), fleets[0].ArriveIn)
 	assert.Equal(t, int64(8277), fleets[0].BackIn)
@@ -2273,7 +2320,7 @@ func TestExtractFleet(t *testing.T) {
 
 func TestExtractFleet_expedition(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_expedition.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, 2, len(fleets))
 	assert.Equal(t, int64(2), fleets[1].Ships.LargeCargo)
 	assert.Equal(t, Expedition, fleets[1].Mission)
@@ -2284,14 +2331,14 @@ func TestExtractFleet_expedition(t *testing.T) {
 
 func TestExtractFleet_harvest(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_harvest.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[5].Origin)
 	assert.Equal(t, Coordinate{4, 116, 9, DebrisType}, fleets[5].Destination)
 }
 
 func TestExtractFleet_returningTransport(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_2.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, 1, len(fleets))
 	assert.Equal(t, int64(-1), fleets[0].ArriveIn)
 	assert.Equal(t, int64(36), fleets[0].BackIn)
@@ -2299,14 +2346,14 @@ func TestExtractFleet_returningTransport(t *testing.T) {
 
 func TestExtractFleet_deployment(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_moon_to_moon.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, int64(210), fleets[0].ArriveIn)
 	assert.Equal(t, int64(426), fleets[0].BackIn)
 }
 
 func TestExtractFleetThousands(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_thousands.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, Transport, fleets[0].Mission)
 	assert.Equal(t, int64(210), fleets[0].Ships.LargeCargo)
 	assert.Equal(t, Resources{Metal: 207862, Crystal: 78903, Deuterium: 42956}, fleets[0].Resources)
@@ -2314,7 +2361,7 @@ func TestExtractFleetThousands(t *testing.T) {
 
 func TestExtractFleet_returning(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_2.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, 1, len(fleets))
 	assert.Equal(t, Coordinate{4, 116, 12, PlanetType}, fleets[0].Origin)
 	assert.Equal(t, Coordinate{4, 117, 9, PlanetType}, fleets[0].Destination)
@@ -2331,7 +2378,7 @@ func TestExtractFleet_returning(t *testing.T) {
 
 func TestExtractFleet_deepspace(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/fleets_expeditions.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, 5, len(fleets))
 	assert.False(t, fleets[0].InDeepSpace)
 	assert.False(t, fleets[1].InDeepSpace)
@@ -2342,7 +2389,7 @@ func TestExtractFleet_deepspace(t *testing.T) {
 
 func TestExtractFleet_targetPlanetID(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_moon_to_moon.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, int64(0), fleets[0].TargetPlanetID)
 	assert.Equal(t, int64(0), fleets[1].TargetPlanetID)
 	assert.Equal(t, int64(33702114), fleets[2].TargetPlanetID)
@@ -2351,11 +2398,11 @@ func TestExtractFleet_targetPlanetID(t *testing.T) {
 
 func TestExtractFleet_unionID(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/fleets_no_union.html")
-	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets := NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, int64(0), fleets[0].UnionID)
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/fleets_union_alone.html")
-	fleets = NewExtractorV6().ExtractFleets(pageHTMLBytes)
+	fleets = NewExtractorV6().ExtractFleets(pageHTMLBytes, time.FixedZone("OGT", 3600))
 	assert.Equal(t, int64(13558), fleets[0].UnionID)
 }
 
@@ -2611,6 +2658,24 @@ func TestExtractEspionageReportV71(t *testing.T) {
 	assert.Equal(t, int64(58452), infos.Crystal)
 	assert.Equal(t, int64(0), infos.Deuterium)
 	assert.Equal(t, Collector, infos.CharacterClass)
+}
+
+func TestExtractEspionageReportAllianceClass(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_class_trader.html")
+	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, Trader, infos.AllianceClass)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_class_warrior.html")
+	infos, _ = NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, Warrior, infos.AllianceClass)
+
+	//pageHTMLBytes, _ = ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_class_researcher.html")
+	//infos, _ = NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	//assert.Equal(t, Researcher, infos.AllianceClass)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_no_class.html")
+	infos, _ = NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, NoAllianceClass, infos.AllianceClass)
 }
 
 func TestExtractEspionageReportHonorableV71(t *testing.T) {
@@ -2922,6 +2987,14 @@ func TestGetResourcesDetailsV71(t *testing.T) {
 	assert.Equal(t, int64(8000), res.Darkmatter.Found)
 }
 
+func TestExtractDestroyRockets(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.2/en/destroy_rockets.html")
+	abm, ipm, token, _ := NewExtractorV71().ExtractDestroyRockets(pageHTMLBytes)
+	assert.Equal(t, "3a1148bb0d2c6a18f323cf7f0ce09d2b", token)
+	assert.Equal(t, int64(24), abm)
+	assert.Equal(t, int64(6), ipm)
+}
+
 func TestExtractIPMV71(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/nl/ipm_missile_launch.html")
 	duration, max, token := NewExtractorV71().ExtractIPM(pageHTMLBytes)
@@ -3127,4 +3200,23 @@ func TestExtractIsMobile(t *testing.T) {
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/v7.2/en/movement_mobile.html")
 	isMobile = NewExtractorV71().ExtractIsMobile(pageHTMLBytes)
 	assert.True(t, isMobile)
+}
+
+func TestExtractActiveItems(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.6.6/en/overview_with_active_items.html")
+	items, _ := NewExtractorV71().ExtractActiveItems(pageHTMLBytes)
+	assert.Equal(t, 2, len(items))
+	assert.Equal(t, int64(69994), items[0].ID)
+	assert.Equal(t, "ba85cc2b8a5d986bbfba6954e2164ef71af95d4a", items[0].Ref)
+	assert.Equal(t, "Silver Metal Booster", items[0].Name)
+	assert.Equal(t, int64(604800), items[0].TotalDuration)
+	assert.Equal(t, int64(579307), items[0].TimeRemaining)
+	assert.Equal(t, "https://s152-en.ogame.gameforge.com/cdn/img/item-images/1ab70d0954b4ebbb91e020c60afbaacb28707e5d-small.png", items[0].ImgSmall)
+
+	assert.Equal(t, int64(69995), items[1].ID)
+	assert.Equal(t, "5560a1580a0330e8aadf05cb5bfe6bc3200406e2", items[1].Ref)
+	assert.Equal(t, "Gold Deuterium Booster", items[1].Name)
+	assert.Equal(t, int64(604800), items[1].TotalDuration)
+	assert.Equal(t, int64(579827), items[1].TimeRemaining)
+	assert.Equal(t, "https://s152-en.ogame.gameforge.com/cdn/img/item-images/db408084e3b2b7b0e1fe13d9f234d2ebd76f11c5-small.png", items[1].ImgSmall)
 }

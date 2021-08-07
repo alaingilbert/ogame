@@ -182,6 +182,155 @@ func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err erro
 	return
 }
 
+type planetTechsRespV71 struct {
+	Num1   int64 `json:"1"`
+	Num2   int64 `json:"2"`
+	Num3   int64 `json:"3"`
+	Num4   int64 `json:"4"`
+	Num12  int64 `json:"12"`
+	Num14  int64 `json:"14"`
+	Num15  int64 `json:"15"`
+	Num21  int64 `json:"21"`
+	Num22  int64 `json:"22"`
+	Num23  int64 `json:"23"`
+	Num24  int64 `json:"24"`
+	Num31  int64 `json:"31"`
+	Num33  int64 `json:"33"`
+	Num34  int64 `json:"34"`
+	Num36  int64 `json:"36"`
+	Num41  int64 `json:"41"`
+	Num42  int64 `json:"42"`
+	Num43  int64 `json:"43"`
+	Num44  int64 `json:"44"`
+	Num106 int64 `json:"106"`
+	Num108 int64 `json:"108"`
+	Num109 int64 `json:"109"`
+	Num110 int64 `json:"110"`
+	Num111 int64 `json:"111"`
+	Num113 int64 `json:"113"`
+	Num114 int64 `json:"114"`
+	Num115 int64 `json:"115"`
+	Num117 int64 `json:"117"`
+	Num118 int64 `json:"118"`
+	Num120 int64 `json:"120"`
+	Num121 int64 `json:"121"`
+	Num122 int64 `json:"122"`
+	Num123 int64 `json:"123"`
+	Num124 int64 `json:"124"`
+	Num199 int64 `json:"199"`
+	Num202 int64 `json:"202"`
+	Num203 int64 `json:"203"`
+	Num204 int64 `json:"204"`
+	Num205 int64 `json:"205"`
+	Num206 int64 `json:"206"`
+	Num207 int64 `json:"207"`
+	Num208 int64 `json:"208"`
+	Num209 int64 `json:"209"`
+	Num210 int64 `json:"210"`
+	Num211 int64 `json:"211"`
+	Num212 int64 `json:"212"`
+	Num213 int64 `json:"213"`
+	Num214 int64 `json:"214"`
+	Num215 int64 `json:"215"`
+	Num217 int64 `json:"217"`
+	Num218 int64 `json:"218"`
+	Num219 int64 `json:"219"`
+	Num401 int64 `json:"401"`
+	Num402 int64 `json:"402"`
+	Num403 int64 `json:"403"`
+	Num404 int64 `json:"404"`
+	Num405 int64 `json:"405"`
+	Num406 int64 `json:"406"`
+	Num407 int64 `json:"407"`
+	Num408 int64 `json:"408"`
+	Num502 int64 `json:"502"`
+	Num503 int64 `json:"503"`
+}
+
+func extractTechsV71(pageHTML []byte) (supplies ResourcesBuildings, facilities Facilities, shipsInfos ShipsInfos, defenses DefensesInfos, researches Researches, err error) {
+	var res planetTechsRespV71
+	if err = json.Unmarshal(pageHTML, &res); err != nil {
+		if isLogged(pageHTML) {
+			return supplies, facilities, shipsInfos, defenses, researches, ErrInvalidPlanetID
+		}
+		return
+	}
+	supplies = ResourcesBuildings{
+		MetalMine:            res.Num1,
+		CrystalMine:          res.Num2,
+		DeuteriumSynthesizer: res.Num3,
+		SolarPlant:           res.Num4,
+		FusionReactor:        res.Num12,
+		SolarSatellite:       res.Num212,
+		MetalStorage:         res.Num22,
+		CrystalStorage:       res.Num23,
+		DeuteriumTank:        res.Num24,
+	}
+	facilities = Facilities{
+		RoboticsFactory: res.Num14,
+		Shipyard:        res.Num21,
+		ResearchLab:     res.Num31,
+		AllianceDepot:   res.Num34,
+		MissileSilo:     res.Num44,
+		NaniteFactory:   res.Num15,
+		Terraformer:     res.Num33,
+		SpaceDock:       res.Num36,
+		LunarBase:       res.Num41,
+		SensorPhalanx:   res.Num42,
+		JumpGate:        res.Num43,
+	}
+	shipsInfos = ShipsInfos{
+		LightFighter:   res.Num204,
+		HeavyFighter:   res.Num205,
+		Cruiser:        res.Num206,
+		Battleship:     res.Num207,
+		Battlecruiser:  res.Num215,
+		Bomber:         res.Num211,
+		Destroyer:      res.Num213,
+		Deathstar:      res.Num214,
+		SmallCargo:     res.Num202,
+		LargeCargo:     res.Num203,
+		ColonyShip:     res.Num208,
+		Recycler:       res.Num209,
+		EspionageProbe: res.Num210,
+		SolarSatellite: res.Num212,
+		Crawler:        res.Num217,
+		Reaper:         res.Num218,
+		Pathfinder:     res.Num219,
+	}
+	defenses = DefensesInfos{
+		RocketLauncher:         res.Num401,
+		LightLaser:             res.Num402,
+		HeavyLaser:             res.Num403,
+		GaussCannon:            res.Num404,
+		IonCannon:              res.Num405,
+		PlasmaTurret:           res.Num406,
+		SmallShieldDome:        res.Num407,
+		LargeShieldDome:        res.Num408,
+		AntiBallisticMissiles:  res.Num502,
+		InterplanetaryMissiles: res.Num503,
+	}
+	researches = Researches{
+		EnergyTechnology:             res.Num113,
+		LaserTechnology:              res.Num120,
+		IonTechnology:                res.Num121,
+		HyperspaceTechnology:         res.Num114,
+		PlasmaTechnology:             res.Num122,
+		CombustionDrive:              res.Num115,
+		ImpulseDrive:                 res.Num117,
+		HyperspaceDrive:              res.Num118,
+		EspionageTechnology:          res.Num106,
+		ComputerTechnology:           res.Num108,
+		Astrophysics:                 res.Num124,
+		IntergalacticResearchNetwork: res.Num123,
+		GravitonTechnology:           res.Num199,
+		WeaponsTechnology:            res.Num109,
+		ShieldingTechnology:          res.Num110,
+		ArmourTechnology:             res.Num111,
+	}
+	return
+}
+
 // ar, Argentina           -> Recolector, General, Descubridor
 // ba, Balkan              -> Sakupljač, General, Otkrivač
 // br, Brasil              -> Coletor, General, Descobridor
@@ -265,6 +414,16 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	characterClassStr := doc.Find("div.detail_txt").Eq(1).Find("span span").First().Text()
 	characterClassStr = strings.TrimSpace(characterClassStr)
 	report.CharacterClass = getCharacterClass(characterClassStr)
+
+	report.AllianceClass = NoAllianceClass
+	allianceClassSpan := doc.Find("div.detail_txt").Eq(2).Find("span.alliance_class")
+	if allianceClassSpan.HasClass("trader") {
+		report.AllianceClass = Trader
+	} else if allianceClassSpan.HasClass("warrior") {
+		report.AllianceClass = Warrior
+	} else if allianceClassSpan.HasClass("researcher") {
+		report.AllianceClass = Researcher
+	}
 
 	// Bandit, Starlord
 	banditstarlord := doc.Find("div.detail_txt").First().Find("span")
@@ -511,6 +670,20 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 		return report, ErrDeactivateHidePictures
 	}
 	return report, nil
+}
+
+func extractDestroyRocketsFromDocV71(doc *goquery.Document) (abm, ipm int64, token string, err error) {
+	scriptTxt := doc.Find("script").Text()
+	r := regexp.MustCompile(`missileToken = "([^"]+)"`)
+	m := r.FindStringSubmatch(scriptTxt)
+	if len(m) != 2 {
+		err = errors.New("failed to find missile token")
+		return
+	}
+	token = m[1]
+	abm, _ = strconv.ParseInt(doc.Find("table tr").Eq(1).Find("td").Eq(1).Text(), 10, 64)
+	ipm, _ = strconv.ParseInt(doc.Find("table tr").Eq(2).Find("td").Eq(1).Text(), 10, 64)
+	return
 }
 
 func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
@@ -908,6 +1081,27 @@ func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items
 	for _, item := range inventoryMap {
 		items = append(items, item)
 	}
+	return
+}
+
+func extractActiveItemsFromDocV71(doc *goquery.Document) (items []ActiveItem, err error) {
+	doc.Find("ul.active_items div").Each(func(i int, s *goquery.Selection) {
+		dataID := ParseInt(s.AttrOr("data-id", ""))
+		if dataID == 0 {
+			return
+		}
+		durationDiv := s.Find("div.js_duration").First()
+		aTitle := s.Find("a").AttrOr("title", "")
+		imgSrc := s.Find("img").AttrOr("src", "")
+		item := ActiveItem{}
+		item.Ref = s.AttrOr("data-uuid", "")
+		item.ID = dataID
+		item.TotalDuration = ParseInt(durationDiv.AttrOr("data-total-duration", ""))
+		item.TimeRemaining = ParseInt(durationDiv.Text())
+		item.Name = strings.TrimSpace(strings.Split(aTitle, "|")[0])
+		item.ImgSmall = imgSrc
+		items = append(items, item)
+	})
 	return
 }
 

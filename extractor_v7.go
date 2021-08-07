@@ -18,6 +18,22 @@ func NewExtractorV7() *ExtractorV7 {
 	return &ExtractorV7{}
 }
 
+// ExtractPremiumToken ...
+func (e ExtractorV7) ExtractPremiumToken(pageHTML []byte, days int64) (string, error) {
+	return extractPremiumTokenV7(pageHTML, days)
+}
+
+// ExtractResourcesDetailsFromFullPage ...
+func (e ExtractorV7) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc)
+}
+
+// ExtractResourcesDetailsFromFullPageFromDoc ...
+func (e ExtractorV7) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails {
+	return extractResourcesDetailsFromFullPageFromDocV7(doc)
+}
+
 // ExtractExpeditionMessages ...
 func (e ExtractorV7) ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))

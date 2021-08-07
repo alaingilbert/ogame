@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"crypto/tls"
 	"net/http"
 	"net/url"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 // Prioritizable ...
 type Prioritizable interface {
+	RecruitOfficer(typ, days int64) error
 	Abandon(interface{}) error
 	ActivateItem(string, CelestialID) error
 	Begin() Prioritizable
@@ -25,7 +27,7 @@ type Prioritizable interface {
 	Done()
 	DeleteAllMessagesFromTab(tabID int64) error
 	DeleteMessage(msgID int64) error
-	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
+	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos, mission MissionID) (secs, fuel int64)
 	GalaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error)
 	GetAlliancePageContent(url.Values) ([]byte, error)
 	GetAllResources() (map[CelestialID]Resources, error)
@@ -45,6 +47,7 @@ type Prioritizable interface {
 	GetFleets(...Option) ([]Fleet, Slots)
 	GetFleetsFromEventList() []Fleet
 	GetItems(CelestialID) ([]Item, error)
+	GetActiveItems(CelestialID) ([]ActiveItem, error)
 	GetMoon(interface{}) (Moon, error)
 	GetMoons() []Moon
 	GetPageContent(url.Values) ([]byte, error)
@@ -57,6 +60,7 @@ type Prioritizable interface {
 	Highscore(category, typ, page int64) (Highscore, error)
 	IsUnderAttack() (bool, error)
 	Login() error
+	LoginWithBearerToken(token string) (bool, error)
 	LoginWithExistingCookies() (bool, error)
 	Logout()
 	OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
@@ -81,20 +85,22 @@ type Prioritizable interface {
 	CancelResearch(CelestialID) error
 	ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
 	EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
-	GetDefense(CelestialID) (DefensesInfos, error)
-	GetFacilities(CelestialID) (Facilities, error)
+	GetDefense(CelestialID, ...Option) (DefensesInfos, error)
+	GetFacilities(CelestialID, ...Option) (Facilities, error)
 	GetProduction(CelestialID) ([]Quantifiable, int64, error)
 	GetResources(CelestialID) (Resources, error)
-	GetResourcesBuildings(CelestialID) (ResourcesBuildings, error)
+	GetResourcesBuildings(CelestialID, ...Option) (ResourcesBuildings, error)
 	GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-	GetShips(CelestialID) (ShipsInfos, error)
+	GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
+	GetShips(CelestialID, ...Option) (ShipsInfos, error)
 	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
 	TearDown(celestialID CelestialID, id ID) error
 
 	// Planet specific functions
-	GetResourceSettings(PlanetID) (ResourceSettings, error)
+	GetResourceSettings(PlanetID, ...Option) (ResourceSettings, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
 	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
+	DestroyRockets(PlanetID, int64, int64) error
 	SendIPM(PlanetID, Coordinate, int64, ID) (int64, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
 
@@ -108,9 +114,11 @@ type Prioritizable interface {
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	Prioritizable
+	ValidateAccount(code string) error
 	AddAccount(number int, lang string) (NewAccount, error)
 	BytesDownloaded() int64
 	BytesUploaded() int64
+	IsPioneers() bool
 	CharacterClass() CharacterClass
 	Disable()
 	Distance(origin, destination Coordinate) int64
@@ -123,6 +131,7 @@ type Wrapper interface {
 	GetCachedPlayer() UserInfos
 	GetCachedPreferences() Preferences
 	GetClient() *OGameClient
+	SetClient(*OGameClient)
 	GetExtractor() Extractor
 	GetLanguage() string
 	GetNbSystems() int64
@@ -140,6 +149,7 @@ type Wrapper interface {
 	IsConnected() bool
 	IsDonutGalaxy() bool
 	IsDonutSystem() bool
+	ConstructionTime(id ID, nbr int64, facilities Facilities) time.Duration
 	IsEnabled() bool
 	IsLocked() bool
 	IsLoggedIn() bool
@@ -149,7 +159,7 @@ type Wrapper interface {
 	OnStateChange(clb func(locked bool, actor string))
 	Quiet(bool)
 	ReconnectChat() bool
-	RegisterAuctioneerCallback(func([]byte))
+	RegisterAuctioneerCallback(func(interface{}))
 	RegisterChatCallback(func(ChatMsg))
 	RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
 	RegisterWSCallback(string, func([]byte))
@@ -157,8 +167,8 @@ type Wrapper interface {
 	ServerURL() string
 	ServerVersion() string
 	SetLoginWrapper(func(func() (bool, error)) error)
-	SetOGameCredentials(username, password, otpSecret string)
-	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error
+	SetOGameCredentials(username, password, otpSecret, bearerToken string)
+	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
 	WithPriority(priority int) Prioritizable
 }
@@ -203,7 +213,7 @@ type DefenderObj interface {
 // Ship interface implemented by all ships units
 type Ship interface {
 	DefenderObj
-	GetCargoCapacity(techs Researches, probeRaids, isCollector bool) int64
+	GetCargoCapacity(techs Researches, probeRaids, isCollector, isPioneers bool) int64
 	GetSpeed(techs Researches, isCollector, isGeneral bool) int64
 	GetFuelConsumption(techs Researches, fleetDeutSaveFactor float64, isGeneral bool) int64
 }
@@ -223,15 +233,15 @@ type Celestial interface {
 	GetFields() Fields
 	GetResources() (Resources, error)
 	GetResourcesDetails() (ResourcesDetails, error)
-	GetFacilities() (Facilities, error)
+	GetFacilities(...Option) (Facilities, error)
 	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
 	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
-	GetDefense() (DefensesInfos, error)
-	GetShips() (ShipsInfos, error)
+	GetDefense(...Option) (DefensesInfos, error)
+	GetShips(...Option) (ShipsInfos, error)
 	BuildDefense(defenseID ID, nbr int64) error
 	ConstructionsBeingBuilt() (ID, int64, ID, int64)
 	GetProduction() ([]Quantifiable, int64, error)
-	GetResourcesBuildings() (ResourcesBuildings, error)
+	GetResourcesBuildings(...Option) (ResourcesBuildings, error)
 	Build(id ID, nbr int64) error
 	BuildBuilding(buildingID ID) error
 	BuildTechnology(technologyID ID) error
@@ -248,6 +258,7 @@ type Extractor interface {
 	ExtractPlanets(pageHTML []byte, b *OGame) []Planet
 	ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error)
 	ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error)
+	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
 	ExtractMoons(pageHTML []byte, b *OGame) []Moon
 	ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error)
 	ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error)
@@ -255,8 +266,9 @@ type Extractor interface {
 	ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error)
 	ExtractServerTime(pageHTML []byte) (time.Time, error)
 	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
+	ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error)
 	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
-	ExtractFleets(pageHTML []byte) (res []Fleet)
+	ExtractFleets(pageHTML []byte, location *time.Location) (res []Fleet)
 	ExtractSlots(pageHTML []byte) Slots
 	ExtractOgameTimestamp(pageHTML []byte) int64
 	ExtractResources(pageHTML []byte) Resources
@@ -319,7 +331,7 @@ type Extractor interface {
 	ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error)
 	ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet
 	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string)
-	ExtractFleetsFromDoc(doc *goquery.Document) (res []Fleet)
+	ExtractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []Fleet)
 	ExtractSlotsFromDoc(doc *goquery.Document) Slots
 	ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error)
 	ExtractSpioAnzFromDoc(doc *goquery.Document) int64
@@ -361,6 +373,7 @@ type Extractor interface {
 	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
 	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
 	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
+	ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
 	ExtractCoord(v string) (coord Coordinate)
 	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error)
 	ExtractPhalanx(pageHTML []byte) ([]Fleet, error)
@@ -389,6 +402,7 @@ type Extractor interface {
 	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
 	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
 	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
+	ExtractActiveItems(pageHTML []byte) ([]ActiveItem, error)
 	ExtractIsMobile(pageHTML []byte) bool
 	ExtractIsMobileFromDoc(doc *goquery.Document) bool
 }

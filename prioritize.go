@@ -74,6 +74,14 @@ func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	return err
 }
 
+// LoginWithBearerToken to ogame server reusing existing token
+// Returns either or not the bot logged in using the existing cookies
+func (b *Prioritize) LoginWithBearerToken(token string) (bool, error) {
+	b.begin("LoginWithBearerToken")
+	defer b.done()
+	return b.bot.wrapLoginWithBearerToken(token)
+}
+
 // LoginWithExistingCookies to ogame server reusing existing cookies
 // Returns either or not the bot logged in using the existing cookies
 func (b *Prioritize) LoginWithExistingCookies() (bool, error) {
@@ -162,6 +170,15 @@ func (b *Prioritize) GetCelestials() ([]Celestial, error) {
 	return b.bot.getCelestials()
 }
 
+// RecruitOfficer recruit an officer.
+// Typ 2: Commander, 3: Admiral, 4: Engineer, 5: Geologist, 6: Technocrat
+// Days: 7 or 90
+func (b *Prioritize) RecruitOfficer(typ, days int64) error {
+	b.begin("RecruitOfficer")
+	defer b.done()
+	return b.bot.recruitOfficer(typ, days)
+}
+
 // Abandon a planet. Warning: this is irreversible
 func (b *Prioritize) Abandon(v interface{}) error {
 	b.begin("Abandon")
@@ -241,10 +258,10 @@ func (b *Prioritize) GalaxyInfos(galaxy, system int64, options ...Option) (Syste
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
-func (b *Prioritize) GetResourceSettings(planetID PlanetID) (ResourceSettings, error) {
+func (b *Prioritize) GetResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
 	b.begin("GetResourceSettings")
 	defer b.done()
-	return b.bot.getResourceSettings(planetID)
+	return b.bot.getResourceSettings(planetID, options...)
 }
 
 // SetResourceSettings set the resources settings on a planet
@@ -255,32 +272,32 @@ func (b *Prioritize) SetResourceSettings(planetID PlanetID, settings ResourceSet
 }
 
 // GetResourcesBuildings gets the resources buildings levels
-func (b *Prioritize) GetResourcesBuildings(celestialID CelestialID) (ResourcesBuildings, error) {
+func (b *Prioritize) GetResourcesBuildings(celestialID CelestialID, options ...Option) (ResourcesBuildings, error) {
 	b.begin("GetResourcesBuildings")
 	defer b.done()
-	return b.bot.getResourcesBuildings(celestialID)
+	return b.bot.getResourcesBuildings(celestialID, options...)
 }
 
 // GetDefense gets all the defenses units information of a planet
 // Fails if planetID is invalid
-func (b *Prioritize) GetDefense(celestialID CelestialID) (DefensesInfos, error) {
+func (b *Prioritize) GetDefense(celestialID CelestialID, options ...Option) (DefensesInfos, error) {
 	b.begin("GetDefense")
 	defer b.done()
-	return b.bot.getDefense(celestialID)
+	return b.bot.getDefense(celestialID, options...)
 }
 
 // GetShips gets all ships units information of a planet
-func (b *Prioritize) GetShips(celestialID CelestialID) (ShipsInfos, error) {
+func (b *Prioritize) GetShips(celestialID CelestialID, options ...Option) (ShipsInfos, error) {
 	b.begin("GetShips")
 	defer b.done()
-	return b.bot.getShips(celestialID)
+	return b.bot.getShips(celestialID, options...)
 }
 
 // GetFacilities gets all facilities information of a planet
-func (b *Prioritize) GetFacilities(celestialID CelestialID) (Facilities, error) {
+func (b *Prioritize) GetFacilities(celestialID CelestialID, options ...Option) (Facilities, error) {
 	b.begin("GetFacilities")
 	defer b.done()
-	return b.bot.getFacilities(celestialID)
+	return b.bot.getFacilities(celestialID, options...)
 }
 
 // GetProduction get what is in the production queue.
@@ -403,6 +420,13 @@ func (b *Prioritize) GetResourcesDetails(celestialID CelestialID) (ResourcesDeta
 	return b.bot.getResourcesDetails(celestialID)
 }
 
+// GetTechs gets a celestial supplies/facilities/ships/researches
+func (b *Prioritize) GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error) {
+	b.begin("GetTechs")
+	defer b.done()
+	return b.bot.getTechs(celestialID)
+}
+
 // SendFleet sends a fleet
 func (b *Prioritize) SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
 	mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error) {
@@ -417,6 +441,13 @@ func (b *Prioritize) EnsureFleet(celestialID CelestialID, ships []Quantifiable, 
 	b.begin("EnsureFleet")
 	defer b.done()
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID, true)
+}
+
+// DestroyRockets destroys anti-ballistic & inter-planetary missiles
+func (b *Prioritize) DestroyRockets(planetID PlanetID, abm, ipm int64) error {
+	b.begin("DestroyRockets")
+	defer b.done()
+	return b.bot.destroyRockets(planetID, abm, ipm)
 }
 
 // SendIPM sends IPM
@@ -509,17 +540,17 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ResourcesBuilding
 	resSettings ResourceSettings, temp Temperature) Resources {
 	b.begin("GetResourcesProductionsLight")
 	defer b.done()
-	return b.bot.getResourcesProductionsLight(resBuildings, researches, resSettings, temp)
+	return getResourcesProductionsLight(resBuildings, researches, resSettings, temp, b.bot.serverData.Speed)
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64) {
+func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
 	b.begin("FlightTime")
 	defer b.done()
 	researches := b.bot.getCachedResearch()
 	return CalcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
 		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, b.bot.serverData.SpeedFleet, ships, researches, b.bot.characterClass)
+		float64(speed)/10, GetFleetSpeedForMission(b.bot.IsV81(), b.bot.serverData, missionID), ships, researches, b.bot.characterClass)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
@@ -628,6 +659,13 @@ func (b *Prioritize) GetItems(celestialID CelestialID) ([]Item, error) {
 	b.begin("GetItems")
 	defer b.done()
 	return b.bot.getItems(celestialID)
+}
+
+// GetActiveItems ...
+func (b *Prioritize) GetActiveItems(celestialID CelestialID) ([]ActiveItem, error) {
+	b.begin("GetActiveItems")
+	defer b.done()
+	return b.bot.getActiveItems(celestialID)
 }
 
 // ActivateItem activate an item

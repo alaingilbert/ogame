@@ -152,6 +152,12 @@ func main() {
 			Value:   true,
 			EnvVars: []string{"CORS_ENABLED"},
 		},
+		&cli.StringFlag{
+			Name:    "nja-api-key",
+			Usage:   "Ninja API key",
+			Value:   "",
+			EnvVars: []string{"NJA_API_KEY"},
+		},
 	}
 	app.Action = start
 	if err := app.Run(os.Args); err != nil {
@@ -181,8 +187,9 @@ func start(c *cli.Context) error {
 	basicAuthPassword := c.String("basic-auth-password")
 	cookiesFilename := c.String("cookies-filename")
 	corsEnabled := c.Bool("cors-enabled")
+	njaApiKey := c.String("nja-api-key")
 
-	bot, err := ogame.NewWithParams(ogame.Params{
+	params := ogame.Params{
 		Universe:        universe,
 		Username:        username,
 		Password:        password,
@@ -196,7 +203,12 @@ func start(c *cli.Context) error {
 		Lobby:           lobby,
 		APINewHostname:  apiNewHostname,
 		CookiesFilename: cookiesFilename,
-	})
+	}
+	if njaApiKey != "" {
+		params.CaptchaCallback = ogame.NinjaSolver(njaApiKey)
+	}
+
+	bot, err := ogame.NewWithParams(params)
 	if err != nil {
 		return err
 	}
@@ -230,7 +242,15 @@ func start(c *cli.Context) error {
 	e.Debug = false
 	e.GET("/", ogame.HomeHandler)
 	e.GET("/tasks", ogame.TasksHandler)
+
+	// CAPTCHA Handler
+	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
+	e.GET("/bot/captcha/icons/:challengeID", ogame.GetCaptchaImgHandler)
+	e.GET("/bot/captcha/question/:challengeID", ogame.GetCaptchaTextHandler)
+	e.POST("/bot/captcha/solve", ogame.GetCaptchaSolverHandler)
+
 	e.GET("/bot/server", ogame.GetServerHandler)
+	e.GET("/bot/server-data", ogame.GetServerDataHandler)
 	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
 	e.GET("/bot/server-url", ogame.ServerURLHandler)
 	e.GET("/bot/language", ogame.GetLanguageHandler)
@@ -245,7 +265,14 @@ func start(c *cli.Context) error {
 	e.GET("/bot/server/version", ogame.ServerVersionHandler)
 	e.GET("/bot/server/time", ogame.ServerTimeHandler)
 	e.GET("/bot/is-under-attack", ogame.IsUnderAttackHandler)
+	e.GET("/bot/is-vacation-mode", ogame.IsVacationModeHandler)
 	e.GET("/bot/user-infos", ogame.GetUserInfosHandler)
+	e.GET("/bot/character-class", ogame.GetCharacterClassHandler)
+	e.GET("/bot/has-commander", ogame.HasCommanderHandler)
+	e.GET("/bot/has-admiral", ogame.HasAdmiralHandler)
+	e.GET("/bot/has-engineer", ogame.HasEngineerHandler)
+	e.GET("/bot/has-geologist", ogame.HasGeologistHandler)
+	e.GET("/bot/has-technocrat", ogame.HasTechnocratHandler)
 	e.POST("/bot/send-message", ogame.SendMessageHandler)
 	e.GET("/bot/fleets", ogame.GetFleetsHandler)
 	e.GET("/bot/fleets/slots", ogame.GetSlotsHandler)
@@ -268,9 +295,11 @@ func start(c *cli.Context) error {
 	e.GET("/bot/moons/:galaxy/:system/:position", ogame.GetMoonByCoordHandler)
 	e.GET("/bot/celestials/:celestialID/items", ogame.GetCelestialItemsHandler)
 	e.GET("/bot/celestials/:celestialID/items/:itemRef/activate", ogame.ActivateCelestialItemHandler)
+	e.GET("/bot/celestials/:celestialID/techs", ogame.TechsHandler)
 	e.GET("/bot/planets", ogame.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
+	e.GET("/bot/planets/:planetID/resources-details", ogame.GetResourcesDetailsHandler)
 	e.GET("/bot/planets/:planetID/resource-settings", ogame.GetResourceSettingsHandler)
 	e.POST("/bot/planets/:planetID/resource-settings", ogame.SetResourceSettingsHandler)
 	e.GET("/bot/planets/:planetID/resources-buildings", ogame.GetResourcesBuildingsHandler)
@@ -303,6 +332,7 @@ func start(c *cli.Context) error {
 	// For AntiGame plugin
 	// Static content
 	e.GET("/cdn/*", ogame.GetStaticHandler)
+	e.GET("/assets/css/*", ogame.GetStaticHandler)
 	e.GET("/headerCache/*", ogame.GetStaticHandler)
 	e.GET("/favicon.ico", ogame.GetStaticHandler)
 	e.GET("/game/sw.js", ogame.GetStaticHandler)

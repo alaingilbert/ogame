@@ -12,7 +12,6 @@ func (o ID) IsSet() bool {
 
 // Int64 returns an integer value of the id
 func (o ID) Int64() int64 {
-	o.Int()
 	return int64(o)
 }
 
@@ -161,6 +160,11 @@ func (o ID) String() string {
 	return res
 }
 
+// IsValid returns either or not the id is valid
+func (o ID) IsValid() bool {
+	return o.IsDefense() || o.IsShip() || o.IsTech() || o.IsBuilding()
+}
+
 // IsFacility returns either or not the id is a facility
 func (o ID) IsFacility() bool {
 	return o == AllianceDepotID ||
@@ -249,6 +253,14 @@ func (o ID) IsShip() bool {
 		o == CrawlerID ||
 		o == ReaperID ||
 		o == PathfinderID
+}
+
+// IsFlyableShip returns either or not the id is a ship that can fly
+func (o ID) IsFlyableShip() bool {
+	if o == SolarSatelliteID || o == CrawlerID {
+		return false
+	}
+	return o.IsShip()
 }
 
 // IsCombatShip ...
