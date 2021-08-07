@@ -422,6 +422,16 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	characterClassStr = strings.TrimSpace(characterClassStr)
 	report.CharacterClass = getCharacterClass(characterClassStr)
 
+	report.AllianceClass = NoAllianceClass
+	allianceClassSpan := doc.Find("div.detail_txt").Eq(2).Find("span.alliance_class")
+	if allianceClassSpan.HasClass("trader") {
+		report.AllianceClass = Trader
+	} else if allianceClassSpan.HasClass("warrior") {
+		report.AllianceClass = Warrior
+	} else if allianceClassSpan.HasClass("researcher") {
+		report.AllianceClass = Researcher
+	}
+
 	// Bandit, Starlord
 	banditstarlord := doc.Find("div.detail_txt").First().Find("span")
 	if banditstarlord.HasClass("honorRank") {

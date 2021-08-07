@@ -160,6 +160,11 @@ func (o ID) String() string {
 	return res
 }
 
+// IsValid returns either or not the id is valid
+func (o ID) IsValid() bool {
+	return o.IsDefense() || o.IsShip() || o.IsTech() || o.IsBuilding()
+}
+
 // IsFacility returns either or not the id is a facility
 func (o ID) IsFacility() bool {
 	return o == AllianceDepotID ||

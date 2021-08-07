@@ -2660,6 +2660,24 @@ func TestExtractEspionageReportV71(t *testing.T) {
 	assert.Equal(t, Collector, infos.CharacterClass)
 }
 
+func TestExtractEspionageReportAllianceClass(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_class_trader.html")
+	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, Trader, infos.AllianceClass)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_class_warrior.html")
+	infos, _ = NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, Warrior, infos.AllianceClass)
+
+	//pageHTMLBytes, _ = ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_class_researcher.html")
+	//infos, _ = NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	//assert.Equal(t, Researcher, infos.AllianceClass)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_no_class.html")
+	infos, _ = NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, NoAllianceClass, infos.AllianceClass)
+}
+
 func TestExtractEspionageReportHonorableV71(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/spy_report_honorable.html")
 	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
