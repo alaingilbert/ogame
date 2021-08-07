@@ -7,9 +7,8 @@ type EspionageReport struct {
 	Resources
 	ID                           int64
 	Username                     string
-	CharacterClass               CharacterClass `gorm:"embedded"`
-	AllianceClass                AllianceClass `gorm:"embedded"`
-	LastActivity                 int64
+	CharacterClass               CharacterClass `gorm:"embedded`	
+	AllianceClass                AllianceClass	LastActivity                 int64
 	CounterEspionage             int64
 	APIKey                       string
 	HasFleetInformation          bool // Either or not we sent enough probes to get the fleet information
