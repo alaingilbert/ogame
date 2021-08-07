@@ -909,7 +909,7 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 			}
 		}
 	}
-	return b.LoginWithBearerToken(token)
+	return b.loginWithBearerToken(token)
 }
 
 func getConfiguration(b *OGame) (string, string, error) {
@@ -1504,7 +1504,7 @@ var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
 
 func (b *OGame) wrapLoginWithBearerToken(token string) (useToken bool, err error) {
 	fn := func() (bool, error) {
-		useToken, err = b.LoginWithBearerToken(token)
+		useToken, err = b.loginWithBearerToken(token)
 		return useToken, err
 	}
 	return useToken, b.loginWrapper(fn)
