@@ -1,6 +1,6 @@
-module github.com/alaingilbert/ogame
+module github.com/0xE232FE/ogame.mod
 
-go 1.12
+go 1.16
 
 require (
 	github.com/PuerkitoBio/goquery v1.7.1
