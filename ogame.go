@@ -5424,7 +5424,7 @@ func (b *OGame) GalaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 
 // GetResourceSettings gets the resources settings for specified planetID
 func (b *OGame) GetResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
-	return b.WithPriority(Normal).GetResourceSettings(planetID)
+	return b.WithPriority(Normal).GetResourceSettings(planetID, options...)
 }
 
 // SetResourceSettings set the resources settings on a planet
