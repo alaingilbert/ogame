@@ -797,9 +797,9 @@ func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, 
 	return extractCancelResearchInfosV6(pageHTML)
 }
 
-// ExtractEmpire ...
-func (e ExtractorV6) ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error) {
-	return extractEmpire(string(pageHTML), nbr)
+// ExtractEmpireJSON ...
+func (e ExtractorV6) ExtractEmpireJSON(pageHTML []byte, nbr int64) (interface{}, error) {
+	return extractEmpireJSON(string(pageHTML), nbr)
 }
 
 // ExtractCharacterClass ...

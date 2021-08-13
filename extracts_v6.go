@@ -2074,7 +2074,7 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	return moon, nil
 }
 
-func extractEmpire(html string, nbr int64) (interface{}, error) {
+func extractEmpireJSON(html string, nbr int64) (interface{}, error) {
 	if nbr > 1 {
 		return nil, errors.New("invalid number for Empire page")
 	}

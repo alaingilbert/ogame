@@ -3053,7 +3053,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	return true, 0, nil
 }
 
-func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
+func (b *OGame) getEmpireJSON(nbr int64) (interface{}, error) {
 	// Valid URLs:
 	// /game/index.php?page=standalone&component=empire&planetType=0
 	// /game/index.php?page=standalone&component=empire&planetType=1
@@ -3064,7 +3064,7 @@ func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
 	}
 	// Replace the Ogame hostname with our custom hostname
 	pageHTML := strings.Replace(string(pageHTMLBytes), b.serverURL, b.apiNewHostname, -1)
-	return b.extractor.ExtractEmpire([]byte(pageHTML), nbr)
+	return b.extractor.ExtractEmpireJSON([]byte(pageHTML), nbr)
 }
 
 func (b *OGame) createUnion(fleet Fleet, unionUsers []string) (int64, error) {
@@ -5687,9 +5687,9 @@ func (b *OGame) HeadersForPage(url string) (http.Header, error) {
 	return b.WithPriority(Normal).HeadersForPage(url)
 }
 
-// GetEmpire retrieves JSON from Empire page (Commander only).
-func (b *OGame) GetEmpire(nbr int64) (interface{}, error) {
-	return b.WithPriority(Normal).GetEmpire(nbr)
+// GetEmpireJSON retrieves JSON from Empire page (Commander only).
+func (b *OGame) GetEmpireJSON(nbr int64) (interface{}, error) {
+	return b.WithPriority(Normal).GetEmpireJSON(nbr)
 }
 
 // CharacterClass returns the bot character class

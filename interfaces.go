@@ -38,7 +38,7 @@ type Prioritizable interface {
 	GetCelestials() ([]Celestial, error)
 	GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 	GetDMCosts(CelestialID) (DMCosts, error)
-	GetEmpire(nbr int64) (interface{}, error)
+	GetEmpireJSON(nbr int64) (interface{}, error)
 	GetEspionageReport(msgID int64) (EspionageReport, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
@@ -383,7 +383,7 @@ type Extractor interface {
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
-	ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error)
+	ExtractEmpireJSON(pageHTML []byte, nbr int64) (interface{}, error)
 	ExtractCharacterClass(pageHTML []byte) (CharacterClass, error)
 	ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error)
 	ExtractCommander(pageHTML []byte) bool
