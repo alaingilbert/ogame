@@ -7,22 +7,22 @@ type LazyResearches func() Researches
 
 // Researches represent player's researches
 type Researches struct {
-	EnergyTechnology             int64
-	LaserTechnology              int64
-	IonTechnology                int64
-	HyperspaceTechnology         int64
-	PlasmaTechnology             int64
-	CombustionDrive              int64
-	ImpulseDrive                 int64
-	HyperspaceDrive              int64
-	EspionageTechnology          int64
-	ComputerTechnology           int64
-	Astrophysics                 int64
-	IntergalacticResearchNetwork int64
-	GravitonTechnology           int64
-	WeaponsTechnology            int64
-	ShieldingTechnology          int64
-	ArmourTechnology             int64
+	EnergyTechnology             int64 // 113
+	LaserTechnology              int64 // 120
+	IonTechnology                int64 // 121
+	HyperspaceTechnology         int64 // 114
+	PlasmaTechnology             int64 // 122
+	CombustionDrive              int64 // 115
+	ImpulseDrive                 int64 // 117
+	HyperspaceDrive              int64 // 118
+	EspionageTechnology          int64 // 106
+	ComputerTechnology           int64 // 108
+	Astrophysics                 int64 // 124
+	IntergalacticResearchNetwork int64 // 123
+	GravitonTechnology           int64 // 199
+	WeaponsTechnology            int64 // 109
+	ShieldingTechnology          int64 // 110
+	ArmourTechnology             int64 // 111
 }
 
 // ToPtr returns a pointer to self

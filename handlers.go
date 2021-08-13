@@ -1353,7 +1353,7 @@ func GetEmpireHandler(c echo.Context) error {
 	if err != nil || nbr > 1 {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid typeID"))
 	}
-	getEmpire, err := bot.GetEmpire(nbr)
+	getEmpire, err := bot.GetEmpireJSON(nbr)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}

@@ -3874,7 +3874,24 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	return true, 0, nil
 }
 
-func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
+func (b *OGame) getEmpire(celestialType CelestialType) (out []EmpireCelestial, err error) {
+	var planetType int
+	if celestialType == PlanetType {
+		planetType = 0
+	} else if celestialType == MoonType {
+		planetType = 1
+	} else {
+		return out, errors.New("invalid celestial type")
+	}
+	vals := url.Values{"page": {"standalone"}, "component": {"empire"}, "planetType": {strconv.Itoa(planetType)}}
+	pageHTMLBytes, err := b.getPageContent(vals)
+	if err != nil {
+		return out, err
+	}
+	return b.extractor.ExtractEmpire(pageHTMLBytes)
+}
+
+func (b *OGame) getEmpireJSON(nbr int64) (interface{}, error) {
 	// Valid URLs:
 	// /game/index.php?page=standalone&component=empire&planetType=0
 	// /game/index.php?page=standalone&component=empire&planetType=1
@@ -3885,7 +3902,7 @@ func (b *OGame) getEmpire(nbr int64) (interface{}, error) {
 	}
 	// Replace the Ogame hostname with our custom hostname
 	pageHTML := strings.Replace(string(pageHTMLBytes), b.serverURL, b.apiNewHostname, -1)
-	return b.extractor.ExtractEmpire([]byte(pageHTML), nbr)
+	return b.extractor.ExtractEmpireJSON([]byte(pageHTML))
 }
 
 func (b *OGame) createUnion(fleet Fleet, unionUsers []string) (int64, error) {
@@ -6236,7 +6253,7 @@ func (b *OGame) GalaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 
 // GetResourceSettings gets the resources settings for specified planetID
 func (b *OGame) GetResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
-	return b.WithPriority(Normal).GetResourceSettings(planetID)
+	return b.WithPriority(Normal).GetResourceSettings(planetID, options...)
 }
 
 // SetResourceSettings set the resources settings on a planet
@@ -6516,9 +6533,14 @@ func (b *OGame) HeadersForPage(url string) (http.Header, error) {
 	return b.WithPriority(Normal).HeadersForPage(url)
 }
 
-// GetEmpire retrieves JSON from Empire page (Commander only).
-func (b *OGame) GetEmpire(nbr int64) (interface{}, error) {
-	return b.WithPriority(Normal).GetEmpire(nbr)
+// GetEmpire gets all planets/moons information resources/supplies/facilities/ships/researches
+func (b *OGame) GetEmpire(celestialType CelestialType) ([]EmpireCelestial, error) {
+	return b.WithPriority(Normal).GetEmpire(celestialType)
+}
+
+// GetEmpireJSON retrieves JSON from Empire page (Commander only).
+func (b *OGame) GetEmpireJSON(nbr int64) (interface{}, error) {
+	return b.WithPriority(Normal).GetEmpireJSON(nbr)
 }
 
 // CharacterClass returns the bot character class

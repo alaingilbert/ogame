@@ -7,17 +7,17 @@ type LazyFacilities func() Facilities
 
 // Facilities represent a planet facilities information
 type Facilities struct {
-	RoboticsFactory int64
-	Shipyard        int64
-	ResearchLab     int64
-	AllianceDepot   int64
-	MissileSilo     int64
-	NaniteFactory   int64
-	Terraformer     int64
-	SpaceDock       int64
-	LunarBase       int64
-	SensorPhalanx   int64
-	JumpGate        int64
+	RoboticsFactory int64 // 14
+	Shipyard        int64 // 21
+	ResearchLab     int64 // 31
+	AllianceDepot   int64 // 34
+	MissileSilo     int64 // 44
+	NaniteFactory   int64 // 15
+	Terraformer     int64 // 33
+	SpaceDock       int64 // 36
+	LunarBase       int64 // 41
+	SensorPhalanx   int64 // 42
+	JumpGate        int64 // 43
 }
 
 // Lazy returns a function that return self

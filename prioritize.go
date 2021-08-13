@@ -605,11 +605,18 @@ func (b *Prioritize) HeadersForPage(url string) (http.Header, error) {
 	return b.bot.headersForPage(url)
 }
 
-// GetEmpire retrieves JSON from Empire page (Commander only).
-func (b *Prioritize) GetEmpire(nbr int64) (interface{}, error) {
+// GetEmpire (Commander only)
+func (b *Prioritize) GetEmpire(celestialType CelestialType) ([]EmpireCelestial, error) {
 	b.begin("GetEmpire")
 	defer b.done()
-	return b.bot.getEmpire(nbr)
+	return b.bot.getEmpire(celestialType)
+}
+
+// GetEmpireJSON retrieves JSON from Empire page (Commander only).
+func (b *Prioritize) GetEmpireJSON(nbr int64) (interface{}, error) {
+	b.begin("GetEmpireJSON")
+	defer b.done()
+	return b.bot.getEmpireJSON(nbr)
 }
 
 // GetAuction ...
