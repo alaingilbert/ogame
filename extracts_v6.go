@@ -1992,7 +1992,9 @@ func extractUniverseSpeedV6(pageHTML []byte) int64 {
 
 var temperatureRgxStr = `([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως|:sta)\s*([-\d]+).+C`
 var temperatureRgx = regexp.MustCompile(temperatureRgxStr)
-var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*` + temperatureRgxStr)
+var diameterRgxStr = `([\d.,]+)(?i)(?:km|км|公里|χμ)`
+var diameterRgx = regexp.MustCompile(diameterRgxStr)
+var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]` + diameterRgxStr + ` \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*` + temperatureRgxStr)
 var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|χμ|公里) \((\d+)/(\d+)\)`)
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
@@ -2103,14 +2105,17 @@ func extractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
 			tempMin, _ = strconv.ParseInt(m[1], 10, 64)
 			tempMax, _ = strconv.ParseInt(m[2], 10, 64)
 		}
+		mm := diameterRgx.FindStringSubmatch(doCastStr(planet["diameter"]))
 		energyStr := doCastStr(planet["energy"])
 		energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
 		energy := ParseInt(energyDoc.Find("div span").Text())
 		celestialType := CelestialType(doCastF64(planet["type"]))
 		out = append(out, EmpireCelestial{
-			Name: doCastStr(planet["name"]),
-			ID:   CelestialID(doCastF64(planet["id"])),
-			Type: celestialType,
+			Name:     doCastStr(planet["name"]),
+			ID:       CelestialID(doCastF64(planet["id"])),
+			Diameter: ParseInt(mm[1]),
+			Img:      doCastStr(planet["image"]),
+			Type:     celestialType,
 			Fields: Fields{
 				Built: int64(doCastF64(planet["fieldUsed"])),
 				Total: int64(doCastF64(planet["fieldMax"])),

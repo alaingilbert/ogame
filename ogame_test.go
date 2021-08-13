@@ -3049,6 +3049,7 @@ func TestExtractEmpirePlanets(t *testing.T) {
 	assert.Equal(t, 8, len(res))
 	assert.Equal(t, Coordinate{Galaxy: 4, System: 208, Position: 8, Type: PlanetType}, res[0].Coordinate)
 	assert.Equal(t, int64(-3199), res[0].Resources.Energy)
+	assert.Equal(t, int64(13904), res[0].Diameter)
 }
 
 func TestExtractEmpireMoons(t *testing.T) {
@@ -3059,6 +3060,7 @@ func TestExtractEmpireMoons(t *testing.T) {
 	assert.Equal(t, int64(0), res[0].Resources.Energy)
 	assert.Equal(t, int64(-19), res[0].Temperature.Min)
 	assert.Equal(t, int64(21), res[0].Temperature.Max)
+	assert.Equal(t, int64(5783), res[0].Diameter)
 }
 
 func TestExtractAuction_playerBid(t *testing.T) {
