@@ -1990,7 +1990,9 @@ func extractUniverseSpeedV6(pageHTML []byte) int64 {
 	return universeSpeed
 }
 
-var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως|:sta)\s*([-\d]+).+C`)
+var temperatureRgxStr = `([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως|:sta)\s*([-\d]+).+C`
+var temperatureRgx = regexp.MustCompile(temperatureRgxStr)
+var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|公里|χμ) \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*` + temperatureRgxStr)
 var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|χμ|公里) \((\d+)/(\d+)\)`)
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
@@ -2072,6 +2074,139 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	moon.Fields.Total, _ = strconv.ParseInt(mm[7], 10, 64)
 	moon.Img = moonLink.Find("img.icon-moon").AttrOr("src", "")
 	return moon, nil
+}
+
+func extractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
+	var out []EmpireCelestial
+	raw, err := extractEmpireJSON(pageHTML)
+	if err != nil {
+		return nil, err
+	}
+	j, ok := raw.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("failed to parse json")
+	}
+	planetsRaw, ok := j["planets"].([]interface{})
+	if !ok {
+		return nil, errors.New("failed to parse json")
+	}
+	for _, planetRaw := range planetsRaw {
+		planet, ok := planetRaw.(map[string]interface{})
+		if !ok {
+			return nil, errors.New("failed to parse json")
+		}
+
+		var tempMin, tempMax int64
+		temperatureStr := doCastStr(planet["temperature"])
+		m := temperatureRgx.FindStringSubmatch(temperatureStr)
+		if len(m) == 3 {
+			tempMin, _ = strconv.ParseInt(m[1], 10, 64)
+			tempMax, _ = strconv.ParseInt(m[2], 10, 64)
+		}
+		energyStr := doCastStr(planet["energy"])
+		energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
+		energy := ParseInt(energyDoc.Find("div span").Text())
+		celestialType := CelestialType(doCastF64(planet["type"]))
+		out = append(out, EmpireCelestial{
+			Name: doCastStr(planet["name"]),
+			ID:   CelestialID(doCastF64(planet["id"])),
+			Type: celestialType,
+			Fields: Fields{
+				Built: int64(doCastF64(planet["fieldUsed"])),
+				Total: int64(doCastF64(planet["fieldMax"])),
+			},
+			Temperature: Temperature{
+				Min: tempMin,
+				Max: tempMax,
+			},
+			Coordinate: Coordinate{
+				Galaxy:   int64(doCastF64(planet["galaxy"])),
+				System:   int64(doCastF64(planet["system"])),
+				Position: int64(doCastF64(planet["position"])),
+				Type:     celestialType,
+			},
+			Resources: Resources{
+				Metal:     int64(doCastF64(planet["metal"])),
+				Crystal:   int64(doCastF64(planet["crystal"])),
+				Deuterium: int64(doCastF64(planet["deuterium"])),
+				Energy:    energy,
+			},
+			Supplies: ResourcesBuildings{
+				MetalMine:            int64(doCastF64(planet["1"])),
+				CrystalMine:          int64(doCastF64(planet["2"])),
+				DeuteriumSynthesizer: int64(doCastF64(planet["3"])),
+				SolarPlant:           int64(doCastF64(planet["4"])),
+				FusionReactor:        int64(doCastF64(planet["12"])),
+				SolarSatellite:       int64(doCastF64(planet["212"])),
+				MetalStorage:         int64(doCastF64(planet["22"])),
+				CrystalStorage:       int64(doCastF64(planet["23"])),
+				DeuteriumTank:        int64(doCastF64(planet["24"])),
+			},
+			Facilities: Facilities{
+				RoboticsFactory: int64(doCastF64(planet["14"])),
+				Shipyard:        int64(doCastF64(planet["21"])),
+				ResearchLab:     int64(doCastF64(planet["31"])),
+				AllianceDepot:   int64(doCastF64(planet["34"])),
+				MissileSilo:     int64(doCastF64(planet["44"])),
+				NaniteFactory:   int64(doCastF64(planet["15"])),
+				Terraformer:     int64(doCastF64(planet["33"])),
+				SpaceDock:       int64(doCastF64(planet["36"])),
+				LunarBase:       int64(doCastF64(planet["41"])),
+				SensorPhalanx:   int64(doCastF64(planet["42"])),
+				JumpGate:        int64(doCastF64(planet["43"])),
+			},
+			Defenses: DefensesInfos{
+				RocketLauncher:         int64(doCastF64(planet["401"])),
+				LightLaser:             int64(doCastF64(planet["402"])),
+				HeavyLaser:             int64(doCastF64(planet["403"])),
+				GaussCannon:            int64(doCastF64(planet["404"])),
+				IonCannon:              int64(doCastF64(planet["405"])),
+				PlasmaTurret:           int64(doCastF64(planet["406"])),
+				SmallShieldDome:        int64(doCastF64(planet["407"])),
+				LargeShieldDome:        int64(doCastF64(planet["408"])),
+				AntiBallisticMissiles:  int64(doCastF64(planet["502"])),
+				InterplanetaryMissiles: int64(doCastF64(planet["503"])),
+			},
+			Researches: Researches{
+				EnergyTechnology:             int64(doCastF64(planet["113"])),
+				LaserTechnology:              int64(doCastF64(planet["120"])),
+				IonTechnology:                int64(doCastF64(planet["121"])),
+				HyperspaceTechnology:         int64(doCastF64(planet["114"])),
+				PlasmaTechnology:             int64(doCastF64(planet["122"])),
+				CombustionDrive:              int64(doCastF64(planet["115"])),
+				ImpulseDrive:                 int64(doCastF64(planet["117"])),
+				HyperspaceDrive:              int64(doCastF64(planet["118"])),
+				EspionageTechnology:          int64(doCastF64(planet["106"])),
+				ComputerTechnology:           int64(doCastF64(planet["108"])),
+				Astrophysics:                 int64(doCastF64(planet["124"])),
+				IntergalacticResearchNetwork: int64(doCastF64(planet["123"])),
+				GravitonTechnology:           int64(doCastF64(planet["199"])),
+				WeaponsTechnology:            int64(doCastF64(planet["109"])),
+				ShieldingTechnology:          int64(doCastF64(planet["110"])),
+				ArmourTechnology:             int64(doCastF64(planet["111"])),
+			},
+			Ships: ShipsInfos{
+				LightFighter:   int64(doCastF64(planet["204"])),
+				HeavyFighter:   int64(doCastF64(planet["205"])),
+				Cruiser:        int64(doCastF64(planet["206"])),
+				Battleship:     int64(doCastF64(planet["207"])),
+				Battlecruiser:  int64(doCastF64(planet["215"])),
+				Bomber:         int64(doCastF64(planet["211"])),
+				Destroyer:      int64(doCastF64(planet["213"])),
+				Deathstar:      int64(doCastF64(planet["214"])),
+				SmallCargo:     int64(doCastF64(planet["202"])),
+				LargeCargo:     int64(doCastF64(planet["203"])),
+				ColonyShip:     int64(doCastF64(planet["208"])),
+				Recycler:       int64(doCastF64(planet["209"])),
+				EspionageProbe: int64(doCastF64(planet["210"])),
+				SolarSatellite: int64(doCastF64(planet["212"])),
+				Crawler:        int64(doCastF64(planet["217"])),
+				Reaper:         int64(doCastF64(planet["218"])),
+				Pathfinder:     int64(doCastF64(planet["219"])),
+			},
+		})
+	}
+	return out, nil
 }
 
 func extractEmpireJSON(pageHTML []byte) (interface{}, error) {

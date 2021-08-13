@@ -797,6 +797,11 @@ func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, 
 	return extractCancelResearchInfosV6(pageHTML)
 }
 
+// ExtractEmpire ...
+func (e ExtractorV6) ExtractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
+	return extractEmpire(pageHTML)
+}
+
 // ExtractEmpireJSON ...
 func (e ExtractorV6) ExtractEmpireJSON(pageHTML []byte) (interface{}, error) {
 	return extractEmpireJSON(pageHTML)

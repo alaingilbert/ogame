@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Zibal OGame</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <script type="text/javascript">
+    /**
+     * This is only currently needed in a separate file in libraries because
+     * the javascript files are loaded alphabetically from files and we need to
+     * ensure that our namespace object is loaded before all other ogame specific
+     * javascript code
+     */
+
+    /*
+     * global javascript namespace for ogame
+     */
+    var ogame = ogame || {};
+  </script>
+  <meta name="ogame-session" content="0dcb4c5444b474f36236f02170d58f473a0ab2f9"/>
+  <meta name="ogame-version" content="8.1.0-pl13"/>
+  <meta name="ogame-timestamp" content="1628811728"/>
+  <meta name="ogame-universe" content="s152-en.ogame.gameforge.com"/>
+  <meta name="ogame-universe-name" content="Zibal"/>
+  <meta name="ogame-universe-speed" content="7"/>
+  <meta name="ogame-universe-speed-fleet-peaceful" content="2"/>
+  <meta name="ogame-universe-speed-fleet-war" content="2"/>
+  <meta name="ogame-universe-speed-fleet-holding" content="2"/>
+  <meta name="ogame-language" content="en"/>
+  <meta name="ogame-donut-galaxy" content="1"/>
+  <meta name="ogame-donut-system" content="1"/>
+  <meta name="ogame-player-id" content="107009"/>
+  <meta name="ogame-player-name" content="Constable Telesto"/>
+  <meta name="ogame-planet-id" content="33711028"/>
+  <meta name="ogame-planet-name" content="Colony"/>
+  <meta name="ogame-planet-coordinates" content="4:208:8"/>
+  <meta name="ogame-planet-type" content="planet"/>
+
+  <meta name="ogame-alliance-id" content="545"/>
+  <meta name="ogame-alliance-name" content="Ninja"/>
+  <meta name="ogame-alliance-tag" content="nja"/>
+
+
+  <script
+          type="text/javascript"
+          id="pixelzirkus"
+          src="https://pixelzirkus.gameforge.com/static/js/pz.js"
+          data-cookieconsent="ignore"
+          data-default-product="ogame"
+          data-default-language="en"
+          data-default-server-id="152">
+  </script>
+  <script
+          type="application/javascript"
+          src="https://consent.gameforge.com/cookiebanner.js"
+          id="cookiebanner"
+          data-blocking-mode="none"
+          data-env="live"
+          data-project-id="a62fcc7f-9eea-4dc3-9a2c-526e948db9e3"
+          data-consent-cookie-domain="gameforge.com"
+          data-locale="en-GB">
+  </script>
+
+
+  <script type="text/javascript">
+    var ajaxEventboxURI = 'https://s152-en.ogame.gameforge.com/game/index.php?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+    var ajaxResourceboxURI = 'https://s152-en.ogame.gameforge.com/game/index.php?page=fetchResources&ajax=1';
+    var eventboxLoca    = {"mission":"Mission","missions":"Missions","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"own","neutral":"friendly","hostile":"hostile","nextEvent":"Next","nextEventText":"Type"};
+    var eventlistLink   = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&ajax=1";
+  </script>
+
+  <link rel="stylesheet" type="text/css" href="https://gf1.geo.gfsrv.net/cdn09/16e4186f9bf6381effd9ebf7e7411e.css
+"/>
+  <link rel="stylesheet" type="text/css" href="/assets/css/resourcesbar.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/css/retrieveEmail.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/css/technologydetails.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/css/technologytree.css"/>
+  <link rel="stylesheet" type="text/css" href="/cdn/css/skins/default/traderNew.css"/>
+
+  <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn8c/095a3a537441223e34647ad44e30ec.js'> </script>
+  <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn11/1893a0b51cbc66910961566d9bbe18.js'> </script>
+  <script type='text/javascript' src='https://gf1.geo.gfsrv.net/cdn6c/2a439a139920fd0296ec7cf7ec5af8.js'> </script>
+
+
+
+
+
+  <script type="text/javascript">
+
+    var changeSettingsLink = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=changeSettings";
+    var changeSettingsToken = "cb8b237840e5696ac88017ab7f0a94cf";
+    var redirectLogoutLink = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=logout";
+    var redirectPremiumLink = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&showDarkMatter=1";
+    var redirectOverviewLink = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+    var redirectSpaceDockLink = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=facilities&openTech=36";
+    var constants   = {"espionage":6,"missleattack":10,"language":"en","name":"152"};
+    var currentPage = "empire";
+    var changeNickLink = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=ajax&component=changenick&asJson=1";
+  </script>
+
+  <script type="text/javascript">
+    var locaKeys = {"bold":"Bold","italic":"Italic","underline":"Underline","stroke":"Strikethrough","sub":"Subscript","sup":"Superscript","fontColor":"Font colour","fontSize":"Font size","backgroundColor":"Background colour","backgroundImage":"Background image","tooltip":"Tool-tip","alignLeft":"Left align","alignCenter":"Centre align","alignRight":"Right align","alignJustify":"Justify","block":"Break","code":"Code","spoiler":"Spoiler","moreopts":"More Options","list":"List","hr":"Horizontal line","picture":"Image","link":"Link","email":"Email","player":"Player","item":"Item","coordinates":"Coordinates","preview":"Preview","textPlaceHolder":"Text...","playerPlaceHolder":"Player ID or name","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galaxy:system:position","charsLeft":"Characters remaining","colorPicker":{"ok":"Ok","cancel":"Cancel","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Repeat horizontally","repeatY":"Repeat vertically"}};
+    var itemNames = {"1aa36213cb676fd5baad5edc2bee4fbe117a778b":"Researchers","6c9fe5e35bdad0d4e3382eb6a5aeac6bc8263752":"Trader","9b48e257cbef6c5df0f03a47cead7f9abda3d437":"Warriors","090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Bronze Crystal Booster","e254352ac599de4dd1f20f0719df0a070c623ca8":"Bronze Deuterium Booster","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Bronze Metal Booster","2dd05cc4c0e185fce2e712112dc44932027aee98":"Discoverer","9374c79a24b84c4331f0d26526ef6c2d33319a6e":"Collector","77eff880829027daf23b755e14820a60c4c6fd93":"General","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Bronze Crystal Booster","060902a23da9dd917f1a754fe85734a91ec8d785":"Bronze Crystal Booster","bb7579f7a21152a4a256f001d5162765e2f2c5b9":"Bronze Crystal Booster","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"Silver Crystal Booster","5b69663e3ba09a1fe77cf72c5094e246cfe954d6":"Silver Crystal Booster","04d8afd5936976e32ce894b765ea8bd168aa07ef":"Silver Crystal Booster","118d34e685b5d1472267696d1010a393a59aed03":"Gold Crystal Booster","36fb611e71d42014f5ebd0aa5a52bc0c81a0c1cb":"Gold Crystal Booster","d45f00e8b909f5293a83df4f369737ea7d69c684":"Gold Crystal Booster","35d96e441c21ef112a84c618934d9d0f026998fd":"Platinum Crystal Booster","6bf45fcba8a6a68158273d04a924452eca75cf39":"Platinum Crystal Booster","7c2edf40c5cd54ad11c6439398b83020c0a7a6be":"Platinum Crystal Booster","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Gold","3347bcd4ee59f1d3fa03c4d18a25bca2da81de82":"DETROID Platinum","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID Silver","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Bronze Deuterium Booster","d50005c05fd5b95125364af43c78dfaba64d7f83":"Bronze Deuterium Booster","63d11915e9af76ee41938cc099dbf8d54ad59a17":"Bronze Deuterium Booster","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"Silver Deuterium Booster","26416a3cdb94613844b1d3ca78b9057fd6ae9b15":"Silver Deuterium Booster","6f0952a919fd2ab9c009e9ccd83c1745f98f758f":"Silver Deuterium Booster","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Gold Deuterium Booster","300493ddc756869578cb2888a3a1bc0c3c66765f":"Gold Deuterium Booster","dc5896bed3311434224d511fa7ced6fdbe41b4e8":"Gold Deuterium Booster","4b51d903560edd102467b110586000bd64fdb954":"Platinum Deuterium Booster","620f779dbffa1011aded69b091239727910a3d03":"Platinum Deuterium Booster","831c3ea8d868eb3601536f4d5e768842988a1ba9":"Platinum Deuterium Booster","3f6f381dc9b92822406731a942c028adf8dc978f":"Energy Booster Bronze","7eeeb36a455c428eb6923a50d2f03544b6dd05d6":"Energy Booster Bronze","6837c08228d2b023fb955ca2dc589a0a4bed3ba8":"Energy Booster Bronze","c2bad58fcec374d709099d11d0549e59ea7e233e":"Energy Booster Silver","bedd248aaf288c27e9351cfacfa6be03f1dbb898":"Energy Booster Silver","e05aa5b9e3df5be3857b43da8403eafbf5ad3b96":"Energy Booster Silver","55b52cbfb148ec80cd4e5b0580f7bed01149d643":"Energy Booster Gold","4fa9a2273ee446284d5177fd9d60a22de01e932b":"Energy Booster Gold","5ad783dcfce3655ef97b36197425718a0dad6b66":"Energy Booster Gold","77c36199102e074dca46f5f26ef57ce824d044dd":"Energy Booster Platinum","dfe86378f8c3d7f3ee0790ea64603bc44e83ca47":"Energy Booster Platinum","c39aa972a971e94b1d9b4d7a8f734b3d8be12534":"Energy Booster Platinum","7eacfcee74660f30bb92a5874e8cccf2bb286ebd":"Migration Item","8c1f6c6849d1a5e4d9de6ae9bb1b861f6f7b5d4d":"Bronze Expedition Slots","e54ecc0416d6e96b4165f24238b03a1b32c1df47":"Bronze Expedition Slots","a5784c685c0e1e6111d9c18aeaf80af2e0777ab4":"Bronze Expedition Slots","31a504be1195149a3bef05b9cc6e3af185d24ef2":"Silver Expedition Slots","b2bc9789df7c1ef5e058f72d61380b696dde54e8":"Silver Expedition Slots","4f6f941bbf2a8527b0424b3ad11014502d8f4fb8":"Silver Expedition Slots","fd7d35e73d0e09e83e30812b738ef966ea9ef790":"Gold Expedition Slots","9336b9f29d36e3f69b0619c9523d8bec5e09ab8e":"Gold Expedition Slots","540410439514ac09363c5c47cf47117a8b8ae79a":"Gold Expedition Slots","94a28491b6fd85003f1cb151e88dde106f1d7596":"Bronze Fleet Slots","0684c6a5a42acbb3cd134913d421fc28dae6b90d":"Bronze Fleet Slots","bb47add58876240199a18ddacc2db07789be1934":"Bronze Fleet Slots","c4e598a85805a7eb3ca70f9265cbd366fc4d2b0e":"Silver Fleet Slots","f8fd610825fb4a442e27e4e9add74f050e040e27":"Silver Fleet Slots","a693c5ce3f5676efaaf0781d94234bea4f599d2e":"Silver Fleet Slots","1808bf7639b81ac3ac87bcb7eb3bbba0a1874d0a":"Gold Fleet Slots","5a8000c372cd079292a92d35d4ddba3c0f348d3b":"Gold Fleet Slots","1f7024c4f6493f0c589e1b00c76e6ced258c00e5":"Gold Fleet Slots","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Gold","f36042d76e6b8b33d931e1d4ae99f35265cd82d1":"KRAKEN Platinum","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN Silver","de922af379061263a56d7204d1c395cefcfb7d75":"Bronze Metal Booster","8a469c50ed10b78eaf872ea766ca66495da31a17":"Bronze Metal Booster","9ce31395cbd1e60d29e0770b9e20c6eb6053a344":"Bronze Metal Booster","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"Silver Metal Booster","742743b3b0ae1f0b8a1e01921042810b58f12f39":"Silver Metal Booster","6f44dcd2bd84875527abba69158b4e976c308bbc":"Silver Metal Booster","05294270032e5dc968672425ab5611998c409166":"Gold Metal Booster","6fecb993169fe918d9c63cd37a2e541cc067664e":"Gold Metal Booster","21c1a65ca6aecf54ffafb94c01d0c60d821b325d":"Gold Metal Booster","a83cfdc15b8dba27c82962d57e50d8101d263cfb":"Platinum Metal Booster","c690f492cffe5f9f2952337e8eed307a8a62d6cf":"Platinum Metal Booster","ca7f903a65467b70411e513b0920d66c417aa3a2":"Platinum Metal Booster","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Bronze Moon Fields","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Gold Moon Fields","8a426241572b2fea57844acd99bc326fe40e35cf":"Platinum Moon Fields","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"Silver Moon Fields","485a6d5624d9de836d3eb52b181b13423f795770":"Bronze M.O.O.N.S.","d94731aa4a989f741ca18dd7d16589e970f0486f":"Bronze M.O.O.N.S.","45d6660308689c65d97f3c27327b0b31f880ae75":"Gold M.O.O.N.S.","faab6a750c53d440cd5a1638dbd853ef4ecb1fec":"Gold M.O.O.N.S.","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"Silver M.O.O.N.S.","8ecde49bed4d3da1c3266ab736cb0c1a3dc209aa":"Silver M.O.O.N.S.","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Gold","a1ba242ede5286b530cdf991796b3d1cae9e4f23":"NEWTRON Platinum","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON Silver","16768164989dffd819a373613b5e1a52e226a5b0":"Bronze Planet Fields","04e58444d6d0beb57b3e998edc34c60f8318825a":"Gold Planet Fields","f3d9b82e10f2e969209c1a5ad7d22181c703bb36":"Platinum Planet Fields","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"Silver Planet Fields","c1d0232604872f899ea15a9772baf76880f55c5f":"Complete Resource Package","bb2f6843226ef598f0b567b92c51b283de90aa48":"Crystal Package","cb72ed207dd871832a850ee29f1c1f83aa3f4f36":"Deuterium Package","859d82d316b83848f7365d21949b3e1e63c7841f":"Metal Package"};
+    var isMobile = false;
+    var bbcodePreviewUrl = "https://s152-en.ogame.gameforge.com/game/index.php?page=bbcodePreview";
+    var ogameUrl = "https:\/\/s152-en.ogame.gameforge.com";
+    var startpageUrl = "https:\/\/en.ogame.gameforge.com";
+    var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","planetMoveBreakUpWarning":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter? In doing so, you will lose your current class.","activateItemQuestion":"Do you want to activate the #characterClassName# class? In doing so, you will lose your current class."},"allianceClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the alliance class #allianceClassName# for #darkmatter# Dark Matter? In doing so, you will lose your current alliance class.","activateItemQuestion":"Do you want to activate the alliance class #allianceClassName#? In doing so, you will lose your current alliance class.","appendCurrentClassQuestion":"<br><br>Current alliance class: #currentAllianceClassName#<br><br>Last changed on: #lastAllianceClassChange#"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+    var popupWindows = [];
+    var chatLoca = {"TEXT_EMPTY":"Where is the message?","TEXT_TOO_LONG":"The message is too long.","SAME_USER":"You cannot write to yourself.","IGNORED_USER":"You have ignored this player.","NO_DATABASE_CONNECTION":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","INVALID_PARAMETERS":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","SEND_FAILED":"A previously unknown error has occurred. Unfortunately your last action couldn`t be executed!","LOCA_ALL_ERROR_NOTACTIVATED":"This function is only available after your accounts activation.","X_NEW_CHATS":"#+# unread conversation(s)","MORE_USERS":"show more"};
+    var overlayWidth = 770;
+    var overlayHeight = 600;
+    var isStandalonePage = true;
+
+    $(document).ready(
+            function(){
+              initOverlays();
+            }
+    );
+  </script>
+</head>
+<body id="standalonepage" class="no-touch ">
+<div id="siteHeader">
+</div>
+
+<div id="boxBG">
+  <div id="box">
+  </div>
+</div>
+<div id="mainContent">
+  <div id='empireComponent'
+       class="maincontent"
+  >
+    <style type="text/css">
+      #mainContent, .maincontent {
+        width: initial;
+      }
+    </style>
+    <div id="empire">
+      <div id="mainWrapper">
+      </div>
+    </div>
+
+    <div id="loading">load...</div>
+    <script type="text/javascript">
+      var cancelBuildingToken = "0141b7932168386cf0a24a48218ab55b";
+      isMobile = false;
+      isMobileApp = false;
+      var timerHandler = new TimerHandler();
+      var isRTLEnabled = 0 ;
+      // Monat Tag, Jahr Stunden:Minuten:Sekunden
+      var serverTime = new Date(2021, 8, 13, 0, 42, 8);
+      var localTime = new Date();
+      localTS = localTime.getTime();
+      // Zeitdifferenz Server-Client herausrechnen
+      var startServerTime = localTime.getTime() - (3600000) - localTime.getTimezoneOffset()*60*1000; // GMT+1+Sommerzeit - offset
+
+      var LocalizationStrings = {"timeunits":{"short":{"year":"y","month":"m","week":"w","day":"d","hour":"h","minute":"m","second":"s"}},"status":{"ready":"done"},"decimalPoint":".","thousandSeperator":".","unitMega":"Mn","unitKilo":"K","unitMilliard":"Bn","question":"Question","error":"Error","loading":"load...","notice":"Reference","yes":"yes","no":"No","ok":"Ok","attention":"Caution","outlawWarning":"You are about to attack a stronger player. If you do this, your attack defences will be shut down for 7 days and all players will be able to attack you without punishment. Are you sure you want to continue?","lastSlotWarningMoon":"This building will use the last available building slot. Expand your Lunar Base to receive more space. Are you sure you want to build this building?","lastSlotWarningPlanet":"This building will use the last available building slot. Expand your Terraformer or buy a Planet Field item to obtain more slots. Are you sure you want to build this building?","forcedVacationWarning":"Confirm your lobby account now and we\u2019ll gift you Dark Matter in each universe!","planetMoveBreakUpWarning":"Caution! This mission may still be running once the relocation period starts and if this is the case, the process will be cancelled. Do you really want to continue with this job?","moreDetails":"More details","lessDetails":"Less detail","planetOrder":{"lock":"Lock arrangement","unlock":"Unlock arrangement"},"darkMatter":"Dark Matter","errorNotEnoughDM":"Not enough Dark Matter available! Do you want to buy some now?","activateItem":{"upgradeItemQuestion":"Would you like to replace the existing item? The old bonus will be lost in the process.","upgradeItemQuestionHeader":"Replace item?"},"characterClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the #characterClassName# class for #darkmatter# Dark Matter? In doing so, you will lose your current class.","activateItemQuestion":"Do you want to activate the #characterClassName# class? In doing so, you will lose your current class."},"allianceClassItem":{"buyAndActivateItemQuestion":"Do you want to activate the alliance class #allianceClassName# for #darkmatter# Dark Matter? In doing so, you will lose your current alliance class.","activateItemQuestion":"Do you want to activate the alliance class #allianceClassName#? In doing so, you will lose your current alliance class.","appendCurrentClassQuestion":"<br><br>Current alliance class: #currentAllianceClassName#<br><br>Last changed on: #lastAllianceClassChange#"},"LOCA_ALL_NETWORK_ATTENTION":"Caution","LOCA_ALL_YES":"yes","LOCA_ALL_NO":"No"};
+      var empireUrl = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=standalone&component=empire";
+      var saveUrl = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=empire_save";
+      var upgradeUrl = "https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=empire_upgrade&ajax=1";
+      var planetType = 1;
+      var moonCount = 3;
+      var empireOrder = [];
+      var ogameUrl = "https:\/\/s152-en.ogame.gameforge.com";
+      var startpageUrl = "https:\/\/en.ogame.gameforge.com";
+
+      $(document).ready(function() {
+        createImperiumHtml("#mainWrapper", "#loading", {"translations":{"noSummary":"-","production":{"hourly":"Total per hour","daily":"Total per day","weekly":"Total per week"},"summary":"Sum","header":"Empire View","reset":"Reset sorting order","planetsTab":"Planets","moonsTab":"Moons","groups":{"items":"Items","resources":"Resources","storage":"Storage Space","supply":"Resources","station":"Facilities","defence":"Defence","research":"Research","ships":"Fleet"},"planets":{"equipment":"Active effects","equipment_full":"Active effects","metal":"Metal","metal_full":"Metal","crystal":"Crystal","crystal_full":"Crystal","deuterium":"Deuterium","deuterium_full":"Deuterium","metalStorage":"Metal Storage","metalStorage_full":"Metal Storage","crystalStorage":"Crystal Storage","crystalStorage_full":"Crystal Storage","deuteriumStorage":"Deuterium Tank","deuteriumStorage_full":"Deuterium Tank","energy":"Energy","energy_full":"Energy","solar":"Solar Satellite","solar_full":"Solar Satellite","fusion":"Fusion Reactor","fusion_full":"Fusion Reactor","satellite":"Solar Satellite","satellite_full":"Solar Satellite","22":"Metal Storage","22_full":"Metal Storage","23":"Crystal Storage","23_full":"Crystal Storage","24":"Deuterium Tank","24_full":"Deuterium Tank","14":"Robotics Factory","14_full":"Robotics Factory","21":"Shipyard","21_full":"Shipyard","41":"Lunar Base","41_full":"Lunar Base","42":"Sensor Phalanx","42_full":"Sensor Phalanx","43":"Jump Gate","43_full":"Jump Gate","401":"Rocket Launcher","401_full":"Rocket Launcher","402":"Light Laser","402_full":"Light Laser","403":"Heavy Laser","403_full":"Heavy Laser","405":"Ion Cannon","405_full":"Ion Cannon","404":"Gauss Cannon","404_full":"Gauss Cannon","406":"Plasma Turret","406_full":"Plasma Turret","407":"Small Shield Dome","407_full":"Small Shield Dome","408":"Large Shield Dome","408_full":"Large Shield Dome","502":"Anti-Ballistic Mi...","502_full":"Anti-Ballistic Missiles","503":"Interplanetary Mi...","503_full":"Interplanetary Missiles","113":"Energy Technology","113_full":"Energy Technology","120":"Laser Technology","120_full":"Laser Technology","121":"Ion Technology","121_full":"Ion Technology","114":"Hyperspace Techno...","114_full":"Hyperspace Technology","122":"Plasma Technology","122_full":"Plasma Technology","106":"Espionage Technol...","106_full":"Espionage Technology","108":"Computer Technology","108_full":"Computer Technology","124":"Astrophysics","124_full":"Astrophysics","123":"Intergalactic Res...","123_full":"Intergalactic Research Network","199":"Graviton Technology","199_full":"Graviton Technology","115":"Combustion Drive","115_full":"Combustion Drive","117":"Impulse Drive","117_full":"Impulse Drive","118":"Hyperspace Drive","118_full":"Hyperspace Drive","109":"Weapons Technology","109_full":"Weapons Technology","110":"Shielding Technol...","110_full":"Shielding Technology","111":"Armour Technology","111_full":"Armour Technology","204":"Light Fighter","204_full":"Light Fighter","205":"Heavy Fighter","205_full":"Heavy Fighter","206":"Cruiser","206_full":"Cruiser","207":"Battleship","207_full":"Battleship","215":"Battlecruiser","215_full":"Battlecruiser","211":"Bomber","211_full":"Bomber","213":"Destroyer","213_full":"Destroyer","214":"Deathstar","214_full":"Deathstar","218":"Reaper","218_full":"Reaper","219":"Pathfinder","219_full":"Pathfinder","202":"Small Cargo","202_full":"Small Cargo","203":"Large Cargo","203_full":"Large Cargo","208":"Colony Ship","208_full":"Colony Ship","209":"Recycler","209_full":"Recycler","210":"Espionage Probe","210_full":"Espionage Probe","212":"Solar Satellite","212_full":"Solar Satellite","217":"Crawler","217_full":"Crawler"}},"groups":{"items":["equipment"],"resources":["metal","crystal","deuterium"],"storage":["metalStorage","crystalStorage","deuteriumStorage"],"supply":[22,23,24],"station":[14,21,41,42,43],"defence":[401,402,403,405,404,406,407,408,502,503],"research":[113,120,121,114,122,106,108,124,123,199,115,117,118,109,110,111],"ships":[204,205,206,207,215,211,213,214,218,219,202,203,208,209,210,212,217]},"planets":[{"production":{"techList":[1,2,3,4,12,212,217,122,1000,1001,1002,1003,1004,1005],"hourly":[0,0,0,0],"daily":[0,0,0,0],"weekly":[0,0,0,0],"generalIncoming":[0,0,0,0],"productionFactor":1,"production":{"1":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"2":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"3":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"4":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"12":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"212":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"number","image":null,"tooltip":null,"link":null,"active":true},"217":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"number","image":null,"tooltip":null,"link":null,"active":true},"122":{"showNumber":true,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":7,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"1000":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":null,"tooltip":null,"link":null,"active":true},"1001":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"geologe","tooltip":"Hire Geologist","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=5","active":false,"tooltipShort":"Hire Geologist"},"1002":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"engineer","tooltip":"Hire Engineer","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=4","active":false,"tooltipShort":"Hire Engineer"},"1003":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"stab","tooltip":"Hire Commanding Staff","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=12","active":false,"tooltipShort":"Hire Commanding Staff"},"1004":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"sprite characterclass medium warrior","tooltip":"","link":null,"active":true,"tooltipShort":"","name":"General"},"1005":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"sprite allianceclass medium warrior","tooltip":"","link":null,"active":true,"tooltipShort":"","name":"Warriors"}},"storage":[10000,10000,10000],"resources":[0,0,0,0]},"name":"Moon","type":3,"galaxy":4,"system":116,"position":9,"db_par1":5783,"db_par2":-19,"moveInProgress":0,"moveCooldownTime":0,"planetID":33738457,"id":33762073,"coordinates":"[4:116:9]","coordinatesLink":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&cp=33762073","image":"https:\/\/gf2.geo.gfsrv.net\/cdn41\/283dbacb2eed8f99ff3901c7eb3ea0.jpg","fieldUsed":"3","fieldMax":"12","border":"","energyDescr":"Energy: ","energyTooltip":"<span class='neutral'>0<\/span> \/ 0","energy":"<div class='tooltipRight js_hideTipOnMobile' title='&lt;span class=&#039;neutral&#039;&gt;0&lt;\/span&gt; \/ 0'><span class='neutral'>0<\/span><\/div>","diameterDescr":"Diameter:","diameterTooltip":"Diameter: 5.783km","diameter":"5.783km","temperature":"-19\u00b0C to 21\u00b0C","401":"0","401_html":"0","402":"0","402_html":"0","403":"0","403_html":"0","405":"0","405_html":"0","404":"0","404_html":"0","406":"0","406_html":"0","407":"0","407_html":"0","408":"0","408_html":"0","502":"0","502_html":"0","503":"0","503_html":"0","14":0,"14_html":"<span class='disabled'>0<\/span>","21":0,"21_html":"<span class='disabled'>0<\/span>","41":2,"41_html":"<span class='disabled'>2<\/span>","42":1,"42_html":"<span class='disabled'>1<\/span>","43":0,"43_html":"<span class='disabled'>0<\/span>","22":"0","22_html":"<span class='disabled'>0<\/span>","23":"0","23_html":"<span class='disabled'>0<\/span>","24":"0","24_html":"<span class='disabled'>0<\/span>","204":"0","204_html":"0","205":"0","205_html":"0","206":"0","206_html":"0","207":"0","207_html":"0","215":"0","215_html":"0","211":"0","211_html":"0","213":"0","213_html":"0","214":"0","214_html":"0","218":"0","218_html":"0","219":"0","219_html":"0","202":"0","202_html":"0","203":"0","203_html":"0","208":"0","208_html":"0","209":"0","209_html":"0","210":"0","210_html":"0","212":"0","212_html":"0","217":"0","217_html":"0","metal":0,"crystal":0,"deuterium":0,"metalStorage":10000,"crystalStorage":10000,"deuteriumStorage":10000,"metalHide":0,"crystalHide":0,"deuteriumHide":0,"metal_html":"<span class=''>0<\/span>","crystal_html":"<span class=''>0<\/span>","deuterium_html":"<span class=''>0<\/span>","metalStorage_html":"10.000","crystalStorage_html":"10.000","deuteriumStorage_html":"10.000","metalHide_html":"0","crystalHide_html":"0","deuteriumHide_html":"0","equipment_html":"No items equipped.","113":13,"113_html":"<span class='disabled'>13<\/span>","120":11,"120_html":"<span class='disabled'>11<\/span>","121":6,"121_html":"<span class='disabled'>6<\/span>","114":10,"114_html":"<span class='disabled'>10<\/span>","122":7,"122_html":"<span class='disabled'>7<\/span>","106":13,"106_html":"<span class='disabled'>13<\/span>","108":14,"108_html":"<span class='disabled'>14<\/span>","124":14,"124_html":"<span class='disabled'>14<\/span>","123":0,"123_html":"<span class='disabled'>0<\/span>","199":0,"199_html":"<span class='disabled'>0<\/span>","115":11,"115_html":"<span class='disabled'>11<\/span>","117":11,"117_html":"<span class='disabled'>11<\/span>","118":9,"118_html":"<span class='disabled'>9<\/span>","109":12,"109_html":"<span class='disabled'>12<\/span>","110":10,"110_html":"<span class='disabled'>10<\/span>","111":11,"111_html":"<span class='disabled'>11<\/span>"},{"production":{"techList":[1,2,3,4,12,212,217,122,1000,1001,1002,1003,1004,1005],"hourly":[0,0,0,0],"daily":[0,0,0,0],"weekly":[0,0,0,0],"generalIncoming":[0,0,0,0],"productionFactor":1,"production":{"1":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"2":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"3":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"4":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"12":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"212":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"number","image":null,"tooltip":null,"link":null,"active":true},"217":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"number","image":null,"tooltip":null,"link":null,"active":true},"122":{"showNumber":true,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":7,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"1000":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":null,"tooltip":null,"link":null,"active":true},"1001":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"geologe","tooltip":"Hire Geologist","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=5","active":false,"tooltipShort":"Hire Geologist"},"1002":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"engineer","tooltip":"Hire Engineer","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=4","active":false,"tooltipShort":"Hire Engineer"},"1003":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"stab","tooltip":"Hire Commanding Staff","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=12","active":false,"tooltipShort":"Hire Commanding Staff"},"1004":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"sprite characterclass medium warrior","tooltip":"","link":null,"active":true,"tooltipShort":"","name":"General"},"1005":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"sprite allianceclass medium warrior","tooltip":"","link":null,"active":true,"tooltipShort":"","name":"Warriors"}},"storage":[10000,10000,10000],"resources":[0,0,644,0]},"name":"Moon","type":3,"galaxy":4,"system":208,"position":8,"db_par1":8660,"db_par2":10,"moveInProgress":0,"moveCooldownTime":0,"planetID":33711028,"id":33765791,"coordinates":"[4:208:8]","coordinatesLink":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&cp=33765791","image":"https:\/\/gf1.geo.gfsrv.net\/cdn6c\/4ae24dfda70c407b5685ce61d3231b.jpg","fieldUsed":"2","fieldMax":"9","border":"","energyDescr":"Energy: ","energyTooltip":"<span class='neutral'>0<\/span> \/ 0","energy":"<div class='tooltipRight js_hideTipOnMobile' title='&lt;span class=&#039;neutral&#039;&gt;0&lt;\/span&gt; \/ 0'><span class='neutral'>0<\/span><\/div>","diameterDescr":"Diameter:","diameterTooltip":"Diameter: 8.660km","diameter":"8.660km","temperature":"10\u00b0C to 50\u00b0C","401":"0","401_html":"0","402":"0","402_html":"0","403":"0","403_html":"0","405":"0","405_html":"0","404":"0","404_html":"0","406":"0","406_html":"0","407":"0","407_html":"0","408":"0","408_html":"0","502":"0","502_html":"0","503":"0","503_html":"0","14":0,"14_html":"<span class='disabled'>0<\/span>","21":0,"21_html":"<span class='disabled'>0<\/span>","41":1,"41_html":"<span class='disabled'>1<\/span>","42":1,"42_html":"<span class='disabled'>1<\/span>","43":0,"43_html":"<span class='disabled'>0<\/span>","22":"0","22_html":"<span class='disabled'>0<\/span>","23":"0","23_html":"<span class='disabled'>0<\/span>","24":"0","24_html":"<span class='disabled'>0<\/span>","204":62,"204_html":"62","205":"0","205_html":"0","206":"0","206_html":"0","207":"0","207_html":"0","215":"0","215_html":"0","211":"0","211_html":"0","213":"0","213_html":"0","214":"0","214_html":"0","218":"0","218_html":"0","219":"0","219_html":"0","202":137,"202_html":"137","203":4,"203_html":"4","208":"0","208_html":"0","209":1,"209_html":"1","210":106,"210_html":"106","212":"0","212_html":"0","217":"0","217_html":"0","metal":0,"crystal":0,"deuterium":644,"metalStorage":10000,"crystalStorage":10000,"deuteriumStorage":10000,"metalHide":0,"crystalHide":0,"deuteriumHide":0,"metal_html":"<span class=''>0<\/span>","crystal_html":"<span class=''>0<\/span>","deuterium_html":"<span class=''>644<\/span>","metalStorage_html":"10.000","crystalStorage_html":"10.000","deuteriumStorage_html":"10.000","metalHide_html":"0","crystalHide_html":"0","deuteriumHide_html":"0","equipment_html":"No items equipped.","113":13,"113_html":"<span class='disabled'>13<\/span>","120":11,"120_html":"<span class='disabled'>11<\/span>","121":6,"121_html":"<span class='disabled'>6<\/span>","114":10,"114_html":"<span class='disabled'>10<\/span>","122":7,"122_html":"<span class='disabled'>7<\/span>","106":13,"106_html":"<span class='disabled'>13<\/span>","108":14,"108_html":"<span class='disabled'>14<\/span>","124":14,"124_html":"<span class='disabled'>14<\/span>","123":0,"123_html":"<span class='disabled'>0<\/span>","199":0,"199_html":"<span class='disabled'>0<\/span>","115":11,"115_html":"<span class='disabled'>11<\/span>","117":11,"117_html":"<span class='disabled'>11<\/span>","118":9,"118_html":"<span class='disabled'>9<\/span>","109":12,"109_html":"<span class='disabled'>12<\/span>","110":10,"110_html":"<span class='disabled'>10<\/span>","111":11,"111_html":"<span class='disabled'>11<\/span>"},{"production":{"techList":[1,2,3,4,12,212,217,122,1000,1001,1002,1003,1004,1005],"hourly":[0,0,0,0],"daily":[0,0,0,0],"weekly":[0,0,0,0],"generalIncoming":[0,0,0,0],"productionFactor":1,"production":{"1":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"2":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"3":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"4":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"12":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"212":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"number","image":null,"tooltip":null,"link":null,"active":true},"217":{"showNumber":true,"showPercent":true,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"number_cat":"number","image":null,"tooltip":null,"link":null,"active":true},"122":{"showNumber":true,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":7,"numberMax":0,"number_cat":"level","image":null,"tooltip":null,"link":null,"active":true},"1000":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":null,"tooltip":null,"link":null,"active":true},"1001":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"geologe","tooltip":"Hire Geologist","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=5","active":false,"tooltipShort":"Hire Geologist"},"1002":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"engineer","tooltip":"Hire Engineer","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=4","active":false,"tooltipShort":"Hire Engineer"},"1003":{"showNumber":false,"showPercent":false,"isOfficer":true,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"stab","tooltip":"Hire Commanding Staff","link":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=premium&openDetail=12","active":false,"tooltipShort":"Hire Commanding Staff"},"1004":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"sprite characterclass medium warrior","tooltip":"","link":null,"active":true,"tooltipShort":"","name":"General"},"1005":{"showNumber":false,"showPercent":false,"isOfficer":false,"0":0,"1":0,"2":0,"3":0,"5":0,"6":0,"7":0,"8":0,"number":0,"numberMax":0,"image":"sprite allianceclass medium warrior","tooltip":"","link":null,"active":true,"tooltipShort":"","name":"Warriors"}},"storage":[10000,10000,10000],"resources":[12,12,12,0]},"name":"Moon","type":3,"galaxy":4,"system":212,"position":7,"db_par1":8366,"db_par2":21,"moveInProgress":0,"moveCooldownTime":0,"planetID":33739506,"id":33792134,"coordinates":"[4:212:7]","coordinatesLink":"https:\/\/s152-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview&cp=33792134","image":"https:\/\/gf1.geo.gfsrv.net\/cdn30\/d96427de4452c9ba50576fb573dd38.jpg","fieldUsed":"24","fieldMax":"30","border":"","energyDescr":"Energy: ","energyTooltip":"<span class='neutral'>0<\/span> \/ 0","energy":"<div class='tooltipRight js_hideTipOnMobile' title='&lt;span class=&#039;neutral&#039;&gt;0&lt;\/span&gt; \/ 0'><span class='neutral'>0<\/span><\/div>","diameterDescr":"Diameter:","diameterTooltip":"Diameter: 8.366km","diameter":"8.366km","temperature":"21\u00b0C to 61\u00b0C","401":"0","401_html":"0","402":"0","402_html":"0","403":"0","403_html":"0","405":"0","405_html":"0","404":"0","404_html":"0","406":"0","406_html":"0","407":"0","407_html":"0","408":"0","408_html":"0","502":"0","502_html":"0","503":"0","503_html":"0","14":8,"14_html":"<span class='disabled'>8<\/span>","21":0,"21_html":"<span class='disabled'>0<\/span>","41":8,"41_html":"<span class='disabled'>8<\/span>","42":7,"42_html":"<span class='disabled'>7<\/span>","43":1,"43_html":"<span class='disabled'>1<\/span>","22":"0","22_html":"<span class='disabled'>0<\/span>","23":"0","23_html":"<span class='disabled'>0<\/span>","24":"0","24_html":"<span class='disabled'>0<\/span>","204":"0","204_html":"0","205":"0","205_html":"0","206":"0","206_html":"0","207":"0","207_html":"0","215":"0","215_html":"0","211":"0","211_html":"0","213":"0","213_html":"0","214":"0","214_html":"0","218":"0","218_html":"0","219":"0","219_html":"0","202":"0","202_html":"0","203":"0","203_html":"0","208":"0","208_html":"0","209":"0","209_html":"0","210":"0","210_html":"0","212":"0","212_html":"0","217":"0","217_html":"0","metal":12,"crystal":12,"deuterium":12,"metalStorage":10000,"crystalStorage":10000,"deuteriumStorage":10000,"metalHide":0,"crystalHide":0,"deuteriumHide":0,"metal_html":"<span class=''>12<\/span>","crystal_html":"<span class=''>12<\/span>","deuterium_html":"<span class=''>12<\/span>","metalStorage_html":"10.000","crystalStorage_html":"10.000","deuteriumStorage_html":"10.000","metalHide_html":"0","crystalHide_html":"0","deuteriumHide_html":"0","equipment_html":"No items equipped.","113":13,"113_html":"<span class='disabled'>13<\/span>","120":11,"120_html":"<span class='disabled'>11<\/span>","121":6,"121_html":"<span class='disabled'>6<\/span>","114":10,"114_html":"<span class='disabled'>10<\/span>","122":7,"122_html":"<span class='disabled'>7<\/span>","106":13,"106_html":"<span class='disabled'>13<\/span>","108":14,"108_html":"<span class='disabled'>14<\/span>","124":14,"124_html":"<span class='disabled'>14<\/span>","123":0,"123_html":"<span class='disabled'>0<\/span>","199":0,"199_html":"<span class='disabled'>0<\/span>","115":11,"115_html":"<span class='disabled'>11<\/span>","117":11,"117_html":"<span class='disabled'>11<\/span>","118":9,"118_html":"<span class='disabled'>9<\/span>","109":12,"109_html":"<span class='disabled'>12<\/span>","110":10,"110_html":"<span class='disabled'>10<\/span>","111":11,"111_html":"<span class='disabled'>11<\/span>"}]}, 1 );
+
+        initEmpire();
+        initEmpireEquipment();
+//        tabletInitEmpire();
+
+        function getHoveredRow(element) {
+          // Build a jQuery / CSS compatible class selector
+          var relevantClass = "." + $.trim(element.attr("class")).split(" ")[0];
+
+          // Find all other elements with the same class
+          // In case of the header element, only the first class is used
+          return element
+                  .parents("#mainWrapper")
+                  .find(
+                          ".header li" + relevantClass + ", " +
+                          ".values > div" + relevantClass
+                  );
+        }
+
+        $(".header li, .values > div").hover(
+                // Hover in
+                function() {
+                  var row = getHoveredRow($(this));
+
+                  $.each(row, function() {
+                    $(this).addClass("hovered");
+                  });
+                },
+                // Hover out
+                function() {
+                  var row = getHoveredRow($(this));
+
+                  $.each(row, function() {
+                    $(this).removeClass("hovered");
+                  });
+                }
+        );
+      });
+
+    </script>
+  </div>
+</div>
+<div id="bottom">
+  <div id='errorboxcomponent'
+       class=""
+  >
+    <div id="decisionTB" style="display:none;">
+      <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+        <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+        <div class="middle">
+          <span id="errorBoxDecisionContent">-</span>
+          <div class="response">
+            <div style="float:left; width:180px;">
+              <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+            </div>
+            <div style="float:left; width:180px;">
+              <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+            </div>
+            <br class="clearfloat" />
+          </div>
+        </div>
+        <div class="foot"></div>
+      </div>
+    </div>
+
+    <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+      <div>
+        <span id="fadeBoxStyle" class="success"></span>
+        <p id="fadeBoxContent"></p>
+      </div>
+    </div>
+
+    <div id="notifyTB" style="display:none;">
+      <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+        <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+        <div class="middle">
+          <span id="errorBoxNotifyContent">-</span>
+          <div class="response">
+            <div>
+              <a href="javascript:void(0);" class="ok">
+                <span id="errorBoxNotifyOk">.</span>
+              </a>
+            </div>
+            <br class="clearfloat" />
+          </div>
+        </div>
+        <div class="foot"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="siteChat">
+
+</div>
+<div id="siteFooter">
+  <div class="content" style="font-size:10px">
+    <div class="fleft textLeft">
+      <span>8.1.0-pl13</span>
+      <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. All rights reserved.</a>
+    </div>
+    <div class="fright textRight">
+      <a href="http://wiki.ogame.org/" target="_blank">Help</a>|
+      <a href="https://board.en.ogame.gameforge.com/" target="_blank">Forum</a>|
+      <a class="overlay"
+         href="https://s152-en.ogame.gameforge.com/game/index.php?page=standalone&amp;component=rules&amp;ajax=1"
+         data-overlay-iframe="true"
+         data-iframe-width="450"
+         data-overlay-title="Rules"
+      >Rules</a>|
+      <a href="https://agbserver.gameforge.com/rewrite.php?locale=en&amp;type=imprint&amp;product=ogame" target="_blank">Legal</a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

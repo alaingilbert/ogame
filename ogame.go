@@ -3053,6 +3053,23 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 	return true, 0, nil
 }
 
+func (b *OGame) getEmpire(celestialType CelestialType) (out []EmpireCelestial, err error) {
+	var planetType int
+	if celestialType == PlanetType {
+		planetType = 0
+	} else if celestialType == MoonType {
+		planetType = 1
+	} else {
+		return out, errors.New("invalid celestial type")
+	}
+	vals := url.Values{"page": {"standalone"}, "component": {"empire"}, "planetType": {strconv.Itoa(planetType)}}
+	pageHTMLBytes, err := b.getPageContent(vals)
+	if err != nil {
+		return out, err
+	}
+	return b.extractor.ExtractEmpire(pageHTMLBytes)
+}
+
 func (b *OGame) getEmpireJSON(nbr int64) (interface{}, error) {
 	// Valid URLs:
 	// /game/index.php?page=standalone&component=empire&planetType=0
@@ -5685,6 +5702,11 @@ func (b *OGame) CreateUnion(fleet Fleet, users []string) (int64, error) {
 // HeadersForPage gets the headers for a specific ogame page
 func (b *OGame) HeadersForPage(url string) (http.Header, error) {
 	return b.WithPriority(Normal).HeadersForPage(url)
+}
+
+// GetEmpire gets all planets/moons information resources/supplies/facilities/ships/researches
+func (b *OGame) GetEmpire(celestialType CelestialType) ([]EmpireCelestial, error) {
+	return b.WithPriority(Normal).GetEmpire(celestialType)
 }
 
 // GetEmpireJSON retrieves JSON from Empire page (Commander only).
