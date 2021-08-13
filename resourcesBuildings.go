@@ -7,15 +7,15 @@ type LazyResourcesBuildings func() ResourcesBuildings
 
 // ResourcesBuildings represent a planet resource buildings
 type ResourcesBuildings struct {
-	MetalMine            int64
-	CrystalMine          int64
-	DeuteriumSynthesizer int64
-	SolarPlant           int64
-	FusionReactor        int64
-	SolarSatellite       int64
-	MetalStorage         int64
-	CrystalStorage       int64
-	DeuteriumTank        int64
+	MetalMine            int64 // 1
+	CrystalMine          int64 // 2
+	DeuteriumSynthesizer int64 // 3
+	SolarPlant           int64 // 4
+	FusionReactor        int64 // 12
+	SolarSatellite       int64 // 212
+	MetalStorage         int64 // 22
+	CrystalStorage       int64 // 23
+	DeuteriumTank        int64 // 24
 }
 
 // Lazy returns a function that return self

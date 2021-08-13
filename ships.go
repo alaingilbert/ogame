@@ -7,23 +7,23 @@ import (
 
 // ShipsInfos represent a planet ships information
 type ShipsInfos struct {
-	LightFighter   int64
-	HeavyFighter   int64
-	Cruiser        int64
-	Battleship     int64
-	Battlecruiser  int64
-	Bomber         int64
-	Destroyer      int64
-	Deathstar      int64
-	SmallCargo     int64
-	LargeCargo     int64
-	ColonyShip     int64
-	Recycler       int64
-	EspionageProbe int64
-	SolarSatellite int64
-	Crawler        int64
-	Reaper         int64
-	Pathfinder     int64
+	LightFighter   int64 // 204
+	HeavyFighter   int64 // 205
+	Cruiser        int64 // 206
+	Battleship     int64 // 207
+	Battlecruiser  int64 // 215
+	Bomber         int64 // 211
+	Destroyer      int64 // 213
+	Deathstar      int64 // 214
+	SmallCargo     int64 // 202
+	LargeCargo     int64 // 203
+	ColonyShip     int64 // 208
+	Recycler       int64 // 209
+	EspionageProbe int64 // 210
+	SolarSatellite int64 // 212
+	Crawler        int64 // 217
+	Reaper         int64 // 218
+	Pathfinder     int64 // 219
 }
 
 // ToPtr returns a pointer to self

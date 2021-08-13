@@ -798,8 +798,13 @@ func (e ExtractorV6) ExtractCancelResearchInfos(pageHTML []byte) (token string, 
 }
 
 // ExtractEmpire ...
-func (e ExtractorV6) ExtractEmpire(pageHTML []byte, nbr int64) (interface{}, error) {
-	return extractEmpire(string(pageHTML), nbr)
+func (e ExtractorV6) ExtractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
+	return extractEmpire(pageHTML)
+}
+
+// ExtractEmpireJSON ...
+func (e ExtractorV6) ExtractEmpireJSON(pageHTML []byte) (interface{}, error) {
+	return extractEmpireJSON(pageHTML)
 }
 
 // ExtractCharacterClass ...
