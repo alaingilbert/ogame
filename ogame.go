@@ -3064,7 +3064,7 @@ func (b *OGame) getEmpireJSON(nbr int64) (interface{}, error) {
 	}
 	// Replace the Ogame hostname with our custom hostname
 	pageHTML := strings.Replace(string(pageHTMLBytes), b.serverURL, b.apiNewHostname, -1)
-	return b.extractor.ExtractEmpireJSON([]byte(pageHTML), nbr)
+	return b.extractor.ExtractEmpireJSON([]byte(pageHTML))
 }
 
 func (b *OGame) createUnion(fleet Fleet, unionUsers []string) (int64, error) {
