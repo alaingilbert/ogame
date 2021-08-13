@@ -2074,16 +2074,13 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	return moon, nil
 }
 
-func extractEmpireJSON(html string, nbr int64) (interface{}, error) {
-	if nbr > 1 {
-		return nil, errors.New("invalid number for Empire page")
-	}
-	m := regexp.MustCompile(`createImperiumHtml\("#mainWrapper",\s"#loading",\s(.*),\s\d+\s\);`).FindStringSubmatch(html)
+func extractEmpireJSON(pageHTML []byte) (interface{}, error) {
+	m := regexp.MustCompile(`createImperiumHtml\("#mainWrapper",\s"#loading",\s(.*),\s\d+\s\);`).FindSubmatch(pageHTML)
 	if len(m) != 2 {
 		return nil, errors.New("regexp for Empire JSON did not match anything")
 	}
 	var empireJSON interface{}
-	if err := json.Unmarshal([]byte(m[1]), &empireJSON); err != nil {
+	if err := json.Unmarshal(m[1], &empireJSON); err != nil {
 		return nil, err
 	}
 	return empireJSON, nil
