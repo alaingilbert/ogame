@@ -4,16 +4,16 @@ import "strconv"
 
 // DefensesInfos represent a planet defenses information
 type DefensesInfos struct {
-	RocketLauncher         int64
-	LightLaser             int64
-	HeavyLaser             int64
-	GaussCannon            int64
-	IonCannon              int64
-	PlasmaTurret           int64
-	SmallShieldDome        int64
-	LargeShieldDome        int64
-	AntiBallisticMissiles  int64
-	InterplanetaryMissiles int64
+	RocketLauncher         int64 // 401
+	LightLaser             int64 // 402
+	HeavyLaser             int64 // 403
+	GaussCannon            int64 // 404
+	IonCannon              int64 // 405
+	PlasmaTurret           int64 // 406
+	SmallShieldDome        int64 // 407
+	LargeShieldDome        int64 // 408
+	AntiBallisticMissiles  int64 // 502
+	InterplanetaryMissiles int64 // 503
 }
 
 // HasShipDefense returns either or not at least one defense which can attack ships is present i.e., excluding
