@@ -522,6 +522,9 @@ func GetFleetSpeedForMission(isv81 bool, serverData ServerData, missionID Missio
 		if missionID == Attack || missionID == GroupedAttack || missionID == Destroy {
 			return serverData.SpeedFleetWar
 		}
+		if missionID == ParkInThatAlly {
+			return serverData.speedFleetHolding
+		}
 		return serverData.SpeedFleetPeaceful
 	}
 	return serverData.SpeedFleet
