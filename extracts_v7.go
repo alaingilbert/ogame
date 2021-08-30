@@ -241,6 +241,42 @@ func extractIPMFromDocV7(doc *goquery.Document) (duration, max int64, token stri
 	return
 }
 
+func extractFleet1ResearchesFromDocV7(doc *goquery.Document) (r Researches) {
+	//var apiTechData = [[109,0],[110,0],[111,4],[115,4],[117,3],[118,0],[114,0]];
+	onclick := doc.Find("div#fleetdispatchcomponent")
+	h, _ := onclick.Html()
+	matches := regexp.MustCompile(`var apiTechData = ([^;]+);`).FindStringSubmatch(h)
+	if len(matches) == 0 {
+		return
+	}
+	m := matches[1]
+	var res [][]int64
+	if err := json.Unmarshal([]byte(m), &res); err != nil {
+		return
+	}
+	for _, obj := range res {
+		researchID := obj[0]
+		level := obj[1]
+		switch ID(researchID) {
+		case WeaponsTechnology.ID:
+			r.WeaponsTechnology = level
+		case ShieldingTechnology.ID:
+			r.ShieldingTechnology = level
+		case ArmourTechnology.ID:
+			r.ArmourTechnology = level
+		case HyperspaceTechnology.ID:
+			r.HyperspaceTechnology = level
+		case CombustionDrive.ID:
+			r.CombustionDrive = level
+		case ImpulseDrive.ID:
+			r.ImpulseDrive = level
+		case HyperspaceDrive.ID:
+			r.HyperspaceDrive = level
+		}
+	}
+	return
+}
+
 func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ShipsInfos) {
 	onclick := doc.Find("div#fleetdispatchcomponent")
 	h, _ := onclick.Html()

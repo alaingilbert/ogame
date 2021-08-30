@@ -217,6 +217,7 @@ type Ship interface {
 	GetCargoCapacity(techs Researches, probeRaids, isCollector, isPioneers bool) int64
 	GetSpeed(techs Researches, isCollector, isGeneral bool) int64
 	GetFuelConsumption(techs Researches, fleetDeutSaveFactor float64, isGeneral bool) int64
+	GetFuelCapacity() int64
 }
 
 // Defense interface implemented by all defenses units
@@ -322,6 +323,7 @@ type Extractor interface {
 	ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources PlanetResources, multiplier Multiplier, err error)
 	ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
 	ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
+	ExtractFleet1ResearchesFromDoc(doc *goquery.Document) (r Researches)
 	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos)
 	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int64)
 	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int64)

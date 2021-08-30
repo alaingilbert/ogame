@@ -1468,7 +1468,6 @@ func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	} else {
 		b.ReconnectChat()
 	}
-
 	return nil
 }
 
@@ -4194,6 +4193,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
 	initialFleets, slots := b.getFleets()
+
 	maxInitialFleetID := FleetID(0)
 	for _, f := range initialFleets {
 		if f.ID > maxInitialFleetID {
@@ -4218,6 +4218,17 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+
+	techs := b.extractor.ExtractFleet1ResearchesFromDoc(fleet1Doc)
+	fuelCapacity := ShipsInfos{}.FromQuantifiables(ships).FuelCapacity()
+	fuel, _ := CalcFlightTime(b.GetCachedCelestialByID(celestialID).GetCoordinate(), where, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
+		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, float64(speed), GetFleetSpeedForMission(b.IsV81(), b.serverData, mission), ShipsInfos{}.FromQuantifiables(ships),
+		techs, b.characterClass)
+
+	if fuelCapacity < fuel {
+		return Fleet{}, fmt.Errorf("not enough fuel capacity, available %d but needed %d", fuelCapacity, fuel)
+	}
+
 	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
 	if fleet1BodyID != FleetdispatchPage {
 		now := time.Now().Unix()

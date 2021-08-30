@@ -83,6 +83,14 @@ func (s ShipsInfos) Speed(techs Researches, isCollector, isGeneral bool) int64 {
 	return minSpeed
 }
 
+// FuelCapacity returns the total Capacity for fuel
+func (s ShipsInfos) FuelCapacity() (out int64) {
+	for _, ship := range Ships {
+		out += ship.GetFuelCapacity() * s.ByID(ship.GetID())
+	}
+	return
+}
+
 // ToQuantifiables convert a ShipsInfos to an array of Quantifiable
 func (s ShipsInfos) ToQuantifiables() []Quantifiable {
 	out := make([]Quantifiable, 0)

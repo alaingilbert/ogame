@@ -14,6 +14,7 @@ func newColonyShip() *colonyShip {
 	s.BaseCargoCapacity = 7500
 	s.BaseSpeed = 2500
 	s.FuelConsumption = 1000
+	s.FuelCapacity = 7500
 	s.RapidfireFrom = map[ID]int64{DeathstarID: 250}
 	s.RapidfireAgainst = map[ID]int64{EspionageProbeID: 5, SolarSatelliteID: 5, CrawlerID: 5}
 	s.Price = Resources{Metal: 10000, Crystal: 20000, Deuterium: 10000}

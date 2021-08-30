@@ -6,6 +6,7 @@ type BaseShip struct {
 	BaseCargoCapacity int64
 	BaseSpeed         int64
 	FuelConsumption   int64
+	FuelCapacity      int64
 }
 
 // GetCargoCapacity returns ship cargo capacity
@@ -39,6 +40,11 @@ func (b BaseShip) GetFuelConsumption(techs Researches, fleetDeutSaveFactor float
 		fuelConsumption = int64(float64(fuelConsumption) / 2)
 	}
 	return fuelConsumption
+}
+
+// GetFuelCapacity returns ship fuel capacity
+func (b BaseShip) GetFuelCapacity() int64 {
+	return b.FuelCapacity
 }
 
 // GetSpeed returns speed of the ship

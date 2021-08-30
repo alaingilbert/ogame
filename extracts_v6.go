@@ -615,6 +615,10 @@ func extractOverviewProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, 
 	return res, nil
 }
 
+func extractFleet1ResearchesFromDocV6(doc *goquery.Document) (s Researches) {
+	return
+}
+
 func extractFleet1ShipsFromDocV6(doc *goquery.Document) (s ShipsInfos) {
 	onclick := doc.Find("a#sendall").AttrOr("onclick", "")
 	matches := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)
@@ -1723,6 +1727,16 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 				planetInfos.Alliance.ID, _ = strconv.ParseInt(strings.TrimPrefix(longID, "alliance"), 10, 64)
 				planetInfos.Alliance.Rank, _ = strconv.ParseInt(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text(), 10, 64)
 				planetInfos.Alliance.Member = ParseInt(prefixedNumRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
+				planetInfos.Alliance.AllianceClass = NoAllianceClass
+				if allianceSpan.Find("ul.ListLinks li").Find("span").HasClass("trader") {
+					planetInfos.Alliance.AllianceClass = Trader
+				}
+				if allianceSpan.Find("ul.ListLinks li").Find("span").HasClass("explorer") {
+					planetInfos.Alliance.AllianceClass = Researcher
+				}
+				if allianceSpan.Find("ul.ListLinks li").Find("span").HasClass("warrior") {
+					planetInfos.Alliance.AllianceClass = Warrior
+				}
 			}
 
 			if len(prefixedNumRgx.FindStringSubmatch(metalTxt)) > 0 {
