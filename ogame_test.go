@@ -2816,19 +2816,19 @@ func TestDistance(t *testing.T) {
 func TestCalcFlightTime(t *testing.T) {
 	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
 	secs, fuel := CalcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 5, 3, PlanetType},
-		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7}, NoClass)
+		1, 499, false, false, 1, 0.8, 1, ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, Researches{CombustionDrive: 10, ImpulseDrive: 7}, NoClass, 0)
 	assert.Equal(t, int64(4966), secs)
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
 	secs, fuel = CalcFlightTime(Coordinate{4, 116, 12, PlanetType}, Coordinate{3, 116, 12, PlanetType},
-		6, 499, true, true, 0.5, 1, 2, ShipsInfos{LargeCargo: 1931}, Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, Discoverer)
+		6, 499, true, true, 0.5, 1, 2, ShipsInfos{LargeCargo: 1931}, Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, Discoverer, 0)
 	assert.Equal(t, int64(5406), secs)
 	assert.Equal(t, int64(110336), fuel)
 
 	// Test with solar satellite
 	secs, fuel = CalcFlightTime(Coordinate{1, 1, 1, PlanetType}, Coordinate{1, 1, 15, PlanetType},
-		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, NoClass)
+		6, 499, false, false, 1, 1, 4, ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, NoClass, 0)
 	assert.Equal(t, int64(651), secs)
 	assert.Equal(t, int64(612), fuel)
 
@@ -2838,7 +2838,7 @@ func TestCalcFlightTime(t *testing.T) {
 		Coordinate{1, 313, 9, PlanetType},
 		5, 499, true, true, 1, 1, 2,
 		ShipsInfos{LightFighter: 1, HeavyFighter: 1, Cruiser: 1, Battleship: 1, SmallCargo: 1, LargeCargo: 1, Recycler: 1, ColonyShip: 1, EspionageProbe: 1},
-		Researches{CombustionDrive: 7, ImpulseDrive: 5, HyperspaceDrive: 0}, Discoverer)
+		Researches{CombustionDrive: 7, ImpulseDrive: 5, HyperspaceDrive: 0}, Discoverer, 0)
 	assert.Equal(t, int64(13427), secs)
 	assert.Equal(t, int64(3808), fuel)
 
@@ -2847,7 +2847,7 @@ func TestCalcFlightTime(t *testing.T) {
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 0.5, 1, 6,
 		ShipsInfos{LightFighter: 1, HeavyFighter: 1, Cruiser: 1, Battleship: 1, SmallCargo: 1, LargeCargo: 1, Recycler: 1, EspionageProbe: 1, Pathfinder: 1},
-		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, Discoverer)
+		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, Discoverer, 0)
 	assert.Equal(t, int64(3069), secs)
 	assert.Equal(t, int64(584), fuel)
 
@@ -2856,7 +2856,7 @@ func TestCalcFlightTime(t *testing.T) {
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 0.5, 1, 6,
 		ShipsInfos{EspionageProbe: 9000},
-		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, Discoverer)
+		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, Discoverer, 0)
 	assert.Equal(t, int64(15), secs)
 	assert.Equal(t, int64(1), fuel)
 
@@ -2865,7 +2865,7 @@ func TestCalcFlightTime(t *testing.T) {
 		Coordinate{1, 318, 4, MoonType},
 		5, 499, true, true, 1, 1, 6,
 		ShipsInfos{EspionageProbe: 9000},
-		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, General)
+		Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, General, 0)
 	assert.Equal(t, int64(15), secs)
 	assert.Equal(t, int64(1), fuel)
 }
