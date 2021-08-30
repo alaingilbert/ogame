@@ -2867,10 +2867,13 @@ func findSlowestSpeed(ships ShipsInfos, techs Researches, isCollector, isGeneral
 	return minSpeed
 }
 
-func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs Researches, isCollector, isGeneral bool) (fuel int64) {
-	tmpFn := func(baseFuel, nbr, shipSpeed int64) float64 {
+func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs Researches, isCollector, isGeneral bool, holdingTime int64) (fuel int64) {
+	tmpFn := func(baseFuel, nbr, shipSpeed, holdingTime int64) float64 {
 		tmpSpeed := (35000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
-		return float64(baseFuel*nbr*dist) / 35000 * math.Pow(tmpSpeed/10+1, 2)
+		if holdingTime > 0 {
+			return float64(baseFuel*nbr*dist)/35000*math.Pow(tmpSpeed/10+1, 2) + float64(baseFuel*nbr*holdingTime) + math.Floor(float64(baseFuel*nbr*holdingTime)/10)
+		}
+		return float64(baseFuel*nbr*dist)/35000*math.Pow(tmpSpeed/10+1, 2) + float64(baseFuel*nbr*holdingTime)
 	}
 	tmpFuel := 0.0
 	for _, ship := range Ships {
@@ -2879,7 +2882,7 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 		}
 		nbr := ships.ByID(ship.GetID())
 		if nbr > 0 {
-			tmpFuel += tmpFn(ship.GetFuelConsumption(techs, fleetDeutSaveFactor, isGeneral), nbr, ship.GetSpeed(techs, isCollector, isGeneral))
+			tmpFuel += tmpFn(ship.GetFuelConsumption(techs, fleetDeutSaveFactor, isGeneral), nbr, ship.GetSpeed(techs, isCollector, isGeneral), holdingTime)
 		}
 	}
 	fuel = int64(1 + math.Round(tmpFuel))
@@ -2888,7 +2891,7 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 
 // CalcFlightTime ...
 func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
-	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, characterClass CharacterClass) (secs, fuel int64) {
+	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ShipsInfos, techs Researches, characterClass CharacterClass, holdingTime int64) (secs, fuel int64) {
 	if !ships.HasShips() {
 		return
 	}
@@ -2899,15 +2902,16 @@ func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 	a := float64(universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	secs = int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
-	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, isCollector, isGeneral)
+	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, isCollector, isGeneral, holdingTime)
+
 	return
 }
 
 // CalcFlightTime calculates the flight time and the fuel consumption
-func (b *OGame) CalcFlightTime(origin, destination Coordinate, speed float64, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
+func (b *OGame) CalcFlightTime(origin, destination Coordinate, speed float64, ships ShipsInfos, missionID MissionID, holdingTime int64) (secs, fuel int64) {
 	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
 		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(b.IsV81(), b.serverData, missionID), ships,
-		b.GetCachedResearch(), b.characterClass)
+		b.GetCachedResearch(), b.characterClass, holdingTime)
 }
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
@@ -4223,7 +4227,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fuelCapacity := ShipsInfos{}.FromQuantifiables(ships).FuelCapacity()
 	fuel, _ := CalcFlightTime(b.GetCachedCelestialByID(celestialID).GetCoordinate(), where, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
 		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, float64(speed), GetFleetSpeedForMission(b.IsV81(), b.serverData, mission), ShipsInfos{}.FromQuantifiables(ships),
-		techs, b.characterClass)
+		techs, b.characterClass, holdingTime)
 
 	if fuelCapacity < fuel {
 		return Fleet{}, fmt.Errorf("not enough fuel capacity, available %d but needed %d", fuelCapacity, fuel)
@@ -5639,8 +5643,8 @@ func (b *OGame) GetResourcesProductionsLight(resBuildings ResourcesBuildings, re
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
-	return b.WithPriority(Normal).FlightTime(origin, destination, speed, ships, missionID)
+func (b *OGame) FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos, missionID MissionID, holdingTime int64) (secs, fuel int64) {
+	return b.WithPriority(Normal).FlightTime(origin, destination, speed, ships, missionID, holdingTime)
 }
 
 // Distance return distance between two coordinates
