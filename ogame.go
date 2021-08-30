@@ -2871,9 +2871,9 @@ func calcFuel(ships ShipsInfos, dist, duration int64, universeSpeedFleet, fleetD
 	tmpFn := func(baseFuel, nbr, shipSpeed, holdingTime int64) float64 {
 		tmpSpeed := (35000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
 		if holdingTime > 0 {
-			return float64(baseFuel*nbr*dist)/35000*math.Pow(tmpSpeed/10+1, 2) + float64(baseFuel*nbr*holdingTime) + math.Floor(float64(baseFuel*nbr*holdingTime)/10)
+			return float64(baseFuel*nbr*dist)/35000*math.Pow(tmpSpeed/10+1, 2) + math.Floor(float64(baseFuel*nbr*holdingTime)/10)
 		}
-		return float64(baseFuel*nbr*dist)/35000*math.Pow(tmpSpeed/10+1, 2) + float64(baseFuel*nbr*holdingTime)
+		return float64(baseFuel*nbr*dist) / 35000 * math.Pow(tmpSpeed/10+1, 2)
 	}
 	tmpFuel := 0.0
 	for _, ship := range Ships {
