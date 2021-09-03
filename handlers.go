@@ -974,7 +974,7 @@ func replaceHostname(bot *OGame, html []byte) []byte {
 }
 
 func removeCookieBanners(html []byte) []byte {
-	return []byte(strings.Replace(string(html), "<head>", "<style>.cookiebanner1 {display: none;}\n.cookiebanner2 {display: none;}\n.cookiebanner3 {display: none;}</style>", 1))
+	return []byte(strings.Replace(string(html), "<head>", "<head><style>.cookiebanner1 {display: none;}\n.cookiebanner2 {display: none;}\n.cookiebanner3 {display: none;}</style>", 1))
 }
 
 // GetStaticHandler ...
