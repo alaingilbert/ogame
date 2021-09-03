@@ -973,6 +973,10 @@ func replaceHostname(bot *OGame, html []byte) []byte {
 	return html
 }
 
+func removeCookieBanners(html []byte) []byte {
+	return []byte(strings.Replace(string(html), "<head>", "<style>.cookiebanner1 {display: none;}\n.cookiebanner2 {display: none;}\n.cookiebanner3 {display: none;}</style>", 1))
+}
+
 // GetStaticHandler ...
 func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
@@ -1029,6 +1033,8 @@ func GetFromGameHandler(c echo.Context) error {
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
 	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = removeCookieBanners(pageHTML)
+
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 

@@ -41,11 +41,6 @@ func (b BaseShip) GetFuelConsumption(techs Researches, fleetDeutSaveFactor float
 	return fuelConsumption
 }
 
-// GetFuelCapacity returns ship fuel capacity
-func (b BaseShip) GetFuelCapacity() int64 {
-	return b.BaseCargoCapacity
-}
-
 // GetSpeed returns speed of the ship
 func (b BaseShip) GetSpeed(techs Researches, isCollector, isGeneral bool) int64 {
 	techDriveLvl := 0.0

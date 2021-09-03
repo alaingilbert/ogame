@@ -4224,13 +4224,14 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 
 	techs := b.extractor.ExtractFleet1ResearchesFromDoc(fleet1Doc)
-	fuelCapacity := ShipsInfos{}.FromQuantifiables(ships).FuelCapacity()
-	fuel, _ := CalcFlightTime(b.GetCachedCelestialByID(celestialID).GetCoordinate(), where, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
-		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, float64(speed), GetFleetSpeedForMission(b.IsV81(), b.serverData, mission), ShipsInfos{}.FromQuantifiables(ships),
-		techs, b.characterClass, holdingTime)
+	fuelCapacity := ShipsInfos{}.FromQuantifiables(ships).Cargo(Researches{}, true, false, false)
 
+	_, fuel := CalcFlightTime(
+		b.GetCachedCelestialByID(celestialID).GetCoordinate(), where,
+		b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy, b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor,
+		float64(speed)/10, GetFleetSpeedForMission(b.IsV81(), b.serverData, mission), ShipsInfos{}.FromQuantifiables(ships), techs, b.characterClass, holdingTime)
 	if fuelCapacity < fuel {
-		return Fleet{}, fmt.Errorf("not enough fuel capacity, available %d but needed %d", fuelCapacity, fuel)
+		return Fleet{}, fmt.Errorf("not enough fuel capacity, available " + strconv.FormatInt(fuelCapacity, 10) + " but needed " + strconv.FormatInt(fuel, 10))
 	}
 
 	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
@@ -4354,7 +4355,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		return Fleet{}, errors.New("target is not ok")
 	}
 
-	cargo := ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1, b.isCollector(), b.IsPioneers())
+	cargo := ShipsInfos{}.FromQuantifiables(ships).Cargo(techs, b.server.Settings.EspionageProbeRaids == 1, b.isCollector(), b.IsPioneers())
 	newResources := Resources{}
 	if resources.Total() > cargo {
 		newResources.Deuterium = int64(math.Min(float64(resources.Deuterium), float64(cargo)))

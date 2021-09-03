@@ -69,7 +69,7 @@ func (s ShipsInfos) HasFlyableShips() bool {
 func (s ShipsInfos) Speed(techs Researches, isCollector, isGeneral bool) int64 {
 	var minSpeed int64 = math.MaxInt64
 	for _, ship := range Ships {
-		if ship.GetID() == SolarSatelliteID {
+		if ship.GetID() == SolarSatelliteID || ship.GetID() == CrawlerID {
 			continue
 		}
 		nbr := s.ByID(ship.GetID())
@@ -81,14 +81,6 @@ func (s ShipsInfos) Speed(techs Researches, isCollector, isGeneral bool) int64 {
 		}
 	}
 	return minSpeed
-}
-
-// FuelCapacity returns the total Capacity for fuel
-func (s ShipsInfos) FuelCapacity() (out int64) {
-	for _, ship := range Ships {
-		out += ship.GetFuelCapacity() * s.ByID(ship.GetID())
-	}
-	return
 }
 
 // ToQuantifiables convert a ShipsInfos to an array of Quantifiable
