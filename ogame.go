@@ -529,7 +529,7 @@ type Server struct {
 		FleetSpeed               int64
 		WreckField               int64
 		ServerLabel              string
-		EconomySpeed             int64
+		EconomySpeed             interface{} // can be 8 or "x8"
 		PlanetFields             int64
 		UniverseSize             int64 // Nb of galaxies
 		ServerCategory           string
