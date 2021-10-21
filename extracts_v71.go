@@ -18,19 +18,22 @@ import (
 type resourcesRespV71 struct {
 	Resources struct {
 		Metal struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
-			Tooltip string  `json:"tooltip"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"metal"`
 		Crystal struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
-			Tooltip string  `json:"tooltip"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"crystal"`
 		Deuterium struct {
-			Amount  float64 `json:"amount"`
-			Storage float64 `json:"storage"`
-			Tooltip string  `json:"tooltip"`
+			Amount         float64 `json:"amount"`
+			Storage        float64 `json:"storage"`
+			BaseProduction float64 `json:"baseProduction"`
+			Tooltip        string  `json:"tooltip"`
 		} `json:"deuterium"`
 		Energy struct {
 			Amount  float64 `json:"amount"`
@@ -179,6 +182,9 @@ func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err erro
 	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Metal.Production = int64(res.Resources.Metal.BaseProduction*3600 + res.Techs.Num1.Production.Metal*3600)
+	out.Crystal.Production = int64(res.Resources.Crystal.BaseProduction*3600 + res.Techs.Num2.Production.Crystal*3600)
+	out.Deuterium.Production = int64(res.Resources.Deuterium.BaseProduction*3600 + res.Techs.Num3.Production.Deuterium*3600)
 	return
 }
 
