@@ -153,6 +153,7 @@ const defaultUserAgent = "" +
 	"Safari/537.36"
 
 type options struct {
+	DebugGalaxy     bool
 	SkipInterceptor bool
 	SkipRetry       bool
 	ChangePlanet    CelestialID // cp parameter
@@ -160,6 +161,11 @@ type options struct {
 
 // Option functions to be passed to public interface to change behaviors
 type Option func(*options)
+
+// DebugGalaxy option to debug galaxy
+func DebugGalaxy(opt *options) {
+	opt.DebugGalaxy = true
+}
 
 // SkipInterceptor option to skip html interceptors
 func SkipInterceptor(opt *options) {
@@ -3661,7 +3667,11 @@ func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	return
 }
 
-func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
+func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error) {
+	var cfg options
+	for _, opt := range opts {
+		opt(&cfg)
+	}
 	var res SystemInfos
 	if galaxy < 1 || galaxy > b.server.Settings.UniverseSize {
 		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.Settings.UniverseSize)
@@ -3674,12 +3684,15 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 		"system": {strconv.FormatInt(system, 10)},
 	}
 	vals := url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
-	pageHTML, err := b.postPageContent(vals, payload, options...)
+	pageHTML, err := b.postPageContent(vals, payload, opts...)
 	if err != nil {
 		return res, err
 	}
 	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 	if err != nil {
+		if cfg.DebugGalaxy {
+			fmt.Println(string(pageHTML))
+		}
 		return res, err
 	}
 	if res.galaxy != galaxy || res.system != system {
