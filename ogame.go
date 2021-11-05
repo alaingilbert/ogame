@@ -2709,7 +2709,13 @@ func (b *OGame) abandon(v interface{}) error {
 		"token":    {token},
 		"password": {b.password},
 	}
-	_, err := b.postPageContent(url.Values{"page": {"planetGiveup"}}, payload)
+	_, err := b.postPageContent(url.Values{
+		"page":      {"ingame"},
+		"component": {"overview"},
+		"action":    {"planetGiveup"},
+		"ajax":      {"1"},
+		"asJson":    {"1"},
+	}, payload)
 	return err
 }
 
