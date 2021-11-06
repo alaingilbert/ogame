@@ -2951,23 +2951,23 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		return res, errors.New("coordinate not in phalanx range")
 	}
 
-	// Get galaxy planets information, verify coordinate is valid planet (second call to ogame server)
-	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
-	target := planetInfos.Position(coord.Position)
-	if target == nil {
-		return res, errors.New("invalid planet coordinate")
-	}
-	// Ensure you are not scanning your own planet
-	if target.Player.ID == b.Player.PlayerID {
-		return res, errors.New("cannot scan own planet")
-	}
-
-	// Run the phalanx scan (third call to ogame server)
+	// Run the phalanx scan (second & third calls to ogame server)
 	return b.getUnsafePhalanx(moonID, coord)
 }
 
 // getUnsafePhalanx ...
 func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	// Get galaxy planets information, verify coordinate is valid planet (call to ogame server)
+	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
+	target := planetInfos.Position(coord.Position)
+	if target == nil {
+		return nil, errors.New("invalid planet coordinate")
+	}
+	// Ensure you are not scanning your own planet
+	if target.Player.ID == b.Player.PlayerID {
+		return nil, errors.New("cannot scan own planet")
+	}
+
 	pageHTML, _ := b.getPageContent(url.Values{
 		"page":     {"phalanx"},
 		"galaxy":   {strconv.FormatInt(coord.Galaxy, 10)},
@@ -2975,6 +2975,7 @@ func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, erro
 		"position": {strconv.FormatInt(coord.Position, 10)},
 		"ajax":     {"1"},
 		"cp":       {strconv.FormatInt(int64(moonID), 10)},
+		"token":    {planetInfos.OverlayToken},
 	})
 	return b.extractor.ExtractPhalanx(pageHTML)
 }
