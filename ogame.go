@@ -4718,22 +4718,40 @@ func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error)
 	return EspionageReport{}, errors.New("espionage report not found for " + coord.String())
 }
 
+func (b *OGame) getDeleteMessagesToken() (string, error) {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"messages"}, "tab": {"20"}, "ajax": {"1"}})
+	tokenM := regexp.MustCompile(`name='token' value='([^']+)'`).FindSubmatch(pageHTML)
+	if len(tokenM) != 2 {
+		return "", errors.New("token not found")
+	}
+	return string(tokenM[1]), nil
+}
+
 func (b *OGame) deleteMessage(msgID int64) error {
+	token, err := b.getDeleteMessagesToken()
+	if err != nil {
+		return err
+	}
 	payload := url.Values{
 		"messageId": {strconv.FormatInt(msgID, 10)},
 		"action":    {"103"},
 		"ajax":      {"1"},
+		"token":     {token},
 	}
 	by, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
 	if err != nil {
 		return err
 	}
 
-	var res map[string]bool
+	var res map[string]interface{}
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New("unable to find message id " + strconv.FormatInt(msgID, 10))
 	}
-	if val, ok := res[strconv.FormatInt(msgID, 10)]; !ok || !val {
+	if val, ok := res[strconv.FormatInt(msgID, 10)]; ok {
+		if valB, ok := val.(bool); !ok || !valB {
+			return errors.New("unable to find message id " + strconv.FormatInt(msgID, 10))
+		}
+	} else {
 		return errors.New("unable to find message id " + strconv.FormatInt(msgID, 10))
 	}
 	return nil
@@ -4759,13 +4777,18 @@ func (b *OGame) deleteAllMessagesFromTab(tabID int64) error {
 		action: 103
 		ajax: 1
 	*/
+	token, err := b.getDeleteMessagesToken()
+	if err != nil {
+		return err
+	}
 	payload := url.Values{
 		"tabid":     {strconv.FormatInt(tabID, 10)},
 		"messageId": {strconv.FormatInt(-1, 10)},
 		"action":    {"103"},
 		"ajax":      {"1"},
+		"token":     {token},
 	}
-	_, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
+	_, err = b.postPageContent(url.Values{"page": {"messages"}}, payload)
 	return err
 }
 
