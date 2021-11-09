@@ -2263,7 +2263,13 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 
 	if vals.Get("cp") == "" {
 		if cfg.ChangePlanet != 0 {
-			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+			celestials := b.getCachedCelestials()
+			for _, celestial := range celestials {
+				if celestial.GetID() == cfg.ChangePlanet {
+					vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+					break
+				}
+			}
 		}
 	}
 
@@ -2347,7 +2353,13 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 
 	if vals.Get("cp") == "" {
 		if cfg.ChangePlanet != 0 {
-			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+			celestials := b.getCachedCelestials()
+			for _, celestial := range celestials {
+				if celestial.GetID() == cfg.ChangePlanet {
+					vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+					break
+				}
+			}
 		}
 	}
 
