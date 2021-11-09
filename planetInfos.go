@@ -19,6 +19,7 @@ type SystemInfos struct {
 		Darkmatter  int64
 		HasAsteroid bool
 	} `gorm:"embedded;embeddedPrefix:events_"`
+	OverlayToken string
 }
 
 // Galaxy returns galaxy info

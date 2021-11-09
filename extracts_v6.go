@@ -1677,6 +1677,13 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 	if err := json.Unmarshal(pageHTML, &tmp); err != nil {
 		return res, ErrNotLogged
 	}
+
+	overlayTokenRgx := regexp.MustCompile(`data-overlay-token="([^"]+)"`)
+	m := overlayTokenRgx.FindStringSubmatch(tmp.Galaxy)
+	if len(m) == 2 {
+		res.OverlayToken = m[1]
+	}
+
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
 	res.galaxy = ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
 	res.system = ParseInt(doc.Find("table").AttrOr("data-system", "0"))
