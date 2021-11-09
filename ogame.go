@@ -153,6 +153,7 @@ const defaultUserAgent = "" +
 	"Safari/537.36"
 
 type options struct {
+	DebugGalaxy     bool
 	SkipInterceptor bool
 	SkipRetry       bool
 	ChangePlanet    CelestialID // cp parameter
@@ -160,6 +161,11 @@ type options struct {
 
 // Option functions to be passed to public interface to change behaviors
 type Option func(*options)
+
+// DebugGalaxy option to debug galaxy
+func DebugGalaxy(opt *options) {
+	opt.DebugGalaxy = true
+}
 
 // SkipInterceptor option to skip html interceptors
 func SkipInterceptor(opt *options) {
@@ -2703,7 +2709,13 @@ func (b *OGame) abandon(v interface{}) error {
 		"token":    {token},
 		"password": {b.password},
 	}
-	_, err := b.postPageContent(url.Values{"page": {"planetGiveup"}}, payload)
+	_, err := b.postPageContent(url.Values{
+		"page":      {"ingame"},
+		"component": {"overview"},
+		"action":    {"planetGiveup"},
+		"ajax":      {"1"},
+		"asJson":    {"1"},
+	}, payload)
 	return err
 }
 
@@ -2939,23 +2951,23 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 		return res, errors.New("coordinate not in phalanx range")
 	}
 
-	// Get galaxy planets information, verify coordinate is valid planet (second call to ogame server)
-	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
-	target := planetInfos.Position(coord.Position)
-	if target == nil {
-		return res, errors.New("invalid planet coordinate")
-	}
-	// Ensure you are not scanning your own planet
-	if target.Player.ID == b.Player.PlayerID {
-		return res, errors.New("cannot scan own planet")
-	}
-
-	// Run the phalanx scan (third call to ogame server)
+	// Run the phalanx scan (second & third calls to ogame server)
 	return b.getUnsafePhalanx(moonID, coord)
 }
 
 // getUnsafePhalanx ...
 func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
+	// Get galaxy planets information, verify coordinate is valid planet (call to ogame server)
+	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
+	target := planetInfos.Position(coord.Position)
+	if target == nil {
+		return nil, errors.New("invalid planet coordinate")
+	}
+	// Ensure you are not scanning your own planet
+	if target.Player.ID == b.Player.PlayerID {
+		return nil, errors.New("cannot scan own planet")
+	}
+
 	pageHTML, _ := b.getPageContent(url.Values{
 		"page":     {"phalanx"},
 		"galaxy":   {strconv.FormatInt(coord.Galaxy, 10)},
@@ -2963,6 +2975,7 @@ func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, erro
 		"position": {strconv.FormatInt(coord.Position, 10)},
 		"ajax":     {"1"},
 		"cp":       {strconv.FormatInt(int64(moonID), 10)},
+		"token":    {planetInfos.OverlayToken},
 	})
 	return b.extractor.ExtractPhalanx(pageHTML)
 }
@@ -3661,7 +3674,11 @@ func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	return
 }
 
-func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfos, error) {
+func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error) {
+	var cfg options
+	for _, opt := range opts {
+		opt(&cfg)
+	}
 	var res SystemInfos
 	if galaxy < 1 || galaxy > b.server.Settings.UniverseSize {
 		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.Settings.UniverseSize)
@@ -3674,12 +3691,15 @@ func (b *OGame) galaxyInfos(galaxy, system int64, options ...Option) (SystemInfo
 		"system": {strconv.FormatInt(system, 10)},
 	}
 	vals := url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
-	pageHTML, err := b.postPageContent(vals, payload, options...)
+	pageHTML, err := b.postPageContent(vals, payload, opts...)
 	if err != nil {
 		return res, err
 	}
 	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
 	if err != nil {
+		if cfg.DebugGalaxy {
+			fmt.Println(string(pageHTML))
+		}
 		return res, err
 	}
 	if res.galaxy != galaxy || res.system != system {
@@ -4698,22 +4718,40 @@ func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error)
 	return EspionageReport{}, errors.New("espionage report not found for " + coord.String())
 }
 
+func (b *OGame) getDeleteMessagesToken() (string, error) {
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"messages"}, "tab": {"20"}, "ajax": {"1"}})
+	tokenM := regexp.MustCompile(`name='token' value='([^']+)'`).FindSubmatch(pageHTML)
+	if len(tokenM) != 2 {
+		return "", errors.New("token not found")
+	}
+	return string(tokenM[1]), nil
+}
+
 func (b *OGame) deleteMessage(msgID int64) error {
+	token, err := b.getDeleteMessagesToken()
+	if err != nil {
+		return err
+	}
 	payload := url.Values{
 		"messageId": {strconv.FormatInt(msgID, 10)},
 		"action":    {"103"},
 		"ajax":      {"1"},
+		"token":     {token},
 	}
 	by, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
 	if err != nil {
 		return err
 	}
 
-	var res map[string]bool
+	var res map[string]interface{}
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New("unable to find message id " + strconv.FormatInt(msgID, 10))
 	}
-	if val, ok := res[strconv.FormatInt(msgID, 10)]; !ok || !val {
+	if val, ok := res[strconv.FormatInt(msgID, 10)]; ok {
+		if valB, ok := val.(bool); !ok || !valB {
+			return errors.New("unable to find message id " + strconv.FormatInt(msgID, 10))
+		}
+	} else {
 		return errors.New("unable to find message id " + strconv.FormatInt(msgID, 10))
 	}
 	return nil
@@ -4739,13 +4777,18 @@ func (b *OGame) deleteAllMessagesFromTab(tabID int64) error {
 		action: 103
 		ajax: 1
 	*/
+	token, err := b.getDeleteMessagesToken()
+	if err != nil {
+		return err
+	}
 	payload := url.Values{
 		"tabid":     {strconv.FormatInt(tabID, 10)},
 		"messageId": {strconv.FormatInt(-1, 10)},
 		"action":    {"103"},
 		"ajax":      {"1"},
+		"token":     {token},
 	}
-	_, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
+	_, err = b.postPageContent(url.Values{"page": {"messages"}}, payload)
 	return err
 }
 
