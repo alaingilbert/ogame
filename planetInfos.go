@@ -19,6 +19,7 @@ type SystemInfos struct {
 		Darkmatter  int64
 		HasAsteroid bool
 	}
+	OverlayToken string
 }
 
 // Galaxy returns galaxy info
