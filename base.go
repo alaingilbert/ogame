@@ -24,7 +24,7 @@ func (b Base) GetRequirements() map[ID]int64 {
 
 // IsAvailable returns either or not the object is available to us
 func (b Base) IsAvailable(t CelestialType, lazyResourcesBuildings LazyResourcesBuildings,
-	lazyFacilities LazyFacilities, lazyResearches LazyResearches, energy int64) bool {
+	lazyFacilities LazyFacilities, lazyResearches LazyResearches, energy int64, characterClass CharacterClass) bool {
 	if t != PlanetType && t != MoonType {
 		return false
 	}
@@ -53,6 +53,11 @@ func (b Base) IsAvailable(t CelestialType, lazyResourcesBuildings LazyResourcesB
 		}
 	}
 	if b.ID == GravitonTechnologyID && energy < 300000 {
+		return false
+	}
+	if (b.ID == ReaperID && characterClass != General) ||
+		(b.ID == PathfinderID && characterClass != Discoverer) ||
+		(b.ID == CrawlerID && characterClass != Collector) {
 		return false
 	}
 	type requirement struct {
