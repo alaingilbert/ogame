@@ -480,7 +480,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	b.language = lang
 	b.playerID = playerID
 
-	b.extractor = NewExtractorV71()
+	b.extractor = NewExtractorV8()
 
 	if client == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{
@@ -1420,7 +1420,9 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 
 func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
-		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
+		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
+			b.extractor = NewExtractorV8()
+		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
 			b.extractor = NewExtractorV71()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.0.0-rc0"))) {
 			b.extractor = NewExtractorV7()
@@ -2144,7 +2146,6 @@ func IsKnowFullPage(vals url.Values) bool {
 		page == PreferencesPage ||
 		page == MessagesPage ||
 		page == ChatPage ||
-
 		page == DefensesPage ||
 		page == SuppliesPage ||
 		page == FacilitiesPage ||

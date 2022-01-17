@@ -24,7 +24,7 @@ func extractIsInVacationFromDocV6(doc *goquery.Document) bool {
 	}
 	u, _ := url.Parse(href)
 	q := u.Query()
-	if q.Get("component") == "preferences" && q.Get("selectedTab") == "3" && q.Get("openGroup") == "0" {
+	if q.Get("page") == "preferences" && q.Get("selectedTab") == "3" && q.Get("openGroup") == "0" {
 		return true
 	}
 	return false
