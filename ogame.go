@@ -1766,6 +1766,10 @@ LOOP:
 			var pck interface{} = string(msg)
 			var out []interface{}
 			_ = json.Unmarshal(msg, &out)
+			if len(out) == 0 {
+				b.error("unknown message received:", string(buf))
+				continue
+			}
 			if name, ok := out[0].(string); ok {
 				arg := out[1]
 				if name == "new bid" {
