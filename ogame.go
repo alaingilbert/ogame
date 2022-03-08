@@ -3682,11 +3682,18 @@ func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	if err != nil {
 		return
 	}
-	out, err = b.extractor.ExtractAttacks(pageHTML)
+	ownCoords := make([]Coordinate, 0)
+	planets := b.GetCachedPlanets()
+	for _, planet := range planets {
+		ownCoords = append(ownCoords, planet.Coordinate)
+		if planet.Moon != nil {
+			ownCoords = append(ownCoords, planet.Moon.Coordinate)
+		}
+	}
+	out, err = b.extractor.ExtractAttacks(pageHTML, ownCoords)
 	if err != nil {
 		return
 	}
-	planets := b.GetCachedPlanets()
 	fixAttackEvents(out, planets)
 	return
 }

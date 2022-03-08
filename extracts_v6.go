@@ -403,7 +403,7 @@ func extractOGameSessionFromDocV6(doc *goquery.Document) string {
 	return sessionMeta.AttrOr("content", "")
 }
 
-func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
+func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error) {
 	attacks := make([]*AttackEvent, 0)
 	out := make([]AttackEvent, 0)
 	if doc.Find("body").Size() == 1 && extractOGameSessionFromDocV6(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {

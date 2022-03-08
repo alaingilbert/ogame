@@ -275,7 +275,7 @@ type Extractor interface {
 	ExtractResources(pageHTML []byte) Resources
 	ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails
 	ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error)
-	ExtractAttacks(pageHTML []byte) ([]AttackEvent, error)
+	ExtractAttacks(pageHTML []byte, ownCoords []Coordinate) ([]AttackEvent, error)
 	ExtractOfferOfTheDay(pageHTML []byte) (int64, string, PlanetResources, Multiplier, error)
 	ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error)
 	ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error)
@@ -318,7 +318,7 @@ type Extractor interface {
 	ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error)
 	ExtractResearchFromDoc(doc *goquery.Document) Researches
 	ExtractOGameSessionFromDoc(doc *goquery.Document) string
-	ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error)
+	ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error)
 	ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources PlanetResources, multiplier Multiplier, err error)
 	ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
 	ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
