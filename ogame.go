@@ -388,11 +388,12 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 		}
 	}
 	var payload struct {
-		Language string `json:"language"`
-		Number   int64  `json:"number"`
+		AccountGroup string `json:"accountGroup"`
+		Locale       string `json:"locale"`
+		Kid          string `json:"kid"`
 	}
-	payload.Language = lang
-	payload.Number = server.Number
+	payload.AccountGroup = server.AccountGroup
+	payload.Locale = "en_GB"
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return newAccount, err
@@ -521,6 +522,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 type Server struct {
 	Language      string
 	Number        int64
+	AccountGroup  string
 	Name          string
 	PlayerCount   int64
 	PlayersOnline int64
