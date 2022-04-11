@@ -3923,15 +3923,12 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int64) error {
 		"type":      {strconv.FormatInt(int64(id), 10)},
 		"cp":        {strconv.FormatInt(int64(celestialID), 10)},
 	}
-
-	// Techs don't have a token
-	if !id.IsTech() {
-		token, err := getToken(b, page, celestialID)
-		if err != nil {
-			return err
-		}
-		vals.Add("token", token)
+	
+	token, err := getToken(b, page, celestialID)
+	if err != nil {
+		return err
 	}
+	vals.Add("token", token)
 
 	if id.IsDefense() || id.IsShip() {
 		var maximumNbr int64 = 99999
@@ -3954,7 +3951,7 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int64) error {
 		return err
 	}
 
-	_, err := b.getPageContent(vals)
+	_, err = b.getPageContent(vals)
 	return err
 }
 
