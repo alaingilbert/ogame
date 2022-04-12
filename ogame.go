@@ -2556,8 +2556,13 @@ func (b *OGame) fetchEventbox() (res eventboxResp, err error) {
 }
 
 func (b *OGame) isUnderAttack() (bool, error) {
-	res, err := b.fetchEventbox()
-	return res.Hostile > 0, err
+	//res, err := b.fetchEventbox()
+	//return res.Hostile > 0, err
+	attacks, err := b.getAttacks()
+	if len(attacks) > 0 {
+		return true, err
+	}
+	return false, err
 }
 
 type resourcesResp struct {
@@ -3671,6 +3676,17 @@ func fixAttackEvents(attacks []AttackEvent, planets []Planet) {
 	}
 }
 
+func detectFriendlyACSonOwnCelestials(attacks []AttackEvent, b *OGame) {
+	for i, attack := range attacks {
+		for _, c := range b.getCachedCelestials() {
+			if !c.GetCoordinate().Equal(attack.Destination) {
+				attacks = append(attacks[:i], attacks[i+1:]...)
+				break
+			}
+		}
+	}
+}
+
 func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	params := url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
 	pageHTML, err := b.getPageContent(params, opts...)
@@ -3681,6 +3697,7 @@ func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	if err != nil {
 		return
 	}
+	detectFriendlyACSonOwnCelestials(out, b)
 	planets := b.GetCachedPlanets()
 	fixAttackEvents(out, planets)
 	return
@@ -3923,7 +3940,7 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int64) error {
 		"type":      {strconv.FormatInt(int64(id), 10)},
 		"cp":        {strconv.FormatInt(int64(celestialID), 10)},
 	}
-	
+
 	token, err := getToken(b, page, celestialID)
 	if err != nil {
 		return err

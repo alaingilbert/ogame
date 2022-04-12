@@ -908,11 +908,12 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]A
 			classes, _ := s.Attr("class")
 			partner := strings.Contains(classes, "partnerInfo")
 
-			td := s.Find("td.countDown")
-			isHostile := td.HasClass("hostile") || td.Find("span.hostile").Size() > 0
-			if !isHostile {
-				return
-			}
+			// Actually it is possible to invite Enemy to ACS and the Enemy get Friendly Attack instead of Hostile Attack
+			// td := s.Find("td.countDown")
+			// isHostile := td.HasClass("hostile") || td.Find("span.hostile").Size() > 0
+			// if !isHostile {
+			// 	return
+			// }
 			missionTypeInt, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
 			arrivalTimeInt, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 			missionType := MissionID(missionTypeInt)
