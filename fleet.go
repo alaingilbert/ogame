@@ -19,5 +19,4 @@ type Fleet struct {
 	BackIn         int64
 	UnionID        int64
 	TargetPlanetID int64
-	Token          string
 }

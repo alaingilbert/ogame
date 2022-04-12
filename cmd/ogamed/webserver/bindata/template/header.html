@@ -1,0 +1,70 @@
+{{define "header"}}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="/public/css/dark/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="/public/css/font-awesome.min.css" />
+        <link rel="stylesheet" type="text/css" href="/public/css/style.css" />
+
+        <script src="/public/js/jquery-3.2.1.min.js"></script>
+        <script src="/public/js/bootstrap.bundle.min.js"></script>
+        <script src="/public/js/lodash.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    </head>
+<body onload="onLoaded();" style="margin-bottom: 30px;">
+<header>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Ogb</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="#">Home</a>
+        </li>
+        <span class="navbar-brand">
+          <i class="fa fa-fw fa-circle home-icon-green" id="botStatus_1" data-toggle="tooltip" title="" data-original-title="Available!"></i>
+        </span>        
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="/empire" id="navEmpireLink">Empire</a></li>
+        <li class="nav-item"><a class="nav-link" href="/settings" id="navsettingsLink">Settings</a></li>
+        <li class="nav-item"><a class="nav-link" href="/scripts" id="navScriptsLink">Scripts</a></li>
+        <li class="nav-item"><a class="nav-link" href="/game/index.php" id="navGameLink">Game</a></li>
+
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Dropdown
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled">Disabled</a>
+        </li>
+      </ul>
+      <form class="d-flex">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+    </div>
+  </div>
+</nav>
+
+</header>
+
+
+{{end}}

@@ -1,0 +1,24 @@
+{{define "settings"}}
+    {{template "header"}}
+    <h1>Settings</h1>
+
+    Hello, {{.}}
+
+    <div>
+        <h2>Credentials</h2>
+        <div>
+            <form method="POST" action="/settings">
+                <input type="text" name="universe" value="{{.Universe}}"/>
+                <input type="text" name="language" value="{{.Language}}"/>
+                <input type="text" name="email" value="{{.Email}}"/>
+                <input type="text" name="password" value="{{.Password}}"/>
+                <input type="text" name="lobbyPioneers" value="{{.LobbyPioneers}}"/>
+                <label class="switch">
+                    <input type="checkbox" name="lobbyPioneers" checked="">
+                    <span class="LobbyPioneers"></span>
+                </label>
+            </form>
+        </div>
+    </div>
+    {{template "footer"}}
+{{end}}

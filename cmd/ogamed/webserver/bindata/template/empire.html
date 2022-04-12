@@ -1,0 +1,547 @@
+{{define "empire"}}
+    {{template "header"}}
+
+<style>
+    .playerInfo                       { background-color: rgba(  0,   0,   0, 0.05); }
+    .playerInfo:nth-child(even)       { background-color: rgba(  0,   0,   0, 0.15); }
+    .playerInfo:hover:nth-child(even) { background-color: rgba(  0,   0,   0, 0.20); }
+    .playerInfo:hover:nth-child(odd)  { background-color: rgba(  0,   0,   0, 0.10); }
+    .resources                        { background-color: rgba(  0,   0,   0, 0.05); }
+    .resources:nth-child(even)        { background-color: rgba(  0,   0,   0, 0.15); }
+    .resources:hover:nth-child(even)  { background-color: rgba(  0,   0,   0, 0.20); }
+    .resources:hover:nth-child(odd)   { background-color: rgba(  0,   0,   0, 0.10); }
+    .ship                             { background-color: rgba(255,   0,   0, 0.05); }
+    .ship:nth-child(even)             { background-color: rgba(255,   0,   0, 0.15); }
+    .ship:hover:nth-child(odd)        { background-color: rgba(255,   0,   0, 0.10); }
+    .ship:hover:nth-child(even)       { background-color: rgba(255,   0,   0, 0.20); }
+    .defense                          { background-color: rgba(  0, 255,   0, 0.05); }
+    .defense:nth-child(even)          { background-color: rgba(  0, 255,   0, 0.15); }
+    .defense:hover:nth-child(even)    { background-color: rgba(  0, 255,   0, 0.20); }
+    .defense:hover:nth-child(odd)     { background-color: rgba(  0, 255,   0, 0.10); }
+    .facilities                       { background-color: rgba(  0,   0, 255, 0.05); }
+    .facilities:nth-child(even)       { background-color: rgba(  0,   0, 255, 0.15); }
+    .facilities:hover:nth-child(even) { background-color: rgba(  0,   0, 255, 0.20); }
+    .facilities:hover:nth-child(odd)  { background-color: rgba(  0,   0, 255, 0.10); }
+    .last-of-group {
+        color: #666;
+    }
+    #empireTable td:first-child {
+        border-left: 1px solid #aaa;
+    }
+    #empireTable td {
+        font-size: 11px;
+        border-right: 1px solid #aaa;
+        padding: 0px 5px;
+    }
+
+    .header {
+        border-top: 1px solid #454545;
+        border-bottom: 1px solid #454545;
+    }
+
+    .header .sign:after{
+        content:"▲";
+        display:inline-block;
+    }
+    .header.expand .sign:after{
+        content:"▼";
+    }
+
+</style>
+<!-- PAGE CONTENT -->
+<div id="app">
+	<div>
+		<div class="pl-2 mt-2" style="overflow: auto; white-space: nowrap;">
+			<table class="mb-5">
+				<tbody>
+					<tr>
+						<td class="align-top">
+                            <table style="font-size: 11px;">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2">
+                                            <strong>{{.Bot.Player.PlayerName}}</strong>
+                                        </td>
+                                    </tr>
+                                    <tr class="playerInfo">
+                                        <td>Points:</td>
+                                        <td class="text-right">{{.Bot.Player.Points}}</td>
+                                    </tr>
+                                    <tr class="playerInfo">
+                                        <td>Rank:</td>
+                                        <td class="text-right">{{.Bot.Player.Rank}}/{{.Bot.Player.Total}}</td>
+                                    </tr>
+                                    <tr class="playerInfo">
+                                        <td>Honour points:</td>
+                                        <td class="text-right">{{.Bot.Player.HonourPoints}}</td>
+                                    </tr>
+                                    {{range $k, $v := .Technologies}}
+                                        <tr class="playerInfo">
+                                            <td>{{$v.GetName}}:</td>
+                                            <td class="text-right">{{$.DB.Researches.ByID $v.GetID}}</td>
+                                        </tr>
+                                    {{end}}
+                                </tbody>
+                            </table>
+                        </td>
+							<td valign="top">
+								<a href="?type=all">All</a> |
+								<a href="?type=planets">Planets</a> |
+								<a href="?type=moons">Moons</a>
+								<table id="empireTable">
+									<thead></thead>
+									<tbody>
+										<tr class="empire-tr">
+											<td></td>
+											<td class="text-center" style="font-size: 20px;">
+												<strong>∑</strong>
+											</td>
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                <td style="padding-bottom: 3px; padding-top: 3px; min-width: 125px;">
+                                                    <a href="/empire/{{$v.ID}}" class="font-weight-bold">
+
+                                                    <div style="width: 30px; height: 30px;" class="mr-2 float-left text-center">
+                                                        <div title="" data-toggle="tooltip" data-original-title="{{$v.Fields.Built}}/{{$v.Fields.Total}}">
+                                                             <img style="height: 30px; width: 30px; background-color: #000000; border-radius: 50%;" src="{{$v.Img}}" alt="">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="float-left" style="font-size: 11px;">
+                                                        {{$v.Name}}
+                                                        <br>
+                                                        {{$v.Coordinate}}
+                                                    </div>
+                                                    <div class="clearfix"/>
+                                                    </a>
+                                                </td>
+
+                                            {{end}}
+                                            <!-- if moon add it -->
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                {{if $v.Moon}}
+                                                    <td style="padding-bottom: 3px; padding-top: 3px; min-width: 125px;">
+                                                        <a href="/empire/{{$v.Moon.ID}}" class="font-weight-bold">
+
+                                                        <div style="width: 30px; height: 30px;" class="mr-2 float-left text-center">
+                                                            <div title="" data-toggle="tooltip" data-original-title="{{$v.Moon.Fields.Built}}/{{$v.Moon.Fields.Total}}">
+                                                                <img style="height: 30px; width: 30px; background-color: #000000; border-radius: 50%;" src="{{$v.Moon.Img}}" alt="">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="float-left" style="font-size: 11px;">
+                                                            {{$v.Moon.Name}}
+                                                            <br>
+                                                            {{$v.Moon.Coordinate}}
+                                                        </div>
+                                                        <div class="clearfix"/>
+                                                        </a>
+                                                    </td>
+                                                {{end}}
+                                            {{end}}
+                                            <td class="text-center" style="font-size: 20px;">
+                                                <strong>∑</strong>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        </tbody>
+                                    <tbody id="resources">
+                                        <tr class="header expand">
+                                            <td colspan="18">
+                                                <span class="sign"/> Resources</td>
+                                        </tr>
+                                        <tr class="resources ">
+                                            <td>Fields                 </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                <td class="text-center font-weight-bold">{{$v.Fields.Built}} / {{$v.Fields.Total}}</td>
+                                            {{end}}
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                {{if $v.Moon}}
+                                                    <td class="text-center font-weight-bold">{{$v.Moon.Fields.Built}} / {{$v.Moon.Fields.Total}}</td>
+                                                {{end}}
+                                            {{end}}
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Fields    </td>
+                                        </tr>
+                                        <tr class="resources ">
+                                            <td>Metal</td>
+                                            <td class="text-center font-weight-bold">{{(index .ResourcesIn 0).Metal}}</td>
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                <td class="text-center font-weight-bold">{{(index $.ResourcesIn $v.ID).Metal}}</td>
+                                            {{end}}
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                {{if $v.Moon}}
+                                                    <td class="text-center font-weight-bold">{{(index $.ResourcesIn $v.Moon.ID).Metal}}</td>
+                                                {{end}}
+                                            {{end}}
+                                            <td class="text-center font-weight-bold">{{(index .ResourcesIn 0).Metal}}</td>
+                                            <td>Metal</td>
+                                        </tr>
+                                        <tr class="resources ">
+                                            <td>Crystal                </td>
+                                            <td class="text-center font-weight-bold">{{(index .ResourcesIn 0).Crystal}}</td>
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                <td class="text-center font-weight-bold">{{(index $.ResourcesIn $v.ID).Crystal}}</td>
+                                            {{end}}
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                {{if $v.Moon}}
+                                                    <td class="text-center font-weight-bold">{{(index $.ResourcesIn $v.Moon.ID).Crystal}}</td>
+                                                {{end}}
+                                            {{end}}
+                                            <td class="text-center font-weight-bold">{{(index .ResourcesIn 0).Crystal}}</td>
+                                            <td>Crystal   </td>
+                                        </tr>
+                                        <tr class="resources ">
+                                            <td>Deuterium              </td>
+                                            <td class="text-center font-weight-bold">{{(index .ResourcesIn 0).Deuterium}}</td>
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                <td class="text-center font-weight-bold">{{(index $.ResourcesIn $v.ID).Deuterium}}</td>
+                                            {{end}}
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                {{if $v.Moon}}
+                                                    <td class="text-center font-weight-bold">{{(index $.ResourcesIn $v.Moon.ID).Deuterium}}</td>
+                                                {{end}}
+                                            {{end}}
+                                            <td class="text-center font-weight-bold">{{(index .ResourcesIn 0).Deuterium}}</td>
+                                            <td>Deuterium </td>
+                                        </tr>
+                                        <tr class="resources ">
+                                            <td>Energy                 </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                <td class="text-center font-weight-bold">{{(index $.ResourcesIn $v.ID).Energy}}</td>
+                                            {{end}}
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                {{if $v.Moon}}
+                                                    <td class="text-center font-weight-bold">{{(index $.ResourcesIn $v.Moon.ID).Energy}}</td>
+                                                {{end}}
+                                            {{end}}
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Energy    </td>
+                                        </tr>
+                                        <tr class="resources last-of-group">
+                                            <td>Updated at</td>
+                                            <td class="text-center"></td>
+                                            {{range $k, $v := .Bot.GetCachedCelestials}}
+                                                <td class="text-center">{{(index $.DB.Activities $v.GetID)}}</td>
+                                            {{end}}
+                                            <td class="text-center"></td>
+                                            <td>Updated at</td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody id="supplies">
+                                        <tr class="header expand">
+                                            <td colspan="18">
+                                                <span class="sign"/> Supplies</td>
+                                        </tr>
+
+                                        {{range $k, $v := .Buildings}}
+                                            {{if $v.GetID.IsResourceBuilding}}
+                                                <tr class="supplies">
+                                                    <td>{{$v.GetName}}</td>
+                                                    <td class="text-center font-weight-bold">{{(index $.DB.ResourcesBuildings 0).ByID $v.GetID}}</td>
+                                                    {{range $x, $y := $.Bot.GetCachedPlanets}}
+                                                        <td class="text-center font-weight-bold">{{(index $.DB.ResourcesBuildings $y.ID).ByID $v.GetID}}</td>
+                                                    {{end}}
+
+                                                    {{range $x, $y := $.Bot.GetCachedPlanets}}
+                                                        {{if $y.Moon}}
+                                                            <td class="text-center font-weight-bold">{{(index $.DB.ResourcesBuildings $y.Moon.ID).ByID $v.GetID}}</td>
+                                                        {{end}}
+                                                    {{end}}
+                                                    <td class="text-center font-weight-bold">{{(index $.DB.ResourcesBuildings 0).ByID $v.GetID}}</td>
+                                                    <td>{{$v.GetName}}</td>
+                                                </tr>
+                                            {{else}}
+                                            {{end}}
+                                        {{end}}
+
+                                        <tr class="resources last-of-group">
+                                            <td>Updated at</td>
+                                            <td class="text-center                                                               "/>
+                                            {{range $k, $v := .Bot.GetCachedCelestials}}
+                                                <td class="text-center">{{(index $.DB.Activities $v.GetID)}}</td>
+                                            {{end}}
+                                            <td class="text-center                                                               "/>
+                                            <td>Updated at</td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody id="facilities">
+                                        <tr class="header expand">
+                                            <td colspan="18">
+                                                <span class="sign"/> Facilities</td>
+                                        </tr>
+
+                                        {{range $k, $v := .Buildings}}
+                                            {{if $v.GetID.IsFacility}}
+                                                <tr class="facilities">
+                                                    <td>{{$v.GetName}}</td>
+                                                    <td class="text-center font-weight-bold">{{(index $.DB.Facilities 0).ByID $v.GetID}}</td>
+                                                    {{range $x, $y := $.Bot.GetCachedPlanets}}
+                                                        <td class="text-center font-weight-bold">{{(index $.DB.Facilities $y.ID).ByID $v.GetID}}</td>
+                                                    {{end}}
+
+                                                    {{range $x, $y := $.Bot.GetCachedPlanets}}
+                                                        {{if $y.Moon}}
+                                                            <td class="text-center font-weight-bold">{{(index $.DB.Facilities $y.Moon.ID).ByID $v.GetID}}</td>
+                                                        {{end}}
+                                                    {{end}}
+                                                    <td class="text-center font-weight-bold">{{(index $.DB.Facilities 0).ByID $v.GetID}}</td>
+                                                    <td>{{$v.GetName}}</td>
+                                                </tr>
+                                            {{else}}
+                                            {{end}}
+                                        {{end}}
+
+                                        <tr class="facilities last-of-group">
+                                            <td>Updated at</td>
+                                            <td class="text-center                                                               "/>
+                                            {{range $k, $v := .Bot.GetCachedCelestials}}
+                                                <td class="text-center">{{(index $.DB.Activities $v.GetID)}}</td>
+                                            {{end}}
+                                            <td class="text-center                                                               "/>
+                                            <td>Updated at</td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody id="defenses">
+                                        <tr class="header expand">
+                                            <td colspan="18">
+                                                <span class="sign"/> Defenses</td>
+                                        </tr>
+
+                                        {{range $k, $v := .Defenses}}
+                                            <tr class="defense">
+                                                <td>{{$v.GetName}}</td>
+                                                <td class="text-center font-weight-bold">{{(index $.DB.DefensesInfos 0).ByID $v.GetID}}</td>
+                                                {{range $x, $y := $.Bot.GetCachedPlanets}}
+                                                    <td class="text-center font-weight-bold">{{(index $.DB.DefensesInfos $y.ID).ByID $v.GetID}}</td>
+                                                {{end}}
+
+                                                {{range $x, $y := $.Bot.GetCachedPlanets}}
+                                                    {{if $y.Moon}}
+                                                        <td class="text-center font-weight-bold">{{(index $.DB.DefensesInfos $y.Moon.ID).ByID $v.GetID}}</td>
+                                                    {{end}}
+                                                {{end}}
+                                                <td class="text-center font-weight-bold">{{(index $.DB.DefensesInfos 0).ByID $v.GetID}}</td>
+                                                <td>{{$v.GetName}}</td>
+                                            </tr>
+                                        {{end}}
+                                        <tr class="defense last-of-group">
+                                            <td>Updated at</td>
+                                            <td class="text-center                                                               "/>
+                                            <td class="text-center                                                               ">Sep 29 19:18</td>
+                                            <td class="text-center                                                               "/>
+                                            <td>Updated at</td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody id="ships">
+                                        <tr class="header expand">
+                                            <td colspan="18">
+                                                <span class="sign"/> Ships</td>
+                                        </tr>
+
+                                        {{range $k, $v := .Ships}}
+                                            <tr class="ship">
+                                                <td>{{$v.GetName}}</td>
+                                                <td class="text-center font-weight-bold">{{(index $.DB.ShipsInfos 0).ByID $v.GetID}}</td>
+                                                {{range $x, $y := $.Bot.GetCachedPlanets}}
+                                                    <td class="text-center font-weight-bold">{{(index $.DB.ShipsInfos $y.ID).ByID $v.GetID}}</td>
+                                                {{end}}
+
+                                                {{range $x, $y := $.Bot.GetCachedPlanets}}
+                                                    {{if $y.Moon}}
+                                                        <td class="text-center font-weight-bold">{{(index $.DB.ShipsInfos $y.Moon.ID).ByID $v.GetID}}</td>
+                                                    {{end}}
+                                                {{end}}
+                                                <td class="text-center font-weight-bold">{{(index $.DB.ShipsInfos 0).ByID $v.GetID}}</td>
+                                                <td>{{$v.GetName}}</td>
+                                            </tr>
+                                        {{end}}
+
+                                        <tr class="ship last-of-group">
+                                            <td>Updated at</td>
+                                            <td class="text-center                                                               "/>
+                                            <td class="text-center                                                               ">Sep 29 19:18</td>
+                                            <td class="text-center                                                               "/>
+                                            <td>Updated at</td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody id="settings">
+                                        <tr class="header expand">
+                                            <td colspan="18">
+                                                <span class="sign"/> Settings</td>
+                                        </tr>
+                                        <tr class="resources">
+                                            <td>Metal setting           </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td class="text-center font-weight-bold">100%</td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Metal setting           </td>
+                                        </tr>
+                                        <tr class="resources">
+                                            <td>Crystal setting         </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td class="text-center font-weight-bold">100%</td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Crystal setting         </td>
+                                        </tr>
+                                        <tr class="resources">
+                                            <td>Deut synt setting       </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td class="text-center font-weight-bold">100%</td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Deut synt setting       </td>
+                                        </tr>
+                                        <tr class="resources">
+                                            <td>Solar plant setting     </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td class="text-center font-weight-bold">100%</td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Solar plant setting     </td>
+                                        </tr>
+                                        <tr class="resources">
+                                            <td>Fusion reactor setting  </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td class="text-center" style="color: #666;">0%</td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Fusion reactor setting  </td>
+                                        </tr>
+                                        <tr class="resources">
+                                            <td>Solar sat setting       </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td class="text-center font-weight-bold">100%</td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Solar sat setting       </td>
+                                        </tr>
+                                        <tr class="resources">
+                                            <td>Crawler setting         </td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td class="text-center font-weight-bold">100%</td>
+                                            <td class="text-center" style="color: #666;">-</td>
+                                            <td>Crawler setting         </td>
+                                        </tr>
+                                        <tr class="resources last-of-group">
+                                            <td>Updated at</td>
+                                            <td class="text-center                                                               "/>
+                                            <td class="text-center                                                               ">Sep 29 19:18</td>
+                                            <td class="text-center                                                               "/>
+                                            <td>Updated at</td>
+                                        </tr>
+                                    </tbody>
+
+									<tbody>
+										<tr class="empire-tr">
+											<td></td>
+											<td class="text-center" style="font-size: 20px;">
+												<strong>∑</strong>
+											</td>
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                <td style="padding-bottom: 3px; padding-top: 3px; min-width: 125px;">
+                                                    <a href="/empire/{{$v.ID}}" class="font-weight-bold">
+
+                                                    <div style="width: 30px; height: 30px;" class="mr-2 float-left text-center">
+                                                        <div title="" data-toggle="tooltip" data-original-title="{{$v.Fields.Built}}/{{$v.Fields.Total}}">
+                                                             <img style="height: 30px; width: 30px; background-color: #000000; border-radius: 50%;" src="{{$v.Img}}" alt="">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="float-left" style="font-size: 11px;">
+                                                        {{$v.Name}}
+                                                        <br>
+                                                        {{$v.Coordinate}}
+                                                    </div>
+                                                    <div class="clearfix"/>
+                                                    </a>
+                                                </td>
+
+                                            {{end}}
+                                            <!-- if moon add it -->
+                                            {{range $k, $v := .Bot.GetCachedPlanets}}
+                                                {{if $v.Moon}}
+                                                    <td style="padding-bottom: 3px; padding-top: 3px; min-width: 125px;">
+                                                        <a href="/empire/{{$v.Moon.ID}}" class="font-weight-bold">
+
+                                                        <div style="width: 30px; height: 30px;" class="mr-2 float-left text-center">
+                                                            <div title="" data-toggle="tooltip" data-original-title="{{$v.Moon.Fields.Built}}/{{$v.Moon.Fields.Total}}">
+                                                                <img style="height: 30px; width: 30px; background-color: #000000; border-radius: 50%;" src="{{$v.Moon.Img}}" alt="">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="float-left" style="font-size: 11px;">
+                                                            {{$v.Moon.Name}}
+                                                            <br>
+                                                            {{$v.Moon.Coordinate}}
+                                                        </div>
+                                                        <div class="clearfix"/>
+                                                        </a>
+                                                    </td>
+                                                {{end}}
+                                            {{end}}
+                                            <td class="text-center" style="font-size: 20px;">
+                                                <strong>∑</strong>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                        </tbody>
+                                        </table>
+                                        </div>
+    </div>
+<script>
+$('#resources .header').click(function() {
+    $(this).toggleClass('expand').nextUntil('tr.header').slideToggle(100, function() {
+        localStorage.setItem('resources-display', $('#resources tr.header').next().is(':hidden'));
+    });
+});
+$('#supplies .header').click(function() {
+    $(this).toggleClass('expand').nextUntil('tr.header').slideToggle(100, function() {
+        localStorage.setItem('supplies-display', $('#supplies tr.header').next().is(':hidden'));
+    });
+});
+$('#facilities .header').click(function() {
+    $(this).toggleClass('expand').nextUntil('tr.header').slideToggle(100, function() {
+        localStorage.setItem('facilities-display', $('#facilities tr.header').next().is(':hidden'));
+    });
+});
+$('#defenses .header').click(function() {
+    $(this).toggleClass('expand').nextUntil('tr.header').slideToggle(100, function() {
+        localStorage.setItem('defenses-display', $('#defenses tr.header').next().is(':hidden'));
+    });
+});
+$('#ships .header').click(function() {
+    $(this).toggleClass('expand').nextUntil('tr.header').slideToggle(100, function() {
+        localStorage.setItem('ships-display', $('#ships tr.header').next().is(':hidden'));
+    });
+});
+$('#settings .header').click(function() {
+    $(this).toggleClass('expand').nextUntil('tr.header').slideToggle(100, function() {
+        localStorage.setItem('settings-display', $('#settings tr.header').next().is(':hidden'));
+    });
+});
+
+if (localStorage.getItem('resources-display') === 'true') {
+    $('#resources tr.header').toggleClass('expand').nextUntil('tr.header').hide();
+}
+if (localStorage.getItem('supplies-display') === 'true') {
+    $('#supplies tr.header').toggleClass('expand').nextUntil('tr.header').hide();
+}
+if (localStorage.getItem('facilities-display') === 'true') {
+    $('#facilities tr.header').toggleClass('expand').nextUntil('tr.header').hide();
+}
+if (localStorage.getItem('defenses-display') === 'true') {
+    $('#defenses tr.header').toggleClass('expand').nextUntil('tr.header').hide();
+}
+if (localStorage.getItem('ships-display') === 'true') {
+    $('#ships tr.header').toggleClass('expand').nextUntil('tr.header').hide();
+}
+if (localStorage.getItem('settings-display') === 'true') {
+    $('#settings tr.header').toggleClass('expand').nextUntil('tr.header').hide();
+}
+</script>
+
+</div>
+
+
+
+<!-- PAGE CONTENT END -->
+    {{template "footer"}}
+{{end}}

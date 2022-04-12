@@ -213,9 +213,6 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	if f.allShips {
 		f.ships, _ = tx.GetShips(f.origin.GetID())
 	}
-	// Don't send SolarSatellite or Crawlers!
-	f.ships.SolarSatellite = 0
-	f.ships.Crawler = 0
 
 	var fuel int64
 	var planetResources Resources

@@ -1,0 +1,33 @@
+{{define "empire_edit"}}
+    {{template "header"}}
+    <div id="app">
+
+{{range $k, $v := .DB.Celestials}}
+    {{$rb := (index $.DB.ResourcesBuildings $v.GetID)}}
+    {{range $.Buildings}}
+        {{.Name}}: {{$rb.ByID .GetID}} <br/>
+    {{end}}
+{{end}}
+
+
+
+
+
+        <button v-on:click="reverseMessage">Reverse Message</button>
+    </div>
+    <script>
+        var app = new Vue({
+        delimiters: ['${', '}'],
+        el: '#app',
+            data: {
+                //message: '{{.Buildings}}'
+            },
+            methods: {
+                reverseMessage: function () {
+                this.message = this.message.split('').reverse().join('')
+                }
+            }
+        })
+    </script>
+    {{template "footer"}}
+{{end}}

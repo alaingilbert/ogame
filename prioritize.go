@@ -230,10 +230,10 @@ func (b *Prioritize) GetFleets(opts ...Option) ([]Fleet, Slots) {
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
-func (b *Prioritize) GetFleetsFromEventList(opts ...Option) []Fleet {
+func (b *Prioritize) GetFleetsFromEventList() []Fleet {
 	b.begin("GetFleets")
 	defer b.done()
-	return b.bot.getFleetsFromEventList(opts...)
+	return b.bot.getFleetsFromEventList()
 }
 
 // CancelFleet cancel a fleet
@@ -701,11 +701,4 @@ func (b *Prioritize) OfferBuyMarketplace(itemID interface{}, quantity, priceType
 	b.begin("OfferBuyMarketplace")
 	defer b.done()
 	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)
-}
-
-// GetCachedData gets all Cached Data
-func (b *Prioritize) GetCachedData() Data {
-	b.begin("GetCachedData")
-	defer b.done()
-	return b.bot.getCachedData()
 }

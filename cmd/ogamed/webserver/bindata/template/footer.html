@@ -1,0 +1,136 @@
+{{define "footer"}}
+    <div id="logs" class="pt-1 pb-1 pl-1 pr-1">
+        <div id="topBorder"></div>
+        <div id="toggleLogs" class="text-center">
+            <i class="fa fa-caret-up"></i>
+        </div>
+        <div id="logsLevel">
+            <select id="logsLevelSelect" style="width: 85px;" onchange="logLevelChanged()">
+                <option value="1">debug</option>
+                <option value="2">info</option>
+                <option value="3">warning</option>
+                <option value="4">error</option>
+            </select>
+        </div>
+        <div id="traffic">
+            RPS: <span id="botRPS">0</span>,
+            Download: <span id="botBytesDownloaded">0 B</span>,
+            Upload: <span id="botBytesUploaded">0 B</span>
+        </div>
+        <div class="data">
+            <div id="initial" style="display: none;">
+              <div>00:00:00 <span style="color: magenta;">DEBUG</span>&nbsp;isResizing</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        logLevel =  0 ;
+
+        if (localStorage.getItem("logsStatus") === 'close') {
+            $('#toggleLogs').html('<i class="fa fa-caret-up"></i>');
+        } else {
+            $('#toggleLogs').html('<i class="fa fa-caret-down"></i>');
+        }
+
+        let toggleLogs = function() {
+            if (localStorage.getItem('logsStatus') === 'close') {
+                var h = parseInt(localStorage.getItem('logsHeight')) || 200;
+                if (h <= 40) {
+                    h = 200;
+                    localStorage.setItem('logsHeight', h.toString());
+                }
+                localStorage.setItem('logsStatus', 'open');
+                $('#logs').css("height", h);
+                $('#app').css("bottom", h);
+                $('#toggleLogs').html('<i class="fa fa-caret-down"></i>');
+                document.body.style.marginBottom = (h+10) + "px";
+            } else {
+                localStorage.setItem('logsStatus', 'close');
+                $('#logs').css("height", 20);
+                $('#app').css("bottom", 20);
+                $('#toggleLogs').html('<i class="fa fa-caret-up"></i>');
+                document.body.style.marginBottom = "30px";
+            }
+            logsData.scrollTop(logsData[0].scrollHeight);
+        };
+
+        let logLevelChanged = function() {
+            var newLogLevel = $('#logsLevelSelect').val();
+            logLevel = newLogLevel; 
+            var formData = new FormData();
+            formData.append('csrf', 'h6Q7lBn9LdDr2zSfMLL5phYxNX5Nglmp');
+            formData.append('logLevel', newLogLevel);
+            $.ajax({url: "/api/v1/log-level", type: 'POST', data: formData, processData: false, contentType: false});
+        };
+
+        Mousetrap.bind('l', toggleLogs);
+
+        $('[data-toggle="tooltip"]').tooltip();
+        $('#toggleLogs').click(toggleLogs);
+
+        var isResizing = false;
+        var hasResized = false;
+        $('#topBorder').click(function() {
+            if (hasResized) {
+                hasResized = false;
+                return;
+            }
+            toggleLogs();
+        });
+        var container = document.getElementById("logs");
+        $('#topBorder').on('mousedown', function (e) {
+            isResizing = true;
+            hasResized = false;
+        });
+        $(document).on('mousemove', function (e) {
+            if (!isResizing) { return; }
+            hasResized = true;
+            var offsetBottom = container.clientHeight - (e.clientY - container.offsetTop);
+            if (offsetBottom < 20) {
+                offsetBottom = 20;
+            }
+            container.style.height = offsetBottom + "px";
+            $('#app').css("bottom", offsetBottom);
+            document.body.style.marginBottom = (offsetBottom+10)+"px";
+            if (offsetBottom <= 20) {
+                localStorage.setItem('logsStatus', 'close');
+            } else {
+                localStorage.setItem('logsStatus', 'open');
+            }
+            localStorage.setItem('logsHeight', offsetBottom.toString());
+        }).on('mouseup', function (e) {
+            isResizing = false;
+        });
+
+        Number.prototype.pad = function (len) {
+            return (new Array(len+1).join("0") + this).slice(-len);
+        };
+        $('#initial').show();
+        let logsData = $('#logs .data');
+        logsData.scrollTop(logsData[0].scrollHeight);
+    </script>
+
+
+<footer class="mt-auto">
+  <p>&copy; 2021</p>
+</footer>
+
+    <script>
+      function onLoaded() {
+      var source = new EventSource("/sse");
+      source.onmessage = function (event) {
+         console.log("OnMessage called: ");
+         console.dir(event);
+         let ogdata =  JSON.parse(event.data);
+         console.log(ogdata);
+         document.getElementById("botBytesDownloaded").innerHTML = ogdata.traffic.In;
+         document.getElementById("botBytesUploaded").innerHTML = ogdata.traffic.Out;
+         document.getElementById("botRPS").innerHTML = ogdata.traffic.RPS;
+      }
+    }
+    </script>
+
+</body>
+</html>
+{{end}}

@@ -3,7 +3,7 @@ package main
 import (
 	"C"
 
-	"github.com/0xE232FE/ogame"
+	"github.com/alaingilbert/ogame"
 )
 
 var bot *ogame.OGame

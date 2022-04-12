@@ -1,0 +1,33 @@
+.table-novpadding tbody tr>td {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+}
+
+[v-cloak] { display: none; }
+
+.smallDate { color: #999; font-size: 12px; }
+
+.popover{
+    max-width: 100%; /* Max Width of the popover (depending on the container!) */
+}
+
+.avatar {
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    box-shadow: 0 0 0 2px #666;
+    position: relative;
+    vertical-align: top;
+    margin-top: 5px;
+    margin-right: 5px;
+    display: inline-block;
+}

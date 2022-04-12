@@ -1,0 +1,26 @@
+{{define "home"}}
+    {{template "header"}}
+    <div id="app">
+          Hello World, ${message}
+        {{range $k, $v := .Buildings}}
+            {{$v.Name}} <br/>
+        {{end}}
+        <button v-on:click="reverseMessage">Reverse Message</button>
+    </div>
+
+    <script>
+        var app = new Vue({
+        delimiters: ['${', '}'],
+        el: '#app',
+            data: {
+                message: '{{.Buildings}}'
+            },
+            methods: {
+                reverseMessage: function () {
+                this.message = this.message.split('').reverse().join('')
+                }
+            }
+        })
+    </script>
+    {{template "footer"}}
+{{end}}

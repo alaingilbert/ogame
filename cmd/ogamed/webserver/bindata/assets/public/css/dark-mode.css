@@ -1,0 +1,28 @@
+[data-theme="dark"] {
+  background-color: #111 !important;
+  color: #eee;
+}
+
+[data-theme="dark"] .bg-light {
+  background-color: #333 !important;
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: #000 !important;
+}
+
+[data-theme="dark"] .bg-black {
+  background-color: #eee !important;
+}
+
+[data-theme="dark"] .list-group-item:not(.active) {
+  background-color: #303030 !important;
+  border: 1px solid #444;
+  color: #eee;
+}
+
+[data-theme="dark"] .form-control {
+  background-color: #303030 !important;
+  border: 1px solid #444;
+  color: #eee;
+}

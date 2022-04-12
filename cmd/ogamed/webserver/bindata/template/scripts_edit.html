@@ -1,0 +1,103 @@
+{{define "scripts"}}
+    {{template "header"}}
+        {{$script := (index $.DB.Scripts $.ScriptName)}}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-*">
+                    <div class="list-group list-group-flush" style="width:200px;">
+                        {{range $k, $v := .DB.Scripts}}
+                            <a class="list-group-item list-group-item-action {{if eq $.ScriptName $k}}active{{else}}{{end}}" href="/scripts?name={{$k}}">{{$k}}</a>
+                            {{if (index $.RunningScripts $k)}}
+                                ({{$k}} is running)
+                            {{end}}
+                        {{end}} 
+                    </div>
+                </div>
+
+                <div class="col">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-*">
+                                <button type="button" class="btn btn-primary" value="Save" id="save">Save</button>
+
+                                {{if (index $.RunningScripts $.ScriptName)}}
+                                    <button type="button" class="btn btn-primary" value="true" id="stop">Stop</button>
+                                {{else}}
+                                    <button type="button" class="btn btn-primary" value="Run" id="run">Run</button>
+                                {{end}}
+
+                            </div>
+
+                            <div class="col">
+                                <input type="email" class="form-control" id="scriptname" name="scriptname" value="{{.ScriptName}}" placeholder="Enter name of Script here ...">
+                            </div>
+
+                        </div>
+                        <div class="row-flex">
+                            <div class="col" style="min-width: 1200px;overflow: hidden;">
+                                <textarea class="form-control" id="code" rows="32" placeholder="Enter Script Code here ...">{{$script.Script}}</textarea>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+	<script type="text/javascript">
+<!--
+    $(document).ready(function() {
+        //$('#code').linedtextarea();
+        $('#stop').click(function() {
+            $.ajax({
+                url: "/scripts",
+                type: "GET",
+                data: {
+					name: $('#scriptname').val(),
+                    stop: $('#stop').val(),
+                },
+                success: function(data) {
+                    location.href = "/scripts?name=" + $('#scriptname').val()
+                },
+                error: function(data) {
+                    alert(data.responseText)
+                }
+            })
+        })
+        $('#save').click(function() {
+            $.ajax({
+                url: "/scripts/save",
+                type: "POST",
+                data: {
+					name: $('#scriptname').val(),
+                    code: $('#code').val(),
+                },
+                success: function(data) {
+                    //Sleep(1000);
+                    location.href = "/scripts?name=" + $('#scriptname').val()
+                },
+                error: function(data) {
+                    alert(data.responseText)
+                }
+            })
+        })
+        $('#run').click(function() {
+            $.ajax({
+                url: "/scripts/run",
+                type: "POST",
+                data: {
+					name: $('#scriptname').val(),
+                    code: $('#code').val(),
+                },
+                success: function(data) {
+                    location.href = "/scripts?name=" + $('#scriptname').val()
+                    //$('#output').text(data)
+                },
+                error: function(data) {
+                    $('#output').text(data.responseText)
+                }
+            })
+        })
+    })
+-->
+	</script>
+    {{template "footer"}}
+{{end}}
