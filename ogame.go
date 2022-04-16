@@ -1559,8 +1559,8 @@ func (b *OGame) setOGameLobby(lobby string) {
 	b.lobby = lobby
 }
 
-// SetGetServerDataFn ...
-func (b *OGame) SetGetServerDataFn(newWrapper func(func() (ServerData, error)) (ServerData, error)) {
+// SetGetServerDataWrapper ...
+func (b *OGame) SetGetServerDataWrapper(newWrapper func(func() (ServerData, error)) (ServerData, error)) {
 	b.getServerDataWrapper = newWrapper
 }
 
