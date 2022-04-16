@@ -92,6 +92,7 @@ type OGame struct {
 	tasksPushCh           chan *item
 	tasksPopCh            chan struct{}
 	loginWrapper          func(func() (bool, error)) error
+	getServerDataWrapper  func(func() (ServerData, error)) (ServerData, error)
 	loginProxyTransport   http.RoundTripper
 	bytesUploaded         int64
 	bytesDownloaded       int64
@@ -470,6 +471,7 @@ func NewWithParams(params Params) (*OGame, error) {
 // NewNoLogin does not auto login.
 func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
 	b := new(OGame)
+	b.getServerDataWrapper = DefaultGetServerDataWrapper
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
 	b.quiet = false
@@ -1393,7 +1395,7 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 	// Get server data
 	start := time.Now()
 	b.server = server
-	serverData, err := b.getServerData()
+	serverData, err := b.getServerDataWrapper(b.getServerData)
 	if err != nil {
 		return err
 	}
@@ -1506,6 +1508,11 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	}
 }
 
+// DefaultGetServerDataWrapper ...
+var DefaultGetServerDataWrapper = func(getServerDataFn func() (ServerData, error)) (ServerData, error) {
+	return getServerDataFn()
+}
+
 // DefaultLoginWrapper ...
 var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
 	_, err := loginFn()
@@ -1550,6 +1557,11 @@ func (b *OGame) setOGameLobby(lobby string) {
 		lobby = Lobby
 	}
 	b.lobby = lobby
+}
+
+// SetGetServerDataFn ...
+func (b *OGame) SetGetServerDataFn(newWrapper func(func() (ServerData, error)) (ServerData, error)) {
+	b.getServerDataWrapper = newWrapper
 }
 
 // SetLoginWrapper ...

@@ -168,6 +168,7 @@ type Wrapper interface {
 	ServerURL() string
 	ServerVersion() string
 	SetLoginWrapper(func(func() (bool, error)) error)
+	SetGetServerDataFn(func(func() (ServerData, error)) (ServerData, error))
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
