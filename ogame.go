@@ -797,7 +797,6 @@ type ServerData struct {
 	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
 	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
 	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
-	TopScore                      int64   `xml:"topScore"`                      // 60259362
 	BonusFields                   int64   `xml:"bonusFields"`                   // 30
 	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
 	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
@@ -811,6 +810,7 @@ type ServerData struct {
 	ResearchDurationDivisor       int64   `xml:"researchDurationDivisor"`       // 2
 	DarkMatterNewAcount           int64   `xml:"darkMatterNewAcount"`           // 8000
 	CargoHyperspaceTechMultiplier int64   `xml:"cargoHyperspaceTechMultiplier"` // 5
+	//TopScore                      int64   `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
 }
 
 // gets the server data from xml api
