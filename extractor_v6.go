@@ -172,13 +172,13 @@ func (e ExtractorV6) ExtractResourceSettings(pageHTML []byte) (ResourceSettings,
 }
 
 // ExtractAttacks ...
-func (e ExtractorV6) ExtractAttacks(pageHTML []byte) ([]AttackEvent, error) {
-	return e.extractAttacks(pageHTML, clockwork.NewRealClock())
+func (e ExtractorV6) ExtractAttacks(pageHTML []byte, ownCoords []Coordinate) ([]AttackEvent, error) {
+	return e.extractAttacks(pageHTML, clockwork.NewRealClock(), ownCoords)
 }
 
-func (e ExtractorV6) extractAttacks(pageHTML []byte, clock clockwork.Clock) ([]AttackEvent, error) {
+func (e ExtractorV6) extractAttacks(pageHTML []byte, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractAttacksFromDoc(doc, clock)
+	return e.ExtractAttacksFromDoc(doc, clock, ownCoords)
 }
 
 // ExtractOfferOfTheDay ...
@@ -451,8 +451,8 @@ func (e ExtractorV6) ExtractOGameSessionFromDoc(doc *goquery.Document) string {
 }
 
 // ExtractAttacksFromDoc ...
-func (e ExtractorV6) ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
-	return extractAttacksFromDocV6(doc, clock)
+func (e ExtractorV6) ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error) {
+	return extractAttacksFromDocV6(doc, clock, ownCoords)
 }
 
 // ExtractOfferOfTheDayFromDoc ...

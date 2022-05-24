@@ -92,6 +92,7 @@ type OGame struct {
 	tasksPushCh           chan *item
 	tasksPopCh            chan struct{}
 	loginWrapper          func(func() (bool, error)) error
+	getServerDataWrapper  func(func() (ServerData, error)) (ServerData, error)
 	loginProxyTransport   http.RoundTripper
 	bytesUploaded         int64
 	bytesDownloaded       int64
@@ -388,11 +389,12 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 		}
 	}
 	var payload struct {
-		Language string `json:"language"`
-		Number   int64  `json:"number"`
+		AccountGroup string `json:"accountGroup"`
+		Locale       string `json:"locale"`
+		Kid          string `json:"kid"`
 	}
-	payload.Language = lang
-	payload.Number = server.Number
+	payload.AccountGroup = server.AccountGroup
+	payload.Locale = "en_GB"
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return newAccount, err
@@ -469,6 +471,7 @@ func NewWithParams(params Params) (*OGame, error) {
 // NewNoLogin does not auto login.
 func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
 	b := new(OGame)
+	b.getServerDataWrapper = DefaultGetServerDataWrapper
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
 	b.quiet = false
@@ -480,7 +483,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	b.language = lang
 	b.playerID = playerID
 
-	b.extractor = NewExtractorV71()
+	b.extractor = NewExtractorV8()
 
 	if client == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{
@@ -521,6 +524,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 type Server struct {
 	Language      string
 	Number        int64
+	AccountGroup  string
 	Name          string
 	PlayerCount   int64
 	PlayersOnline int64
@@ -793,7 +797,6 @@ type ServerData struct {
 	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
 	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
 	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
-	TopScore                      int64   `xml:"topScore"`                      // 60259362
 	BonusFields                   int64   `xml:"bonusFields"`                   // 30
 	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
 	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
@@ -807,6 +810,7 @@ type ServerData struct {
 	ResearchDurationDivisor       int64   `xml:"researchDurationDivisor"`       // 2
 	DarkMatterNewAcount           int64   `xml:"darkMatterNewAcount"`           // 8000
 	CargoHyperspaceTechMultiplier int64   `xml:"cargoHyperspaceTechMultiplier"` // 5
+	//TopScore                      int64   `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
 }
 
 // gets the server data from xml api
@@ -1391,7 +1395,7 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 	// Get server data
 	start := time.Now()
 	b.server = server
-	serverData, err := b.getServerData()
+	serverData, err := b.getServerDataWrapper(b.getServerData)
 	if err != nil {
 		return err
 	}
@@ -1420,7 +1424,9 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 
 func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
-		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
+		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
+			b.extractor = NewExtractorV8()
+		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
 			b.extractor = NewExtractorV71()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.0.0-rc0"))) {
 			b.extractor = NewExtractorV7()
@@ -1502,6 +1508,11 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	}
 }
 
+// DefaultGetServerDataWrapper ...
+var DefaultGetServerDataWrapper = func(getServerDataFn func() (ServerData, error)) (ServerData, error) {
+	return getServerDataFn()
+}
+
 // DefaultLoginWrapper ...
 var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
 	_, err := loginFn()
@@ -1546,6 +1557,11 @@ func (b *OGame) setOGameLobby(lobby string) {
 		lobby = Lobby
 	}
 	b.lobby = lobby
+}
+
+// SetGetServerDataWrapper ...
+func (b *OGame) SetGetServerDataWrapper(newWrapper func(func() (ServerData, error)) (ServerData, error)) {
+	b.getServerDataWrapper = newWrapper
 }
 
 // SetLoginWrapper ...
@@ -1764,6 +1780,10 @@ LOOP:
 			var pck interface{} = string(msg)
 			var out []interface{}
 			_ = json.Unmarshal(msg, &out)
+			if len(out) == 0 {
+				b.error("unknown message received:", string(buf))
+				continue
+			}
 			if name, ok := out[0].(string); ok {
 				arg := out[1]
 				if name == "new bid" {
@@ -2144,7 +2164,6 @@ func IsKnowFullPage(vals url.Values) bool {
 		page == PreferencesPage ||
 		page == MessagesPage ||
 		page == ChatPage ||
-
 		page == DefensesPage ||
 		page == SuppliesPage ||
 		page == FacilitiesPage ||
@@ -2263,7 +2282,13 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 
 	if vals.Get("cp") == "" {
 		if cfg.ChangePlanet != 0 {
-			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+			celestials := b.getCachedCelestials()
+			for _, celestial := range celestials {
+				if celestial.GetID() == cfg.ChangePlanet {
+					vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+					break
+				}
+			}
 		}
 	}
 
@@ -2347,7 +2372,13 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 
 	if vals.Get("cp") == "" {
 		if cfg.ChangePlanet != 0 {
-			vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+			celestials := b.getCachedCelestials()
+			for _, celestial := range celestials {
+				if celestial.GetID() == cfg.ChangePlanet {
+					vals.Set("cp", strconv.FormatInt(int64(cfg.ChangePlanet), 10))
+					break
+				}
+			}
 		}
 	}
 
@@ -3665,11 +3696,18 @@ func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 	if err != nil {
 		return
 	}
-	out, err = b.extractor.ExtractAttacks(pageHTML)
+	ownCoords := make([]Coordinate, 0)
+	planets := b.GetCachedPlanets()
+	for _, planet := range planets {
+		ownCoords = append(ownCoords, planet.Coordinate)
+		if planet.Moon != nil {
+			ownCoords = append(ownCoords, planet.Moon.Coordinate)
+		}
+	}
+	out, err = b.extractor.ExtractAttacks(pageHTML, ownCoords)
 	if err != nil {
 		return
 	}
-	planets := b.GetCachedPlanets()
 	fixAttackEvents(out, planets)
 	return
 }
@@ -3912,14 +3950,11 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int64) error {
 		"cp":        {strconv.FormatInt(int64(celestialID), 10)},
 	}
 
-	// Techs don't have a token
-	if !id.IsTech() {
-		token, err := getToken(b, page, celestialID)
-		if err != nil {
-			return err
-		}
-		vals.Add("token", token)
+	token, err := getToken(b, page, celestialID)
+	if err != nil {
+		return err
 	}
+	vals.Add("token", token)
 
 	if id.IsDefense() || id.IsShip() {
 		var maximumNbr int64 = 99999
@@ -3942,7 +3977,7 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int64) error {
 		return err
 	}
 
-	_, err := b.getPageContent(vals)
+	_, err = b.getPageContent(vals)
 	return err
 }
 

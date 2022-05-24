@@ -35,9 +35,9 @@ func TestMetalMine_EnergyConsumption(t *testing.T) {
 
 func TestMetalMine_IsAvailable(t *testing.T) {
 	mm := newMetalMine()
-	assert.True(t, mm.IsAvailable(PlanetType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0))
-	assert.False(t, mm.IsAvailable(DebrisType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0))
-	assert.False(t, mm.IsAvailable(MoonType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0))
+	assert.True(t, mm.IsAvailable(PlanetType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0, NoClass))
+	assert.False(t, mm.IsAvailable(DebrisType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0, NoClass))
+	assert.False(t, mm.IsAvailable(MoonType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0, NoClass))
 }
 
 func TestDeconstructionPrice(t *testing.T) {

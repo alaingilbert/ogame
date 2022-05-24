@@ -403,7 +403,7 @@ func extractOGameSessionFromDocV6(doc *goquery.Document) string {
 	return sessionMeta.AttrOr("content", "")
 }
 
-func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
+func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error) {
 	attacks := make([]*AttackEvent, 0)
 	out := make([]AttackEvent, 0)
 	if doc.Find("body").Size() == 1 && extractOGameSessionFromDocV6(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
@@ -2001,7 +2001,7 @@ var temperatureRgxStr = `([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|
 var temperatureRgx = regexp.MustCompile(temperatureRgxStr)
 var diameterRgxStr = `([\d.,]+)(?i)(?:km|км|公里|χμ)`
 var diameterRgx = regexp.MustCompile(diameterRgxStr)
-var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]` + diameterRgxStr + ` \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*` + temperatureRgxStr)
+var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]` + `(?:\w+:\s[^\d]+)?` + diameterRgxStr + ` \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*` + temperatureRgxStr)
 var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|χμ|公里) \((\d+)/(\d+)\)`)
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 

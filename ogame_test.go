@@ -1293,7 +1293,7 @@ func TestExtractOfferOfTheDayPrice1(t *testing.T) {
 func TestExtractAttacks(t *testing.T) {
 	clock := clockwork.NewFakeClockAt(time.Date(2016, 8, 23, 17, 48, 13, 0, time.UTC))
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clock)
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clock, nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, "Homeworld", attacks[0].DestinationName)
 	assert.Equal(t, clock.Now().Add(14*time.Minute), attacks[0].ArrivalTime.UTC())
@@ -1302,23 +1302,23 @@ func TestExtractAttacks(t *testing.T) {
 
 func TestExtractAttacksFromFullPage(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_always_events.html")
-	attacks, err := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, err := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.NoError(t, err)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, int64(1), attacks[0].Ships.SmallCargo)
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/overview_active.html")
-	_, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	_, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.EqualError(t, err, ErrEventsBoxNotDisplayed.Error())
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/eventlist_loggedout.html")
-	_, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	_, err = NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.EqualError(t, err, ErrNotLogged.Error())
 }
 
 func TestExtractAttacksPhoneDisplay(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack_phone.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, int64(106734), attacks[0].AttackerID)
 	assert.Equal(t, "", attacks[0].AttackerName, "should not be able to get the name")
@@ -1326,13 +1326,13 @@ func TestExtractAttacksPhoneDisplay(t *testing.T) {
 
 func TestExtractAttacksMeAttacking(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_me_attacking.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 0, len(attacks))
 }
 
 func TestExtractAttacksWithoutShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_attack.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, int64(100771), attacks[0].AttackerID)
 	assert.Equal(t, int64(0), attacks[0].Missiles)
@@ -1341,7 +1341,7 @@ func TestExtractAttacksWithoutShips(t *testing.T) {
 
 func TestExtractAttacksWithShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventList_attack_ships.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, "hammad", attacks[0].AttackerName)
 	assert.Equal(t, int64(107088), attacks[0].AttackerID)
@@ -1359,7 +1359,7 @@ func TestExtractAttacksWithShips(t *testing.T) {
 
 func TestExtractAttacksMoon(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_moon_attacked.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.NotNil(t, attacks[0].Ships)
 	assert.Equal(t, int64(107009), attacks[0].AttackerID)
@@ -1372,7 +1372,7 @@ func TestExtractAttacksMoon(t *testing.T) {
 
 func TestExtractAttacksMoonDestruction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_moon_destruction.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.NotNil(t, attacks[0].Ships)
 	assert.Equal(t, int64(106734), attacks[0].AttackerID)
@@ -1384,7 +1384,8 @@ func TestExtractAttacksMoonDestruction(t *testing.T) {
 
 func TestExtractAttacksWithThousandsShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_attack_thousands.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	ownCoords := make([]Coordinate, 0)
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), ownCoords)
 	assert.Equal(t, 2, len(attacks))
 	assert.Equal(t, int64(1012), attacks[1].Ships.Cruiser)
 	assert.Equal(t, int64(1000), attacks[1].Ships.LargeCargo)
@@ -1392,7 +1393,7 @@ func TestExtractAttacksWithThousandsShips(t *testing.T) {
 
 func TestExtractAttacksUnknownShips(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_unknown_ships_nbr.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, int64(-1), attacks[0].Ships.Cruiser)
 	assert.Equal(t, int64(0), attacks[0].Ships.Destroyer)
@@ -1400,16 +1401,26 @@ func TestExtractAttacksUnknownShips(t *testing.T) {
 
 func TestExtractAttacksACS(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
 	assert.Equal(t, int64(10), attacks[0].Ships.LightFighter)
 	assert.Equal(t, int64(2176), attacks[0].Ships.Battlecruiser)
 }
 
+func TestExtractAttacksACSAttackSelf(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v8.6/en/eventlist_acs_attack_self.html")
+	ownCoords := []Coordinate{{4, 116, 9, PlanetType}}
+	attacks, _ := NewExtractorV71().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), ownCoords)
+	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
+	assert.Equal(t, int64(1), attacks[0].Ships.LightFighter)
+}
+
 func TestExtractAttacksACS_v71(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/eventlist_acs.html")
-	attacks, _ := NewExtractorV71().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	ownCoords := make([]Coordinate, 0)
+	attacks, _ := NewExtractorV71().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), ownCoords)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
 	assert.Equal(t, int64(200), attacks[0].Ships.LightFighter)
@@ -1418,7 +1429,8 @@ func TestExtractAttacksACS_v71(t *testing.T) {
 
 func TestExtractAttacksACS_v72(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.2/en/eventlist_multipleACS.html")
-	attacks, _ := NewExtractorV71().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	ownCoords := make([]Coordinate, 0)
+	attacks, _ := NewExtractorV71().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), ownCoords)
 	assert.Equal(t, 3, len(attacks))
 	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
 	assert.Equal(t, int64(14028), attacks[0].ID)
@@ -1428,7 +1440,7 @@ func TestExtractAttacksACS_v72(t *testing.T) {
 
 func TestExtractAttacksACSMany(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs_multiple.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 3, len(attacks))
 	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
 	assert.Equal(t, int64(2), attacks[0].Ships.LightFighter)
@@ -1443,7 +1455,7 @@ func TestExtractAttacksACSMany(t *testing.T) {
 
 func TestExtractAttacksACS2(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/eventlist_acs2.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 2, len(attacks))
 	assert.Equal(t, GroupedAttack, attacks[0].MissionType)
 	assert.Equal(t, int64(106734), attacks[0].AttackerID)
@@ -1460,7 +1472,7 @@ func TestExtractAttacksACS2(t *testing.T) {
 
 func TestExtractAttacks_spy(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_spy.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, Coordinate{4, 212, 8, PlanetType}, attacks[0].Origin)
 	assert.Equal(t, int64(107009), attacks[0].AttackerID)
@@ -1468,7 +1480,7 @@ func TestExtractAttacks_spy(t *testing.T) {
 
 func TestExtractAttacks1(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/event_list_missile.html")
-	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock())
+	attacks, _ := NewExtractorV6().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), nil)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, int64(1), attacks[0].Missiles)
 	assert.Nil(t, attacks[0].Ships)
@@ -1964,6 +1976,21 @@ func TestExtractPlanets_fieldsFilled(t *testing.T) {
 	assert.Equal(t, int64(17), planets[0].Temperature.Max)
 	assert.Equal(t, int64(188), planets[0].Fields.Built)
 	assert.Equal(t, int64(188), planets[0].Fields.Total)
+	assert.Equal(t, int64(12800), planets[0].Diameter)
+}
+
+func TestExtractPlanetsV9(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v9.0.0/en/overview.html")
+	planets := NewExtractorV8().ExtractPlanets(pageHTMLBytes, nil)
+	assert.Equal(t, 1, len(planets))
+	assert.Equal(t, PlanetID(34071290), planets[0].ID)
+	assert.Equal(t, Coordinate{Galaxy: 4, System: 292, Position: 4, Type: PlanetType}, planets[0].Coordinate)
+	assert.Equal(t, "Homeworld", planets[0].Name)
+	assert.Equal(t, "https://gf2.geo.gfsrv.net/cdn7a/ca5a968aa62c0441a62334221eaa74.png", planets[0].Img)
+	assert.Equal(t, int64(70), planets[0].Temperature.Min)
+	assert.Equal(t, int64(110), planets[0].Temperature.Max)
+	assert.Equal(t, int64(3), planets[0].Fields.Built)
+	assert.Equal(t, int64(163), planets[0].Fields.Total)
 	assert.Equal(t, int64(12800), planets[0].Diameter)
 }
 
@@ -2658,6 +2685,12 @@ func TestExtractEspionageReportV71(t *testing.T) {
 	assert.Equal(t, int64(58452), infos.Crystal)
 	assert.Equal(t, int64(0), infos.Deuterium)
 	assert.Equal(t, Collector, infos.CharacterClass)
+}
+
+func TestExtractEspionageReportV8(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v8.5/en/spy_report.html")
+	infos, _ := NewExtractorV8().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.Equal(t, int64(15), infos.LastActivity)
 }
 
 func TestExtractEspionageReportAllianceClass(t *testing.T) {

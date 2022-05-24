@@ -877,7 +877,7 @@ func extractAllResourcesV71(pageHTML []byte) (out map[CelestialID]Resources, err
 	return
 }
 
-func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]AttackEvent, error) {
+func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error) {
 	attacks := make([]*AttackEvent, 0)
 	out := make([]AttackEvent, 0)
 	if doc.Find("body").Size() == 1 && extractOGameSessionFromDocV6(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
@@ -910,9 +910,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]A
 
 			td := s.Find("td.countDown")
 			isHostile := td.HasClass("hostile") || td.Find("span.hostile").Size() > 0
-			if !isHostile {
-				return
-			}
+			isFriendly := td.HasClass("friendly") || td.Find("span.friendly").Size() > 0
 			missionTypeInt, _ := strconv.ParseInt(s.AttrOr("data-mission-type", ""), 10, 64)
 			arrivalTimeInt, _ := strconv.ParseInt(s.AttrOr("data-arrival-time", ""), 10, 64)
 			missionType := MissionID(missionTypeInt)
@@ -1000,6 +998,24 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock) ([]A
 			}
 
 			if !partner {
+
+				// People invite you to attack your own self, and ogame sees it as friendly.
+				if isFriendly && attack.MissionType == GroupedAttack {
+					found := false
+					for _, ownCoord := range ownCoords {
+						if attack.Destination.Equal(ownCoord) {
+							found = true
+							break
+						}
+					}
+					if found {
+						isHostile = true
+					}
+				}
+
+				if !isHostile {
+					return
+				}
 				attacks = append(attacks, attack)
 			}
 		}
