@@ -67,6 +67,18 @@ var (
 	PlasmaTechnology             = newPlasmaTechnology()
 	ShieldingTechnology          = newShieldingTechnology()
 	WeaponsTechnology            = newWeaponsTechnology()
+	ResidentialSector            = newResidentialSector() // Lifeform
+	BiosphereFarm                = newBiosphereFarm()
+	ResearchCentre               = newResearchCentre()
+	AcademyOfSciences            = newAcademyOfSciences()
+	NeuroCalibrationCentre       = newNeuroCalibrationCentre()
+	HighEnergySmelting           = newHighEnergySmelting()
+	FoodSilo                     = newFoodSilo()
+	FusionPoweredProduction      = newFusionPoweredProduction()
+	Skyscraper                   = newSkyscraper()
+	BiotechLab                   = newBiotechLab()
+	Metropolis                   = newMetropolis()
+	PlanetaryShield              = newPlanetaryShield()
 )
 
 // ObjsStruct structure containing all possible ogame objects
