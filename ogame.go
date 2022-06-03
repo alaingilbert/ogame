@@ -1708,7 +1708,7 @@ func (b *OGame) connectChatV8(host, port string) {
 		b.error("failed to dial websocket:", err)
 		return
 	}
-	_, _ = b.ws.Write([]byte("2probe"))
+	_ = websocket.Message.Send(b.ws, "2probe")
 
 	// Recv msgs
 LOOP:
@@ -1719,11 +1719,11 @@ LOOP:
 		default:
 		}
 
-		var buf = make([]byte, 1024*1024)
+		var buf string
 		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
 			b.error("failed to set read deadline:", err)
 		}
-		n, err := b.ws.Read(buf)
+		err := websocket.Message.Receive(b.ws, &buf)
 		if err != nil {
 			if err == io.EOF {
 				b.error("chat eof:", err)
@@ -1739,49 +1739,48 @@ LOOP:
 			}
 		}
 		for _, clb := range b.wsCallbacks {
-			go clb(buf[0:n])
+			go clb([]byte(buf))
 		}
-		msg := bytes.Trim(buf, "\x00")
-		if bytes.Equal(msg, []byte("3probe")) {
-			_, _ = b.ws.Write([]byte("5"))
-			_, _ = b.ws.Write([]byte("40/chat,"))
-			_, _ = b.ws.Write([]byte(`40/auctioneer,`))
-		} else if bytes.Equal(msg, []byte("2")) {
-			_, _ = b.ws.Write([]byte("3"))
-		} else if regexp.MustCompile(`40/auctioneer,{"sid":"[^"]+"}`).Match(msg) {
+		if buf == "3probe" {
+			_ = websocket.Message.Send(b.ws, "5")
+			_ = websocket.Message.Send(b.ws, "40/chat,")
+			_ = websocket.Message.Send(b.ws, "40/auctioneer,")
+		} else if buf == "2" {
+			_ = websocket.Message.Send(b.ws, "3")
+		} else if regexp.MustCompile(`40/auctioneer,{"sid":"[^"]+"}`).MatchString(buf) {
 			b.debug("got auctioneer sid")
-		} else if regexp.MustCompile(`40/chat,{"sid":"[^"]+"}`).Match(msg) {
+		} else if regexp.MustCompile(`40/chat,{"sid":"[^"]+"}`).MatchString(buf) {
 			b.debug("got chat sid")
-			_, _ = b.ws.Write([]byte(`42/chat,` + strconv.FormatInt(b.sessionChatCounter, 10) + `["authorize","` + b.ogameSession + `"]`))
+			_ = websocket.Message.Send(b.ws, `42/chat,`+strconv.FormatInt(b.sessionChatCounter, 10)+`["authorize","`+b.ogameSession+`"]`)
 			b.sessionChatCounter++
-		} else if regexp.MustCompile(`43/chat,\d+\[true]`).Match(msg) {
+		} else if regexp.MustCompile(`43/chat,\d+\[true]`).MatchString(buf) {
 			b.debug("chat connected")
-		} else if regexp.MustCompile(`43/chat,\d+\[false]`).Match(msg) {
+		} else if regexp.MustCompile(`43/chat,\d+\[false]`).MatchString(buf) {
 			b.error("Failed to connect to chat")
-		} else if bytes.HasPrefix(msg, []byte(`42/chat,["chat",`)) {
-			payload := bytes.TrimPrefix(msg, []byte(`42/chat,["chat",`))
-			payload = bytes.TrimSuffix(payload, []byte(`]`))
+		} else if strings.HasPrefix(buf, `42/chat,["chat",`) {
+			payload := strings.TrimPrefix(buf, `42/chat,["chat",`)
+			payload = strings.TrimSuffix(payload, `]`)
 			var chatMsg ChatMsg
-			if err := json.Unmarshal(payload, &chatMsg); err != nil {
+			if err := json.Unmarshal([]byte(payload), &chatMsg); err != nil {
 				b.error("Unable to unmarshal chat payload", err, payload)
 				continue
 			}
 			for _, clb := range b.chatCallbacks {
 				clb(chatMsg)
 			}
-		} else if regexp.MustCompile(`^\d+/auctioneer`).Match(msg) {
+		} else if regexp.MustCompile(`^\d+/auctioneer`).MatchString(buf) {
 			// 42/auctioneer,["timeLeft","<span style=\"color:#99CC00;\"><b>approx. 30m</b></span> remaining until the auction ends"] // every minute
 			// 42/auctioneer,["timeLeft","Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">117</span>"]
 			// 42/auctioneer,["new bid",{"player":{"id":219657,"name":"Payback","link":"https://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"sum":5000,"price":6000,"bids":5,"auctionId":"42894"}]
 			// 42/auctioneer,["new auction",{"info":"<span style=\"color:#99CC00;\"><b>approx. 35m</b></span> remaining until the auction ends","item":{"uuid":"0968999df2fe956aa4a07aea74921f860af7d97f","image":"55d4b1750985e4843023d7d0acd2b9bafb15f0b7","rarity":"rare"},"oldAuction":{"item":{"uuid":"3c9f85221807b8d593fa5276cdf7af9913c4a35d","imageSmall":"286f3eaf6072f55d8858514b159d1df5f16a5654","rarity":"common"},"time":"20.05.2021 08:42:07","bids":5,"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"}},"auctionId":42895}]
 			// 42/auctioneer,["auction finished",{"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"bids":5,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1072</span>","time":"08:42"}]
-			parts := bytes.SplitN(msg, []byte(","), 2)
+			parts := strings.SplitN(buf, ",", 2)
 			msg := parts[1]
-			var pck interface{} = string(msg)
+			var pck interface{} = msg
 			var out []interface{}
-			_ = json.Unmarshal(msg, &out)
+			_ = json.Unmarshal([]byte(msg), &out)
 			if len(out) == 0 {
-				b.error("unknown message received:", string(buf))
+				b.error("unknown message received:", buf)
 				continue
 			}
 			if name, ok := out[0].(string); ok {
@@ -1851,7 +1850,7 @@ LOOP:
 				clb(pck)
 			}
 		} else {
-			b.error("unknown message received:", string(buf))
+			b.error("unknown message received:", buf)
 			time.Sleep(time.Second)
 		}
 	}
@@ -2092,7 +2091,7 @@ func (b *OGame) ReconnectChat() bool {
 	if b.ws == nil {
 		return false
 	}
-	_, _ = b.ws.Write([]byte("1::/chat"))
+	_ = websocket.Message.Send(b.ws, "1::/chat")
 	return true
 }
 
