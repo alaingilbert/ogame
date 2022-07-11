@@ -519,7 +519,7 @@ func Clamp(val, min, max int64) int64 {
 // GetFleetSpeedForMission ...
 func GetFleetSpeedForMission(isv81 bool, serverData ServerData, missionID MissionID) int64 {
 	if isv81 {
-		if missionID == Attack || missionID == GroupedAttack || missionID == Destroy {
+		if missionID == Attack || missionID == GroupedAttack || missionID == Destroy || missionID == MissileAttack || missionID == RecycleDebrisField {
 			return serverData.SpeedFleetWar
 		}
 		return serverData.SpeedFleetPeaceful
