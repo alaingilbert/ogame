@@ -1654,7 +1654,7 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 }
 
 func (b *OGame) connectChat(host, port string) {
-	if b.IsV8() {
+	if b.IsV8() || b.IsV9() {
 		b.connectChatV8(host, port)
 	} else {
 		b.connectChatV7(host, port)
@@ -3857,6 +3857,11 @@ func (b *OGame) IsV7() bool {
 // IsV8 ...
 func (b *OGame) IsV8() bool {
 	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '8'
+}
+
+// IsV9 ...
+func (b *OGame) IsV9() bool {
+	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '9'
 }
 
 // IsV81 ...
