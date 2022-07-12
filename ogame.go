@@ -2949,7 +2949,7 @@ func CalcFlightTime(origin, destination Coordinate, universeSize, nbSystems int6
 // CalcFlightTime calculates the flight time and the fuel consumption
 func (b *OGame) CalcFlightTime(origin, destination Coordinate, speed float64, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
 	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
-		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(b.IsV81(), b.serverData, missionID), ships,
+		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(b.serverData, missionID), ships,
 		b.GetCachedResearch(), b.characterClass)
 }
 
@@ -3864,11 +3864,6 @@ func (b *OGame) IsV9() bool {
 	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '9'
 }
 
-// IsV81 ...
-func (b *OGame) IsV81() bool {
-	return len(b.ServerVersion()) > 0 && strings.HasPrefix(b.ServerVersion(), "8.1")
-}
-
 func getToken(b *OGame, page string, celestialID CelestialID) (string, error) {
 	pageHTML, _ := b.getPage(page, celestialID)
 	rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
@@ -4340,7 +4335,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsV8() {
+	if b.IsV8() || b.IsV9() {
 		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	}
 	if len(tokenM) != 2 {
@@ -4415,7 +4410,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	newResources.Deuterium = MaxInt(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
-	if b.IsV8() {
+	if b.IsV8() || b.IsV9() {
 		payload.Set("token", checkRes.NewAjaxToken)
 	}
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))

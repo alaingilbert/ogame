@@ -550,7 +550,7 @@ func (b *Prioritize) FlightTime(origin, destination Coordinate, speed Speed, shi
 	researches := b.bot.getCachedResearch()
 	return CalcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
 		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(b.bot.IsV81(), b.bot.serverData, missionID), ships, researches, b.bot.characterClass)
+		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, b.bot.characterClass)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
