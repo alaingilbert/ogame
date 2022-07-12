@@ -27,6 +27,32 @@ func (b LfBuildings) Lazy() LazyLfBuildings {
 
 // ByID gets the facility level by facility id
 func (b LfBuildings) ByID(id ID) int64 {
+	switch id {
+	case ResidentialSectorID:
+		return b.ResidentialSector
+	case BiosphereFarmID:
+		return b.BiosphereFarm
+	case ResearchCentreID:
+		return b.ResearchCentre
+	case AcademyOfSciencesID:
+		return b.AcademyOfSciences
+	case NeuroCalibrationCentreID:
+		return b.NeuroCalibrationCentre
+	case HighEnergySmeltingID:
+		return b.HighEnergySmelting
+	case FoodSiloID:
+		return b.FoodSilo
+	case FusionPoweredProductionID:
+		return b.FusionPoweredProduction
+	case SkyscraperID:
+		return b.Skyscraper
+	case BiotechLabID:
+		return b.BiotechLab
+	case MetropolisID:
+		return b.Metropolis
+	case PlanetaryShieldID:
+		return b.PlanetaryShield
+	}
 	return 0
 }
 
