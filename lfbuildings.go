@@ -25,7 +25,7 @@ func (b LfBuildings) Lazy() LazyLfBuildings {
 	return func() LfBuildings { return b }
 }
 
-// ByID gets the facility level by facility id
+// ByID gets the lfBuilding level by lfBuilding id
 func (b LfBuildings) ByID(id ID) int64 {
 	switch id {
 	case ResidentialSectorID:
