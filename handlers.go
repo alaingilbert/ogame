@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -1355,13 +1356,14 @@ func GetCaptchaHandler(c echo.Context) error {
 	if err != nil {
 		return c.HTML(http.StatusOK, err.Error())
 	}
-	if resp.StatusCode == 403 {
-		defer resp.Body.Close()
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
+	if resp.StatusCode == http.StatusForbidden {
 		data403, _, _ := readBody(resp)
 		return c.HTML(http.StatusOK, string(data403))
 	}
 
-	if resp.StatusCode == 409 {
+	if resp.StatusCode == http.StatusConflict {
 		var temp struct {
 			ID          string `json:"id"`
 			LastUpdated int    `json:"lastUpdated"`
@@ -1371,17 +1373,17 @@ func GetCaptchaHandler(c echo.Context) error {
 		challengeID := resp.Header.Get(gfChallengeID)
 		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
 
-		req, err = http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
+		req1, err := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
-		resp, err = bot.doReqWithLoginProxyTransport(req)
+		resp1, err := bot.doReqWithLoginProxyTransport(req1)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
-		defer resp.Body.Close()
+		defer resp1.Body.Close()
 
-		data, _, _ := readBody(resp)
+		data, _, _ := readBody(resp1)
 		if err := json.Unmarshal(data, &temp); err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
@@ -1439,6 +1441,7 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, _ := bot.doReqWithLoginProxyTransport(req)
 	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
 	if !bot.IsLoggedIn() {
 		if err := bot.Login(); err != nil {
 			bot.error(err)

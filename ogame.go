@@ -1247,6 +1247,8 @@ func solveChallenge(client *http.Client, challengeID string, answer int64) error
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to solve captcha (%s)", resp.Status)
 	}
@@ -3050,6 +3052,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode >= 500 {
 		return nil, err
