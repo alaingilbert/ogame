@@ -1137,7 +1137,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		}
 		defer resp.Body.Close()
 
-		if resp.StatusCode == 409 {
+		if resp.StatusCode == http.StatusConflict {
 			// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
 			// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
 			// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
@@ -1171,12 +1171,12 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 			}
 		}
 
-		if resp.StatusCode >= 500 {
+		if resp.StatusCode >= http.StatusInternalServerError {
 			return out, errors.New("OGame server error code : " + resp.Status)
 		}
 
 		by, _, err := readBody(resp)
-		if resp.StatusCode != 201 {
+		if resp.StatusCode != http.StatusCreated {
 			if string(by) == `{"reason":"OTP_REQUIRED"}` {
 				return out, ErrOTPRequired
 			}
