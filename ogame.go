@@ -1142,9 +1142,9 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 			// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
 			// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
 			//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
-			gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
-			if gfChallengeID != "" {
-				parts := strings.Split(gfChallengeID, ";")
+			gfChallengeIDValue := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+			if gfChallengeIDValue != "" {
+				parts := strings.Split(gfChallengeIDValue, ";")
 				challengeID = parts[0]
 
 				if tried {
