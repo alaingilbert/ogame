@@ -102,7 +102,7 @@ func main() {
 			Name:    "lobby",
 			Usage:   "Lobby to use (lobby | lobby-pioneers)",
 			Value:   "lobby",
-			EnvVars: []string{"OGAMED_PROXY_PASSWORD"},
+			EnvVars: []string{"OGAMED_LOBBY"},
 		},
 		&cli.StringFlag{
 			Name:    "api-new-hostname",
