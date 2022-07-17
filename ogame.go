@@ -483,7 +483,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	b.language = lang
 	b.playerID = playerID
 
-	b.extractor = NewExtractorV8()
+	b.extractor = NewExtractorV874()
 
 	if client == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{
@@ -1426,7 +1426,9 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 
 func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
-		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
+		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4"))) {
+			b.extractor = NewExtractorV874()
+		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
 			b.extractor = NewExtractorV8()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
 			b.extractor = NewExtractorV71()

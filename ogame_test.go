@@ -1276,6 +1276,13 @@ func TestExtractPreferences(t *testing.T) {
 //	assert.Equal(t, expected, actual)
 //}
 
+func TestExtractOfferOfTheDayPriceV874(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v8.7.4/en/traderImportExport.html")
+	price, token, _, _, _ := NewExtractorV874().ExtractOfferOfTheDay(pageHTMLBytes)
+	assert.Equal(t, int64(178224), price)
+	assert.Equal(t, "2a38193e2fa6047e1d92d2f2c71c00fd", token)
+}
+
 func TestExtractOfferOfTheDayPrice(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/traderOverview.html")
 	price, token, _, _, _ := NewExtractorV6().ExtractOfferOfTheDay(pageHTMLBytes)
@@ -3094,6 +3101,12 @@ func TestExtractEmpireMoons(t *testing.T) {
 	assert.Equal(t, int64(-19), res[0].Temperature.Min)
 	assert.Equal(t, int64(21), res[0].Temperature.Max)
 	assert.Equal(t, int64(5783), res[0].Diameter)
+}
+
+func TestExtractAuctionV874(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v8.7.4/en/traderAuctioneer.html")
+	res, _ := NewExtractorV874().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, "43576386810cdf91a833a6239f323f66", res.Token)
 }
 
 func TestExtractAuction_playerBid(t *testing.T) {
