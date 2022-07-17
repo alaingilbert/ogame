@@ -527,7 +527,7 @@ func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importTo
 	}
 	price = ParseInt(s.Text())
 	script := doc.Find("script").Text()
-	m := regexp.MustCompile(`var importToken\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
+	m := regexp.MustCompile(`var token\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day import token")
 		return
