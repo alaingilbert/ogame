@@ -483,7 +483,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	b.language = lang
 	b.playerID = playerID
 
-	b.extractor = NewExtractorV8()
+	b.extractor = NewExtractorV874()
 
 	if client == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{
@@ -1137,14 +1137,14 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		}
 		defer resp.Body.Close()
 
-		if resp.StatusCode == 409 {
+		if resp.StatusCode == http.StatusConflict {
 			// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
 			// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
 			// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
 			//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
-			gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
-			if gfChallengeID != "" {
-				parts := strings.Split(gfChallengeID, ";")
+			gfChallengeIDValue := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+			if gfChallengeIDValue != "" {
+				parts := strings.Split(gfChallengeIDValue, ";")
 				challengeID = parts[0]
 
 				if tried {
@@ -1171,12 +1171,12 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 			}
 		}
 
-		if resp.StatusCode >= 500 {
+		if resp.StatusCode >= http.StatusInternalServerError {
 			return out, errors.New("OGame server error code : " + resp.Status)
 		}
 
 		by, _, err := readBody(resp)
-		if resp.StatusCode != 201 {
+		if resp.StatusCode != http.StatusCreated {
 			if string(by) == `{"reason":"OTP_REQUIRED"}` {
 				return out, ErrOTPRequired
 			}
@@ -1247,6 +1247,8 @@ func solveChallenge(client *http.Client, challengeID string, answer int64) error
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("failed to solve captcha (%s)", resp.Status)
 	}
@@ -1424,7 +1426,9 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 
 func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
-		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
+		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4"))) {
+			b.extractor = NewExtractorV874()
+		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
 			b.extractor = NewExtractorV8()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
 			b.extractor = NewExtractorV71()
@@ -3050,6 +3054,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode >= 500 {
 		return nil, err
