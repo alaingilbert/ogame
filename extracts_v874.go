@@ -17,7 +17,7 @@ func extractOfferOfTheDayFromDocV874(doc *goquery.Document) (price int64, import
 	}
 	price = ParseInt(s.Text())
 	script := doc.Find("script").Text()
-	m := regexp.MustCompile(`var importToken\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
+	m := regexp.MustCompile(`var token\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
 		err = errors.New("failed to extract offer of the day import token")
 		return
@@ -82,7 +82,7 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	}
 
 	// Find auctioneer token
-	tokenRegex := regexp.MustCompile(`auctioneerToken\s?=\s?"([^"]+)";`).FindStringSubmatch(doc.Text())
+	tokenRegex := regexp.MustCompile(`token\s?=\s?"([^"]+)";`).FindStringSubmatch(doc.Text())
 	if len(tokenRegex) != 2 {
 		return Auction{}, errors.New("failed to find auctioneer token")
 	}
