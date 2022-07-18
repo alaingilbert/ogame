@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"bytes"
+	"github.com/hashicorp/go-version"
 	"io/ioutil"
 	"regexp"
 	"testing"
@@ -3285,4 +3286,11 @@ func TestExtractActiveItems(t *testing.T) {
 	assert.Equal(t, int64(604800), items[1].TotalDuration)
 	assert.Equal(t, int64(579827), items[1].TimeRemaining)
 	assert.Equal(t, "https://s152-en.ogame.gameforge.com/cdn/img/item-images/db408084e3b2b7b0e1fe13d9f234d2ebd76f11c5-small.png", items[1].ImgSmall)
+}
+
+func TestVersion(t *testing.T) {
+	assert.False(t, version.Must(version.NewVersion("8.7.4-pl3")).GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4"))))
+	assert.True(t, version.Must(version.NewVersion("8.7.4-pl3")).GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4-pl3"))))
+	assert.True(t, version.Must(version.NewVersion("8.7.4-pl4")).GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4-pl3"))))
+	assert.True(t, version.Must(version.NewVersion("8.7.5-pl3")).GreaterThanOrEqual(version.Must(version.NewVersion("8.7.5-pl3"))))
 }
