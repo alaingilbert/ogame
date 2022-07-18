@@ -1426,7 +1426,7 @@ func (b *OGame) loginPart2(server Server, userAccount account) error {
 
 func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
-		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4"))) {
+		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4-pl3"))) {
 			b.extractor = NewExtractorV874()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
 			b.extractor = NewExtractorV8()
