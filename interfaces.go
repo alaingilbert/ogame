@@ -71,6 +71,7 @@ type Prioritizable interface {
 	SendMessageAlliance(associationID int64, message string) error
 	ServerTime() time.Time
 	SetInitiator(initiator string) Prioritizable
+	SetVacationMode() error
 	Tx(clb func(tx Prioritizable) error) error
 	UseDM(string, CelestialID) error
 

@@ -134,6 +134,13 @@ func (b *Prioritize) IsUnderAttack() (bool, error) {
 	return b.bot.isUnderAttack()
 }
 
+// SetVacationMode puts account in vacation mode
+func (b *Prioritize) SetVacationMode() error {
+	b.begin("SetVacationMode")
+	defer b.done()
+	return b.bot.setVacationMode()
+}
+
 // GetPlanets returns the user planets
 func (b *Prioritize) GetPlanets() []Planet {
 	b.begin("GetPlanets")

@@ -97,6 +97,7 @@ ServerVersion() string
 ServerTime() time.Time
 Location() *time.Location
 IsUnderAttack() (bool, error)
+SetVacationMode() error
 GetUserInfos() UserInfos
 SendMessage(playerID int64, message string) error
 SendMessageAlliance(associationID int64, message string) error
