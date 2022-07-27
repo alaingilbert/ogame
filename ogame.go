@@ -2582,6 +2582,23 @@ func (b *OGame) isUnderAttack() (bool, error) {
 	return res.Hostile > 0, err
 }
 
+func (b *OGame) setVacationMode() error {
+	vals := url.Values{"page": {"ingame"}, "component": {"preferences"}}
+	pageHTML, err := b.getPageContent(vals)
+	if err != nil {
+		return err
+	}
+	rgx := regexp.MustCompile(`type='hidden' name='token' value='(\w+)'`)
+	m := rgx.FindSubmatch(pageHTML)
+	if len(m) < 2 {
+		return errors.New("unable to find token")
+	}
+	token := string(m[1])
+	payload := url.Values{"mode": {"save"}, "selectedTab": {"0"}, "urlaubs_modus": {"on"}, "token": {token}}
+	_, err = b.postPageContent(vals, payload)
+	return err
+}
+
 type resourcesResp struct {
 	Metal struct {
 		Resources struct {
@@ -5376,6 +5393,11 @@ func (b *OGame) GetCachedPlayer() UserInfos {
 // GetCachedPreferences returns cached preferences
 func (b *OGame) GetCachedPreferences() Preferences {
 	return b.CachedPreferences
+}
+
+// SetVacationMode puts account in vacation mode
+func (b *OGame) SetVacationMode() error {
+	return b.WithPriority(Normal).SetVacationMode()
 }
 
 // IsVacationModeEnabled returns either or not the bot is in vacation mode
