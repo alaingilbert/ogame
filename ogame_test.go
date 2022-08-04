@@ -194,6 +194,26 @@ func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 	assert.Equal(t, int64(25000), res.Darkmatter.Found)
 }
 
+func TestExtractResourcesDetailsFromFullPageV9(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v9.0.0/en/overview2.html")
+	res := NewExtractorV9().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	assert.Equal(t, int64(6182), res.Metal.Available)
+	assert.Equal(t, int64(10060), res.Metal.CurrentProduction)
+	assert.Equal(t, int64(1590000), res.Metal.StorageCapacity)
+	assert.Equal(t, int64(84388), res.Crystal.Available)
+	assert.Equal(t, int64(4989), res.Crystal.CurrentProduction)
+	assert.Equal(t, int64(1590000), res.Crystal.StorageCapacity)
+	assert.Equal(t, int64(100188), res.Deuterium.Available)
+	assert.Equal(t, int64(3499), res.Deuterium.CurrentProduction)
+	assert.Equal(t, int64(865000), res.Deuterium.StorageCapacity)
+	assert.Equal(t, int64(-1679), res.Energy.Available)
+	assert.Equal(t, int64(2690), res.Energy.CurrentProduction)
+	assert.Equal(t, int64(-4369), res.Energy.Consumption)
+	assert.Equal(t, int64(8000), res.Darkmatter.Available)
+	assert.Equal(t, int64(0), res.Darkmatter.Purchased)
+	assert.Equal(t, int64(8000), res.Darkmatter.Found)
+}
+
 func TestExtractResourcesDetailsFromFullPageV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7/overview2.html")
 	res := NewExtractorV6().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)

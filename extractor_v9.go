@@ -37,3 +37,14 @@ func (e ExtractorV9) ExtractResources(pageHTML []byte) Resources {
 func (e ExtractorV9) ExtractResourcesFromDoc(doc *goquery.Document) Resources {
 	return extractResourcesFromDocV9(doc)
 }
+
+// ExtractResourcesDetailsFromFullPage ...
+func (e ExtractorV9) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc)
+}
+
+// ExtractResourcesDetailsFromFullPageFromDoc ...
+func (e ExtractorV9) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails {
+	return extractResourcesDetailsFromFullPageFromDocV9(doc)
+}
