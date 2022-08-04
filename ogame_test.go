@@ -2701,6 +2701,13 @@ func TestExtractEspionageReportV8(t *testing.T) {
 	assert.Equal(t, int64(15), infos.LastActivity)
 }
 
+func TestExtractEspionageReportV9(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v9.0.0/en/spy_report.html")
+	infos, err := NewExtractorV9().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
+	assert.NoError(t, err)
+	assert.Equal(t, int64(0), infos.LastActivity)
+}
+
 func TestExtractEspionageReportAllianceClass(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v8.1/en/spy_report_alliance_class_trader.html")
 	infos, _ := NewExtractorV71().ExtractEspionageReport(pageHTMLBytes, time.FixedZone("OGT", 3600))
