@@ -26,3 +26,14 @@ func (e ExtractorV9) ExtractEspionageReport(pageHTML []byte, location *time.Loca
 func (e ExtractorV9) ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	return extractEspionageReportFromDocV9(doc, location)
 }
+
+// ExtractResources ...
+func (e ExtractorV9) ExtractResources(pageHTML []byte) Resources {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractResourcesFromDoc(doc)
+}
+
+// ExtractResourcesFromDoc ...
+func (e ExtractorV9) ExtractResourcesFromDoc(doc *goquery.Document) Resources {
+	return extractResourcesFromDocV9(doc)
+}

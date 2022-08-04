@@ -154,6 +154,16 @@ func TestExtractResources(t *testing.T) {
 	assert.Equal(t, int64(25000), res.Darkmatter)
 }
 
+func TestExtractResourcesV9(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v9.0.0/en/overview.html")
+	res := NewExtractorV9().ExtractResources(pageHTMLBytes)
+	assert.Equal(t, int64(10000), res.Metal)
+	assert.Equal(t, int64(10000), res.Crystal)
+	assert.Equal(t, int64(7829), res.Deuterium)
+	assert.Equal(t, int64(26), res.Energy)
+	assert.Equal(t, int64(10000000), res.Darkmatter)
+}
+
 func TestExtractResourcesMobile(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/preferences_mobile.html")
 	res := NewExtractorV6().ExtractResources(pageHTMLBytes)
