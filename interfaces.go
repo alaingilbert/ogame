@@ -157,6 +157,7 @@ type Wrapper interface {
 	IsLoggedIn() bool
 	IsVacationModeEnabled() bool
 	IsV7() bool
+	IsV9() bool
 	Location() *time.Location
 	OnStateChange(clb func(locked bool, actor string))
 	Quiet(bool)
