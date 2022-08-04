@@ -10,18 +10,7 @@ import (
 )
 
 func extractResourcesFromDocV9(doc *goquery.Document) Resources {
-	res := Resources{}
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#metal_box").AttrOr("title", "")))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#crystal_box").AttrOr("title", "")))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", "")))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", "")))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", "")))
-	res.Metal = ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	res.Crystal = ParseInt(crystalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	res.Deuterium = ParseInt(deuteriumDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	res.Energy = ParseInt(energyDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	res.Darkmatter = ParseInt(darkmatterDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	return res
+	return extractResourcesDetailsFromFullPageFromDocV9(doc).Available()
 }
 
 func extractResourcesDetailsFromFullPageFromDocV9(doc *goquery.Document) ResourcesDetails {
