@@ -31,3 +31,14 @@ func (e ExtractorV874) ExtractAuction(pageHTML []byte) (Auction, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return extractAuctionFromDocV874(doc)
 }
+
+// ExtractBuffActivation ...
+func (e ExtractorV874) ExtractBuffActivation(pageHTML []byte) (string, []Item, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractBuffActivationFromDoc(doc)
+}
+
+// ExtractBuffActivationFromDoc ...
+func (e ExtractorV874) ExtractBuffActivationFromDoc(doc *goquery.Document) (string, []Item, error) {
+	return extractBuffActivationFromDocV874(doc)
+}
