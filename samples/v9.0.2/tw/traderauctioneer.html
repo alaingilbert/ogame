@@ -1,0 +1,662 @@
+<div id='trader/auctioneer'><div id="div_traderAuctioneer" class="div_trader" style="display:none;">
+    <div class="header">
+        <h2>拍賣商</h2>
+    </div>
+    <div class="content">
+        <p class="stimulus">
+            <a title="遊戲規則|在拍賣商處,拍賣開始的間隔規則在 6 至 23 之間.拍賣可透過資源或榮譽分數來購買.&lt;br /&gt;
+&lt;br /&gt;
+&lt;b&gt;不過,所有拍賣投標的資源和榮譽分數不會被返還.&lt;/b&gt;&lt;br /&gt;
+&lt;br /&gt;
+您的競標金額無論輸贏與否,均一律不會返還.如果您被劫鏢,您可以提高您之前的投標價.例如:&lt;br /&gt;
+如有人用1000資源投標,然後被另一人以3000資源劫鏢,那麼第一個人可在他之前的原始競標價基礎上,提高3000資源至4000資源來重新投標.舊有的投標將在拍賣結束時刪除.&lt;br /&gt;
+&lt;br /&gt;
+注意:當開始投標時,晶體等值於 1.5 倍金屬,重氫等值於 3 倍金屬.&lt;br /&gt;
+&lt;br /&gt;
+在拍賣商處,越高品質的物品(如 紅銅級,白銀級和黃金級),越是罕見. 23"
+               href="javascript:void(0);"
+               class="tooltipHTML help rules"></a>
+            每天這裡都提供貨物以供用資源購買.<br/>
+            要是您被劫鏢,您可以提高您之前的競投金額. <b><span style="color:#99CC00;">但是, 投標的資源及榮譽分數將不會返還.</span></b>
+        </p>
+        <!-- <div class="left_box_wrap"> -->
+        <div class="left_box">
+            <div class="left_header">
+                <h2>拍賣進行中</h2>
+            </div>
+            <div class="left_content">
+                <div class="overlay"></div>
+                <div class="image_140px">
+                    <img alt="紅銅級海怪建築機器人" src="/cdn/img/item-images/98629d11293c9f2703592ed0314d99f320f45845-140x.png"
+                         height="136" width="136"
+                         style="margin: 2px;"/>
+                    <a class="detail_button tooltipHTML js_hideTipOnMobile slideIn r_common_140px" href="javascript:void(0);"
+                       title="紅銅級海怪建築機器人|縮減當前正建造中的建築物建造時間  30分 .&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                       ref="40f6c78e11be01ad3389b7dccd6ab8efa9347f3c">
+                                    <span class="ecke">
+                                        <span class="level amount">0</span>
+                                    </span>
+                    </a>
+                </div>
+                <p class="auction_info">離拍賣結束還剩餘 <span style="color:#99CC00;"><b>近似值. 15分</b></span></p>
+                <label class="auction_detail odd info_label">當前競標: </label>
+                <div class="detail_value odd currentSum">1,000</div>
+
+                <label class="auction_detail even info_label">投標數: </label>
+                <div class="detail_value even numberOfBids">1</div>
+
+                <label class="auction_detail odd info_label">最高標價者: </label>
+                <a data-player-id="100044" href="https://s142-tw.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;galaxy=1&amp;system=8" class="detail_value odd currentPlayer">
+                    Stadtholder Themis
+                </a>
+            </div>
+            <div class="left_footer"></div>
+        </div> <!--  left_box End -->
+        <!-- </div> -->
+
+        <div class="right_box">
+            <div class="noAuctionOverlay" style="display: none;"></div>
+            <div class="right_header">
+                <h2>投標</h2>
+            </div>
+
+            <div class="right_content">
+                <div class="resourceSelection">
+                    <div class="selectWrapper">
+                        <a href="javascript:void(0);" alt="從您的行星選擇資源"
+                           class="tooltip js_hideTipOnMobile source planet js_planet selected"
+                           title="從您的行星選擇資源"></a>
+                        <a href="javascript:void(0);" alt="從您的月亮選擇資源"
+                           class="tooltip js_hideTipOnMobile source moon js_moon "
+                           title="從您的月亮選擇資源"></a>
+                        <a href="javascript:void(0);" alt="榮譽分數兌換"
+                           class="tooltip js_hideTipOnMobile source honor js_honor"
+                           title="榮譽分數兌換"></a>
+
+                        <a id="js_toggleLinkAuctioneer" href="#togglePanel" class="js_valSourcePlanet toggleHidden toggleLink">
+                            <img alt="母星" src="https://gf1.geo.gfsrv.net/cdn36/713732ce41ebdc87af1e638162c4e7.png" width="18" height="18" >
+                            <span class="option_source">母星</span>
+                        </a>
+                    </div>
+                    <table class="table_ressources" cellspacing="0" cellpadding="0">
+                        <tr class="normalResource">
+                            <td><div class="resourceIcon metal resource_label"></div></td>
+                            <td class="multiplier undermark tooltip" title="每 金屬 單位倍值為 1.">
+                                <span class="dark_highlight_tablet">x 1</span>
+                            </td>
+                            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderMetalInput js_metal checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                            <td><a class="value-control more js_sliderMetalMore js_valButton tooltip js_hideTipOnMobile" title="出價 +1000 資源">+</a></td>
+                            <td><a class="value-control max js_sliderMetalMax js_valButton tooltipRight js_hideTipOnMobile" title="全價投標">>></a></td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td colspan="2">&nbsp;</td>
+                            <td><div class="max_hint">(最多 <span class="max_planet_res max_planet_metal">1,005.95</span>)</div></td>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td><div class="resourceIcon crystal resource_label"></div></td>
+                            <td class="multiplier undermark tooltip" title="每 晶體 單位倍值為 1.5.">
+                                <span class="dark_highlight_tablet">x 1.5</span>
+                            </td>
+                            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderCrystalInput js_crystal checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                            <td><a class="value-control more js_sliderCrystalMore js_valButton tooltip js_hideTipOnMobile" title="出價 +1000 資源">+</a></td>
+                            <td><a class="value-control max js_sliderCrystalMax js_valButton tooltipRight js_hideTipOnMobile" title="全價投標">>></a></td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td colspan="2">&nbsp;</td>
+                            <td><div class="max_hint">(最多 <span class="max_planet_res max_planet_crystal">1,002.974</span>)</div></td>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td><div class="resourceIcon deuterium resource_label"></div></td>
+                            <td class="multiplier undermark tooltip" title="每 重氫 單位倍值為 3.">
+                                <span class="dark_highlight_tablet">x 3</span>
+                            </td>
+                            <td><input type="text" pattern="[0-9,.]*" class="resourceAmount js_amount js_sliderDeuteriumInput js_deuterium checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                            <td><a class="value-control more js_sliderDeuteriumMore js_valButton tooltip js_hideTipOnMobile" title="出價 +1000 資源">+</a></td>
+                            <td><a class="value-control max js_sliderDeuteriumMax js_valButton tooltipRight js_hideTipOnMobile" title="全價投標">>></a></td>
+                        </tr>
+                        <tr class="normalResource">
+                            <td colspan="2">&nbsp;</td>
+                            <td><div class="max_hint">(最多 <span class="max_planet_res max_planet_deuterium">0</span>)</div></td>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr class="honorResource" style="display: none">
+                            <td><img src="/cdn/img/trader/honorPointsLarge.png" alt="榮譽分數" class="resource_label" /></td>
+                            <td class="multiplier undermark tooltip" title="每 榮譽分數 單位倍值為 100.">
+                                <span class="dark_highlight_tablet">x 100</span>
+                            </td>
+                            <td><input type="text" pattern="[0-9,.]*"  class="resourceAmount js_amount js_sliderHonorInput js_honor checkThousandSeparator hideNumberSpin" name="" value="0"/></td>
+                            <td><a class="value-control more js_sliderHonorMore js_valButton tooltip js_hideTipOnMobile" title="+1000 榮譽分數競投">+</a></td>
+                            <td><a class="value-control max js_sliderHonorMax js_valButton tooltipRight js_hideTipOnMobile" title="全價投標">>></a></td>
+                        </tr>
+                        <tr class="honorResource" style="display: none">
+                            <td colspan="2">&nbsp;</td>
+                            <td><div class="max_hint">(最多 <span class="max_planet_res max_planet_honor">0</span>)</div></td>
+                            <td colspan="2">&nbsp;</td>
+                        </tr>
+                    </table>
+                    <div id="js_togglePanelAuctioneer" class="togglePanel" style="display: none;">
+                        <ul class="planet
+    active"
+
+                        >
+                            <li id="33620229" class="dark_highlight_tablet selected" data-planetId="33620229">
+                                <img alt="母星" src="https://gf1.geo.gfsrv.net/cdn36/713732ce41ebdc87af1e638162c4e7.png" width="18" height="18" />
+                                <span class="option_source">母星 [1:10:6]</span>
+                            </li>
+                        </ul>
+                        <ul class="moon
+    "
+                            style="display:none"
+                        >
+                        </ul>
+
+                    </div>
+                </div>
+
+                <table class="table_ressources_sum" cellspacing="0" cellpadding="0">
+                    <tr class="even">
+                        <td class="auctionInfo js_bidRise tooltip" title="您上次出價投標增加的資源數.">投標者:</td>
+                        <td class="auctionInfo sum js_auctioneerSum green_text tooltip" title="您上次出價投標增加的資源數.">0</td>
+                    </tr>
+                    <tr class="odd">
+                        <td width="40%" class="auctionInfo tooltip" title="當前拍賣您所競標的資源數.">您的投標:</td>
+                        <td width="60%" class="auctionInfo js_alreadyBidden">0</td>
+                    </tr>
+                    <tr class="odd">
+                        <td class="auctionInfo tooltip" title="您投標所需最少資源數.">最低拍賣價:</td>
+                        <td class="auctionInfo js_price">2,000</td>
+                    </tr>
+                    <tr class="even">
+                        <td class="auctionInfo tooltip" title="最低投標價所需資源數.">短缺:</td>
+                        <td class="auctionInfo js_deficit">0</td>
+                    </tr>
+                </table>
+
+                <p class="overbid_text">您被劫鏢了!</p>
+                <a href="javascript:void(0);" class="pay disabled">投標</a>
+                <br class="clearfloat" />
+            </div>
+            <div class="right_footer"></div>
+        </div> <!-- right_box End -->
+        <br class="clearfloat" />
+        <div class="auction_history">
+            <div class="history_header">
+                <h2>前次拍賣</h2>
+            </div>
+            <div class="history_content">
+                <ul>
+                    <li class="even ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="3c9f85221807b8d593fa5276cdf7af9913c4a35d">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/286f3eaf6072f55d8858514b159d1df5f16a5654-small.png"
+                                 alt="" title="紅銅級晶體增補器|於一個行星上 +10% 晶體礦產量.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">20:43:39</span>
+                    </li>
+                    <li class="odd ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="422db99aac4ec594d483d8ef7faadc5d40d6f7d3">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/a703be5a40a8fe8128466721f5f925ae1e86d13a-small.png"
+                                 alt="" title="白銀級晶體增補器|於一個行星上 +20% 晶體礦產量.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: 6,750 暗物質&lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">19:42:42</span>
+                    </li>
+                    <li class="even ">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="3f6f381dc9b92822406731a942c028adf8dc978f">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/a020705ab782f54a75244eefaee69019d4f25abb-small.png"
+                                 alt="" title="紅銅級能源加速器|可在一個星期上增加 +20%能源產量&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">18:34:48</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="118d34e685b5d1472267696d1010a393a59aed03">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/206bc65589c10c31b645c34991c12fc8556165b2-small.png"
+                                 alt="" title="黃金級晶體增補器|於一個行星上 +30% 晶體礦產量.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: 18,000 暗物質&lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_rare"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">17:37:30</span>
+                    </li>
+                    <li class="even more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="422db99aac4ec594d483d8ef7faadc5d40d6f7d3">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/a703be5a40a8fe8128466721f5f925ae1e86d13a-small.png"
+                                 alt="" title="白銀級晶體增補器|於一個行星上 +20% 晶體礦產量.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: 6,750 暗物質&lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">16:42:53</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d26f4dab76fdc5296e3ebec11a1e1d2558c713ea">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/2ca40705737c0bc51107bfca49643487c510ac4a-small.png"
+                                 alt="" title="白銀級中子科研機器人|縮減所有研究的研究時間,縮減當前研究進度 2時.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">15:43:54</span>
+                    </li>
+                    <li class="even more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="35d96e441c21ef112a84c618934d9d0f026998fd">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/5650071c78c9fcf9681fc2c780694de96de29c1b-small.png"
+                                 alt="" title="鉑金級晶體增補器|於一個行星上 +40% 晶體礦產量.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: 27,000 暗物質&lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_epic"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">14:44:39</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d3d541ecc23e4daa0c698e44c32f04afd2037d84">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/610b867a8841d4a4c949d8a59719243580456452-small.png"
+                                 alt="" title="紅銅級底特律船塢機器人|縮減當前船塢建造計劃的建造時間 30分.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">13:33:15</span>
+                    </li>
+                    <li class="even more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="05294270032e5dc968672425ab5611998c409166">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/780aa9d6619ae572a318dacc29e7bb77ad980380-small.png"
+                                 alt="" title="黃金級金屬增補器|於一個行星上 +30% 金屬礦產量.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: 18,000 暗物質&lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_rare"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">12:40:32</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="da4a2a1bb9afd410be07bc9736d87f1c8059e66d">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/2a974711651e1b38cb8d840ccc15259c49726b75-small.png"
+                                 alt="" title="紅銅級中子科研機器人|縮減所有研究的研究時間,縮減當前研究進度 30分.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">11:35:22</span>
+                    </li>
+                    <li class="even more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="27cbcd52f16693023cb966e5026d8a1efbbfc0f9">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/8b60b23f428ed54bad7f81295b4c303fd1defbe4-small.png"
+                                 alt="" title="白銀級底特律船塢機器人|縮減當前船塢建造計劃的建造時間 2時.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">10:37:03</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/7dcc0cb51f4514a339847e7f9129c99457066b50-small.png"
+                                 alt="" title="白銀級海怪建築機器人|縮減當前正建造中的建築物建造時間  2時 .&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">09:40:19</span>
+                    </li>
+                    <li class="even more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d3d541ecc23e4daa0c698e44c32f04afd2037d84">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/610b867a8841d4a4c949d8a59719243580456452-small.png"
+                                 alt="" title="紅銅級底特律船塢機器人|縮減當前船塢建造計劃的建造時間 30分.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">08:33:41</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="d9fa5f359e80ff4f4c97545d07c66dbadab1d1be">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/f0e514af79d0808e334e9b6b695bf864b861bdfa-small.png"
+                                 alt="" title="紅銅級重氫濃縮器|於一個行星上 +10% 重氫合成器採集效率.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">07:30:45</span>
+                    </li>
+                    <li class="even more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="da4a2a1bb9afd410be07bc9736d87f1c8059e66d">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/2a974711651e1b38cb8d840ccc15259c49726b75-small.png"
+                                 alt="" title="紅銅級中子科研機器人|縮減所有研究的研究時間,縮減當前研究進度 30分.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">06:39:30</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="3f6f381dc9b92822406731a942c028adf8dc978f">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/a020705ab782f54a75244eefaee69019d4f25abb-small.png"
+                                 alt="" title="紅銅級能源加速器|可在一個星期上增加 +20%能源產量&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_common"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">23:33:38</span>
+                    </li>
+                    <li class="even more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="e4b78acddfa6fd0234bcb814b676271898b0dbb3">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/d5c2ed6852d80e61359aef62171ec7c932fc3bd7-small.png"
+                                 alt="" title="白銀級重氫濃縮器|於一個行星上 +20% 重氫合成器採集效率.&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: 6,750 暗物質&lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">22:33:37</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/7dcc0cb51f4514a339847e7f9129c99457066b50-small.png"
+                                 alt="" title="白銀級海怪建築機器人|縮減當前正建造中的建築物建造時間  2時 .&lt;br /&gt;
+&lt;br /&gt;
+效用期: 現在&lt;br /&gt;
+&lt;br /&gt;
+價格: --- &lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">21:34:17</span>
+                    </li>
+                    <li class="even more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="c2bad58fcec374d709099d11d0549e59ea7e233e">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/162edd06c200f8eb655f31e5c6b98c89fabd7f82-small.png"
+                                 alt="" title="白銀級能源加速器|可在一個星期上增加 +40%能源產量&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: 6,750 暗物質&lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_uncommon"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">20:34:28</span>
+                    </li>
+                    <li class="odd more_auctions_li">
+                        <a href="javascript:void(0);"
+                           class="slideIn"
+                           ref="55b52cbfb148ec80cd4e5b0580f7bed01149d643">
+                            <img height="30" width="30"
+                                 src="/cdn/img/item-images/a1fd30dc5e5a3d0c68bb0116a45e1303ae8d3d70-small.png"
+                                 alt="" title="黃金級能源加速器|可在一個星期上增加 +60%能源產量&lt;br /&gt;
+&lt;br /&gt;
+效用期: 1週&lt;br /&gt;
+&lt;br /&gt;
+價格: 18,000 暗物質&lt;br /&gt;
+庫存內: 0"
+                                 class="item_img tooltipHTML tooltipLeft r_rare"/>
+                        </a>
+
+                        <span class="detail sum">0</span>
+
+                        <span class="detail player">未售出</span>
+
+                        <span class="detail date_time">19:37:52</span>
+                    </li>
+                </ul>
+                <a href="javascript:void(0);" class="more dark_highlight_tablet" style="">
+                    [顯示更多]
+                </a>
+                <br class="clearfloat" />
+            </div>
+            <div class="history_footer"></div>
+        </div>
+
+
+    </div>  <!-- content End -->
+    <div class="footer"></div>
+</div><!--  Trader auctioneer End -->
+    <script type="text/javascript">
+        var planetResources = {"33620229":{"input":{"metal":1005,"crystal":1002,"deuterium":0},"output":{"metal":0,"crystal":0,"deuterium":0},"isMoon":false,"imageFileName":"normal_7","name":"\u6bcd\u661f","otherPlanetId":null}};
+        var playerBid = false;
+        var auctionFinished = false;
+        var AuctionIdOflastPlayerBid = 0;
+        var urlRefreshPlanet = "https:\/\/s142-tw.ogame.gameforge.com\/game\/index.php?page=ajax&component=traderauctioneer&ajax=1&action=refreshPlanet&asJson=1";
+        var auctionId = "74";
+        var auctionUrl = "https:\/\/s142-tw.ogame.gameforge.com\/game\/index.php?page=ajax&component=traderauctioneer&ajax=1&action=submitBid&asJson=1";
+        var detailUrl = "https:\/\/s142-tw.ogame.gameforge.com\/game\/index.php?page=shop&ajax=1";
+        var token = "cee57462803d54666710c4fcd8acdfdf";
+        var multiplier = {"metal":1,"crystal":1.5,"deuterium":3,"honor":100};
+
+        // function copied from shop @todo remove duplication
+        function loadDetails(type)
+        {
+            if (typeof(detailUrl) === 'undefined') {
+                console.log('detailUrl not set! (at import)');
+                return;
+            }
+            $.get(
+                detailUrl,
+                { type: type},
+                function(data) {
+                    $("#detail").html(data);
+                    $("#techDetailLoading").hide();
+                    $("input[type='text']:first", document.forms["form"]).focus();
+                    $(document).trigger("ajaxShowElement", (typeof techID === 'undefined' ? 0 : techID));
+                }
+            );
+        }
+
+        auctioneer.initialize();
+        initThousandSeparator();
+    </script>
+</div>

@@ -3259,6 +3259,13 @@ func TestExtractAllResources(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 0, Crystal: 0, Deuterium: 2676231}, resources[33741598])
 }
 
+func TestExtractAllResourcesTwV902(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v9.0.2/tw/traderauctioneer.html")
+	resources, _ := NewExtractorV71().ExtractAllResources(pageHTMLBytes)
+	assert.Equal(t, 1, len(resources))
+	assert.Equal(t, Resources{Metal: 1005, Crystal: 1002, Deuterium: 0}, resources[33620229])
+}
+
 func TestExtractDMCosts(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/overview_allDM.html")
 	dmCosts, _ := NewExtractorV71().ExtractDMCosts(pageHTMLBytes)
