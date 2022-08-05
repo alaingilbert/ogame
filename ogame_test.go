@@ -2047,6 +2047,21 @@ func TestExtractPlanetsEsV902(t *testing.T) {
 	assert.Equal(t, int64(12800), planets[0].Diameter)
 }
 
+func TestExtractPlanetsTwV902(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v9.0.2/tw/overview.html")
+	planets := NewExtractorV6().ExtractPlanets(pageHTMLBytes, nil)
+	assert.Equal(t, 1, len(planets))
+	assert.Equal(t, PlanetID(33620229), planets[0].ID)
+	assert.Equal(t, Coordinate{Galaxy: 1, System: 10, Position: 6, Type: PlanetType}, planets[0].Coordinate)
+	assert.Equal(t, "母星", planets[0].Name)
+	assert.Equal(t, "https://gf2.geo.gfsrv.net/cdn46/9f84a481c0c9a83d3b000d801d9d9d.png", planets[0].Img)
+	assert.Equal(t, int64(13), planets[0].Temperature.Min)
+	assert.Equal(t, int64(53), planets[0].Temperature.Max)
+	assert.Equal(t, int64(0), planets[0].Fields.Built)
+	assert.Equal(t, int64(193), planets[0].Fields.Total)
+	assert.Equal(t, int64(12800), planets[0].Diameter)
+}
+
 func TestExtractPlanets(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_inactive.html")
 	planets := NewExtractorV6().ExtractPlanets(pageHTMLBytes, nil)
