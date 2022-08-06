@@ -2002,7 +2002,7 @@ var temperatureRgx = regexp.MustCompile(temperatureRgxStr)
 var diameterRgxStr = `([\d.,]+)(?i)(?:km|км|公里|χμ)`
 var diameterRgx = regexp.MustCompile(diameterRgxStr)
 var lifeformRgxStr = `(?:(?:[^:]+\s?){0,3}:\s(?:\D+\s?){0,3})?`
-var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]` + lifeformRgxStr + `(?:\w+:\s[^\d]+)?` + diameterRgxStr + ` \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*` + temperatureRgxStr)
+var planetInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]` + lifeformRgxStr + diameterRgxStr + ` \((\d+)/(\d+)\)(?:de|da|od|mellem|от)?\s*` + temperatureRgxStr)
 var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i)(?:km|км|χμ|公里) \((\d+)/(\d+)\)`)
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
