@@ -251,7 +251,7 @@ func Register(lobby, email, password, challengeID, lang string, client *http.Cli
 		return err
 	}
 	if challengeID != "" {
-		req.Header.Add(gfChallengeID, challengeID)
+		req.Header.Add(gfChallengeIDCookieName, challengeID)
 	}
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
@@ -261,7 +261,7 @@ func Register(lobby, email, password, challengeID, lang string, client *http.Cli
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 409 {
-		gfChallengeID := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		gfChallengeID := resp.Header.Get(gfChallengeIDCookieName) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
@@ -555,7 +555,7 @@ type Server struct {
 
 // ogame cookie name for token id
 const gfTokenCookieName = "gf-token-production"
-const gfChallengeID = "gf-challenge-id"
+const gfChallengeIDCookieName = "gf-challenge-id"
 
 type account struct {
 	Server struct {
@@ -1010,14 +1010,14 @@ type postSessionsResponse struct {
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
 
-func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
+func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (*postSessionsResponse, error) {
 	if b.loginProxyTransport != nil {
 		oldTransport := b.Client.Transport
 		b.Client.Transport = b.loginProxyTransport
 		defer func() { b.Client.Transport = oldTransport }()
 	}
 
-	var out postSessionsResponse
+	var out *postSessionsResponse
 	tried := false
 	for {
 		var err error
@@ -1157,21 +1157,25 @@ func (e CaptchaRequiredError) Error() string {
 	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
 }
 
-func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
-	var out postSessionsResponse
+func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret string) (out *postSessionsResponse, err error) {
 	req, err := postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, "")
 	if err != nil {
 		return out, err
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return out, err
 	}
 	defer resp.Body.Close()
+
 	by, err := readBody(resp)
+	if err != nil {
+		return out, err
+	}
 
 	if resp.StatusCode == http.StatusConflict {
-		gfChallengeID := resp.Header.Get(gfChallengeID)
+		gfChallengeID := resp.Header.Get(gfChallengeIDCookieName)
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
@@ -1183,9 +1187,6 @@ func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, userna
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	if err != nil {
-		return out, err
-	}
 	if resp.StatusCode != http.StatusCreated {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ErrOTPRequired

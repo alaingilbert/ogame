@@ -1332,7 +1332,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	}
 
 	if resp.StatusCode == http.StatusConflict {
-		challengeID := strings.Split(resp.Header.Get(gfChallengeID), ";")[0]
+		challengeID := strings.Split(resp.Header.Get(gfChallengeIDCookieName), ";")[0]
 
 		questionRaw, iconsRaw, err := startCaptchaChallenge(bot.GetClient(), challengeID)
 		if err != nil {
