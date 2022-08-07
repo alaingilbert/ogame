@@ -19,10 +19,10 @@ type IHttpClient interface {
 type OGameClient struct {
 	*http.Client
 	UserAgent       string
-	rpsCounter      int32
-	rps             int32
-	maxRPS          int32
-	rpsStartTime    int64
+	rpsCounter      int32 // atomic
+	rps             int32 // atomic
+	maxRPS          int32 // atomic
+	rpsStartTime    int64 // atomic
 	bytesDownloaded int64
 	bytesUploaded   int64
 }
@@ -52,12 +52,13 @@ func NewOGameClient() *OGameClient {
 
 // SetMaxRPS ...
 func (c *OGameClient) SetMaxRPS(maxRPS int32) {
-	c.maxRPS = maxRPS
+	atomic.StoreInt32(&c.maxRPS, maxRPS)
 }
 
 func (c *OGameClient) incrRPS() {
 	newRPS := atomic.AddInt32(&c.rpsCounter, 1)
-	if c.maxRPS > 0 && newRPS > c.maxRPS {
+	maxRPS := atomic.LoadInt32(&c.maxRPS)
+	if maxRPS > 0 && newRPS > maxRPS {
 		s := atomic.LoadInt64(&c.rpsStartTime) - time.Now().UnixNano()
 		// fmt.Printf("throttle %d\n", s)
 		time.Sleep(time.Duration(s))
