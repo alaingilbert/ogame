@@ -8,7 +8,6 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
-	"encoding/xml"
 	err2 "errors"
 	"fmt"
 	"image"
@@ -36,8 +35,6 @@ import (
 	version "github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"github.com/pkg/errors"
-	"github.com/pquerna/otp"
-	"github.com/pquerna/otp/totp"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
@@ -226,193 +223,10 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 	return client, nil
 }
 
-// Register a new gameforge lobby account
-func Register(lobby, email, password, challengeID, lang string, client *http.Client) error {
-	if lang == "" {
-		lang = "en"
-	}
-	var payload struct {
-		Credentials struct {
-			Email    string `json:"email"`
-			Password string `json:"password"`
-		} `json:"credentials"`
-		Language string `json:"language"`
-		Kid      string `json:"kid"`
-	}
-	payload.Credentials.Email = email
-	payload.Credentials.Password = password
-	payload.Language = lang
-	jsonPayloadBytes, err := json.Marshal(&payload)
-	if err != nil {
-		return err
-	}
-	req, err := http.NewRequest("PUT", "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
-	if err != nil {
-		return err
-	}
-	if challengeID != "" {
-		req.Header.Add(gfChallengeIDCookieName, challengeID)
-	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode == 409 {
-		gfChallengeID := resp.Header.Get(gfChallengeIDCookieName) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
-		if gfChallengeID != "" {
-			parts := strings.Split(gfChallengeID, ";")
-			challengeID := parts[0]
-			return errors.New("captcha required, " + challengeID)
-		}
-	}
-	by, err := readBody(resp)
-	if err != nil {
-		return err
-	}
-	var res struct {
-		MigrationRequired bool   `json:"migrationRequired"`
-		Error             string `json:"error"`
-	}
-	if err := json.Unmarshal(by, &res); err != nil {
-		return errors.New(err.Error() + " : " + string(by))
-	}
-	if res.Error != "" {
-		return errors.New(res.Error)
-	}
-	return nil
-}
-
-// ValidateAccount validate a gameforge account
-func ValidateAccount(code string, client IHttpClient) error {
-	if len(code) != 36 {
-		return errors.New("invalid validation code")
-	}
-	req, err := http.NewRequest(http.MethodPut, "https://lobby.ogame.gameforge.com/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
-	if err != nil {
-		return err
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	return nil
-}
-
 func (b *OGame) validateAccount(code string) error {
 	return b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
-		return ValidateAccount(code, client)
+		return ValidateAccount(client, b.ctx, b.lobby, code)
 	})
-}
-
-// RedeemCode ...
-func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Client) error {
-	postSessionsRes, err := GFLogin(client, lobby, email, password, otpSecret)
-	if err != nil {
-		return err
-	}
-	var payload struct {
-		Token string `json:"token"`
-	}
-	payload.Token = token
-	jsonPayloadBytes, err := json.Marshal(&payload)
-	if err != nil {
-		return err
-	}
-	req, err := http.NewRequest("POST", "https://"+lobby+".ogame.gameforge.com/api/token", strings.NewReader(string(jsonPayloadBytes)))
-	if err != nil {
-		return err
-	}
-	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	// {"tokenType":"accountTrading"}
-	type respStruct struct {
-		TokenType string `json:"tokenType"`
-	}
-	var respParsed respStruct
-	by, err := readBody(resp)
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode == http.StatusBadRequest {
-		return errors.New("invalid request, token invalid ?")
-	}
-	if err := json.Unmarshal(by, &respParsed); err != nil {
-		return errors.New(err.Error() + " : " + string(by))
-	}
-	if respParsed.TokenType != "accountTrading" {
-		return errors.New("tokenType is not accountTrading")
-	}
-	return nil
-}
-
-func addAccount(lobby, accountGroup, sessionToken string, client IHttpClient) (NewAccount, error) {
-	var newAccount NewAccount
-	var payload struct {
-		AccountGroup string `json:"accountGroup"`
-		Locale       string `json:"locale"`
-		Kid          string `json:"kid"`
-	}
-	payload.AccountGroup = accountGroup
-	payload.Locale = "en_GB"
-	jsonPayloadBytes, err := json.Marshal(&payload)
-	if err != nil {
-		return newAccount, err
-	}
-	req, err := http.NewRequest("PUT", "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
-	if err != nil {
-		return newAccount, err
-	}
-	newAccount.BearerToken = sessionToken
-	req.Header.Add("authorization", "Bearer "+sessionToken)
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := client.Do(req)
-	if err != nil {
-		return newAccount, err
-	}
-	defer resp.Body.Close()
-	by, err := readBody(resp)
-	if err != nil {
-		return newAccount, err
-	}
-	if resp.StatusCode == http.StatusBadRequest {
-		return newAccount, errors.New("invalid request, account already in lobby ?")
-	}
-	if err := json.Unmarshal(by, &newAccount); err != nil {
-		return newAccount, errors.New(err.Error() + " : " + string(by))
-	}
-	if newAccount.Error != "" {
-		return newAccount, errors.New(newAccount.Error)
-	}
-	return newAccount, nil
-}
-
-// AddAccount adds an account to a gameforge lobby
-func AddAccount(lobby, username, password, otpSecret, universe, lang string, client *http.Client) (NewAccount, error) {
-	var newAccount NewAccount
-	postSessionsRes, err := GFLogin(client, lobby, username, password, otpSecret)
-	if err != nil {
-		return newAccount, err
-	}
-	servers, err := getServers(lobby, client)
-	if err != nil {
-		return newAccount, err
-	}
-	server, found := findServer(universe, lang, servers)
-	if !found {
-		return newAccount, errors.New("server not found")
-	}
-	return addAccount(lobby, server.AccountGroup, postSessionsRes.Token, client)
 }
 
 // New creates a new instance of OGame wrapper.
@@ -507,110 +321,9 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	return b, nil
 }
 
-// Server ogame information for their servers
-type Server struct {
-	Language      string
-	Number        int64
-	AccountGroup  string
-	Name          string
-	PlayerCount   int64
-	PlayersOnline int64
-	Opened        string
-	StartDate     string
-	EndDate       *string
-	ServerClosed  int64
-	Prefered      int64
-	SignupClosed  int64
-	Settings      struct {
-		AKS                      int64
-		FleetSpeed               int64
-		WreckField               int64
-		ServerLabel              string
-		EconomySpeed             interface{} // can be 8 or "x8"
-		PlanetFields             int64
-		UniverseSize             int64 // Nb of galaxies
-		ServerCategory           string
-		EspionageProbeRaids      int64
-		PremiumValidationGift    int64
-		DebrisFieldFactorShips   int64
-		DebrisFieldFactorDefence int64
-	}
-}
-
 // ogame cookie name for token id
 const gfTokenCookieName = "gf-token-production"
 const gfChallengeIDCookieName = "gf-challenge-id"
-
-type account struct {
-	Server struct {
-		Language string
-		Number   int64
-	}
-	ID         int64 // player ID
-	Name       string
-	LastPlayed string
-	Blocked    bool
-	Details    []struct {
-		Type  string
-		Title string
-		Value interface{} // Can be string or int
-	}
-	Sitting struct {
-		Shared       bool
-		EndTime      *string
-		CooldownTime *string
-	}
-}
-
-func getUserAccounts(b *OGame, token string) ([]account, error) {
-	var userAccounts []account
-	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
-	if err != nil {
-		return userAccounts, err
-	}
-	req.Header.Add("authorization", "Bearer "+token)
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req = req.WithContext(b.ctx)
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return userAccounts, err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	by, err := readBody(resp)
-	if err != nil {
-		return userAccounts, err
-	}
-	if err := json.Unmarshal(by, &userAccounts); err != nil {
-		return userAccounts, errors.New("failed to get user accounts : " + err.Error() + " : " + string(by))
-	}
-	return userAccounts, nil
-}
-
-func getServers(lobby string, client IHttpClient) ([]Server, error) {
-	var servers []Server
-	req, err := http.NewRequest("GET", "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
-	if err != nil {
-		return servers, err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := client.Do(req)
-	if err != nil {
-		return servers, err
-	}
-	defer resp.Body.Close()
-	by, err := readBody(resp)
-	if err != nil {
-		return servers, err
-	}
-	if err := json.Unmarshal(by, &servers); err != nil {
-		return servers, errors.New("failed to get servers : " + err.Error() + " : " + string(by))
-	}
-	return servers, nil
-}
 
 func findServer(universe, lang string, servers []Server) (out Server, found bool) {
 	for _, s := range servers {
@@ -690,106 +403,6 @@ func readBody(resp *http.Response) (respContent []byte, err error) {
 	return by, nil
 }
 
-func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
-	ogURL := fmt.Sprintf("https://"+b.lobby+".ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d&clickedButton=account_list",
-		userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
-	req, err := http.NewRequest("GET", ogURL, nil)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Add("authorization", "Bearer "+token)
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req = req.WithContext(b.ctx)
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	by, err := readBody(resp)
-	if err != nil {
-		return "", err
-	}
-	var loginLink struct {
-		URL string
-	}
-	if err := json.Unmarshal(by, &loginLink); err != nil {
-		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by))
-	}
-	return loginLink.URL, nil
-}
-
-// ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
-type ServerData struct {
-	Name                          string  `xml:"name"`                          // Europa
-	Number                        int64   `xml:"number"`                        // 157
-	Language                      string  `xml:"language"`                      // ru
-	Timezone                      string  `xml:"timezone"`                      // Europe/Moscow
-	TimezoneOffset                string  `xml:"timezoneOffset"`                // +03:00
-	Domain                        string  `xml:"domain"`                        // s157-ru.ogame.gameforge.com
-	Version                       string  `xml:"version"`                       // 6.8.8-pl2
-	Speed                         int64   `xml:"speed"`                         // 6
-	SpeedFleet                    int64   `xml:"speedFleet"`                    // 6 // Deprecated in 8.1.0
-	SpeedFleetPeaceful            int64   `xml:"speedFleetPeaceful"`            // 1
-	SpeedFleetWar                 int64   `xml:"speedFleetWar"`                 // 1
-	SpeedFleetHolding             int64   `xml:"speedFleetHolding"`             // 1
-	Galaxies                      int64   `xml:"galaxies"`                      // 4
-	Systems                       int64   `xml:"systems"`                       // 499
-	ACS                           bool    `xml:"aCS"`                           // 1
-	RapidFire                     bool    `xml:"rapidFire"`                     // 1
-	DefToTF                       bool    `xml:"defToTF"`                       // 0
-	DebrisFactor                  float64 `xml:"debrisFactor"`                  // 0.5
-	DebrisFactorDef               float64 `xml:"debrisFactorDef"`               // 0
-	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
-	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
-	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
-	BonusFields                   int64   `xml:"bonusFields"`                   // 30
-	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
-	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
-	WfEnabled                     bool    `xml:"wfEnabled"`                     // 1 (WreckField)
-	WfMinimumRessLost             int64   `xml:"wfMinimumRessLost"`             // 150000
-	WfMinimumLossPercentage       int64   `xml:"wfMinimumLossPercentage"`       // 5
-	WfBasicPercentageRepairable   int64   `xml:"wfBasicPercentageRepairable"`   // 45
-	GlobalDeuteriumSaveFactor     float64 `xml:"globalDeuteriumSaveFactor"`     // 0.5
-	Bashlimit                     int64   `xml:"bashlimit"`                     // 0
-	ProbeCargo                    int64   `xml:"probeCargo"`                    // 5
-	ResearchDurationDivisor       int64   `xml:"researchDurationDivisor"`       // 2
-	DarkMatterNewAcount           int64   `xml:"darkMatterNewAcount"`           // 8000
-	CargoHyperspaceTechMultiplier int64   `xml:"cargoHyperspaceTechMultiplier"` // 5
-	//TopScore                      int64   `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
-}
-
-// gets the server data from xml api
-func (b *OGame) getServerData() (ServerData, error) {
-	var serverData ServerData
-	req, err := http.NewRequest("GET", "https://s"+strconv.FormatInt(b.server.Number, 10)+"-"+b.server.Language+".ogame.gameforge.com/api/serverData.xml", nil)
-	if err != nil {
-		return serverData, err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req = req.WithContext(b.ctx)
-	resp, err := b.client.Do(req)
-	if err != nil {
-		return serverData, err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	by, err := readBody(resp)
-	if err != nil {
-		return serverData, err
-	}
-	if err := xml.Unmarshal(by, &serverData); err != nil {
-		return serverData, err
-	}
-	return serverData, nil
-}
-
 // Return either or not the bot logged in using the provided bearer token.
 func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if token == "" {
@@ -818,7 +431,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if err != nil {
 		if err == ErrNotLogged {
 			b.debug("get login link")
-			loginLink, err := getLoginLink(b, userAccount, token)
+			loginLink, err := GetLoginLink(b.client, b.ctx, b.lobby, userAccount, token)
 			if err != nil {
 				return true, err
 			}
@@ -869,40 +482,6 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 		}
 	}
 	return b.loginWithBearerToken(token)
-}
-
-func getConfiguration(client IHttpClient, lobby string) (string, string, error) {
-	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
-	req, err := http.NewRequest("GET", ogURL, nil)
-	if err != nil {
-		return "", "", err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := client.Do(req)
-	if err != nil {
-		return "", "", err
-	}
-	defer resp.Body.Close()
-	by, err := readBody(resp)
-	if err != nil {
-		return "", "", err
-	}
-
-	gameEnvironmentIDRgx := regexp.MustCompile(`"gameEnvironmentId":"([^"]+)"`)
-	m := gameEnvironmentIDRgx.FindSubmatch(by)
-	if len(m) != 2 {
-		return "", "", errors.New("failed to get gameEnvironmentId")
-	}
-	gameEnvironmentID := m[1]
-
-	platformGameIDRgx := regexp.MustCompile(`"platformGameId":"([^"]+)"`)
-	m = platformGameIDRgx.FindSubmatch(by)
-	if len(m) != 2 {
-		return "", "", errors.New("failed to get platformGameId")
-	}
-	platformGameID := m[1]
-
-	return string(gameEnvironmentID), string(platformGameID), nil
 }
 
 // TelegramSolver ...
@@ -988,20 +567,12 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 	}
 }
 
-type GFLoginRes struct {
-	Token                     string `json:"token"`
-	IsPlatformLogin           bool   `json:"isPlatformLogin"`
-	IsGameAccountMigrated     bool   `json:"isGameAccountMigrated"`
-	PlatformUserID            string `json:"platformUserId"`
-	IsGameAccountCreated      bool   `json:"isGameAccountCreated"`
-	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
-}
-
 func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
 	if err := b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+		var challengeID string
 		tried := false
 		for {
-			out, err = GFLogin(client, lobby, username, password, otpSecret)
+			out, err = GFLogin(client, b.ctx, lobby, username, password, otpSecret, challengeID)
 			var captchaErr *CaptchaRequiredError
 			if errors.As(err, &captchaErr) {
 				if tried || b.captchaCallback == nil {
@@ -1009,7 +580,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 				}
 				tried = true
 
-				questionRaw, iconsRaw, err := StartCaptchaChallenge(client, captchaErr.ChallengeID)
+				questionRaw, iconsRaw, err := StartCaptchaChallenge(client, b.ctx, captchaErr.ChallengeID)
 				if err != nil {
 					return errors.New("failed to start captcha challenge: " + err.Error())
 				}
@@ -1017,9 +588,10 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 				if err != nil {
 					return errors.New("failed to get answer for captcha challenge: " + err.Error())
 				}
-				if err := SolveChallenge(client, captchaErr.ChallengeID, answer); err != nil {
+				if err := SolveChallenge(client, b.ctx, captchaErr.ChallengeID, answer); err != nil {
 					return errors.New("failed to solve captcha challenge: " + err.Error())
 				}
+				challengeID = captchaErr.ChallengeID
 				continue
 			} else if err != nil {
 				return err
@@ -1046,157 +618,6 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 	return out, nil
 }
 
-func StartCaptchaChallenge(client IHttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
-	challengeResp, err := client.Get("https://challenge.gameforge.com/challenge/" + challengeID)
-	if err != nil {
-		return
-	}
-	defer challengeResp.Body.Close()
-	_, _ = ioutil.ReadAll(challengeResp.Body)
-
-	challengePresentedResp, err := client.Get("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB")
-	if err != nil {
-		return
-	}
-	defer challengePresentedResp.Body.Close()
-	_, _ = ioutil.ReadAll(challengePresentedResp.Body)
-
-	questionResp, err := client.Get("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/text")
-	if err != nil {
-		return
-	}
-	defer questionResp.Body.Close()
-	questionRaw, _ = ioutil.ReadAll(questionResp.Body)
-
-	iconsResp, err := client.Get("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/drag-icons")
-	if err != nil {
-		return
-	}
-	defer iconsResp.Body.Close()
-	iconsRaw, _ = ioutil.ReadAll(iconsResp.Body)
-	return
-}
-
-func SolveChallenge(client IHttpClient, challengeID string, answer int64) error {
-	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
-	req, _ := http.NewRequest(http.MethodPost, challengeURL, strings.NewReader(`{"answer":`+strconv.FormatInt(answer, 10)+`}`))
-	req.Header.Set("Content-Type", "application/json")
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	_, _ = io.Copy(io.Discard, resp.Body)
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("failed to solve captcha (%s)", resp.Status)
-	}
-	return nil
-}
-
-func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID string) (*http.Request, error) {
-	payload := url.Values{
-		"autoGameAccountCreation": {"false"},
-		"gameEnvironmentId":       {gameEnvironmentID},
-		"platformGameId":          {platformGameID},
-		"gfLang":                  {"en"},
-		"locale":                  {"en_GB"},
-		"identity":                {username},
-		"password":                {password},
-	}
-	if challengeID != "" {
-		payload.Set("gf-challenge-id", challengeID)
-	}
-	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
-	if err != nil {
-		return nil, err
-	}
-
-	if otpSecret != "" {
-		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
-			Period:    30,
-			Skew:      1,
-			Digits:    otp.DigitsSix,
-			Algorithm: otp.AlgorithmSHA1,
-		})
-		if err != nil {
-			return nil, err
-		}
-		req.Header.Add("tnt-2fa-code", passcode)
-		req.Header.Add("tnt-installation-id", "")
-	}
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	return req, nil
-}
-
-type CaptchaRequiredError struct {
-	ChallengeID string
-}
-
-func NewCaptchaRequiredError(challengeID string) *CaptchaRequiredError {
-	return &CaptchaRequiredError{ChallengeID: challengeID}
-}
-
-func (e CaptchaRequiredError) Error() string {
-	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
-}
-
-func GFLogin(client IHttpClient, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
-	gameEnvironmentID, platformGameID, err := getConfiguration(client, lobby)
-	if err != nil {
-		return out, err
-	}
-
-	req, err := postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, "")
-	if err != nil {
-		return out, err
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		return out, err
-	}
-	defer resp.Body.Close()
-
-	by, err := readBody(resp)
-	if err != nil {
-		return out, err
-	}
-
-	if resp.StatusCode == http.StatusConflict {
-		gfChallengeID := resp.Header.Get(gfChallengeIDCookieName)
-		if gfChallengeID != "" {
-			parts := strings.Split(gfChallengeID, ";")
-			challengeID := parts[0]
-			return out, NewCaptchaRequiredError(challengeID)
-		}
-	}
-
-	if resp.StatusCode == http.StatusForbidden {
-		return out, errors.New(resp.Status + " : " + string(by))
-	}
-
-	if resp.StatusCode >= http.StatusInternalServerError {
-		return out, errors.New("OGame server error code : " + resp.Status)
-	}
-
-	if resp.StatusCode != http.StatusCreated {
-		if string(by) == `{"reason":"OTP_REQUIRED"}` {
-			return out, ErrOTPRequired
-		}
-		if string(by) == `{"reason":"OTP_INVALID"}` {
-			return out, ErrOTPInvalid
-		}
-		return out, ErrBadCredentials
-	}
-
-	if err := json.Unmarshal(by, &out); err != nil {
-		return out, err
-	}
-	return out, nil
-}
-
 func (b *OGame) login() error {
 	b.debug("post sessions")
 	postSessionsRes, err := postSessions(b, b.lobby, b.Username, b.password, b.otpSecret)
@@ -1210,7 +631,7 @@ func (b *OGame) login() error {
 	}
 
 	b.debug("get login link")
-	loginLink, err := getLoginLink(b, userAccount, postSessionsRes.Token)
+	loginLink, err := GetLoginLink(b.client, b.ctx, b.lobby, userAccount, postSessionsRes.Token)
 	if err != nil {
 		return err
 	}
@@ -1237,12 +658,12 @@ func (b *OGame) login() error {
 
 func (b *OGame) loginPart1(token string) (server Server, userAccount account, err error) {
 	b.debug("get user accounts")
-	accounts, err := getUserAccounts(b, token)
+	accounts, err := GetUserAccounts(b.client, b.ctx, b.lobby, token)
 	if err != nil {
 		return
 	}
 	b.debug("get servers")
-	servers, err := getServers(b.lobby, b.client)
+	servers, err := GetServers(b.lobby, b.client, b.ctx)
 	if err != nil {
 		return
 	}
@@ -1264,7 +685,9 @@ func (b *OGame) loginPart2(server Server) error {
 	// Get server data
 	start := time.Now()
 	b.server = server
-	serverData, err := b.getServerDataWrapper(b.getServerData)
+	serverData, err := b.getServerDataWrapper(func() (ServerData, error) {
+		return GetServerData(b.client, b.ctx, b.server.Number, b.server.Language)
+	})
 	if err != nil {
 		return err
 	}
@@ -4819,20 +4242,9 @@ func (b *OGame) botUnlock(unlockedBy string) {
 	}
 }
 
-// NewAccount response from creating a new account
-type NewAccount struct {
-	ID     int
-	Server struct {
-		Language string
-		Number   int
-	}
-	BearerToken string
-	Error       string
-}
-
-func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
+func (b *OGame) addAccount(number int, lang string) (AddAccountRes, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
-	return addAccount(b.lobby, accountGroup, b.bearerToken, b.client)
+	return AddAccount(b.client, b.ctx, b.lobby, accountGroup, b.bearerToken)
 }
 
 func (b *OGame) taskRunner() {
@@ -5052,7 +4464,7 @@ func (b *OGame) GetSession() string {
 }
 
 // AddAccount add a new account (server) to your list of accounts
-func (b *OGame) AddAccount(number int, lang string) (NewAccount, error) {
+func (b *OGame) AddAccount(number int, lang string) (AddAccountRes, error) {
 	return b.addAccount(number, lang)
 }
 
