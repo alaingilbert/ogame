@@ -691,9 +691,11 @@ func readBody(resp *http.Response) (respContent []byte, bytesDownloaded int64, e
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
 		isGzip = true
-		bytesDownloaded = resp.ContentLength
+		buf := new(bytes.Buffer)
+		_, _ = buf.ReadFrom(resp.Body)
+		bytesDownloaded = int64(buf.Len())
 		var err error
-		reader, err = gzip.NewReader(resp.Body)
+		reader, err = gzip.NewReader(buf)
 		if err != nil {
 			return []byte{}, bytesDownloaded, err
 		}
