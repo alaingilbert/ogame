@@ -321,7 +321,7 @@ func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Cl
 	if err != nil {
 		return err
 	}
-	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, email, password, otpSecret)
+	postSessionsRes, _, err := postSessions2(client, gameEnvironmentID, platformGameID, email, password, otpSecret)
 	if err != nil {
 		return err
 	}
@@ -373,7 +373,7 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 	if err != nil {
 		return newAccount, err
 	}
-	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+	postSessionsRes, _, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
 	if err != nil {
 		return newAccount, err
 	}
@@ -1093,67 +1093,32 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		}()
 	}
 
-	challengeID := ""
 	tried := false
 	for {
-		var out postSessionsResponse
-		resp, err := postSessionsReq(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID)
-		if err != nil {
+		out, bytesDownloaded, err := postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+		b.bytesDownloaded += bytesDownloaded
+		var captchaErr *CaptchaRequiredError
+		if errors.As(err, &captchaErr) {
+			if tried || b.captchaCallback == nil {
+				return out, err
+			}
+			tried = true
+
+			questionRaw, iconsRaw, err := startCaptchaChallenge(b.Client, captchaErr.ChallengeID)
+			if err != nil {
+				return out, errors.New("failed to start captcha challenge: " + err.Error())
+			}
+			answer, err := b.captchaCallback(questionRaw, iconsRaw)
+			if err != nil {
+				return out, errors.New("failed to get answer for captcha challenge: " + err.Error())
+			}
+			if err := solveChallenge(b.Client, captchaErr.ChallengeID, answer); err != nil {
+				return out, errors.New("failed to solve captcha challenge: " + err.Error())
+			}
+			continue
+		} else if err != nil {
 			return out, err
 		}
-		defer resp.Body.Close()
-
-		if resp.StatusCode == http.StatusConflict {
-			// Question: https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/text
-			// Icons:    https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB/drag-icons
-			// POST:     https://image-drop-challenge.gameforge.com/challenge/c434aa65-a064-498f-9ca4-98054bab0db8/en-GB {"answer":2} // 0 indexed
-			//           {"id":"c434aa65-a064-498f-9ca4-98054bab0db8","lastUpdated":1611749410077,"status":"solved"}
-			gfChallengeIDValue := resp.Header.Get(gfChallengeID) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
-			if gfChallengeIDValue != "" {
-				parts := strings.Split(gfChallengeIDValue, ";")
-				challengeID = parts[0]
-
-				if tried || b.captchaCallback == nil {
-					return out, errors.New("captcha required, " + challengeID)
-				}
-				tried = true
-
-				questionRaw, iconsRaw, err := startCaptchaChallenge(b.Client, challengeID)
-				if err != nil {
-					return out, errors.New("failed to start captcha challenge: " + err.Error())
-				}
-				answer, err := b.captchaCallback(questionRaw, iconsRaw)
-				if err != nil {
-					return out, errors.New("failed to get answer for captcha challenge: " + err.Error())
-				}
-				if err := solveChallenge(b.Client, challengeID, answer); err != nil {
-					return out, errors.New("failed to solve captcha challenge: " + err.Error())
-				}
-				continue
-			}
-		}
-
-		if resp.StatusCode >= http.StatusInternalServerError {
-			return out, errors.New("OGame server error code : " + resp.Status)
-		}
-
-		by, _, err := readBody(resp)
-		if resp.StatusCode != http.StatusCreated {
-			if string(by) == `{"reason":"OTP_REQUIRED"}` {
-				return out, ErrOTPRequired
-			}
-			if string(by) == `{"reason":"OTP_INVALID"}` {
-				return out, ErrOTPInvalid
-			}
-			b.error(resp.StatusCode, string(by), err)
-			return out, ErrBadCredentials
-		}
-
-		if err := json.Unmarshal(by, &out); err != nil {
-			b.error(err, string(by))
-			return out, err
-		}
-
 		// put in cookie jar so that we can re-login reusing the cookies
 		u, _ := url.Parse("https://gameforge.com")
 		cookies := b.Client.Jar.Cookies(u)
@@ -1254,42 +1219,57 @@ func postSessionsReq(client IHttpClient, gameEnvironmentID, platformGameID, user
 	return client.Do(req)
 }
 
-func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
+type CaptchaRequiredError struct {
+	ChallengeID string
+}
+
+func NewCaptchaRequiredError(challengeID string) *CaptchaRequiredError {
+	return &CaptchaRequiredError{ChallengeID: challengeID}
+}
+
+func (e CaptchaRequiredError) Error() string {
+	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
+}
+
+func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, int64, error) {
 	var out postSessionsResponse
 	resp, err := postSessionsReq(client, gameEnvironmentID, platformGameID, username, password, otpSecret, "")
 	if err != nil {
-		return out, err
+		return out, 0, err
 	}
 	defer resp.Body.Close()
+	by, bytesDownloaded, err := readBody(resp)
 
 	if resp.StatusCode == http.StatusConflict {
 		gfChallengeID := resp.Header.Get(gfChallengeID)
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
-			return out, errors.New("captcha required, " + challengeID)
+			return out, bytesDownloaded, NewCaptchaRequiredError(challengeID)
 		}
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		return out, errors.New("OGame server error code : " + resp.Status)
+		return out, bytesDownloaded, errors.New("OGame server error code : " + resp.Status)
 	}
 
-	by, _, _ := readBody(resp)
+	if err != nil {
+		return out, bytesDownloaded, err
+	}
 	if resp.StatusCode != http.StatusCreated {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
-			return out, ErrOTPRequired
+			return out, bytesDownloaded, ErrOTPRequired
 		}
 		if string(by) == `{"reason":"OTP_INVALID"}` {
-			return out, ErrOTPInvalid
+			return out, bytesDownloaded, ErrOTPInvalid
 		}
-		return out, ErrBadCredentials
+		return out, bytesDownloaded, ErrBadCredentials
 	}
 
 	if err := json.Unmarshal(by, &out); err != nil {
-		return out, err
+		return out, bytesDownloaded, err
 	}
-	return out, nil
+	return out, bytesDownloaded, nil
 }
 
 func (b *OGame) login() error {
