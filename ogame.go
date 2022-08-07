@@ -366,34 +366,14 @@ func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Cl
 	return nil
 }
 
-// AddAccount adds an account to an gameforge lobby
-func AddAccount(lobby, username, password, otpSecret, universe, lang string, client *http.Client) (NewAccount, error) {
+func addAccount(lobby, accountGroup, sessionToken string, client IHttpClient) (NewAccount, error) {
 	var newAccount NewAccount
-	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
-	if err != nil {
-		return newAccount, err
-	}
-	postSessionsRes, _, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
-	if err != nil {
-		return newAccount, err
-	}
-	servers, err := getServers2(lobby, client)
-	if err != nil {
-		return newAccount, err
-	}
-	var server Server
-	for _, s := range servers {
-		if s.Name == universe && s.Language == lang {
-			server = s
-			break
-		}
-	}
 	var payload struct {
 		AccountGroup string `json:"accountGroup"`
 		Locale       string `json:"locale"`
 		Kid          string `json:"kid"`
 	}
-	payload.AccountGroup = server.AccountGroup
+	payload.AccountGroup = accountGroup
 	payload.Locale = "en_GB"
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
@@ -403,8 +383,8 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 	if err != nil {
 		return newAccount, err
 	}
-	newAccount.BearerToken = postSessionsRes.Token
-	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
+	newAccount.BearerToken = sessionToken
+	req.Header.Add("authorization", "Bearer "+sessionToken)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
@@ -426,6 +406,31 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 		return newAccount, errors.New(newAccount.Error)
 	}
 	return newAccount, nil
+}
+
+// AddAccount adds an account to a gameforge lobby
+func AddAccount(lobby, username, password, otpSecret, universe, lang string, client *http.Client) (NewAccount, error) {
+	var newAccount NewAccount
+	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
+	if err != nil {
+		return newAccount, err
+	}
+	postSessionsRes, _, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+	if err != nil {
+		return newAccount, err
+	}
+	servers, err := getServers2(lobby, client)
+	if err != nil {
+		return newAccount, err
+	}
+	var server Server
+	for _, s := range servers {
+		if s.Name == universe && s.Language == lang {
+			server = s
+			break
+		}
+	}
+	return addAccount(lobby, server.AccountGroup, postSessionsRes.Token, client)
 }
 
 // New creates a new instance of OGame wrapper.
@@ -604,7 +609,7 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 	return userAccounts, nil
 }
 
-func getServers2(lobby string, client *http.Client) ([]Server, error) {
+func getServers2(lobby string, client IHttpClient) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest("GET", "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
 	if err != nil {
@@ -848,6 +853,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		err := b.login()
 		return false, err
 	}
+	b.bearerToken = token
 	server, userAccount, err := b.loginPart1(token)
 	if err2.Is(err, context.Canceled) {
 		return false, err
@@ -958,7 +964,7 @@ func getConfiguration(b *OGame) (string, string, error) {
 	return string(gameEnvironmentID), string(platformGameID), nil
 }
 
-func getConfiguration2(client *http.Client, lobby string) (string, string, error) {
+func getConfiguration2(client IHttpClient, lobby string) (string, string, error) {
 	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
 	req, err := http.NewRequest("GET", ogURL, nil)
 	if err != nil {
@@ -1130,7 +1136,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		}
 		cookies = append(cookies, cookie)
 		b.Client.Jar.SetCookies(u, cookies)
-
+		b.bearerToken = out.Token
 		return out, nil
 	}
 }
@@ -4917,43 +4923,8 @@ type NewAccount struct {
 }
 
 func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
-	var payload struct {
-		Language string `json:"language"`
-		Number   int    `json:"number"`
-	}
-	payload.Language = lang
-	payload.Number = number
-	jsonPayloadBytes, err := json.Marshal(&payload)
-	var newAccount NewAccount
-	if err != nil {
-		return newAccount, err
-	}
-	req, err := http.NewRequest("PUT", "https://"+b.lobby+".ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
-	if err != nil {
-		return newAccount, err
-	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req = req.WithContext(b.ctx)
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return newAccount, err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	by, _, err := readBody(resp)
-	if err != nil {
-		return newAccount, err
-	}
-	b.bytesUploaded += req.ContentLength
-	b.bytesDownloaded += int64(len(by))
-	if err := json.Unmarshal(by, &newAccount); err != nil {
-		return newAccount, errors.New(err.Error() + " : " + string(by))
-	}
-	return newAccount, nil
+	accountGroup := fmt.Sprintf("%s_%d", lang, number)
+	return addAccount(b.lobby, accountGroup, b.bearerToken, b.Client)
 }
 
 func (b *OGame) taskRunner() {
