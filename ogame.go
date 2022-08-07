@@ -1113,27 +1113,23 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 				parts := strings.Split(gfChallengeIDValue, ";")
 				challengeID = parts[0]
 
-				if tried {
+				if tried || b.captchaCallback == nil {
 					return out, errors.New("captcha required, " + challengeID)
 				}
 				tried = true
 
-				if b.captchaCallback != nil {
-					questionRaw, iconsRaw, err := startCaptchaChallenge(b.Client, challengeID)
-					if err != nil {
-						return out, errors.New("failed to start captcha challenge: " + err.Error())
-					}
-					answer, err := b.captchaCallback(questionRaw, iconsRaw)
-					if err != nil {
-						return out, errors.New("failed to get answer for captcha challenge: " + err.Error())
-					}
-					if err := solveChallenge(b.Client, challengeID, answer); err != nil {
-						return out, errors.New("failed to solve captcha challenge: " + err.Error())
-					}
-					continue
+				questionRaw, iconsRaw, err := startCaptchaChallenge(b.Client, challengeID)
+				if err != nil {
+					return out, errors.New("failed to start captcha challenge: " + err.Error())
 				}
-
-				return out, errors.New("captcha required, " + challengeID)
+				answer, err := b.captchaCallback(questionRaw, iconsRaw)
+				if err != nil {
+					return out, errors.New("failed to get answer for captcha challenge: " + err.Error())
+				}
+				if err := solveChallenge(b.Client, challengeID, answer); err != nil {
+					return out, errors.New("failed to solve captcha challenge: " + err.Error())
+				}
+				continue
 			}
 		}
 
