@@ -4,17 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/labstack/echo"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/pquerna/otp"
-	"github.com/pquerna/otp/totp"
-
-	"github.com/labstack/echo"
 )
 
 // APIResp ...
@@ -1320,37 +1315,10 @@ func GetCaptchaHandler(c echo.Context) error {
 		return c.HTML(http.StatusOK, err.Error())
 	}
 
-	//var out postSessionsResponse
-	payload := url.Values{
-		"autoGameAccountCreation": {"false"},
-		"gameEnvironmentId":       {gameEnvironmentID},
-		"platformGameId":          {platformGameID},
-		"gfLang":                  {"en"},
-		"locale":                  {"en_GB"},
-		"identity":                {bot.Username},
-		"password":                {bot.password},
-	}
-	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	req, err := postSessionsReq(gameEnvironmentID, platformGameID, bot.Username, bot.password, bot.otpSecret, "")
 	if err != nil {
 		return c.HTML(http.StatusOK, err.Error())
 	}
-
-	if bot.otpSecret != "" {
-		passcode, err := totp.GenerateCodeCustom(bot.otpSecret, time.Now(), totp.ValidateOpts{
-			Period:    30,
-			Skew:      1,
-			Digits:    otp.DigitsSix,
-			Algorithm: otp.AlgorithmSHA1,
-		})
-		if err != nil {
-			return c.HTML(http.StatusOK, err.Error())
-		}
-		req.Header.Add("tnt-2fa-code", passcode)
-		req.Header.Add("tnt-installation-id", "")
-	}
-
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 
 	resp, err := bot.doReqWithLoginProxyTransport(req)
 	if err != nil {

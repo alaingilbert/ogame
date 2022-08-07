@@ -1107,7 +1107,7 @@ func solveChallenge(client IHttpClient, challengeID string, answer int64) error 
 	return nil
 }
 
-func postSessionsReq(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID string) (*http.Response, error) {
+func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID string) (*http.Request, error) {
 	payload := url.Values{
 		"autoGameAccountCreation": {"false"},
 		"gameEnvironmentId":       {gameEnvironmentID},
@@ -1141,7 +1141,7 @@ func postSessionsReq(client IHttpClient, gameEnvironmentID, platformGameID, user
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	return client.Do(req)
+	return req, nil
 }
 
 type CaptchaRequiredError struct {
@@ -1158,7 +1158,11 @@ func (e CaptchaRequiredError) Error() string {
 
 func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
 	var out postSessionsResponse
-	resp, err := postSessionsReq(client, gameEnvironmentID, platformGameID, username, password, otpSecret, "")
+	req, err := postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, "")
+	if err != nil {
+		return out, err
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return out, err
 	}
