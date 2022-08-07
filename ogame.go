@@ -288,7 +288,7 @@ func Register(lobby, email, password, challengeID, lang string, client *http.Cli
 }
 
 // ValidateAccount validate a gameforge account
-func ValidateAccount(code string, client *http.Client) error {
+func ValidateAccount(code string, client IHttpClient) error {
 	if len(code) != 36 {
 		return errors.New("invalid validation code")
 	}
@@ -312,7 +312,7 @@ func (b *OGame) validateAccount(code string) error {
 			b.Client.Transport = oldTransport
 		}()
 	}
-	return ValidateAccount(code, &b.Client.Client)
+	return ValidateAccount(code, b.Client)
 }
 
 // RedeemCode ...
@@ -1097,41 +1097,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	tried := false
 	for {
 		var out postSessionsResponse
-		payload := url.Values{
-			"autoGameAccountCreation": {"false"},
-			"gameEnvironmentId":       {gameEnvironmentID},
-			"platformGameId":          {platformGameID},
-			"gfLang":                  {"en"},
-			"locale":                  {"en_GB"},
-			"identity":                {username},
-			"password":                {password},
-		}
-		if challengeID != "" {
-			payload.Set("gf-challenge-id", challengeID)
-		}
-		req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
-		if err != nil {
-			return out, err
-		}
-
-		if otpSecret != "" {
-			passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
-				Period:    30,
-				Skew:      1,
-				Digits:    otp.DigitsSix,
-				Algorithm: otp.AlgorithmSHA1,
-			})
-			if err != nil {
-				return out, err
-			}
-			req.Header.Add("tnt-2fa-code", passcode)
-			req.Header.Add("tnt-installation-id", "")
-		}
-
-		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-		req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-
-		resp, err := b.Client.Do(req)
+		resp, err := postSessionsReq(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID)
 		if err != nil {
 			return out, err
 		}
@@ -1153,7 +1119,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 				tried = true
 
 				if b.captchaCallback != nil {
-					questionRaw, iconsRaw, err := startCaptchaChallenge(&b.Client.Client, challengeID)
+					questionRaw, iconsRaw, err := startCaptchaChallenge(b.Client, challengeID)
 					if err != nil {
 						return out, errors.New("failed to start captcha challenge: " + err.Error())
 					}
@@ -1161,7 +1127,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 					if err != nil {
 						return out, errors.New("failed to get answer for captcha challenge: " + err.Error())
 					}
-					if err := solveChallenge(&b.Client.Client, challengeID, answer); err != nil {
+					if err := solveChallenge(b.Client, challengeID, answer); err != nil {
 						return out, errors.New("failed to solve captcha challenge: " + err.Error())
 					}
 					continue
@@ -1208,7 +1174,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	}
 }
 
-func startCaptchaChallenge(client *http.Client, challengeID string) (questionRaw, iconsRaw []byte, err error) {
+func startCaptchaChallenge(client IHttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
 	challengeResp, err := client.Get("https://challenge.gameforge.com/challenge/" + challengeID)
 	if err != nil {
 		return
@@ -1239,7 +1205,7 @@ func startCaptchaChallenge(client *http.Client, challengeID string) (questionRaw
 	return
 }
 
-func solveChallenge(client *http.Client, challengeID string, answer int64) error {
+func solveChallenge(client IHttpClient, challengeID string, answer int64) error {
 	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, strings.NewReader(`{"answer":`+strconv.FormatInt(answer, 10)+`}`))
 	req.Header.Set("Content-Type", "application/json")
@@ -1255,8 +1221,7 @@ func solveChallenge(client *http.Client, challengeID string, answer int64) error
 	return nil
 }
 
-func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
-	var out postSessionsResponse
+func postSessionsReq(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID string) (*http.Response, error) {
 	payload := url.Values{
 		"autoGameAccountCreation": {"false"},
 		"gameEnvironmentId":       {gameEnvironmentID},
@@ -1266,9 +1231,12 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 		"identity":                {username},
 		"password":                {password},
 	}
+	if challengeID != "" {
+		payload.Set("gf-challenge-id", challengeID)
+	}
 	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
 	if err != nil {
-		return out, err
+		return nil, err
 	}
 
 	if otpSecret != "" {
@@ -1279,7 +1247,7 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 			Algorithm: otp.AlgorithmSHA1,
 		})
 		if err != nil {
-			return out, err
+			return nil, err
 		}
 		req.Header.Add("tnt-2fa-code", passcode)
 		req.Header.Add("tnt-installation-id", "")
@@ -1287,8 +1255,12 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	return client.Do(req)
+}
 
-	resp, err := client.Do(req)
+func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
+	var out postSessionsResponse
+	resp, err := postSessionsReq(client, gameEnvironmentID, platformGameID, username, password, otpSecret, "")
 	if err != nil {
 		return out, err
 	}
