@@ -408,12 +408,9 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 	if err != nil {
 		return newAccount, err
 	}
-	var server Server
-	for _, s := range servers {
-		if s.Name == universe && s.Language == lang {
-			server = s
-			break
-		}
+	server, found := findServer(universe, lang, servers)
+	if !found {
+		return newAccount, errors.New("server not found")
 	}
 	return addAccount(lobby, server.AccountGroup, postSessionsRes.Token, client)
 }
@@ -615,17 +612,23 @@ func getServers(lobby string, client IHttpClient) ([]Server, error) {
 	return servers, nil
 }
 
+func findServer(universe, lang string, servers []Server) (out Server, found bool) {
+	for _, s := range servers {
+		if s.Name == universe && s.Language == lang {
+			return s, true
+		}
+	}
+	return
+}
+
 func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
 	if lang == "ba" {
 		lang = "yu"
 	}
-	var server Server
 	var acc account
-	for _, s := range servers {
-		if s.Name == universe && s.Language == lang {
-			server = s
-			break
-		}
+	server, found := findServer(universe, lang, servers)
+	if !found {
+		return account{}, Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
 	}
 	for _, a := range accounts {
 		if a.Server.Language == server.Language && a.Server.Number == server.Number {
@@ -639,9 +642,6 @@ func findAccount(universe, lang string, playerID int64, accounts []account, serv
 				break
 			}
 		}
-	}
-	if server.Number == 0 {
-		return account{}, Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
 	}
 	if acc.ID == 0 {
 		return account{}, Server{}, ErrAccountNotFound
