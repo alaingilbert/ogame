@@ -1294,7 +1294,7 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode == 409 {
+	if resp.StatusCode == http.StatusConflict {
 		gfChallengeID := resp.Header.Get(gfChallengeID)
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
@@ -1303,12 +1303,12 @@ func postSessions2(client *http.Client, gameEnvironmentID, platformGameID, usern
 		}
 	}
 
-	if resp.StatusCode >= 500 {
+	if resp.StatusCode >= http.StatusInternalServerError {
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
 	by, _, _ := readBody(resp)
-	if resp.StatusCode != 201 {
+	if resp.StatusCode != http.StatusCreated {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ErrOTPRequired
 		}
