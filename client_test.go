@@ -18,7 +18,7 @@ func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 func TestOgameClient_Do(t *testing.T) {
-	c := OGameClient{UserAgent: "test", Client: http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
+	c := OGameClient{userAgent: "test", Client: &http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 		// Test request parameters
 		return &http.Response{
 			StatusCode: 200,
@@ -32,4 +32,22 @@ func TestOgameClient_Do(t *testing.T) {
 	_, err := c.Do(req)
 	assert.Nil(t, err)
 	assert.Equal(t, "test", req.Header.Get("User-Agent"))
+}
+
+func TestOgameClient_SetUserAgent(t *testing.T) {
+	c := OGameClient{userAgent: "test", Client: &http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
+		// Test request parameters
+		return &http.Response{
+			StatusCode: 200,
+			// Send response to be tested
+			Body: ioutil.NopCloser(bytes.NewBufferString(`OK`)),
+			// Must be set to non-nil value or it panics
+			Header: make(http.Header),
+		}
+	})}}
+	c.SetUserAgent("test1")
+	req, _ := http.NewRequest("GET", "http://test.com", nil)
+	_, err := c.Do(req)
+	assert.Nil(t, err)
+	assert.Equal(t, "test1", req.Header.Get("User-Agent"))
 }

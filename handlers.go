@@ -979,7 +979,7 @@ func GetStaticHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := bot.Client.Do(req)
+	resp, err := bot.client.Do(req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -1310,7 +1310,7 @@ func TechsHandler(c echo.Context) error {
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	gameEnvironmentID, platformGameID, err := getConfiguration(bot.Client, bot.lobby)
+	gameEnvironmentID, platformGameID, err := getConfiguration(bot.client, bot.lobby)
 	if err != nil {
 		return c.HTML(http.StatusOK, err.Error())
 	}

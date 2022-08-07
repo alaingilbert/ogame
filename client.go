@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"sync"
 	"sync/atomic"
 	"time"
 )
@@ -17,8 +18,9 @@ type IHttpClient interface {
 
 // OGameClient ...
 type OGameClient struct {
+	sync.Mutex
 	*http.Client
-	UserAgent       string
+	userAgent       string
 	rpsCounter      int32 // atomic
 	rps             int32 // atomic
 	maxRPS          int32 // atomic
@@ -66,17 +68,25 @@ func (c *OGameClient) incrRPS() {
 }
 
 func (c *OGameClient) Get(url string) (*http.Response, error) {
+	return c.get(url)
+}
+
+func (c *OGameClient) get(url string) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
-	return c.Do(req)
+	return c.do(req)
 }
 
 // Do executes a request
 func (c *OGameClient) Do(req *http.Request) (*http.Response, error) {
+	return c.do(req)
+}
+
+func (c *OGameClient) do(req *http.Request) (*http.Response, error) {
 	c.incrRPS()
-	req.Header.Add("User-Agent", c.UserAgent)
+	req.Header.Add("User-Agent", c.userAgent)
 	resp, err := c.Client.Do(req)
 	if err != nil {
 		return nil, err
@@ -88,6 +98,35 @@ func (c *OGameClient) Do(req *http.Request) (*http.Response, error) {
 	// Reset resp.Body so it can be use again
 	resp.Body = io.NopCloser(bytes.NewBuffer(body))
 	return resp, err
+}
+
+func (c *OGameClient) WithTransport(tr http.RoundTripper, clb func(IHttpClient) error) error {
+	c.Lock()
+	defer c.Unlock()
+	if tr != nil {
+		oldTransport := c.Transport
+		c.Transport = tr
+		defer func() { c.Transport = oldTransport }()
+	}
+	return clb(c)
+}
+
+func (c *OGameClient) SetTransport(tr http.RoundTripper) {
+	c.Lock()
+	defer c.Unlock()
+	c.Transport = tr
+}
+
+func (c *OGameClient) UserAgent() string {
+	c.Lock()
+	defer c.Unlock()
+	return c.userAgent
+}
+
+func (c *OGameClient) SetUserAgent(userAgent string) {
+	c.Lock()
+	defer c.Unlock()
+	c.userAgent = userAgent
 }
 
 // FakeDo for testing purposes

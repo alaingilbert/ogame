@@ -78,7 +78,7 @@ type OGame struct {
 	serverData            ServerData
 	location              *time.Location
 	serverURL             string
-	Client                *OGameClient
+	client                *OGameClient
 	logger                *log.Logger
 	chatCallbacks         []func(msg ChatMsg)
 	wsCallbacks           map[string]func(msg []byte)
@@ -303,14 +303,9 @@ func ValidateAccount(code string, client IHttpClient) error {
 }
 
 func (b *OGame) validateAccount(code string) error {
-	if b.loginProxyTransport != nil {
-		oldTransport := b.Client.Transport
-		b.Client.Transport = b.loginProxyTransport
-		defer func() {
-			b.Client.Transport = oldTransport
-		}()
-	}
-	return ValidateAccount(code, b.Client)
+	return b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+		return ValidateAccount(code, client)
+	})
 }
 
 // RedeemCode ...
@@ -505,11 +500,11 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 			}
 		}
 
-		b.Client = NewOGameClient()
-		b.Client.Jar = jar
-		b.Client.UserAgent = defaultUserAgent
+		b.client = NewOGameClient()
+		b.client.Jar = jar
+		b.client.SetUserAgent(defaultUserAgent)
 	} else {
-		b.Client = client
+		b.client = client
 	}
 
 	b.tasks = make(priorityQueue, 0)
@@ -587,7 +582,7 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 	req.Header.Add("authorization", "Bearer "+token)
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req = req.WithContext(b.ctx)
-	resp, err := b.Client.Do(req)
+	resp, err := b.client.Do(req)
 	if err != nil {
 		return userAccounts, err
 	}
@@ -713,7 +708,7 @@ func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
 	req.Header.Add("authorization", "Bearer "+token)
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req = req.WithContext(b.ctx)
-	resp, err := b.Client.Do(req)
+	resp, err := b.client.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -784,7 +779,7 @@ func (b *OGame) getServerData() (ServerData, error) {
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req = req.WithContext(b.ctx)
-	resp, err := b.Client.Do(req)
+	resp, err := b.client.Do(req)
 	if err != nil {
 		return serverData, err
 	}
@@ -850,7 +845,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			if err := b.loginPart3(userAccount, pageHTML); err != nil {
 				return false, err
 			}
-			if err := b.Client.Jar.(*cookiejar.Jar).Save(); err != nil {
+			if err := b.client.Jar.(*cookiejar.Jar).Save(); err != nil {
 				return false, err
 			}
 			for _, fn := range b.interceptorCallbacks {
@@ -873,7 +868,7 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	if b.bearerToken != "" {
 		token = b.bearerToken
 	} else {
-		cookies := b.Client.Jar.(*cookiejar.Jar).AllCookies()
+		cookies := b.client.Jar.(*cookiejar.Jar).AllCookies()
 		for _, c := range cookies {
 			if c.Name == gfTokenCookieName {
 				token = c.Value
@@ -1011,42 +1006,42 @@ type postSessionsResponse struct {
 }
 
 func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (out *postSessionsResponse, err error) {
-	if b.loginProxyTransport != nil {
-		oldTransport := b.Client.Transport
-		b.Client.Transport = b.loginProxyTransport
-		defer func() { b.Client.Transport = oldTransport }()
-	}
+	if err := b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+		tried := false
+		for {
+			out, err = postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+			var captchaErr *CaptchaRequiredError
+			if errors.As(err, &captchaErr) {
+				if tried || b.captchaCallback == nil {
+					return err
+				}
+				tried = true
 
-	tried := false
-	for {
-		out, err = postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
-		var captchaErr *CaptchaRequiredError
-		if errors.As(err, &captchaErr) {
-			if tried || b.captchaCallback == nil {
-				return out, err
+				questionRaw, iconsRaw, err := startCaptchaChallenge(client, captchaErr.ChallengeID)
+				if err != nil {
+					return errors.New("failed to start captcha challenge: " + err.Error())
+				}
+				answer, err := b.captchaCallback(questionRaw, iconsRaw)
+				if err != nil {
+					return errors.New("failed to get answer for captcha challenge: " + err.Error())
+				}
+				if err := solveChallenge(client, captchaErr.ChallengeID, answer); err != nil {
+					return errors.New("failed to solve captcha challenge: " + err.Error())
+				}
+				continue
+			} else if err != nil {
+				return err
 			}
-			tried = true
-
-			questionRaw, iconsRaw, err := startCaptchaChallenge(b.Client, captchaErr.ChallengeID)
-			if err != nil {
-				return out, errors.New("failed to start captcha challenge: " + err.Error())
-			}
-			answer, err := b.captchaCallback(questionRaw, iconsRaw)
-			if err != nil {
-				return out, errors.New("failed to get answer for captcha challenge: " + err.Error())
-			}
-			if err := solveChallenge(b.Client, captchaErr.ChallengeID, answer); err != nil {
-				return out, errors.New("failed to solve captcha challenge: " + err.Error())
-			}
-			continue
-		} else if err != nil {
-			return out, err
+			break
 		}
-		break
+		return nil
+	}); err != nil {
+		return nil, err
 	}
+
 	// put in cookie jar so that we can re-login reusing the cookies
 	u, _ := url.Parse("https://gameforge.com")
-	cookies := b.Client.Jar.Cookies(u)
+	cookies := b.client.Jar.Cookies(u)
 	cookie := &http.Cookie{
 		Name:   gfTokenCookieName,
 		Value:  out.Token,
@@ -1054,7 +1049,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		Domain: ".gameforge.com",
 	}
 	cookies = append(cookies, cookie)
-	b.Client.Jar.SetCookies(u, cookies)
+	b.client.Jar.SetCookies(u, cookies)
 	b.bearerToken = out.Token
 	return out, nil
 }
@@ -1203,7 +1198,7 @@ func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, userna
 
 func (b *OGame) login() error {
 	b.debug("get configuration")
-	gameEnvironmentID, platformGameID, err := getConfiguration(b.Client, b.lobby)
+	gameEnvironmentID, platformGameID, err := getConfiguration(b.client, b.lobby)
 	if err != nil {
 		return err
 	}
@@ -1236,7 +1231,7 @@ func (b *OGame) login() error {
 		return err
 	}
 
-	if err := b.Client.Jar.(*cookiejar.Jar).Save(); err != nil {
+	if err := b.client.Jar.(*cookiejar.Jar).Save(); err != nil {
 		return err
 	}
 	for _, fn := range b.interceptorCallbacks {
@@ -1252,7 +1247,7 @@ func (b *OGame) loginPart1(token string) (server Server, userAccount account, er
 		return
 	}
 	b.debug("get servers")
-	servers, err := getServers(b.lobby, b.Client)
+	servers, err := getServers(b.lobby, b.client)
 	if err != nil {
 		return
 	}
@@ -1455,14 +1450,10 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 // execute a request using the login proxy transport if set
 func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Response, err error) {
 	req = req.WithContext(b.ctx)
-	if b.loginProxyTransport != nil {
-		oldTransport := b.Client.Transport
-		b.Client.Transport = b.loginProxyTransport
-		resp, err = b.Client.Do(req)
-		b.Client.Transport = oldTransport
-	} else {
-		resp, err = b.Client.Do(req)
-	}
+	_ = b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+		resp, err = client.Do(req)
+		return nil
+	})
 	return
 }
 
@@ -1517,14 +1508,15 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 	}
 	if proxyAddress == "" {
 		b.loginProxyTransport = nil
-		b.Client.Transport = http.DefaultTransport
+		b.client.SetTransport(http.DefaultTransport)
 		return nil
 	}
 	transport, err := getTransport(proxyAddress, username, password, proxyType, config)
 	b.loginProxyTransport = transport
-	b.Client.Transport = transport
 	if loginOnly {
-		b.Client.Transport = http.DefaultTransport
+		b.client.SetTransport(http.DefaultTransport)
+	} else {
+		b.client.SetTransport(transport)
 	}
 	return err
 }
@@ -2006,7 +1998,7 @@ func (m ChatMsg) String() string {
 
 func (b *OGame) logout() {
 	_, _ = b.getPage(LogoutPage, CelestialID(0))
-	b.Client.Jar.(*cookiejar.Jar).Save()
+	b.client.Jar.(*cookiejar.Jar).Save()
 	if atomic.CompareAndSwapInt32(&b.isLoggedInAtom, 1, 0) {
 		select {
 		case <-b.closeChatCh:
@@ -2131,7 +2123,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	}
 
 	req = req.WithContext(b.ctx)
-	resp, err := b.Client.Do(req)
+	resp, err := b.client.Do(req)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -2277,8 +2269,8 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 	if err := b.withRetry(func() (err error) {
 		// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
 		// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
-		b.Client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
-		defer func() { b.Client.CheckRedirect = nil }()
+		b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+		defer func() { b.client.CheckRedirect = nil }()
 
 		pageHTMLBytes, err = b.execRequest("POST", finalURL, payload, vals)
 		if err != nil {
@@ -2944,7 +2936,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 	}
 
 	req = req.WithContext(b.ctx)
-	resp, err := b.Client.Do(req)
+	resp, err := b.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -3673,7 +3665,7 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 		"last217":      {strconv.FormatInt(settings.Crawler, 10)},
 	}
 	url2 := b.serverURL + "/game/index.php?page=resourceSettings"
-	resp, err := b.Client.PostForm(url2, payload)
+	resp, err := b.client.PostForm(url2, payload)
 	if err != nil {
 		return err
 	}
@@ -4846,7 +4838,7 @@ type NewAccount struct {
 
 func (b *OGame) addAccount(number int, lang string) (NewAccount, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
-	return addAccount(b.lobby, accountGroup, b.bearerToken, b.Client)
+	return addAccount(b.lobby, accountGroup, b.bearerToken, b.client)
 }
 
 func (b *OGame) taskRunner() {
@@ -5022,17 +5014,17 @@ func (b *OGame) IsConnected() bool {
 
 // GetClient get the http client used by the bot
 func (b *OGame) GetClient() *OGameClient {
-	return b.Client
+	return b.client
 }
 
 // SetClient set the http client used by the bot
 func (b *OGame) SetClient(client *OGameClient) {
-	b.Client = client
+	b.client = client
 }
 
 // GetLoginClient get the http client used by the bot for login operations
 func (b *OGame) GetLoginClient() *OGameClient {
-	return b.Client
+	return b.client
 }
 
 // GetPublicIP get the public IP used by the bot
@@ -5120,7 +5112,7 @@ func (b *OGame) GetLanguage() string {
 
 // SetUserAgent change the user-agent used by the http client
 func (b *OGame) SetUserAgent(newUserAgent string) {
-	b.Client.UserAgent = newUserAgent
+	b.client.SetUserAgent(newUserAgent)
 }
 
 // LoginWithBearerToken to ogame server reusing existing token
@@ -5144,12 +5136,12 @@ func (b *OGame) Logout() { b.WithPriority(Normal).Logout() }
 
 // BytesDownloaded returns the amount of bytes downloaded
 func (b *OGame) BytesDownloaded() int64 {
-	return b.Client.bytesDownloaded
+	return b.client.bytesDownloaded
 }
 
 // BytesUploaded returns the amount of bytes uploaded
 func (b *OGame) BytesUploaded() int64 {
-	return b.Client.bytesUploaded
+	return b.client.bytesUploaded
 }
 
 // GetUniverseName get the name of the universe the bot is playing into
