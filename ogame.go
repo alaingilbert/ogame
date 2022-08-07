@@ -1014,9 +1014,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 	if b.loginProxyTransport != nil {
 		oldTransport := b.Client.Transport
 		b.Client.Transport = b.loginProxyTransport
-		defer func() {
-			b.Client.Transport = oldTransport
-		}()
+		defer func() { b.Client.Transport = oldTransport }()
 	}
 
 	var out postSessionsResponse
