@@ -1315,7 +1315,7 @@ func TechsHandler(c echo.Context) error {
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	gameEnvironmentID, platformGameID, err := getConfiguration(bot)
+	gameEnvironmentID, platformGameID, _, err := getConfiguration(bot.Client, bot.lobby)
 	if err != nil {
 		return c.HTML(http.StatusOK, err.Error())
 	}

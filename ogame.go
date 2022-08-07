@@ -317,7 +317,7 @@ func (b *OGame) validateAccount(code string) error {
 
 // RedeemCode ...
 func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Client) error {
-	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
+	gameEnvironmentID, platformGameID, _, err := getConfiguration(client, lobby)
 	if err != nil {
 		return err
 	}
@@ -411,7 +411,7 @@ func addAccount(lobby, accountGroup, sessionToken string, client IHttpClient) (N
 // AddAccount adds an account to a gameforge lobby
 func AddAccount(lobby, username, password, otpSecret, universe, lang string, client *http.Client) (NewAccount, error) {
 	var newAccount NewAccount
-	gameEnvironmentID, platformGameID, err := getConfiguration2(client, lobby)
+	gameEnvironmentID, platformGameID, _, err := getConfiguration(client, lobby)
 	if err != nil {
 		return newAccount, err
 	}
@@ -928,74 +928,38 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	return b.loginWithBearerToken(token)
 }
 
-func getConfiguration(b *OGame) (string, string, error) {
-	ogURL := "https://" + b.lobby + ".ogame.gameforge.com/config/configuration.js"
-	req, err := http.NewRequest("GET", ogURL, nil)
-	if err != nil {
-		return "", "", err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req = req.WithContext(b.ctx)
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return "", "", err
-	}
-	defer resp.Body.Close()
-	by, err := wrapperReadBody(b, resp)
-	if err != nil {
-		return "", "", err
-	}
-	b.bytesUploaded += req.ContentLength
-
-	gameEnvironmentIDRgx := regexp.MustCompile(`"gameEnvironmentId":"([^"]+)"`)
-	m := gameEnvironmentIDRgx.FindSubmatch(by)
-	if len(m) != 2 {
-		return "", "", errors.New("failed to get gameEnvironmentId")
-	}
-	gameEnvironmentID := m[1]
-
-	platformGameIDRgx := regexp.MustCompile(`"platformGameId":"([^"]+)"`)
-	m = platformGameIDRgx.FindSubmatch(by)
-	if len(m) != 2 {
-		return "", "", errors.New("failed to get platformGameId")
-	}
-	platformGameID := m[1]
-
-	return string(gameEnvironmentID), string(platformGameID), nil
-}
-
-func getConfiguration2(client IHttpClient, lobby string) (string, string, error) {
+func getConfiguration(client IHttpClient, lobby string) (string, string, int64, error) {
 	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
 	req, err := http.NewRequest("GET", ogURL, nil)
 	if err != nil {
-		return "", "", err
+		return "", "", 0, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", "", err
+		return "", "", 0, err
 	}
 	defer resp.Body.Close()
-	by, _, err := readBody(resp)
+	by, bytesDownloaded, err := readBody(resp)
 	if err != nil {
-		return "", "", err
+		return "", "", bytesDownloaded, err
 	}
 
 	gameEnvironmentIDRgx := regexp.MustCompile(`"gameEnvironmentId":"([^"]+)"`)
 	m := gameEnvironmentIDRgx.FindSubmatch(by)
 	if len(m) != 2 {
-		return "", "", errors.New("failed to get gameEnvironmentId")
+		return "", "", bytesDownloaded, errors.New("failed to get gameEnvironmentId")
 	}
 	gameEnvironmentID := m[1]
 
 	platformGameIDRgx := regexp.MustCompile(`"platformGameId":"([^"]+)"`)
 	m = platformGameIDRgx.FindSubmatch(by)
 	if len(m) != 2 {
-		return "", "", errors.New("failed to get platformGameId")
+		return "", "", bytesDownloaded, errors.New("failed to get platformGameId")
 	}
 	platformGameID := m[1]
 
-	return string(gameEnvironmentID), string(platformGameID), nil
+	return string(gameEnvironmentID), string(platformGameID), bytesDownloaded, nil
 }
 
 // TelegramSolver ...
@@ -1280,7 +1244,8 @@ func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, userna
 
 func (b *OGame) login() error {
 	b.debug("get configuration")
-	gameEnvironmentID, platformGameID, err := getConfiguration(b)
+	gameEnvironmentID, platformGameID, bytesDownloaded, err := getConfiguration(b.Client, b.lobby)
+	b.bytesDownloaded += bytesDownloaded
 	if err != nil {
 		return err
 	}
