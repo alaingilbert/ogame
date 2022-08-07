@@ -94,8 +94,6 @@ type OGame struct {
 	loginWrapper          func(func() (bool, error)) error
 	getServerDataWrapper  func(func() (ServerData, error)) (ServerData, error)
 	loginProxyTransport   http.RoundTripper
-	bytesUploaded         int64
-	bytesDownloaded       int64
 	extractor             Extractor
 	apiNewHostname        string
 	characterClass        CharacterClass
@@ -602,7 +600,6 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 	if err != nil {
 		return userAccounts, err
 	}
-	b.bytesUploaded += req.ContentLength
 	if err := json.Unmarshal(by, &userAccounts); err != nil {
 		return userAccounts, errors.New("failed to get user accounts : " + err.Error() + " : " + string(by))
 	}
@@ -681,7 +678,6 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 			b.error(err)
 		}
 	}()
-	b.bytesUploaded += req.ContentLength
 	return wrapperReadBody(b, resp)
 }
 
@@ -714,8 +710,7 @@ func readBody(resp *http.Response) (respContent []byte, bytesDownloaded int64, e
 }
 
 func wrapperReadBody(b *OGame, resp *http.Response) ([]byte, error) {
-	by, n, err := readBody(resp)
-	b.bytesDownloaded += n
+	by, _, err := readBody(resp)
 	return by, err
 }
 
@@ -742,7 +737,6 @@ func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	b.bytesUploaded += req.ContentLength
 	var loginLink struct {
 		URL string
 	}
@@ -814,7 +808,6 @@ func (b *OGame) getServerData() (ServerData, error) {
 	if err != nil {
 		return serverData, err
 	}
-	b.bytesUploaded += req.ContentLength
 	if err := xml.Unmarshal(by, &serverData); err != nil {
 		return serverData, err
 	}
@@ -1039,8 +1032,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 
 	tried := false
 	for {
-		out, bytesDownloaded, err := postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
-		b.bytesDownloaded += bytesDownloaded
+		out, _, err := postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
 			if tried || b.captchaCallback == nil {
@@ -1218,8 +1210,7 @@ func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, userna
 
 func (b *OGame) login() error {
 	b.debug("get configuration")
-	gameEnvironmentID, platformGameID, bytesDownloaded, err := getConfiguration(b.Client, b.lobby)
-	b.bytesDownloaded += bytesDownloaded
+	gameEnvironmentID, platformGameID, _, err := getConfiguration(b.Client, b.lobby)
 	if err != nil {
 		return err
 	}
@@ -1268,8 +1259,7 @@ func (b *OGame) loginPart1(token string) (server Server, userAccount account, er
 		return
 	}
 	b.debug("get servers")
-	servers, bytesDownloaded, err := getServers(b.lobby, b.Client)
-	b.bytesDownloaded += bytesDownloaded
+	servers, _, err := getServers(b.lobby, b.Client)
 	if err != nil {
 		return
 	}
@@ -2165,7 +2155,6 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	if err != nil {
 		return []byte{}, err
 	}
-	b.bytesUploaded += req.ContentLength
 	return by, nil
 }
 
@@ -5162,12 +5151,12 @@ func (b *OGame) Logout() { b.WithPriority(Normal).Logout() }
 
 // BytesDownloaded returns the amount of bytes downloaded
 func (b *OGame) BytesDownloaded() int64 {
-	return b.bytesDownloaded
+	return b.Client.bytesDownloaded
 }
 
 // BytesUploaded returns the amount of bytes uploaded
 func (b *OGame) BytesUploaded() int64 {
-	return b.bytesUploaded
+	return b.Client.bytesUploaded
 }
 
 // GetUniverseName get the name of the universe the bot is playing into

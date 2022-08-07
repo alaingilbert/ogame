@@ -1,7 +1,10 @@
 package ogame
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"sync/atomic"
 	"time"
@@ -15,11 +18,13 @@ type IHttpClient interface {
 // OGameClient ...
 type OGameClient struct {
 	http.Client
-	UserAgent    string
-	rpsCounter   int32
-	rps          int32
-	maxRPS       int32
-	rpsStartTime int64
+	UserAgent       string
+	rpsCounter      int32
+	rps             int32
+	maxRPS          int32
+	rpsStartTime    int64
+	bytesDownloaded int64
+	bytesUploaded   int64
 }
 
 // NewOGameClient ...
@@ -71,7 +76,17 @@ func (c *OGameClient) Get(url string) (*http.Response, error) {
 func (c *OGameClient) Do(req *http.Request) (*http.Response, error) {
 	c.incrRPS()
 	req.Header.Add("User-Agent", c.UserAgent)
-	return c.Client.Do(req)
+	resp, err := c.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	body, _ := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	c.bytesDownloaded += int64(len(body))
+	c.bytesUploaded += req.ContentLength
+	// Reset resp.Body so it can be use again
+	resp.Body = io.NopCloser(bytes.NewBuffer(body))
+	return resp, err
 }
 
 // FakeDo for testing purposes
