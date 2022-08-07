@@ -3,9 +3,9 @@ package ogame
 import (
 	"bytes"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"github.com/labstack/echo"
-	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -1310,31 +1310,10 @@ func TechsHandler(c echo.Context) error {
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	gameEnvironmentID, platformGameID, err := getConfiguration(bot.client, bot.lobby)
-	if err != nil {
-		return c.HTML(http.StatusOK, err.Error())
-	}
-
-	req, err := postSessionsReq(gameEnvironmentID, platformGameID, bot.Username, bot.password, bot.otpSecret, "")
-	if err != nil {
-		return c.HTML(http.StatusOK, err.Error())
-	}
-
-	resp, err := bot.doReqWithLoginProxyTransport(req)
-	if err != nil {
-		return c.HTML(http.StatusOK, err.Error())
-	}
-	defer resp.Body.Close()
-	_, _ = io.Copy(io.Discard, resp.Body)
-	if resp.StatusCode == http.StatusForbidden {
-		data403, _ := readBody(resp)
-		return c.HTML(http.StatusOK, string(data403))
-	}
-
-	if resp.StatusCode == http.StatusConflict {
-		challengeID := strings.Split(resp.Header.Get(gfChallengeIDCookieName), ";")[0]
-
-		questionRaw, iconsRaw, err := startCaptchaChallenge(bot.GetClient(), challengeID)
+	_, err := postSessions2(bot.client, bot.lobby, bot.Username, bot.password, bot.otpSecret)
+	var captchaErr *CaptchaRequiredError
+	if errors.As(err, &captchaErr) {
+		questionRaw, iconsRaw, err := startCaptchaChallenge(bot.GetClient(), captchaErr.ChallengeID)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
@@ -1345,11 +1324,13 @@ func GetCaptchaHandler(c echo.Context) error {
 		html := `<img style="background-color: black;" src="data:image/png;base64,` + questionB64 + `" /><br />
 <img style="background-color: black;" src="data:image/png;base64,` + iconsB64 + `" /><br />
 <form action="/bot/captcha/solve" method="POST">
-	<input type="hidden" name="challenge_id" value="` + challengeID + `" />
+	<input type="hidden" name="challenge_id" value="` + captchaErr.ChallengeID + `" />
 	Enter 0,1,2 or 3 and press Enter <input type="number" name="answer" />
-</form>` + challengeID
+</form>` + captchaErr.ChallengeID
 
 		return c.HTML(http.StatusOK, html)
+	} else if err != nil {
+		return c.HTML(http.StatusOK, err.Error())
 	}
 	return c.HTML(http.StatusOK, "no captcha found")
 }

@@ -310,11 +310,7 @@ func (b *OGame) validateAccount(code string) error {
 
 // RedeemCode ...
 func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Client) error {
-	gameEnvironmentID, platformGameID, err := getConfiguration(client, lobby)
-	if err != nil {
-		return err
-	}
-	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, email, password, otpSecret)
+	postSessionsRes, err := postSessions2(client, lobby, email, password, otpSecret)
 	if err != nil {
 		return err
 	}
@@ -404,11 +400,7 @@ func addAccount(lobby, accountGroup, sessionToken string, client IHttpClient) (N
 // AddAccount adds an account to a gameforge lobby
 func AddAccount(lobby, username, password, otpSecret, universe, lang string, client *http.Client) (NewAccount, error) {
 	var newAccount NewAccount
-	gameEnvironmentID, platformGameID, err := getConfiguration(client, lobby)
-	if err != nil {
-		return newAccount, err
-	}
-	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+	postSessionsRes, err := postSessions2(client, lobby, username, password, otpSecret)
 	if err != nil {
 		return newAccount, err
 	}
@@ -1005,11 +997,11 @@ type postSessionsResponse struct {
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
 
-func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (out *postSessionsResponse, err error) {
+func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *postSessionsResponse, err error) {
 	if err := b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
 		tried := false
 		for {
-			out, err = postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+			out, err = postSessions2(client, lobby, username, password, otpSecret)
 			var captchaErr *CaptchaRequiredError
 			if errors.As(err, &captchaErr) {
 				if tried || b.captchaCallback == nil {
@@ -1150,7 +1142,12 @@ func (e CaptchaRequiredError) Error() string {
 	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
 }
 
-func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret string) (out *postSessionsResponse, err error) {
+func postSessions2(client IHttpClient, lobby, username, password, otpSecret string) (out *postSessionsResponse, err error) {
+	gameEnvironmentID, platformGameID, err := getConfiguration(client, lobby)
+	if err != nil {
+		return out, err
+	}
+
 	req, err := postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, "")
 	if err != nil {
 		return out, err
@@ -1176,6 +1173,10 @@ func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, userna
 		}
 	}
 
+	if resp.StatusCode == http.StatusForbidden {
+		return out, errors.New(resp.Status + " : " + string(by))
+	}
+
 	if resp.StatusCode >= http.StatusInternalServerError {
 		return out, errors.New("OGame server error code : " + resp.Status)
 	}
@@ -1197,14 +1198,8 @@ func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, userna
 }
 
 func (b *OGame) login() error {
-	b.debug("get configuration")
-	gameEnvironmentID, platformGameID, err := getConfiguration(b.client, b.lobby)
-	if err != nil {
-		return err
-	}
-
 	b.debug("post sessions")
-	postSessionsRes, err := postSessions(b, gameEnvironmentID, platformGameID, b.Username, b.password, b.otpSecret)
+	postSessionsRes, err := postSessions(b, b.lobby, b.Username, b.password, b.otpSecret)
 	if err != nil {
 		return err
 	}
