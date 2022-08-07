@@ -1310,7 +1310,7 @@ func TechsHandler(c echo.Context) error {
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	_, err := postSessions2(bot.client, bot.lobby, bot.Username, bot.password, bot.otpSecret)
+	_, err := GFLogin(bot.client, bot.lobby, bot.Username, bot.password, bot.otpSecret)
 	var captchaErr *CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
 		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), captchaErr.ChallengeID)

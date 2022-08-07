@@ -310,7 +310,7 @@ func (b *OGame) validateAccount(code string) error {
 
 // RedeemCode ...
 func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Client) error {
-	postSessionsRes, err := postSessions2(client, lobby, email, password, otpSecret)
+	postSessionsRes, err := GFLogin(client, lobby, email, password, otpSecret)
 	if err != nil {
 		return err
 	}
@@ -400,7 +400,7 @@ func addAccount(lobby, accountGroup, sessionToken string, client IHttpClient) (N
 // AddAccount adds an account to a gameforge lobby
 func AddAccount(lobby, username, password, otpSecret, universe, lang string, client *http.Client) (NewAccount, error) {
 	var newAccount NewAccount
-	postSessionsRes, err := postSessions2(client, lobby, username, password, otpSecret)
+	postSessionsRes, err := GFLogin(client, lobby, username, password, otpSecret)
 	if err != nil {
 		return newAccount, err
 	}
@@ -988,7 +988,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 	}
 }
 
-type postSessionsResponse struct {
+type GFLoginRes struct {
 	Token                     string `json:"token"`
 	IsPlatformLogin           bool   `json:"isPlatformLogin"`
 	IsGameAccountMigrated     bool   `json:"isGameAccountMigrated"`
@@ -997,11 +997,11 @@ type postSessionsResponse struct {
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
 
-func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *postSessionsResponse, err error) {
+func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
 	if err := b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
 		tried := false
 		for {
-			out, err = postSessions2(client, lobby, username, password, otpSecret)
+			out, err = GFLogin(client, lobby, username, password, otpSecret)
 			var captchaErr *CaptchaRequiredError
 			if errors.As(err, &captchaErr) {
 				if tried || b.captchaCallback == nil {
@@ -1142,7 +1142,7 @@ func (e CaptchaRequiredError) Error() string {
 	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
 }
 
-func postSessions2(client IHttpClient, lobby, username, password, otpSecret string) (out *postSessionsResponse, err error) {
+func GFLogin(client IHttpClient, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
 	gameEnvironmentID, platformGameID, err := getConfiguration(client, lobby)
 	if err != nil {
 		return out, err
