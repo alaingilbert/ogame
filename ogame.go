@@ -809,7 +809,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		return false, err
 	}
 
-	if err := b.loginPart2(server, userAccount); err != nil {
+	if err := b.loginPart2(server); err != nil {
 		return false, err
 	}
 
@@ -1219,7 +1219,7 @@ func (b *OGame) login() error {
 		return err
 	}
 
-	if err := b.loginPart2(server, userAccount); err != nil {
+	if err := b.loginPart2(server); err != nil {
 		return err
 	}
 	if err := b.loginPart3(userAccount, pageHTML); err != nil {
@@ -1258,7 +1258,7 @@ func (b *OGame) loginPart1(token string) (server Server, userAccount account, er
 	return
 }
 
-func (b *OGame) loginPart2(server Server, userAccount account) error {
+func (b *OGame) loginPart2(server Server) error {
 	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
 	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	// Get server data
@@ -1993,7 +1993,7 @@ func (m ChatMsg) String() string {
 
 func (b *OGame) logout() {
 	_, _ = b.getPage(LogoutPage, CelestialID(0))
-	b.client.Jar.(*cookiejar.Jar).Save()
+	_ = b.client.Jar.(*cookiejar.Jar).Save()
 	if atomic.CompareAndSwapInt32(&b.isLoggedInAtom, 1, 0) {
 		select {
 		case <-b.closeChatCh:
@@ -3676,7 +3676,7 @@ func getNbr(doc *goquery.Document, name string) int64 {
 	div := doc.Find("div." + name)
 	level := div.Find("span.level")
 	level.Children().Remove()
-	return int64(ParseInt(level.Text()))
+	return ParseInt(level.Text())
 }
 
 func getNbrShips(doc *goquery.Document, name string) int64 {
@@ -3899,7 +3899,7 @@ func (b *OGame) buildDefense(celestialID CelestialID, defenseID ID, nbr int64) e
 	if !defenseID.IsDefense() {
 		return errors.New("invalid defense id " + defenseID.String())
 	}
-	return b.buildProduction(celestialID, ID(defenseID), nbr)
+	return b.buildProduction(celestialID, defenseID, nbr)
 }
 
 func (b *OGame) buildShips(celestialID CelestialID, shipID ID, nbr int64) error {
@@ -4556,12 +4556,11 @@ func (b *OGame) getMarketplaceSalesMessages() ([]MarketplaceMessage, error) {
 
 // tabID 26: purchases, 27: sales
 func (b *OGame) getMarketplaceMessages(tabID int64) ([]MarketplaceMessage, error) {
-	var tabid int64 = tabID
 	var page int64 = 1
 	var nbPage int64 = 1
 	msgs := make([]MarketplaceMessage, 0)
 	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, tabid)
+		pageHTML, _ := b.getPageMessages(page, tabID)
 		newMessages, newNbPage, _ := b.extractor.ExtractMarketplaceMessages(pageHTML, b.location)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
