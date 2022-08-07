@@ -1010,17 +1010,15 @@ type postSessionsResponse struct {
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
 
-func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (*postSessionsResponse, error) {
+func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, password, otpSecret string) (out *postSessionsResponse, err error) {
 	if b.loginProxyTransport != nil {
 		oldTransport := b.Client.Transport
 		b.Client.Transport = b.loginProxyTransport
 		defer func() { b.Client.Transport = oldTransport }()
 	}
 
-	var out *postSessionsResponse
 	tried := false
 	for {
-		var err error
 		out, err = postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
