@@ -1009,7 +1009,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *p
 				}
 				tried = true
 
-				questionRaw, iconsRaw, err := startCaptchaChallenge(client, captchaErr.ChallengeID)
+				questionRaw, iconsRaw, err := StartCaptchaChallenge(client, captchaErr.ChallengeID)
 				if err != nil {
 					return errors.New("failed to start captcha challenge: " + err.Error())
 				}
@@ -1017,7 +1017,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *p
 				if err != nil {
 					return errors.New("failed to get answer for captcha challenge: " + err.Error())
 				}
-				if err := solveChallenge(client, captchaErr.ChallengeID, answer); err != nil {
+				if err := SolveChallenge(client, captchaErr.ChallengeID, answer); err != nil {
 					return errors.New("failed to solve captcha challenge: " + err.Error())
 				}
 				continue
@@ -1046,7 +1046,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *p
 	return out, nil
 }
 
-func startCaptchaChallenge(client IHttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
+func StartCaptchaChallenge(client IHttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
 	challengeResp, err := client.Get("https://challenge.gameforge.com/challenge/" + challengeID)
 	if err != nil {
 		return
@@ -1077,7 +1077,7 @@ func startCaptchaChallenge(client IHttpClient, challengeID string) (questionRaw,
 	return
 }
 
-func solveChallenge(client IHttpClient, challengeID string, answer int64) error {
+func SolveChallenge(client IHttpClient, challengeID string, answer int64) error {
 	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, strings.NewReader(`{"answer":`+strconv.FormatInt(answer, 10)+`}`))
 	req.Header.Set("Content-Type", "application/json")

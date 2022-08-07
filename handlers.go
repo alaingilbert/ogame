@@ -1313,7 +1313,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	_, err := postSessions2(bot.client, bot.lobby, bot.Username, bot.password, bot.otpSecret)
 	var captchaErr *CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
-		questionRaw, iconsRaw, err := startCaptchaChallenge(bot.GetClient(), captchaErr.ChallengeID)
+		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), captchaErr.ChallengeID)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
@@ -1341,7 +1341,7 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	challengeID := c.Request().PostFormValue("challenge_id")
 	answer, _ := strconv.ParseInt(c.Request().PostFormValue("answer"), 10, 64)
 
-	if err := solveChallenge(bot.GetClient(), challengeID, answer); err != nil {
+	if err := SolveChallenge(bot.GetClient(), challengeID, answer); err != nil {
 		bot.error(err)
 	}
 
