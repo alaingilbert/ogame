@@ -419,7 +419,7 @@ func AddAccount(lobby, username, password, otpSecret, universe, lang string, cli
 	if err != nil {
 		return newAccount, err
 	}
-	servers, err := getServers2(lobby, client)
+	servers, _, err := getServers(lobby, client)
 	if err != nil {
 		return newAccount, err
 	}
@@ -609,54 +609,26 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 	return userAccounts, nil
 }
 
-func getServers2(lobby string, client IHttpClient) ([]Server, error) {
+func getServers(lobby string, client IHttpClient) ([]Server, int64, error) {
 	var servers []Server
 	req, err := http.NewRequest("GET", "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
 	if err != nil {
-		return servers, err
+		return servers, 0, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
-		return servers, err
+		return servers, 0, err
 	}
 	defer resp.Body.Close()
-	by, _, err := readBody(resp)
+	by, bytesDownloaded, err := readBody(resp)
 	if err != nil {
-		return servers, err
+		return servers, bytesDownloaded, err
 	}
 	if err := json.Unmarshal(by, &servers); err != nil {
-		return servers, errors.New("failed to get servers : " + err.Error() + " : " + string(by))
+		return servers, bytesDownloaded, errors.New("failed to get servers : " + err.Error() + " : " + string(by))
 	}
-	return servers, nil
-}
-
-func getServers(b *OGame) ([]Server, error) {
-	var servers []Server
-	req, err := http.NewRequest("GET", "https://"+b.lobby+".ogame.gameforge.com/api/servers", nil)
-	if err != nil {
-		return servers, err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req = req.WithContext(b.ctx)
-	resp, err := b.Client.Do(req)
-	if err != nil {
-		return servers, err
-	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
-	by, err := wrapperReadBody(b, resp)
-	if err != nil {
-		return servers, err
-	}
-	b.bytesUploaded += req.ContentLength
-	if err := json.Unmarshal(by, &servers); err != nil {
-		return servers, errors.New("failed to get servers : " + err.Error() + " : " + string(by))
-	}
-	return servers, nil
+	return servers, bytesDownloaded, nil
 }
 
 func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
@@ -1294,7 +1266,8 @@ func (b *OGame) loginPart1(token string) (server Server, userAccount account, er
 		return
 	}
 	b.debug("get servers")
-	servers, err := getServers(b)
+	servers, bytesDownloaded, err := getServers(b.lobby, b.Client)
+	b.bytesDownloaded += bytesDownloaded
 	if err != nil {
 		return
 	}
