@@ -54,6 +54,14 @@ func (c *OGameClient) incrRPS() {
 	}
 }
 
+func (c *OGameClient) Get(url string) (*http.Response, error) {
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+	return c.Do(req)
+}
+
 // Do executes a request
 func (c *OGameClient) Do(req *http.Request) (*http.Response, error) {
 	c.incrRPS()
