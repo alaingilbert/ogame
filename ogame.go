@@ -1019,9 +1019,11 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		}()
 	}
 
+	var out postSessionsResponse
 	tried := false
 	for {
-		out, err := postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+		var err error
+		out, err = postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
 			if tried || b.captchaCallback == nil {
@@ -1044,20 +1046,21 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 		} else if err != nil {
 			return out, err
 		}
-		// put in cookie jar so that we can re-login reusing the cookies
-		u, _ := url.Parse("https://gameforge.com")
-		cookies := b.Client.Jar.Cookies(u)
-		cookie := &http.Cookie{
-			Name:   gfTokenCookieName,
-			Value:  out.Token,
-			Path:   "/",
-			Domain: ".gameforge.com",
-		}
-		cookies = append(cookies, cookie)
-		b.Client.Jar.SetCookies(u, cookies)
-		b.bearerToken = out.Token
-		return out, nil
+		break
 	}
+	// put in cookie jar so that we can re-login reusing the cookies
+	u, _ := url.Parse("https://gameforge.com")
+	cookies := b.Client.Jar.Cookies(u)
+	cookie := &http.Cookie{
+		Name:   gfTokenCookieName,
+		Value:  out.Token,
+		Path:   "/",
+		Domain: ".gameforge.com",
+	}
+	cookies = append(cookies, cookie)
+	b.Client.Jar.SetCookies(u, cookies)
+	b.bearerToken = out.Token
+	return out, nil
 }
 
 func startCaptchaChallenge(client IHttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
