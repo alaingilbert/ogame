@@ -554,7 +554,7 @@ func GetServerData(client IHttpClient, ctx context.Context, serverNumber int64, 
 	return serverData, nil
 }
 
-type account struct {
+type Account struct {
 	Server struct {
 		Language string
 		Number   int64
@@ -575,13 +575,13 @@ type account struct {
 	}
 }
 
-func GetUserAccounts(client IHttpClient, ctx context.Context, lobby, token string) ([]account, error) {
-	var userAccounts []account
+func GetUserAccounts(client IHttpClient, ctx context.Context, lobby, bearerToken string) ([]Account, error) {
+	var userAccounts []Account
 	req, err := http.NewRequest(http.MethodGet, "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
-	req.Header.Add("authorization", "Bearer "+token)
+	req.Header.Add("authorization", "Bearer "+bearerToken)
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
@@ -599,14 +599,14 @@ func GetUserAccounts(client IHttpClient, ctx context.Context, lobby, token strin
 	return userAccounts, nil
 }
 
-func GetLoginLink(client IHttpClient, ctx context.Context, lobby string, userAccount account, token string) (string, error) {
+func GetLoginLink(client IHttpClient, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
 	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d&clickedButton=account_list",
 		lobby, userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Add("authorization", "Bearer "+token)
+	req.Header.Add("authorization", "Bearer "+bearerToken)
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)

@@ -334,14 +334,14 @@ func findServer(universe, lang string, servers []Server) (out Server, found bool
 	return
 }
 
-func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
+func findAccount(universe, lang string, playerID int64, accounts []Account, servers []Server) (Account, Server, error) {
 	if lang == "ba" {
 		lang = "yu"
 	}
-	var acc account
+	var acc Account
 	server, found := findServer(universe, lang, servers)
 	if !found {
-		return account{}, Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
+		return Account{}, Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
 	}
 	for _, a := range accounts {
 		if a.Server.Language == server.Language && a.Server.Number == server.Number {
@@ -357,7 +357,7 @@ func findAccount(universe, lang string, playerID int64, accounts []account, serv
 		}
 	}
 	if acc.ID == 0 {
-		return account{}, Server{}, ErrAccountNotFound
+		return Account{}, Server{}, ErrAccountNotFound
 	}
 	return acc, server, nil
 }
@@ -656,7 +656,7 @@ func (b *OGame) login() error {
 	return nil
 }
 
-func (b *OGame) loginPart1(token string) (server Server, userAccount account, err error) {
+func (b *OGame) loginPart1(token string) (server Server, userAccount Account, err error) {
 	b.debug("get user accounts")
 	accounts, err := GetUserAccounts(b.client, b.ctx, b.lobby, token)
 	if err != nil {
@@ -714,7 +714,7 @@ func (b *OGame) loginPart2(server Server) error {
 	return nil
 }
 
-func (b *OGame) loginPart3(userAccount account, pageHTML []byte) error {
+func (b *OGame) loginPart3(userAccount Account, pageHTML []byte) error {
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
 		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("9.0.0"))) {
 			b.extractor = NewExtractorV9()
