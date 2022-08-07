@@ -2,7 +2,7 @@ package ogame
 
 import (
 	"bytes"
-	"encoding/json"
+	"encoding/base64"
 	"fmt"
 	"github.com/labstack/echo"
 	"io"
@@ -1332,35 +1332,21 @@ func GetCaptchaHandler(c echo.Context) error {
 	}
 
 	if resp.StatusCode == http.StatusConflict {
-		var temp struct {
-			ID          string `json:"id"`
-			LastUpdated int    `json:"lastUpdated"`
-			Status      string `json:"status"`
-		}
+		challengeID := strings.Split(resp.Header.Get(gfChallengeID), ";")[0]
 
-		challengeID := resp.Header.Get(gfChallengeID)
-		challengeID = strings.Replace(challengeID, ";https://challenge.gameforge.com", "", -1)
-
-		req1, err := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload.Encode()))
+		questionRaw, iconsRaw, err := startCaptchaChallenge(bot.GetClient(), challengeID)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
-		resp1, err := bot.doReqWithLoginProxyTransport(req1)
-		if err != nil {
-			return c.HTML(http.StatusOK, err.Error())
-		}
-		defer resp1.Body.Close()
 
-		data, _ := readBody(resp1)
-		if err := json.Unmarshal(data, &temp); err != nil {
-			return c.HTML(http.StatusOK, err.Error())
-		}
+		questionB64 := base64.StdEncoding.EncodeToString(questionRaw)
+		iconsB64 := base64.StdEncoding.EncodeToString(iconsRaw)
 
-		html := `<img style="background-color: black;" src="/bot/captcha/question/` + challengeID + `" /><br />
-<img style="background-color: black;" src="/bot/captcha/icons/` + challengeID + `" /><br />
+		html := `<img style="background-color: black;" src="data:image/png;base64,` + questionB64 + `" /><br />
+<img style="background-color: black;" src="data:image/png;base64,` + iconsB64 + `" /><br />
 <form action="/bot/captcha/solve" method="POST">
 	<input type="hidden" name="challenge_id" value="` + challengeID + `" />
-	Enter 0,1,2 or 3 and press Enter <input type="number" name="answer" />" +
+	Enter 0,1,2 or 3 and press Enter <input type="number" name="answer" />
 </form>` + challengeID
 
 		return c.HTML(http.StatusOK, html)
@@ -1368,48 +1354,16 @@ func GetCaptchaHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, "no captcha found")
 }
 
-// GetCaptchaImgHandler ...
-func GetCaptchaImgHandler(c echo.Context) error {
-	bot := c.Get("bot").(*OGame)
-	challengeID := c.Param("challengeID")
-	req, _ := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons", nil)
-	resp, _ := bot.doReqWithLoginProxyTransport(req)
-	//IMG: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/drag-icons?1611748479816
-	defer resp.Body.Close()
-	data, _ := readBody(resp)
-	if data == nil {
-		return c.HTML(http.StatusNotFound, "File not Found")
-	}
-	return c.Blob(http.StatusOK, "image/png", data)
-}
-
-// GetCaptchaTextHandler ...
-func GetCaptchaTextHandler(c echo.Context) error {
-	bot := c.Get("bot").(*OGame)
-	challengeID := c.Param("challengeID")
-	//TEXT: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/text?1611748479816
-	req, _ := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text", nil)
-	resp, _ := bot.doReqWithLoginProxyTransport(req)
-	defer resp.Body.Close()
-	data, _ := readBody(resp)
-	if data == nil {
-		return c.HTML(http.StatusNotFound, "File not Found")
-	}
-	return c.Blob(http.StatusOK, "image/png", data)
-}
-
 // GetCaptchaSolverHandler ...
 func GetCaptchaSolverHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	challengeID := c.Request().PostFormValue("challenge_id")
-	answer := c.Request().PostFormValue("answer")
-	payload := `{"answer":` + answer + `}`
-	req, _ := http.NewRequest("POST", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", strings.NewReader(payload))
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, _ := bot.doReqWithLoginProxyTransport(req)
-	defer resp.Body.Close()
-	_, _ = io.Copy(io.Discard, resp.Body)
+	answer, _ := strconv.ParseInt(c.Request().PostFormValue("answer"), 10, 64)
+
+	if err := solveChallenge(bot.GetClient(), challengeID, answer); err != nil {
+		bot.error(err)
+	}
+
 	if !bot.IsLoggedIn() {
 		if err := bot.Login(); err != nil {
 			bot.error(err)
