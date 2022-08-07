@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+type IHttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+	Get(url string) (*http.Response, error)
+}
+
 // OGameClient ...
 type OGameClient struct {
 	http.Client
