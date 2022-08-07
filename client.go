@@ -17,7 +17,7 @@ type IHttpClient interface {
 
 // OGameClient ...
 type OGameClient struct {
-	http.Client
+	*http.Client
 	UserAgent       string
 	rpsCounter      int32
 	rps             int32
@@ -30,7 +30,7 @@ type OGameClient struct {
 // NewOGameClient ...
 func NewOGameClient() *OGameClient {
 	client := &OGameClient{
-		Client: http.Client{
+		Client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
 		maxRPS: 0,
