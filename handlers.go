@@ -989,7 +989,7 @@ func GetStaticHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	defer resp.Body.Close()
-	body, _, err := readBody(resp)
+	body, err := readBody(resp)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -1315,7 +1315,7 @@ func TechsHandler(c echo.Context) error {
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	gameEnvironmentID, platformGameID, _, err := getConfiguration(bot.Client, bot.lobby)
+	gameEnvironmentID, platformGameID, err := getConfiguration(bot.Client, bot.lobby)
 	if err != nil {
 		return c.HTML(http.StatusOK, err.Error())
 	}
@@ -1359,7 +1359,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	defer resp.Body.Close()
 	_, _ = io.Copy(io.Discard, resp.Body)
 	if resp.StatusCode == http.StatusForbidden {
-		data403, _, _ := readBody(resp)
+		data403, _ := readBody(resp)
 		return c.HTML(http.StatusOK, string(data403))
 	}
 
@@ -1383,7 +1383,7 @@ func GetCaptchaHandler(c echo.Context) error {
 		}
 		defer resp1.Body.Close()
 
-		data, _, _ := readBody(resp1)
+		data, _ := readBody(resp1)
 		if err := json.Unmarshal(data, &temp); err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
@@ -1408,7 +1408,7 @@ func GetCaptchaImgHandler(c echo.Context) error {
 	resp, _ := bot.doReqWithLoginProxyTransport(req)
 	//IMG: https://image-drop-challenge.gameforge.com/challenge/9c5c46b2-e479-4f17-bd35-03bc4e5beefc/en-GB/drag-icons?1611748479816
 	defer resp.Body.Close()
-	data, _, _ := readBody(resp)
+	data, _ := readBody(resp)
 	if data == nil {
 		return c.HTML(http.StatusNotFound, "File not Found")
 	}
@@ -1423,7 +1423,7 @@ func GetCaptchaTextHandler(c echo.Context) error {
 	req, _ := http.NewRequest("GET", "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text", nil)
 	resp, _ := bot.doReqWithLoginProxyTransport(req)
 	defer resp.Body.Close()
-	data, _, _ := readBody(resp)
+	data, _ := readBody(resp)
 	if data == nil {
 		return c.HTML(http.StatusNotFound, "File not Found")
 	}

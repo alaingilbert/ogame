@@ -268,7 +268,7 @@ func Register(lobby, email, password, challengeID, lang string, client *http.Cli
 			return errors.New("captcha required, " + challengeID)
 		}
 	}
-	by, _, err := readBody(resp)
+	by, err := readBody(resp)
 	if err != nil {
 		return err
 	}
@@ -315,11 +315,11 @@ func (b *OGame) validateAccount(code string) error {
 
 // RedeemCode ...
 func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Client) error {
-	gameEnvironmentID, platformGameID, _, err := getConfiguration(client, lobby)
+	gameEnvironmentID, platformGameID, err := getConfiguration(client, lobby)
 	if err != nil {
 		return err
 	}
-	postSessionsRes, _, err := postSessions2(client, gameEnvironmentID, platformGameID, email, password, otpSecret)
+	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, email, password, otpSecret)
 	if err != nil {
 		return err
 	}
@@ -348,7 +348,7 @@ func RedeemCode(lobby, email, password, otpSecret, token string, client *http.Cl
 		TokenType string `json:"tokenType"`
 	}
 	var respParsed respStruct
-	by, _, err := readBody(resp)
+	by, err := readBody(resp)
 	if err != nil {
 		return err
 	}
@@ -390,7 +390,7 @@ func addAccount(lobby, accountGroup, sessionToken string, client IHttpClient) (N
 		return newAccount, err
 	}
 	defer resp.Body.Close()
-	by, _, err := readBody(resp)
+	by, err := readBody(resp)
 	if err != nil {
 		return newAccount, err
 	}
@@ -409,15 +409,15 @@ func addAccount(lobby, accountGroup, sessionToken string, client IHttpClient) (N
 // AddAccount adds an account to a gameforge lobby
 func AddAccount(lobby, username, password, otpSecret, universe, lang string, client *http.Client) (NewAccount, error) {
 	var newAccount NewAccount
-	gameEnvironmentID, platformGameID, _, err := getConfiguration(client, lobby)
+	gameEnvironmentID, platformGameID, err := getConfiguration(client, lobby)
 	if err != nil {
 		return newAccount, err
 	}
-	postSessionsRes, _, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+	postSessionsRes, err := postSessions2(client, gameEnvironmentID, platformGameID, username, password, otpSecret)
 	if err != nil {
 		return newAccount, err
 	}
-	servers, _, err := getServers(lobby, client)
+	servers, err := getServers(lobby, client)
 	if err != nil {
 		return newAccount, err
 	}
@@ -596,7 +596,7 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 			b.error(err)
 		}
 	}()
-	by, err := wrapperReadBody(b, resp)
+	by, err := readBody(resp)
 	if err != nil {
 		return userAccounts, err
 	}
@@ -606,26 +606,26 @@ func getUserAccounts(b *OGame, token string) ([]account, error) {
 	return userAccounts, nil
 }
 
-func getServers(lobby string, client IHttpClient) ([]Server, int64, error) {
+func getServers(lobby string, client IHttpClient) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest("GET", "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
 	if err != nil {
-		return servers, 0, err
+		return servers, err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
-		return servers, 0, err
+		return servers, err
 	}
 	defer resp.Body.Close()
-	by, bytesDownloaded, err := readBody(resp)
+	by, err := readBody(resp)
 	if err != nil {
-		return servers, bytesDownloaded, err
+		return servers, err
 	}
 	if err := json.Unmarshal(by, &servers); err != nil {
-		return servers, bytesDownloaded, errors.New("failed to get servers : " + err.Error() + " : " + string(by))
+		return servers, errors.New("failed to get servers : " + err.Error() + " : " + string(by))
 	}
-	return servers, bytesDownloaded, nil
+	return servers, nil
 }
 
 func findAccount(universe, lang string, playerID int64, accounts []account, servers []Server) (account, Server, error) {
@@ -678,22 +678,19 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 			b.error(err)
 		}
 	}()
-	return wrapperReadBody(b, resp)
+	return readBody(resp)
 }
 
-func readBody(resp *http.Response) (respContent []byte, bytesDownloaded int64, err error) {
-	isGzip := false
+func readBody(resp *http.Response) (respContent []byte, err error) {
 	var reader io.ReadCloser
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
-		isGzip = true
 		buf := new(bytes.Buffer)
 		_, _ = buf.ReadFrom(resp.Body)
-		bytesDownloaded = int64(buf.Len())
 		var err error
 		reader, err = gzip.NewReader(buf)
 		if err != nil {
-			return []byte{}, bytesDownloaded, err
+			return []byte{}, err
 		}
 		defer reader.Close()
 	default:
@@ -701,17 +698,9 @@ func readBody(resp *http.Response) (respContent []byte, bytesDownloaded int64, e
 	}
 	by, err := ioutil.ReadAll(reader)
 	if err != nil {
-		return []byte{}, bytesDownloaded, err
+		return []byte{}, err
 	}
-	if !isGzip {
-		bytesDownloaded = int64(len(by))
-	}
-	return by, bytesDownloaded, nil
-}
-
-func wrapperReadBody(b *OGame, resp *http.Response) ([]byte, error) {
-	by, _, err := readBody(resp)
-	return by, err
+	return by, nil
 }
 
 func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
@@ -733,7 +722,7 @@ func getLoginLink(b *OGame, userAccount account, token string) (string, error) {
 			b.error(err)
 		}
 	}()
-	by, err := wrapperReadBody(b, resp)
+	by, err := readBody(resp)
 	if err != nil {
 		return "", err
 	}
@@ -804,7 +793,7 @@ func (b *OGame) getServerData() (ServerData, error) {
 			b.error(err)
 		}
 	}()
-	by, err := wrapperReadBody(b, resp)
+	by, err := readBody(resp)
 	if err != nil {
 		return serverData, err
 	}
@@ -895,38 +884,38 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	return b.loginWithBearerToken(token)
 }
 
-func getConfiguration(client IHttpClient, lobby string) (string, string, int64, error) {
+func getConfiguration(client IHttpClient, lobby string) (string, string, error) {
 	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
 	req, err := http.NewRequest("GET", ogURL, nil)
 	if err != nil {
-		return "", "", 0, err
+		return "", "", err
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", "", 0, err
+		return "", "", err
 	}
 	defer resp.Body.Close()
-	by, bytesDownloaded, err := readBody(resp)
+	by, err := readBody(resp)
 	if err != nil {
-		return "", "", bytesDownloaded, err
+		return "", "", err
 	}
 
 	gameEnvironmentIDRgx := regexp.MustCompile(`"gameEnvironmentId":"([^"]+)"`)
 	m := gameEnvironmentIDRgx.FindSubmatch(by)
 	if len(m) != 2 {
-		return "", "", bytesDownloaded, errors.New("failed to get gameEnvironmentId")
+		return "", "", errors.New("failed to get gameEnvironmentId")
 	}
 	gameEnvironmentID := m[1]
 
 	platformGameIDRgx := regexp.MustCompile(`"platformGameId":"([^"]+)"`)
 	m = platformGameIDRgx.FindSubmatch(by)
 	if len(m) != 2 {
-		return "", "", bytesDownloaded, errors.New("failed to get platformGameId")
+		return "", "", errors.New("failed to get platformGameId")
 	}
 	platformGameID := m[1]
 
-	return string(gameEnvironmentID), string(platformGameID), bytesDownloaded, nil
+	return string(gameEnvironmentID), string(platformGameID), nil
 }
 
 // TelegramSolver ...
@@ -1032,7 +1021,7 @@ func postSessions(b *OGame, gameEnvironmentID, platformGameID, username, passwor
 
 	tried := false
 	for {
-		out, _, err := postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
+		out, err := postSessions2(b.Client, gameEnvironmentID, platformGameID, username, password, otpSecret)
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
 			if tried || b.captchaCallback == nil {
@@ -1167,50 +1156,50 @@ func (e CaptchaRequiredError) Error() string {
 	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
 }
 
-func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, int64, error) {
+func postSessions2(client IHttpClient, gameEnvironmentID, platformGameID, username, password, otpSecret string) (postSessionsResponse, error) {
 	var out postSessionsResponse
 	resp, err := postSessionsReq(client, gameEnvironmentID, platformGameID, username, password, otpSecret, "")
 	if err != nil {
-		return out, 0, err
+		return out, err
 	}
 	defer resp.Body.Close()
-	by, bytesDownloaded, err := readBody(resp)
+	by, err := readBody(resp)
 
 	if resp.StatusCode == http.StatusConflict {
 		gfChallengeID := resp.Header.Get(gfChallengeID)
 		if gfChallengeID != "" {
 			parts := strings.Split(gfChallengeID, ";")
 			challengeID := parts[0]
-			return out, bytesDownloaded, NewCaptchaRequiredError(challengeID)
+			return out, NewCaptchaRequiredError(challengeID)
 		}
 	}
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		return out, bytesDownloaded, errors.New("OGame server error code : " + resp.Status)
+		return out, errors.New("OGame server error code : " + resp.Status)
 	}
 
 	if err != nil {
-		return out, bytesDownloaded, err
+		return out, err
 	}
 	if resp.StatusCode != http.StatusCreated {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
-			return out, bytesDownloaded, ErrOTPRequired
+			return out, ErrOTPRequired
 		}
 		if string(by) == `{"reason":"OTP_INVALID"}` {
-			return out, bytesDownloaded, ErrOTPInvalid
+			return out, ErrOTPInvalid
 		}
-		return out, bytesDownloaded, ErrBadCredentials
+		return out, ErrBadCredentials
 	}
 
 	if err := json.Unmarshal(by, &out); err != nil {
-		return out, bytesDownloaded, err
+		return out, err
 	}
-	return out, bytesDownloaded, nil
+	return out, nil
 }
 
 func (b *OGame) login() error {
 	b.debug("get configuration")
-	gameEnvironmentID, platformGameID, _, err := getConfiguration(b.Client, b.lobby)
+	gameEnvironmentID, platformGameID, err := getConfiguration(b.Client, b.lobby)
 	if err != nil {
 		return err
 	}
@@ -1259,7 +1248,7 @@ func (b *OGame) loginPart1(token string) (server Server, userAccount account, er
 		return
 	}
 	b.debug("get servers")
-	servers, _, err := getServers(b.lobby, b.Client)
+	servers, err := getServers(b.lobby, b.Client)
 	if err != nil {
 		return
 	}
@@ -2151,7 +2140,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	if resp.StatusCode >= 500 {
 		return []byte{}, err
 	}
-	by, err := wrapperReadBody(b, resp)
+	by, err := readBody(resp)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -4808,7 +4797,7 @@ func (b *OGame) getPublicIP() (string, error) {
 			b.error(err)
 		}
 	}()
-	by, _, err := readBody(resp)
+	by, err := readBody(resp)
 	if err != nil {
 		return "", err
 	}
