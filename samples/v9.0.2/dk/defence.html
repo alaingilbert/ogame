@@ -1,0 +1,1477 @@
+
+<!DOCTYPE html>
+<html lang="dk">
+<head>
+  <title>Rhea</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <script type="text/javascript">
+    /**
+     * This is only currently needed in a separate file in libraries because
+     * the javascript files are loaded alphabetically from files and we need to
+     * ensure that our namespace object is loaded before all other ogame specific
+     * javascript code
+     */
+
+    /*
+     * global javascript namespace for ogame
+     */
+    var ogame = ogame || {};
+  </script>
+  <meta name="ogame-session" content="8b172c1ec47fd746160febc2628d5cbf63014e20"/>
+  <meta name="ogame-version" content="9.0.2"/>
+  <meta name="ogame-timestamp" content="1660101721"/>
+  <meta name="ogame-universe" content="s144-dk.ogame.gameforge.com"/>
+  <meta name="ogame-universe-name" content="Rhea"/>
+  <meta name="ogame-universe-speed" content="4"/>
+  <meta name="ogame-universe-speed-fleet-peaceful" content="2"/>
+  <meta name="ogame-universe-speed-fleet-war" content="2"/>
+  <meta name="ogame-universe-speed-fleet-holding" content="2"/>
+  <meta name="ogame-language" content="dk"/>
+  <meta name="ogame-donut-galaxy" content="1"/>
+  <meta name="ogame-donut-system" content="1"/>
+  <meta name="ogame-player-id" content="100171"/>
+  <meta name="ogame-player-name" content="Renegade Io"/>
+  <meta name="ogame-planet-id" content="33620649"/>
+  <meta name="ogame-planet-name" content="Hjemme verden"/>
+  <meta name="ogame-planet-coordinates" content="1:35:4"/>
+  <meta name="ogame-planet-type" content="planet"/>
+
+
+
+  <script
+          type="text/javascript"
+          id="pixelzirkus"
+          src="https://pixelzirkus.gameforge.com/static/js/pz.js"
+          data-cookieconsent="ignore"
+          data-default-product="ogame"
+          data-default-language="dk"
+          data-default-server-id="144">
+  </script>
+  <script
+          type="application/javascript"
+          src="https://consent.gameforge.com/cookiebanner.js"
+          id="cookiebanner"
+          data-blocking-mode="none"
+          data-env="live"
+          data-project-id="a62fcc7f-9eea-4dc3-9a2c-526e948db9e3"
+          data-consent-cookie-domain="gameforge.com"
+          data-locale="da-DK">
+  </script>
+
+
+  <script type="text/javascript">
+    var ajaxEventboxURI = 'https://s144-dk.ogame.gameforge.com/game/index.php?page=componentOnly&component=eventList&action=fetchEventBox&ajax=1&asJson=1';
+    var ajaxResourceboxURI = 'https://s144-dk.ogame.gameforge.com/game/index.php?page=fetchResources&ajax=1';
+    var eventboxLoca    = {"mission":"Mission","missions":"Missioner","next misson":"DUMMY_KEY_N\u00e4chster_fertig","type":"DUMMY_KEY_Art","friendly":"egen","neutral":"venlig","hostile":"fjendtlig","nextEvent":"N\u00e6ste","nextEventText":"Type"};
+    var eventlistLink   = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=componentOnly&component=eventList&ajax=1";
+  </script>
+
+  <link rel="stylesheet" type="text/css" href="https://gf2.geo.gfsrv.net/cdnde/8bd4220939bc4e07f88d515b4f9fd6.css
+"/>
+  <link rel="stylesheet" type="text/css" href="/assets/css/resourcesbar.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/css/retrieveEmail.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/css/technologydetails.css"/>
+  <link rel="stylesheet" type="text/css" href="/assets/css/technologytree.css"/>
+
+  <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn7c/14a783dfeb3d238ccd3edd840d82ee.js'> </script>
+  <script type='text/javascript' src='https://gf3.geo.gfsrv.net/cdn86/df4b63bb08d9f50d489371846a47d2.js'> </script>
+  <script type='text/javascript' src='https://gf2.geo.gfsrv.net/cdn1d/b10b1397bfd6e5ce5e9756b4eca186.js'> </script>
+
+
+
+
+
+  <script type="text/javascript">
+
+    var changeSettingsLink = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=changeSettings";
+    var changeSettingsToken = "968143757dd68dcf2d027495f782a4e5";
+    var redirectLogoutLink = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=logout";
+    var redirectPremiumLink = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=premium&showDarkMatter=1";
+    var redirectOverviewLink = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=overview";
+    var redirectSpaceDockLink = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=facilities&openTech=36";
+    var constants   = {"lifeformEnabled":true,"espionage":6,"missleattack":10,"discover":18,"language":"dk","name":"144"};
+    var currentPage = "defenses";
+    var changeNickLink = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ajax&component=changenick&asJson=1";
+  </script>
+
+  <script type="text/javascript">
+    var playerId = 100171;
+    var playerName = "Renegade Io";
+    var player = {"playerId":100171,"name":"Renegade Io","hasCommander":false,"hasAPassword":true};
+    var session = "8b172c1ec47fd746160febc2628d5cbf63014e20";
+    var vacation = 0;
+    var hasAPassword = true;
+    var locaKeys = {"bold":"Fed","italic":"Kursiv","underline":"Understregning","stroke":"Gennemstregning","sub":"S\u00e6nket","sup":"H\u00e6vet","fontColor":"Skriftfarve","fontSize":"Skriftst\u00f8rrelse","backgroundColor":"Baggrundsfarve","backgroundImage":"Baggrundsbillede","tooltip":"Tool-tip","alignLeft":"Venstrejuster","alignCenter":"Centreret","alignRight":"H\u00f8jrejusteret","alignJustify":"Justify","block":"Brud","code":"Kode","spoiler":"Flere Indstillinger","moreopts":"","list":"Liste","hr":"Vandret linje","picture":"Billede","link":"Link","email":"E-mail","player":"Spiller","item":"Item","coordinates":"Koordinater","preview":"Forh\u00e5ndsvisning","textPlaceHolder":"Tekst...","playerPlaceHolder":"Spiller ID eller navn","itemPlaceHolder":"Item ID","coordinatePlaceHolder":"Galakse:system:position","charsLeft":"Resterende antal tegn","colorPicker":{"ok":"Ok","cancel":"Annuller","rgbR":"R","rgbG":"G","rgbB":"B"},"backgroundImagePicker":{"ok":"Ok","repeatX":"Gentag vandret","repeatY":"Gentag lodret"}};
+    var itemNames = {"1aa36213cb676fd5baad5edc2bee4fbe117a778b":"Forskere","6c9fe5e35bdad0d4e3382eb6a5aeac6bc8263752":"Handlende","9b48e257cbef6c5df0f03a47cead7f9abda3d437":"Krigere","090a969b05d1b5dc458a6b1080da7ba08b84ec7f":"Bronze Krystal Booster","e254352ac599de4dd1f20f0719df0a070c623ca8":"Bronze Deuterium Booster","b956c46faa8e4e5d8775701c69dbfbf53309b279":"Bronze Metal Booster","2dd05cc4c0e185fce2e712112dc44932027aee98":"Opdageren","9374c79a24b84c4331f0d26526ef6c2d33319a6e":"Samleren","77eff880829027daf23b755e14820a60c4c6fd93":"Generalen","3c9f85221807b8d593fa5276cdf7af9913c4a35d":"Bronze Krystal Booster","060902a23da9dd917f1a754fe85734a91ec8d785":"Bronze Krystal Booster","bb7579f7a21152a4a256f001d5162765e2f2c5b9":"Bronze Krystal Booster","422db99aac4ec594d483d8ef7faadc5d40d6f7d3":"S\u00f8lv Krystal Booster","5b69663e3ba09a1fe77cf72c5094e246cfe954d6":"S\u00f8lv Krystal Booster","04d8afd5936976e32ce894b765ea8bd168aa07ef":"S\u00f8lv Krystal Booster","118d34e685b5d1472267696d1010a393a59aed03":"Guld Krystal Booster","36fb611e71d42014f5ebd0aa5a52bc0c81a0c1cb":"Guld Krystal Booster","d45f00e8b909f5293a83df4f369737ea7d69c684":"Guld Krystal Booster","35d96e441c21ef112a84c618934d9d0f026998fd":"Platin Krystal Booster","6bf45fcba8a6a68158273d04a924452eca75cf39":"Platin Krystal Booster","7c2edf40c5cd54ad11c6439398b83020c0a7a6be":"Platin Krystal Booster","d3d541ecc23e4daa0c698e44c32f04afd2037d84":"DETROID Bronze","0968999df2fe956aa4a07aea74921f860af7d97f":"DETROID Guld","3347bcd4ee59f1d3fa03c4d18a25bca2da81de82":"DETROID Platin","27cbcd52f16693023cb966e5026d8a1efbbfc0f9":"DETROID S\u00f8lv","d9fa5f359e80ff4f4c97545d07c66dbadab1d1be":"Bronze Deuterium Booster","d50005c05fd5b95125364af43c78dfaba64d7f83":"Bronze Deuterium Booster","63d11915e9af76ee41938cc099dbf8d54ad59a17":"Bronze Deuterium Booster","e4b78acddfa6fd0234bcb814b676271898b0dbb3":"S\u00f8lv Deuterium Booster","26416a3cdb94613844b1d3ca78b9057fd6ae9b15":"S\u00f8lv Deuterium Booster","6f0952a919fd2ab9c009e9ccd83c1745f98f758f":"S\u00f8lv Deuterium Booster","5560a1580a0330e8aadf05cb5bfe6bc3200406e2":"Guld Deuterium Booster","300493ddc756869578cb2888a3a1bc0c3c66765f":"Guld Deuterium Booster","dc5896bed3311434224d511fa7ced6fdbe41b4e8":"Guld Deuterium Booster","4b51d903560edd102467b110586000bd64fdb954":"Platin Deuterium Booster","620f779dbffa1011aded69b091239727910a3d03":"Platin Deuterium Booster","831c3ea8d868eb3601536f4d5e768842988a1ba9":"Platin Deuterium Booster","3f6f381dc9b92822406731a942c028adf8dc978f":"Energi Booster Bronze","7eeeb36a455c428eb6923a50d2f03544b6dd05d6":"Energi Booster Bronze","6837c08228d2b023fb955ca2dc589a0a4bed3ba8":"Energi Booster Bronze","c2bad58fcec374d709099d11d0549e59ea7e233e":"Energi Booster S\u00f8lv","bedd248aaf288c27e9351cfacfa6be03f1dbb898":"Energi Booster S\u00f8lv","e05aa5b9e3df5be3857b43da8403eafbf5ad3b96":"Energi Booster S\u00f8lv","55b52cbfb148ec80cd4e5b0580f7bed01149d643":"Energi Booster Guld","4fa9a2273ee446284d5177fd9d60a22de01e932b":"Energi Booster Guld","5ad783dcfce3655ef97b36197425718a0dad6b66":"Energi Booster Guld","77c36199102e074dca46f5f26ef57ce824d044dd":"Energi Booster Platin","dfe86378f8c3d7f3ee0790ea64603bc44e83ca47":"Energi Booster Platin","c39aa972a971e94b1d9b4d7a8f734b3d8be12534":"Energi Booster Platin","7eacfcee74660f30bb92a5874e8cccf2bb286ebd":"Flytnings Item","8c1f6c6849d1a5e4d9de6ae9bb1b861f6f7b5d4d":"Bronze Ekspeditions Pladser","e54ecc0416d6e96b4165f24238b03a1b32c1df47":"Bronze Ekspeditions Pladser","a5784c685c0e1e6111d9c18aeaf80af2e0777ab4":"Bronze Ekspeditions Pladser","31a504be1195149a3bef05b9cc6e3af185d24ef2":"S\u00f8lv Ekspeditions Pladser","b2bc9789df7c1ef5e058f72d61380b696dde54e8":"S\u00f8lv Ekspeditions Pladser","4f6f941bbf2a8527b0424b3ad11014502d8f4fb8":"S\u00f8lv Ekspeditions Pladser","fd7d35e73d0e09e83e30812b738ef966ea9ef790":"Guld Ekspeditions Pladser","9336b9f29d36e3f69b0619c9523d8bec5e09ab8e":"Guld Ekspeditions Pladser","540410439514ac09363c5c47cf47117a8b8ae79a":"Guld Ekspeditions Pladser","94a28491b6fd85003f1cb151e88dde106f1d7596":"Bronze Fl\u00e5de Pladser","0684c6a5a42acbb3cd134913d421fc28dae6b90d":"Bronze Fl\u00e5de Pladser","bb47add58876240199a18ddacc2db07789be1934":"Bronze Fl\u00e5de Pladser","c4e598a85805a7eb3ca70f9265cbd366fc4d2b0e":"S\u00f8lv Fl\u00e5de Pladser","f8fd610825fb4a442e27e4e9add74f050e040e27":"S\u00f8lv Fl\u00e5de Pladser","a693c5ce3f5676efaaf0781d94234bea4f599d2e":"S\u00f8lv Fl\u00e5de Pladser","1808bf7639b81ac3ac87bcb7eb3bbba0a1874d0a":"Guld Fl\u00e5de Pladser","5a8000c372cd079292a92d35d4ddba3c0f348d3b":"Guld Fl\u00e5de Pladser","1f7024c4f6493f0c589e1b00c76e6ced258c00e5":"Guld Fl\u00e5de Pladser","40f6c78e11be01ad3389b7dccd6ab8efa9347f3c":"KRAKEN Bronze","929d5e15709cc51a4500de4499e19763c879f7f7":"KRAKEN Guld","f36042d76e6b8b33d931e1d4ae99f35265cd82d1":"KRAKEN Platin","4a58d4978bbe24e3efb3b0248e21b3b4b1bfbd8a":"KRAKEN S\u00f8lv","de922af379061263a56d7204d1c395cefcfb7d75":"Bronze Metal Booster","8a469c50ed10b78eaf872ea766ca66495da31a17":"Bronze Metal Booster","9ce31395cbd1e60d29e0770b9e20c6eb6053a344":"Bronze Metal Booster","ba85cc2b8a5d986bbfba6954e2164ef71af95d4a":"S\u00f8lv Metal Booster","742743b3b0ae1f0b8a1e01921042810b58f12f39":"S\u00f8lv Metal Booster","6f44dcd2bd84875527abba69158b4e976c308bbc":"S\u00f8lv Metal Booster","05294270032e5dc968672425ab5611998c409166":"Guld Metal Booster","6fecb993169fe918d9c63cd37a2e541cc067664e":"Guld Metal Booster","21c1a65ca6aecf54ffafb94c01d0c60d821b325d":"Guld Metal Booster","a83cfdc15b8dba27c82962d57e50d8101d263cfb":"Platin Metal Booster","c690f492cffe5f9f2952337e8eed307a8a62d6cf":"Platin Metal Booster","ca7f903a65467b70411e513b0920d66c417aa3a2":"Platin Metal Booster","be67e009a5894f19bbf3b0c9d9b072d49040a2cc":"Bronze M\u00e5nefelt","05ee9654bd11a261f1ff0e5d0e49121b5e7e4401":"Guld M\u00e5nefelt","8a426241572b2fea57844acd99bc326fe40e35cf":"Platin M\u00e5nefelt","c21ff33ba8f0a7eadb6b7d1135763366f0c4b8bf":"S\u00f8lv M\u00e5nefelt","485a6d5624d9de836d3eb52b181b13423f795770":"Bronze M.O.O.N.S.","d94731aa4a989f741ca18dd7d16589e970f0486f":"Bronze M.O.O.N.S.","45d6660308689c65d97f3c27327b0b31f880ae75":"Guld M.O.O.N.S.","faab6a750c53d440cd5a1638dbd853ef4ecb1fec":"Guld M.O.O.N.S.","fd895a5c9fd978b9c5c7b65158099773ba0eccef":"S\u00f8lv M.O.O.N.S.","8ecde49bed4d3da1c3266ab736cb0c1a3dc209aa":"S\u00f8lv M.O.O.N.S.","da4a2a1bb9afd410be07bc9736d87f1c8059e66d":"NEWTRON Bronze","8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b":"NEWTRON Guld","a1ba242ede5286b530cdf991796b3d1cae9e4f23":"NEWTRON Platin","d26f4dab76fdc5296e3ebec11a1e1d2558c713ea":"NEWTRON S\u00f8lv","16768164989dffd819a373613b5e1a52e226a5b0":"Bronze Planet Arealer","04e58444d6d0beb57b3e998edc34c60f8318825a":"Guld Planet Arealer","f3d9b82e10f2e969209c1a5ad7d22181c703bb36":"Platin Planet Arealer","0e41524dc46225dca21c9119f2fb735fd7ea5cb3":"S\u00f8lv Planet Arealer","c1d0232604872f899ea15a9772baf76880f55c5f":"Komplet Ressource Pakke","bb2f6843226ef598f0b567b92c51b283de90aa48":"Krystal Pakke","cb72ed207dd871832a850ee29f1c1f83aa3f4f36":"Deuterium Pakke","859d82d316b83848f7365d21949b3e1e63c7841f":"Metal Pakke"};
+    var isMobile = false;
+    var isMobileApp = false;
+    var bbcodePreviewUrl = "https://s144-dk.ogame.gameforge.com/game/index.php?page=bbcodePreview&ajax=1";
+    var ogameUrl = "https:\/\/s144-dk.ogame.gameforge.com";
+    var startpageUrl = "https:\/\/dk.ogame.gameforge.com";
+    var LocalizationStrings = {"timeunits":{"short":{"year":"\u00e5r","month":"m","week":"U","day":"d","hour":"t","minute":"m","second":"s"}},"status":{"ready":"f\u00e6rdig"},"decimalPoint":",","thousandSeperator":".","unitMega":"Mio","unitKilo":"K","unitMilliard":"Mia","question":"Sp\u00f8rgsm\u00e5l","error":"Fejl","loading":"load...","notice":"Referent","yes":"Ja","no":"Nej","ok":"Ok","attention":"Bem\u00e6rk","outlawWarning":"Du er p\u00e5 vej til at angribe en st\u00e6rkere spiller. Hvis du g\u00f8r det, vil din angrebsbeskyttelse blive lukket ned i 7 dage og alle spillere vil kunne angribe dig uden straf. Er du sikker p\u00e5 du vil forts\u00e6tte?","lastSlotWarningMoon":"Denne bygning vil bruge den sidste tilg\u00e6ngelige byggeplads. Udvid din m\u00e5nebase for at f\u00e5 mere plads. Er du sikker p\u00e5, at du vil bygge denne bygning?","lastSlotWarningPlanet":"Denne bygning vil bruge den sidste tilg\u00e6ngelige byggeplads. Udvid din terraformer eller k\u00f8b Planet Arealer for at f\u00e5 mere plads. Er du sikker p\u00e5, at du vil bygge denne bygning?","forcedVacationWarning":"Bekr\u00e6ft din lobby konto nu og vi giver dig M\u00f8rk Materie i hvert univers!","planetMoveBreakUpWarning":"Advarsel! Denne mission er muligvis stadig aktiv n\u00e5r flytningen starter. Hvis dette er tilf\u00e6ldet, vil flytningen blive afbrudt. Vil du forts\u00e6tte?","moreDetails":"Flere detaljer","lessDetails":"Mindre detalje","planetOrder":{"lock":"L\u00e5se arrangement","unlock":"L\u00e5se arrangement op"},"darkMatter":"M\u00f8rk Materie","errorNotEnoughDM":"Ikke nok M\u00f8rk Matterie til r\u00e5dighed! \u00d8nsker du at k\u00f8be noget nu?","activateItem":{"upgradeItemQuestion":"Vil du erstatte det eksisterende item? Den gamle bonus vil forsvinde i processen.","upgradeItemQuestionHeader":"Erstat item?"},"characterClassItem":{"buyAndActivateItemQuestion":"\u00d8nsker du at aktivere #characterClassName# klassen for #darkmatter# M\u00f8rk Materie? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende klasse.","activateItemQuestion":"\u00d8nsker du at aktivere #characterClassName# klassen? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende klasse."},"allianceClassItem":{"buyAndActivateItemQuestion":"\u00d8nsker du at aktivere alliance klassen #allianceClassName# for #darkmatter# M\u00f8rk Materie? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende alliance klasse.","activateItemQuestion":"\u00d8nsker du at aktivere alliance klassen #allianceClassName#? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende alliance klasse.","appendCurrentClassQuestion":"<br><br>Nuv\u00e6rende alliance klasse: #currentAllianceClassName#<br><br>Sidst \u00e6ndret den: #lastAllianceClassChange#"},"LOCA_ALL_NETWORK_ATTENTION":"Bem\u00e6rk","LOCA_ALL_YES":"Ja","LOCA_ALL_NO":"Nej","redirectMessage":"Ved at f\u00f8lge dette link, vil du forlade OGame. \u00d8nsker du at forts\u00e6tte?"};
+    var popupWindows = [];
+    var showOutlawWarning = true;
+    var showDiscoveryWarning = true;
+    var chatLoca = {"TEXT_EMPTY":"Hvor er da den meddelelse?","TEXT_TOO_LONG":"Beskeden er for lang.","SAME_USER":"Du kan ikke skrive til dig selv.","IGNORED_USER":"Du ignorerer denne spiller.","NO_DATABASE_CONNECTION":"En ukendt fejl er opst\u00e5et. Din sidste handling kan desv\u00e6rre ikke gennemf\u00f8res.","INVALID_PARAMETERS":"En ukendt fejl er opst\u00e5et. Din sidste handling kan desv\u00e6rre ikke gennemf\u00f8res.","SEND_FAILED":"En ukendt fejl er opst\u00e5et. Din sidste handling kan desv\u00e6rre ikke gennemf\u00f8res.","LOCA_ALL_ERROR_NOTACTIVATED":"Denne funktion er kun tilg\u00e6ngelig efter du har aktiveret din konto.","X_NEW_CHATS":"#+# ul\u00e6ste samtale(r)","MORE_USERS":"vis mere"};
+    var overlayWidth = 770;
+    var overlayHeight = 600;
+    var isRTLEnabled = 0;
+    var isStandalonePage = false;
+    var serverTime = new Date(2022, 7, 10, 5, 22, 1);
+    var serverTimeZoneOffsetInMinutes = -120;
+    var localTime = new Date();
+    var localTimeZoneOffsetInMinutes = localTime.getTimezoneOffset();
+    var timeDiff = serverTime - localTime;
+    var timeZoneDiffSeconds = (serverTimeZoneOffsetInMinutes - localTimeZoneOffsetInMinutes) * 60;
+
+    var nodePort = 23963
+    var nodeUrl = "https:\/\/s144-dk.ogame.gameforge.com:23963\/socket.io\/socket.io.js"
+    var nodeParams = {"port":23963,"secure":true}
+
+    var token = "cfe6237299b142472cd98551230a0700";
+    var miniFleetLink = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=fleetdispatch&action=miniFleet&ajax=1&asJson=1";
+
+    var jumpGateLink = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=jumpgatelayer";
+    var jumpGateLoca = {"LOCA_STATION_JUMPGATE_HEADLINE":"Brug springportal"};
+
+    var timerHandler = new TimerHandler();
+
+    $(document).ready(
+            function(){
+              initOverlays();
+            }
+    );
+  </script>
+</head>
+<body id="ingamepage" class="no-touch no-commander ">
+
+<!-- #MMO:NETBAR# -->
+<div id="pagefoldtarget"></div>
+<script type="text/javascript" data-cookieconsent="ignore">
+  var mmoCSS = ' body {margin:0; padding:0;} div.openX_interstitial div.openX_int_closeButton a { text-indent:-4000px; float:right; height:23px; width:23px; display:block; background:transparent url(//gf2.geo.gfsrv.net/cdn14/7618d1159940178a2e53a8be22710a.png) repeat-x; } #mmonetbar { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar .mmosmallbar {width:585px !important;} #mmonetbar .mmosmallbar div.mmoBoxMiddle { width: 290px; } #mmonetbar .mmonewsout {width:800px !important;} #mmonetbar .mmouseronlineout {width:768px !important;} #mmonetbar .mmolangout {width:380px !important;} #mmonetbar .mmolangout .mmoGame { width: 265px; } #mmonetbar #mmoContent.mmoingame { width: 533px; } #mmonetbar #mmoContent.mmoingame .mmoGame { width: auto; } #mmonetbar a, #mmoNetbarSubmenu a { color:#666; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; outline: none; text-decoration:none; white-space:nowrap; } #mmonetbar select { background-color:#091218 !important; border:1px solid #1c2e3a !important; color:#9099a3 !important; font:normal 11px Verdana, Arial, Helvetica, sans-serif; height:18px; margin-top:3px; width:100px; } #mmonetbar .mmoGames select {width:80px;} #mmonetbar option { background-color:#091218 !important; color:#9099a3 !important; } #mmonetbar option:hover { background-color:#132835 !important; } #mmonetbar select#mmoCountry {width:120px;} #mmonetbar .mmoSelectbox { background-color:#091218; float:left; margin:3px 0 0 3px; position:relative; } * html #mmonetbar .mmoSelectbox {position:static;} *+html #mmonetbar .mmoSelectbox {position:static;} #mmonetbar #mmoOneGame {cursor:default; height:14px; margin-top:3px; padding-left:5px; width:80px;} #mmonetbar .label {float:left; font-weight:bold; margin-right:4px; overflow:hidden !important;} #mmonetbar #mmoUsers .label {font-size:10px;} #mmonetbar .mmoBoxLeft, #mmonetbar .mmoBoxRight { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -109px -4px; float:left; width:5px; height:24px; } #mmonetbar .mmoBoxRight {background-position:-126px -4px;} #mmonetbar .mmoBoxMiddle { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -36px; color:#9099a3 !important; float:left; height:24px; line-height:22px; text-align:left; white-space:nowrap; position: relative; z-index: 10000; } #mmonetbar #mmoGames, #mmonetbar #mmoLangs {margin:0px 4px 0 0;} #mmonetbar #mmoNews, #mmonetbar #mmoUsers, #mmonetbar #mmoGame, #mmonetbar .nojsGame {margin:4px 4px 0 0;} #mmonetbar #mmoLogo { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat top left; float:left; display:block; height:32px; width:108px; text-indent: -9999px; position: relative; z-index: 1 } #mmonetbar #mmoNews {float:left; width:252px;} #mmonetbar #mmoNews #mmoNewsContent {text-align:left; width:200px;} #mmonetbar #mmoNews #mmoNewsticker {overflow:hidden; width:240px;} #mmonetbar #mmoNews #mmoNewsticker ul { margin: 0; padding: 0; list-style: none; } #mmonetbar #mmoNews #mmoNewsticker ul li { font:normal 11px/22px Tahoma, Arial, Helvetica, sans-serif !important; color:#9099a3 !important; padding: 0; margin: 0; background: none; display: none; } #mmonetbar #mmoNews #mmoNewsticker ul li.mmoTickShow { display: block; } #mmonetbar #mmoNews #mmoNewsticker ul li a img {border:0;} #mmonetbar #mmoNews #mmoNewsticker ul li a {color:#9099a3 !important;display:block;height:24px;line-height:23px;} #mmonetbar #mmoNews #mmoNewsticker ul li a:hover {text-decoration:underline;} #mmonetbar #mmoUsers {float:left; width:178px;} #mmonetbar #mmoUsers .mmoBoxLeft {width:17px;} #mmonetbar #mmoUsers .mmoBoxMiddle {padding-left:3px; width:150px;} #mmonetbar .mmoGame {display:none; float:left; width:432px;} #mmonetbar .mmoGame #mmoGames {float:left; width:206px;} #mmonetbar .mmoGame #mmoLangs {float:left; margin:0; width:252px;} #mmonetbar .mmoGame label { color:#9099a3 !important; float:left; font-weight:400 !important; line-height:22px; margin:0px; text-align:right !important; width:110px; font-size: 11px !important; } #mmonetbar .nojsGame {display:block; width:470px;} #mmonetbar .nojsGame .mmoBoxMiddle {width:450px;} #mmonetbar .nojsGame .mmoSelectbox {margin:0px 0 0 3px;} *+html #mmonetbar .nojsGame .mmoSelectbox {margin:2px 0 0 3px;} * html #mmonetbar .nojsGame .mmoSelectbox {margin:2px 0 0 3px;} #mmonetbar .nojsGame .mmoGameBtn { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -162px -7px; border:none; cursor:pointer; float:left; height:18px; margin:3px 0 0 7px; padding:0; width:18px; } #mmonetbar .mmoSelectArea { border:1px solid #1c2e3a; color:#9099a3 !important; display:block !important; float:none; font-weight:400 !important; font-size:11px; height:16px; line-height:13px; -moz-box-sizing: content-box; overflow:hidden !important; width:90px; } #mmonetbar #mmoLangSelect .mmoSelectArea {width:129px;} #mmonetbar #mmoLangSelect .mmoOptionsDivVisible {min-width:129px;} #mmonetbar .mmoSelectArea .mmoSelectButton { background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -141px -8px; float:right; width:17px; height:16px; } #mmonetbar .mmoSelectText {cursor:pointer; float:left; overflow:hidden; padding:1px 2px; width:68px;} #mmonetbar #mmoLangSelect .mmoSelectText {width:107px;} #mmonetbar #mmoOneLang {cursor:default; height:14px;} #mmonetbar div.mmoOneLang { background: none; } #mmonetbar div.mmoOneLang #mmoOneLang { border: none; padding: 2px 3px; } #mmonetbar .mmoOptionsDivInvisible, #mmonetbar .mmoOptionsDivVisible { background-color: #091218 !important; border: 1px solid #1c2e3a; position: absolute; min-width:90px; z-index: 3100; } * html #mmonetbar .mmoOptionsDivVisible .highlight {background-color:#132835 !important} #mmonetbar .mmoOptionsDivInvisible {display: none;} #mmonetbar .mmoOptionsDivVisible ul { border:0; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; list-style: none; margin:0; padding:2px; overflow:auto; overflow-x:hidden; } #mmonetbar #mmoLangs .mmoOptionsDivVisible ul {min-width:125px;} #mmonetbar .mmoOptionsDivVisible ul li { background-color: #091218; height:14px; padding:2px 0; } #mmonetbar .mmoOptionsDivVisible a { color: #9099a3 !important; display: block; font-weight:400 !important; height:16px !important; min-width:80px; text-decoration: none; white-space:nowrap; width:100%; } #mmonetbar #mmoContent .mmoLangList a {min-width:102px;} #mmonetbar .mmoOptionsDivVisible li:hover {background-color: #132835;} #mmonetbar .mmoOptionsDivVisible li a:hover {color: #9099a3 !important;} #mmonetbar .mmoOptionsDivVisible li.mmoActive {background-color: #132835 !important;} #mmonetbar .mmoOptionsDivVisible li.mmoActive a {color: #9099a3 !important;} #mmonetbar .mmoOptionsDivVisible ul.mmoListHeight {height:240px} #mmonetbar .mmoOptionsDivVisible ul.mmoLangList.mmoListHeight li {padding-right:15px !important; width:100%;} #mmonetbar #mmoGameSelect ul.mmoListHeight a {min-width:85px;} #mmonetbar #mmoLangSelect ul.mmoListHeight a {min-width:105px;} #mmonetbar #mmoFocus {position:absolute;left:-2000px;top:-2000px;} #mmonetbar #mmoLangs .mmoSelectText span, #mmonetbar #mmoLangs .mmoflag { background: transparent url(//gf3.geo.gfsrv.net/cdn28/71fe874d78b03e38e06a3b471f6224.png) no-repeat; height:14px !important; padding-left:23px; } .mmo_AE {background-position:left 0px !important} .mmo_AR {background-position:left -14px !important} .mmo_BE {background-position:left -28px !important} .mmo_BG {background-position:left -42px !important} .mmo_BR {background-position:left -56px !important} .mmo_BY {background-position:left -70px !important} .mmo_CA {background-position:left -84px !important} .mmo_CH {background-position:left -98px !important} .mmo_CL {background-position:left -112px !important} .mmo_CN {background-position:left -126px !important} .mmo_CO {background-position:left -140px !important} .mmo_CZ {background-position:left -154px !important} .mmo_DE {background-position:left -168px !important} .mmo_DK {background-position:left -182px !important} .mmo_EE {background-position:left -196px !important} .mmo_EG {background-position:left -210px !important} .mmo_EN {background-position:left -224px !important} .mmo_ES {background-position:left -238px !important} .mmo_EU {background-position:left -252px !important} .mmo_FI {background-position:left -266px !important} .mmo_FR {background-position:left -280px !important} .mmo_GR {background-position:left -294px !important} .mmo_HK {background-position:left -308px !important} .mmo_HR {background-position:left -322px !important} .mmo_HU {background-position:left -336px !important} .mmo_ID {background-position:left -350px !important} .mmo_IL {background-position:left -364px !important} .mmo_IN {background-position:left -378px !important} .mmo_INTL {background-position:left -392px !important} .mmo_IR {background-position:left -406px !important} .mmo_IT {background-position:left -420px !important} .mmo_JP {background-position:left -434px !important} .mmo_KE {background-position:left -448px !important} .mmo_KR {background-position:left -462px !important} .mmo_LT {background-position:left -476px !important} .mmo_LV {background-position:left -490px !important} .mmo_ME {background-position:left -504px !important} .mmo_MK {background-position:left -518px !important} .mmo_MX {background-position:left -532px !important} .mmo_NL {background-position:left -546px !important} .mmo_NO {background-position:left -560px !important} .mmo_PE {background-position:left -574px !important} .mmo_PH {background-position:left -588px !important} .mmo_PK {background-position:left -602px !important} .mmo_PL {background-position:left -616px !important} .mmo_PT {background-position:left -630px !important} .mmo_RO {background-position:left -644px !important} .mmo_RS {background-position:left -658px !important} .mmo_RU {background-position:left -672px !important} .mmo_SE {background-position:left -686px !important} .mmo_SI {background-position:left -700px !important} .mmo_SK {background-position:left -714px !important} .mmo_TH {background-position:left -728px !important} .mmo_TR {background-position:left -742px !important} .mmo_TW {background-position:left -756px !important} .mmo_UA {background-position:left -770px !important} .mmo_UK {background-position:left -784px !important} .mmo_US {background-position:left -798px !important} .mmo_VE {background-position:left -812px !important} .mmo_VN {background-position:left -826px !important} .mmo_YU {background-position:left -840px !important} .mmo_ZA {background-position:left -854px !important} .mmo_WW {background-position:left -392px !important} .mmo_AU {background-position:left -868px !important} div#mmonetbar a:active { top: 0; } div#mmoGamesOverviewPanel { width: 582px; position: absolute; top: 0; right: 0; font: 12px Arial, sans-serif; } div#mmoGamesOverviewPanel h4, div#mmoGamesOverviewPanel h5 { margin: 0; font-size: 12px; font-weight: bold; text-align: left; } div#mmoGamesOverviewPanel a { text-decoration: none; } div#mmoGamesOverviewPanel a img { border: none; } div#mmoGamesOverviewToggle { width: 168px; padding: 4px 0 4px 414px; } div#mmoGamesOverviewToggle h4 { height: 18px; position: relative; background: url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -36px; top: 0px; padding: 3px 20px; -moz-box-sizing: content-box; } div#mmoGamesOverviewToggle h4 a { display: block; width: 116px; height: 16px; line-height: 14px; text-align: left; font-weight: normal; outline: none; color: #9099a3 !important; font-size: 11px !important; position: relative; border: 1px solid #1c2e3a; padding: 0 0 0 10px; background: #091218; -moz-box-sizing: content-box; } div#mmoGamesOverviewToggle h4 a.gameCountZero { cursor: default; text-align: center; padding: 0; width: 126px; } div#mmoGamesOverviewToggle h4 a span.mmoNbPseudoSelect_icon { display: block; position: absolute; top: 0; right: 0; width: 17px; height: 16px; background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -141px -8px; } span.iconTriangle { display: block; position: absolute; top: 5px; right: 10px; width: 0px; border: 5px solid transparent; border-bottom-color: #9099a3; } div#mmoGamesOverviewToggle h4 a.toggleHidden { } div#mmoGamesOverviewToggle h4 a.toggleHidden span.iconTriangle { top: 10px; border: 5px solid transparent; border-top-color: #9099a3; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge { display: block; width: 5px; height: 24px; background: url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat -109px -4px; position: absolute; top: 0; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge_left { left: 0; } div#mmoGamesOverviewToggle h4 span.mmoNbBoxEdge_right { right: 0; background-position: -126px -4px; } div#mmoGamesOverviewLists { clear: both; background: #091218; width: 580px; border: 1px solid #1c2e3a; float: left; position: relative; top: 0px; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists h5 { clear: both; width: 544px; margin: 0; padding: 0 18px; height: 27px; line-height: 27px; color: #9099a3; border-bottom: 1px solid #1c2e3a; background: url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x 0 -3px; font-family: inherit; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists h5 a { color: #9099a3; font-weight: bold; line-height: 27px; } #mmoGamesOverviewLists #mmoGamesOverview_featured li { width: auto; } #mmoGamesOverviewLists #mmoGamesOverview_featured span.gameImgTarget { display: block; width: 560px; height: 180px; margin: 0; } #mmoGamesOverviewLists #mmoGamesOverview_featured span.gameName { display: none; } #mmoGamesOverview_featured img { display: block; } div#mmoGamesOverviewLists ul { margin: 0; padding: 5px 5px; list-style: none; width: 570px; float: left; text-align: left; -moz-box-sizing: content-box; } div#mmoGamesOverviewLists ul li { margin: 0; padding: 0; list-style: none; width: 190px; float: left; background: none; } div#mmoGamesOverviewLists ul li a, #mmoNetbarSubmenu .submenu_item a { display: block; padding: 5px; font-weight: bold; line-height: 1; color: #9099a3 !important; font-size: 11px !important; } div#mmoGamesOverviewLists ul li a:focus, div#mmoGamesOverviewLists ul li a:hover, #mmoNetbarSubmenu .submenu_item a:focus, #mmoNetbarSubmenu .submenu_item a:hover { background-color: #132835; } div#mmoGamesOverviewLists ul li a span.gameImgTarget { display: block; width: 180px; height: 90px; background: none; margin: 0 0 4px 0; } div#mmoGamesOverviewLists ul li a span img { display: block; } #mmoNetbarSubmenu .submenu { background-color: #091218; display: none; position: absolute; z-index: 11111; } div#mmoGamesOverviewLists div#mmoGamesOverviewCountry { width: 20px; height: 14px; position: absolute; top: 6px; right: 12px; background-image: url(//gf3.geo.gfsrv.net/cdn28/71fe874d78b03e38e06a3b471f6224.png); background-repeat: no-repeat; } #mmonetbar div.nojsGame { width: 432px !important; } #mmonetbar div.nojsGame div.mmoBoxMiddle { width: 422px; } #mmonetbar div.nojsGame label { width: 105px; } #pagefoldtarget .nbPF { position: absolute; top: 0; z-index: 999999; text-indent: -9999px; width: 125px; height: 120px; } #pagefoldtarget .nbPFLeft { left: 0px; } #pagefoldtarget .nbPF.nbPFRight { right: 0px; background-position: right 0px } #pagefoldtarget .nbPFDark.nbPFRight { background-image: url(//gf2.geo.gfsrv.net/cdn75/98954a5b65ea8ac2b5472017426515.png); _background-image: url(//gf1.geo.gfsrv.net/cdn9d/ca3b68a0f2fc9b5fd4f4e9acc1aa9f.gif); } #pagefoldtarget .nbPFDark.nbPFLeft { background-image: url(//gf2.geo.gfsrv.net/cdndd/f3329ffdb5f66db6930cd98f547da7.png); _background-image: url(//gf1.geo.gfsrv.net/cdn37/470d765043864d857eb6ffdc30bc4d.gif); } #pagefoldtarget .nbPFLight.nbPFRight { background-image: url(//gf1.geo.gfsrv.net/cdn34/8ae6ba8194f659bc3784e01b457749.png); _background-image: url(//gf2.geo.gfsrv.net/cdn46/2634bb44de90d88b10e3fe8cf940ff.gif); } #pagefoldtarget .nbPFLight.nbPFLeft { background: url(//gf1.geo.gfsrv.net/cdn38/d4718fc349f75778ee051b4cc76824.png) no-repeat; _background-image: url(//gf1.geo.gfsrv.net/cdn01/3dc42ed780058a74a17220804afda1.gif); } #pagefoldtarget .nbPF a{ text-indent: -9999px; display: block; width: 110px; height: 95px; } #pagefoldtarget .nbPF.nbPFRight a{ float:right; } #pagefoldtarget .nbPF.nbPFHover a{ width:358px; height: 320px; } #pagefoldtarget .nbPF.nbPFHover { background-position: left -129px !important; width:400px; height: 400px; } #pagefoldtarget .nbPF.nbPFRight.nbPFHover { background-position: right -129px !important; } ';
+  var mmostyle = document.createElement('style');
+  if (navigator.appName == "Microsoft Internet Explorer") {
+    mmostyle.setAttribute("type", "text/css");
+    mmostyle.styleSheet.cssText = mmoCSS;
+  } else {
+    var mmostyleTxt = document.createTextNode(mmoCSS);
+    mmostyle.type = 'text/css';
+    mmostyle.appendChild(mmostyleTxt);
+  }
+  document.getElementsByTagName('head')[0].appendChild(mmostyle);
+</script>
+
+<noscript>
+  <style type="text/css">
+
+    body {margin:0; padding:0;} #mmonetbar { background:transparent url(//gf3.geo.gfsrv.net/cdn52/ab65c4951f415dff50d74738c953b5.bg) repeat-x; font:normal 11px Tahoma, Arial, Helvetica, sans-serif; height:32px; left:0; padding:0; position:absolute; text-align:center; top:0; width:100%; z-index:3000; } #mmonetbar #mmoContent { height:32px; margin:0 auto; width:1024px; position: relative; } #mmonetbar #mmoLogo { background:transparent url(//gf3.geo.gfsrv.net/cdn29/0f334111ba97c654b6e353f7168012.sprites) no-repeat top left; float:left; display:block; height:32px; width:108px; text-indent: -9999px; } #mmonetbar #mmoNews, #mmonetbar #mmoGame, #mmonetbar #mmoFocus, #pagefoldtarget { display:none !important; }
+  </style>
+</noscript>
+
+<!-- Start Alexa Certify Javascript -->
+<script type="text/javascript" data-cookieconsent="ignore">
+  _atrk_opts = {atrk_acct: 'Ezuyi1a8Dy00aI', domain: 'gameforge.com', dynamic: true};
+  (function () {
+    var as = document.createElement('script');
+    as.type = 'text/javascript';
+    as.async = true;
+    as.src = 'https://d31qbv1cthcecs.cloudfront.net/atrk.js';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(as, s);
+  })();
+</script>
+<noscript><img src="https://d5nxst8fruw4z.cloudfront.net/atrk.gif?account=Ezuyi1a8Dy00aI" style="display:none" height="1" width="1" alt=""/></noscript>
+<!-- End Alexa Certify Javascript -->
+
+<div id="mmoNetbarSubmenu"><div id='submenu_LittleGames' class='submenu' onmouseenter='mmoHoverMenu("LittleGames")' onmouseleave='mmoLeaveMenu("LittleGames")'><div class='submenu_item'><a href='https://gameforge.com/da-DK/littlegames/bilspil/' target='_blank'>Bilspil</a></div><div class='submenu_item'><a href='https://gameforge.com/da-DK/littlegames/io-spil/' target='_blank'>.io spil</a></div><div class='submenu_item'><a href='https://gameforge.com/da-DK/littlegames/skydespil/' target='_blank'>Skydespil</a></div><div class='submenu_item'><a href='https://gameforge.com/da-DK/littlegames/pigespil/' target='_blank'>Pigespil</a></div><div class='submenu_item'><a href='https://gameforge.com/da-DK/littlegames/arkadespil/' target='_blank'>Arkade spil</a></div><div class='submenu_item'><a href='https://gameforge.com/da-DK/littlegames/taenkespil/' target='_blank'>Tænkespil</a></div></div></div>
+<script type="text/javascript" data-cookieconsent="ignore">
+  var mmoTilehovered = false;
+  var mmoMenuHovered = false;
+
+  function mmoHoverTile(game) {
+    mmoTilehovered = true;
+    mmoShowSubmenu(game);
+  }
+
+  function mmoLeaveTile(game) {
+    mmoTilehovered = false;
+    mmoHideSubmenu(game);
+  }
+
+  function mmoHoverMenu(game) {
+    mmoMenuHovered = true;
+    mmoShowSubmenu(game);
+  }
+
+  function mmoLeaveMenu(game) {
+    mmoMenuHovered = false;
+    mmoHideSubmenu(game);
+  }
+
+  function mmoShowSubmenu(game) {
+    let submenu = document.getElementById('submenu_' + game);
+    if (submenu !== null) {
+      let rect = document.getElementById('mmoTile_' + game).getBoundingClientRect();
+      let left = rect.left + 120;
+      let bottom = window.innerHeight - window.scrollY - rect.bottom + 30;
+      let newStyle = {
+        'display': 'block',
+        'left': left + 'px',
+        'bottom': bottom + 'px'
+      };
+      Object.assign(submenu.style, newStyle);
+    }
+  }
+
+  function mmoHideSubmenu(game) {
+    if (!mmoTilehovered && !mmoMenuHovered) {
+      let submenu = document.getElementById('submenu_' + game);
+      if (submenu !== null) {
+        submenu.style.display = 'none';
+      }
+    }
+  }
+</script>
+
+<div id="mmonetbar" class="mmoogame">
+  <script type="text/javascript" data-cookieconsent="ignore">
+    function mmoEl(name){if(document.getElementById){return document.getElementById(name);}else if(document.all){return document.all[name];}else if(document.layers){return document.layers[name];}
+      return false;}
+    function mmoJump(el){window.location.href=el.options[el.selectedIndex].value;}
+    var mmo_tickDly=3000;var mmo_tickFadeDly=50;var mmo_tickFadeTicks=10;var mmoTickEl=null;var mmoTickItems=null;var mmoTickIdx=0;var mmoTickState=0;var mmoTickFade=1;var mmoTickHalt=false;function mmoTicker(){var f=0;try{mmoTickEl=mmoEl('mmoNewsticker');if(mmoTickEl){mmoTickItems=mmoTickEl.getElementsByTagName("li");if(mmoTickItems){f=1;}}}catch(e){f=0;}
+      if(!f){setTimeout(mmoTicker,10);return;}
+      setTimeout(mmoTicknext,0);}
+    function mmoTicknext(){if(mmoTickHalt){mmoTickAlphaFor(mmoTickEl,100);setTimeout(mmoTicknext,500);return;}
+      if(mmoTickState===0){mmoTickFade=mmoTickFade-1;mmoTickAlpha();if(mmoTickFade<=0){mmoTickState=1;setTimeout(mmoTicknext,0);return;}
+        setTimeout(mmoTicknext,mmo_tickFadeDly);return;}
+      if(mmoTickState===1){mmoTickItems[mmoTickIdx].className="";mmoTickIdx++;if(mmoTickIdx>=mmoTickItems.length)mmoTickIdx=0;mmoTickItems[mmoTickIdx].className="mmoTickShow";setTimeout(mmoTicknext,mmo_tickFadeDly);mmoTickState=2;return;}
+      if(mmoTickState===2){mmoTickFade=mmoTickFade+1;mmoTickAlpha();if(mmoTickFade>=mmo_tickFadeTicks){if(mmoTickItems.length<2)return;mmoTickState=0;setTimeout(mmoTicknext,mmo_tickDly);return;}
+        setTimeout(mmoTicknext,mmo_tickFadeDly);return;}}
+    function mmoTickAlpha(){var a=(100/mmo_tickFadeTicks)*mmoTickFade;mmoTickAlphaFor(mmoTickEl,a);}
+    function mmoTickAlphaFor(el,a){el.style.filter='Alpha(opacity='+a+')';el.style.opacity=a/100;el.style.MozOpacity=a/100;el.style.KhtmlOpacity=a/100;}
+    var mmoActive_select=null;function mmoInitSelect(){if(!document.getElementById)return false;document.getElementById('mmonetbar').style.display='block';document.getElementById('mmoGame').style.display='block';document.getElementById('mmoFocus').onkeyup=function(e){mmo_selid=mmoActive_select.id.replace('mmoOptionsDiv','');if(!e){e=window.event;}
+      if(e.keyCode)var thecode=e.keyCode;else if(e.which)var thecode=e.which;mmoSelectMe(mmo_selid,thecode);}}
+    function mmoSelectMe(selid,thecode){var mmolist=document.getElementById('mmoList'+selid);var mmoitems=mmolist.getElementsByTagName('li');switch(thecode){case 13:mmoShowOptions(selid);window.location=mmoActive_select.url;break;case 38:mmoActive_select.activeit.className='';var minus=((mmoActive_select.activeid-1)<=0)?'0':(mmoActive_select.activeid-1);mmoActive_select=mmoSetActive(selid,minus);break;case 40:mmoActive_select.activeit.className='';var plus=((mmoActive_select.activeid+1)>=mmoitems.length)?(mmoitems.length-1):(mmoActive_select.activeid+1);mmoActive_select=mmoSetActive(selid,plus);break;default:thecode=String.fromCharCode(thecode);var found=false;for(var i=0;i<mmoitems.length;i++){var _a=mmoitems[i].getElementsByTagName('a');if(navigator.appName.indexOf("Explorer")>-1){}else{txtContent=_a[0].textContent;}
+      if(!found&&(thecode.toLowerCase()===txtContent.charAt(0).toLowerCase())){mmoActive_select.activeit.className='';mmoActive_select=mmoSetActive(selid,i);found=true;}}
+      break;}}
+    function mmoSetActive(selid,itemid){mmoActive_select=null;var mmolist=document.getElementById('mmoList'+selid);var mmoitems=mmolist.getElementsByTagName('li');mmoActive_select=document.getElementById('mmoOptionsDiv'+selid);mmoActive_select.selid=selid;if(itemid!==undefined){var _a=mmoitems[itemid].getElementsByTagName('a');var textVar=document.getElementById("mmoMySelectText"+selid);textVar.innerHTML=_a[0].innerHTML;if(selid===1)textVar.className=_a[0].className;mmoitems[itemid].className='mmoActive';}
+      for(var i=0;i<mmoitems.length;i++){if(mmoitems[i].className==='mmoActive'){mmoActive_select.activeit=mmoitems[i];mmoActive_select.activeid=i;mmoActive_select.url=(mmoitems[i].getElementsByTagName('a'))?mmoitems[i].getElementsByTagName('a')[0].href:null;}}
+      return mmoActive_select;}
+    function mmoShowOptions(g){var _elem=document.getElementById("mmoOptionsDiv"+g);if((mmoActive_select)&&(mmoActive_select!==_elem)){mmoActive_select.className="mmoOptionsDivInvisible";document.getElementById('mmonetbar').focus();}
+      if(_elem.className==="mmoOptionsDivInvisible"){document.getElementById('mmoFocus').focus();mmoActive_select=mmoSetActive(g);if(document.documentElement){document.documentElement.onclick=mmoHideOptions;}else{window.onclick=mmoHideOptions;}
+        _elem.className="mmoOptionsDivVisible";}else if(_elem.className==="mmoOptionsDivVisible"){_elem.className="mmoOptionsDivInvisible";document.getElementById('mmonetbar').focus();}}
+    function mmoHideOptions(e){if(mmoActive_select){if(!e)e=window.event;var _target=(e.target||e.srcElement);if((_target.id.indexOf('mmoOptionsDiv')!==-1))return false;if(mmoisElementBefore(_target,'mmoSelectArea')===0&&(mmoisElementBefore(_target,'mmoOptionsDiv')===0)){mmoActive_select.className="mmoOptionsDivInvisible";mmoActive_select=null;}}else{if(document.documentElement)document.documentElement.onclick=function(){};else window.onclick=null;}}
+    function mmoisElementBefore(_el,_class){var _parent=_el;do _parent=_parent.parentNode;while(_parent&&(_parent.className!=null)&&(_parent.className.indexOf(_class)===-1))
+      return(_parent.className&&(_parent.className.indexOf(_class)!==-1))?1:0;}
+    var ua=navigator.userAgent.toLowerCase();var ie6browser=(ua.indexOf("msie 6")>-1)&&(ua.indexOf("opera")<0);function highlight(el,mod){if(ie6browser){if(mod===1&&!el.className.match(/highlight/))el.className=el.className+' highlight';else if(mod===0)el.className=el.className.replace(/highlight/g,'');}}
+    var mmoToggleDisplay={init:function(wrapperId){var wrapper=document.getElementById(wrapperId);if(!wrapper)return;var headline=wrapper.getElementsByTagName("h4")[0],link=headline.getElementsByTagName("a")[0];if(link.className.indexOf("gameCountZero")!==-1)return false;var panel=document.getElementById(link.hash.substr(1));mmoToggleDisplay.hidePanel(panel,link);link.onclick=function(e){mmoToggleDisplay.loadImages();mmoToggleDisplay.toggle(this,panel);return false;};mmoToggleDisplay.outerClick(wrapper,link,panel);var timeoutID=null,delay=5000;wrapper.onmouseout=function(e){if(!e){e=window.event;}
+        var reltg=e.relatedTarget?e.relatedTarget:e.toElement;if(reltg===wrapper||mmoToggleDisplay.isChildOf(reltg,wrapper)){return;}
+        timeoutID=setTimeout(function(){mmoToggleDisplay.hidePanel(panel,link);},delay);};wrapper.onmouseover=function(e){if(timeoutID){clearTimeout(timeoutID);}};},isChildOf:function(child,parent){while(child&&child!==parent){child=child.parentNode;}
+        return child===parent;},hidePanel:function(panel,link){panel.style.display="none";link.className="toggleHidden";},toggle:function(link,panel){panel.style.display=panel.style.display==="none"?"block":"none";link.className=link.className==="toggleHidden"?"":"toggleHidden";},outerClick:function(wrapper,link,panel){document.body.onclick=function(e){if(!e){e=window.event}
+        if(!(mmoToggleDisplay.isChildOf((e.target||e.srcElement),wrapper))&&panel.style.display!=="none"){mmoToggleDisplay.toggle(link,panel);}}},loadImages:function(){var script=document.createElement("script");script.type="text/javascript";var jsonGameData_browser='{"ikariam":"\/\/gf1.geo.gfsrv.net\/cdn9c\/9ba105ef8244febbedc427bce8b1db.jpg","battleknight":"\/\/gf3.geo.gfsrv.net\/cdn88\/1078f8c8b702f6c00bd80540a15de4.png","gladiatus":"\/\/gf2.geo.gfsrv.net\/cdn1d\/0da04cb94431ecf8cba6cc17d07ced.png","bitefight":"\/\/gf1.geo.gfsrv.net\/cdn3f\/d53efd82d430eaa71b708336af9624.png","kingsage":"\/\/gf1.geo.gfsrv.net\/cdncd\/48d4d41c64ce8cd6d180828935ef80.png","LittleGames":"\/\/gf1.geo.gfsrv.net\/cdn38\/66b5d81c98a38def3fab97a3e3e6bd.jpg"}',jsonGameData_client='{"aion":"\/\/gf1.geo.gfsrv.net\/cdn07\/a155657608cd0cdff7417c8d18aac1.jpg","nostale":"\/\/gf2.geo.gfsrv.net\/cdn15\/e60e9401956e533096de912f3d43c3.jpg","gujian":"\/\/gf1.geo.gfsrv.net\/cdn08\/1da9213d5b923cd76d5d4cbc3f1b71.jpg","metin2":"\/\/gf1.geo.gfsrv.net\/cdn31\/42e645397ef450be0886499f765855.jpg","elsword":"\/\/gf3.geo.gfsrv.net\/cdn28\/f1d511fc6386d1242f9928eac92079.jpg","4story":"\/\/gf1.geo.gfsrv.net\/cdn9f\/35e42e0330b32d00feda51fefb72cd.png","runesofmagic":"\/\/gf1.geo.gfsrv.net\/cdn69\/35877003ccc87e5e1c9d1c31e3f8ae.jpg"}',jsonGameData_featured='{"iseered":"\/\/gf2.geo.gfsrv.net\/cdn47\/5dac06fc1076d81457d5ea93518361.teaser"}';script.text='';script.text+=' mmoToggleDisplay.callback('+jsonGameData_featured+', "featured");';script.text+=' mmoToggleDisplay.callback('+jsonGameData_client+', "client");';script.text+='mmoToggleDisplay.callback('+jsonGameData_browser+', "browser");';document.getElementsByTagName("head")[0].appendChild(script);mmoToggleDisplay.loadImages=function(){};},callback:function(data,gamesCat){for(var gameName in data){var gameSpan=document.getElementById("gameImgTarget_"+gameName);if(!gameSpan){return false;}
+        var gameImg=document.createElement("img");gameImg.src=""+data[gameName];gameImg.alt="";gameSpan.appendChild(gameImg);}}};    </script>
+  <div id="mmoContent" class="mmonewsout">
+
+    <a id="mmoLogo" target="_blank"
+       href="http://dk.gameforge.com/games/ogame?kid=5-29820-00120-1105-101121ff"
+       title="Gameforge.com &ndash; Feel free to play">Gameforge.com &ndash; Feel free to play</a>
+
+    <!-- news -->
+    <div id="mmoNews">
+      <div class="mmoBoxLeft"></div>
+      <div class="mmoBoxMiddle" onmouseover="mmoTickHalt=true;" onmouseout="mmoTickHalt=false;">
+        <div class="mmoNewsContent">
+          <div id="mmoNewsticker">
+            <ul>
+              <li class="mmoTickShow">
+                <a target="_blank" href="https://lobby.ogame.gameforge.com/?kid=5-00120-09020-2208-120271a1">OGame: Server Lancering med Livsforms Udvidelsen</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="mmoBoxRight"></div>
+    </div>
+
+    <div id="mmoGame" class="mmoGame">
+      <div class="mmoBoxLeft"></div>
+      <div class="mmoBoxMiddle">
+
+        <!--<div id="mmoGames"></div>-->
+
+        <div id="mmoLangs">
+          <label>Vælg land:</label>
+          <div id="mmoLangSelect" class="mmoSelectbox">
+            <div id="mmoSarea1" onclick="mmoShowOptions(1)" class="mmoSelectArea">
+              <div class="mmoSelectText" id="mmoMySelectContent1">
+                <div id="mmoMySelectText1" class="mmoflag mmo_DK">Danmark</div>                                </div>
+              <div class="mmoSelectButton"></div>
+            </div>
+            <div class="mmoOptionsDivInvisible" id="mmoOptionsDiv1">
+              <ul class="mmoLangList mmoListHeight" id="mmoList1">
+                <li><a href="//ar.ogame.gameforge.com/?kid=5-00140-00120-1105-1201214d" target="_blank" rel="nofollow" class="mmoflag mmo_AR">Argentina</a></li>
+                <li><a href="//br.ogame.gameforge.com/?kid=5-00119-00120-1105-120121b7" target="_blank" rel="nofollow" class="mmoflag mmo_BR">Brasil</a></li>
+                <li class="mmoActive"><a href="//dk.ogame.gameforge.com/?kid=5-00120-00120-1105-1201218a" target="_blank" rel="nofollow" class="mmoflag mmo_DK">Danmark</a></li>
+                <li><a href="//de.ogame.gameforge.com/?kid=5-00106-00120-1105-120121f0" target="_blank" rel="nofollow" class="mmoflag mmo_DE">Deutschland</a></li>
+                <li><a href="//es.ogame.gameforge.com/?kid=5-00109-00120-1105-120121f5" target="_blank" rel="nofollow" class="mmoflag mmo_ES">España</a></li>
+                <li><a href="//fr.ogame.gameforge.com/?kid=5-00108-00120-1105-12012184" target="_blank" rel="nofollow" class="mmoflag mmo_FR">France</a></li>
+                <li><a href="//hr.ogame.gameforge.com/?kid=5-00126-00120-1105-12012175" target="_blank" rel="nofollow" class="mmoflag mmo_HR">Hrvatska</a></li>
+                <li><a href="//it.ogame.gameforge.com/?kid=5-00110-00120-1105-1201217e" target="_blank" rel="nofollow" class="mmoflag mmo_IT">Italia</a></li>
+                <li><a href="//hu.ogame.gameforge.com/?kid=5-00132-00120-1105-120121af" target="_blank" rel="nofollow" class="mmoflag mmo_HU">Magyarország</a></li>
+                <li><a href="//mx.ogame.gameforge.com/?kid=5-00139-00120-1105-12012193" target="_blank" rel="nofollow" class="mmoflag mmo_MX">México</a></li>
+                <li><a href="//nl.ogame.gameforge.com/?kid=5-00113-00120-1105-12012105" target="_blank" rel="nofollow" class="mmoflag mmo_NL">Nederland</a></li>
+                <li><a href="//no.ogame.gameforge.com/?kid=5-00134-00120-1105-12012173" target="_blank" rel="nofollow" class="mmoflag mmo_NO">Norge</a></li>
+                <li><a href="//pl.ogame.gameforge.com/?kid=5-00111-00120-1105-12012165" target="_blank" rel="nofollow" class="mmoflag mmo_PL">Polska</a></li>
+                <li><a href="//pt.ogame.gameforge.com/?kid=5-00117-00120-1105-1201214e" target="_blank" rel="nofollow" class="mmoflag mmo_PT">Portugal</a></li>
+                <li><a href="//ro.ogame.gameforge.com/?kid=5-00133-00120-1105-1201218b" target="_blank" rel="nofollow" class="mmoflag mmo_RO">Romania</a></li>
+                <li><a href="//si.ogame.gameforge.com/?kid=5-00160-00120-1105-1201215a" target="_blank" rel="nofollow" class="mmoflag mmo_SI">Slovenija</a></li>
+                <li><a href="//sk.ogame.gameforge.com/?kid=5-00135-00120-1105-12012101" target="_blank" rel="nofollow" class="mmoflag mmo_SK">Slovensko</a></li>
+                <li><a href="//fi.ogame.gameforge.com/?kid=5-00137-00120-1105-120121c2" target="_blank" rel="nofollow" class="mmoflag mmo_FI">Suomi</a></li>
+                <li><a href="//se.ogame.gameforge.com/?kid=5-00123-00120-1105-12012196" target="_blank" rel="nofollow" class="mmoflag mmo_SE">Sverige</a></li>
+                <li><a href="//tr.ogame.gameforge.com/?kid=5-00114-00120-1105-12012183" target="_blank" rel="nofollow" class="mmoflag mmo_TR">Türkiye</a></li>
+                <li><a href="//us.ogame.gameforge.com/?kid=5-00145-00120-1105-120121fe" target="_blank" rel="nofollow" class="mmoflag mmo_US">USA</a></li>
+                <li><a href="//en.ogame.gameforge.com/?kid=5-00107-00120-1105-12012107" target="_blank" rel="nofollow" class="mmoflag mmo_EN">United Kingdom</a></li>
+                <li><a href="//cz.ogame.gameforge.com/?kid=5-00131-00120-1105-120121a5" target="_blank" rel="nofollow" class="mmoflag mmo_CZ">Česká Republika</a></li>
+                <li><a href="//gr.ogame.gameforge.com/?kid=5-00127-00120-1105-12012103" target="_blank" rel="nofollow" class="mmoflag mmo_GR">Ελλάδα</a></li>
+                <li><a href="//ru.ogame.gameforge.com/?kid=5-00115-00120-1105-12012126" target="_blank" rel="nofollow" class="mmoflag mmo_RU">Российская Федерация</a></li>
+                <li><a href="//tw.ogame.gameforge.com/?kid=5-00116-00120-1105-12012162" target="_blank" rel="nofollow" class="mmoflag mmo_TW">台灣</a></li>
+                <li><a href="//jp.ogame.gameforge.com/?kid=5-00122-00120-1105-12012179" target="_blank" rel="nofollow" class="mmoflag mmo_JP">日本</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mmoBoxRight"></div>
+
+      <div id="mmoGamesOverviewPanel">
+        <div id="mmoGamesOverviewToggle">
+          <h4>
+            <a href="#mmoGamesOverviewLists">Flere spil<span class="mmoNbPseudoSelect_icon"></span></a>
+            <span class="mmoNbBoxEdge mmoNbBoxEdge_left"></span>
+            <span class="mmoNbBoxEdge mmoNbBoxEdge_right"></span>
+          </h4>
+        </div>
+        <div id="mmoGamesOverviewLists">
+          <div id="mmoGamesOverviewCountry" class="mmo_DK"></div>
+
+          <!-- Section: Featured Game -->
+          <h5>Udvalgte spil</h5>
+          <ul id="mmoGamesOverview_featured">
+            <li>
+              <a id="mmoTile_iseered" href="https://store.steampowered.com/app/1594460/I_See_Red/?kid=5-ab520-00120-1105-120281aa" title="Rogue-lite, Top-Down, Sci-Fi" target="_blank"
+                 onmouseenter="mmoHoverTile('iseered')" onmouseleave="mmoLeaveTile('iseered')">
+                <span id="gameImgTarget_iseered" class="gameImgTarget"></span>
+                <span class="gameName">I See Red</span>
+              </a>
+            </li>
+          </ul>
+
+          <!-- Section: Client Games -->
+          <h5><a href="https://gameforge.com/da-DK/mmorpg/?origin=netbar" target="_blank">MMORPG</a></h5>
+          <ul id="mmoGamesOverview_client">
+            <li class="mmoGameIcon mmoGameIcon_aion mmoGameIcon_aion_dk">
+              <a id="mmoTile_aion" href="https://en.aion.gameforge.com/website/landing/play/?kid=5-62020-00120-1105-1202819a" title="Earn your wings" target="_blank"
+                 onmouseenter="mmoHoverTile('aion')" onmouseleave="mmoLeaveTile('aion')">
+                <span id="gameImgTarget_aion" class="gameImgTarget"></span>
+                AION free-to-play                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_nostale mmoGameIcon_nostale_dk">
+              <a id="mmoTile_nostale" href="https://en.nostale.gameforge.com/landing/?kid=5-09120-00120-1105-1202815b" title="Lev legenden" target="_blank"
+                 onmouseenter="mmoHoverTile('nostale')" onmouseleave="mmoLeaveTile('nostale')">
+                <span id="gameImgTarget_nostale" class="gameImgTarget"></span>
+                NosTale                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_gujian mmoGameIcon_gujian_dk">
+              <a id="mmoTile_gujian" href="https://join.solo.gameforge.com/?kid=5-aak20-00120-1105-1202810c" title="PRE-ORDER NOW!" target="_blank"
+                 onmouseenter="mmoHoverTile('gujian')" onmouseleave="mmoLeaveTile('gujian')">
+                <span id="gameImgTarget_gujian" class="gameImgTarget"></span>
+                Swords of Legends Online                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_metin2 mmoGameIcon_metin2_dk">
+              <a id="mmoTile_metin2" href="https://dk.metin2.gameforge.com/landing?kid=5-02020-00120-1105-12028171" title="Slib dit sværd og dit sind" target="_blank"
+                 onmouseenter="mmoHoverTile('metin2')" onmouseleave="mmoLeaveTile('metin2')">
+                <span id="gameImgTarget_metin2" class="gameImgTarget"></span>
+                Metin2                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_elsword mmoGameIcon_elsword_dk">
+              <a id="mmoTile_elsword" href="https://en.elsword.gameforge.com/landing?kid=5-48820-00120-1105-1202815d" title="Mean monsters, cool heroes" target="_blank"
+                 onmouseenter="mmoHoverTile('elsword')" onmouseleave="mmoLeaveTile('elsword')">
+                <span id="gameImgTarget_elsword" class="gameImgTarget"></span>
+                Elsword                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_4story mmoGameIcon_4story_dk">
+              <a id="mmoTile_4story" href="http://en.4story.gameforge.com/landing?kid=5-23320-00120-1105-120281c0" title="For sandhed og lys" target="_blank"
+                 onmouseenter="mmoHoverTile('4story')" onmouseleave="mmoLeaveTile('4story')">
+                <span id="gameImgTarget_4story" class="gameImgTarget"></span>
+                4Story                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_runesofmagic mmoGameIcon_runesofmagic_dk">
+              <a id="mmoTile_runesofmagic" href="https://en.runesofmagic.gameforge.com/landing/?kid=5-46820-00120-1105-12028126" title="THE AWARD WINNING MMORPG" target="_blank"
+                 onmouseenter="mmoHoverTile('runesofmagic')" onmouseleave="mmoLeaveTile('runesofmagic')">
+                <span id="gameImgTarget_runesofmagic" class="gameImgTarget"></span>
+                Runes of Magic                                        </a>
+            </li>
+          </ul>
+
+          <!-- Section: Browser Games -->
+          <h5><a href="https://gameforge.com/da-DK/browser-games/?origin=netbar" target="_blank">Browser Games</a></h5>
+          <ul id="mmoGamesOverview_browser">
+            <li class="mmoGameIcon mmoGameIcon_ikariam mmoGameIcon_ikariam_dk">
+              <a id="mmoTile_ikariam" href="https://lobby.ikariam.gameforge.com/da_DK/?kid=5-03820-00120-1105-120281f6" title="Antikkens fremtid" target="_blank"
+                 onmouseenter="mmoHoverTile('ikariam')" onmouseleave="mmoLeaveTile('ikariam')">
+                <span id="gameImgTarget_ikariam" class="gameImgTarget"></span>
+                Ikariam                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_battleknight mmoGameIcon_battleknight_dk">
+              <a id="mmoTile_battleknight" href="https://dk.battleknight.gameforge.com//?kid=5-01920-00120-1105-12028167" title="For ære og for kongen" target="_blank"
+                 onmouseenter="mmoHoverTile('battleknight')" onmouseleave="mmoLeaveTile('battleknight')">
+                <span id="gameImgTarget_battleknight" class="gameImgTarget"></span>
+                BattleKnight                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_gladiatus mmoGameIcon_gladiatus_dk">
+              <a id="mmoTile_gladiatus" href="https://lobby.gladiatus.gameforge.com/da_DK/?kid=5-03720-00120-1105-1202817a" title="Blod, støv og ære" target="_blank"
+                 onmouseenter="mmoHoverTile('gladiatus')" onmouseleave="mmoLeaveTile('gladiatus')">
+                <span id="gameImgTarget_gladiatus" class="gameImgTarget"></span>
+                Gladiatus                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_bitefight mmoGameIcon_bitefight_dk">
+              <a id="mmoTile_bitefight" href="http://en.bitefight.gameforge.com/?kid=5-00220-00120-1105-1202816b" title="Nattens rivaler" target="_blank"
+                 onmouseenter="mmoHoverTile('bitefight')" onmouseleave="mmoLeaveTile('bitefight')">
+                <span id="gameImgTarget_bitefight" class="gameImgTarget"></span>
+                BiteFight                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_kingsage mmoGameIcon_kingsage_dk">
+              <a id="mmoTile_kingsage" href="https://en.kingsage.gameforge.com/?kid=5-31120-00120-1105-1202813a" title="Længe leve kongen!" target="_blank"
+                 onmouseenter="mmoHoverTile('kingsage')" onmouseleave="mmoLeaveTile('kingsage')">
+                <span id="gameImgTarget_kingsage" class="gameImgTarget"></span>
+                KingsAge                                        </a>
+            </li>
+            <li class="mmoGameIcon mmoGameIcon_LittleGames mmoGameIcon_LittleGames_dk">
+              <a id="mmoTile_LittleGames" href="https://gameforge.com/da-DK/littlegames/?origin=portal/?kid=5-99920-00120-1105-1202810b" title="Gratis Spil" target="_blank"
+                 onmouseenter="mmoHoverTile('LittleGames')" onmouseleave="mmoLeaveTile('LittleGames')">
+                <span id="gameImgTarget_LittleGames" class="gameImgTarget"></span>
+                Gratis Spil                                        </a>
+            </li>
+          </ul>
+        </div><!-- /mmoGamesOverviewLists -->
+      </div><!-- /mmoGamesOverviewPanel -->
+    </div><!-- /mmoGame -->
+    <input id="mmoFocus" type="text" size="5"/>
+  </div><!-- /mmoContent -->
+</div><!-- /mmonetbar -->
+
+<!-- ogame / dk / ingame / 10.08.2022 04:45 -->
+<script type="text/javascript" data-cookieconsent="ignore">
+  mmoInitSelect();
+  mmoTicker();    mmoToggleDisplay.init("mmoGamesOverviewPanel");
+</script>
+
+
+<!--/* OpenX Interstitial or Floating DHTML Tag v2.8.8 */-->
+<div id="openXHackFoo">
+  <script type="text/javascript" data-cookieconsent="ignore">
+    var HTTP_GET_VARS = new Array();
+    var strGET = document.location.search.substr(1, document.location.search.length);
+    if (strGET !== '') {
+      var gArr = strGET.split('&');
+      for (i = 0; i < gArr.length; ++i) {
+        var v = '';
+        var vArr = gArr[i].split('=');
+        if (vArr.length > 1) {
+          v = vArr[1];
+        }
+        HTTP_GET_VARS[unescape(vArr[0])] = unescape(v);
+      }
+    }
+
+    function GET(v) {
+      if (!HTTP_GET_VARS[v]) {
+        return '';
+      }
+      return HTTP_GET_VARS[v];
+    }
+
+    function openxDetectDeviceOS() {
+      return (function (ua) {
+        if (/iPhone/i.test(ua) || /iPad/.test(ua) || /iPod/.test(ua)) {
+          return 'ios';
+        } else if (/Android/.test(ua)) {
+          return 'android';
+        } else if (/Windows Phone OS 7\.0/.test(ua)) {
+          return 'winphone7';
+        } else if (/BlackBerry/.test(ua)) {
+          return 'rim';
+        } else {
+          return 'desktop';
+        }
+      })(navigator.userAgent);
+    }
+
+    function escapeHtml(str) {
+      return str.match(new RegExp('^[0-9a-zA-Z-]+$')) ? str : '';
+    }
+
+    function hasMarketingConsent() {
+      return (typeof window.gfCookieConsent !== 'undefined') && window.gfCookieConsent.consent.marketing === true;
+    }
+
+    if (openxDetectDeviceOS() === 'desktop') {
+      var params = 'zoneid=1316&source=Quelle&cb=INSERT_RANDOM_NUMBER_HERE&layerstyle=simple&align=right&valign=top&padding=2&shifth=30&shiftv=20&closebutton=t&backcolor=778591&bordercolor=FFFFFF';
+      params = params.replace(/INSERT_RANDOM_NUMBER_HERE/g, Math.floor(Math.random() * 99999999999));
+      params = params + '&zindex=9999999&layerstyle=gameforge&kid=' + escapeHtml(GET('kid'));
+      var m3_u = hasMarketingConsent() ? 'https://ads-delivery.gameforge.com/al.php' : 'https://ads-deliverync.gameforge.com/al.php';
+      document.write('<scr' + 'ipt type="text/javascript" src="' + m3_u + '?' + params + '"></scr' + 'ipt>');
+    }
+  </script>
+</div>
+
+<!-- #/MMO:NETBAR# -->
+
+<div id="siteHeader">
+</div>
+
+<div id="pageContent">
+  <div id="top">
+    <div id="pageReloader" onclick="javascript: redirectOverview();"></div>
+    <div id='headerbarcomponent'
+         class=""
+    >
+      <div id="bar">
+        <ul>
+          <li id="playerName">
+            Spiller:
+
+            <span class="textBeefy">
+                            <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ajax&amp;component=changenick"
+                               class="overlay textBeefy"
+                               data-overlay-title=""
+                               data-overlay-popup-width="400"
+                               data-overlay-popup-height="200"
+                            >Renegade Io</a>
+                        </span>
+          </li>
+          <li>
+            <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=highscore&amp;site=2&amp;category=1&amp;searchRelId=100171" accesskey="">Highscore</a>
+            (122)
+          </li>
+          <li>
+            <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=notices"
+               class="overlay" data-overlay-title="Mine notater"
+               data-overlay-class="notices"
+               data-overlay-popup-width="750"
+               data-overlay-popup-height="480"
+               accesskey="">
+              Notater</a>
+          </li>
+          <li>
+            <a class=""
+               accesskey=""
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=buddies"
+            >
+              Buddies</a>
+          </li>
+          <li><a class="overlay"
+                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=search&amp;ajax=1"
+                 data-overlay-title="Søg i OGame"
+                 data-overlay-close="__default closeSearch"
+                 data-overlay-class="search"
+                 accesskey="">Søg</a>
+          </li>
+          <li><a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=preferences" accesskey="">Indstillinger</a></li>
+          <li><a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=support" target="_blank">Support</a></li>
+          <li><a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=logout">Log ud</a></li>
+          <li class="OGameClock">10.08.2022 <span>05:22:01</span></li>
+        </ul>
+      </div>
+    </div>
+    <div id='resourcesbarcomponent'
+         class=""
+    >
+
+      <div id="resources">
+
+        <div class="resource_tile metal">
+          <div id="metal_box"
+               class="metal  tooltipHTML resource"
+               title="Metal|&lt;table class=&quot;resourceTooltip&quot;&gt;&lt;tr&gt;&lt;th&gt;Til rådighed:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;1.000&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Lagerkapacitet&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Nuværende produktion:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+120&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Gemmesteds kapacitet:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+               data-shop-url="https://s144-dk.ogame.gameforge.com/game/index.php?page=shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=859d82d316b83848f7365d21949b3e1e63c7841f"
+          >
+            <div class="resourceIcon metal"></div>
+            <span class="value">
+                        <span id="resources_metal" data-raw="1000" class="">1.000</span>
+                    </span>
+          </div>
+        </div>
+        <div class="resource_tile crystal">
+          <div id="crystal_box"
+               class="crystal  tooltipHTML resource"
+               title="Krystal|&lt;table class=&quot;resourceTooltip&quot;&gt;&lt;tr&gt;&lt;th&gt;Til rådighed:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;1.000&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Lagerkapacitet&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Nuværende produktion:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;+60&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Gemmesteds kapacitet:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+               data-shop-url="https://s144-dk.ogame.gameforge.com/game/index.php?page=shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=bb2f6843226ef598f0b567b92c51b283de90aa48"
+          >
+            <div class="resourceIcon crystal"></div>
+            <span class="value">
+                        <span id="resources_crystal" data-raw="1000" class="">1.000</span>
+                    </span>
+          </div>
+        </div>
+        <div class="resource_tile deuterium">
+          <div id="deuterium_box"
+               class="deuterium  tooltipHTML resource"
+               title="Deuterium|&lt;table class=&quot;resourceTooltip&quot;&gt;&lt;tr&gt;&lt;th&gt;Til rådighed:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Lagerkapacitet&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;10.000&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Nuværende produktion:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Gemmesteds kapacitet:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+               data-shop-url="https://s144-dk.ogame.gameforge.com/game/index.php?page=shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&amp;item=cb72ed207dd871832a850ee29f1c1f83aa3f4f36"
+          >
+            <div class="resourceIcon deuterium"></div>
+            <span class="value">
+                        <span id="resources_deuterium" data-raw="0" class="">0</span>
+                    </span>
+          </div>
+        </div>
+        <div class="resource_tile energy">
+          <div id="energy_box"
+               class="energy  tooltipHTML resource"
+               title="Energi|&lt;table class=&quot;resourceTooltip&quot;&gt;&lt;tr&gt;&lt;th&gt;Til rådighed:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Nuværende produktion:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Forbrug&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+          >
+            <div class="resourceIcon energy"></div>
+            <span class="value">
+                        <span id="resources_energy" data-raw="0" class="">0</span>
+                    </span>
+          </div>
+        </div>
+        <div class="resource_tile population">
+          <div id="population_box"
+               class="population  tooltipHTML resource"
+               title="Befolkning|&lt;table class=&quot;resourceTooltip&quot;&gt;&lt;tr&gt;&lt;th&gt;Til rådighed:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;210&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;T2 Livsformer&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;T3 Livsformer&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Opholdsrum&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;210&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Tilfreds&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;233&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Sulten&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Vækstrate&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;±0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Bunker Rum&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;middlemark&quot;&gt;100&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+          >
+            <div class="resourceIcon population"></div>
+            <span class="value">
+                        <span id="resources_population" data-raw="210" class="">210</span>
+                    </span>
+          </div>
+        </div>
+        <div class="resource_tile food">
+          <div id="food_box"
+               class="food  tooltipHTML resource"
+               title="Mad|&lt;table class=&quot;resourceTooltip&quot;&gt;&lt;tr&gt;&lt;th&gt;Til rådighed:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;10&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Lagerkapacitet&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;10&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Overproduktion&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;undermark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Forbrug&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Forbruges om&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;overmark timeTillFoodRunsOut&quot;&gt;~&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+          >
+            <div class="resourceIcon food"></div>
+            <span class="value">
+                        <span id="resources_food" data-raw="10" class="">10</span>
+                    </span>
+          </div>
+        </div>
+        <div class="resource_tile darkmatter">
+          <div id="darkmatter_box"
+               class="darkmatter  tooltipHTML resource"
+               title="Mørk Materie|&lt;table class=&quot;resourceTooltip&quot;&gt;&lt;tr&gt;&lt;th&gt;Til rådighed:&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Købt&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;th&gt;Fundet&lt;/th&gt;&lt;td&gt;&lt;span class=&quot;&quot;&gt;0&lt;/span&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"
+               data-tooltip-button="Køb Mørk Materie"
+          >
+            <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=payment"
+               class="overlay">
+              <img src="https://gf1.geo.gfsrv.net/cdnc5/401d1a91ff40dc7c8acfa4377d3d65.gif">
+              <div class="resourceIcon darkmatter"></div>
+            </a>
+            <span class="value">
+                        <span id="resources_darkmatter" data-raw="0" class="overlay">0</span>
+                    </span>
+          </div>
+        </div>
+      </div>
+      <script type="text/javascript">
+        var isMobile = false;
+        var LocalizationStrings = {"timeunits":{"short":{"year":"\u00e5r","month":"m","week":"U","day":"d","hour":"t","minute":"m","second":"s"}},"status":{"ready":"f\u00e6rdig"},"decimalPoint":",","thousandSeperator":".","unitMega":"Mio","unitKilo":"K","unitMilliard":"Mia","question":"Sp\u00f8rgsm\u00e5l","error":"Fejl","loading":"load...","notice":"Referent","yes":"Ja","no":"Nej","ok":"Ok","attention":"Bem\u00e6rk","outlawWarning":"Du er p\u00e5 vej til at angribe en st\u00e6rkere spiller. Hvis du g\u00f8r det, vil din angrebsbeskyttelse blive lukket ned i 7 dage og alle spillere vil kunne angribe dig uden straf. Er du sikker p\u00e5 du vil forts\u00e6tte?","lastSlotWarningMoon":"Denne bygning vil bruge den sidste tilg\u00e6ngelige byggeplads. Udvid din m\u00e5nebase for at f\u00e5 mere plads. Er du sikker p\u00e5, at du vil bygge denne bygning?","lastSlotWarningPlanet":"Denne bygning vil bruge den sidste tilg\u00e6ngelige byggeplads. Udvid din terraformer eller k\u00f8b Planet Arealer for at f\u00e5 mere plads. Er du sikker p\u00e5, at du vil bygge denne bygning?","forcedVacationWarning":"Bekr\u00e6ft din lobby konto nu og vi giver dig M\u00f8rk Materie i hvert univers!","planetMoveBreakUpWarning":"Advarsel! Denne mission er muligvis stadig aktiv n\u00e5r flytningen starter. Hvis dette er tilf\u00e6ldet, vil flytningen blive afbrudt. Vil du forts\u00e6tte?","moreDetails":"Flere detaljer","lessDetails":"Mindre detalje","planetOrder":{"lock":"L\u00e5se arrangement","unlock":"L\u00e5se arrangement op"},"darkMatter":"M\u00f8rk Materie","errorNotEnoughDM":"Ikke nok M\u00f8rk Matterie til r\u00e5dighed! \u00d8nsker du at k\u00f8be noget nu?","activateItem":{"upgradeItemQuestion":"Vil du erstatte det eksisterende item? Den gamle bonus vil forsvinde i processen.","upgradeItemQuestionHeader":"Erstat item?"},"characterClassItem":{"buyAndActivateItemQuestion":"\u00d8nsker du at aktivere #characterClassName# klassen for #darkmatter# M\u00f8rk Materie? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende klasse.","activateItemQuestion":"\u00d8nsker du at aktivere #characterClassName# klassen? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende klasse."},"allianceClassItem":{"buyAndActivateItemQuestion":"\u00d8nsker du at aktivere alliance klassen #allianceClassName# for #darkmatter# M\u00f8rk Materie? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende alliance klasse.","activateItemQuestion":"\u00d8nsker du at aktivere alliance klassen #allianceClassName#? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende alliance klasse.","appendCurrentClassQuestion":"<br><br>Nuv\u00e6rende alliance klasse: #currentAllianceClassName#<br><br>Sidst \u00e6ndret den: #lastAllianceClassChange#"},"LOCA_ALL_NETWORK_ATTENTION":"Bem\u00e6rk","LOCA_ALL_YES":"Ja","LOCA_ALL_NO":"Nej","redirectMessage":"Ved at f\u00f8lge dette link, vil du forlade OGame. \u00d8nsker du at forts\u00e6tte?"};
+
+        (function($) {
+          reloadResources({"resources":{"population":{"amount":210,"storage":210,"safeCapacity":100,"growthRate":0,"capableToFeed":233,"needFood":0,"singleFoodConsumption":4.761904761904762e-5,"tooltip":"Befolkning|<table class=\"resourceTooltip\"><tr><th>Til r\u00e5dighed:<\/th><td><span class=\"overmark\">210<\/span><\/td><\/tr><tr><th>T2 Livsformer<\/th><td><span class=\"\">0<\/span><\/td><\/tr><tr><th>T3 Livsformer<\/th><td><span class=\"\">0<\/span><\/td><\/tr><tr><th>Opholdsrum<\/th><td><span class=\"overmark\">210<\/span><\/td><\/tr><tr><th>Tilfreds<\/th><td><span class=\"undermark\">233<\/span><\/td><\/tr><tr><th>Sulten<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>V\u00e6kstrate<\/th><td><span class=\"\">\u00b10<\/span><\/td><\/tr><tr><th>Bunker Rum<\/th><td><span class=\"middlemark\">100<\/span><\/td><\/tr><\/table>","classesListItem":""},"food":{"amount":10,"storage":10,"capableToFeed":233,"production":0.011111111111111112,"extraproduction":0,"consumption":0,"vacationMode":"","tooltip":"Mad|<table class=\"resourceTooltip\"><tr><th>Til r\u00e5dighed:<\/th><td><span class=\"overmark\">10<\/span><\/td><\/tr><tr><th>Lagerkapacitet<\/th><td><span class=\"overmark\">10<\/span><\/td><\/tr><tr><th>Overproduktion<\/th><td><span class=\"undermark\">0<\/span><\/td><\/tr><tr><th>Forbrug<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>Forbruges om<\/th><td><span class=\"overmark timeTillFoodRunsOut\">~<\/span><\/td><\/tr><\/table>","classesListItem":""},"metal":{"amount":1000,"storage":10000,"baseProduction":0.03333333333333333,"production":0.03333333333333333,"tooltip":"Metal|<table class=\"resourceTooltip\"><tr><th>Til r\u00e5dighed:<\/th><td><span class=\"\">1.000<\/span><\/td><\/tr><tr><th>Lagerkapacitet<\/th><td><span class=\"\">10.000<\/span><\/td><\/tr><tr><th>Nuv\u00e6rende produktion:<\/th><td><span class=\"undermark\">+120<\/span><\/td><\/tr><tr><th>Gemmesteds kapacitet:<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>","classesListItem":"","shopUrl":"https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=859d82d316b83848f7365d21949b3e1e63c7841f"},"crystal":{"amount":1000,"storage":10000,"baseProduction":0.016666666666666666,"production":0.016666666666666666,"tooltip":"Krystal|<table class=\"resourceTooltip\"><tr><th>Til r\u00e5dighed:<\/th><td><span class=\"\">1.000<\/span><\/td><\/tr><tr><th>Lagerkapacitet<\/th><td><span class=\"\">10.000<\/span><\/td><\/tr><tr><th>Nuv\u00e6rende produktion:<\/th><td><span class=\"undermark\">+60<\/span><\/td><\/tr><tr><th>Gemmesteds kapacitet:<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>","classesListItem":"","shopUrl":"https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=bb2f6843226ef598f0b567b92c51b283de90aa48"},"deuterium":{"amount":0,"storage":10000,"baseProduction":0,"production":0,"tooltip":"Deuterium|<table class=\"resourceTooltip\"><tr><th>Til r\u00e5dighed:<\/th><td><span class=\"\">0<\/span><\/td><\/tr><tr><th>Lagerkapacitet<\/th><td><span class=\"\">10.000<\/span><\/td><\/tr><tr><th>Nuv\u00e6rende produktion:<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>Gemmesteds kapacitet:<\/th><td><span class=\"overermark\">0<\/span><\/td><\/tr><\/table>","classesListItem":"","shopUrl":"https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=shop#category=d8d49c315fa620d9c7f1f19963970dea59a0e3be&item=cb72ed207dd871832a850ee29f1c1f83aa3f4f36"},"energy":{"amount":0,"tooltip":"Energi|<table class=\"resourceTooltip\"><tr><th>Til r\u00e5dighed:<\/th><td><span class=\"\">0<\/span><\/td><\/tr><tr><th>Nuv\u00e6rende produktion:<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><tr><th>Forbrug<\/th><td><span class=\"overmark\">0<\/span><\/td><\/tr><\/table>","classesListItem":""},"darkmatter":{"amount":0,"tooltip":"M\u00f8rk Materie|<table class=\"resourceTooltip\"><tr><th>Til r\u00e5dighed:<\/th><td><span class=\"\">0<\/span><\/td><\/tr><tr><th>K\u00f8bt<\/th><td><span class=\"\">0<\/span><\/td><\/tr><tr><th>Fundet<\/th><td><span class=\"\">0<\/span><\/td><\/tr><\/table>","classesListItem":"","classes":"overlay","link":"https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=payment","img":"https:\/\/gf1.geo.gfsrv.net\/cdnc5\/401d1a91ff40dc7c8acfa4377d3d65.gif"}},"techs":{"1":{"techId":1,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"2":{"techId":2,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"3":{"techId":3,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"4":{"techId":4,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12":{"techId":12,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"212":{"techId":212,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"217":{"techId":217,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11103":{"techId":11103,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11104":{"techId":11104,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11105":{"techId":11105,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11106":{"techId":11106,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11107":{"techId":11107,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11108":{"techId":11108,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11109":{"techId":11109,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11110":{"techId":11110,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11111":{"techId":11111,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"11112":{"techId":11112,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12103":{"techId":12103,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12104":{"techId":12104,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12105":{"techId":12105,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12106":{"techId":12106,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12108":{"techId":12108,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12109":{"techId":12109,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12110":{"techId":12110,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12111":{"techId":12111,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"12112":{"techId":12112,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13103":{"techId":13103,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13104":{"techId":13104,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13105":{"techId":13105,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13106":{"techId":13106,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13107":{"techId":13107,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13108":{"techId":13108,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13109":{"techId":13109,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13110":{"techId":13110,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13111":{"techId":13111,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"13112":{"techId":13112,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14103":{"techId":14103,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14104":{"techId":14104,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14105":{"techId":14105,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14106":{"techId":14106,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14107":{"techId":14107,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14108":{"techId":14108,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14109":{"techId":14109,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14110":{"techId":14110,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14111":{"techId":14111,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}},"14112":{"techId":14112,"production":{"metal":0,"crystal":0,"deuterium":0,"energy":0},"consumption":{"metal":0,"crystal":0,"deuterium":0,"energy":0}}},"honorScore":0});
+        })(jQuery);
+      </script>
+    </div>
+    <div id='commandercomponent'
+         class=""
+    >
+      <div id="lifeform" class="fleft">
+        <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=lfsettings"
+           class="tooltipHTML js_hideTipOnMobile"
+           title="Mennesker|Mennesker er en livsform med en bred vifte af evner. De er den eneste livsform der er i stand til at detektere andre livsformer. Deres mad produktion og befolkningsvækst er balanceret. Derudover, øger de ressource produktionen på alle planeter. De forbedrer ikke nogen klasse bonusser.">
+          <div class="lifeform-item-icon small lifeform1"></div>
+        </a>
+      </div>
+      <div id="characterclass" class="fleft">
+        <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=characterclassselection"
+           class="tooltipHTML js_hideTipOnMobile"
+           title="Vælg klasse|Vælg en klasse for at modtage specielle bonusser.">
+          <div class="sprite characterclass medium none"></div>
+        </a>
+      </div>
+      <div id="officers" class="  fright">
+        <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=2"
+           class="tooltipHTML   commander js_hideTipOnMobile "
+           title="Hyr commander|+40 favoritter, byggeliste, imperiumoversigt, genveje, transportscanner, reklamefri*, og meget mere. &lt;span style=&quot;font-size:10px;line-height:10px;&quot;&gt;(*undtagen: spilrelaterede referencer)&lt;/span&gt;"
+        >
+          <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+        <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=3"
+           class="tooltipHTML    admiral js_hideTipOnMobile "
+           title="Hyr admiral|Maks antal flåde slots +2
+Bedre ratioer på flåde flygtning"
+        >
+          <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+        <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=4"
+           class="tooltipHTML    engineer js_hideTipOnMobile "
+           title="Hyr ingeniør|Halverer forsvars tab, +10% energiproduktion"
+        >
+          <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+        <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=5"
+           class="tooltipHTML    geologist js_hideTipOnMobile "
+           title="Hyr geolog|+10% mine produktion"
+        >
+          <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+        <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=premium&amp;openDetail=6"
+           class="tooltipHTML    technocrat js_hideTipOnMobile "
+           title="Hyr teknokrat|+2 spionagelevel, 25% mindre forskningstid"
+        >
+          <img src="/cdn/img/layout/pixel.gif" width="30" height="30"></img>
+        </a>
+      </div>
+    </div>
+    <div id='notificationbarcomponent'
+         class=""
+    >
+      <div id="message-wrapper">
+        <a class=" comm_menu messages tooltip js_hideTipOnMobile"
+           href="https://s144-dk.ogame.gameforge.com/game/index.php?page=messages"
+           title="1 ny(e) besked(er)"
+        >
+                    <span class="new_msg_count totalMessages news "
+                          data-new-messages="1"
+                    >
+                1
+            </span>
+        </a>
+        <a class=" comm_menu chat tooltip js_hideTipOnMobile"
+           href="https://s144-dk.ogame.gameforge.com/game/index.php?page=chat"
+           title="1 ny(e) besked(er)"
+        >
+        <span class="new_msg_count totalChatMessages noMessage"
+              data-new-messages="0">
+            0
+        </span>
+        </a>
+        <div id="messages_collapsed">
+          <div id="eventboxFilled" class="eventToggle" style="display: none;">
+            <a id="js_eventDetailsClosed"
+               class="tooltipRight js_hideTipOnMobile"
+               href="javascript:void(0);"
+               title="Flere detaljer"
+            ></a>
+            <a id="js_eventDetailsOpen"
+               class="tooltipRight open js_hideTipOnMobile"
+               href="javascript:void(0);"
+               title="Mindre detalje"
+            ></a>
+          </div>
+          <div id="eventboxLoading"
+               class="textCenter textBeefy"
+               style="display: block;"
+          >
+            <img height="16"
+                 width="16"
+                 alt="ajax spinner"
+                 src="https://gf3.geo.gfsrv.net/cdne3/3f9884806436537bdec305aa26fc60.gif"
+            />
+            load...
+          </div>
+          <div id="eventboxBlank"
+               class="textCenter"
+               style="display: none;"
+          >
+            Ingen flådebevægelse
+          </div>
+        </div>
+        <div id="attack_alert"
+             class="tooltip noAttack"
+             title=""
+        >
+          <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=componentOnly&amp;component=eventList" class=" tooltipHTML js_hideTipOnMobile"
+          ></a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div id="left">
+    <div id='tutorialiconcomponent'
+         class=""
+    >
+      <div id="helper">
+        <a class="tooltip tooltipClose"
+           href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=tutorial"
+           title="Tutorial oversigt&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=rewards&quot;&gt;&lt;/a&gt;">?</a>
+      </div>
+    </div>
+    <div id='toolbarcomponent'
+         class=""
+    >
+      <div id="links">
+        <ul id="menuTable" class="leftmenu">
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=rewards"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="">
+                            <div class="menuImage overview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Oversigt</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=resourcesettings"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Ressource indstillinger">
+                            <div class="menuImage resources  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Ressourcer</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=lfresearch"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Livsformernes Udvikling">
+                            <div class="menuImage lifeform  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=lfbuildings"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Livsform</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Springportal">
+                            <div class="menuImage station  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Faciliteter</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=traderOverview#page=traderResources&amp;animation=false"
+                                                                               class="trader tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Handelsmand">
+                            <div class="menuImage traderOverview  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton premiumHighligt"
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=traderOverview"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Købmand</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ajax&amp;component=technologytree&amp;tab=3&amp;open=all"
+                                                                               class="overlay tooltipRight js_hideTipOnMobile "
+                                                                               target="_blank"
+                                                                               title="Teknologi">
+                            <div class="menuImage research  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Forskning</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <span class="menuImage shipyard  "></span>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Skibsværft</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <span class="menuImage defense active "></span>
+                                    </span>
+            <a class="menubutton  selected"
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Forsvar</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=movement"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Flådebevægelser">
+                            <div class="menuImage fleet1  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Flåde</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <span class="menuImage galaxy  "></span>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Galakse</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <span class="menuImage alliance  "></span>
+                                    </span>
+            <a class="menubutton "
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=alliance"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Alliance</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <span class="menuImage premium  "></span>
+                                    </span>
+            <a class="menubutton premiumHighligt officers"
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=premium"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Hyr Officerer!</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=shop#page=inventory&amp;category=d8d49c315fa620d9c7f1f19963970dea59a0e3be"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Inventory">
+                            <div class="menuImage shop  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton premiumHighligt"
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=shop"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Butik</span>
+            </a>
+          </li>
+
+          <li>
+                <span class="menu_icon">
+                                            <a                                 href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=rewarding&amp;tab=rewards&amp;tier=2"
+                                                                               class="tooltipRight js_hideTipOnMobile "
+                                                                               target="_self"
+                                                                               title="Nuværende Plads">
+                            <div class="menuImage rewarding  
+                                ">
+                            </div>
+                        </a>
+                                    </span>
+            <a class="menubutton premiumHighligt"
+               href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=rewarding&amp;tab=rewards&amp;tier=1"
+               accesskey=""
+               target="_self"
+            >
+              <span class="textlabel">Præmier</span>
+            </a>
+          </li>
+        </ul>
+
+        <div id="toolLinksWrapper">
+          <ul id="menuTableTools" class="leftmenu"></ul>
+        </div>
+        <br class="clearfloat"/>
+      </div>    </div>
+    <div id='advicebarcomponent'
+         class=""
+    >
+      <div class="adviceWrapper">
+
+        <div id="advice-bar">
+
+        
+        
+                
+                                    <span
+                                            class="overlay tooltipHTML tooltipRight advice"
+                                            title="Ikke bekræftet|Bekræft din lobby konto nu og vi giver dig Mørk Materie i hvert univers!"
+                                    >
+                    <img src="https://gf3.geo.gfsrv.net/cdn87/09980161fadf11b18189770e1d78d2.gif" height="32" width="32" />
+                </span>
+
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div id="middle">
+    <div id='eventlistcomponent'
+         class=""
+    >
+      <div id="eventboxContent"
+           style="display: none;">
+        <div id="eventListWrap">
+          <div id="eventHeader">
+            <a class="close_details eventToggle" href="javascript:toggleEvents();">
+            </a>
+            <h2>Arrangementer</h2>
+          </div>
+          <table id="eventContent">
+            <tbody>
+            </tbody>
+          </table>
+          <div id="eventFooter"></div>
+        </div>
+      </div>
+      <script type="text/javascript">
+        var timeDelta = 1660101721000 - (new Date()).getTime();
+        var LocalizationStrings = {"timeunits":{"short":{"year":"\u00e5r","month":"m","week":"U","day":"d","hour":"t","minute":"m","second":"s"}},"status":{"ready":"f\u00e6rdig"},"decimalPoint":",","thousandSeperator":".","unitMega":"Mio","unitKilo":"K","unitMilliard":"Mia","question":"Sp\u00f8rgsm\u00e5l","error":"Fejl","loading":"load...","notice":"Referent","yes":"Ja","no":"Nej","ok":"Ok","attention":"Bem\u00e6rk","outlawWarning":"Du er p\u00e5 vej til at angribe en st\u00e6rkere spiller. Hvis du g\u00f8r det, vil din angrebsbeskyttelse blive lukket ned i 7 dage og alle spillere vil kunne angribe dig uden straf. Er du sikker p\u00e5 du vil forts\u00e6tte?","lastSlotWarningMoon":"Denne bygning vil bruge den sidste tilg\u00e6ngelige byggeplads. Udvid din m\u00e5nebase for at f\u00e5 mere plads. Er du sikker p\u00e5, at du vil bygge denne bygning?","lastSlotWarningPlanet":"Denne bygning vil bruge den sidste tilg\u00e6ngelige byggeplads. Udvid din terraformer eller k\u00f8b Planet Arealer for at f\u00e5 mere plads. Er du sikker p\u00e5, at du vil bygge denne bygning?","forcedVacationWarning":"Bekr\u00e6ft din lobby konto nu og vi giver dig M\u00f8rk Materie i hvert univers!","planetMoveBreakUpWarning":"Advarsel! Denne mission er muligvis stadig aktiv n\u00e5r flytningen starter. Hvis dette er tilf\u00e6ldet, vil flytningen blive afbrudt. Vil du forts\u00e6tte?","moreDetails":"Flere detaljer","lessDetails":"Mindre detalje","planetOrder":{"lock":"L\u00e5se arrangement","unlock":"L\u00e5se arrangement op"},"darkMatter":"M\u00f8rk Materie","errorNotEnoughDM":"Ikke nok M\u00f8rk Matterie til r\u00e5dighed! \u00d8nsker du at k\u00f8be noget nu?","activateItem":{"upgradeItemQuestion":"Vil du erstatte det eksisterende item? Den gamle bonus vil forsvinde i processen.","upgradeItemQuestionHeader":"Erstat item?"},"characterClassItem":{"buyAndActivateItemQuestion":"\u00d8nsker du at aktivere #characterClassName# klassen for #darkmatter# M\u00f8rk Materie? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende klasse.","activateItemQuestion":"\u00d8nsker du at aktivere #characterClassName# klassen? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende klasse."},"allianceClassItem":{"buyAndActivateItemQuestion":"\u00d8nsker du at aktivere alliance klassen #allianceClassName# for #darkmatter# M\u00f8rk Materie? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende alliance klasse.","activateItemQuestion":"\u00d8nsker du at aktivere alliance klassen #allianceClassName#? Hvis du g\u00f8r det, vil du miste din nuv\u00e6rende alliance klasse.","appendCurrentClassQuestion":"<br><br>Nuv\u00e6rende alliance klasse: #currentAllianceClassName#<br><br>Sidst \u00e6ndret den: #lastAllianceClassChange#"},"LOCA_ALL_NETWORK_ATTENTION":"Bem\u00e6rk","LOCA_ALL_YES":"Ja","LOCA_ALL_NO":"Nej","redirectMessage":"Ved at f\u00f8lge dette link, vil du forlade OGame. \u00d8nsker du at forts\u00e6tte?"};
+        (function($) {
+        })(jQuery);
+      </script>
+
+
+    </div>
+    <div id='defensescomponent'
+         class="maincontent"
+    >
+      <div id="defense">
+        <header id="planet" data-anchor="technologyDetails">
+          <h2>Forsvar - Hjemme verden</h2>
+        </header>
+        <div id="technologydetails_wrapper">
+          <div id="technologydetails_content" ></div>
+        </div>
+
+        <div id="technologies">
+          <h3>Forsvarsbygninger</h3>
+          <ul class="icons">
+            <li class="technology rocketLauncher  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                data-technology="401"
+                data-status="off"
+                data-is-spaceprovider=""
+                aria-label="Raketkanon"
+                title="Raketkanon (0)&lt;br/&gt;Kravene er ikke opfyldt"
+            ><span class="icon sprite sprite_medium medium rocketLauncher"><span class="amount"
+                                                                                 data-value="0"
+                                                                                 data-bonus="0"
+            ><span>0</span><span class="bonus"></span></span></span></li><li class="technology laserCannonLight  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                             data-technology="402"
+                                                                             data-status="off"
+                                                                             data-is-spaceprovider=""
+                                                                             aria-label="Lille Laserkanon"
+                                                                             title="Lille Laserkanon (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium laserCannonLight"><span class="amount"
+                                                                                 data-value="0"
+                                                                                 data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li><li class="technology laserCannonHeavy  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                           data-technology="403"
+                                                                           data-status="off"
+                                                                           data-is-spaceprovider=""
+                                                                           aria-label="Stor Laserkanon"
+                                                                           title="Stor Laserkanon (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium laserCannonHeavy"><span class="amount"
+                                                                                 data-value="0"
+                                                                                 data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li><li class="technology gaussCannon  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                           data-technology="404"
+                                                                           data-status="off"
+                                                                           data-is-spaceprovider=""
+                                                                           aria-label="Gausskanon"
+                                                                           title="Gausskanon (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium gaussCannon"><span class="amount"
+                                                                            data-value="0"
+                                                                            data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li><li class="technology ionCannon  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                           data-technology="405"
+                                                                           data-status="off"
+                                                                           data-is-spaceprovider=""
+                                                                           aria-label="Ionkanon"
+                                                                           title="Ionkanon (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium ionCannon"><span class="amount"
+                                                                          data-value="0"
+                                                                          data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li><li class="technology plasmaCannon  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                           data-technology="406"
+                                                                           data-status="off"
+                                                                           data-is-spaceprovider=""
+                                                                           aria-label="Plasmakanon"
+                                                                           title="Plasmakanon (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium plasmaCannon"><span class="amount"
+                                                                             data-value="0"
+                                                                             data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li><li class="technology shieldDomeSmall  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                           data-technology="407"
+                                                                           data-status="off"
+                                                                           data-is-spaceprovider=""
+                                                                           aria-label="Lille Planetskjold"
+                                                                           title="Lille Planetskjold (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium shieldDomeSmall"><span class="amount"
+                                                                                data-value="0"
+                                                                                data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li><li class="technology shieldDomeLarge  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                           data-technology="408"
+                                                                           data-status="off"
+                                                                           data-is-spaceprovider=""
+                                                                           aria-label="Stort Planetskjold"
+                                                                           title="Stort Planetskjold (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium shieldDomeLarge"><span class="amount"
+                                                                                data-value="0"
+                                                                                data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li><li class="technology missileInterceptor  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                           data-technology="502"
+                                                                           data-status="off"
+                                                                           data-is-spaceprovider=""
+                                                                           aria-label="Forsvarsraket"
+                                                                           title="Forsvarsraket (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium missileInterceptor"><span class="amount"
+                                                                                   data-value="0"
+                                                                                   data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li><li class="technology missileInterplanetary  hasDetails tooltip hideTooltipOnMouseenter js_hideTipOnMobile"
+                                                                           data-technology="503"
+                                                                           data-status="off"
+                                                                           data-is-spaceprovider=""
+                                                                           aria-label="Interplanetarraket"
+                                                                           title="Interplanetarraket (0)&lt;br/&gt;Kravene er ikke opfyldt"
+          ><span class="icon sprite sprite_medium medium missileInterplanetary"><span class="amount"
+                                                                                      data-value="0"
+                                                                                      data-bonus="0"
+          ><span>0</span><span class="bonus"></span></span></span></li>        </ul>
+        </div>
+      </div>
+      <div id="productionboxBottom">
+        <div class="produxtionBoxShips boxColumn ship">
+
+          <div id='productionboxshipyardcomponent' class='productionboxshipyard injectedComponent parent defenses'><div class="content-box-s">
+            <div class="header">
+              <h3>Skibsværft</h3>
+            </div>
+            <div class="content">
+              <table cellspacing="0" cellpadding="0" class="construction active">
+                <tbody>
+                <tr>
+                  <td colspan="2" class="idle">
+                    <a class="tooltip js_hideTipOnMobile "
+                       title="Der bygges ingen skibe eller forsvar på planeten lige nu. Tryk her for at gå til skibsværftet."
+                       href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard"
+                    >
+                      Ingen skibe/forsvar bygges!
+                      <br/>
+                      (Til skibsværft)
+                    </a>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="footer"></div>
+          </div>
+            <script type="text/javascript">
+
+              $(function() {
+              });
+            </script>
+          </div>
+        </div>
+      </div>
+      <script type="text/javascript">
+        var planetMoveInProgress = false;
+        var urlQueueAdd = 'https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&component=defenses&modus=1&token=cfe6237299b142472cd98551230a0700';
+
+      </script>
+    </div>
+    <div id='technologydetailscomponent'
+         class="technologydetails injectedComponent parent defenses"
+    >
+      <script type="text/javascript">
+        var loca = {"LOCA_ALL_NOTICE":"Referent","LOCA_ALL_NETWORK_ATTENTION":"Bem\u00e6rk","locaDemolishStructureQuestion":"Vil du virkelig nedgradere TECHNOLOGY_NAME et level?","LOCA_ALL_YES":"Ja","LOCA_ALL_NO":"Nej"};
+
+        var upgradeEndpoint = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=defenses&modus=1&token=cfe6237299b142472cd98551230a0700&type=TECHNOLOGY_ID&menge=AMOUNT";
+        var downgradeEndpoint = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=defenses&modus=3&token=cfe6237299b142472cd98551230a0700&type=TECHNOLOGY_ID";
+        var cancelBuildingEndpoint = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=defenses&modus=2&token=cfe6237299b142472cd98551230a0700&type=TECHNOLOGY_ID&listid=PRIORITY";
+        var cancelResearchEndpoint = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=defenses&modus=2&token=cfe6237299b142472cd98551230a0700&type=TECHNOLOGY_ID&listid=PRIORITY";
+        var technologyDetailsEndpoint = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=technologydetails&ajax=1&ajax=1&action=getDetails";
+        var selectCharacterClassEndpoint = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=selectClass&ajax=1&asJson=1";
+        var deselectCharacterClassEndpoint = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ingame&component=characterclassselection&characterClassId=CHARACTERCLASSID&action=deselectClass&ajax=1&asJson=1";
+
+        var technologyDetails = new TechnologyDetails({
+          upgradeEndpoint: upgradeEndpoint,
+          downgradeEndpoint: downgradeEndpoint,
+          cancelBuildingEndpoint: cancelBuildingEndpoint,
+          cancelResearchEndpoint: cancelResearchEndpoint,
+          technologyDetailsEndpoint: technologyDetailsEndpoint,
+          selectCharacterClassEndpoint: selectCharacterClassEndpoint,
+          deselectCharacterClassEndpoint: deselectCharacterClassEndpoint,
+          loca: loca
+        })
+        technologyDetails.init()
+
+      </script>
+    </div>
+  </div>
+  <div id="right">
+    <div id='planetbarcomponent'
+         class=""
+    >
+      <div id="rechts">
+        <div id="norm">
+          <div id="myWorlds">
+            <div id="countColonies">
+              <p class="textCenter">
+                <span>1/1</span> Planeter
+              </p>
+            </div>
+            <div id="planetList"
+            >
+              <div class="smallplanet   "
+                   id="planet-33620649">
+                <a href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33620649"
+                   data-link="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33620649"
+                   title="&lt;b&gt;Hjemme verden [1:35:4]&lt;/b&gt;&lt;br/&gt;Livsform: Mennesker&lt;br/&gt;12.800Km (0/163)&lt;br&gt;mellem 64°C og 104°C&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=overview&amp;cp=33620649&quot;&gt;Oversigt&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=supplies&amp;cp=33620649&quot;&gt;Ressourcer&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=lfbuildings&amp;cp=33620649&quot;&gt;Livsform&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=research&amp;cp=33620649&quot;&gt;Forskning&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=facilities&amp;cp=33620649&quot;&gt;Faciliteter&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=shipyard&amp;cp=33620649&quot;&gt;Skibsværft&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=defenses&amp;cp=33620649&quot;&gt;Forsvar&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=fleetdispatch&amp;cp=33620649&quot;&gt;Flåde&lt;/a&gt;&lt;br/&gt;&lt;a href=&quot;https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&amp;component=galaxy&amp;cp=33620649&amp;galaxy=1&amp;system=35&amp;position=4&quot;&gt;Galakse&lt;/a&gt;"
+                   class="planetlink  tooltipRight tooltipClose js_hideTipOnMobile"
+                >
+                  <img class="planetPic js_replace2x"
+                       alt="Hjemme verden"
+                       src="https://gf3.geo.gfsrv.net/cdn87/0ffda2f18430e811c30d68b5aa84fb.png"
+                       width="48"
+                       height ="48"
+                  />
+                  <span class="planet-name ">Hjemme verden</span>
+                  <span class="planet-koords ">[1:35:4]</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>    </div>
+    <div id='bannerSkyscrapercomponent'
+         class=""
+    >
+      <div id="banner_skyscraper" class="desktop" name="banner_skyscraper">
+        <div>
+          <a class="tooltipLeft "
+             title=""
+             href="https://s144-dk.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy"
+          >
+            <img src="https://gf1.geo.gfsrv.net/cdn92/cc5c33393e735e5caa1cecd7637968.jpg" alt=""/>
+          </a>
+        </div>
+      </div>    </div>
+  </div>
+</div>
+<div id="bottom">
+  <div id='errorboxcomponent'
+       class=""
+  >
+    <div id="decisionTB" style="display:none;">
+      <div id="errorBoxDecision" class="errorBox TBfixedPosition">
+        <div class="head"><h4 id="errorBoxDecisionHead">-</h4></div>
+        <div class="middle">
+          <span id="errorBoxDecisionContent">-</span>
+          <div class="response">
+            <div style="float:left; width:180px;">
+              <a href="javascript:void(0);" class="yes"><span id="errorBoxDecisionYes">.</span></a>
+            </div>
+            <div style="float:left; width:180px;">
+              <a href="javascript:void(0);" class="no"><span id="errorBoxDecisionNo">.</span></a>
+            </div>
+            <br class="clearfloat" />
+          </div>
+        </div>
+        <div class="foot"></div>
+      </div>
+    </div>
+
+    <div id="fadeBox" class="fadeBox fixedPostion" style="display:none;">
+      <div>
+        <span id="fadeBoxStyle" class="success"></span>
+        <p id="fadeBoxContent"></p>
+      </div>
+    </div>
+
+    <div id="notifyTB" style="display:none;">
+      <div id="errorBoxNotify" class="errorBox TBfixedPosition">
+        <div class="head"><h4 id="errorBoxNotifyHead">-</h4></div>
+        <div class="middle">
+          <span id="errorBoxNotifyContent">-</span>
+          <div class="response">
+            <div>
+              <a href="javascript:void(0);" class="ok">
+                <span id="errorBoxNotifyOk">.</span>
+              </a>
+            </div>
+            <br class="clearfloat" />
+          </div>
+        </div>
+        <div class="foot"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+
+  initIndex();
+
+</script>
+<div id='chatbarcomponent'
+     class=""
+>
+  <script type="text/javascript">
+    var bigChatLink = 'https://s144-dk.ogame.gameforge.com/game/index.php?page=chat';
+    var ajaxChatToken = "7fa87f19c381091837acf2c336413aaf"
+    var chatUrl = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=ajaxChat"
+    var chatUrlLoadMoreMessages = "https:\/\/s144-dk.ogame.gameforge.com\/game\/index.php?page=chatGetAdditionalMessages"
+    var chatLoca = {"TEXT_EMPTY":"Hvor er da den meddelelse?","TEXT_TOO_LONG":"Beskeden er for lang.","SAME_USER":"Du kan ikke skrive til dig selv.","IGNORED_USER":"Du ignorerer denne spiller.","NO_DATABASE_CONNECTION":"En ukendt fejl er opst\u00e5et. Din sidste handling kan desv\u00e6rre ikke gennemf\u00f8res.","INVALID_PARAMETERS":"En ukendt fejl er opst\u00e5et. Din sidste handling kan desv\u00e6rre ikke gennemf\u00f8res.","SEND_FAILED":"En ukendt fejl er opst\u00e5et. Din sidste handling kan desv\u00e6rre ikke gennemf\u00f8res.","LOCA_ALL_ERROR_NOTACTIVATED":"Denne funktion er kun tilg\u00e6ngelig efter du har aktiveret din konto.","X_NEW_CHATS":"#+# ul\u00e6ste samtale(r)","MORE_USERS":"vis mere"}
+
+    var visibleChats = {"players":[],"associations":[]};
+
+    (function($) {
+      ogame.chat.showPlayerList('#chatBarPlayerList .cb_playerlist_box'); //list in chat bar
+      ogame.chat.showPlayerList('#sideBar'); // list in chat
+
+      var initChatAsyncInterval = window.setInterval(initChatAsync, 100);
+
+      function initChatAsync() {
+        if (ogame.chat.isLoadingPlayerList === false && ogame.chat.playerList !== null) {
+          clearInterval(initChatAsyncInterval);
+          ogame.chat.initChatBar(100171);
+          ogame.chat.initChat(100171, false);
+          ogame.chat.updateCustomScrollbar($('.scrollContainer'));
+        }
+      }
+    })(jQuery);
+  </script>
+  <div id="chatBar">
+    <ul class="chat_bar_list">
+      <li id="chatBarPlayerList" class="chat_bar_pl_list_item">
+        <div class="cb_playerlist_box" style="display:none">
+        </div>
+        <span class="onlineCount">0 spillere online</span>
+      </li>
+    </ul><!-- END Chat Bar List -->
+
+    <script type="text/javascript">
+
+    </script>
+  </div>
+</div>
+<div id="siteFooter">
+  <div class="content" style="font-size:10px">
+    <div class="fleft textLeft">
+      <span>9.0.2</span>
+      <a class="homeLink" href="http://www.gameforge.com/" target="_blank">© 2002 Gameforge 4D GmbH. Alle rettigheder forbeholdes.</a>
+    </div>
+    <div class="fright textRight">
+      <a href="http://wiki.ogame.org/" target="_blank">Hjælp</a>|
+      <a href="https://board.en.ogame.gameforge.com/index.php?board/1394-ogame-dk/" target="_blank">Forum</a>|
+      <a class="overlay"
+         href="https://s144-dk.ogame.gameforge.com/game/index.php?page=standalone&amp;component=rules&amp;ajax=1"
+         data-overlay-iframe="true"
+         data-iframe-width="450"
+         data-overlay-title="Regler"
+      >Regler</a>|
+      <a href="https://agbserver.gameforge.com/rewrite.php?locale=dk&amp;type=imprint&amp;product=ogame" target="_blank">Imprint</a>
+    </div>
+  </div>
+</div>
+</body>
+<script>
+  let hideTooltipsTimeout = null;
+  document.addEventListener('mouseleave', function() {
+    clearTimeout(hideTooltipsTimeout)
+    hideTooltipsTimeout = setTimeout(function() {
+      Tipped.hideAll();
+    }, 1000)
+  });
+  document.addEventListener('mouseenter', function() {
+    clearTimeout(hideTooltipsTimeout)
+  });
+</script>
+</html>

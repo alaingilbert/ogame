@@ -3,6 +3,7 @@ package ogame
 import (
 	"errors"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"unicode"
@@ -82,12 +83,283 @@ func ParseCoord(str string) (coord Coordinate, err error) {
 	return coord, errors.New("unable to parse coordinate")
 }
 
+func unique(s string) string {
+	//s = strings.ToLower(s)
+	m := make(map[rune]struct{})
+	for _, c := range s {
+		m[c] = struct{}{}
+	}
+	arr := make([]string, 0)
+	for k := range m {
+		arr = append(arr, string(k))
+	}
+	sort.Slice(arr, func(i, j int) bool { return arr[i] < arr[j] })
+	return strings.Join(arr, "")
+}
+
+var namesChars = "ЁАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяёァイウオガキケコサザシスズソタダチッテデトドニノバパビフプヘマミムャヤラルレロンー偵列加反収器回型塔大太子察射導小履巡帶弾彈惡戦戰抗探撃收星機死残殖毀民洋滅漿炮爆發砲磁罩者能船艦衛諜護路車軌軽輕輸農送運道重間闘防陽際離雷電飛骸鬥魔"
+var namesRgx = regexp.MustCompile("[^a-zA-Zα-ωΑ-Ω" + namesChars + "]+")
+
+// DefenceName2ID ...
+func DefenceName2ID(name string) ID {
+	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+	name, _, _ = transform.String(t, name)
+	processedString := strings.ToLower(namesRgx.ReplaceAllString(name, ""))
+	nameMap := map[string]ID{
+		// en
+		"rocketlauncher":         RocketLauncherID,
+		"lightlaser":             LightLaserID,
+		"heavylaser":             HeavyLaserID,
+		"gausscannon":            GaussCannonID,
+		"ioncannon":              IonCannonID,
+		"plasmaturret":           PlasmaTurretID,
+		"smallshielddome":        SmallShieldDomeID,
+		"largeshielddome":        LargeShieldDomeID,
+		"antiballisticmissiles":  AntiBallisticMissilesID,
+		"interplanetarymissiles": InterplanetaryMissilesID,
+
+		// hu
+		"raketakilovo":            RocketLauncherID,
+		"konnyulezer":             LightLaserID,
+		"nehezlezer":              HeavyLaserID,
+		"gaussagyu":               GaussCannonID,
+		"ionagyu":                 IonCannonID,
+		"plazmatorony":            PlasmaTurretID,
+		"kispajzskupola":          SmallShieldDomeID,
+		"nagypajzskupola":         LargeShieldDomeID,
+		"antiballasztikusraketak": AntiBallisticMissilesID,
+		"bolygokoziraketak":       InterplanetaryMissilesID,
+
+		// si
+		"raketnik":              RocketLauncherID,
+		"lahkilaser":            LightLaserID,
+		"tezeklaser":            HeavyLaserID,
+		"gaussovtop":            GaussCannonID,
+		"ionskitop":             IonCannonID,
+		"plazemskitop":          PlasmaTurretID,
+		"majhenscit":            SmallShieldDomeID,
+		"velikscit":             LargeShieldDomeID,
+		"protibalisticnerakete": AntiBallisticMissilesID,
+		"medplanetarnerakete":   InterplanetaryMissilesID,
+
+		// ro
+		"lansatorderachete":     RocketLauncherID,
+		"laserusor":             LightLaserID,
+		"lasergreu":             HeavyLaserID,
+		"tungauss":              GaussCannonID,
+		"tunmagnetic":           IonCannonID,
+		"turelacuplasma":        PlasmaTurretID,
+		"scutplanetarmic":       SmallShieldDomeID,
+		"scutplanetarmare":      LargeShieldDomeID,
+		"rachetaantibalistica":  AntiBallisticMissilesID,
+		"racheteinterplanetare": InterplanetaryMissilesID,
+
+		// sk
+		"raketovykomplet":       RocketLauncherID,
+		"lahkylaser":            LightLaserID,
+		"tazkylaser":            HeavyLaserID,
+		"gaussovkanon":          GaussCannonID,
+		"ionovykanon":           IonCannonID,
+		"plazmovaveza":          PlasmaTurretID,
+		"malyplanetarnystit":    SmallShieldDomeID,
+		"velkyplanetarnystit":   LargeShieldDomeID,
+		"protiraketovestrely":   AntiBallisticMissilesID,
+		"medziplanetarnerakety": InterplanetaryMissilesID,
+
+		// gr
+		"εκτοξευτηςπυραυλων":      RocketLauncherID,
+		"ελαφρυλειζερ":            LightLaserID,
+		"βαρυλειζερ":              HeavyLaserID,
+		"κανονιgauss":             GaussCannonID,
+		"κανονιιοντων":            IonCannonID,
+		"πυργισκοιπλασματος":      PlasmaTurretID,
+		"μικροςαμυντικοςθολος":    SmallShieldDomeID,
+		"μεγαλοςαμυντικοςθολος":   LargeShieldDomeID,
+		"αντιβαλλιστικοιπυραυλοι": AntiBallisticMissilesID,
+		"διαπλανητικοιπυραυλοι":   InterplanetaryMissilesID,
+
+		// tw
+		"飛彈發射器": RocketLauncherID,
+		"輕型雷射炮": LightLaserID,
+		"重型雷射炮": HeavyLaserID,
+		"磁軌炮":   GaussCannonID,
+		"離子加農炮": IonCannonID,
+		"電漿炮塔":  PlasmaTurretID,
+		"小型防護罩": SmallShieldDomeID,
+		"大型防護罩": LargeShieldDomeID,
+		"反彈道導彈": AntiBallisticMissilesID,
+		"星際導彈":  InterplanetaryMissilesID,
+
+		// hr
+		"raketobacaci":          RocketLauncherID,
+		"malilaser":             LightLaserID,
+		"velikilaser":           HeavyLaserID,
+		"plazmatop":             PlasmaTurretID,
+		"malastitnakupola":      SmallShieldDomeID,
+		"velikastitnakupola":    LargeShieldDomeID,
+		"antibalistickerakete":  AntiBallisticMissilesID,
+		"interplanetarnerakete": InterplanetaryMissilesID,
+
+		// mx
+		"lanzamisiles":              RocketLauncherID,
+		"laserpequeno":              LightLaserID,
+		"lasergrande":               HeavyLaserID,
+		"canongauss":                GaussCannonID,
+		"canonionico":               IonCannonID,
+		"canondeplasma":             PlasmaTurretID,
+		"cupulapequenadeproteccion": SmallShieldDomeID,
+		"cupulagrandedeproteccion":  LargeShieldDomeID,
+		"misildeintercepcion":       AntiBallisticMissilesID,
+		"misilinterplanetario":      InterplanetaryMissilesID,
+
+		// cz
+		"raketomet":            RocketLauncherID,
+		"lehkylaser":           LightLaserID,
+		"tezkylaser":           HeavyLaserID,
+		"gaussuvkanon":         GaussCannonID,
+		"iontovykanon":         IonCannonID,
+		"plasmovavez":          PlasmaTurretID,
+		"malyplanetarnistit":   SmallShieldDomeID,
+		"velkyplanetarnistit":  LargeShieldDomeID,
+		"antibalistickerakety": AntiBallisticMissilesID,
+		"meziplanetarnirakety": InterplanetaryMissilesID,
+
+		// it
+		"lanciamissili":         RocketLauncherID,
+		"laserleggero":          LightLaserID,
+		"laserpesante":          HeavyLaserID,
+		"cannonegauss":          GaussCannonID,
+		"cannoneionico":         IonCannonID,
+		"cannonealplasma":       PlasmaTurretID,
+		"cupolascudopiccola":    SmallShieldDomeID,
+		"cupolascudopotenziata": LargeShieldDomeID,
+		"missiliantibalistici":  AntiBallisticMissilesID,
+		"missiliinterplanetari": InterplanetaryMissilesID,
+
+		// de
+		"raketenwerfer":         RocketLauncherID,
+		"leichteslasergeschutz": LightLaserID,
+		"schwereslasergeschutz": HeavyLaserID,
+		"gaukanone":             GaussCannonID,
+		"ionengeschutz":         IonCannonID,
+		"plasmawerfer":          PlasmaTurretID,
+		"kleineschildkuppel":    SmallShieldDomeID,
+		"groeschildkuppel":      LargeShieldDomeID,
+		"abfangrakete":          AntiBallisticMissilesID,
+		"interplanetarrakete":   InterplanetaryMissilesID,
+
+		// dk
+		"raketkanon":         RocketLauncherID,
+		"lillelaserkanon":    LightLaserID,
+		"storlaserkanon":     HeavyLaserID,
+		"gausskanon":         GaussCannonID,
+		"ionkanon":           IonCannonID,
+		"plasmakanon":        PlasmaTurretID,
+		"lilleplanetskjold":  SmallShieldDomeID,
+		"stortplanetskjold":  LargeShieldDomeID,
+		"forsvarsraket":      AntiBallisticMissilesID,
+		"interplanetarraket": InterplanetaryMissilesID,
+
+		// es
+		"misilesantibalisticos": AntiBallisticMissilesID,
+
+		// fr
+		"lanceurdemissiles":      RocketLauncherID,
+		"artillerielaserlegere":  LightLaserID,
+		"artillerielaserlourde":  HeavyLaserID,
+		"canondegauss":           GaussCannonID,
+		"artillerieaions":        IonCannonID,
+		"lanceurdeplasma":        PlasmaTurretID,
+		"petitbouclier":          SmallShieldDomeID,
+		"grandbouclier":          LargeShieldDomeID,
+		"missiledinterception":   AntiBallisticMissilesID,
+		"missileinterplanetaire": InterplanetaryMissilesID,
+
+		// br
+		"lancadordemisseis":       RocketLauncherID,
+		"laserligeiro":            LightLaserID,
+		"laserpesado":             HeavyLaserID,
+		"canhaodegauss":           GaussCannonID,
+		"canhaodeions":            IonCannonID,
+		"canhaodeplasma":          PlasmaTurretID,
+		"pequenoescudoplanetario": SmallShieldDomeID,
+		"grandeescudoplanetario":  LargeShieldDomeID,
+		"missildeinterceptacao":   AntiBallisticMissilesID,
+		"missilinterplanetario":   InterplanetaryMissilesID,
+
+		// jp
+		"ロケットランチャー": RocketLauncherID,
+		"ライトレーサー":   LightLaserID,
+		"ヘーレーサー":    HeavyLaserID,
+		"ウスキャノン":    GaussCannonID,
+		"イオンキャノン":   IonCannonID,
+		"フラスマ砲":     PlasmaTurretID,
+		"小型シールトトーム": SmallShieldDomeID,
+		"大型シールトトーム": LargeShieldDomeID,
+		"抗弾道ミサイル":   AntiBallisticMissilesID,
+		"星間ミサイル":    InterplanetaryMissilesID,
+
+		// pl
+		"wyrzutniarakiet":         RocketLauncherID,
+		"lekkiedziaolaserowe":     LightLaserID,
+		"ciezkiedziaolaserowe":    HeavyLaserID,
+		"dziaogaussa":             GaussCannonID,
+		"dziaojonowe":             IonCannonID,
+		"wyrzutniaplazmy":         PlasmaTurretID,
+		"maaosonaochronna":        SmallShieldDomeID,
+		"duzaosonaochronna":       LargeShieldDomeID,
+		"przeciwrakieta":          AntiBallisticMissilesID,
+		"rakietamiedzyplanetarna": InterplanetaryMissilesID,
+
+		// tr
+		"roketatar":               RocketLauncherID,
+		"hafiflazertopu":          LightLaserID,
+		"agrlazertopu":            HeavyLaserID,
+		"gaustopu":                GaussCannonID,
+		"iyontopu":                IonCannonID,
+		"plazmaatc":               PlasmaTurretID,
+		"kucukkalkankubbesi":      SmallShieldDomeID,
+		"buyukkalkankubbesi":      LargeShieldDomeID,
+		"yakalycroketler":         AntiBallisticMissilesID,
+		"gezegenlerarasiroketler": InterplanetaryMissilesID,
+
+		// pt
+		"canhaodeioes":        IonCannonID,
+		"missildeintercepcao": AntiBallisticMissilesID,
+
+		// nl
+		"raketlanceerder":              RocketLauncherID,
+		"kleinelaser":                  LightLaserID,
+		"grotelaser":                   HeavyLaserID,
+		"kleineplanetaireschildkoepel": SmallShieldDomeID,
+		"groteplanetaireschildkoepel":  LargeShieldDomeID,
+		"antiballistischeraketten":     AntiBallisticMissilesID,
+		"interplanetaireraketten":      InterplanetaryMissilesID,
+
+		// ru
+		"ракетнаяустановка":   RocketLauncherID,
+		"легкиилазер":         LightLaserID,
+		"тяжелыилазер":        HeavyLaserID,
+		"пушкагаусса":         GaussCannonID,
+		"ионноеорудие":        IonCannonID,
+		"плазменноеорудие":    PlasmaTurretID,
+		"малыищитовоикупол":   SmallShieldDomeID,
+		"большоищитовоикупол": LargeShieldDomeID,
+		"ракетаперехватчик":   AntiBallisticMissilesID,
+		"межпланетнаяракета":  InterplanetaryMissilesID,
+
+		// fi --
+		// no --
+		// ba --
+	}
+	return nameMap[processedString]
+}
+
 // ShipName2ID ...
 func ShipName2ID(name string) ID {
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
 	name, _, _ = transform.String(t, name)
-	reg, _ := regexp.Compile("[^a-zA-ZАаБбВвГгДдЕеЁёЖжЗзИиЙйКкЛлМмНнОоПпРрСсТтУуФфХхЦцЧчШшЩщЪъЫыЬьЭэЮюЯя闘残艦収型送サ小プテバイスル輸軽船ッ戦ニトタ察デヤ洋爆ラーロ機ソ重偵回骸巡撃コ大シα-ωΑ-Ω星殖重小民死輸帶太洋戰艦諜魔間能飛鬥路輕型列探履惡大彈運導衛滅者車收巡陽機回毀船]+")
-	processedString := strings.ToLower(reg.ReplaceAllString(name, ""))
+	processedString := strings.ToLower(namesRgx.ReplaceAllString(name, ""))
 	nameMap := map[string]ID{
 		// en
 		"lightfighter":   LightFighterID,
@@ -370,20 +642,20 @@ func ShipName2ID(name string) ID {
 		"軽戦闘機":      LightFighterID,
 		"重戦闘機":      HeavyFighterID,
 		"巡洋艦":       CruiserID,
-		"トルシッ":      BattleshipID,
+		"トルシッフ":     BattleshipID,
 		"大型戦艦":      BattlecruiserID,
 		"爆撃機":       BomberID,
 		"テストロイヤー":   DestroyerID,
 		"テススター":     DeathstarID,
 		"小型輸送機":     SmallCargoID,
 		"大型輸送機":     LargeCargoID,
-		"コロニーシッ":    ColonyShipID,
+		"コロニーシッフ":   ColonyShipID,
 		"残骸回収船":     RecyclerID,
 		"偵察機":       EspionageProbeID,
 		"ソーラーサテライト": SolarSatelliteID,
 		"ローラー":      CrawlerID,
 		"ーー":        ReaperID,
-		"スイター":      PathfinderID,
+		"スファインター":   PathfinderID,
 
 		// pl
 		"lekkimysliwiec":      LightFighterID,
