@@ -1333,6 +1333,14 @@ func doCastStr(v interface{}) string {
 	return ""
 }
 
+func doParseI64(v string) int64 {
+	parsed, err := strconv.ParseInt(v, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return parsed
+}
+
 // AuctioneerNewBid ...
 type AuctioneerNewBid struct {
 	Sum       int64
