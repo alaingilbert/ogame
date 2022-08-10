@@ -9,6 +9,34 @@ import (
 	"time"
 )
 
+func extractOverviewProductionFromDocV9(doc *goquery.Document) ([]Quantifiable, error) {
+	res := make([]Quantifiable, 0)
+	active := doc.Find("table.construction").Eq(4)
+	href, _ := active.Find("td a").Attr("href")
+	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
+	if len(m) == 0 {
+		return []Quantifiable{}, nil
+	}
+	idInt, _ := strconv.ParseInt(m[1], 10, 64)
+	activeID := ID(idInt)
+	activeNbr, _ := strconv.ParseInt(active.Find("div.shipSumCount").Text(), 10, 64)
+	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
+	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
+		img := s.Find("img")
+		alt := img.AttrOr("alt", "")
+		activeID := ShipName2ID(alt)
+		if !activeID.IsSet() {
+			activeID = DefenceName2ID(alt)
+			if !activeID.IsSet() {
+				return
+			}
+		}
+		activeNbr := ParseInt(s.Text())
+		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
+	})
+	return res, nil
+}
+
 func extractResourcesFromDocV9(doc *goquery.Document) Resources {
 	return extractResourcesDetailsFromFullPageFromDocV9(doc).Available()
 }

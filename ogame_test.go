@@ -2535,6 +2535,21 @@ func TestV71ExtractOverviewProduction(t *testing.T) {
 	assert.Equal(t, int64(3), prods[3].Nbr)
 }
 
+func TestV902ExtractOverviewProduction(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v9.0.2/en/overview_all_queues.html")
+	prods, countdown, _ := NewExtractorV9().ExtractOverviewProduction(pageHTMLBytes)
+	assert.Equal(t, 4, len(prods))
+	assert.Equal(t, int64(1660), countdown)
+	assert.Equal(t, SmallCargoID, prods[0].ID)
+	assert.Equal(t, int64(1), prods[0].Nbr)
+	assert.Equal(t, SmallCargoID, prods[1].ID)
+	assert.Equal(t, int64(2), prods[1].Nbr)
+	assert.Equal(t, LightFighterID, prods[2].ID)
+	assert.Equal(t, int64(3), prods[2].Nbr)
+	assert.Equal(t, RocketLauncherID, prods[3].ID)
+	assert.Equal(t, int64(2), prods[3].Nbr)
+}
+
 func TestExtractV71Production(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/v7.1/en/shipyard_queue.html")
 	prods, secs, _ := NewExtractorV71().ExtractProduction(pageHTMLBytes)
