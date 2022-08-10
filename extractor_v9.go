@@ -16,6 +16,11 @@ func NewExtractorV9() *ExtractorV9 {
 	return &ExtractorV9{}
 }
 
+// ExtractEmpire ...
+func (e ExtractorV9) ExtractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
+	return extractEmpireV9(pageHTML)
+}
+
 // ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
 func (e ExtractorV9) ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
