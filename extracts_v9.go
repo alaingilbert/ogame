@@ -48,8 +48,8 @@ func extractEmpireV9(pageHTML []byte) ([]EmpireCelestial, error) {
 			Img:      doCastStr(planet["image"]),
 			Type:     celestialType,
 			Fields: Fields{
-				Built: int64(doCastF64(planet["fieldUsed"])),
-				Total: int64(doCastF64(planet["fieldMax"])),
+				Built: doParseI64(doCastStr(planet["fieldUsed"])),
+				Total: doParseI64(doCastStr(planet["fieldMax"])),
 			},
 			Temperature: Temperature{
 				Min: tempMin,
