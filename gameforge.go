@@ -30,6 +30,16 @@ func (e CaptchaRequiredError) Error() string {
 	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
 }
 
+type RegisterError struct{ ErrorString string }
+
+func (e *RegisterError) Error() string { return e.ErrorString }
+
+var (
+	ErrEmailInvalid    = &RegisterError{"Please enter a valid email address."}
+	ErrEmailUsed       = &RegisterError{"Failed to create new lobby, email already used."}
+	ErrPasswordInvalid = &RegisterError{"Must contain at least 10 characters including at least one upper and lowercase letter and a number."}
+)
+
 // Register a new gameforge lobby account
 func Register(client *http.Client, ctx context.Context, lobby, email, password, challengeID, lang string) error {
 	if lang == "" {
@@ -84,7 +94,13 @@ func Register(client *http.Client, ctx context.Context, lobby, email, password, 
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New(err.Error() + " : " + string(by))
 	}
-	if res.Error != "" {
+	if res.Error == "email_invalid" {
+		return ErrEmailInvalid
+	} else if res.Error == "email_used" {
+		return ErrEmailUsed
+	} else if res.Error == "password_invalid" {
+		return ErrPasswordInvalid
+	} else if res.Error != "" {
 		return errors.New(res.Error)
 	}
 	return nil
