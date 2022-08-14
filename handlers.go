@@ -974,7 +974,7 @@ func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
 	newURL := bot.serverURL + c.Request().URL.String()
-	req, err := http.NewRequest("GET", newURL, nil)
+	req, err := http.NewRequest(http.MethodGet, newURL, nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}

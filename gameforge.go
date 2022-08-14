@@ -122,7 +122,7 @@ func RedeemCode(client *http.Client, ctx context.Context, lobby, email, password
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", "https://"+lobby+".ogame.gameforge.com/api/token", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPost, "https://"+lobby+".ogame.gameforge.com/api/token", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return err
 	}
@@ -296,7 +296,7 @@ func GFLogin(client IHttpClient, ctx context.Context, lobby, username, password,
 
 func getConfiguration(client IHttpClient, ctx context.Context, lobby string) (string, string, error) {
 	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
-	req, err := http.NewRequest("GET", ogURL, nil)
+	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
 	if err != nil {
 		return "", "", err
 	}
@@ -339,7 +339,7 @@ func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpS
 		"identity":                {username},
 		"password":                {password},
 	}
-	req, err := http.NewRequest("POST", "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	req, err := http.NewRequest(http.MethodPost, "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
 	if err != nil {
 		return nil, err
 	}

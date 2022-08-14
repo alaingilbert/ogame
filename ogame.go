@@ -363,7 +363,7 @@ func findAccount(universe, lang string, playerID int64, accounts []Account, serv
 }
 
 func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
-	req, err := http.NewRequest("GET", loginLink, nil)
+	req, err := http.NewRequest(http.MethodGet, loginLink, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -454,7 +454,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 				return false, err
 			}
 			for _, fn := range b.interceptorCallbacks {
-				fn("GET", loginLink, nil, nil, pageHTML)
+				fn(http.MethodGet, loginLink, nil, nil, pageHTML)
 			}
 			return true, nil
 		}
@@ -651,7 +651,7 @@ func (b *OGame) login() error {
 		return err
 	}
 	for _, fn := range b.interceptorCallbacks {
-		fn("GET", loginLink, nil, nil, pageHTML)
+		fn(http.MethodGet, loginLink, nil, nil, pageHTML)
 	}
 	return nil
 }
@@ -969,7 +969,7 @@ func yeast(num int64) (encoded string) {
 
 func (b *OGame) connectChatV8(host, port string) {
 	token := yeast(time.Now().UnixNano() / 1000000)
-	req, err := http.NewRequest("GET", "https://"+host+":"+port+"/socket.io/?EIO=4&transport=polling&t="+token, nil)
+	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/?EIO=4&transport=polling&t="+token, nil)
 	if err != nil {
 		b.error("failed to create request:", err)
 		return
@@ -1150,7 +1150,7 @@ LOOP:
 }
 
 func (b *OGame) connectChatV7(host, port string) {
-	req, err := http.NewRequest("GET", "https://"+host+":"+port+"/socket.io/1/?t="+strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10), nil)
+	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/1/?t="+strconv.FormatInt(time.Now().UnixNano()/int64(time.Millisecond), 10), nil)
 	if err != nil {
 		b.error("failed to create request:", err)
 		return
@@ -1531,7 +1531,7 @@ func (b *OGame) preRequestChecks() error {
 func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) ([]byte, error) {
 	var req *http.Request
 	var err error
-	if method == "GET" {
+	if method == http.MethodGet {
 		req, err = http.NewRequest(method, finalURL, nil)
 	} else {
 		req, err = http.NewRequest(method, finalURL, strings.NewReader(payload.Encode()))
@@ -1540,7 +1540,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 		return []byte{}, err
 	}
 
-	if method == "POST" {
+	if method == http.MethodPost {
 		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
@@ -1559,7 +1559,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 		}
 	}()
 
-	if resp.StatusCode >= 500 {
+	if resp.StatusCode >= http.StatusInternalServerError {
 		return []byte{}, err
 	}
 	by, err := readBody(resp)
@@ -1607,7 +1607,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	var pageHTMLBytes []byte
 
 	clb := func() (err error) {
-		pageHTMLBytes, err = b.execRequest("GET", finalURL, nil, vals)
+		pageHTMLBytes, err = b.execRequest(http.MethodGet, finalURL, nil, vals)
 		if err != nil {
 			return err
 		}
@@ -1651,7 +1651,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 	if !cfg.SkipInterceptor {
 		go func() {
 			for _, fn := range b.interceptorCallbacks {
-				fn("GET", finalURL, vals, nil, pageHTMLBytes)
+				fn(http.MethodGet, finalURL, vals, nil, pageHTMLBytes)
 			}
 		}()
 	}
@@ -1698,7 +1698,7 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 		b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
 		defer func() { b.client.CheckRedirect = nil }()
 
-		pageHTMLBytes, err = b.execRequest("POST", finalURL, payload, vals)
+		pageHTMLBytes, err = b.execRequest(http.MethodPost, finalURL, payload, vals)
 		if err != nil {
 			return err
 		}
@@ -1729,7 +1729,7 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 	if !cfg.SkipInterceptor {
 		go func() {
 			for _, fn := range b.interceptorCallbacks {
-				fn("POST", finalURL, vals, payload, pageHTMLBytes)
+				fn(http.MethodPost, finalURL, vals, payload, pageHTMLBytes)
 			}
 		}()
 	}
@@ -1742,7 +1742,7 @@ func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
 		return []byte{}, err
 	}
 	finalURL := b.serverURL + "/game/allianceInfo.php?" + vals.Encode()
-	return b.execRequest("GET", finalURL, nil, vals)
+	return b.execRequest(http.MethodGet, finalURL, nil, vals)
 }
 
 type eventboxResp struct {
@@ -4204,7 +4204,7 @@ func (b *OGame) getPublicIP() (string, error) {
 	var res struct {
 		IP string `json:"ip"`
 	}
-	req, err := http.NewRequest("GET", "https://jsonip.com/", nil)
+	req, err := http.NewRequest(http.MethodGet, "https://jsonip.com/", nil)
 	if err != nil {
 		return "", err
 	}

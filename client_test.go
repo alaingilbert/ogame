@@ -28,7 +28,7 @@ func TestOgameClient_Do(t *testing.T) {
 			Header: make(http.Header),
 		}
 	})}}
-	req, _ := http.NewRequest("GET", "http://test.com", nil)
+	req, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
 	_, err := c.Do(req)
 	assert.Nil(t, err)
 	assert.Equal(t, "test", req.Header.Get("User-Agent"))
@@ -46,7 +46,7 @@ func TestOgameClient_SetUserAgent(t *testing.T) {
 		}
 	})}}
 	c.SetUserAgent("test1")
-	req, _ := http.NewRequest("GET", "http://test.com", nil)
+	req, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
 	_, err := c.Do(req)
 	assert.Nil(t, err)
 	assert.Equal(t, "test1", req.Header.Get("User-Agent"))
