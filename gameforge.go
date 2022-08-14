@@ -422,7 +422,8 @@ func StartCaptchaChallenge(client IHttpClient, ctx context.Context, challengeID 
 
 func SolveChallenge(client IHttpClient, ctx context.Context, challengeID string, answer int64) error {
 	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
-	req, _ := http.NewRequest(http.MethodPost, challengeURL, strings.NewReader(`{"answer":`+strconv.FormatInt(answer, 10)+`}`))
+	body := strings.NewReader(`{"answer":` + strconv.FormatInt(answer, 10) + `}`)
+	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
 	req.Header.Set("Content-Type", "application/json")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
