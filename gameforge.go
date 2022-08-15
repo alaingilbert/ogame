@@ -191,13 +191,14 @@ func LoginAndAddAccount(client *http.Client, ctx context.Context, lobby, usernam
 
 // AddAccountRes response from creating a new account
 type AddAccountRes struct {
-	ID     int
+	ID     int `json:"id"`
 	Server struct {
-		Language string
-		Number   int
-	}
-	BearerToken string
-	Error       string
+		Language string `json:"language"`
+		Number   int    `json:"number"`
+	} `json:"server"`
+	AccountGroup string `json:"accountGroup"`
+	Error        string `json:"error"`
+	BearerToken  string `json:"bearerToken"` // Added by us; not part of ogame response
 }
 
 func (r AddAccountRes) GetBearerToken() string { return r.BearerToken }
