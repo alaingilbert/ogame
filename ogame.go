@@ -4250,7 +4250,7 @@ func (b *OGame) botUnlock(unlockedBy string) {
 	}
 }
 
-func (b *OGame) addAccount(number int, lang string) (AddAccountRes, error) {
+func (b *OGame) addAccount(number int, lang string) (*AddAccountRes, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
 	return AddAccount(b.client, b.ctx, b.lobby, accountGroup, b.bearerToken)
 }
@@ -4472,7 +4472,7 @@ func (b *OGame) GetSession() string {
 }
 
 // AddAccount add a new account (server) to your list of accounts
-func (b *OGame) AddAccount(number int, lang string) (AddAccountRes, error) {
+func (b *OGame) AddAccount(number int, lang string) (*AddAccountRes, error) {
 	return b.addAccount(number, lang)
 }
 

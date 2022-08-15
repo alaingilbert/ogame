@@ -173,19 +173,18 @@ func RedeemCode(client *http.Client, ctx context.Context, lobby, email, password
 }
 
 // LoginAndAddAccount adds an account to a gameforge lobby
-func LoginAndAddAccount(client *http.Client, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (AddAccountRes, error) {
-	var newAccount AddAccountRes
+func LoginAndAddAccount(client *http.Client, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (*AddAccountRes, error) {
 	postSessionsRes, err := GFLogin(client, ctx, lobby, username, password, otpSecret, "")
 	if err != nil {
-		return newAccount, err
+		return nil, err
 	}
 	servers, err := GetServers(lobby, client, ctx)
 	if err != nil {
-		return newAccount, err
+		return nil, err
 	}
 	server, found := findServer(universe, lang, servers)
 	if !found {
-		return newAccount, errors.New("server not found")
+		return nil, errors.New("server not found")
 	}
 	return AddAccount(client, ctx, lobby, server.AccountGroup, postSessionsRes.Token)
 }
@@ -201,8 +200,9 @@ type AddAccountRes struct {
 	Error       string
 }
 
-func AddAccount(client IHttpClient, ctx context.Context, lobby, accountGroup, sessionToken string) (AddAccountRes, error) {
-	var newAccount AddAccountRes
+func (r AddAccountRes) GetBearerToken() string { return r.BearerToken }
+
+func AddAccount(client IHttpClient, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
 	var payload struct {
 		AccountGroup string `json:"accountGroup"`
 		Locale       string `json:"locale"`
@@ -212,36 +212,37 @@ func AddAccount(client IHttpClient, ctx context.Context, lobby, accountGroup, se
 	payload.Locale = "en_GB"
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
-		return newAccount, err
+		return nil, err
 	}
 	req, err := http.NewRequest(http.MethodPut, "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
-		return newAccount, err
+		return nil, err
 	}
-	newAccount.BearerToken = sessionToken
 	req.Header.Add("authorization", "Bearer "+sessionToken)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
-		return newAccount, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 	by, err := readBody(resp)
 	if err != nil {
-		return newAccount, err
+		return nil, err
 	}
 	if resp.StatusCode == http.StatusBadRequest {
-		return newAccount, errors.New("invalid request, account already in lobby ?")
+		return nil, errors.New("invalid request, account already in lobby ?")
 	}
+	var newAccount AddAccountRes
 	if err := json.Unmarshal(by, &newAccount); err != nil {
-		return newAccount, errors.New(err.Error() + " : " + string(by))
+		return nil, errors.New(err.Error() + " : " + string(by))
 	}
 	if newAccount.Error != "" {
-		return newAccount, errors.New(newAccount.Error)
+		return nil, errors.New(newAccount.Error)
 	}
-	return newAccount, nil
+	newAccount.BearerToken = sessionToken
+	return &newAccount, nil
 }
 
 type GFLoginRes struct {
@@ -252,6 +253,8 @@ type GFLoginRes struct {
 	IsGameAccountCreated      bool   `json:"isGameAccountCreated"`
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
+
+func (r GFLoginRes) GetBearerToken() string { return r.Token }
 
 func GFLogin(client IHttpClient, ctx context.Context, lobby, username, password, otpSecret, challengeID string) (out *GFLoginRes, err error) {
 	gameEnvironmentID, platformGameID, err := getConfiguration(client, ctx, lobby)
