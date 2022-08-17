@@ -78,7 +78,7 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	nextAuction := doc.Find("#nextAuction")
 	if nextAuction.Size() > 0 {
 		// Find time until next auction starts
-		auction.Endtime, _ = strconv.ParseInt(nextAuction.Text(), 10, 64)
+		auction.Endtime = DoParseI64(nextAuction.Text())
 		auction.HasFinished = true
 	} else {
 		endAtApprox := doc.Find("p.auction_info b").Text()
@@ -94,10 +94,10 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	}
 
 	auction.HighestBidder = strings.TrimSpace(doc.Find("a.currentPlayer").Text())
-	auction.HighestBidderUserID, _ = strconv.ParseInt(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""), 10, 64)
-	auction.NumBids, _ = strconv.ParseInt(doc.Find("div.numberOfBids").Text(), 10, 64)
+	auction.HighestBidderUserID = DoParseI64(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""))
+	auction.NumBids = DoParseI64(doc.Find("div.numberOfBids").Text())
 	auction.CurrentBid = ParseInt(doc.Find("div.currentSum").Text())
-	auction.Inventory, _ = strconv.ParseInt(doc.Find("span.level.amount").Text(), 10, 64)
+	auction.Inventory = DoParseI64(doc.Find("span.level.amount").Text())
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
 	multiplierRegex := regexp.MustCompile(`multiplier\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
@@ -131,7 +131,7 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	}
 	var alreadyBid int64
 	if m[1] != "false" {
-		alreadyBid, _ = strconv.ParseInt(m[1], 10, 64)
+		alreadyBid = DoParseI64(m[1])
 	}
 	auction.AlreadyBid = alreadyBid
 

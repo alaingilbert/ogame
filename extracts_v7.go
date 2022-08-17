@@ -14,12 +14,12 @@ import (
 )
 
 func getNbrV7(doc *goquery.Document, name string) int64 {
-	val, _ := strconv.ParseInt(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"), 10, 64)
+	val := DoParseI64(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"))
 	return val
 }
 
 func getNbrV7Ships(doc *goquery.Document, name string) int64 {
-	val, _ := strconv.ParseInt(doc.Find("span."+name+" span.amount").First().AttrOr("data-value", "0"), 10, 64)
+	val := DoParseI64(doc.Find("span."+name+" span.amount").First().AttrOr("data-value", "0"))
 	return val
 }
 
@@ -235,8 +235,8 @@ func extractConstructionsV7(pageHTML []byte, clock clockwork.Clock) (buildingID 
 }
 
 func extractIPMFromDocV7(doc *goquery.Document) (duration, max int64, token string) {
-	duration, _ = strconv.ParseInt(doc.Find("span#timer").AttrOr("data-duration", "0"), 10, 64)
-	max, _ = strconv.ParseInt(doc.Find("input[name=missileCount]").AttrOr("data-max", "0"), 10, 64)
+	duration = DoParseI64(doc.Find("span#timer").AttrOr("data-duration", "0"))
+	max = DoParseI64(doc.Find("input[name=missileCount]").AttrOr("data-max", "0"))
 	token = doc.Find("input[name=token]").AttrOr("value", "")
 	return
 }
@@ -264,7 +264,7 @@ func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ShipsInfos) {
 
 func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReportSummary, int64) {
 	msgs := make([]CombatReportSummary, 0)
-	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
+	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
@@ -304,10 +304,10 @@ func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReport
 				if len(m) != 5 {
 					return
 				}
-				galaxy, _ := strconv.ParseInt(m[1], 10, 64)
-				system, _ := strconv.ParseInt(m[2], 10, 64)
-				position, _ := strconv.ParseInt(m[3], 10, 64)
-				planetType, _ := strconv.ParseInt(m[4], 10, 64)
+				galaxy := DoParseI64(m[1])
+				system := DoParseI64(m[2])
+				position := DoParseI64(m[3])
+				planetType := DoParseI64(m[4])
 				report.Origin = &Coordinate{galaxy, system, position, CelestialType(planetType)}
 				if report.Origin.Equal(report.Destination) {
 					report.Origin = nil
@@ -322,16 +322,16 @@ func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReport
 
 func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
-	report.ID, _ = strconv.ParseInt(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"), 10, 64)
+	report.ID = DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()
 	txt := spanLink.Text()
 	figure := spanLink.Find("figure").First()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
 	if len(m) == 5 {
-		report.Coordinate.Galaxy, _ = strconv.ParseInt(m[2], 10, 64)
-		report.Coordinate.System, _ = strconv.ParseInt(m[3], 10, 64)
-		report.Coordinate.Position, _ = strconv.ParseInt(m[4], 10, 64)
+		report.Coordinate.Galaxy = DoParseI64(m[2])
+		report.Coordinate.System = DoParseI64(m[3])
+		report.Coordinate.Position = DoParseI64(m[4])
 	} else {
 		return report, errors.New("failed to extract coordinate")
 	}
@@ -387,7 +387,7 @@ func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Locat
 	ceTxt := doc.Find("div.detail_txt").Eq(2).Text()
 	m1 := regexp.MustCompile(`(\d+)%`).FindStringSubmatch(ceTxt)
 	if len(m1) == 2 {
-		report.CounterEspionage, _ = strconv.ParseInt(m1[1], 10, 64)
+		report.CounterEspionage = DoParseI64(m1[1])
 	}
 
 	hasError := false
@@ -408,7 +408,7 @@ func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
-				buildingID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
+				buildingID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
@@ -463,7 +463,7 @@ func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
-				researchID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
+				researchID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
@@ -512,7 +512,7 @@ func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
-				shipID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
+				shipID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
@@ -563,7 +563,7 @@ func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
-				defenceID, _ := strconv.ParseInt(r.FindStringSubmatch(imgClass)[1], 10, 64)
+				defenceID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
@@ -613,8 +613,8 @@ func extractCancelBuildingInfosV7(pageHTML []byte) (token string, techID, listID
 	if len(m) < 3 {
 		return "", 0, 0, errors.New("unable to find techid/listid")
 	}
-	techID, _ = strconv.ParseInt(m[1], 10, 64)
-	listID, _ = strconv.ParseInt(m[2], 10, 64)
+	techID = DoParseI64(m[1])
+	listID = DoParseI64(m[2])
 	return
 }
 
@@ -633,8 +633,8 @@ func extractCancelResearchInfosV7(pageHTML []byte) (token string, techID, listID
 	if len(m) < 3 {
 		return "", 0, 0, errors.New("unable to find techid/listid")
 	}
-	techID, _ = strconv.ParseInt(m[1], 10, 64)
-	listID, _ = strconv.ParseInt(m[2], 10, 64)
+	techID = DoParseI64(m[1])
+	listID = DoParseI64(m[2])
 	return
 }
 
@@ -648,7 +648,7 @@ func extractResourceSettingsFromDocV7(doc *goquery.Document) (ResourceSettings, 
 		_, selectedExists := s.Attr("selected")
 		if selectedExists {
 			a, _ := s.Attr("value")
-			val, _ := strconv.ParseInt(a, 10, 64)
+			val := DoParseI64(a)
 			vals = append(vals, val)
 		}
 	})
@@ -676,9 +676,9 @@ func extractOverviewProductionFromDocV7(doc *goquery.Document) ([]Quantifiable, 
 	if len(m) == 0 {
 		return []Quantifiable{}, nil
 	}
-	idInt, _ := strconv.ParseInt(m[1], 10, 64)
+	idInt := DoParseI64(m[1])
 	activeID := ID(idInt)
-	activeNbr, _ := strconv.ParseInt(active.Find("div.shipSumCount").Text(), 10, 64)
+	activeNbr := DoParseI64(active.Find("div.shipSumCount").Text())
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
 		img := s.Find("img")
@@ -687,7 +687,7 @@ func extractOverviewProductionFromDocV7(doc *goquery.Document) ([]Quantifiable, 
 		if len(m) == 0 {
 			return
 		}
-		idInt, _ := strconv.ParseInt(m[1], 10, 64)
+		idInt := DoParseI64(m[1])
 		activeID := ID(idInt)
 		activeNbr := ParseInt(s.Text())
 		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
@@ -718,7 +718,7 @@ func extractCharacterClassFromDocV7(doc *goquery.Document) (CharacterClass, erro
 
 func extractExpeditionMessagesFromDocV7(doc *goquery.Document, location *time.Location) ([]ExpeditionMessage, int64, error) {
 	msgs := make([]ExpeditionMessage, 0)
-	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
+	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
@@ -737,8 +737,8 @@ func extractExpeditionMessagesFromDocV7(doc *goquery.Document, location *time.Lo
 
 func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.Location) ([]MarketplaceMessage, int64, error) {
 	msgs := make([]MarketplaceMessage, 0)
-	tab, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-tab", ""), 10, 64)
-	nbPage, _ := strconv.ParseInt(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"), 10, 64)
+	tab := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-tab", ""))
+	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
@@ -752,7 +752,7 @@ func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.L
 				m = regexp.MustCompile(`marketTransactionId=([^&]+)`).FindStringSubmatch(href)
 				if len(m) == 2 {
 					marketTransactionIDStr := m[1]
-					marketTransactionID, _ = strconv.ParseInt(marketTransactionIDStr, 10, 64)
+					marketTransactionID = DoParseI64(marketTransactionIDStr)
 				}
 				msg := MarketplaceMessage{ID: id}
 				msg.Type = tab

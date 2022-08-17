@@ -18,8 +18,7 @@ func ParseInt(val string) int64 {
 	val = strings.Replace(val, ".", "", -1)
 	val = strings.Replace(val, ",", "", -1)
 	val = strings.TrimSpace(val)
-	res, _ := strconv.ParseInt(val, 10, 64)
-	return res
+	return DoParseI64(val)
 }
 
 func toInt(buf []byte) (n int) {
@@ -69,9 +68,9 @@ func ParseCoord(str string) (coord Coordinate, err error) {
 	m := regexp.MustCompile(`^\[?(([PMD]):)?(\d{1,3}):(\d{1,3}):(\d{1,3})]?$`).FindStringSubmatch(str)
 	if len(m) == 6 {
 		planetTypeStr := m[2]
-		galaxy, _ := strconv.ParseInt(m[3], 10, 64)
-		system, _ := strconv.ParseInt(m[4], 10, 64)
-		position, _ := strconv.ParseInt(m[5], 10, 64)
+		galaxy := DoParseI64(m[3])
+		system := DoParseI64(m[4])
+		position := DoParseI64(m[5])
 		planetType := PlanetType
 		if planetTypeStr == "M" {
 			planetType = MoonType
@@ -803,4 +802,9 @@ type Ints interface {
 // FI64 formats any int types to string
 func FI64[T Ints](v T) string {
 	return strconv.FormatInt(int64(v), 10)
+}
+
+func DoParseI64(v string) (out int64) {
+	out, _ = strconv.ParseInt(v, 10, 64)
+	return
 }

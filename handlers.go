@@ -1155,7 +1155,7 @@ func SendIPMHandler(c echo.Context) error {
 	if planetType != PlanetType && planetType != MoonType { // only accept planet/moon types
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid type"))
 	}
-	priority, _ := strconv.ParseInt(c.Request().PostFormValue("priority"), 10, 64)
+	priority := DoParseI64(c.Request().PostFormValue("priority"))
 	coord := Coordinate{Type: planetType, Galaxy: galaxy, System: system, Position: position}
 	duration, err := bot.SendIPM(PlanetID(planetID), coord, ipmAmount, ID(priority))
 	if err != nil {
@@ -1339,7 +1339,7 @@ func GetCaptchaHandler(c echo.Context) error {
 func GetCaptchaSolverHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	challengeID := c.Request().PostFormValue("challenge_id")
-	answer, _ := strconv.ParseInt(c.Request().PostFormValue("answer"), 10, 64)
+	answer := DoParseI64(c.Request().PostFormValue("answer"))
 
 	if err := SolveChallenge(bot.GetClient(), bot.ctx, challengeID, answer); err != nil {
 		bot.error(err)
