@@ -3826,10 +3826,10 @@ type MarketplaceMessage struct {
 	MarketTransactionID int64
 }
 
-func (b *OGame) getPageMessages(page, tabid int64) ([]byte, error) {
+func (b *OGame) getPageMessages(page int64, tabid MessagesTabID) ([]byte, error) {
 	payload := url.Values{
 		"messageId":  {"-1"},
-		"tabid":      {strconv.FormatInt(tabid, 10)},
+		"tabid":      {strconv.FormatInt(int64(tabid), 10)},
 		"action":     {"107"},
 		"pagination": {strconv.FormatInt(page, 10)},
 		"ajax":       {"1"},
@@ -3838,12 +3838,11 @@ func (b *OGame) getPageMessages(page, tabid int64) ([]byte, error) {
 }
 
 func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
-	var tabid int64 = 20
 	var page int64 = 1
 	var nbPage int64 = 1
 	msgs := make([]EspionageReportSummary, 0)
 	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, tabid)
+		pageHTML, _ := b.getPageMessages(page, EspionageMessagesTabID)
 		newMessages, newNbPage := b.extractor.ExtractEspionageReportMessageIDs(pageHTML)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
@@ -3853,12 +3852,11 @@ func (b *OGame) getEspionageReportMessages() ([]EspionageReportSummary, error) {
 }
 
 func (b *OGame) getCombatReportMessages() ([]CombatReportSummary, error) {
-	var tabid int64 = 21
 	var page int64 = 1
 	var nbPage int64 = 1
 	msgs := make([]CombatReportSummary, 0)
 	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, tabid)
+		pageHTML, _ := b.getPageMessages(page, CombatReportsMessagesTabID)
 		newMessages, newNbPage := b.extractor.ExtractCombatReportMessagesSummary(pageHTML)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
@@ -3868,12 +3866,11 @@ func (b *OGame) getCombatReportMessages() ([]CombatReportSummary, error) {
 }
 
 func (b *OGame) getExpeditionMessages() ([]ExpeditionMessage, error) {
-	var tabid int64 = 22
 	var page int64 = 1
 	var nbPage int64 = 1
 	msgs := make([]ExpeditionMessage, 0)
 	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, tabid)
+		pageHTML, _ := b.getPageMessages(page, ExpeditionsMessagesTabID)
 		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
@@ -3935,15 +3932,15 @@ func (b *OGame) collectMarketplaceMessage(msg MarketplaceMessage, newToken strin
 }
 
 func (b *OGame) getMarketplacePurchasesMessages() ([]MarketplaceMessage, error) {
-	return b.getMarketplaceMessages(26)
+	return b.getMarketplaceMessages(MarketplacePurchasesMessagesTabID)
 }
 
 func (b *OGame) getMarketplaceSalesMessages() ([]MarketplaceMessage, error) {
-	return b.getMarketplaceMessages(27)
+	return b.getMarketplaceMessages(MarketplaceSalesMessagesTabID)
 }
 
 // tabID 26: purchases, 27: sales
-func (b *OGame) getMarketplaceMessages(tabID int64) ([]MarketplaceMessage, error) {
+func (b *OGame) getMarketplaceMessages(tabID MessagesTabID) ([]MarketplaceMessage, error) {
 	var page int64 = 1
 	var nbPage int64 = 1
 	msgs := make([]MarketplaceMessage, 0)
@@ -3958,12 +3955,11 @@ func (b *OGame) getMarketplaceMessages(tabID int64) ([]MarketplaceMessage, error
 }
 
 func (b *OGame) getExpeditionMessageAt(t time.Time) (ExpeditionMessage, error) {
-	var tabid int64 = 22
 	var page int64 = 1
 	var nbPage int64 = 1
 LOOP:
 	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, tabid)
+		pageHTML, _ := b.getPageMessages(page, ExpeditionsMessagesTabID)
 		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML, b.location)
 		for _, m := range newMessages {
 			if m.CreatedAt.Unix() == t.Unix() {
@@ -3980,11 +3976,10 @@ LOOP:
 }
 
 func (b *OGame) getCombatReportFor(coord Coordinate) (CombatReportSummary, error) {
-	var tabid int64 = 21
 	var page int64 = 1
 	var nbPage int64 = 1
 	for page <= nbPage {
-		pageHTML, err := b.getPageMessages(page, tabid)
+		pageHTML, err := b.getPageMessages(page, CombatReportsMessagesTabID)
 		if err != nil {
 			return CombatReportSummary{}, err
 		}
@@ -4006,11 +4001,10 @@ func (b *OGame) getEspionageReport(msgID int64) (EspionageReport, error) {
 }
 
 func (b *OGame) getEspionageReportFor(coord Coordinate) (EspionageReport, error) {
-	var tabid int64 = 20
 	var page int64 = 1
 	var nbPage int64 = 1
 	for page <= nbPage {
-		pageHTML, err := b.getPageMessages(page, tabid)
+		pageHTML, err := b.getPageMessages(page, EspionageMessagesTabID)
 		if err != nil {
 			return EspionageReport{}, err
 		}
@@ -4068,11 +4062,13 @@ func (b *OGame) deleteMessage(msgID int64) error {
 type MessagesTabID int64
 
 const (
-	EspionageMessagesTabID       MessagesTabID = 20
-	CombatReportsMessagesTabID   MessagesTabID = 21
-	ExpeditionsMessagesTabID     MessagesTabID = 22
-	UnionsTransportMessagesTabID MessagesTabID = 23
-	OtherMessagesTabID           MessagesTabID = 24
+	EspionageMessagesTabID            MessagesTabID = 20
+	CombatReportsMessagesTabID        MessagesTabID = 21
+	ExpeditionsMessagesTabID          MessagesTabID = 22
+	UnionsTransportMessagesTabID      MessagesTabID = 23
+	OtherMessagesTabID                MessagesTabID = 24
+	MarketplacePurchasesMessagesTabID MessagesTabID = 26
+	MarketplaceSalesMessagesTabID     MessagesTabID = 27
 )
 
 func (b *OGame) deleteAllMessagesFromTab(tabID MessagesTabID) error {
@@ -4933,7 +4929,7 @@ func (b *OGame) DeleteMessage(msgID int64) error {
 }
 
 // DeleteAllMessagesFromTab deletes all messages from a tab in the mail box
-func (b *OGame) DeleteAllMessagesFromTab(tabID int64) error {
+func (b *OGame) DeleteAllMessagesFromTab(tabID MessagesTabID) error {
 	return b.WithPriority(Normal).DeleteAllMessagesFromTab(tabID)
 }
 
