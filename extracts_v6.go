@@ -210,32 +210,33 @@ func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v any) (Moon, error) 
 }
 
 func extractCelestialFromDocV6(doc *goquery.Document, b *OGame, v any) (Celestial, error) {
-	if planetID, ok := v.(PlanetID); ok {
-		return extractPlanetByIDFromDocV6(doc, b, planetID)
-	} else if moonID, ok := v.(MoonID); ok {
-		return extractMoonByIDFromDocV6(doc, b, moonID)
-	} else if celestialID, ok := v.(CelestialID); ok {
-		return extractCelestialByIDFromDocV6(doc, b, celestialID)
-	} else if id, ok := v.(int); ok {
-		return extractCelestialByIDFromDocV6(doc, b, CelestialID(id))
-	} else if id, ok := v.(int32); ok {
-		return extractCelestialByIDFromDocV6(doc, b, CelestialID(id))
-	} else if id, ok := v.(int64); ok {
-		return extractCelestialByIDFromDocV6(doc, b, CelestialID(id))
-	} else if id, ok := v.(float32); ok {
-		return extractCelestialByIDFromDocV6(doc, b, CelestialID(id))
-	} else if id, ok := v.(float64); ok {
-		return extractCelestialByIDFromDocV6(doc, b, CelestialID(id))
-	} else if id, ok := v.(lua.LNumber); ok {
-		return extractCelestialByIDFromDocV6(doc, b, CelestialID(id))
-	} else if coord, ok := v.(Coordinate); ok {
-		if coord.Type == PlanetType {
-			return extractPlanetByCoordFromDocV6(doc, b, coord)
-		} else if coord.Type == MoonType {
-			return extractMoonByCoordFromDocV6(doc, b, coord)
+	switch vv := v.(type) {
+	case PlanetID:
+		return extractPlanetByIDFromDocV6(doc, b, vv)
+	case MoonID:
+		return extractMoonByIDFromDocV6(doc, b, vv)
+	case CelestialID:
+		return extractCelestialByIDFromDocV6(doc, b, vv)
+	case int:
+		return extractCelestialByIDFromDocV6(doc, b, CelestialID(vv))
+	case int32:
+		return extractCelestialByIDFromDocV6(doc, b, CelestialID(vv))
+	case int64:
+		return extractCelestialByIDFromDocV6(doc, b, CelestialID(vv))
+	case float32:
+		return extractCelestialByIDFromDocV6(doc, b, CelestialID(vv))
+	case float64:
+		return extractCelestialByIDFromDocV6(doc, b, CelestialID(vv))
+	case lua.LNumber:
+		return extractCelestialByIDFromDocV6(doc, b, CelestialID(vv))
+	case Coordinate:
+		if vv.Type == PlanetType {
+			return extractPlanetByCoordFromDocV6(doc, b, vv)
+		} else if vv.Type == MoonType {
+			return extractMoonByCoordFromDocV6(doc, b, vv)
 		}
-	} else if coordStr, ok := v.(string); ok {
-		coord, err := ParseCoord(coordStr)
+	case string:
+		coord, err := ParseCoord(vv)
 		if err != nil {
 			return nil, err
 		}
