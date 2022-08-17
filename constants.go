@@ -30,7 +30,7 @@ func (m MissionID) String() string {
 	case Expedition:
 		return "Expedition"
 	default:
-		return strconv.FormatInt(int64(m), 10)
+		return FI64(int64(m))
 	}
 }
 
@@ -112,7 +112,7 @@ func (d CelestialType) String() string {
 	case DebrisType:
 		return "debris"
 	default:
-		return strconv.FormatInt(int64(d), 10)
+		return FI64(int64(d))
 	}
 }
 

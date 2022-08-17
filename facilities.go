@@ -1,7 +1,5 @@
 package ogame
 
-import "strconv"
-
 // LazyFacilities ...
 type LazyFacilities func() Facilities
 
@@ -55,15 +53,15 @@ func (f Facilities) ByID(id ID) int64 {
 
 func (f Facilities) String() string {
 	return "\n" +
-		"RoboticsFactory: " + strconv.FormatInt(f.RoboticsFactory, 10) + "\n" +
-		"       Shipyard: " + strconv.FormatInt(f.Shipyard, 10) + "\n" +
-		"   Research Lab: " + strconv.FormatInt(f.ResearchLab, 10) + "\n" +
-		" Alliance Depot: " + strconv.FormatInt(f.AllianceDepot, 10) + "\n" +
-		"   Missile Silo: " + strconv.FormatInt(f.MissileSilo, 10) + "\n" +
-		" Nanite Factory: " + strconv.FormatInt(f.NaniteFactory, 10) + "\n" +
-		"    Terraformer: " + strconv.FormatInt(f.Terraformer, 10) + "\n" +
-		"     Space Dock: " + strconv.FormatInt(f.SpaceDock, 10) + "\n" +
-		"     Lunar Base: " + strconv.FormatInt(f.LunarBase, 10) + "\n" +
-		" Sensor Phalanx: " + strconv.FormatInt(f.SensorPhalanx, 10) + "\n" +
-		"      Jump Gate: " + strconv.FormatInt(f.JumpGate, 10)
+		"RoboticsFactory: " + FI64(f.RoboticsFactory) + "\n" +
+		"       Shipyard: " + FI64(f.Shipyard) + "\n" +
+		"   Research Lab: " + FI64(f.ResearchLab) + "\n" +
+		" Alliance Depot: " + FI64(f.AllianceDepot) + "\n" +
+		"   Missile Silo: " + FI64(f.MissileSilo) + "\n" +
+		" Nanite Factory: " + FI64(f.NaniteFactory) + "\n" +
+		"    Terraformer: " + FI64(f.Terraformer) + "\n" +
+		"     Space Dock: " + FI64(f.SpaceDock) + "\n" +
+		"     Lunar Base: " + FI64(f.LunarBase) + "\n" +
+		" Sensor Phalanx: " + FI64(f.SensorPhalanx) + "\n" +
+		"      Jump Gate: " + FI64(f.JumpGate)
 }

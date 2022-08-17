@@ -795,3 +795,7 @@ func GetFleetSpeedForMission(serverData ServerData, missionID MissionID) int64 {
 	}
 	return serverData.SpeedFleetPeaceful
 }
+
+func FI64(v int64) string {
+	return strconv.FormatInt(v, 10)
+}

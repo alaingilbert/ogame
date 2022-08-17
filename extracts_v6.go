@@ -528,9 +528,9 @@ func extractProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, error) {
 			} else {
 				src := s.Find("img").AttrOr("src", "")
 				if strings.HasSuffix(src, "fb4e438cabd12ef1b0500a0f41abc1.jpg") {
-					itemIDstr = strconv.FormatInt(int64(AntiBallisticMissilesID), 10)
+					itemIDstr = FI64(int64(AntiBallisticMissilesID))
 				} else if strings.HasSuffix(src, "36221e9493458b9fcc776bf350983e.jpg") {
-					itemIDstr = strconv.FormatInt(int64(InterplanetaryMissilesID), 10)
+					itemIDstr = FI64(int64(InterplanetaryMissilesID))
 				}
 			}
 		}
@@ -1850,7 +1850,7 @@ func extractJumpGateV6(pageHTML []byte) (ShipsInfos, string, []MoonID, int64) {
 	}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	for _, s := range Ships {
-		ships.Set(s.GetID(), ParseInt(doc.Find("input#ship_"+strconv.FormatInt(int64(s.GetID()), 10)).AttrOr("rel", "0")))
+		ships.Set(s.GetID(), ParseInt(doc.Find("input#ship_"+FI64(int64(s.GetID()))).AttrOr("rel", "0")))
 	}
 	token := doc.Find("input[name=token]").AttrOr("value", "")
 
@@ -2215,12 +2215,12 @@ type Auction struct {
 func (a Auction) String() string {
 	return "" +
 		"  Has finished: " + strconv.FormatBool(a.HasFinished) + "\n" +
-		"      End time: " + strconv.FormatInt(a.Endtime, 10) + "\n" +
-		"      Num bids: " + strconv.FormatInt(a.NumBids, 10) + "\n" +
-		"   Minimum bid: " + strconv.FormatInt(a.MinimumBid, 10) + "\n" +
-		"Highest bidder: " + a.HighestBidder + " (" + strconv.FormatInt(a.HighestBidderUserID, 10) + ")" + "\n" +
+		"      End time: " + FI64(a.Endtime) + "\n" +
+		"      Num bids: " + FI64(a.NumBids) + "\n" +
+		"   Minimum bid: " + FI64(a.MinimumBid) + "\n" +
+		"Highest bidder: " + a.HighestBidder + " (" + FI64(a.HighestBidderUserID) + ")" + "\n" +
 		"  Current item: " + a.CurrentItem + " (" + a.CurrentItemLong + ")" + "\n" +
-		"     Inventory: " + strconv.FormatInt(a.Inventory, 10) + "\n" +
+		"     Inventory: " + FI64(a.Inventory) + "\n" +
 		""
 }
 

@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -442,7 +441,7 @@ func StartCaptchaChallenge(client IHttpClient, ctx context.Context, challengeID 
 
 func SolveChallenge(client IHttpClient, ctx context.Context, challengeID string, answer int64) error {
 	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
-	body := strings.NewReader(`{"answer":` + strconv.FormatInt(answer, 10) + `}`)
+	body := strings.NewReader(`{"answer":` + FI64(answer) + `}`)
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
 	req.Header.Set("Content-Type", "application/json")
 	req.WithContext(ctx)
@@ -554,7 +553,7 @@ type ServerData struct {
 // GetServerData gets the server data from xml api
 func GetServerData(client IHttpClient, ctx context.Context, serverNumber int64, serverLang string) (ServerData, error) {
 	var serverData ServerData
-	req, err := http.NewRequest(http.MethodGet, "https://s"+strconv.FormatInt(serverNumber, 10)+"-"+serverLang+".ogame.gameforge.com/api/serverData.xml", nil)
+	req, err := http.NewRequest(http.MethodGet, "https://s"+FI64(serverNumber)+"-"+serverLang+".ogame.gameforge.com/api/serverData.xml", nil)
 	if err != nil {
 		return serverData, err
 	}

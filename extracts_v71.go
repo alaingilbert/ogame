@@ -704,7 +704,7 @@ func extractFacilitiesFromDocV71(doc *goquery.Document) (Facilities, error) {
 }
 
 func extractCancelFleetTokenFromDocV71(doc *goquery.Document, fleetID FleetID) (string, error) {
-	href := doc.Find("div#fleet"+strconv.FormatInt(int64(fleetID), 10)+" a.icon_link").AttrOr("href", "")
+	href := doc.Find("div#fleet"+FI64(int64(fleetID))+" a.icon_link").AttrOr("href", "")
 	m := regexp.MustCompile(`token=([^"]+)`).FindStringSubmatch(href)
 	if len(m) != 2 {
 		return "", errors.New("cancel fleet token not found")
@@ -751,10 +751,10 @@ type Highscore struct {
 // String ...
 func (h Highscore) String() string {
 	return "" +
-		"  NbPage: " + strconv.FormatInt(h.NbPage, 10) + "\n" +
-		"CurrPage: " + strconv.FormatInt(h.CurrPage, 10) + "\n" +
-		"Category: " + strconv.FormatInt(h.Category, 10) + "\n" +
-		"    Type: " + strconv.FormatInt(h.Type, 10) + "\n" +
+		"  NbPage: " + FI64(h.NbPage) + "\n" +
+		"CurrPage: " + FI64(h.CurrPage) + "\n" +
+		"Category: " + FI64(h.Category) + "\n" +
+		"    Type: " + FI64(h.Type) + "\n" +
 		" Players: " + strconv.Itoa(len(h.Players)) + "\n"
 }
 
@@ -773,14 +773,14 @@ type HighscorePlayer struct {
 // String ...
 func (h HighscorePlayer) String() string {
 	return "" +
-		"    Position: " + strconv.FormatInt(h.Position, 10) + "\n" +
-		"          ID: " + strconv.FormatInt(h.ID, 10) + "\n" +
+		"    Position: " + FI64(h.Position) + "\n" +
+		"          ID: " + FI64(h.ID) + "\n" +
 		"        Name: " + h.Name + "\n" +
-		"       Score: " + strconv.FormatInt(h.Score, 10) + "\n" +
-		"  AllianceID: " + strconv.FormatInt(h.AllianceID, 10) + "\n" +
-		"HonourPoints: " + strconv.FormatInt(h.HonourPoints, 10) + "\n" +
+		"       Score: " + FI64(h.Score) + "\n" +
+		"  AllianceID: " + FI64(h.AllianceID) + "\n" +
+		"HonourPoints: " + FI64(h.HonourPoints) + "\n" +
 		"   Homeworld: " + h.Homeworld.String() + "\n" +
-		"       Ships: " + strconv.FormatInt(h.Ships, 10) + "\n"
+		"       Ships: " + FI64(h.Ships) + "\n"
 }
 
 func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error) {

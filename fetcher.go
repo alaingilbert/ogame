@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"net/url"
-	"strconv"
 )
 
 // Page names
@@ -65,7 +64,7 @@ func (b *OGame) getPage(page string, celestialID CelestialID, opts ...Option) ([
 		vals = url.Values{"page": {page}}
 	}
 	if celestialID != 0 {
-		vals.Add("cp", strconv.FormatInt(int64(celestialID), 10))
+		vals.Add("cp", FI64(int64(celestialID)))
 	}
 	return b.getPageContent(vals, opts...)
 }

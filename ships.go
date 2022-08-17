@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"math"
-	"strconv"
 )
 
 // ShipsInfos represent a planet ships information
@@ -253,21 +252,21 @@ func (s *ShipsInfos) Set(id ID, val int64) {
 
 func (s ShipsInfos) String() string {
 	return "\n" +
-		"  Light Fighter: " + strconv.FormatInt(s.LightFighter, 10) + "\n" +
-		"  Heavy Fighter: " + strconv.FormatInt(s.HeavyFighter, 10) + "\n" +
-		"        Cruiser: " + strconv.FormatInt(s.Cruiser, 10) + "\n" +
-		"     Battleship: " + strconv.FormatInt(s.Battleship, 10) + "\n" +
-		"  Battlecruiser: " + strconv.FormatInt(s.Battlecruiser, 10) + "\n" +
-		"         Bomber: " + strconv.FormatInt(s.Bomber, 10) + "\n" +
-		"      Destroyer: " + strconv.FormatInt(s.Destroyer, 10) + "\n" +
-		"      Deathstar: " + strconv.FormatInt(s.Deathstar, 10) + "\n" +
-		"    Small Cargo: " + strconv.FormatInt(s.SmallCargo, 10) + "\n" +
-		"    Large Cargo: " + strconv.FormatInt(s.LargeCargo, 10) + "\n" +
-		"    Colony Ship: " + strconv.FormatInt(s.ColonyShip, 10) + "\n" +
-		"       Recycler: " + strconv.FormatInt(s.Recycler, 10) + "\n" +
-		"Espionage Probe: " + strconv.FormatInt(s.EspionageProbe, 10) + "\n" +
-		"Solar Satellite: " + strconv.FormatInt(s.SolarSatellite, 10) + "\n" +
-		"        Crawler: " + strconv.FormatInt(s.Crawler, 10) + "\n" +
-		"         Reaper: " + strconv.FormatInt(s.Reaper, 10) + "\n" +
-		"     Pathfinder: " + strconv.FormatInt(s.Pathfinder, 10)
+		"  Light Fighter: " + FI64(s.LightFighter) + "\n" +
+		"  Heavy Fighter: " + FI64(s.HeavyFighter) + "\n" +
+		"        Cruiser: " + FI64(s.Cruiser) + "\n" +
+		"     Battleship: " + FI64(s.Battleship) + "\n" +
+		"  Battlecruiser: " + FI64(s.Battlecruiser) + "\n" +
+		"         Bomber: " + FI64(s.Bomber) + "\n" +
+		"      Destroyer: " + FI64(s.Destroyer) + "\n" +
+		"      Deathstar: " + FI64(s.Deathstar) + "\n" +
+		"    Small Cargo: " + FI64(s.SmallCargo) + "\n" +
+		"    Large Cargo: " + FI64(s.LargeCargo) + "\n" +
+		"    Colony Ship: " + FI64(s.ColonyShip) + "\n" +
+		"       Recycler: " + FI64(s.Recycler) + "\n" +
+		"Espionage Probe: " + FI64(s.EspionageProbe) + "\n" +
+		"Solar Satellite: " + FI64(s.SolarSatellite) + "\n" +
+		"        Crawler: " + FI64(s.Crawler) + "\n" +
+		"         Reaper: " + FI64(s.Reaper) + "\n" +
+		"     Pathfinder: " + FI64(s.Pathfinder)
 }

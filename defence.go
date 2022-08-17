@@ -1,7 +1,5 @@
 package ogame
 
-import "strconv"
-
 // DefensesInfos represent a planet defenses information
 type DefensesInfos struct {
 	RocketLauncher         int64 // 401
@@ -52,16 +50,16 @@ func (d DefensesInfos) AttackableValue() int64 {
 
 func (d DefensesInfos) String() string {
 	return "\n" +
-		"        Rocket Launcher: " + strconv.FormatInt(d.RocketLauncher, 10) + "\n" +
-		"            Light Laser: " + strconv.FormatInt(d.LightLaser, 10) + "\n" +
-		"            Heavy Laser: " + strconv.FormatInt(d.HeavyLaser, 10) + "\n" +
-		"           Gauss Cannon: " + strconv.FormatInt(d.GaussCannon, 10) + "\n" +
-		"             Ion Cannon: " + strconv.FormatInt(d.IonCannon, 10) + "\n" +
-		"          Plasma Turret: " + strconv.FormatInt(d.PlasmaTurret, 10) + "\n" +
-		"      Small Shield Dome: " + strconv.FormatInt(d.SmallShieldDome, 10) + "\n" +
-		"      Large Shield Dome: " + strconv.FormatInt(d.LargeShieldDome, 10) + "\n" +
-		"Anti Ballistic Missiles: " + strconv.FormatInt(d.AntiBallisticMissiles, 10) + "\n" +
-		"Interplanetary Missiles: " + strconv.FormatInt(d.InterplanetaryMissiles, 10)
+		"        Rocket Launcher: " + FI64(d.RocketLauncher) + "\n" +
+		"            Light Laser: " + FI64(d.LightLaser) + "\n" +
+		"            Heavy Laser: " + FI64(d.HeavyLaser) + "\n" +
+		"           Gauss Cannon: " + FI64(d.GaussCannon) + "\n" +
+		"             Ion Cannon: " + FI64(d.IonCannon) + "\n" +
+		"          Plasma Turret: " + FI64(d.PlasmaTurret) + "\n" +
+		"      Small Shield Dome: " + FI64(d.SmallShieldDome) + "\n" +
+		"      Large Shield Dome: " + FI64(d.LargeShieldDome) + "\n" +
+		"Anti Ballistic Missiles: " + FI64(d.AntiBallisticMissiles) + "\n" +
+		"Interplanetary Missiles: " + FI64(d.InterplanetaryMissiles)
 }
 
 // ByID get number of defenses by defense id

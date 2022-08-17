@@ -1,7 +1,6 @@
 package ogame
 
 import (
-	"strconv"
 	"time"
 )
 
@@ -23,13 +22,13 @@ type AttackEvent struct {
 
 func (a AttackEvent) String() string {
 	return "" +
-		"               ID: " + strconv.FormatInt(a.ID, 10) + "\n" +
-		"     Mission Type: " + strconv.FormatInt(int64(a.MissionType), 10) + "\n" +
+		"               ID: " + FI64(a.ID) + "\n" +
+		"     Mission Type: " + FI64(int64(a.MissionType)) + "\n" +
 		"           Origin: " + a.Origin.String() + "\n" +
 		"      Destination: " + a.Destination.String() + "\n" +
 		" Destination Name: " + a.DestinationName + "\n" +
 		"      ArrivalTime: " + a.ArrivalTime.String() + "\n" +
-		"       AttackerID: " + strconv.FormatInt(a.AttackerID, 10) + "\n" +
-		"          UnionID: " + strconv.FormatInt(a.UnionID, 10) + "\n" +
-		"         Missiles: " + strconv.FormatInt(a.Missiles, 10)
+		"       AttackerID: " + FI64(a.AttackerID) + "\n" +
+		"          UnionID: " + FI64(a.UnionID) + "\n" +
+		"         Missiles: " + FI64(a.Missiles)
 }

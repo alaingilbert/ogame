@@ -1,7 +1,5 @@
 package ogame
 
-import "strconv"
-
 // LazyResourcesBuildings ...
 type LazyResourcesBuildings func() ResourcesBuildings
 
@@ -49,13 +47,13 @@ func (r ResourcesBuildings) ByID(id ID) int64 {
 
 func (r ResourcesBuildings) String() string {
 	return "\n" +
-		"           Metal Mine: " + strconv.FormatInt(r.MetalMine, 10) + "\n" +
-		"         Crystal Mine: " + strconv.FormatInt(r.CrystalMine, 10) + "\n" +
-		"Deuterium Synthesizer: " + strconv.FormatInt(r.DeuteriumSynthesizer, 10) + "\n" +
-		"          Solar Plant: " + strconv.FormatInt(r.SolarPlant, 10) + "\n" +
-		"       Fusion Reactor: " + strconv.FormatInt(r.FusionReactor, 10) + "\n" +
-		"      Solar Satellite: " + strconv.FormatInt(r.SolarSatellite, 10) + "\n" +
-		"        Metal Storage: " + strconv.FormatInt(r.MetalStorage, 10) + "\n" +
-		"      Crystal Storage: " + strconv.FormatInt(r.CrystalStorage, 10) + "\n" +
-		"       Deuterium Tank: " + strconv.FormatInt(r.DeuteriumTank, 10)
+		"           Metal Mine: " + FI64(r.MetalMine) + "\n" +
+		"         Crystal Mine: " + FI64(r.CrystalMine) + "\n" +
+		"Deuterium Synthesizer: " + FI64(r.DeuteriumSynthesizer) + "\n" +
+		"          Solar Plant: " + FI64(r.SolarPlant) + "\n" +
+		"       Fusion Reactor: " + FI64(r.FusionReactor) + "\n" +
+		"      Solar Satellite: " + FI64(r.SolarSatellite) + "\n" +
+		"        Metal Storage: " + FI64(r.MetalStorage) + "\n" +
+		"      Crystal Storage: " + FI64(r.CrystalStorage) + "\n" +
+		"       Deuterium Tank: " + FI64(r.DeuteriumTank)
 }

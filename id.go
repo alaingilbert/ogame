@@ -1,7 +1,5 @@
 package ogame
 
-import "strconv"
-
 // ID represent an ogame id
 type ID int64
 
@@ -155,7 +153,7 @@ func (o ID) String() string {
 	case GravitonTechnologyID:
 		res += "GravitonTechnology"
 	default:
-		res += "Invalid(" + strconv.FormatInt(int64(o), 10) + ")"
+		res += "Invalid(" + FI64(int64(o)) + ")"
 	}
 	return res
 }

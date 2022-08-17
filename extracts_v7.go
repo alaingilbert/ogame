@@ -24,7 +24,7 @@ func getNbrV7Ships(doc *goquery.Document, name string) int64 {
 }
 
 func extractPremiumTokenV7(pageHTML []byte, days int64) (token string, err error) {
-	rgx := regexp.MustCompile(`\?page=premium&buynow=1&type=\d&days=` + strconv.FormatInt(days, 10) + `&token=(\w+)`)
+	rgx := regexp.MustCompile(`\?page=premium&buynow=1&type=\d&days=` + FI64(days) + `&token=(\w+)`)
 	m := rgx.FindSubmatch(pageHTML)
 	if len(m) < 2 {
 		return "", errors.New("unable to find token")

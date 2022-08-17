@@ -142,11 +142,11 @@ type DMCost struct {
 // String ...
 func (d DMCost) String() string {
 	return "\n" +
-		"               Cost: " + strconv.FormatInt(d.Cost, 10) + "\n" +
+		"               Cost: " + FI64(d.Cost) + "\n" +
 		"             CanBuy: " + strconv.FormatBool(d.CanBuy) + "\n" +
 		"           Complete: " + strconv.FormatBool(d.Complete) + "\n" +
-		"            OGameID: " + strconv.FormatInt(int64(d.OGameID), 10) + "\n" +
-		"                Nbr: " + strconv.FormatInt(d.Nbr, 10) + "\n" +
+		"            OGameID: " + FI64(int64(d.OGameID)) + "\n" +
+		"                Nbr: " + FI64(d.Nbr) + "\n" +
 		"BuyAndActivateToken: " + d.BuyAndActivateToken + "\n" +
 		"              Token: " + d.Token
 }

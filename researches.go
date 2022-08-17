@@ -1,7 +1,5 @@
 package ogame
 
-import "strconv"
-
 // LazyResearches ...
 type LazyResearches func() Researches
 
@@ -75,20 +73,20 @@ func (s Researches) ByID(id ID) int64 {
 
 func (s Researches) String() string {
 	return "\n" +
-		"             Energy Technology: " + strconv.FormatInt(s.EnergyTechnology, 10) + "\n" +
-		"              Laser Technology: " + strconv.FormatInt(s.LaserTechnology, 10) + "\n" +
-		"                Ion Technology: " + strconv.FormatInt(s.IonTechnology, 10) + "\n" +
-		"         Hyperspace Technology: " + strconv.FormatInt(s.HyperspaceTechnology, 10) + "\n" +
-		"             Plasma Technology: " + strconv.FormatInt(s.PlasmaTechnology, 10) + "\n" +
-		"              Combustion Drive: " + strconv.FormatInt(s.CombustionDrive, 10) + "\n" +
-		"                 Impulse Drive: " + strconv.FormatInt(s.ImpulseDrive, 10) + "\n" +
-		"              Hyperspace Drive: " + strconv.FormatInt(s.HyperspaceDrive, 10) + "\n" +
-		"          Espionage Technology: " + strconv.FormatInt(s.EspionageTechnology, 10) + "\n" +
-		"           Computer Technology: " + strconv.FormatInt(s.ComputerTechnology, 10) + "\n" +
-		"                  Astrophysics: " + strconv.FormatInt(s.Astrophysics, 10) + "\n" +
-		"Intergalactic Research Network: " + strconv.FormatInt(s.IntergalacticResearchNetwork, 10) + "\n" +
-		"           Graviton Technology: " + strconv.FormatInt(s.GravitonTechnology, 10) + "\n" +
-		"            Weapons Technology: " + strconv.FormatInt(s.WeaponsTechnology, 10) + "\n" +
-		"          Shielding Technology: " + strconv.FormatInt(s.ShieldingTechnology, 10) + "\n" +
-		"             Armour Technology: " + strconv.FormatInt(s.ArmourTechnology, 10)
+		"             Energy Technology: " + FI64(s.EnergyTechnology) + "\n" +
+		"              Laser Technology: " + FI64(s.LaserTechnology) + "\n" +
+		"                Ion Technology: " + FI64(s.IonTechnology) + "\n" +
+		"         Hyperspace Technology: " + FI64(s.HyperspaceTechnology) + "\n" +
+		"             Plasma Technology: " + FI64(s.PlasmaTechnology) + "\n" +
+		"              Combustion Drive: " + FI64(s.CombustionDrive) + "\n" +
+		"                 Impulse Drive: " + FI64(s.ImpulseDrive) + "\n" +
+		"              Hyperspace Drive: " + FI64(s.HyperspaceDrive) + "\n" +
+		"          Espionage Technology: " + FI64(s.EspionageTechnology) + "\n" +
+		"           Computer Technology: " + FI64(s.ComputerTechnology) + "\n" +
+		"                  Astrophysics: " + FI64(s.Astrophysics) + "\n" +
+		"Intergalactic Research Network: " + FI64(s.IntergalacticResearchNetwork) + "\n" +
+		"           Graviton Technology: " + FI64(s.GravitonTechnology) + "\n" +
+		"            Weapons Technology: " + FI64(s.WeaponsTechnology) + "\n" +
+		"          Shielding Technology: " + FI64(s.ShieldingTechnology) + "\n" +
+		"             Armour Technology: " + FI64(s.ArmourTechnology)
 }
