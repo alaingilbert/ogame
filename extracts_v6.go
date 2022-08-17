@@ -197,6 +197,8 @@ func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v any) (Moon, error) 
 
 func extractCelestialFromDocV6(doc *goquery.Document, b *OGame, v any) (Celestial, error) {
 	switch vv := v.(type) {
+	case Celestial:
+		return extractCelestialByIDFromDocV6(doc, b, vv.GetID())
 	case Planet:
 		return extractCelestialByIDFromDocV6(doc, b, vv.GetID())
 	case Moon:
