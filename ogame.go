@@ -522,7 +522,7 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 			if update.CallbackQuery != nil {
 				_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
 				_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
-				v, err := strconv.ParseInt(update.CallbackQuery.Data, 10, 64)
+				v, err := ParseI64(update.CallbackQuery.Data)
 				if err != nil {
 					return 0, err
 				}

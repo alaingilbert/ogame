@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -267,7 +266,7 @@ func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]CombatReport
 	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+			if id, err := ParseI64(idStr); err == nil {
 				report := CombatReportSummary{ID: id}
 				report.Destination = extractCoordV6(s.Find("div.msg_head a").Text())
 				if s.Find("div.msg_head figure").HasClass("planet") {
@@ -721,7 +720,7 @@ func extractExpeditionMessagesFromDocV7(doc *goquery.Document, location *time.Lo
 	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+			if id, err := ParseI64(idStr); err == nil {
 				msg := ExpeditionMessage{ID: id}
 				msg.CreatedAt, _ = time.ParseInLocation("02.01.2006 15:04:05", s.Find(".msg_date").Text(), location)
 				msg.Coordinate = extractCoordV6(s.Find(".msg_title a").Text())
@@ -741,7 +740,7 @@ func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.L
 	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+			if id, err := ParseI64(idStr); err == nil {
 				href := s.Find("a.js_actionCollect").AttrOr("href", "")
 				m := regexp.MustCompile(`token=([^&]+)`).FindStringSubmatch(href)
 				var token string

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"regexp"
-	"strconv"
 	"strings"
 )
 
@@ -86,7 +85,7 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 		if len(m) != 2 {
 			return Auction{}, errors.New("failed to find end time approx")
 		}
-		endTimeMinutes, err := strconv.ParseInt(m[1], 10, 64)
+		endTimeMinutes, err := ParseI64(m[1])
 		if err != nil {
 			return Auction{}, errors.New("invalid end time approx: " + err.Error())
 		}

@@ -590,7 +590,7 @@ func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]Espiona
 	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+			if id, err := ParseI64(idStr); err == nil {
 				messageType := Report
 				if s.Find("span.espionageDefText").Size() > 0 {
 					messageType = Action
@@ -625,7 +625,7 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := strconv.ParseInt(idStr, 10, 64); err == nil {
+			if id, err := ParseI64(idStr); err == nil {
 				report := CombatReportSummary{ID: id}
 				report.Destination = extractCoordV6(s.Find("div.msg_head a").Text())
 				if s.Find("div.msg_head figure").HasClass("planet") {
@@ -1957,7 +1957,7 @@ var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
 func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error) {
 	el, _ := s.Attr("id")
-	id, err := strconv.ParseInt(strings.TrimPrefix(el, "planet-"), 10, 64)
+	id, err := ParseI64(strings.TrimPrefix(el, "planet-"))
 	if err != nil {
 		return Planet{}, err
 	}
@@ -2237,7 +2237,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 		if len(m) != 2 {
 			return Auction{}, errors.New("failed to find end time approx")
 		}
-		endTimeMinutes, err := strconv.ParseInt(m[1], 10, 64)
+		endTimeMinutes, err := ParseI64(m[1])
 		if err != nil {
 			return Auction{}, errors.New("invalid end time approx: " + err.Error())
 		}

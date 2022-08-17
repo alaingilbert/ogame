@@ -804,7 +804,11 @@ func FI64[T Ints](v T) string {
 	return strconv.FormatInt(int64(v), 10)
 }
 
+func ParseI64(v string) (out int64, err error) {
+	return strconv.ParseInt(v, 10, 64)
+}
+
 func DoParseI64(v string) (out int64) {
-	out, _ = strconv.ParseInt(v, 10, 64)
+	out, _ = ParseI64(v)
 	return
 }
