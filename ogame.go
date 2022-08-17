@@ -426,7 +426,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		return false, err
 	}
 
-	vals := url.Values{"page": {"ingame"}, "component": {OverviewPage}}
+	vals := url.Values{"page": {"ingame"}, "component": {OverviewPageName}}
 	pageHTML, err := b.getPageContent(vals, SkipRetry)
 	if err != nil {
 		if err == ErrNotLogged {
@@ -750,7 +750,7 @@ func (b *OGame) loginPart3(userAccount Account, pageHTML []byte) error {
 
 	b.cacheFullPageInfo("overview", pageHTML)
 
-	_, _ = b.getPage(PreferencesPage, CelestialID(0)) // Will update preferences cached values
+	_, _ = b.getPage(PreferencesPageName, CelestialID(0)) // Will update preferences cached values
 
 	// Extract chat host and port
 	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(pageHTML)
@@ -1423,7 +1423,7 @@ func (m ChatMsg) String() string {
 }
 
 func (b *OGame) logout() {
-	_, _ = b.getPage(LogoutPage, CelestialID(0))
+	_, _ = b.getPage(LogoutPageName, CelestialID(0))
 	_ = b.client.Jar.(*cookiejar.Jar).Save()
 	if atomic.CompareAndSwapInt32(&b.isLoggedInAtom, 1, 0) {
 		select {
@@ -1448,26 +1448,26 @@ func IsKnowFullPage(vals url.Values) bool {
 	if page == "ingame" {
 		page = vals.Get("component")
 	}
-	return page == OverviewPage ||
-		page == TraderOverviewPage ||
-		page == ResearchPage ||
-		page == ShipyardPage ||
-		page == GalaxyPage ||
-		page == AlliancePage ||
-		page == PremiumPage ||
-		page == ShopPage ||
-		page == RewardsPage ||
-		page == ResourceSettingsPage ||
-		page == MovementPage ||
-		page == HighscorePage ||
-		page == BuddiesPage ||
-		page == PreferencesPage ||
-		page == MessagesPage ||
-		page == ChatPage ||
-		page == DefensesPage ||
-		page == SuppliesPage ||
-		page == FacilitiesPage ||
-		page == FleetdispatchPage
+	return page == OverviewPageName ||
+		page == TraderOverviewPageName ||
+		page == ResearchPageName ||
+		page == ShipyardPageName ||
+		page == GalaxyPageName ||
+		page == AlliancePageName ||
+		page == PremiumPageName ||
+		page == ShopPageName ||
+		page == RewardsPageName ||
+		page == ResourceSettingsPageName ||
+		page == MovementPageName ||
+		page == HighscorePageName ||
+		page == BuddiesPageName ||
+		page == PreferencesPageName ||
+		page == MessagesPageName ||
+		page == ChatPageName ||
+		page == DefensesPageName ||
+		page == SuppliesPageName ||
+		page == FacilitiesPageName ||
+		page == FleetdispatchPageName
 }
 
 // IsAjaxPage either the requested page is a partial/ajax page
@@ -1478,29 +1478,29 @@ func IsAjaxPage(vals url.Values) bool {
 	}
 	ajax := vals.Get("ajax")
 	asJson := vals.Get("asJson")
-	return page == FetchEventboxAjaxPage ||
-		page == FetchResourcesAjaxPage ||
-		page == GalaxyContentAjaxPage ||
-		page == EventListAjaxPage ||
-		page == AjaxChatAjaxPage ||
-		page == NoticesAjaxPage ||
-		page == RepairlayerAjaxPage ||
-		page == TechtreeAjaxPage ||
-		page == PhalanxAjaxPage ||
-		page == ShareReportOverlayAjaxPage ||
-		page == JumpgatelayerAjaxPage ||
-		page == FederationlayerAjaxPage ||
-		page == UnionchangeAjaxPage ||
-		page == ChangenickAjaxPage ||
-		page == PlanetlayerAjaxPage ||
-		page == TraderlayerAjaxPage ||
-		page == PlanetRenameAjaxPage ||
-		page == RightmenuAjaxPage ||
-		page == AllianceOverviewAjaxPage ||
-		page == SupportAjaxPage ||
-		page == BuffActivationAjaxPage ||
-		page == AuctioneerAjaxPage ||
-		page == HighscoreContentAjaxPage ||
+	return page == FetchEventboxAjaxPageName ||
+		page == FetchResourcesAjaxPageName ||
+		page == GalaxyContentAjaxPageName ||
+		page == EventListAjaxPageName ||
+		page == AjaxChatAjaxPageName ||
+		page == NoticesAjaxPageName ||
+		page == RepairlayerAjaxPageName ||
+		page == TechtreeAjaxPageName ||
+		page == PhalanxAjaxPageName ||
+		page == ShareReportOverlayAjaxPageName ||
+		page == JumpgatelayerAjaxPageName ||
+		page == FederationlayerAjaxPageName ||
+		page == UnionchangeAjaxPageName ||
+		page == ChangenickAjaxPageName ||
+		page == PlanetlayerAjaxPageName ||
+		page == TraderlayerAjaxPageName ||
+		page == PlanetRenameAjaxPageName ||
+		page == RightmenuAjaxPageName ||
+		page == AllianceOverviewAjaxPageName ||
+		page == SupportAjaxPageName ||
+		page == BuffActivationAjaxPageName ||
+		page == AuctioneerAjaxPageName ||
+		page == HighscoreContentAjaxPageName ||
 		ajax == "1" ||
 		asJson == "1"
 }
@@ -1615,7 +1615,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		if allianceID != "" {
 			return nil
 		}
-		if (page != LogoutPage && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
+		if (page != LogoutPageName && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
 			(page == "eventList" && !bytes.Contains(pageHTMLBytes, []byte("eventListWrap"))) ||
 			(page == "fetchEventbox" && !canParseEventBox(pageHTMLBytes)) {
 			b.error("Err not logged on page : ", page)
@@ -1946,32 +1946,32 @@ type resourcesResp struct {
 }
 
 func (b *OGame) getPlanets() []Planet {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	return b.extractor.ExtractPlanets(pageHTML, b)
 }
 
 func (b *OGame) getPlanet(v any) (Planet, error) {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	return b.extractor.ExtractPlanet(pageHTML, b, v)
 }
 
 func (b *OGame) getMoons() []Moon {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	return b.extractor.ExtractMoons(pageHTML, b)
 }
 
 func (b *OGame) getMoon(v any) (Moon, error) {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	return b.extractor.ExtractMoon(pageHTML, b, v)
 }
 
 func (b *OGame) getCelestials() ([]Celestial, error) {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	return b.extractor.ExtractCelestials(pageHTML, b)
 }
 
 func (b *OGame) getCelestial(v any) (Celestial, error) {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	return b.extractor.ExtractCelestial(pageHTML, b, v)
 }
 
@@ -1999,12 +1999,12 @@ func (b *OGame) recruitOfficer(typ, days int64) error {
 }
 
 func (b *OGame) abandon(v any) error {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	planet, err := b.extractor.ExtractPlanet(pageHTML, b, v)
 	if err != nil {
 		return errors.New("invalid parameter")
 	}
-	pageHTML, _ = b.getPage(PlanetlayerPage, planet.GetID())
+	pageHTML, _ = b.getPage(PlanetlayerPageName, planet.GetID())
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
 	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
@@ -2024,7 +2024,7 @@ func (b *OGame) abandon(v any) error {
 }
 
 func (b *OGame) serverTime() time.Time {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	serverTime, err := b.extractor.ExtractServerTime(pageHTML)
 	if err != nil {
 		b.error(err.Error())
@@ -2033,7 +2033,7 @@ func (b *OGame) serverTime() time.Time {
 }
 
 func (b *OGame) getUserInfos() UserInfos {
-	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
+	pageHTML, _ := b.getPage(OverviewPageName, CelestialID(0))
 	userInfos, err := b.extractor.ExtractUserInfos(pageHTML, b.language)
 	if err != nil {
 		b.error(err)
@@ -2090,14 +2090,14 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 }
 
 func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
-	pageHTML, _ := b.getPage(MovementPage, CelestialID(0), opts...)
+	pageHTML, _ := b.getPage(MovementPageName, CelestialID(0), opts...)
 	fleets := b.extractor.ExtractFleets(pageHTML, b.location)
 	slots := b.extractor.ExtractSlots(pageHTML)
 	return fleets, slots
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	pageHTML, err := b.getPage(MovementPage, CelestialID(0))
+	pageHTML, err := b.getPage(MovementPageName, CelestialID(0))
 	if err != nil {
 		return err
 	}
@@ -2120,7 +2120,7 @@ type Slots struct {
 }
 
 func (b *OGame) getSlots() Slots {
-	pageHTML, _ := b.getPage(FleetdispatchPage, CelestialID(0))
+	pageHTML, _ := b.getPage(FleetdispatchPageName, CelestialID(0))
 	return b.extractor.ExtractSlots(pageHTML)
 }
 
@@ -2232,7 +2232,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	res := make([]Fleet, 0)
 
 	// Get moon facilities html page (first call to ogame server)
-	moonFacilitiesHTML, _ := b.getPage(FacilitiesPage, moonID.Celestial())
+	moonFacilitiesHTML, _ := b.getPage(FacilitiesPageName, moonID.Celestial())
 
 	// Extract bunch of infos from the html
 	moon, err := b.extractor.ExtractMoon(moonFacilitiesHTML, b, moonID)
@@ -2334,7 +2334,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 }
 
 func (b *OGame) jumpGateDestinations(originMoonID MoonID) ([]MoonID, int64, error) {
-	pageHTML, _ := b.getPage(JumpgatelayerPage, originMoonID.Celestial())
+	pageHTML, _ := b.getPage(JumpgatelayerPageName, originMoonID.Celestial())
 	_, _, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
 	if wait > 0 {
 		return dests, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
@@ -2343,7 +2343,7 @@ func (b *OGame) jumpGateDestinations(originMoonID MoonID) ([]MoonID, int64, erro
 }
 
 func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfos) (bool, int64, error) {
-	pageHTML, _ := b.getPage(JumpgatelayerPage, originMoonID.Celestial())
+	pageHTML, _ := b.getPage(JumpgatelayerPageName, originMoonID.Celestial())
 	availShips, token, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
 	if wait > 0 {
 		return false, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
@@ -2451,7 +2451,7 @@ func (b *OGame) highscore(category, typ, page int64) (out Highscore, err error) 
 		return out, errors.New("page must be greater than or equal to 1")
 	}
 	vals := url.Values{
-		"page":     {HighscoreContentAjaxPage},
+		"page":     {HighscoreContentAjaxPageName},
 		"category": {strconv.FormatInt(category, 10)},
 		"type":     {strconv.FormatInt(typ, 10)},
 		"site":     {strconv.FormatInt(page, 10)},
@@ -2475,7 +2475,7 @@ func (b *OGame) getAllResources() (map[CelestialID]Resources, error) {
 }
 
 func (b *OGame) getDMCosts(celestialID CelestialID) (DMCosts, error) {
-	pageHTML, _ := b.getPage(OverviewPage, celestialID)
+	pageHTML, _ := b.getPage(OverviewPageName, celestialID)
 	return b.extractor.ExtractDMCosts(pageHTML)
 }
 
@@ -2483,7 +2483,7 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 	if typ != "buildings" && typ != "research" && typ != "shipyard" {
 		return fmt.Errorf("invalid type %s", typ)
 	}
-	pageHTML, _ := b.getPage(OverviewPage, celestialID)
+	pageHTML, _ := b.getPage(OverviewPageName, celestialID)
 	costs, err := b.extractor.ExtractDMCosts(pageHTML)
 	if err != nil {
 		return err
@@ -3021,12 +3021,12 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, 
 }
 
 func (b *OGame) getResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
-	pageHTML, _ := b.getPage(ResourceSettingsPage, planetID.Celestial(), options...)
+	pageHTML, _ := b.getPage(ResourceSettingsPageName, planetID.Celestial(), options...)
 	return b.extractor.ExtractResourceSettings(pageHTML)
 }
 
 func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings) error {
-	pageHTML, _ := b.getPage(ResourceSettingsPage, planetID.Celestial())
+	pageHTML, _ := b.getPage(ResourceSettingsPageName, planetID.Celestial())
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	bodyID := b.extractor.ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
@@ -3088,39 +3088,39 @@ func (b *OGame) getCachedResearch() Researches {
 }
 
 func (b *OGame) getResearch() Researches {
-	pageHTML, _ := b.getPage(ResearchPage, CelestialID(0))
+	pageHTML, _ := b.getPage(ResearchPageName, CelestialID(0))
 	researches := b.extractor.ExtractResearch(pageHTML)
 	b.researches = &researches
 	return researches
 }
 
 func (b *OGame) getResourcesBuildings(celestialID CelestialID, options ...Option) (ResourcesBuildings, error) {
-	pageHTML, _ := b.getPage(SuppliesPage, celestialID, options...)
+	pageHTML, _ := b.getPage(SuppliesPageName, celestialID, options...)
 	return b.extractor.ExtractResourcesBuildings(pageHTML)
 }
 
 func (b *OGame) getDefense(celestialID CelestialID, options ...Option) (DefensesInfos, error) {
-	pageHTML, _ := b.getPage(DefensesPage, celestialID, options...)
+	pageHTML, _ := b.getPage(DefensesPageName, celestialID, options...)
 	return b.extractor.ExtractDefense(pageHTML)
 }
 
 func (b *OGame) getShips(celestialID CelestialID, options ...Option) (ShipsInfos, error) {
-	pageHTML, _ := b.getPage(ShipyardPage, celestialID, options...)
+	pageHTML, _ := b.getPage(ShipyardPageName, celestialID, options...)
 	return b.extractor.ExtractShips(pageHTML)
 }
 
 func (b *OGame) getFacilities(celestialID CelestialID, options ...Option) (Facilities, error) {
-	pageHTML, _ := b.getPage(FacilitiesPage, celestialID, options...)
+	pageHTML, _ := b.getPage(FacilitiesPageName, celestialID, options...)
 	return b.extractor.ExtractFacilities(pageHTML)
 }
 
 func (b *OGame) getTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error) {
-	pageJSON, _ := b.getPage(FetchTechs, celestialID)
+	pageJSON, _ := b.getPage(FetchTechsName, celestialID)
 	return b.extractor.ExtractTechs(pageJSON)
 }
 
 func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
-	pageHTML, _ := b.getPage(ShipyardPage, celestialID)
+	pageHTML, _ := b.getPage(ShipyardPageName, celestialID)
 	return b.extractor.ExtractProduction(pageHTML)
 }
 
@@ -3206,13 +3206,13 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 func (b *OGame) build(celestialID CelestialID, id ID, nbr int64) error {
 	var page string
 	if id.IsDefense() {
-		page = DefensesPage
+		page = DefensesPageName
 	} else if id.IsShip() {
-		page = ShipyardPage
+		page = ShipyardPageName
 	} else if id.IsBuilding() {
-		page = SuppliesPage
+		page = SuppliesPageName
 	} else if id.IsTech() {
-		page = ResearchPage
+		page = ResearchPageName
 	} else {
 		return errors.New("invalid id " + id.String())
 	}
@@ -3298,7 +3298,7 @@ func (b *OGame) buildShips(celestialID CelestialID, shipID ID, nbr int64) error 
 }
 
 func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int64, ID, int64) {
-	pageHTML, _ := b.getPage(OverviewPage, celestialID)
+	pageHTML, _ := b.getPage(OverviewPageName, celestialID)
 	return b.extractor.ExtractConstructions(pageHTML)
 }
 
@@ -3309,7 +3309,7 @@ func (b *OGame) cancel(token string, techID, listID int64) error {
 }
 
 func (b *OGame) cancelBuilding(celestialID CelestialID) error {
-	pageHTML, err := b.getPage(OverviewPage, celestialID)
+	pageHTML, err := b.getPage(OverviewPageName, celestialID)
 	if err != nil {
 		return err
 	}
@@ -3318,7 +3318,7 @@ func (b *OGame) cancelBuilding(celestialID CelestialID) error {
 }
 
 func (b *OGame) cancelResearch(celestialID CelestialID) error {
-	pageHTML, err := b.getPage(OverviewPage, celestialID)
+	pageHTML, err := b.getPage(OverviewPageName, celestialID)
 	if err != nil {
 		return err
 	}
@@ -3327,7 +3327,7 @@ func (b *OGame) cancelResearch(celestialID CelestialID) error {
 }
 
 func (b *OGame) fetchResources(celestialID CelestialID) (ResourcesDetails, error) {
-	pageJSON, err := b.getPage(FetchResourcesPage, celestialID)
+	pageJSON, err := b.getPage(FetchResourcesPageName, celestialID)
 	if err != nil {
 		return ResourcesDetails{}, err
 	}
@@ -3541,14 +3541,14 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	// Page 1 : get to fleet page
-	pageHTML, err := b.getPage(FleetdispatchPage, celestialID)
+	pageHTML, err := b.getPage(FleetdispatchPageName, celestialID)
 	if err != nil {
 		return Fleet{}, err
 	}
 
 	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
-	if fleet1BodyID != FleetdispatchPage {
+	if fleet1BodyID != FleetdispatchPageName {
 		now := time.Now().Unix()
 		b.error(ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
 		return Fleet{}, ErrInvalidPlanetID
@@ -3739,7 +3739,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	}
 
 	// Page 5
-	movementHTML, _ := b.getPage(MovementPage, CelestialID(0))
+	movementHTML, _ := b.getPage(MovementPageName, CelestialID(0))
 	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
 	originCoords, _ := b.extractor.ExtractPlanetCoordinate(movementHTML)
 	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc, b.location)
