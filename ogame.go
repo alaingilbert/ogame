@@ -2000,54 +2000,11 @@ func (b *OGame) recruitOfficer(typ, days int64) error {
 
 func (b *OGame) abandon(v any) error {
 	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
-	var planetID PlanetID
-	if coordStr, ok := v.(string); ok {
-		coord, err := ParseCoord(coordStr)
-		if err != nil {
-			return err
-		}
-		planet, err := b.extractor.ExtractPlanet(pageHTML, b, coord)
-		if err != nil {
-			return err
-		}
-		planetID = planet.ID
-	} else if coord, ok := v.(Coordinate); ok {
-		planet, err := b.extractor.ExtractPlanet(pageHTML, b, coord)
-		if err != nil {
-			return err
-		}
-		planetID = planet.ID
-	} else if planet, ok := v.(Planet); ok {
-		planetID = planet.ID
-	} else if id, ok := v.(PlanetID); ok {
-		planetID = id
-	} else if id, ok := v.(int); ok {
-		planetID = PlanetID(id)
-	} else if id, ok := v.(int32); ok {
-		planetID = PlanetID(id)
-	} else if id, ok := v.(int64); ok {
-		planetID = PlanetID(id)
-	} else if id, ok := v.(float32); ok {
-		planetID = PlanetID(id)
-	} else if id, ok := v.(float64); ok {
-		planetID = PlanetID(id)
-	} else if id, ok := v.(lua.LNumber); ok {
-		planetID = PlanetID(id)
-	} else {
+	planet, err := b.extractor.ExtractPlanet(pageHTML, b, v)
+	if err != nil {
 		return errors.New("invalid parameter")
 	}
-	planets := b.extractor.ExtractPlanets(pageHTML, b)
-	found := false
-	for _, planet := range planets {
-		if planet.ID == planetID {
-			found = true
-			break
-		}
-	}
-	if !found {
-		return errors.New("invalid planet id")
-	}
-	pageHTML, _ = b.getPage(PlanetlayerPage, planetID.Celestial())
+	pageHTML, _ = b.getPage(PlanetlayerPage, planet.GetID())
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
 	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
@@ -2056,7 +2013,7 @@ func (b *OGame) abandon(v any) error {
 		"token":    {token},
 		"password": {b.password},
 	}
-	_, err := b.postPageContent(url.Values{
+	_, err = b.postPageContent(url.Values{
 		"page":      {"ingame"},
 		"component": {"overview"},
 		"action":    {"planetGiveup"},
