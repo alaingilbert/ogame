@@ -140,24 +140,37 @@ func extractCelestialByIDFromDocV6(doc *goquery.Document, b *OGame, celestialID 
 	return Planet{}, errors.New("invalid celestial id")
 }
 
-func extractPlanetByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordinate) (Planet, error) {
+func extractCelestialByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordinate) (Celestial, error) {
 	planets := extractPlanetsFromDocV6(doc, b)
 	for _, planet := range planets {
 		if planet.Coordinate.Equal(coord) {
 			return planet, nil
 		}
+		if planet.Moon != nil && planet.Moon.Coordinate.Equal(coord) {
+			return planet.Moon, nil
+		}
 	}
-	return Planet{}, errors.New("invalid planet coordinate")
+	return nil, errors.New("invalid coordinate")
+}
+
+func extractPlanetMoonByCoordFromDocV6[T CelestialTypes](doc *goquery.Document, b *OGame, coord Coordinate) (T, error) {
+	var zero T
+	celestial, err := extractCelestialByCoordFromDocV6(doc, b, coord)
+	if err != nil {
+		return zero, err
+	}
+	if typed, ok := celestial.(T); ok {
+		return typed, nil
+	}
+	return zero, errors.New("invalid coordinate")
+}
+
+func extractPlanetByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordinate) (Planet, error) {
+	return extractPlanetMoonByCoordFromDocV6[Planet](doc, b, coord)
 }
 
 func extractMoonByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error) {
-	moons := extractMoonsFromDocV6(doc, b)
-	for _, moon := range moons {
-		if moon.Coordinate.Equal(coord) {
-			return moon, nil
-		}
-	}
-	return Moon{}, errors.New("invalid moon coordinate")
+	return extractPlanetMoonByCoordFromDocV6[Moon](doc, b, coord)
 }
 
 func extractOgameTimestampFromDocV6(doc *goquery.Document) int64 {
@@ -230,21 +243,13 @@ func extractCelestialFromDocV6(doc *goquery.Document, b *OGame, v any) (Celestia
 	case lua.LNumber:
 		return extractCelestialByIDFromDocV6(doc, b, CelestialID(vv))
 	case Coordinate:
-		if vv.Type == PlanetType {
-			return extractPlanetByCoordFromDocV6(doc, b, vv)
-		} else if vv.Type == MoonType {
-			return extractMoonByCoordFromDocV6(doc, b, vv)
-		}
+		return extractCelestialByCoordFromDocV6(doc, b, vv)
 	case string:
 		coord, err := ParseCoord(vv)
 		if err != nil {
 			return nil, err
 		}
-		if coord.Type == PlanetType {
-			return extractPlanetByCoordFromDocV6(doc, b, coord)
-		} else if coord.Type == MoonType {
-			return extractMoonByCoordFromDocV6(doc, b, coord)
-		}
+		return extractCelestialByCoordFromDocV6(doc, b, coord)
 	}
 	return nil, errors.New("celestial not found")
 }
