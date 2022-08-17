@@ -748,7 +748,7 @@ func (b *OGame) loginPart3(userAccount Account, pageHTML []byte) error {
 	serverTime, _ := b.extractor.ExtractServerTime(pageHTML)
 	b.location = serverTime.Location()
 
-	b.cacheFullPageInfo("overview", pageHTML)
+	b.cacheFullPageInfo(OverviewPageName, pageHTML)
 
 	_, _ = b.getPage(PreferencesPageName) // Will update preferences cached values
 
