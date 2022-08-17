@@ -138,6 +138,16 @@ func extractPlanetByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordi
 	return Planet{}, errors.New("invalid planet coordinate")
 }
 
+func extractMoonByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error) {
+	moons := extractMoonsFromDocV6(doc, b)
+	for _, moon := range moons {
+		if moon.Coordinate.Equal(coord) {
+			return moon, nil
+		}
+	}
+	return Moon{}, errors.New("invalid moon coordinate")
+}
+
 func extractOgameTimestampFromDocV6(doc *goquery.Document) int64 {
 	ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
 	return ogameTimestamp
@@ -207,16 +217,6 @@ func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v interface{}) (Moon,
 		return extractMoonByIDFromDocV6(doc, b, MoonID(id))
 	}
 	return Moon{}, errors.New("moon not found")
-}
-
-func extractMoonByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error) {
-	moons := extractMoonsFromDocV6(doc, b)
-	for _, moon := range moons {
-		if moon.Coordinate.Equal(coord) {
-			return moon, nil
-		}
-	}
-	return Moon{}, errors.New("invalid moon coordinate")
 }
 
 func extractMoonByIDFromDocV6(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error) {
