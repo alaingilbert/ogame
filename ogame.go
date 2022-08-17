@@ -4065,7 +4065,17 @@ func (b *OGame) deleteMessage(msgID int64) error {
 	return nil
 }
 
-func (b *OGame) deleteAllMessagesFromTab(tabID int64) error {
+type MessagesTabID int64
+
+const (
+	EspionageMessagesTabID       MessagesTabID = 20
+	CombatReportsMessagesTabID   MessagesTabID = 21
+	ExpeditionsMessagesTabID     MessagesTabID = 22
+	UnionsTransportMessagesTabID MessagesTabID = 23
+	OtherMessagesTabID           MessagesTabID = 24
+)
+
+func (b *OGame) deleteAllMessagesFromTab(tabID MessagesTabID) error {
 	/*
 		Request URL: https://$ogame/game/index.php?page=messages
 		Request Method: POST
@@ -4090,7 +4100,7 @@ func (b *OGame) deleteAllMessagesFromTab(tabID int64) error {
 		return err
 	}
 	payload := url.Values{
-		"tabid":     {strconv.FormatInt(tabID, 10)},
+		"tabid":     {strconv.FormatInt(int64(tabID), 10)},
 		"messageId": {strconv.FormatInt(-1, 10)},
 		"action":    {"103"},
 		"ajax":      {"1"},

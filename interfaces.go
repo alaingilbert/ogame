@@ -25,7 +25,7 @@ type Prioritizable interface {
 	CreateUnion(fleet Fleet, unionUsers []string) (int64, error)
 	DoAuction(bid map[CelestialID]Resources) error
 	Done()
-	DeleteAllMessagesFromTab(tabID int64) error
+	DeleteAllMessagesFromTab(tabID MessagesTabID) error
 	DeleteMessage(msgID int64) error
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos, mission MissionID) (secs, fuel int64)
 	GalaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error)

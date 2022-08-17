@@ -529,7 +529,7 @@ func (b *Prioritize) DeleteMessage(msgID int64) error {
 }
 
 // DeleteAllMessagesFromTab ...
-func (b *Prioritize) DeleteAllMessagesFromTab(tabID int64) error {
+func (b *Prioritize) DeleteAllMessagesFromTab(tabID MessagesTabID) error {
 	b.begin("DeleteAllMessagesFromTab")
 	defer b.done()
 	return b.bot.deleteAllMessagesFromTab(tabID)
