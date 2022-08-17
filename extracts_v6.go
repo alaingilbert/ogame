@@ -147,7 +147,7 @@ func extractCelestialByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coo
 			return planet, nil
 		}
 		if planet.Moon != nil && planet.Moon.Coordinate.Equal(coord) {
-			return planet.Moon, nil
+			return *planet.Moon, nil
 		}
 	}
 	return nil, errors.New("invalid coordinate")
