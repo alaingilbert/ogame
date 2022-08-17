@@ -1594,8 +1594,8 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 
 	page := vals.Get("page")
 	if page == "ingame" ||
-		(page == "componentOnly" && vals.Get("component") == "fetchEventbox") ||
-		(page == "componentOnly" && vals.Get("component") == "eventList" && vals.Get("action") != "fetchEventBox") {
+		(page == "componentOnly" && vals.Get("component") == FetchEventboxAjaxPageName) ||
+		(page == "componentOnly" && vals.Get("component") == EventListAjaxPageName && vals.Get("action") != FetchEventboxAjaxPageName) {
 		page = vals.Get("component")
 	}
 	var pageHTMLBytes []byte
@@ -1610,8 +1610,8 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 			return nil
 		}
 		if (page != LogoutPageName && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
-			(page == "eventList" && !bytes.Contains(pageHTMLBytes, []byte("eventListWrap"))) ||
-			(page == "fetchEventbox" && !canParseEventBox(pageHTMLBytes)) {
+			(page == EventListAjaxPageName && !bytes.Contains(pageHTMLBytes, []byte("eventListWrap"))) ||
+			(page == FetchEventboxAjaxPageName && !canParseEventBox(pageHTMLBytes)) {
 			b.error("Err not logged on page : ", page)
 			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
@@ -1863,7 +1863,7 @@ func (b *OGame) isDonutSystem() bool {
 }
 
 func (b *OGame) fetchEventbox() (res eventboxResp, err error) {
-	err = b.getPageJSON(url.Values{"page": {"fetchEventbox"}}, &res)
+	err = b.getPageJSON(url.Values{"page": {FetchEventboxAjaxPageName}}, &res)
 	return
 }
 
@@ -2959,7 +2959,7 @@ func fixAttackEvents(attacks []AttackEvent, planets []Planet) {
 }
 
 func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
-	params := url.Values{"page": {"componentOnly"}, "component": {"eventList"}, "ajax": {"1"}}
+	params := url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}}
 	pageHTML, err := b.getPageContent(params, opts...)
 	if err != nil {
 		return
