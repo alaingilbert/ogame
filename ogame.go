@@ -4233,34 +4233,35 @@ func (b *OGame) taskRunner() {
 }
 
 func (b *OGame) getCachedCelestial(v any) Celestial {
-	if celestial, ok := v.(Celestial); ok {
-		return celestial
-	} else if planet, ok := v.(Planet); ok {
-		return planet
-	} else if moon, ok := v.(Moon); ok {
-		return moon
-	} else if celestialID, ok := v.(CelestialID); ok {
-		return b.GetCachedCelestialByID(celestialID)
-	} else if planetID, ok := v.(PlanetID); ok {
-		return b.GetCachedCelestialByID(planetID.Celestial())
-	} else if moonID, ok := v.(MoonID); ok {
-		return b.GetCachedCelestialByID(moonID.Celestial())
-	} else if id, ok := v.(int); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(int32); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(int64); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(float32); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(float64); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if id, ok := v.(lua.LNumber); ok {
-		return b.GetCachedCelestialByID(CelestialID(id))
-	} else if coord, ok := v.(Coordinate); ok {
-		return b.GetCachedCelestialByCoord(coord)
-	} else if coordStr, ok := v.(string); ok {
-		coord, err := ParseCoord(coordStr)
+	switch vv := v.(type) {
+	case Celestial:
+		return vv
+	case Planet:
+		return vv
+	case Moon:
+		return vv
+	case CelestialID:
+		return b.GetCachedCelestialByID(vv)
+	case PlanetID:
+		return b.GetCachedCelestialByID(vv.Celestial())
+	case MoonID:
+		return b.GetCachedCelestialByID(vv.Celestial())
+	case int:
+		return b.GetCachedCelestialByID(CelestialID(vv))
+	case int32:
+		return b.GetCachedCelestialByID(CelestialID(vv))
+	case int64:
+		return b.GetCachedCelestialByID(CelestialID(vv))
+	case float32:
+		return b.GetCachedCelestialByID(CelestialID(vv))
+	case float64:
+		return b.GetCachedCelestialByID(CelestialID(vv))
+	case lua.LNumber:
+		return b.GetCachedCelestialByID(CelestialID(vv))
+	case Coordinate:
+		return b.GetCachedCelestialByCoord(vv)
+	case string:
+		coord, err := ParseCoord(vv)
 		if err != nil {
 			return nil
 		}
