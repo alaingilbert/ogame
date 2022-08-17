@@ -56,13 +56,7 @@ func extractMoonsFromDocV6(doc *goquery.Document, b *OGame) []Moon {
 }
 
 func extractPlanetByIDFromDocV6(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error) {
-	planets := extractPlanetsFromDocV6(doc, b)
-	for _, planet := range planets {
-		if planet.ID == planetID {
-			return planet, nil
-		}
-	}
-	return Planet{}, errors.New("invalid planet id")
+	return extractPlanetMoonFromDocV6[Planet](doc, planetID, b)
 }
 
 func extractResourcesFromDocV6(doc *goquery.Document) Resources {
@@ -134,7 +128,7 @@ func extractCelestialByIDFromDocV6(doc *goquery.Document, b *OGame, celestialID 
 			return planet, nil
 		}
 		if planet.Moon != nil && planet.Moon.ID.Celestial() == celestialID {
-			return planet.Moon, nil
+			return *planet.Moon, nil
 		}
 	}
 	return Planet{}, errors.New("invalid celestial id")
@@ -225,9 +219,9 @@ func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v any) (Moon, error) 
 func extractCelestialFromDocV6(doc *goquery.Document, b *OGame, v any) (Celestial, error) {
 	switch vv := v.(type) {
 	case PlanetID:
-		return extractPlanetByIDFromDocV6(doc, b, vv)
+		return extractCelestialByIDFromDocV6(doc, b, vv.Celestial())
 	case MoonID:
-		return extractMoonByIDFromDocV6(doc, b, vv)
+		return extractCelestialByIDFromDocV6(doc, b, vv.Celestial())
 	case CelestialID:
 		return extractCelestialByIDFromDocV6(doc, b, vv)
 	case int:
