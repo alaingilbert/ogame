@@ -43,6 +43,18 @@ func extractPlanetsFromDocV6(doc *goquery.Document, b *OGame) []Planet {
 	return res
 }
 
+func extractMoonsFromDocV6(doc *goquery.Document, b *OGame) []Moon {
+	res := make([]Moon, 0)
+	doc.Find("a.moonlink").Each(func(i int, s *goquery.Selection) {
+		moon, err := extractMoonFromSelectionV6(s, b)
+		if err != nil {
+			return
+		}
+		res = append(res, moon)
+	})
+	return res
+}
+
 func extractPlanetByIDFromDocV6(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error) {
 	planets := extractPlanetsFromDocV6(doc, b)
 	for _, planet := range planets {
@@ -153,6 +165,28 @@ func extractOgameTimestampFromDocV6(doc *goquery.Document) int64 {
 	return ogameTimestamp
 }
 
+func extractMoonByIDFromDocV6(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error) {
+	moons := extractMoonsFromDocV6(doc, b)
+	for _, moon := range moons {
+		if moon.ID == moonID {
+			return moon, nil
+		}
+	}
+	return Moon{}, errors.New("invalid moon id")
+}
+
+func extractCelestialsFromDocV6(doc *goquery.Document, b *OGame) ([]Celestial, error) {
+	celestials := make([]Celestial, 0)
+	planets := extractPlanetsFromDocV6(doc, b)
+	for _, planet := range planets {
+		celestials = append(celestials, planet)
+		if planet.Moon != nil {
+			celestials = append(celestials, planet.Moon)
+		}
+	}
+	return celestials, nil
+}
+
 func extractPlanetFromDocV6(doc *goquery.Document, v any, b *OGame) (Planet, error) {
 	if coordStr, ok := v.(string); ok {
 		coord, err := ParseCoord(coordStr)
@@ -180,18 +214,6 @@ func extractPlanetFromDocV6(doc *goquery.Document, v any, b *OGame) (Planet, err
 	return Planet{}, errors.New("failed to find planet")
 }
 
-func extractMoonsFromDocV6(doc *goquery.Document, b *OGame) []Moon {
-	res := make([]Moon, 0)
-	doc.Find("a.moonlink").Each(func(i int, s *goquery.Selection) {
-		moon, err := extractMoonFromSelectionV6(s, b)
-		if err != nil {
-			return
-		}
-		res = append(res, moon)
-	})
-	return res
-}
-
 func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v any) (Moon, error) {
 	if coordStr, ok := v.(string); ok {
 		coord, err := ParseCoord(coordStr)
@@ -217,28 +239,6 @@ func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v any) (Moon, error) 
 		return extractMoonByIDFromDocV6(doc, b, MoonID(id))
 	}
 	return Moon{}, errors.New("moon not found")
-}
-
-func extractMoonByIDFromDocV6(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error) {
-	moons := extractMoonsFromDocV6(doc, b)
-	for _, moon := range moons {
-		if moon.ID == moonID {
-			return moon, nil
-		}
-	}
-	return Moon{}, errors.New("invalid moon id")
-}
-
-func extractCelestialsFromDocV6(doc *goquery.Document, b *OGame) ([]Celestial, error) {
-	celestials := make([]Celestial, 0)
-	planets := extractPlanetsFromDocV6(doc, b)
-	for _, planet := range planets {
-		celestials = append(celestials, planet)
-		if planet.Moon != nil {
-			celestials = append(celestials, planet.Moon)
-		}
-	}
-	return celestials, nil
 }
 
 func extractCelestialFromDocV6(doc *goquery.Document, b *OGame, v any) (Celestial, error) {
@@ -2045,15 +2045,6 @@ func extractPlanetFromSelectionV6(s *goquery.Selection, b *OGame) (Planet, error
 	return res, nil
 }
 
-func extractMoonFromPlanetSelectionV6(s *goquery.Selection, b *OGame) (*Moon, error) {
-	moonLink := s.Find("a.moonlink")
-	moon, err := extractMoonFromSelectionV6(moonLink, b)
-	if err != nil {
-		return nil, err
-	}
-	return &moon, nil
-}
-
 func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, error) {
 	href, found := moonLink.Attr("href")
 	if !found {
@@ -2084,6 +2075,15 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection, b *OGame) (Moon, er
 	moon.Fields.Total, _ = strconv.ParseInt(mm[7], 10, 64)
 	moon.Img = moonLink.Find("img.icon-moon").AttrOr("src", "")
 	return moon, nil
+}
+
+func extractMoonFromPlanetSelectionV6(s *goquery.Selection, b *OGame) (*Moon, error) {
+	moonLink := s.Find("a.moonlink")
+	moon, err := extractMoonFromSelectionV6(moonLink, b)
+	if err != nil {
+		return nil, err
+	}
+	return &moon, nil
 }
 
 func extractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
