@@ -620,7 +620,7 @@ func TestExtractPlanet_dk(t *testing.T) {
 }
 
 func TestExtractPlanet_es(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/shipyard.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/es/shipyard.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "es"}, PlanetID(33644981))
 	assert.Equal(t, "Planeta Principal", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -634,7 +634,7 @@ func TestExtractPlanet_es(t *testing.T) {
 }
 
 func TestExtractPlanet_br(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/br/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "br"}, PlanetID(33633767))
 	assert.Equal(t, "Planeta Principal", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -648,7 +648,7 @@ func TestExtractPlanet_br(t *testing.T) {
 }
 
 func TestExtractPlanet_it(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/it/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/it/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "it"}, PlanetID(33634944))
 	assert.Equal(t, "Pianeta Madre", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -676,7 +676,7 @@ func TestExtractPlanet_jp(t *testing.T) {
 }
 
 func TestExtractPlanet_tw(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/tw/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/tw/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "tw"}, PlanetID(33626432))
 	assert.Equal(t, "母星", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -690,7 +690,7 @@ func TestExtractPlanet_tw(t *testing.T) {
 }
 
 func TestExtractPlanet_hr(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/hr/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/hr/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "hr"}, PlanetID(33627961))
 	assert.Equal(t, "Glavni Planet", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -704,7 +704,7 @@ func TestExtractPlanet_hr(t *testing.T) {
 }
 
 func TestExtractPlanet_no(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/no/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/no/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "no"}, PlanetID(33624646))
 	assert.Equal(t, "Hjemmeverden", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -732,7 +732,7 @@ func TestExtractPlanet_ro(t *testing.T) {
 }
 
 func TestExtractPlanet_sk(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/sk/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/sk/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "sk"}, PlanetID(33625241))
 	assert.Equal(t, "Domovská planéta", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -802,7 +802,7 @@ func TestExtractPlanet_ba(t *testing.T) {
 }
 
 func TestExtractPlanet_gr(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/gr/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "gr"}, PlanetID(33629206))
 	assert.Equal(t, "Κύριος Πλανήτης", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -816,7 +816,7 @@ func TestExtractPlanet_gr(t *testing.T) {
 }
 
 func TestExtractPlanet_mx(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/mx/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/mx/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "mx"}, PlanetID(33624669))
 	assert.Equal(t, "Planeta Principal", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -830,7 +830,7 @@ func TestExtractPlanet_mx(t *testing.T) {
 }
 
 func TestExtractPlanet_cz(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/cz/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/cz/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "cz"}, PlanetID(33622822))
 	assert.Equal(t, "Domovska planeta", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -844,7 +844,7 @@ func TestExtractPlanet_cz(t *testing.T) {
 }
 
 func TestExtractPlanet_jp1(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/jp/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/jp/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "jp"}, PlanetID(33623513))
 	assert.Equal(t, "ホームワールド", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -914,7 +914,7 @@ func TestExtractPlanet_nl(t *testing.T) {
 }
 
 func TestExtractPlanet_ar(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/ar/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/ar/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "ar"}, PlanetID(33629527))
 	assert.Equal(t, "Planeta Principal", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -928,7 +928,7 @@ func TestExtractPlanet_ar(t *testing.T) {
 }
 
 func TestExtractPlanet_ru(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/ru/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/ru/overview.html")
 	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, &OGame{language: "ru"}, PlanetID(33629521))
 	assert.Equal(t, "Главная планета", planet.Name)
 	assert.Equal(t, int64(12800), planet.Diameter)
@@ -1726,7 +1726,7 @@ func TestExtractUserInfos(t *testing.T) {
 }
 
 func TestExtractUserInfos_hr(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/hr/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/hr/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "hr")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(214), infos.Rank)
@@ -1734,7 +1734,7 @@ func TestExtractUserInfos_hr(t *testing.T) {
 }
 
 func TestExtractUserInfos_tw(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/tw/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/tw/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "tw")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(212), infos.Rank)
@@ -1742,7 +1742,7 @@ func TestExtractUserInfos_tw(t *testing.T) {
 }
 
 func TestExtractUserInfos_no(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/no/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/no/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "no")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(49), infos.Rank)
@@ -1750,7 +1750,7 @@ func TestExtractUserInfos_no(t *testing.T) {
 }
 
 func TestExtractUserInfos_sk(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/sk/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/sk/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "sk")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(89), infos.Rank)
@@ -1782,7 +1782,7 @@ func TestExtractUserInfos_hu(t *testing.T) {
 }
 
 func TestExtractUserInfos_gr(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/gr/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/gr/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "gr")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(162), infos.Rank)
@@ -1798,7 +1798,7 @@ func TestExtractUserInfos_ro(t *testing.T) {
 }
 
 func TestExtractUserInfos_mx(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/mx/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/mx/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "mx")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(916), infos.Rank)
@@ -1831,7 +1831,7 @@ func TestExtractUserInfos_jp(t *testing.T) {
 }
 
 func TestExtractUserInfos_jp1(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/jp/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/jp/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "jp")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(85), infos.Rank)
@@ -1839,7 +1839,7 @@ func TestExtractUserInfos_jp1(t *testing.T) {
 }
 
 func TestExtractUserInfos_cz(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/cz/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/cz/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "cz")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(1008), infos.Rank)
@@ -1874,7 +1874,7 @@ func TestExtractUserInfos_pl(t *testing.T) {
 }
 
 func TestExtractUserInfos_br(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/br/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "br")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(1026), infos.Rank)
@@ -1891,7 +1891,7 @@ func TestExtractUserInfos_tr(t *testing.T) {
 }
 
 func TestExtractUserInfos_ar(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/ar/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/ar/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "ar")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(1158), infos.Rank)
@@ -1900,7 +1900,7 @@ func TestExtractUserInfos_ar(t *testing.T) {
 }
 
 func TestExtractUserInfos_it(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/it/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/it/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "it")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(1776), infos.Rank)
@@ -1918,7 +1918,7 @@ func TestExtractUserInfos_pt(t *testing.T) {
 }
 
 func TestExtractUserInfos_ru(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/ru/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/ru/overview.html")
 	infos, _ := NewExtractorV6().ExtractUserInfos(pageHTMLBytes, "ru")
 	assert.Equal(t, int64(0), infos.Points)
 	assert.Equal(t, int64(1067), infos.Rank)
@@ -1981,11 +1981,11 @@ func TestExtractMoonByCoord_notExists(t *testing.T) {
 }
 
 func TestExtractIsInVacationFromDoc(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/overview_vacation.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/es/overview_vacation.html")
 	assert.True(t, NewExtractorV6().ExtractIsInVacation(pageHTMLBytes))
-	pageHTMLBytes, _ = ioutil.ReadFile("samples/es/fleet1_vacation.html")
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v6/es/fleet1_vacation.html")
 	assert.True(t, NewExtractorV6().ExtractIsInVacation(pageHTMLBytes))
-	pageHTMLBytes, _ = ioutil.ReadFile("samples/es/shipyard.html")
+	pageHTMLBytes, _ = ioutil.ReadFile("samples/v6/es/shipyard.html")
 	assert.False(t, NewExtractorV6().ExtractIsInVacation(pageHTMLBytes))
 }
 
@@ -2108,7 +2108,7 @@ func TestExtractPlanets_fr(t *testing.T) {
 }
 
 func TestExtractPlanets_fr1(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/fr/overview.html")
 	planets := NewExtractorV6().ExtractPlanets(pageHTMLBytes, &OGame{language: "fr"})
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, PlanetID(33693887), planets[0].ID)
@@ -2123,7 +2123,7 @@ func TestExtractPlanets_fr1(t *testing.T) {
 }
 
 func TestExtractPlanets_br(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/br/overview.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/br/overview.html")
 	planets := NewExtractorV6().ExtractPlanets(pageHTMLBytes, &OGame{language: "br"})
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, PlanetID(33633767), planets[0].ID)
@@ -2227,7 +2227,7 @@ func TestExtractGalaxyInfos_alliance(t *testing.T) {
 }
 
 func TestExtractGalaxyInfos_alliance_fr(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/fr/galaxy.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/fr/galaxy.html")
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.Equal(t, int64(635), infos.Position(5).Alliance.ID)
 	assert.Equal(t, "leretour", infos.Position(5).Alliance.Name)
@@ -2236,7 +2236,7 @@ func TestExtractGalaxyInfos_alliance_fr(t *testing.T) {
 }
 
 func TestExtractGalaxyInfos_alliance_es(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/es/galaxy.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/es/galaxy.html")
 	infos, _ := NewExtractorV6().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.Equal(t, int64(500053), infos.Position(4).Alliance.ID)
 	assert.Equal(t, "Los Aliens Grises", infos.Position(4).Alliance.Name)
@@ -2602,7 +2602,7 @@ func TestExtractProductionWithABM(t *testing.T) {
 }
 
 func TestExtractDKProductionWithABM(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/dk/production_with_abm.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("samples/v6/dk/production_with_abm.html")
 	prods, secs, _ := NewExtractorV6().ExtractProduction(pageHTMLBytes)
 	assert.Equal(t, 2, len(prods))
 	assert.Equal(t, int64(641), secs)
