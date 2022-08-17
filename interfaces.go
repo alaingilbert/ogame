@@ -261,11 +261,9 @@ type Extractor interface {
 	ExtractIsInVacation(pageHTML []byte) bool
 	ExtractPlanets(pageHTML []byte, b *OGame) []Planet
 	ExtractPlanet(pageHTML []byte, v any, b *OGame) (Planet, error)
-	ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error)
 	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
 	ExtractMoons(pageHTML []byte, b *OGame) []Moon
 	ExtractMoon(pageHTML []byte, b *OGame, v any) (Moon, error)
-	ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error)
 	ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error)
 	ExtractCelestial(pageHTML []byte, b *OGame, v any) (Celestial, error)
 	ExtractServerTime(pageHTML []byte) (time.Time, error)
@@ -302,17 +300,12 @@ type Extractor interface {
 	ExtractBodyIDFromDoc(doc *goquery.Document) string
 	ExtractIsInVacationFromDoc(doc *goquery.Document) bool
 	ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet
-	ExtractPlanetByIDFromDoc(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error)
-	ExtractCelestialByIDFromDoc(doc *goquery.Document, b *OGame, celestialID CelestialID) (Celestial, error)
-	ExtractPlanetByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Planet, error)
 	ExtractOgameTimestampFromDoc(doc *goquery.Document) int64
 	ExtractResourcesFromDoc(doc *goquery.Document) Resources
 	ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails
 	ExtractPlanetFromDoc(doc *goquery.Document, v any, b *OGame) (Planet, error)
 	ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon
 	ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v any) (Moon, error)
-	ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error)
-	ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error)
 	ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error)
 	ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v any) (Celestial, error)
 	ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error)

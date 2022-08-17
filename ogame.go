@@ -2006,13 +2006,13 @@ func (b *OGame) abandon(v any) error {
 		if err != nil {
 			return err
 		}
-		planet, err := b.extractor.ExtractPlanetByCoord(pageHTML, b, coord)
+		planet, err := b.extractor.ExtractPlanet(pageHTML, coord, b)
 		if err != nil {
 			return err
 		}
 		planetID = planet.ID
 	} else if coord, ok := v.(Coordinate); ok {
-		planet, err := b.extractor.ExtractPlanetByCoord(pageHTML, b, coord)
+		planet, err := b.extractor.ExtractPlanet(pageHTML, coord, b)
 		if err != nil {
 			return err
 		}

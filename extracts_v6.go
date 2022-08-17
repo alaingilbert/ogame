@@ -30,10 +30,6 @@ func extractIsInVacationFromDocV6(doc *goquery.Document) bool {
 	return false
 }
 
-func extractPlanetByIDFromDocV6(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error) {
-	return extractPlanetMoonFromDocV6[Planet](doc, planetID, b)
-}
-
 func extractResourcesFromDocV6(doc *goquery.Document) Resources {
 	res := Resources{}
 	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
@@ -175,16 +171,6 @@ func extractMoonByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordina
 func extractOgameTimestampFromDocV6(doc *goquery.Document) int64 {
 	ogameTimestamp, _ := strconv.ParseInt(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"), 10, 64)
 	return ogameTimestamp
-}
-
-func extractMoonByIDFromDocV6(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error) {
-	moons := extractMoonsFromDocV6(doc, b)
-	for _, moon := range moons {
-		if moon.ID == moonID {
-			return moon, nil
-		}
-	}
-	return Moon{}, errors.New("invalid moon id")
 }
 
 type CelestialTypes interface{ Planet | Moon }

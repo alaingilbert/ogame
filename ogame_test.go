@@ -949,14 +949,14 @@ func TestExtractPlanet_notExists(t *testing.T) {
 
 func TestExtractPlanetByCoord(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
-	planet, _ := NewExtractorV6().ExtractPlanetByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 301, 8, PlanetType})
+	planet, _ := NewExtractorV6().ExtractPlanet(pageHTMLBytes, Coordinate{1, 301, 8, PlanetType}, &OGame{language: "en"})
 	assert.Equal(t, "C1", planet.Name)
 	assert.Equal(t, int64(14615), planet.Diameter)
 }
 
 func TestExtractPlanetByCoord_notExists(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_queues.html")
-	_, err := NewExtractorV6().ExtractPlanetByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 2, 3, PlanetType})
+	_, err := NewExtractorV6().ExtractPlanet(pageHTMLBytes, Coordinate{1, 2, 3, PlanetType}, &OGame{language: "en"})
 	assert.NotNil(t, err)
 }
 
@@ -1970,13 +1970,13 @@ func TestExtractMoon_notExists(t *testing.T) {
 
 func TestExtractMoonByCoord_exists(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
-	_, err := NewExtractorV6().ExtractMoonByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{4, 116, 12, MoonType})
+	_, err := NewExtractorV6().ExtractMoon(pageHTMLBytes, &OGame{language: "en"}, Coordinate{4, 116, 12, MoonType})
 	assert.Nil(t, err)
 }
 
 func TestExtractMoonByCoord_notExists(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/overview_with_moon.html")
-	_, err := NewExtractorV6().ExtractMoonByCoord(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 2, 3, PlanetType})
+	_, err := NewExtractorV6().ExtractMoon(pageHTMLBytes, &OGame{language: "en"}, Coordinate{1, 2, 3, PlanetType})
 	assert.NotNil(t, err)
 }
 

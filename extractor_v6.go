@@ -77,12 +77,6 @@ func (e ExtractorV6) ExtractPlanet(pageHTML []byte, v any, b *OGame) (Planet, er
 	return e.ExtractPlanetFromDoc(doc, v, b)
 }
 
-// ExtractPlanetByCoord ...
-func (e ExtractorV6) ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractPlanetByCoordFromDoc(doc, b, coord)
-}
-
 // ExtractMoons ...
 func (e ExtractorV6) ExtractMoons(pageHTML []byte, b *OGame) []Moon {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -93,12 +87,6 @@ func (e ExtractorV6) ExtractMoons(pageHTML []byte, b *OGame) []Moon {
 func (e ExtractorV6) ExtractMoon(pageHTML []byte, b *OGame, v any) (Moon, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractMoonFromDoc(doc, b, v)
-}
-
-// ExtractMoonByCoord ...
-func (e ExtractorV6) ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractMoonByCoordFromDoc(doc, b, coord)
 }
 
 // ExtractCelestials ...
@@ -355,21 +343,6 @@ func (e ExtractorV6) ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Pl
 	return extractPlanetsFromDocV6(doc, b)
 }
 
-// ExtractPlanetByIDFromDoc ...
-func (e ExtractorV6) ExtractPlanetByIDFromDoc(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error) {
-	return extractPlanetByIDFromDocV6(doc, b, planetID)
-}
-
-// ExtractCelestialByIDFromDoc ...
-func (e ExtractorV6) ExtractCelestialByIDFromDoc(doc *goquery.Document, b *OGame, celestialID CelestialID) (Celestial, error) {
-	return extractCelestialByIDFromDocV6(doc, b, celestialID)
-}
-
-// ExtractPlanetByCoordFromDoc ...
-func (e ExtractorV6) ExtractPlanetByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Planet, error) {
-	return extractPlanetByCoordFromDocV6(doc, b, coord)
-}
-
 // ExtractOgameTimestampFromDoc ...
 func (e ExtractorV6) ExtractOgameTimestampFromDoc(doc *goquery.Document) int64 {
 	return extractOgameTimestampFromDocV6(doc)
@@ -398,16 +371,6 @@ func (e ExtractorV6) ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon
 // ExtractMoonFromDoc ...
 func (e ExtractorV6) ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v any) (Moon, error) {
 	return extractMoonFromDocV6(doc, b, v)
-}
-
-// ExtractMoonByCoordFromDoc ...
-func (e ExtractorV6) ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error) {
-	return extractMoonByCoordFromDocV6(doc, b, coord)
-}
-
-// ExtractMoonByIDFromDoc ...
-func (e ExtractorV6) ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error) {
-	return extractMoonByIDFromDocV6(doc, b, moonID)
 }
 
 // ExtractCelestialsFromDoc ...
