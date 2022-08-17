@@ -704,7 +704,7 @@ func extractFacilitiesFromDocV71(doc *goquery.Document) (Facilities, error) {
 }
 
 func extractCancelFleetTokenFromDocV71(doc *goquery.Document, fleetID FleetID) (string, error) {
-	href := doc.Find("div#fleet"+FI64(int64(fleetID))+" a.icon_link").AttrOr("href", "")
+	href := doc.Find("div#fleet"+FI64(fleetID)+" a.icon_link").AttrOr("href", "")
 	m := regexp.MustCompile(`token=([^"]+)`).FindStringSubmatch(href)
 	if len(m) != 2 {
 		return "", errors.New("cancel fleet token not found")

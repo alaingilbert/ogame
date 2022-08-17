@@ -528,9 +528,9 @@ func extractProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, error) {
 			} else {
 				src := s.Find("img").AttrOr("src", "")
 				if strings.HasSuffix(src, "fb4e438cabd12ef1b0500a0f41abc1.jpg") {
-					itemIDstr = FI64(int64(AntiBallisticMissilesID))
+					itemIDstr = FI64(AntiBallisticMissilesID)
 				} else if strings.HasSuffix(src, "36221e9493458b9fcc776bf350983e.jpg") {
-					itemIDstr = FI64(int64(InterplanetaryMissilesID))
+					itemIDstr = FI64(InterplanetaryMissilesID)
 				}
 			}
 		}
@@ -1850,7 +1850,7 @@ func extractJumpGateV6(pageHTML []byte) (ShipsInfos, string, []MoonID, int64) {
 	}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	for _, s := range Ships {
-		ships.Set(s.GetID(), ParseInt(doc.Find("input#ship_"+FI64(int64(s.GetID()))).AttrOr("rel", "0")))
+		ships.Set(s.GetID(), ParseInt(doc.Find("input#ship_"+FI64(s.GetID())).AttrOr("rel", "0")))
 	}
 	token := doc.Find("input[name=token]").AttrOr("value", "")
 

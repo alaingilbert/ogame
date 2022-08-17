@@ -796,6 +796,11 @@ func GetFleetSpeedForMission(serverData ServerData, missionID MissionID) int64 {
 	return serverData.SpeedFleetPeaceful
 }
 
-func FI64(v int64) string {
-	return strconv.FormatInt(v, 10)
+type Ints interface {
+	int64 | int | MissionID | MessagesTabID | CelestialType | ID | FleetID | MoonID | CelestialID | PlanetID | Speed
+}
+
+// FI64 formats any int types to string
+func FI64[T Ints](v T) string {
+	return strconv.FormatInt(int64(v), 10)
 }

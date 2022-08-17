@@ -153,7 +153,7 @@ func (o ID) String() string {
 	case GravitonTechnologyID:
 		res += "GravitonTechnology"
 	default:
-		res += "Invalid(" + FI64(int64(o)) + ")"
+		res += "Invalid(" + FI64(o) + ")"
 	}
 	return res
 }

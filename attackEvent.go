@@ -23,7 +23,7 @@ type AttackEvent struct {
 func (a AttackEvent) String() string {
 	return "" +
 		"               ID: " + FI64(a.ID) + "\n" +
-		"     Mission Type: " + FI64(int64(a.MissionType)) + "\n" +
+		"     Mission Type: " + FI64(a.MissionType) + "\n" +
 		"           Origin: " + a.Origin.String() + "\n" +
 		"      Destination: " + a.Destination.String() + "\n" +
 		" Destination Name: " + a.DestinationName + "\n" +

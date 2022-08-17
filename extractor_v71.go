@@ -145,7 +145,7 @@ func (d DMCost) String() string {
 		"               Cost: " + FI64(d.Cost) + "\n" +
 		"             CanBuy: " + strconv.FormatBool(d.CanBuy) + "\n" +
 		"           Complete: " + strconv.FormatBool(d.Complete) + "\n" +
-		"            OGameID: " + FI64(int64(d.OGameID)) + "\n" +
+		"            OGameID: " + FI64(d.OGameID) + "\n" +
 		"                Nbr: " + FI64(d.Nbr) + "\n" +
 		"BuyAndActivateToken: " + d.BuyAndActivateToken + "\n" +
 		"              Token: " + d.Token

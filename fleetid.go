@@ -4,5 +4,5 @@ package ogame
 type FleetID int64
 
 func (f FleetID) String() string {
-	return FI64(int64(f))
+	return FI64(f)
 }

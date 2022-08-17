@@ -1584,7 +1584,7 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 			celestials := b.getCachedCelestials()
 			for _, celestial := range celestials {
 				if celestial.GetID() == cfg.ChangePlanet {
-					vals.Set("cp", FI64(int64(cfg.ChangePlanet)))
+					vals.Set("cp", FI64(cfg.ChangePlanet))
 					break
 				}
 			}
@@ -1674,7 +1674,7 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 			celestials := b.getCachedCelestials()
 			for _, celestial := range celestials {
 				if celestial.GetID() == cfg.ChangePlanet {
-					vals.Set("cp", FI64(int64(cfg.ChangePlanet)))
+					vals.Set("cp", FI64(cfg.ChangePlanet))
 					break
 				}
 			}
@@ -2278,7 +2278,7 @@ func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, erro
 		"system":   {FI64(coord.System)},
 		"position": {FI64(coord.Position)},
 		"ajax":     {"1"},
-		"cp":       {FI64(int64(moonID))},
+		"cp":       {FI64(moonID)},
 		"token":    {planetInfos.OverlayToken},
 	})
 	return b.extractor.ExtractPhalanx(pageHTML)
@@ -2354,14 +2354,14 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID MoonID, ships ShipsInfo
 		return false, 0, errors.New("destination moon id invalid")
 	}
 
-	payload := url.Values{"token": {token}, "zm": {FI64(int64(destMoonID))}}
+	payload := url.Values{"token": {token}, "zm": {FI64(destMoonID)}}
 
 	// Add ships to payload
 	for _, s := range Ships {
 		// Get the min between what is available and what we want
 		nbr := int64(math.Min(float64(ships.ByID(s.GetID())), float64(availShips.ByID(s.GetID()))))
 		if nbr > 0 {
-			payload.Add("ship_"+FI64(int64(s.GetID())), FI64(nbr))
+			payload.Add("ship_"+FI64(s.GetID()), FI64(nbr))
 		}
 	}
 
@@ -2406,7 +2406,7 @@ func (b *OGame) createUnion(fleet Fleet, unionUsers []string) (int64, error) {
 	if fleet.ID == 0 {
 		return 0, errors.New("invalid fleet id")
 	}
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {FI64(int64(fleet.ID))}, "target": {FI64(fleet.TargetPlanetID)}, "ajax": {"1"}})
+	pageHTML, _ := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {FI64(fleet.ID)}, "target": {FI64(fleet.TargetPlanetID)}, "ajax": {"1"}})
 	payload := b.extractor.ExtractFederation(pageHTML)
 
 	payloadUnionUsers := payload["unionUsers"]
@@ -2522,7 +2522,7 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"create_offer"}, "action": {"submitOffer"}, "asJson": {"1"}}
 	if celestialID != 0 {
-		params.Set("cp", FI64(int64(celestialID)))
+		params.Set("cp", FI64(celestialID))
 	}
 	const (
 		shipsItemType = iota + 1
@@ -2561,7 +2561,7 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, pri
 	} else if itemIDID, ok := itemID.(ID); ok {
 		if itemIDID.IsShip() {
 			itemType = shipsItemType
-			itemIDPayload = FI64(int64(itemIDID))
+			itemIDPayload = FI64(itemIDID)
 		} else {
 			return errors.New("invalid itemID ID")
 		}
@@ -2621,7 +2621,7 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, pri
 func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error) {
 	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"buying"}, "action": {"acceptRequest"}, "asJson": {"1"}}
 	if celestialID != 0 {
-		params.Set("cp", FI64(int64(celestialID)))
+		params.Set("cp", FI64(celestialID))
 	}
 	payload := url.Values{
 		"marketItemId": {FI64(itemID)},
@@ -2650,7 +2650,7 @@ func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error
 func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
 	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
 	if celestialID != 0 {
-		params.Set("cp", FI64(int64(celestialID)))
+		params.Set("cp", FI64(celestialID))
 	}
 	pageHTML, _ := b.getPageContent(params)
 	_, items, err = b.extractor.ExtractBuffActivation(pageHTML)
@@ -2660,7 +2660,7 @@ func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
 func (b *OGame) getActiveItems(celestialID CelestialID) (items []ActiveItem, err error) {
 	params := url.Values{"page": {"ingame"}, "component": {"overview"}}
 	if celestialID != 0 {
-		params.Set("cp", FI64(int64(celestialID)))
+		params.Set("cp", FI64(celestialID))
 	}
 	pageHTML, _ := b.getPageContent(params)
 	items, err = b.extractor.ExtractActiveItems(pageHTML)
@@ -2716,7 +2716,7 @@ type MessageSuccess struct {
 func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
 	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
 	if celestialID != 0 {
-		params.Set("cp", FI64(int64(celestialID)))
+		params.Set("cp", FI64(celestialID))
 	}
 	pageHTML, _ := b.getPageContent(params)
 	token, _, err := b.extractor.ExtractBuffActivation(pageHTML)
@@ -2754,7 +2754,7 @@ func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
 func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
 	payload := url.Values{"show": {"auctioneer"}, "ajax": {"1"}}
 	if celestialID != 0 {
-		payload.Set("cp", FI64(int64(celestialID)))
+		payload.Set("cp", FI64(celestialID))
 	}
 	auctionHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderauctioneer"}}, payload)
 	if err != nil {
@@ -2781,9 +2781,9 @@ func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources
 		payload.Set("bid[planets]["+auctionCelestialIDString+"][deuterium]", "0")
 	}
 	for celestialID, resources := range bid {
-		payload.Set("bid[planets]["+FI64(int64(celestialID))+"][metal]", FI64(resources.Metal))
-		payload.Set("bid[planets]["+FI64(int64(celestialID))+"][crystal]", FI64(resources.Crystal))
-		payload.Set("bid[planets]["+FI64(int64(celestialID))+"][deuterium]", FI64(resources.Deuterium))
+		payload.Set("bid[planets]["+FI64(celestialID)+"][metal]", FI64(resources.Metal))
+		payload.Set("bid[planets]["+FI64(celestialID)+"][crystal]", FI64(resources.Crystal))
+		payload.Set("bid[planets]["+FI64(celestialID)+"][deuterium]", FI64(resources.Deuterium))
 	}
 
 	payload.Add("bid[honor]", "0")
@@ -2791,7 +2791,7 @@ func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources
 	payload.Add("ajax", "1")
 
 	if celestialID != 0 {
-		payload.Set("cp", FI64(int64(celestialID)))
+		payload.Set("cp", FI64(celestialID))
 	}
 
 	auctionHTML, err := b.postPageContent(url.Values{"page": {"auctioneer"}}, payload)
@@ -2890,9 +2890,9 @@ func calcResources(price int64, planetResources PlanetResources, multiplier Mult
 		}
 		remaining -= int64(float64(deuteriumNeeded) * multiplier.Deuterium)
 
-		payload.Add("bid[planets]["+FI64(int64(celestialID))+"][metal]", FI64(metalNeeded))
-		payload.Add("bid[planets]["+FI64(int64(celestialID))+"][crystal]", FI64(crystalNeeded))
-		payload.Add("bid[planets]["+FI64(int64(celestialID))+"][deuterium]", FI64(deuteriumNeeded))
+		payload.Add("bid[planets]["+FI64(celestialID)+"][metal]", FI64(metalNeeded))
+		payload.Add("bid[planets]["+FI64(celestialID)+"][crystal]", FI64(crystalNeeded))
+		payload.Add("bid[planets]["+FI64(celestialID)+"][deuterium]", FI64(deuteriumNeeded))
 	}
 	return payload
 }
@@ -3178,8 +3178,8 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 		"component":  {"technologydetails"},
 		"ajax":       {"1"},
 		"action":     {"getDetails"},
-		"technology": {FI64(int64(id))},
-		"cp":         {FI64(int64(celestialID))},
+		"technology": {FI64(id)},
+		"cp":         {FI64(celestialID)},
 	})
 
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -3196,8 +3196,8 @@ func (b *OGame) tearDown(celestialID CelestialID, id ID) error {
 		"component": {page},
 		"modus":     {"3"},
 		"token":     {token},
-		"type":      {FI64(int64(id))},
-		"cp":        {FI64(int64(celestialID))},
+		"type":      {FI64(id)},
+		"cp":        {FI64(celestialID)},
 	}
 	_, err = b.getPageContent(params)
 	return err
@@ -3220,8 +3220,8 @@ func (b *OGame) build(celestialID CelestialID, id ID, nbr int64) error {
 		"page":      {"ingame"},
 		"component": {page},
 		"modus":     {"1"},
-		"type":      {FI64(int64(id))},
-		"cp":        {FI64(int64(celestialID))},
+		"type":      {FI64(id)},
+		"cp":        {FI64(celestialID)},
 	}
 
 	token, err := getToken(b, page, celestialID)
@@ -3357,7 +3357,7 @@ func (b *OGame) destroyRockets(planetID PlanetID, abm, ipm int64) error {
 		"page":      {"ajax"},
 		"component": {"rocketlayer"},
 		"overlay":   {"1"},
-		"cp":        {FI64(int64(planetID))},
+		"cp":        {FI64(planetID)},
 	}
 	pageHTML, err := b.getPageContent(vals)
 	if err != nil {
@@ -3419,8 +3419,8 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 		"galaxy":     {FI64(coord.Galaxy)},
 		"system":     {FI64(coord.System)},
 		"position":   {FI64(coord.Position)},
-		"planetType": {FI64(int64(coord.Type))},
-		"cp":         {FI64(int64(planetID))},
+		"planetType": {FI64(coord.Type)},
+		"cp":         {FI64(planetID)},
 	}
 	pageHTML, err := b.getPageContent(vals)
 	if err != nil {
@@ -3444,13 +3444,13 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 		"galaxy":               {FI64(coord.Galaxy)},
 		"system":               {FI64(coord.System)},
 		"position":             {FI64(coord.Position)},
-		"type":                 {FI64(int64(coord.Type))},
+		"type":                 {FI64(coord.Type)},
 		"token":                {token},
 		"missileCount":         {FI64(nbr)},
 		"missilePrimaryTarget": {},
 	}
 	if priority != 0 {
-		payload.Add("missilePrimaryTarget", FI64(int64(priority)))
+		payload.Add("missilePrimaryTarget", FI64(priority))
 	}
 	by, err := b.postPageContent(params, payload)
 	if err != nil {
@@ -3605,7 +3605,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload := b.extractor.ExtractHiddenFieldsFromDoc(fleet1Doc)
 	for _, s := range ships {
 		if s.ID.IsFlyableShip() && s.Nbr > 0 {
-			payload.Set("am"+FI64(int64(s.ID)), FI64(s.Nbr))
+			payload.Set("am"+FI64(s.ID), FI64(s.Nbr))
 		}
 	}
 
@@ -3626,7 +3626,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	} else if mission == Colonize || mission == Expedition {
 		where.Type = PlanetType
 	}
-	payload.Set("type", FI64(int64(where.Type)))
+	payload.Set("type", FI64(where.Type))
 	payload.Set("union", "0")
 
 	if unionID != 0 {
@@ -3688,11 +3688,11 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	if b.IsV8() || b.IsV9() {
 		payload.Set("token", checkRes.NewAjaxToken)
 	}
-	payload.Set("speed", FI64(int64(speed)))
+	payload.Set("speed", FI64(speed))
 	payload.Set("crystal", FI64(newResources.Crystal))
 	payload.Set("deuterium", FI64(newResources.Deuterium))
 	payload.Set("metal", FI64(newResources.Metal))
-	payload.Set("mission", FI64(int64(mission)))
+	payload.Set("mission", FI64(mission))
 	payload.Set("prioMetal", "1")
 	payload.Set("prioCrystal", "2")
 	payload.Set("prioDeuterium", "3")
@@ -3829,7 +3829,7 @@ type MarketplaceMessage struct {
 func (b *OGame) getPageMessages(page int64, tabid MessagesTabID) ([]byte, error) {
 	payload := url.Values{
 		"messageId":  {"-1"},
-		"tabid":      {FI64(int64(tabid))},
+		"tabid":      {FI64(tabid)},
 		"action":     {"107"},
 		"pagination": {FI64(page)},
 		"ajax":       {"1"},
@@ -4096,7 +4096,7 @@ func (b *OGame) deleteAllMessagesFromTab(tabID MessagesTabID) error {
 		return err
 	}
 	payload := url.Values{
-		"tabid":     {FI64(int64(tabID))},
+		"tabid":     {FI64(tabID)},
 		"messageId": {FI64(-1)},
 		"action":    {"103"},
 		"ajax":      {"1"},
