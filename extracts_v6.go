@@ -30,31 +30,6 @@ func extractIsInVacationFromDocV6(doc *goquery.Document) bool {
 	return false
 }
 
-func extractPlanetsFromDocV6(doc *goquery.Document, b *OGame) []Planet {
-	res := make([]Planet, 0)
-	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
-		planet, err := extractPlanetFromSelectionV6(s, b)
-		if err != nil {
-			b.error(err)
-			return
-		}
-		res = append(res, planet)
-	})
-	return res
-}
-
-func extractMoonsFromDocV6(doc *goquery.Document, b *OGame) []Moon {
-	res := make([]Moon, 0)
-	doc.Find("a.moonlink").Each(func(i int, s *goquery.Selection) {
-		moon, err := extractMoonFromSelectionV6(s, b)
-		if err != nil {
-			return
-		}
-		res = append(res, moon)
-	})
-	return res
-}
-
 func extractPlanetByIDFromDocV6(doc *goquery.Document, b *OGame, planetID PlanetID) (Planet, error) {
 	return extractPlanetMoonFromDocV6[Planet](doc, planetID, b)
 }
@@ -122,29 +97,60 @@ func extractBodyIDFromDocV6(doc *goquery.Document) string {
 }
 
 func extractCelestialByIDFromDocV6(doc *goquery.Document, b *OGame, celestialID CelestialID) (Celestial, error) {
-	planets := extractPlanetsFromDocV6(doc, b)
-	for _, planet := range planets {
-		if planet.ID.Celestial() == celestialID {
-			return planet, nil
-		}
-		if planet.Moon != nil && planet.Moon.ID.Celestial() == celestialID {
-			return *planet.Moon, nil
+	celestials := extractCelestialsFromDocV6(doc, b)
+	for _, celestial := range celestials {
+		if celestial.GetID() == celestialID {
+			return celestial, nil
 		}
 	}
 	return Planet{}, errors.New("invalid celestial id")
 }
 
 func extractCelestialByCoordFromDocV6(doc *goquery.Document, b *OGame, coord Coordinate) (Celestial, error) {
-	planets := extractPlanetsFromDocV6(doc, b)
-	for _, planet := range planets {
-		if planet.Coordinate.Equal(coord) {
-			return planet, nil
-		}
-		if planet.Moon != nil && planet.Moon.Coordinate.Equal(coord) {
-			return *planet.Moon, nil
+	celestials := extractCelestialsFromDocV6(doc, b)
+	for _, celestial := range celestials {
+		if celestial.GetCoordinate().Equal(coord) {
+			return celestial, nil
 		}
 	}
 	return nil, errors.New("invalid coordinate")
+}
+
+func extractCelestialsFromDocV6(doc *goquery.Document, b *OGame) []Celestial {
+	celestials := make([]Celestial, 0)
+	planets := extractPlanetsFromDocV6(doc, b)
+	for _, planet := range planets {
+		celestials = append(celestials, planet)
+		if planet.Moon != nil {
+			celestials = append(celestials, *planet.Moon)
+		}
+	}
+	return celestials
+}
+
+func extractPlanetsFromDocV6(doc *goquery.Document, b *OGame) []Planet {
+	res := make([]Planet, 0)
+	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
+		planet, err := extractPlanetFromSelectionV6(s, b)
+		if err != nil {
+			b.error(err)
+			return
+		}
+		res = append(res, planet)
+	})
+	return res
+}
+
+func extractMoonsFromDocV6(doc *goquery.Document, b *OGame) []Moon {
+	res := make([]Moon, 0)
+	doc.Find("a.moonlink").Each(func(i int, s *goquery.Selection) {
+		moon, err := extractMoonFromSelectionV6(s, b)
+		if err != nil {
+			return
+		}
+		res = append(res, moon)
+	})
+	return res
 }
 
 func extractPlanetMoonByCoordFromDocV6[T CelestialTypes](doc *goquery.Document, b *OGame, coord Coordinate) (T, error) {
@@ -180,18 +186,6 @@ func extractMoonByIDFromDocV6(doc *goquery.Document, b *OGame, moonID MoonID) (M
 		}
 	}
 	return Moon{}, errors.New("invalid moon id")
-}
-
-func extractCelestialsFromDocV6(doc *goquery.Document, b *OGame) ([]Celestial, error) {
-	celestials := make([]Celestial, 0)
-	planets := extractPlanetsFromDocV6(doc, b)
-	for _, planet := range planets {
-		celestials = append(celestials, planet)
-		if planet.Moon != nil {
-			celestials = append(celestials, planet.Moon)
-		}
-	}
-	return celestials, nil
 }
 
 type CelestialTypes interface{ Planet | Moon }
