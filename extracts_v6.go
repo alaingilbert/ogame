@@ -175,7 +175,7 @@ func extractOgameTimestampFromDocV6(doc *goquery.Document) int64 {
 
 type CelestialTypes interface{ Planet | Moon }
 
-func extractPlanetMoonFromDocV6[T CelestialTypes](doc *goquery.Document, v any, b *OGame) (T, error) {
+func extractPlanetMoonFromDocV6[T CelestialTypes](doc *goquery.Document, b *OGame, v any) (T, error) {
 	var zero T
 	celestial, err := extractCelestialFromDocV6(doc, b, v)
 	if err != nil {
@@ -187,12 +187,12 @@ func extractPlanetMoonFromDocV6[T CelestialTypes](doc *goquery.Document, v any, 
 	return zero, errors.New("not found")
 }
 
-func extractPlanetFromDocV6(doc *goquery.Document, v any, b *OGame) (Planet, error) {
-	return extractPlanetMoonFromDocV6[Planet](doc, v, b)
+func extractPlanetFromDocV6(doc *goquery.Document, b *OGame, v any) (Planet, error) {
+	return extractPlanetMoonFromDocV6[Planet](doc, b, v)
 }
 
 func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v any) (Moon, error) {
-	return extractPlanetMoonFromDocV6[Moon](doc, v, b)
+	return extractPlanetMoonFromDocV6[Moon](doc, b, v)
 }
 
 func extractCelestialFromDocV6(doc *goquery.Document, b *OGame, v any) (Celestial, error) {

@@ -72,9 +72,9 @@ func (e ExtractorV6) ExtractPlanets(pageHTML []byte, b *OGame) []Planet {
 }
 
 // ExtractPlanet ...
-func (e ExtractorV6) ExtractPlanet(pageHTML []byte, v any, b *OGame) (Planet, error) {
+func (e ExtractorV6) ExtractPlanet(pageHTML []byte, b *OGame, v any) (Planet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractPlanetFromDoc(doc, v, b)
+	return e.ExtractPlanetFromDoc(doc, b, v)
 }
 
 // ExtractMoons ...
@@ -359,8 +359,8 @@ func (e ExtractorV6) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Doc
 }
 
 // ExtractPlanetFromDoc ...
-func (e ExtractorV6) ExtractPlanetFromDoc(doc *goquery.Document, v any, b *OGame) (Planet, error) {
-	return extractPlanetFromDocV6(doc, v, b)
+func (e ExtractorV6) ExtractPlanetFromDoc(doc *goquery.Document, b *OGame, v any) (Planet, error) {
+	return extractPlanetFromDocV6(doc, b, v)
 }
 
 // ExtractMoonsFromDoc ...

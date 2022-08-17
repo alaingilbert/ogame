@@ -260,7 +260,7 @@ type Celestial interface {
 type Extractor interface {
 	ExtractIsInVacation(pageHTML []byte) bool
 	ExtractPlanets(pageHTML []byte, b *OGame) []Planet
-	ExtractPlanet(pageHTML []byte, v any, b *OGame) (Planet, error)
+	ExtractPlanet(pageHTML []byte, b *OGame, v any) (Planet, error)
 	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
 	ExtractMoons(pageHTML []byte, b *OGame) []Moon
 	ExtractMoon(pageHTML []byte, b *OGame, v any) (Moon, error)
@@ -303,7 +303,7 @@ type Extractor interface {
 	ExtractOgameTimestampFromDoc(doc *goquery.Document) int64
 	ExtractResourcesFromDoc(doc *goquery.Document) Resources
 	ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails
-	ExtractPlanetFromDoc(doc *goquery.Document, v any, b *OGame) (Planet, error)
+	ExtractPlanetFromDoc(doc *goquery.Document, b *OGame, v any) (Planet, error)
 	ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon
 	ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v any) (Moon, error)
 	ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error)
