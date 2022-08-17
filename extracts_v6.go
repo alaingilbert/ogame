@@ -133,7 +133,6 @@ func extractPlanetsFromDocV6(doc *goquery.Document, b *OGame) []Planet {
 	doc.Find("div.smallplanet").Each(func(i int, s *goquery.Selection) {
 		planet, err := extractPlanetFromSelectionV6(s, b)
 		if err != nil {
-			b.error(err)
 			return
 		}
 		res = append(res, planet)
