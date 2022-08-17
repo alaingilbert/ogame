@@ -4276,7 +4276,7 @@ func (b *OGame) GetCachedCelestialByID(celestialID CelestialID) Celestial {
 			return p
 		}
 		if p.Moon != nil && p.Moon.ID.Celestial() == celestialID {
-			return p.Moon
+			return *p.Moon
 		}
 	}
 	return nil
@@ -4289,7 +4289,7 @@ func (b *OGame) GetCachedCelestialByCoord(coord Coordinate) Celestial {
 			return p
 		}
 		if p.Moon != nil && p.Moon.GetCoordinate().Equal(coord) {
-			return p.Moon
+			return *p.Moon
 		}
 	}
 	return nil
@@ -4310,7 +4310,7 @@ func (b *OGame) getCachedCelestials() []Celestial {
 	for _, p := range b.GetCachedPlanets() {
 		celestials = append(celestials, p)
 		if p.Moon != nil {
-			celestials = append(celestials, p.Moon)
+			celestials = append(celestials, *p.Moon)
 		}
 	}
 	return celestials
