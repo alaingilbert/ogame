@@ -794,11 +794,12 @@ func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
 	b.hasGeologist = b.extractor.ExtractGeologistFromDoc(doc)
 	b.hasTechnocrat = b.extractor.ExtractTechnocratFromDoc(doc)
 
-	if page == "overview" {
+	switch page {
+	case OverviewPageName:
 		b.Player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
-	} else if page == "preferences" {
+	case PreferencesPageName:
 		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
-	} else if page == "research" {
+	case ResearchPageName:
 		researches := b.extractor.ExtractResearchFromDoc(doc)
 		b.researches = &researches
 	}
