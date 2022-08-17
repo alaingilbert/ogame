@@ -19,8 +19,6 @@ const (
 	PlanetlayerPageName      = "planetlayer"
 	LogoutPageName           = "logout"
 	JumpgatelayerPageName    = "jumpgatelayer"
-	FetchResourcesPageName   = "fetchResources"
-	FetchTechsName           = "fetchTechs"
 	TraderOverviewPageName   = "traderOverview"
 	GalaxyPageName           = "galaxy"
 	AlliancePageName         = "alliance"
@@ -32,7 +30,11 @@ const (
 	MessagesPageName         = "messages"
 	ChatPageName             = "chat"
 
+	FetchTechsName         = "fetchTechs"
+	FetchResourcesPageName = "fetchResources"
+
 	// ajax pages
+	RocketlayerPageName            = "rocketlayer"
 	FetchEventboxAjaxPageName      = "fetchEventbox"
 	FetchResourcesAjaxPageName     = "fetchResources"
 	GalaxyContentAjaxPageName      = "galaxyContent"
@@ -64,4 +66,51 @@ func (b *OGame) getPage(page string, opts ...Option) ([]byte, error) {
 		vals = url.Values{"page": {page}}
 	}
 	return b.getPageContent(vals, opts...)
+}
+
+func getPage[T FullPagePages](b *OGame, opts ...Option) (T, error) {
+	var zero T
+	var pageName string
+	switch any(zero).(type) {
+	case OverviewPage:
+		pageName = OverviewPageName
+	case SuppliesPage:
+		pageName = SuppliesPageName
+	case DefensesPage:
+		pageName = DefensesPageName
+	case ResearchPage:
+		pageName = ResearchPageName
+	case ShipyardPage:
+		pageName = ShipyardPageName
+	case ResourcesSettingsPage:
+		pageName = ResourceSettingsPageName
+	case FacilitiesPage:
+		pageName = FacilitiesPageName
+	case MovementPage:
+		pageName = MovementPageName
+	default:
+		panic("not implemented")
+	}
+	pageHTML, err := b.getPage(pageName, opts...)
+	if err != nil {
+		return zero, err
+	}
+	return ParsePage[T](b, pageHTML)
+}
+
+func getAjaxPage[T AjaxPagePages](b *OGame, vals url.Values, opts ...Option) (T, error) {
+	var zero T
+	switch any(zero).(type) {
+	case EventListAjaxPage:
+	case MissileAttackLayerAjaxPage:
+	case FetchTechsAjaxPage:
+	case RocketlayerAjaxPage:
+	default:
+		panic("not implemented")
+	}
+	pageHTML, err := b.getPageContent(vals, opts...)
+	if err != nil {
+		return zero, err
+	}
+	return ParseAjaxPage[T](b, pageHTML)
 }

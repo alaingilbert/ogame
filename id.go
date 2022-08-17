@@ -273,3 +273,7 @@ func (o ID) IsCombatShip() bool {
 		o == BattlecruiserID ||
 		o == ReaperID
 }
+
+func (o ID) IsValidIPMTarget() bool {
+	return !o.IsSet() || (o.IsDefense() && o != AntiBallisticMissilesID && o != InterplanetaryMissilesID)
+}

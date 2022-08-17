@@ -1656,16 +1656,10 @@ func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byt
 		return []byte{}, err
 	}
 
-	if vals.Get("cp") == "" {
-		if cfg.ChangePlanet != 0 {
-			celestials := b.getCachedCelestials()
-			for _, celestial := range celestials {
-				if celestial.GetID() == cfg.ChangePlanet {
-					vals.Set("cp", FI64(cfg.ChangePlanet))
-					break
-				}
-			}
-		}
+	if vals.Get("cp") == "" &&
+		cfg.ChangePlanet != 0 &&
+		b.getCachedCelestial(cfg.ChangePlanet) != nil {
+		vals.Set("cp", FI64(cfg.ChangePlanet))
 	}
 
 	if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
@@ -1933,33 +1927,33 @@ type resourcesResp struct {
 }
 
 func (b *OGame) getPlanets() []Planet {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	return b.extractor.ExtractPlanets(pageHTML, b)
+	page, _ := getPage[OverviewPage](b)
+	return page.ExtractPlanets()
 }
 
 func (b *OGame) getPlanet(v any) (Planet, error) {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	return b.extractor.ExtractPlanet(pageHTML, b, v)
+	page, _ := getPage[OverviewPage](b)
+	return page.ExtractPlanet(v)
 }
 
 func (b *OGame) getMoons() []Moon {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	return b.extractor.ExtractMoons(pageHTML, b)
+	page, _ := getPage[OverviewPage](b)
+	return page.ExtractMoons()
 }
 
 func (b *OGame) getMoon(v any) (Moon, error) {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	return b.extractor.ExtractMoon(pageHTML, b, v)
+	page, _ := getPage[OverviewPage](b)
+	return page.ExtractMoon(v)
 }
 
 func (b *OGame) getCelestials() ([]Celestial, error) {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	return b.extractor.ExtractCelestials(pageHTML, b)
+	page, _ := getPage[OverviewPage](b)
+	return page.ExtractCelestials()
 }
 
 func (b *OGame) getCelestial(v any) (Celestial, error) {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	return b.extractor.ExtractCelestial(pageHTML, b, v)
+	page, _ := getPage[OverviewPage](b)
+	return page.ExtractCelestial(v)
 }
 
 func (b *OGame) recruitOfficer(typ, days int64) error {
@@ -1986,12 +1980,12 @@ func (b *OGame) recruitOfficer(typ, days int64) error {
 }
 
 func (b *OGame) abandon(v any) error {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	planet, err := b.extractor.ExtractPlanet(pageHTML, b, v)
+	page, _ := getPage[OverviewPage](b)
+	planet, err := page.ExtractPlanet(v)
 	if err != nil {
 		return errors.New("invalid parameter")
 	}
-	pageHTML, _ = b.getPage(PlanetlayerPageName, ChangePlanet(planet.GetID()))
+	pageHTML, _ := b.getPage(PlanetlayerPageName, ChangePlanet(planet.GetID()))
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
 	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
@@ -2011,8 +2005,8 @@ func (b *OGame) abandon(v any) error {
 }
 
 func (b *OGame) serverTime() time.Time {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	serverTime, err := b.extractor.ExtractServerTime(pageHTML)
+	page, err := getPage[OverviewPage](b)
+	serverTime, err := page.ExtractServerTime()
 	if err != nil {
 		b.error(err.Error())
 	}
@@ -2020,8 +2014,8 @@ func (b *OGame) serverTime() time.Time {
 }
 
 func (b *OGame) getUserInfos() UserInfos {
-	pageHTML, _ := b.getPage(OverviewPageName)
-	userInfos, err := b.extractor.ExtractUserInfos(pageHTML, b.language)
+	page, err := getPage[OverviewPage](b)
+	userInfos, err := page.ExtractUserInfos()
 	if err != nil {
 		b.error(err)
 	}
@@ -2077,18 +2071,18 @@ func (b *OGame) getFleetsFromEventList() []Fleet {
 }
 
 func (b *OGame) getFleets(opts ...Option) ([]Fleet, Slots) {
-	pageHTML, _ := b.getPage(MovementPageName, opts...)
-	fleets := b.extractor.ExtractFleets(pageHTML, b.location)
-	slots := b.extractor.ExtractSlots(pageHTML)
+	page, _ := getPage[MovementPage](b, opts...)
+	fleets := page.ExtractFleets()
+	slots := page.ExtractSlots()
 	return fleets, slots
 }
 
 func (b *OGame) cancelFleet(fleetID FleetID) error {
-	pageHTML, err := b.getPage(MovementPageName)
+	page, err := getPage[MovementPage](b)
 	if err != nil {
 		return err
 	}
-	token, err := b.extractor.ExtractCancelFleetToken(pageHTML, fleetID)
+	token, err := page.ExtractCancelFleetToken(fleetID)
 	if err != nil {
 		return err
 	}
@@ -2462,16 +2456,16 @@ func (b *OGame) getAllResources() (map[CelestialID]Resources, error) {
 }
 
 func (b *OGame) getDMCosts(celestialID CelestialID) (DMCosts, error) {
-	pageHTML, _ := b.getPage(OverviewPageName, ChangePlanet(celestialID))
-	return b.extractor.ExtractDMCosts(pageHTML)
+	page, _ := getPage[OverviewPage](b, ChangePlanet(celestialID))
+	return page.ExtractDMCosts()
 }
 
 func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 	if typ != "buildings" && typ != "research" && typ != "shipyard" {
 		return fmt.Errorf("invalid type %s", typ)
 	}
-	pageHTML, _ := b.getPage(OverviewPageName, ChangePlanet(celestialID))
-	costs, err := b.extractor.ExtractDMCosts(pageHTML)
+	page, _ := getPage[OverviewPage](b, ChangePlanet(celestialID))
+	costs, err := page.ExtractDMCosts()
 	if err != nil {
 		return err
 	}
@@ -2508,9 +2502,6 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 // itemID <HASH> -> item
 func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"create_offer"}, "action": {"submitOffer"}, "asJson": {"1"}}
-	if celestialID != 0 {
-		params.Set("cp", FI64(celestialID))
-	}
 	const (
 		shipsItemType = iota + 1
 		resourcesItemType
@@ -2592,7 +2583,7 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, pri
 			Error   int64  `json:"error"`
 		} `json:"errors"`
 	}
-	by, err := b.postPageContent(params, payload)
+	by, err := b.postPageContent(params, payload, ChangePlanet(celestialID))
 	if err != nil {
 		return err
 	}
@@ -2607,9 +2598,6 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, pri
 
 func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error) {
 	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"buying"}, "action": {"acceptRequest"}, "asJson": {"1"}}
-	if celestialID != 0 {
-		params.Set("cp", FI64(celestialID))
-	}
 	payload := url.Values{
 		"marketItemId": {FI64(itemID)},
 	}
@@ -2621,7 +2609,7 @@ func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error
 			Error   int64  `json:"error"`
 		} `json:"errors"`
 	}
-	by, err := b.postPageContent(params, payload)
+	by, err := b.postPageContent(params, payload, ChangePlanet(celestialID))
 	if err != nil {
 		return err
 	}
@@ -2636,20 +2624,14 @@ func (b *OGame) buyMarketplace(itemID int64, celestialID CelestialID) (err error
 
 func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
 	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
-	if celestialID != 0 {
-		params.Set("cp", FI64(celestialID))
-	}
-	pageHTML, _ := b.getPageContent(params)
+	pageHTML, _ := b.getPageContent(params, ChangePlanet(celestialID))
 	_, items, err = b.extractor.ExtractBuffActivation(pageHTML)
 	return
 }
 
 func (b *OGame) getActiveItems(celestialID CelestialID) (items []ActiveItem, err error) {
 	params := url.Values{"page": {"ingame"}, "component": {"overview"}}
-	if celestialID != 0 {
-		params.Set("cp", FI64(celestialID))
-	}
-	pageHTML, _ := b.getPageContent(params)
+	pageHTML, _ := b.getPageContent(params, ChangePlanet(celestialID))
 	items, err = b.extractor.ExtractActiveItems(pageHTML)
 	return
 }
@@ -2702,10 +2684,7 @@ type MessageSuccess struct {
 
 func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
 	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
-	if celestialID != 0 {
-		params.Set("cp", FI64(celestialID))
-	}
-	pageHTML, _ := b.getPageContent(params)
+	pageHTML, _ := b.getPageContent(params, ChangePlanet(celestialID))
 	token, _, err := b.extractor.ExtractBuffActivation(pageHTML)
 	if err != nil {
 		return err
@@ -2740,10 +2719,7 @@ func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
 
 func (b *OGame) getAuction(celestialID CelestialID) (Auction, error) {
 	payload := url.Values{"show": {"auctioneer"}, "ajax": {"1"}}
-	if celestialID != 0 {
-		payload.Set("cp", FI64(celestialID))
-	}
-	auctionHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderauctioneer"}}, payload)
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderauctioneer"}}, payload, ChangePlanet(celestialID))
 	if err != nil {
 		return Auction{}, err
 	}
@@ -2952,8 +2928,8 @@ func fixAttackEvents(attacks []AttackEvent, planets []Planet) {
 }
 
 func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
-	params := url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}}
-	pageHTML, err := b.getPageContent(params, opts...)
+	vals := url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}}
+	page, err := getAjaxPage[EventListAjaxPage](b, vals, opts...)
 	if err != nil {
 		return
 	}
@@ -2965,7 +2941,7 @@ func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 			ownCoords = append(ownCoords, planet.Moon.Coordinate)
 		}
 	}
-	out, err = b.extractor.ExtractAttacks(pageHTML, ownCoords)
+	out, err = page.ExtractAttacks(ownCoords)
 	if err != nil {
 		return
 	}
@@ -3009,8 +2985,8 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, 
 
 func (b *OGame) getResourceSettings(planetID PlanetID, options ...Option) (ResourceSettings, error) {
 	options = append(options, ChangePlanet(planetID.Celestial()))
-	pageHTML, _ := b.getPage(ResourceSettingsPageName, options...)
-	return b.extractor.ExtractResourceSettings(pageHTML)
+	page, _ := getPage[ResourcesSettingsPage](b, options...)
+	return page.ExtractResourceSettings()
 }
 
 func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings) error {
@@ -3076,44 +3052,45 @@ func (b *OGame) getCachedResearch() Researches {
 }
 
 func (b *OGame) getResearch() Researches {
-	pageHTML, _ := b.getPage(ResearchPageName)
-	researches := b.extractor.ExtractResearch(pageHTML)
+	page, _ := getPage[ResearchPage](b)
+	researches := page.ExtractResearch()
 	b.researches = &researches
 	return researches
 }
 
 func (b *OGame) getResourcesBuildings(celestialID CelestialID, options ...Option) (ResourcesBuildings, error) {
 	options = append(options, ChangePlanet(celestialID))
-	pageHTML, _ := b.getPage(SuppliesPageName, options...)
-	return b.extractor.ExtractResourcesBuildings(pageHTML)
+	page, _ := getPage[SuppliesPage](b, options...)
+	return page.ExtractResourcesBuildings()
 }
 
 func (b *OGame) getDefense(celestialID CelestialID, options ...Option) (DefensesInfos, error) {
 	options = append(options, ChangePlanet(celestialID))
-	pageHTML, _ := b.getPage(DefensesPageName, options...)
-	return b.extractor.ExtractDefense(pageHTML)
+	page, _ := getPage[DefensesPage](b, options...)
+	return page.ExtractDefense()
 }
 
 func (b *OGame) getShips(celestialID CelestialID, options ...Option) (ShipsInfos, error) {
 	options = append(options, ChangePlanet(celestialID))
-	pageHTML, _ := b.getPage(ShipyardPageName, options...)
-	return b.extractor.ExtractShips(pageHTML)
+	page, _ := getPage[ShipyardPage](b, options...)
+	return page.ExtractShips()
 }
 
 func (b *OGame) getFacilities(celestialID CelestialID, options ...Option) (Facilities, error) {
 	options = append(options, ChangePlanet(celestialID))
-	pageHTML, _ := b.getPage(FacilitiesPageName, options...)
-	return b.extractor.ExtractFacilities(pageHTML)
+	page, _ := getPage[FacilitiesPage](b, options...)
+	return page.ExtractFacilities()
 }
 
 func (b *OGame) getTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error) {
-	pageJSON, _ := b.getPage(FetchTechsName, ChangePlanet(celestialID))
-	return b.extractor.ExtractTechs(pageJSON)
+	vals := url.Values{"page": {FetchTechsName}}
+	page, _ := getAjaxPage[FetchTechsAjaxPage](b, vals, ChangePlanet(celestialID))
+	return page.ExtractTechs()
 }
 
 func (b *OGame) getProduction(celestialID CelestialID) ([]Quantifiable, int64, error) {
-	pageHTML, _ := b.getPage(ShipyardPageName, ChangePlanet(celestialID))
-	return b.extractor.ExtractProduction(pageHTML)
+	page, _ := getPage[ShipyardPage](b, ChangePlanet(celestialID))
+	return page.ExtractProduction()
 }
 
 // IsV7 ...
@@ -3290,8 +3267,8 @@ func (b *OGame) buildShips(celestialID CelestialID, shipID ID, nbr int64) error 
 }
 
 func (b *OGame) constructionsBeingBuilt(celestialID CelestialID) (ID, int64, ID, int64) {
-	pageHTML, _ := b.getPage(OverviewPageName, ChangePlanet(celestialID))
-	return b.extractor.ExtractConstructions(pageHTML)
+	page, _ := getPage[OverviewPage](b, ChangePlanet(celestialID))
+	return page.ExtractConstructions()
 }
 
 func (b *OGame) cancel(token string, techID, listID int64) error {
@@ -3301,20 +3278,20 @@ func (b *OGame) cancel(token string, techID, listID int64) error {
 }
 
 func (b *OGame) cancelBuilding(celestialID CelestialID) error {
-	pageHTML, err := b.getPage(OverviewPageName, ChangePlanet(celestialID))
+	page, err := getPage[OverviewPage](b, ChangePlanet(celestialID))
 	if err != nil {
 		return err
 	}
-	token, techID, listID, _ := b.extractor.ExtractCancelBuildingInfos(pageHTML)
+	token, techID, listID, _ := page.ExtractCancelBuildingInfos()
 	return b.cancel(token, techID, listID)
 }
 
 func (b *OGame) cancelResearch(celestialID CelestialID) error {
-	pageHTML, err := b.getPage(OverviewPageName, ChangePlanet(celestialID))
+	page, err := getPage[OverviewPage](b, ChangePlanet(celestialID))
 	if err != nil {
 		return err
 	}
-	token, techID, listID, _ := b.extractor.ExtractCancelResearchInfos(pageHTML)
+	token, techID, listID, _ := page.ExtractCancelResearchInfos()
 	return b.cancel(token, techID, listID)
 }
 
@@ -3347,15 +3324,14 @@ func (b *OGame) getResourcesDetails(celestialID CelestialID) (ResourcesDetails, 
 func (b *OGame) destroyRockets(planetID PlanetID, abm, ipm int64) error {
 	vals := url.Values{
 		"page":      {"ajax"},
-		"component": {"rocketlayer"},
+		"component": {RocketlayerPageName},
 		"overlay":   {"1"},
-		"cp":        {FI64(planetID)},
 	}
-	pageHTML, err := b.getPageContent(vals)
+	page, err := getAjaxPage[RocketlayerAjaxPage](b, vals, ChangePlanet(planetID.Celestial()))
 	if err != nil {
 		return err
 	}
-	maxABM, maxIPM, token, err := b.extractor.ExtractDestroyRockets(pageHTML)
+	maxABM, maxIPM, token, err := page.ExtractDestroyRockets()
 	if err != nil {
 		return err
 	}
@@ -3402,7 +3378,7 @@ func (b *OGame) destroyRockets(planetID PlanetID, abm, ipm int64) error {
 }
 
 func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
-	if priority != 0 && (!priority.IsDefense() || priority == AntiBallisticMissilesID || priority == InterplanetaryMissilesID) {
+	if !priority.IsValidIPMTarget() {
 		return 0, errors.New("invalid defense target id")
 	}
 	vals := url.Values{
@@ -3412,13 +3388,13 @@ func (b *OGame) sendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority
 		"system":     {FI64(coord.System)},
 		"position":   {FI64(coord.Position)},
 		"planetType": {FI64(coord.Type)},
-		"cp":         {FI64(planetID)},
 	}
-	pageHTML, err := b.getPageContent(vals)
+	page, err := getAjaxPage[MissileAttackLayerAjaxPage](b, vals, ChangePlanet(planetID.Celestial()))
 	if err != nil {
 		return 0, err
 	}
-	duration, max, token := b.extractor.ExtractIPM(pageHTML)
+
+	duration, max, token := page.ExtractIPM()
 	if max == 0 {
 		return 0, errors.New("no missile available")
 	}

@@ -6,6 +6,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestIsValidIPMTarget(t *testing.T) {
+	assert.True(t, ID(0).IsValidIPMTarget())
+	assert.True(t, RocketLauncherID.IsValidIPMTarget())
+	assert.False(t, AntiBallisticMissilesID.IsValidIPMTarget())
+	assert.False(t, InterplanetaryMissilesID.IsValidIPMTarget())
+	assert.False(t, MetalMineID.IsValidIPMTarget())
+}
+
 func TestID_IsSet(t *testing.T) {
 	assert.True(t, AllianceDepotID.IsSet())
 	assert.False(t, ID(0).IsSet())
