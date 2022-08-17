@@ -153,7 +153,7 @@ func extractOgameTimestampFromDocV6(doc *goquery.Document) int64 {
 	return ogameTimestamp
 }
 
-func extractPlanetFromDocV6(doc *goquery.Document, v interface{}, b *OGame) (Planet, error) {
+func extractPlanetFromDocV6(doc *goquery.Document, v any, b *OGame) (Planet, error) {
 	if coordStr, ok := v.(string); ok {
 		coord, err := ParseCoord(coordStr)
 		if err != nil {
@@ -192,7 +192,7 @@ func extractMoonsFromDocV6(doc *goquery.Document, b *OGame) []Moon {
 	return res
 }
 
-func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v interface{}) (Moon, error) {
+func extractMoonFromDocV6(doc *goquery.Document, b *OGame, v any) (Moon, error) {
 	if coordStr, ok := v.(string); ok {
 		coord, err := ParseCoord(coordStr)
 		if err != nil {
@@ -241,7 +241,7 @@ func extractCelestialsFromDocV6(doc *goquery.Document, b *OGame) ([]Celestial, e
 	return celestials, nil
 }
 
-func extractCelestialFromDocV6(doc *goquery.Document, b *OGame, v interface{}) (Celestial, error) {
+func extractCelestialFromDocV6(doc *goquery.Document, b *OGame, v any) (Celestial, error) {
 	if planetID, ok := v.(PlanetID); ok {
 		return extractPlanetByIDFromDocV6(doc, b, planetID)
 	} else if moonID, ok := v.(MoonID); ok {
@@ -2092,16 +2092,16 @@ func extractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
 	if err != nil {
 		return nil, err
 	}
-	j, ok := raw.(map[string]interface{})
+	j, ok := raw.(map[string]any)
 	if !ok {
 		return nil, errors.New("failed to parse json")
 	}
-	planetsRaw, ok := j["planets"].([]interface{})
+	planetsRaw, ok := j["planets"].([]any)
 	if !ok {
 		return nil, errors.New("failed to parse json")
 	}
 	for _, planetRaw := range planetsRaw {
-		planet, ok := planetRaw.(map[string]interface{})
+		planet, ok := planetRaw.(map[string]any)
 		if !ok {
 			return nil, errors.New("failed to parse json")
 		}
@@ -2222,12 +2222,12 @@ func extractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
 	return out, nil
 }
 
-func extractEmpireJSON(pageHTML []byte) (interface{}, error) {
+func extractEmpireJSON(pageHTML []byte) (any, error) {
 	m := regexp.MustCompile(`createImperiumHtml\("#mainWrapper",\s"#loading",\s(.*),\s\d+\s\);`).FindSubmatch(pageHTML)
 	if len(m) != 2 {
 		return nil, errors.New("regexp for Empire JSON did not match anything")
 	}
-	var empireJSON interface{}
+	var empireJSON any
 	if err := json.Unmarshal(m[1], &empireJSON); err != nil {
 		return nil, err
 	}
@@ -2255,7 +2255,7 @@ type Auction struct {
 		Deuterium float64
 		Honor     int64
 	}
-	Resources map[string]interface{}
+	Resources map[string]any
 }
 
 // String ...

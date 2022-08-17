@@ -24,11 +24,11 @@ type Item struct {
 	//Cooldown                bool
 	//extendable              bool
 	//MoonOnlyItem            bool
-	//duration                interface{}
-	//DurationExtension       interface{}
-	//TotalTime               interface{}
-	//timeLeft                interface{}
-	//status                  interface{}
+	//duration                any
+	//DurationExtension       any
+	//TotalTime               any
+	//timeLeft                any
+	//status                  any
 	//firstStatus             string // effecting
 	//ToolTip                 string
 	//buyTitle                string

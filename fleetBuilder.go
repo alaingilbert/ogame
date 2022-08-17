@@ -57,13 +57,13 @@ func (f *FleetBuilder) SetTx(tx Prioritizable) *FleetBuilder {
 }
 
 // SetOrigin ...
-func (f *FleetBuilder) SetOrigin(v interface{}) *FleetBuilder {
+func (f *FleetBuilder) SetOrigin(v any) *FleetBuilder {
 	f.origin = f.b.GetCachedCelestial(v)
 	return f
 }
 
 // SetDestination ...
-func (f *FleetBuilder) SetDestination(v interface{}) *FleetBuilder {
+func (f *FleetBuilder) SetDestination(v any) *FleetBuilder {
 	var c Celestial
 	if celestial, ok := v.(Celestial); ok {
 		f.destination = celestial.GetCoordinate()

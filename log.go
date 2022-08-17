@@ -29,38 +29,38 @@ const (
 	kwht = "\x1B[37m"
 )
 
-func (b *OGame) log(prefix, color string, v ...interface{}) {
+func (b *OGame) log(prefix, color string, v ...any) {
 	if !b.quiet {
 		_, f, l, _ := runtime.Caller(2)
-		args := append([]interface{}{fmt.Sprintf(color+"%s"+knrm+" [%s:%d]", prefix, filepath.Base(f), l)}, v...)
+		args := append([]any{fmt.Sprintf(color+"%s"+knrm+" [%s:%d]", prefix, filepath.Base(f), l)}, v...)
 		b.logger.Println(args...)
 	}
 }
 
-func (b *OGame) trace(v ...interface{}) {
+func (b *OGame) trace(v ...any) {
 	b.log("TRAC", kwht, v...)
 }
 
-func (b *OGame) info(v ...interface{}) {
+func (b *OGame) info(v ...any) {
 	b.log("INFO", kcyn, v...)
 }
 
-func (b *OGame) warn(v ...interface{}) {
+func (b *OGame) warn(v ...any) {
 	b.log("WARN", kyel, v...)
 }
 
-func (b *OGame) error(v ...interface{}) {
+func (b *OGame) error(v ...any) {
 	b.log("ERRO", kred, v...)
 }
 
-func (b *OGame) critical(v ...interface{}) {
+func (b *OGame) critical(v ...any) {
 	b.log("CRIT", kred, v...)
 }
 
-func (b *OGame) debug(v ...interface{}) {
+func (b *OGame) debug(v ...any) {
 	b.log("DEBU", kmag, v...)
 }
 
-func (b *OGame) println(v ...interface{}) {
+func (b *OGame) println(v ...any) {
 	b.log("PRIN", kwht, v...)
 }

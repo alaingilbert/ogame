@@ -477,7 +477,7 @@ type Server struct {
 		FleetSpeed               int64
 		WreckField               int64
 		ServerLabel              string
-		EconomySpeed             interface{} // can be 8 or "x8"
+		EconomySpeed             any // can be 8 or "x8"
 		PlanetFields             int64
 		UniverseSize             int64 // Nb of galaxies
 		ServerCategory           string
@@ -587,7 +587,7 @@ type Account struct {
 	Details    []struct {
 		Type  string
 		Title string
-		Value interface{} // Can be string or int
+		Value any // Can be string or int
 	}
 	Sitting struct {
 		Shared       bool

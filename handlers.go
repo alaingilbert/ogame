@@ -17,11 +17,11 @@ type APIResp struct {
 	Status  string
 	Code    int
 	Message string
-	Result  interface{}
+	Result  any
 }
 
 // SuccessResp ...
-func SuccessResp(data interface{}) APIResp {
+func SuccessResp(data any) APIResp {
 	return APIResp{Status: "ok", Code: 200, Result: data}
 }
 
@@ -35,7 +35,7 @@ func HomeHandler(c echo.Context) error {
 	version := c.Get("version").(string)
 	commit := c.Get("commit").(string)
 	date := c.Get("date").(string)
-	return c.JSON(http.StatusOK, map[string]interface{}{
+	return c.JSON(http.StatusOK, map[string]any{
 		"version": version,
 		"commit":  commit,
 		"date":    date,
@@ -1280,7 +1280,7 @@ func JumpGateHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-	return c.JSON(http.StatusOK, SuccessResp(map[string]interface{}{
+	return c.JSON(http.StatusOK, SuccessResp(map[string]any{
 		"success":           success,
 		"rechargeCountdown": rechargeCountdown,
 	}))
@@ -1297,7 +1297,7 @@ func TechsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-	return c.JSON(http.StatusOK, SuccessResp(map[string]interface{}{
+	return c.JSON(http.StatusOK, SuccessResp(map[string]any{
 		"supplies":   supplies,
 		"facilities": facilities,
 		"ships":      ships,

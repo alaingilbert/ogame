@@ -15,16 +15,16 @@ func extractEmpireV9(pageHTML []byte) ([]EmpireCelestial, error) {
 	if err != nil {
 		return nil, err
 	}
-	j, ok := raw.(map[string]interface{})
+	j, ok := raw.(map[string]any)
 	if !ok {
 		return nil, errors.New("failed to parse json")
 	}
-	planetsRaw, ok := j["planets"].([]interface{})
+	planetsRaw, ok := j["planets"].([]any)
 	if !ok {
 		return nil, errors.New("failed to parse json")
 	}
 	for _, planetRaw := range planetsRaw {
-		planet, ok := planetRaw.(map[string]interface{})
+		planet, ok := planetRaw.(map[string]any)
 		if !ok {
 			return nil, errors.New("failed to parse json")
 		}

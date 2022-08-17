@@ -13,7 +13,7 @@ import (
 // Prioritizable ...
 type Prioritizable interface {
 	RecruitOfficer(typ, days int64) error
-	Abandon(interface{}) error
+	Abandon(any) error
 	ActivateItem(string, CelestialID) error
 	Begin() Prioritizable
 	BeginNamed(name string) Prioritizable
@@ -34,12 +34,12 @@ type Prioritizable interface {
 	GetAttacks(...Option) ([]AttackEvent, error)
 	GetAuction() (Auction, error)
 	GetCachedResearch() Researches
-	GetCelestial(interface{}) (Celestial, error)
+	GetCelestial(any) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
 	GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
 	GetDMCosts(CelestialID) (DMCosts, error)
 	GetEmpire(CelestialType) ([]EmpireCelestial, error)
-	GetEmpireJSON(nbr int64) (interface{}, error)
+	GetEmpireJSON(nbr int64) (any, error)
 	GetEspionageReport(msgID int64) (EspionageReport, error)
 	GetEspionageReportFor(Coordinate) (EspionageReport, error)
 	GetEspionageReportMessages() ([]EspionageReportSummary, error)
@@ -49,10 +49,10 @@ type Prioritizable interface {
 	GetFleetsFromEventList() []Fleet
 	GetItems(CelestialID) ([]Item, error)
 	GetActiveItems(CelestialID) ([]ActiveItem, error)
-	GetMoon(interface{}) (Moon, error)
+	GetMoon(any) (Moon, error)
 	GetMoons() []Moon
 	GetPageContent(url.Values) ([]byte, error)
-	GetPlanet(interface{}) (Planet, error)
+	GetPlanet(any) (Planet, error)
 	GetPlanets() []Planet
 	GetResearch() Researches
 	GetSlots() Slots
@@ -64,8 +64,8 @@ type Prioritizable interface {
 	LoginWithBearerToken(token string) (bool, error)
 	LoginWithExistingCookies() (bool, error)
 	Logout()
-	OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
-	OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
+	OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
+	OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
 	PostPageContent(url.Values, url.Values) ([]byte, error)
 	SendMessage(playerID int64, message string) error
 	SendMessageAlliance(associationID int64, message string) error
@@ -126,7 +126,7 @@ type Wrapper interface {
 	Distance(origin, destination Coordinate) int64
 	Enable()
 	FleetDeutSaveFactor() float64
-	GetCachedCelestial(interface{}) Celestial
+	GetCachedCelestial(any) Celestial
 	GetCachedCelestials() []Celestial
 	GetCachedMoons() []Moon
 	GetCachedPlanets() []Planet
@@ -162,7 +162,7 @@ type Wrapper interface {
 	OnStateChange(clb func(locked bool, actor string))
 	Quiet(bool)
 	ReconnectChat() bool
-	RegisterAuctioneerCallback(func(interface{}))
+	RegisterAuctioneerCallback(func(any))
 	RegisterChatCallback(func(ChatMsg))
 	RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
 	RegisterWSCallback(string, func([]byte))
@@ -260,14 +260,14 @@ type Celestial interface {
 type Extractor interface {
 	ExtractIsInVacation(pageHTML []byte) bool
 	ExtractPlanets(pageHTML []byte, b *OGame) []Planet
-	ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error)
+	ExtractPlanet(pageHTML []byte, v any, b *OGame) (Planet, error)
 	ExtractPlanetByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Planet, error)
 	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
 	ExtractMoons(pageHTML []byte, b *OGame) []Moon
-	ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error)
+	ExtractMoon(pageHTML []byte, b *OGame, v any) (Moon, error)
 	ExtractMoonByCoord(pageHTML []byte, b *OGame, coord Coordinate) (Moon, error)
 	ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error)
-	ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error)
+	ExtractCelestial(pageHTML []byte, b *OGame, v any) (Celestial, error)
 	ExtractServerTime(pageHTML []byte) (time.Time, error)
 	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
 	ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error)
@@ -308,13 +308,13 @@ type Extractor interface {
 	ExtractOgameTimestampFromDoc(doc *goquery.Document) int64
 	ExtractResourcesFromDoc(doc *goquery.Document) Resources
 	ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails
-	ExtractPlanetFromDoc(doc *goquery.Document, v interface{}, b *OGame) (Planet, error)
+	ExtractPlanetFromDoc(doc *goquery.Document, v any, b *OGame) (Planet, error)
 	ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon
-	ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Moon, error)
+	ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v any) (Moon, error)
 	ExtractMoonByCoordFromDoc(doc *goquery.Document, b *OGame, coord Coordinate) (Moon, error)
 	ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moonID MoonID) (Moon, error)
 	ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error)
-	ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Celestial, error)
+	ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v any) (Celestial, error)
 	ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error)
 	ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error)
 	ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error)
@@ -388,7 +388,7 @@ type Extractor interface {
 	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractEmpire(pageHTML []byte) ([]EmpireCelestial, error)
-	ExtractEmpireJSON(pageHTML []byte) (interface{}, error)
+	ExtractEmpireJSON(pageHTML []byte) (any, error)
 	ExtractCharacterClass(pageHTML []byte) (CharacterClass, error)
 	ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error)
 	ExtractCommander(pageHTML []byte) bool

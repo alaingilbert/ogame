@@ -150,7 +150,7 @@ func (b *Prioritize) GetPlanets() []Planet {
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *Prioritize) GetPlanet(v interface{}) (Planet, error) {
+func (b *Prioritize) GetPlanet(v any) (Planet, error) {
 	b.begin("GetPlanet")
 	defer b.done()
 	return b.bot.getPlanet(v)
@@ -164,7 +164,7 @@ func (b *Prioritize) GetMoons() []Moon {
 }
 
 // GetMoon gets infos for moonID
-func (b *Prioritize) GetMoon(v interface{}) (Moon, error) {
+func (b *Prioritize) GetMoon(v any) (Moon, error) {
 	b.begin("GetMoon")
 	defer b.done()
 	return b.bot.getMoon(v)
@@ -187,14 +187,14 @@ func (b *Prioritize) RecruitOfficer(typ, days int64) error {
 }
 
 // Abandon a planet. Warning: this is irreversible
-func (b *Prioritize) Abandon(v interface{}) error {
+func (b *Prioritize) Abandon(v any) error {
 	b.begin("Abandon")
 	defer b.done()
 	return b.bot.abandon(v)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *Prioritize) GetCelestial(v interface{}) (Celestial, error) {
+func (b *Prioritize) GetCelestial(v any) (Celestial, error) {
 	b.begin("GetCelestial")
 	defer b.done()
 	return b.bot.getCelestial(v)
@@ -620,7 +620,7 @@ func (b *Prioritize) GetEmpire(celestialType CelestialType) ([]EmpireCelestial, 
 }
 
 // GetEmpireJSON retrieves JSON from Empire page (Commander only).
-func (b *Prioritize) GetEmpireJSON(nbr int64) (interface{}, error) {
+func (b *Prioritize) GetEmpireJSON(nbr int64) (any, error) {
 	b.begin("GetEmpireJSON")
 	defer b.done()
 	return b.bot.getEmpireJSON(nbr)
@@ -697,14 +697,14 @@ func (b *Prioritize) BuyMarketplace(itemID int64, celestialID CelestialID) error
 }
 
 // OfferSellMarketplace ...
-func (b *Prioritize) OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+func (b *Prioritize) OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	b.begin("OfferSellMarketplace")
 	defer b.done()
 	return b.bot.offerMarketplace(4, itemID, quantity, priceType, price, priceRange, celestialID)
 }
 
 // OfferBuyMarketplace ...
-func (b *Prioritize) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+func (b *Prioritize) OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	b.begin("OfferBuyMarketplace")
 	defer b.done()
 	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)

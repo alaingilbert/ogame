@@ -79,7 +79,7 @@ type OGame struct {
 	logger                *log.Logger
 	chatCallbacks         []func(msg ChatMsg)
 	wsCallbacks           map[string]func(msg []byte)
-	auctioneerCallbacks   []func(interface{})
+	auctioneerCallbacks   []func(any)
 	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
 	closeChatCh           chan struct{}
 	chatRetry             *ExponentialBackoff
@@ -1069,8 +1069,8 @@ LOOP:
 			// 42/auctioneer,["auction finished",{"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"bids":5,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1072</span>","time":"08:42"}]
 			parts := strings.SplitN(buf, ",", 2)
 			msg := parts[1]
-			var pck interface{} = msg
-			var out []interface{}
+			var pck any = msg
+			var out []any
 			_ = json.Unmarshal([]byte(msg), &out)
 			if len(out) == 0 {
 				b.error("unknown message received:", buf)
@@ -1079,7 +1079,7 @@ LOOP:
 			if name, ok := out[0].(string); ok {
 				arg := out[1]
 				if name == "new bid" {
-					if firstArg, ok := arg.(map[string]interface{}); ok {
+					if firstArg, ok := arg.(map[string]any); ok {
 						auctionID, _ := strconv.ParseInt(doCastStr(firstArg["auctionId"]), 10, 64)
 						pck1 := AuctioneerNewBid{
 							Sum:       int64(doCastF64(firstArg["sum"])),
@@ -1087,7 +1087,7 @@ LOOP:
 							Bids:      int64(doCastF64(firstArg["bids"])),
 							AuctionID: auctionID,
 						}
-						if player, ok := firstArg["player"].(map[string]interface{}); ok {
+						if player, ok := firstArg["player"].(map[string]any); ok {
 							pck1.Player.ID = int64(doCastF64(player["id"]))
 							pck1.Player.Name = doCastStr(player["name"])
 							pck1.Player.Link = doCastStr(player["link"])
@@ -1111,7 +1111,7 @@ LOOP:
 						}
 					}
 				} else if name == "new auction" {
-					if firstArg, ok := arg.(map[string]interface{}); ok {
+					if firstArg, ok := arg.(map[string]any); ok {
 						pck1 := AuctioneerNewAuction{
 							AuctionID: int64(doCastF64(firstArg["auctionId"])),
 						}
@@ -1125,12 +1125,12 @@ LOOP:
 						pck = pck1
 					}
 				} else if name == "auction finished" {
-					if firstArg, ok := arg.(map[string]interface{}); ok {
+					if firstArg, ok := arg.(map[string]any); ok {
 						pck1 := AuctioneerAuctionFinished{
 							Sum:  int64(doCastF64(firstArg["sum"])),
 							Bids: int64(doCastF64(firstArg["bids"])),
 						}
-						if player, ok := firstArg["player"].(map[string]interface{}); ok {
+						if player, ok := firstArg["player"].(map[string]any); ok {
 							pck1.Player.ID = int64(doCastF64(player["id"]))
 							pck1.Player.Name = doCastStr(player["name"])
 							pck1.Player.Link = doCastStr(player["link"])
@@ -1226,13 +1226,13 @@ LOOP:
 			// 5::/auctioneer:{"name":"new bid","args":[{"player":{"id":106734,"name":"Someone","link":"https://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"sum":2000,"price":3000,"bids":2,"auctionId":"13355"}]}
 			// 5::/auctioneer:{"name":"auction finished","args":[{"sum":2000,"player":{"id":106734,"name":"Someone","link":"http://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"bids":2,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1390</span>","time":"06:36"}]}
 			msg = bytes.TrimPrefix(msg, []byte("5::/auctioneer:"))
-			var pck interface{} = string(msg)
-			var out map[string]interface{}
+			var pck any = string(msg)
+			var out map[string]any
 			_ = json.Unmarshal(msg, &out)
-			if args, ok := out["args"].([]interface{}); ok {
+			if args, ok := out["args"].([]any); ok {
 				if len(args) > 0 {
 					if name, ok := out["name"].(string); ok && name == "new bid" {
-						if firstArg, ok := args[0].(map[string]interface{}); ok {
+						if firstArg, ok := args[0].(map[string]any); ok {
 							auctionID, _ := strconv.ParseInt(doCastStr(firstArg["auctionId"]), 10, 64)
 							pck1 := AuctioneerNewBid{
 								Sum:       int64(doCastF64(firstArg["sum"])),
@@ -1240,7 +1240,7 @@ LOOP:
 								Bids:      int64(doCastF64(firstArg["bids"])),
 								AuctionID: auctionID,
 							}
-							if player, ok := firstArg["player"].(map[string]interface{}); ok {
+							if player, ok := firstArg["player"].(map[string]any); ok {
 								pck1.Player.ID = int64(doCastF64(player["id"]))
 								pck1.Player.Name = doCastStr(player["name"])
 								pck1.Player.Link = doCastStr(player["link"])
@@ -1264,7 +1264,7 @@ LOOP:
 							}
 						}
 					} else if name, ok := out["name"].(string); ok && name == "new auction" {
-						if firstArg, ok := args[0].(map[string]interface{}); ok {
+						if firstArg, ok := args[0].(map[string]any); ok {
 							pck1 := AuctioneerNewAuction{
 								AuctionID: int64(doCastF64(firstArg["auctionId"])),
 							}
@@ -1278,12 +1278,12 @@ LOOP:
 							pck = pck1
 						}
 					} else if name, ok := out["name"].(string); ok && name == "auction finished" {
-						if firstArg, ok := args[0].(map[string]interface{}); ok {
+						if firstArg, ok := args[0].(map[string]any); ok {
 							pck1 := AuctioneerAuctionFinished{
 								Sum:  int64(doCastF64(firstArg["sum"])),
 								Bids: int64(doCastF64(firstArg["bids"])),
 							}
-							if player, ok := firstArg["player"].(map[string]interface{}); ok {
+							if player, ok := firstArg["player"].(map[string]any); ok {
 								pck1.Player.ID = int64(doCastF64(player["id"]))
 								pck1.Player.Name = doCastStr(player["name"])
 								pck1.Player.Link = doCastStr(player["link"])
@@ -1319,14 +1319,14 @@ LOOP:
 	}
 }
 
-func doCastF64(v interface{}) float64 {
+func doCastF64(v any) float64 {
 	if f, ok := v.(float64); ok {
 		return f
 	}
 	return 0
 }
 
-func doCastStr(v interface{}) string {
+func doCastStr(v any) string {
 	if str, ok := v.(string); ok {
 		return str
 	}
@@ -1805,7 +1805,7 @@ func (b *OGame) withRetry(fn func() error) error {
 	return nil
 }
 
-func (b *OGame) getPageJSON(vals url.Values, v interface{}) error {
+func (b *OGame) getPageJSON(vals url.Values, v any) error {
 	pageJSON, err := b.getPageContent(vals)
 	if err != nil {
 		return err
@@ -1950,7 +1950,7 @@ func (b *OGame) getPlanets() []Planet {
 	return b.extractor.ExtractPlanets(pageHTML, b)
 }
 
-func (b *OGame) getPlanet(v interface{}) (Planet, error) {
+func (b *OGame) getPlanet(v any) (Planet, error) {
 	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
 	return b.extractor.ExtractPlanet(pageHTML, v, b)
 }
@@ -1960,7 +1960,7 @@ func (b *OGame) getMoons() []Moon {
 	return b.extractor.ExtractMoons(pageHTML, b)
 }
 
-func (b *OGame) getMoon(v interface{}) (Moon, error) {
+func (b *OGame) getMoon(v any) (Moon, error) {
 	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
 	return b.extractor.ExtractMoon(pageHTML, b, v)
 }
@@ -1970,7 +1970,7 @@ func (b *OGame) getCelestials() ([]Celestial, error) {
 	return b.extractor.ExtractCelestials(pageHTML, b)
 }
 
-func (b *OGame) getCelestial(v interface{}) (Celestial, error) {
+func (b *OGame) getCelestial(v any) (Celestial, error) {
 	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
 	return b.extractor.ExtractCelestial(pageHTML, b, v)
 }
@@ -1998,7 +1998,7 @@ func (b *OGame) recruitOfficer(typ, days int64) error {
 	return nil
 }
 
-func (b *OGame) abandon(v interface{}) error {
+func (b *OGame) abandon(v any) error {
 	pageHTML, _ := b.getPage(OverviewPage, CelestialID(0))
 	var planetID PlanetID
 	if coordStr, ok := v.(string); ok {
@@ -2431,7 +2431,7 @@ func (b *OGame) getEmpire(celestialType CelestialType) (out []EmpireCelestial, e
 	return b.extractor.ExtractEmpire(pageHTMLBytes)
 }
 
-func (b *OGame) getEmpireJSON(nbr int64) (interface{}, error) {
+func (b *OGame) getEmpireJSON(nbr int64) (any, error) {
 	// Valid URLs:
 	// /game/index.php?page=standalone&component=empire&planetType=0
 	// /game/index.php?page=standalone&component=empire&planetType=1
@@ -2562,7 +2562,7 @@ func (b *OGame) useDM(typ string, celestialID CelestialID) error {
 // itemID 3 -> deuterium
 // itemID 204 -> light fighter
 // itemID <HASH> -> item
-func (b *OGame) offerMarketplace(marketItemType int64, itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	params := url.Values{"page": {"ingame"}, "component": {"marketplace"}, "tab": {"create_offer"}, "action": {"submitOffer"}, "asJson": {"1"}}
 	if celestialID != 0 {
 		params.Set("cp", strconv.FormatInt(int64(celestialID), 10))
@@ -2720,38 +2720,38 @@ type MessageSuccess struct {
 	Reload        bool   `json:"reload"`
 	BuffID        string `json:"buffId"`
 	Item          struct {
-		Name                    string      `json:"name"`
-		Image                   string      `json:"image"`
-		ImageLarge              string      `json:"imageLarge"`
-		Title                   string      `json:"title"`
-		Effect                  string      `json:"effect"`
-		Ref                     string      `json:"ref"`
-		Rarity                  string      `json:"rarity"`
-		Amount                  int         `json:"amount"`
-		AmountFree              int         `json:"amount_free"`
-		AmountBought            int         `json:"amount_bought"`
-		Category                []string    `json:"category"`
-		Currency                string      `json:"currency"`
-		Costs                   string      `json:"costs"`
-		IsReduced               bool        `json:"isReduced"`
-		Buyable                 bool        `json:"buyable"`
-		CanBeActivated          bool        `json:"canBeActivated"`
-		CanBeBoughtAndActivated bool        `json:"canBeBoughtAndActivated"`
-		IsAnUpgrade             bool        `json:"isAnUpgrade"`
-		IsCharacterClassItem    bool        `json:"isCharacterClassItem"`
-		HasEnoughCurrency       bool        `json:"hasEnoughCurrency"`
-		Cooldown                int         `json:"cooldown"`
-		Duration                int         `json:"duration"`
-		DurationExtension       interface{} `json:"durationExtension"`
-		TotalTime               int         `json:"totalTime"`
-		TimeLeft                int         `json:"timeLeft"`
-		Status                  string      `json:"status"`
-		Extendable              bool        `json:"extendable"`
-		FirstStatus             string      `json:"firstStatus"`
-		ToolTip                 string      `json:"toolTip"`
-		BuyTitle                string      `json:"buyTitle"`
-		ActivationTitle         string      `json:"activationTitle"`
-		MoonOnlyItem            bool        `json:"moonOnlyItem"`
+		Name                    string   `json:"name"`
+		Image                   string   `json:"image"`
+		ImageLarge              string   `json:"imageLarge"`
+		Title                   string   `json:"title"`
+		Effect                  string   `json:"effect"`
+		Ref                     string   `json:"ref"`
+		Rarity                  string   `json:"rarity"`
+		Amount                  int      `json:"amount"`
+		AmountFree              int      `json:"amount_free"`
+		AmountBought            int      `json:"amount_bought"`
+		Category                []string `json:"category"`
+		Currency                string   `json:"currency"`
+		Costs                   string   `json:"costs"`
+		IsReduced               bool     `json:"isReduced"`
+		Buyable                 bool     `json:"buyable"`
+		CanBeActivated          bool     `json:"canBeActivated"`
+		CanBeBoughtAndActivated bool     `json:"canBeBoughtAndActivated"`
+		IsAnUpgrade             bool     `json:"isAnUpgrade"`
+		IsCharacterClassItem    bool     `json:"isCharacterClassItem"`
+		HasEnoughCurrency       bool     `json:"hasEnoughCurrency"`
+		Cooldown                int      `json:"cooldown"`
+		Duration                int      `json:"duration"`
+		DurationExtension       any      `json:"durationExtension"`
+		TotalTime               int      `json:"totalTime"`
+		TimeLeft                int      `json:"timeLeft"`
+		Status                  string   `json:"status"`
+		Extendable              bool     `json:"extendable"`
+		FirstStatus             string   `json:"firstStatus"`
+		ToolTip                 string   `json:"toolTip"`
+		BuyTitle                string   `json:"buyTitle"`
+		ActivationTitle         string   `json:"activationTitle"`
+		MoonOnlyItem            bool     `json:"moonOnlyItem"`
 	} `json:"item"`
 	Message string `json:"message"`
 }
@@ -2774,9 +2774,9 @@ func (b *OGame) activateItem(ref string, celestialID CelestialID) error {
 		"item":         {ref},
 	}
 	var res struct {
-		Message  interface{} `json:"message"`
-		Error    bool        `json:"error"`
-		NewToken string      `json:"newToken"`
+		Message  any    `json:"message"`
+		Error    bool   `json:"error"`
+		NewToken string `json:"newToken"`
 	}
 	by, err := b.postPageContent(params, payload)
 	if err != nil {
@@ -2865,7 +2865,7 @@ func (b *OGame) doAuction(celestialID CelestialID, bid map[CelestialID]Resources
 		}
 	*/
 
-	var jsonObj map[string]interface{}
+	var jsonObj map[string]any
 	if err := json.Unmarshal(auctionHTML, &jsonObj); err != nil {
 		return err
 	}
@@ -3556,9 +3556,9 @@ type CheckTargetResponse struct {
 		Message string `json:"message"`
 		Error   int    `json:"error"`
 	} `json:"errors"`
-	TargetOk     bool          `json:"targetOk"`
-	Components   []interface{} `json:"components"`
-	NewAjaxToken string        `json:"newAjaxToken"`
+	TargetOk     bool   `json:"targetOk"`
+	Components   []any  `json:"components"`
+	NewAjaxToken string `json:"newAjaxToken"`
 }
 
 func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate,
@@ -3763,11 +3763,11 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	// fetch("https://s801-en.ogame.gameforge.com/game/index.php?page=ingame&component=fleetdispatch&action=sendFleet&ajax=1&asJson=1", {"credentials":"include","headers":{"content-type":"application/x-www-form-urlencoded; charset=UTF-8","sec-fetch-mode":"cors","sec-fetch-site":"same-origin","x-requested-with":"XMLHttpRequest"},"body":"token=414847e59344881d5c71303023735ab8&am209=1&am202=10&galaxy=9&system=297&position=7&type=2&metal=0&crystal=0&deuterium=0&prioMetal=1&prioCrystal=2&prioDeuterium=3&mission=8&speed=1&retreatAfterDefenderRetreat=0&union=0&holdingtime=0","method":"POST","mode":"cors"}).then(res => res.json()).then(r => console.log(r));
 
 	var resStruct struct {
-		Success           bool          `json:"success"`
-		Message           string        `json:"message"`
-		FleetSendingToken string        `json:"fleetSendingToken"`
-		Components        []interface{} `json:"components"`
-		RedirectURL       string        `json:"redirectUrl"`
+		Success           bool   `json:"success"`
+		Message           string `json:"message"`
+		FleetSendingToken string `json:"fleetSendingToken"`
+		Components        []any  `json:"components"`
+		RedirectURL       string `json:"redirectUrl"`
 		Errors            []struct {
 			Message string `json:"message"`
 			Error   int64  `json:"error"`
@@ -3945,12 +3945,12 @@ func (b *OGame) collectAllMarketplaceMessages() error {
 }
 
 type collectMarketplaceResponse struct {
-	MarketTransactionID int           `json:"marketTransactionId"`
-	Status              string        `json:"status"`
-	Message             string        `json:"message"`
-	StatusMessage       string        `json:"statusMessage"`
-	NewToken            string        `json:"newToken"`
-	Components          []interface{} `json:"components"`
+	MarketTransactionID int    `json:"marketTransactionId"`
+	Status              string `json:"status"`
+	Message             string `json:"message"`
+	StatusMessage       string `json:"statusMessage"`
+	NewToken            string `json:"newToken"`
+	Components          []any  `json:"components"`
 }
 
 func (b *OGame) collectMarketplaceMessage(msg MarketplaceMessage, newToken string) (string, error) {
@@ -4094,7 +4094,7 @@ func (b *OGame) deleteMessage(msgID int64) error {
 		return err
 	}
 
-	var res map[string]interface{}
+	var res map[string]any
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New("unable to find message id " + strconv.FormatInt(msgID, 10))
 	}
@@ -4275,7 +4275,7 @@ func (b *OGame) taskRunner() {
 	}()
 }
 
-func (b *OGame) getCachedCelestial(v interface{}) Celestial {
+func (b *OGame) getCachedCelestial(v any) Celestial {
 	if celestial, ok := v.(Celestial); ok {
 		return celestial
 	} else if planet, ok := v.(Planet); ok {
@@ -4677,13 +4677,13 @@ func (b *OGame) GetCachedCelestials() []Celestial {
 }
 
 // GetCachedCelestial return celestial from cached value
-func (b *OGame) GetCachedCelestial(v interface{}) Celestial {
+func (b *OGame) GetCachedCelestial(v any) Celestial {
 	return b.getCachedCelestial(v)
 }
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *OGame) GetPlanet(v interface{}) (Planet, error) {
+func (b *OGame) GetPlanet(v any) (Planet, error) {
 	return b.WithPriority(Normal).GetPlanet(v)
 }
 
@@ -4693,7 +4693,7 @@ func (b *OGame) GetMoons() []Moon {
 }
 
 // GetMoon gets infos for moonID
-func (b *OGame) GetMoon(v interface{}) (Moon, error) {
+func (b *OGame) GetMoon(v any) (Moon, error) {
 	return b.WithPriority(Normal).GetMoon(v)
 }
 
@@ -4710,12 +4710,12 @@ func (b *OGame) RecruitOfficer(typ, days int64) error {
 }
 
 // Abandon a planet
-func (b *OGame) Abandon(v interface{}) error {
+func (b *OGame) Abandon(v any) error {
 	return b.WithPriority(Normal).Abandon(v)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *OGame) GetCelestial(v interface{}) (Celestial, error) {
+func (b *OGame) GetCelestial(v any) (Celestial, error) {
 	return b.WithPriority(Normal).GetCelestial(v)
 }
 
@@ -5010,7 +5010,7 @@ func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
 }
 
 // RegisterAuctioneerCallback register a callback that is called when auctioneer packets are received
-func (b *OGame) RegisterAuctioneerCallback(fn func(packet interface{})) {
+func (b *OGame) RegisterAuctioneerCallback(fn func(packet any)) {
 	b.auctioneerCallbacks = append(b.auctioneerCallbacks, fn)
 }
 
@@ -5063,7 +5063,7 @@ func (b *OGame) GetEmpire(celestialType CelestialType) ([]EmpireCelestial, error
 }
 
 // GetEmpireJSON retrieves JSON from Empire page (Commander only).
-func (b *OGame) GetEmpireJSON(nbr int64) (interface{}, error) {
+func (b *OGame) GetEmpireJSON(nbr int64) (any, error) {
 	return b.WithPriority(Normal).GetEmpireJSON(nbr)
 }
 
@@ -5128,11 +5128,11 @@ func (b *OGame) BuyMarketplace(itemID int64, celestialID CelestialID) error {
 }
 
 // OfferSellMarketplace sell offer on marketplace
-func (b *OGame) OfferSellMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+func (b *OGame) OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	return b.WithPriority(Normal).OfferSellMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
 }
 
 // OfferBuyMarketplace buy offer on marketplace
-func (b *OGame) OfferBuyMarketplace(itemID interface{}, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
+func (b *OGame) OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error {
 	return b.WithPriority(Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
 }

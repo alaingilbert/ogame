@@ -72,7 +72,7 @@ func (e ExtractorV6) ExtractPlanets(pageHTML []byte, b *OGame) []Planet {
 }
 
 // ExtractPlanet ...
-func (e ExtractorV6) ExtractPlanet(pageHTML []byte, v interface{}, b *OGame) (Planet, error) {
+func (e ExtractorV6) ExtractPlanet(pageHTML []byte, v any, b *OGame) (Planet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractPlanetFromDoc(doc, v, b)
 }
@@ -90,7 +90,7 @@ func (e ExtractorV6) ExtractMoons(pageHTML []byte, b *OGame) []Moon {
 }
 
 // ExtractMoon ...
-func (e ExtractorV6) ExtractMoon(pageHTML []byte, b *OGame, v interface{}) (Moon, error) {
+func (e ExtractorV6) ExtractMoon(pageHTML []byte, b *OGame, v any) (Moon, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractMoonFromDoc(doc, b, v)
 }
@@ -108,7 +108,7 @@ func (e ExtractorV6) ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, 
 }
 
 // ExtractCelestial ...
-func (e ExtractorV6) ExtractCelestial(pageHTML []byte, b *OGame, v interface{}) (Celestial, error) {
+func (e ExtractorV6) ExtractCelestial(pageHTML []byte, b *OGame, v any) (Celestial, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractCelestialFromDoc(doc, b, v)
 }
@@ -386,7 +386,7 @@ func (e ExtractorV6) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Doc
 }
 
 // ExtractPlanetFromDoc ...
-func (e ExtractorV6) ExtractPlanetFromDoc(doc *goquery.Document, v interface{}, b *OGame) (Planet, error) {
+func (e ExtractorV6) ExtractPlanetFromDoc(doc *goquery.Document, v any, b *OGame) (Planet, error) {
 	return extractPlanetFromDocV6(doc, v, b)
 }
 
@@ -396,7 +396,7 @@ func (e ExtractorV6) ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon
 }
 
 // ExtractMoonFromDoc ...
-func (e ExtractorV6) ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Moon, error) {
+func (e ExtractorV6) ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v any) (Moon, error) {
 	return extractMoonFromDocV6(doc, b, v)
 }
 
@@ -416,7 +416,7 @@ func (e ExtractorV6) ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) (
 }
 
 // ExtractCelestialFromDoc ...
-func (e ExtractorV6) ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v interface{}) (Celestial, error) {
+func (e ExtractorV6) ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v any) (Celestial, error) {
 	return extractCelestialFromDocV6(doc, b, v)
 }
 
@@ -803,7 +803,7 @@ func (e ExtractorV6) ExtractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
 }
 
 // ExtractEmpireJSON ...
-func (e ExtractorV6) ExtractEmpireJSON(pageHTML []byte) (interface{}, error) {
+func (e ExtractorV6) ExtractEmpireJSON(pageHTML []byte) (any, error) {
 	return extractEmpireJSON(pageHTML)
 }
 
