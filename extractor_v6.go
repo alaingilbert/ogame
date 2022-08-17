@@ -412,7 +412,7 @@ func (e ExtractorV6) ExtractMoonByIDFromDoc(doc *goquery.Document, b *OGame, moo
 
 // ExtractCelestialsFromDoc ...
 func (e ExtractorV6) ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error) {
-	return extractCelestialsFromDocV6(doc, b)
+	return extractCelestialsFromDocV6(doc, b), nil
 }
 
 // ExtractCelestialFromDoc ...
