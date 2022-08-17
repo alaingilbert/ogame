@@ -58,13 +58,10 @@ const (
 	HighscoreContentAjaxPageName   = "highscoreContent"
 )
 
-func (b *OGame) getPage(page string, celestialID CelestialID, opts ...Option) ([]byte, error) {
+func (b *OGame) getPage(page string, opts ...Option) ([]byte, error) {
 	vals := url.Values{"page": {"ingame"}, "component": {page}}
 	if page == FetchResourcesPageName || page == FetchTechsName {
 		vals = url.Values{"page": {page}}
-	}
-	if celestialID != 0 {
-		vals.Add("cp", FI64(celestialID))
 	}
 	return b.getPageContent(vals, opts...)
 }
