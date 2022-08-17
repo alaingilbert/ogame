@@ -296,6 +296,40 @@ type Extractor interface {
 	ExtractSpioAnz(pageHTML []byte) int64
 	ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool
 	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
+	ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error)
+	ExtractPlanetID(pageHTML []byte) (CelestialID, error)
+	ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64
+	ExtractOGameTimestampFromBytes(pageHTML []byte) int64
+	ExtractPlanetType(pageHTML []byte) (CelestialType, error)
+	ExtractAjaxChatToken(pageHTML []byte) (string, error)
+	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
+	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
+	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
+	ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
+	ExtractCoord(v string) (coord Coordinate)
+	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error)
+	ExtractPhalanx(pageHTML []byte) ([]Fleet, error)
+	ExtractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int64)
+	ExtractFederation(pageHTML []byte) url.Values
+	ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
+	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
+	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
+	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
+	ExtractEmpire(pageHTML []byte) ([]EmpireCelestial, error)
+	ExtractEmpireJSON(pageHTML []byte) (any, error)
+	ExtractCharacterClass(pageHTML []byte) (CharacterClass, error)
+	ExtractCommander(pageHTML []byte) bool
+	ExtractAdmiral(pageHTML []byte) bool
+	ExtractEngineer(pageHTML []byte) bool
+	ExtractGeologist(pageHTML []byte) bool
+	ExtractTechnocrat(pageHTML []byte) bool
+	ExtractAuction(pageHTML []byte) (Auction, error)
+	ExtractHighscore(pageHTML []byte) (Highscore, error)
+	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
+	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
+	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
+	ExtractActiveItems(pageHTML []byte) ([]ActiveItem, error)
+	ExtractIsMobile(pageHTML []byte) bool
 	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
 	ExtractBodyIDFromDoc(doc *goquery.Document) string
 	ExtractIsInVacationFromDoc(doc *goquery.Document) bool
@@ -359,48 +393,14 @@ type Extractor interface {
 	ExtractNotifAllianceMessagesFromDoc(doc *goquery.Document) bool
 	ExtractNotifAuctionsFromDoc(doc *goquery.Document) bool
 	ExtractNotifAccountFromDoc(doc *goquery.Document) bool
-	ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error)
-	ExtractPlanetID(pageHTML []byte) (CelestialID, error)
 	ExtractPlanetIDFromDoc(doc *goquery.Document) (CelestialID, error)
-	ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64
-	ExtractOGameTimestampFromBytes(pageHTML []byte) int64
-	ExtractPlanetType(pageHTML []byte) (CelestialType, error)
 	ExtractPlanetTypeFromDoc(doc *goquery.Document) (CelestialType, error)
-	ExtractAjaxChatToken(pageHTML []byte) (string, error)
-	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
-	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
-	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
-	ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
-	ExtractCoord(v string) (coord Coordinate)
-	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error)
-	ExtractPhalanx(pageHTML []byte) ([]Fleet, error)
-	ExtractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int64)
-	ExtractFederation(pageHTML []byte) url.Values
-	ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
-	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
-	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
-	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
-	ExtractEmpire(pageHTML []byte) ([]EmpireCelestial, error)
-	ExtractEmpireJSON(pageHTML []byte) (any, error)
-	ExtractCharacterClass(pageHTML []byte) (CharacterClass, error)
 	ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error)
-	ExtractCommander(pageHTML []byte) bool
-	ExtractAdmiral(pageHTML []byte) bool
-	ExtractEngineer(pageHTML []byte) bool
-	ExtractGeologist(pageHTML []byte) bool
-	ExtractTechnocrat(pageHTML []byte) bool
 	ExtractCommanderFromDoc(doc *goquery.Document) bool
 	ExtractAdmiralFromDoc(doc *goquery.Document) bool
 	ExtractEngineerFromDoc(doc *goquery.Document) bool
 	ExtractGeologistFromDoc(doc *goquery.Document) bool
 	ExtractTechnocratFromDoc(doc *goquery.Document) bool
-	ExtractAuction(pageHTML []byte) (Auction, error)
-	ExtractHighscore(pageHTML []byte) (Highscore, error)
 	ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error)
-	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
-	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
-	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
-	ExtractActiveItems(pageHTML []byte) ([]ActiveItem, error)
-	ExtractIsMobile(pageHTML []byte) bool
 	ExtractIsMobileFromDoc(doc *goquery.Document) bool
 }
