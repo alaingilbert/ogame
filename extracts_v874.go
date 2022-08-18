@@ -42,7 +42,7 @@ func extractOfferOfTheDayFromDocV874(doc *goquery.Document) (price int64, import
 		err = errors.New("failed to extract offer of the day price")
 		return
 	}
-	price = ParseInt(s.Text())
+	price = utils.ParseInt(s.Text())
 	script := doc.Find("script").Text()
 	m := regexp.MustCompile(`var token\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
@@ -96,7 +96,7 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	auction.HighestBidder = strings.TrimSpace(doc.Find("a.currentPlayer").Text())
 	auction.HighestBidderUserID = utils.DoParseI64(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""))
 	auction.NumBids = utils.DoParseI64(doc.Find("div.numberOfBids").Text())
-	auction.CurrentBid = ParseInt(doc.Find("div.currentSum").Text())
+	auction.CurrentBid = utils.ParseInt(doc.Find("div.currentSum").Text())
 	auction.Inventory = utils.DoParseI64(doc.Find("span.level.amount").Text())
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
@@ -136,10 +136,10 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	auction.AlreadyBid = alreadyBid
 
 	// Find min-bid
-	auction.MinimumBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
+	auction.MinimumBid = utils.ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
 
 	// Find deficit-bid
-	auction.DeficitBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_deficit").Text())
+	auction.DeficitBid = utils.ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_deficit").Text())
 
 	// Note: Don't just bid the min-bid amount. It will keep doubling the total bid and grow exponentially...
 	// DeficitBid is 1000 when another player has outbid you or if nobody has bid yet.

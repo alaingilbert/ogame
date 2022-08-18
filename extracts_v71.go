@@ -173,13 +173,13 @@ func extractResourcesDetailsV71(pageHTML []byte) (out ResourcesDetails, err erro
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Deuterium.Tooltip))
 	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Darkmatter.Tooltip))
 	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Energy.Tooltip))
-	out.Metal.CurrentProduction = ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Crystal.CurrentProduction = ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Deuterium.CurrentProduction = ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Energy.CurrentProduction = ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Crystal.CurrentProduction = utils.ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Deuterium.CurrentProduction = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Energy.CurrentProduction = utils.ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Energy.Consumption = utils.ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Darkmatter.Purchased = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Darkmatter.Found = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	return
 }
 
@@ -453,7 +453,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	// Inactivity timer
 	activity := doc.Find("div.detail_txt").Eq(2).Find("font")
 	if len(activity.Text()) == 2 {
-		report.LastActivity = ParseInt(activity.Text())
+		report.LastActivity = utils.ParseInt(activity.Text())
 	}
 
 	// CounterEspionage
@@ -469,10 +469,10 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 		dataType := s.AttrOr("data-type", "")
 		if dataType == "resources" && !resourcesFound {
 			resourcesFound = true
-			report.Metal = ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
-			report.Crystal = ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
-			report.Deuterium = ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
-			report.Energy = ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
+			report.Metal = utils.ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
+			report.Crystal = utils.ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
+			report.Deuterium = utils.ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
+			report.Energy = utils.ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
 			report.HasBuildingsInformation = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
@@ -484,7 +484,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
 				case MetalMine.ID:
@@ -539,7 +539,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
 				case EspionageTechnology.ID:
@@ -588,7 +588,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
 				case SmallCargo.ID:
@@ -639,7 +639,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
 				case RocketLauncher.ID:
@@ -734,7 +734,7 @@ func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) 
 			return
 		}
 		itemID := utils.DoParseI64(m[1])
-		itemNbr := ParseInt(s.Text())
+		itemNbr := utils.ParseInt(s.Text())
 		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
 	})
 	return res, nil
@@ -811,7 +811,7 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 	out.Type = utils.DoParseI64(m[1])
 
 	changeSiteSize := s.Find("select.changeSite option").Size()
-	out.NbPage = MaxInt(int64(changeSiteSize)-1, 0)
+	out.NbPage = utils.MaxInt(int64(changeSiteSize)-1, 0)
 
 	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
 		p := HighscorePlayer{}
@@ -841,13 +841,13 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 		if honorScoreSpan == nil {
 			return
 		}
-		p.HonourPoints = ParseInt(strings.TrimSpace(honorScoreSpan.Text()))
-		p.Score = ParseInt(strings.TrimSpace(s.Find("td.score").Text()))
+		p.HonourPoints = utils.ParseInt(strings.TrimSpace(honorScoreSpan.Text()))
+		p.Score = utils.ParseInt(strings.TrimSpace(s.Find("td.score").Text()))
 		shipsRgx := regexp.MustCompile(`([\d\.]+)`)
 		shipsTitle := strings.TrimSpace(s.Find("td.score").AttrOr("title", "0"))
 		shipsParts := shipsRgx.FindStringSubmatch(shipsTitle)
 		if len(shipsParts) == 2 {
-			p.Ships = ParseInt(shipsParts[1])
+			p.Ships = utils.ParseInt(shipsParts[1])
 		}
 		out.Players = append(out.Players, p)
 	})
@@ -939,7 +939,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 				}
 			}
 			if missionType == MissileAttack {
-				attack.Missiles = ParseInt(s.Find("td.detailsFleet span").First().Text())
+				attack.Missiles = utils.ParseInt(s.Find("td.detailsFleet span").First().Text())
 			}
 
 			// Get ships infos if available
@@ -953,7 +953,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 				q.Find("tr").Each(func(i int, s *goquery.Selection) {
 					name := s.Find("td").Eq(0).Text()
 					nbrTxt := s.Find("td").Eq(1).Text()
-					nbr := ParseInt(nbrTxt)
+					nbr := utils.ParseInt(nbrTxt)
 					if name != "" && nbr > 0 {
 						attack.Ships.Set(ShipName2ID(name), nbr)
 					} else if nbrTxt == "?" {
@@ -1046,14 +1046,14 @@ func extractDMCostsFromDocV71(doc *goquery.Document) (DMCosts, error) {
 		if len(m) != 2 {
 			return
 		}
-		nbr = ParseInt(m[1])
+		nbr = utils.ParseInt(m[1])
 		canBuy = !s.Find("span.dm_cost").HasClass("overmark")
 		costTxt := s.Find("span.dm_cost").Text()
 		m = r.FindStringSubmatch(costTxt)
 		if len(m) != 2 {
 			return
 		}
-		cost = ParseInt(m[1])
+		cost = utils.ParseInt(m[1])
 		token = s.Find("a.build-faster").AttrOr("token", "")
 		linkRel := s.Find("a.build-faster").AttrOr("rel", "")
 		r = regexp.MustCompile(`buyAndActivate=([^"]+)`)
@@ -1103,7 +1103,7 @@ func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items
 
 func extractActiveItemsFromDocV71(doc *goquery.Document) (items []ActiveItem, err error) {
 	doc.Find("ul.active_items div").Each(func(i int, s *goquery.Selection) {
-		dataID := ParseInt(s.AttrOr("data-id", ""))
+		dataID := utils.ParseInt(s.AttrOr("data-id", ""))
 		if dataID == 0 {
 			return
 		}
@@ -1113,8 +1113,8 @@ func extractActiveItemsFromDocV71(doc *goquery.Document) (items []ActiveItem, er
 		item := ActiveItem{}
 		item.Ref = s.AttrOr("data-uuid", "")
 		item.ID = dataID
-		item.TotalDuration = ParseInt(durationDiv.AttrOr("data-total-duration", ""))
-		item.TimeRemaining = ParseInt(durationDiv.Text())
+		item.TotalDuration = utils.ParseInt(durationDiv.AttrOr("data-total-duration", ""))
+		item.TimeRemaining = utils.ParseInt(durationDiv.Text())
 		item.Name = strings.TrimSpace(strings.Split(aTitle, "|")[0])
 		item.ImgSmall = imgSrc
 		items = append(items, item)

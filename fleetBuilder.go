@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"errors"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"time"
 )
 
@@ -102,19 +103,19 @@ func (f *FleetBuilder) SetResources(resources Resources) *FleetBuilder {
 
 // SetMetal ...
 func (f *FleetBuilder) SetMetal(metal int64) *FleetBuilder {
-	f.resources.Metal = MaxInt(metal, -1)
+	f.resources.Metal = utils.MaxInt(metal, -1)
 	return f
 }
 
 // SetCrystal ...
 func (f *FleetBuilder) SetCrystal(crystal int64) *FleetBuilder {
-	f.resources.Crystal = MaxInt(crystal, -1)
+	f.resources.Crystal = utils.MaxInt(crystal, -1)
 	return f
 }
 
 // SetDeuterium ...
 func (f *FleetBuilder) SetDeuterium(deuterium int64) *FleetBuilder {
-	f.resources.Deuterium = MaxInt(deuterium, -1)
+	f.resources.Deuterium = utils.MaxInt(deuterium, -1)
 	return f
 }
 
@@ -241,15 +242,15 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 			if f.minimumDeuterium > 0 {
 				planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
 			}
-			payload.Deuterium = MinInt(cargoCapacity, planetResources.Deuterium)
+			payload.Deuterium = utils.MinInt(cargoCapacity, planetResources.Deuterium)
 			cargoCapacity -= payload.Deuterium
 		}
 		if f.resources.Crystal == -1 {
-			payload.Crystal = MinInt(cargoCapacity, planetResources.Crystal)
+			payload.Crystal = utils.MinInt(cargoCapacity, planetResources.Crystal)
 			cargoCapacity -= payload.Crystal
 		}
 		if f.resources.Metal == -1 {
-			payload.Metal = MinInt(cargoCapacity, planetResources.Metal)
+			payload.Metal = utils.MinInt(cargoCapacity, planetResources.Metal)
 		}
 	}
 

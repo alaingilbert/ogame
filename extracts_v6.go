@@ -38,36 +38,36 @@ func extractResourcesFromDocV6(doc *goquery.Document) Resources {
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
 	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
 	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
-	res.Metal = ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	res.Crystal = ParseInt(crystalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	res.Deuterium = ParseInt(deuteriumDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	res.Energy = ParseInt(energyDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	res.Darkmatter = ParseInt(darkmatterDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	res.Metal = utils.ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	res.Crystal = utils.ParseInt(crystalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	res.Deuterium = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	res.Energy = utils.ParseInt(energyDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	res.Darkmatter = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
 	return res
 }
 
 func extractResourcesDetailsFromFullPageFromDocV6(doc *goquery.Document) ResourcesDetails {
 	out := ResourcesDetails{}
-	out.Metal.Available = ParseInt(doc.Find("span#resources_metal").Text())
-	out.Crystal.Available = ParseInt(doc.Find("span#resources_crystal").Text())
-	out.Deuterium.Available = ParseInt(doc.Find("span#resources_deuterium").Text())
-	out.Energy.Available = ParseInt(doc.Find("span#resources_energy").Text())
-	out.Darkmatter.Available = ParseInt(doc.Find("span#resources_darkmatter").Text())
+	out.Metal.Available = utils.ParseInt(doc.Find("span#resources_metal").Text())
+	out.Crystal.Available = utils.ParseInt(doc.Find("span#resources_crystal").Text())
+	out.Deuterium.Available = utils.ParseInt(doc.Find("span#resources_deuterium").Text())
+	out.Energy.Available = utils.ParseInt(doc.Find("span#resources_energy").Text())
+	out.Darkmatter.Available = utils.ParseInt(doc.Find("span#resources_darkmatter").Text())
 	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
 	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
 	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
 	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
-	out.Metal.StorageCapacity = ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Metal.CurrentProduction = ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Crystal.StorageCapacity = ParseInt(crystalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Crystal.CurrentProduction = ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Deuterium.StorageCapacity = ParseInt(deuteriumDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Deuterium.CurrentProduction = ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Energy.CurrentProduction = ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Crystal.StorageCapacity = utils.ParseInt(crystalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Crystal.CurrentProduction = utils.ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Deuterium.StorageCapacity = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Deuterium.CurrentProduction = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Energy.CurrentProduction = utils.ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Energy.Consumption = utils.ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Darkmatter.Purchased = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Darkmatter.Found = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	return out
 }
 
@@ -402,7 +402,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock, ownCo
 			}
 		}
 		if missionType == MissileAttack {
-			attack.Missiles = ParseInt(s.Find("td.detailsFleet span").First().Text())
+			attack.Missiles = utils.ParseInt(s.Find("td.detailsFleet span").First().Text())
 		}
 
 		// Get ships infos if available
@@ -416,7 +416,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock, ownCo
 			q.Find("tr").Each(func(i int, s *goquery.Selection) {
 				name := s.Find("td").Eq(0).Text()
 				nbrTxt := s.Find("td").Eq(1).Text()
-				nbr := ParseInt(nbrTxt)
+				nbr := utils.ParseInt(nbrTxt)
 				if name != "" && nbr > 0 {
 					attack.Ships.Set(ShipName2ID(name), nbr)
 				} else if nbrTxt == "?" {
@@ -481,7 +481,7 @@ func extractOfferOfTheDayFromDocV6(doc *goquery.Document) (price int64, importTo
 		err = errors.New("failed to extract offer of the day price")
 		return
 	}
-	price = ParseInt(s.Text())
+	price = utils.ParseInt(s.Text())
 	script := doc.Find("script").Text()
 	m := regexp.MustCompile(`var importToken\s?=\s?"([^"]*)";`).FindSubmatch([]byte(script))
 	if len(m) != 2 {
@@ -538,7 +538,7 @@ func extractProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, error) {
 			}
 		}
 		itemID := utils.DoParseI64(itemIDstr)
-		itemNbr := ParseInt(s.Find("span.number").Text())
+		itemNbr := utils.ParseInt(s.Find("span.number").Text())
 		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
 	})
 	return res, nil
@@ -565,7 +565,7 @@ func extractOverviewProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, 
 		}
 		idInt := utils.DoParseI64(m[1])
 		activeID := ID(idInt)
-		activeNbr := ParseInt(link.Text())
+		activeNbr := utils.ParseInt(link.Text())
 		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	})
 	return res, nil
@@ -641,16 +641,16 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 				resTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(1).AttrOr("title", "")
 				m := regexp.MustCompile(`([\d.,]+)<br/>\D*([\d.,]+)<br/>\D*([\d.,]+)`).FindStringSubmatch(resTitle)
 				if len(m) == 4 {
-					report.Metal = ParseInt(m[1])
-					report.Crystal = ParseInt(m[2])
-					report.Deuterium = ParseInt(m[3])
+					report.Metal = utils.ParseInt(m[1])
+					report.Crystal = utils.ParseInt(m[2])
+					report.Deuterium = utils.ParseInt(m[3])
 				}
 				debrisFieldTitle := s.Find("span.msg_content div.combatLeftSide span").Eq(2).AttrOr("title", "0")
-				report.DebrisField = ParseInt(debrisFieldTitle)
+				report.DebrisField = utils.ParseInt(debrisFieldTitle)
 				resText := s.Find("span.msg_content div.combatLeftSide span").Eq(1).Text()
 				m = regexp.MustCompile(`[\d.,]+\D*([\d.,]+)`).FindStringSubmatch(resText)
 				if len(m) == 2 {
-					report.Loot = ParseInt(m[1])
+					report.Loot = utils.ParseInt(m[1])
 				}
 				msgDate, _ := time.Parse("02.01.2006 15:04:05", s.Find("span.msg_date").Text())
 				report.CreatedAt = msgDate
@@ -736,7 +736,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 	// Inactivity timer
 	activity := doc.Find("div.detail_txt").Eq(1).Find("font")
 	if len(activity.Text()) == 2 {
-		report.LastActivity = ParseInt(activity.Text())
+		report.LastActivity = utils.ParseInt(activity.Text())
 	}
 
 	// CounterEspionage
@@ -750,10 +750,10 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 	doc.Find("ul.detail_list").Each(func(i int, s *goquery.Selection) {
 		dataType := s.AttrOr("data-type", "")
 		if dataType == "resources" {
-			report.Metal = ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
-			report.Crystal = ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
-			report.Deuterium = ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
-			report.Energy = ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
+			report.Metal = utils.ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
+			report.Crystal = utils.ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
+			report.Deuterium = utils.ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
+			report.Energy = utils.ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
 			report.HasBuildingsInformation = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
@@ -765,7 +765,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
 				case MetalMine.ID:
@@ -820,7 +820,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
 				case EspionageTechnology.ID:
@@ -869,7 +869,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
 				case SmallCargo.ID:
@@ -914,7 +914,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
 				case RocketLauncher.ID:
@@ -952,10 +952,10 @@ func extractResourcesProductionsFromDocV6(doc *goquery.Document) (Resources, err
 	res := Resources{}
 	selector := "table.listOfResourceSettingsPerPlanet tr.summary td span"
 	el := doc.Find(selector)
-	res.Metal = ParseInt(el.Eq(0).AttrOr("title", "0"))
-	res.Crystal = ParseInt(el.Eq(1).AttrOr("title", "0"))
-	res.Deuterium = ParseInt(el.Eq(2).AttrOr("title", "0"))
-	res.Energy = ParseInt(el.Eq(3).AttrOr("title", "0"))
+	res.Metal = utils.ParseInt(el.Eq(0).AttrOr("title", "0"))
+	res.Crystal = utils.ParseInt(el.Eq(1).AttrOr("title", "0"))
+	res.Deuterium = utils.ParseInt(el.Eq(2).AttrOr("title", "0"))
+	res.Energy = utils.ParseInt(el.Eq(3).AttrOr("title", "0"))
 	return res, nil
 }
 
@@ -1047,7 +1047,7 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 				return
 			}
 			name := s.Find("td").Eq(0).Text()
-			nbr := ParseInt(s.Find("td").Eq(1).Text())
+			nbr := utils.ParseInt(s.Find("td").Eq(1).Text())
 			if name != "" && nbr > 0 {
 				fleet.Ships.Set(ShipName2ID(name), nbr)
 			}
@@ -1057,9 +1057,9 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 
 		res := Resources{}
 		trs := doc2.Find("tr")
-		res.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
-		res.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
-		res.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+		res.Metal = utils.ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
+		res.Crystal = utils.ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
+		res.Deuterium = utils.ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
 
 		tmp = append(tmp, Tmp{fleet: fleet, res: res})
 	})
@@ -1122,9 +1122,9 @@ func extractFleetsFromDocV6(doc *goquery.Document, location *time.Location) (res
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
-		shipment.Metal = ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
-		shipment.Crystal = ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
-		shipment.Deuterium = ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+		shipment.Metal = utils.ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
+		shipment.Crystal = utils.ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
+		shipment.Deuterium = utils.ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
 
 		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
 		fedAttackURL, _ := url.Parse(fedAttackHref)
@@ -1169,7 +1169,7 @@ func extractFleetsFromDocV6(doc *goquery.Document, location *time.Location) (res
 		for i := 1; i < trs.Size()-5; i++ {
 			tds := trs.Eq(i).Find("td")
 			name := strings.ToLower(strings.Trim(strings.TrimSpace(tds.Eq(0).Text()), ":"))
-			qty := ParseInt(tds.Eq(1).Text())
+			qty := utils.ParseInt(tds.Eq(1).Text())
 			shipID := ShipName2ID(name)
 			fleet.Ships.Set(shipID, qty)
 		}
@@ -1183,10 +1183,10 @@ func extractSlotsFromDocV6(doc *goquery.Document) Slots {
 	slots := Slots{}
 	page := extractBodyIDFromDocV6(doc)
 	if page == MovementPageName {
-		slots.InUse = ParseInt(doc.Find("span.fleetSlots > span.current").Text())
-		slots.Total = ParseInt(doc.Find("span.fleetSlots > span.all").Text())
-		slots.ExpInUse = ParseInt(doc.Find("span.expSlots > span.current").Text())
-		slots.ExpTotal = ParseInt(doc.Find("span.expSlots > span.all").Text())
+		slots.InUse = utils.ParseInt(doc.Find("span.fleetSlots > span.current").Text())
+		slots.Total = utils.ParseInt(doc.Find("span.fleetSlots > span.all").Text())
+		slots.ExpInUse = utils.ParseInt(doc.Find("span.expSlots > span.current").Text())
+		slots.ExpTotal = utils.ParseInt(doc.Find("span.expSlots > span.all").Text())
 	} else if page == FleetdispatchPageName || page == "fleet1" {
 		r := regexp.MustCompile(`(\d+)/(\d+)`)
 		txt := doc.Find("div#slots>div").Eq(0).Text()
@@ -1415,7 +1415,7 @@ func extractOverviewShipSumCountdownFromBytesV6(pageHTML []byte) int64 {
 	var shipSumCountdown int64
 	shipSumCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\('shipSumCount7'\),\d+,\d+,(\d+),`).FindSubmatch(pageHTML)
 	if len(shipSumCountdownMatch) > 0 {
-		shipSumCountdown = int64(toInt(shipSumCountdownMatch[1]))
+		shipSumCountdown = int64(utils.ToInt(shipSumCountdownMatch[1]))
 	}
 	return shipSumCountdown
 }
@@ -1482,7 +1482,7 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 		return UserInfos{}, errors.New("cannot find sub html")
 	}
 	res := UserInfos{}
-	res.PlayerID = int64(toInt(playerIDGroups[1]))
+	res.PlayerID = int64(utils.ToInt(playerIDGroups[1]))
 	res.PlayerName = string(playerNameGroups[1])
 	html2 := subHTMLGroups[1]
 
@@ -1548,19 +1548,19 @@ func extractUserInfosV6(pageHTML []byte, lang string) (UserInfos, error) {
 	if len(infos) < 4 {
 		return UserInfos{}, errors.New("cannot find infos in sub html")
 	}
-	res.Points = ParseInt(string(infos[1]))
-	res.Rank = ParseInt(string(infos[2]))
-	res.Total = ParseInt(string(infos[3]))
+	res.Points = utils.ParseInt(string(infos[1]))
+	res.Rank = utils.ParseInt(string(infos[2]))
+	res.Total = utils.ParseInt(string(infos[3]))
 	if lang == "tr" || lang == "jp" {
-		res.Rank = ParseInt(string(infos[3]))
-		res.Total = ParseInt(string(infos[2]))
+		res.Rank = utils.ParseInt(string(infos[3]))
+		res.Total = utils.ParseInt(string(infos[2]))
 	}
 	honourPointsRgx := regexp.MustCompile(`textContent\[9]\s?=\s?"([^"]+)"`)
 	honourPointsGroups := honourPointsRgx.FindSubmatch(pageHTML)
 	if len(honourPointsGroups) < 2 {
 		return UserInfos{}, errors.New("cannot find honour points")
 	}
-	res.HonourPoints = ParseInt(string(honourPointsGroups[1]))
+	res.HonourPoints = utils.ParseInt(string(honourPointsGroups[1]))
 	return res, nil
 }
 
@@ -1585,13 +1585,13 @@ func extractResourcesDetailsV6(pageHTML []byte) (out ResourcesDetails, err error
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Deuterium.Tooltip))
 	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Darkmatter.Tooltip))
 	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Energy.Tooltip))
-	out.Metal.CurrentProduction = ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Crystal.CurrentProduction = ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Deuterium.CurrentProduction = ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Energy.CurrentProduction = ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Crystal.CurrentProduction = utils.ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Deuterium.CurrentProduction = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Energy.CurrentProduction = utils.ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Energy.Consumption = utils.ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Darkmatter.Purchased = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Darkmatter.Found = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	return
 }
 
@@ -1637,8 +1637,8 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 	}
 
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
-	res.galaxy = ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
-	res.system = ParseInt(doc.Find("table").AttrOr("data-system", "0"))
+	res.galaxy = utils.ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
+	res.system = utils.ParseInt(doc.Find("table").AttrOr("data-system", "0"))
 	isVacationMode := doc.Find("div#warning").Length() == 1
 	if isVacationMode {
 		return res, ErrAccountInVacationMode
@@ -1681,13 +1681,13 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 				planetInfos.Alliance.Name = allianceSpan.Find("h1").Text()
 				planetInfos.Alliance.ID = utils.DoParseI64(strings.TrimPrefix(longID, "alliance"))
 				planetInfos.Alliance.Rank = utils.DoParseI64(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text())
-				planetInfos.Alliance.Member = ParseInt(prefixedNumRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
+				planetInfos.Alliance.Member = utils.ParseInt(prefixedNumRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
 			}
 
 			if len(prefixedNumRgx.FindStringSubmatch(metalTxt)) > 0 {
-				planetInfos.Debris.Metal = ParseInt(prefixedNumRgx.FindStringSubmatch(metalTxt)[1])
-				planetInfos.Debris.Crystal = ParseInt(prefixedNumRgx.FindStringSubmatch(crystalTxt)[1])
-				planetInfos.Debris.RecyclersNeeded = ParseInt(prefixedNumRgx.FindStringSubmatch(recyclersTxt)[1])
+				planetInfos.Debris.Metal = utils.ParseInt(prefixedNumRgx.FindStringSubmatch(metalTxt)[1])
+				planetInfos.Debris.Crystal = utils.ParseInt(prefixedNumRgx.FindStringSubmatch(crystalTxt)[1])
+				planetInfos.Debris.RecyclersNeeded = utils.ParseInt(prefixedNumRgx.FindStringSubmatch(recyclersTxt)[1])
 			}
 
 			planetInfos.Activity = extractActivity(s.Find("td:not(.moon) div.activity"))
@@ -1747,9 +1747,9 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 		metalTxt := lis.First().Text()
 		crystalTxt := lis.Eq(1).Text()
 		pathfindersTxt := lis.Eq(2).Text()
-		res.ExpeditionDebris.Metal = ParseInt(prefixedNumRgx.FindStringSubmatch(metalTxt)[1])
-		res.ExpeditionDebris.Crystal = ParseInt(prefixedNumRgx.FindStringSubmatch(crystalTxt)[1])
-		res.ExpeditionDebris.PathfindersNeeded = ParseInt(prefixedNumRgx.FindStringSubmatch(pathfindersTxt)[1])
+		res.ExpeditionDebris.Metal = utils.ParseInt(prefixedNumRgx.FindStringSubmatch(metalTxt)[1])
+		res.ExpeditionDebris.Crystal = utils.ParseInt(prefixedNumRgx.FindStringSubmatch(crystalTxt)[1])
+		res.ExpeditionDebris.PathfindersNeeded = utils.ParseInt(prefixedNumRgx.FindStringSubmatch(pathfindersTxt)[1])
 	}
 
 	debris17Div := doc.Find("div#debris17")
@@ -1758,7 +1758,7 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 		darkmatterTxt := lis.First().Text()
 		darkmatterMatches := prefixedNumRgx.FindStringSubmatch(darkmatterTxt)
 		if len(darkmatterMatches) == 2 {
-			res.Events.Darkmatter = ParseInt(darkmatterMatches[1])
+			res.Events.Darkmatter = utils.ParseInt(darkmatterMatches[1])
 		}
 	}
 
@@ -1816,7 +1816,7 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 					return
 				}
 				name := s.Find("td").Eq(0).Text()
-				nbr := ParseInt(s.Find("td").Eq(1).Text())
+				nbr := utils.ParseInt(s.Find("td").Eq(1).Text())
 				if name != "" && nbr > 0 {
 					fleet.Ships.Set(ShipName2ID(name), nbr)
 				}
@@ -1844,17 +1844,17 @@ func extractJumpGateV6(pageHTML []byte) (ShipsInfos, string, []MoonID, int64) {
 	ships := ShipsInfos{}
 	var destinations []MoonID
 	if len(m) > 0 {
-		waitTime := int64(toInt(m[1]))
+		waitTime := int64(utils.ToInt(m[1]))
 		return ships, "", destinations, waitTime
 	}
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	for _, s := range Ships {
-		ships.Set(s.GetID(), ParseInt(doc.Find("input#ship_"+FI64(s.GetID())).AttrOr("rel", "0")))
+		ships.Set(s.GetID(), utils.ParseInt(doc.Find("input#ship_"+FI64(s.GetID())).AttrOr("rel", "0")))
 	}
 	token := doc.Find("input[name=token]").AttrOr("value", "")
 
 	doc.Find("select[name=zm] option").Each(func(i int, s *goquery.Selection) {
-		moonID := ParseInt(s.AttrOr("value", "0"))
+		moonID := utils.ParseInt(s.AttrOr("value", "0"))
 		if moonID > 0 {
 			destinations = append(destinations, MoonID(moonID))
 		}
@@ -1877,14 +1877,14 @@ func extractFederationV6(pageHTML []byte) url.Values {
 func extractConstructionsV6(pageHTML []byte) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64) {
 	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		buildingCountdown = int64(toInt(buildingCountdownMatch[1]))
-		buildingIDInt := toInt(regexp.MustCompile(`onclick="cancelProduction\((\d+),`).FindSubmatch(pageHTML)[1])
+		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1]))
+		buildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelProduction\((\d+),`).FindSubmatch(pageHTML)[1])
 		buildingID = ID(buildingIDInt)
 	}
 	researchCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("researchCountdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(researchCountdownMatch) > 0 {
-		researchCountdown = int64(toInt(researchCountdownMatch[1]))
-		researchIDInt := toInt(regexp.MustCompile(`onclick="cancelResearch\((\d+),`).FindSubmatch(pageHTML)[1])
+		researchCountdown = int64(utils.ToInt(researchCountdownMatch[1]))
+		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelResearch\((\d+),`).FindSubmatch(pageHTML)[1])
 		researchID = ID(researchIDInt)
 	}
 	return
@@ -1942,8 +1942,8 @@ func extractCancelResearchInfosV6(pageHTML []byte) (token string, techID, listID
 func extractUniverseSpeedV6(pageHTML []byte) int64 {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	spans := doc.Find("span.undermark")
-	level := ParseInt(spans.Eq(0).Text())
-	val := ParseInt(spans.Eq(1).Text())
+	level := utils.ParseInt(spans.Eq(0).Text())
+	val := utils.ParseInt(spans.Eq(1).Text())
 	metalProduction := int64(math.Floor(30 * float64(level) * math.Pow(1.1, float64(level))))
 	universeSpeed := val / metalProduction
 	return universeSpeed
@@ -1985,7 +1985,7 @@ func extractPlanetFromSelectionV6(s *goquery.Selection) (ExtractorPlanet, error)
 	res.coordinate.System = utils.DoParseI64(m[3])
 	res.coordinate.Position = utils.DoParseI64(m[4])
 	res.coordinate.Type = PlanetType
-	res.diameter = ParseInt(m[5])
+	res.diameter = utils.ParseInt(m[5])
 	res.fields.Built = utils.DoParseI64(m[6])
 	res.fields.Total = utils.DoParseI64(m[7])
 	res.temperature.Min = utils.DoParseI64(m[8])
@@ -2020,7 +2020,7 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection) (ExtractorMoon, err
 	moon.coordinate.System = utils.DoParseI64(mm[3])
 	moon.coordinate.Position = utils.DoParseI64(mm[4])
 	moon.coordinate.Type = MoonType
-	moon.diameter = ParseInt(mm[5])
+	moon.diameter = utils.ParseInt(mm[5])
 	moon.fields.Built = utils.DoParseI64(mm[6])
 	moon.fields.Total = utils.DoParseI64(mm[7])
 	moon.img = moonLink.Find("img.icon-moon").AttrOr("src", "")
@@ -2066,12 +2066,12 @@ func extractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
 		mm := diameterRgx.FindStringSubmatch(doCastStr(planet["diameter"]))
 		energyStr := doCastStr(planet["energy"])
 		energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
-		energy := ParseInt(energyDoc.Find("div span").Text())
+		energy := utils.ParseInt(energyDoc.Find("div span").Text())
 		celestialType := CelestialType(doCastF64(planet["type"]))
 		out = append(out, EmpireCelestial{
 			Name:     doCastStr(planet["name"]),
 			ID:       CelestialID(doCastF64(planet["id"])),
-			Diameter: ParseInt(mm[1]),
+			Diameter: utils.ParseInt(mm[1]),
 			Img:      doCastStr(planet["image"]),
 			Type:     celestialType,
 			Fields: Fields{
@@ -2248,7 +2248,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	auction.HighestBidder = strings.TrimSpace(doc.Find("a.currentPlayer").Text())
 	auction.HighestBidderUserID = utils.DoParseI64(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""))
 	auction.NumBids = utils.DoParseI64(doc.Find("div.numberOfBids").Text())
-	auction.CurrentBid = ParseInt(doc.Find("div.currentSum").Text())
+	auction.CurrentBid = utils.ParseInt(doc.Find("div.currentSum").Text())
 	auction.Inventory = utils.DoParseI64(doc.Find("span.level.amount").Text())
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
@@ -2288,10 +2288,10 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	auction.AlreadyBid = alreadyBid
 
 	// Find min-bid
-	auction.MinimumBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
+	auction.MinimumBid = utils.ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_price").Text())
 
 	// Find deficit-bid
-	auction.DeficitBid = ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_deficit").Text())
+	auction.DeficitBid = utils.ParseInt(doc.Find("table.table_ressources_sum tr td.auctionInfo.js_deficit").Text())
 
 	// Note: Don't just bid the min-bid amount. It will keep doubling the total bid and grow exponentially...
 	// DeficitBid is 1000 when another player has outbid you or if nobody has bid yet.

@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"bytes"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/hashicorp/go-version"
 	"io/ioutil"
 	"regexp"
@@ -15,7 +16,7 @@ import (
 
 func BenchmarkUserInfoRegex(b *testing.B) {
 	extractUserRegex := func(pageHTML []byte) (int, string) {
-		playerID := toInt(regexp.MustCompile(`playerId="(\d+)"`).FindSubmatch(pageHTML)[1])
+		playerID := utils.ToInt(regexp.MustCompile(`playerId="(\d+)"`).FindSubmatch(pageHTML)[1])
 		playerName := string(regexp.MustCompile(`playerName="([^"]+)"`).FindSubmatch(pageHTML)[1])
 		return playerID, playerName
 	}
@@ -28,7 +29,7 @@ func BenchmarkUserInfoRegex(b *testing.B) {
 func BenchmarkUserInfoGoquery(b *testing.B) {
 	extractUserGoquery := func(pageHTML []byte) (int64, string) {
 		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-		playerID := ParseInt(doc.Find("meta[name=ogame-player-id]").AttrOr("content", "0"))
+		playerID := utils.ParseInt(doc.Find("meta[name=ogame-player-id]").AttrOr("content", "0"))
 		playerName := doc.Find("meta[name=ogame-player-name]").AttrOr("content", "")
 		return playerID, playerName
 	}
@@ -55,14 +56,14 @@ func TestParseInt2(t *testing.T) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
 	title := doc.Find("li.metal").AttrOr("title", "")
 	metalStr := regexp.MustCompile(`([\d.]+)`).FindStringSubmatch(title)[1]
-	metal := ParseInt(metalStr)
+	metal := utils.ParseInt(metalStr)
 	assert.Equal(t, int64(5000000), metal)
 
 	pageHTMLBytes, _ = ioutil.ReadFile("samples/unversioned/mrd_price.html")
 	doc, _ = goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
 	title = doc.Find("li.metal").AttrOr("title", "")
 	metalStr = regexp.MustCompile(`([\d.]+)`).FindStringSubmatch(title)[1]
-	metal = ParseInt(metalStr)
+	metal = utils.ParseInt(metalStr)
 	assert.Equal(t, int64(1555733200), metal)
 }
 
@@ -1527,7 +1528,7 @@ func TestExtractAttacks1(t *testing.T) {
 func TestExtractCargoCapacity(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("samples/unversioned/sendfleet3.htm")
 	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
-	cargo := ParseInt(fleet3Doc.Find("#maxresources").Text())
+	cargo := utils.ParseInt(fleet3Doc.Find("#maxresources").Text())
 	assert.Equal(t, int64(442500), cargo)
 }
 
@@ -2614,7 +2615,7 @@ func TestExtractDKProductionWithABM(t *testing.T) {
 
 func TestI64Ptr(t *testing.T) {
 	v := int64(6)
-	assert.Equal(t, &v, I64Ptr(6))
+	assert.Equal(t, &v, utils.I64Ptr(6))
 }
 
 func TestIsShipID(t *testing.T) {

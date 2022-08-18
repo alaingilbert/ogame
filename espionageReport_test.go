@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -41,7 +42,7 @@ func TestEspionageReport_IsDefenceless(t *testing.T) {
 }
 
 func TestShipsInfos(t *testing.T) {
-	er := EspionageReport{HasFleetInformation: true, SmallCargo: I64Ptr(3), LightFighter: I64Ptr(5)}
+	er := EspionageReport{HasFleetInformation: true, SmallCargo: utils.I64Ptr(3), LightFighter: utils.I64Ptr(5)}
 	assert.Equal(t, int64(8), er.ShipsInfos().CountShips())
 
 	er = EspionageReport{HasFleetInformation: false}

@@ -39,12 +39,12 @@ func extractEmpireV9(pageHTML []byte) ([]EmpireCelestial, error) {
 		mm := diameterRgx.FindStringSubmatch(doCastStr(planet["diameter"]))
 		energyStr := doCastStr(planet["energy"])
 		energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
-		energy := ParseInt(energyDoc.Find("div span").Text())
+		energy := utils.ParseInt(energyDoc.Find("div span").Text())
 		celestialType := CelestialType(doCastF64(planet["type"]))
 		out = append(out, EmpireCelestial{
 			Name:     doCastStr(planet["name"]),
 			ID:       CelestialID(doCastF64(planet["id"])),
-			Diameter: ParseInt(mm[1]),
+			Diameter: utils.ParseInt(mm[1]),
 			Img:      doCastStr(planet["image"]),
 			Type:     celestialType,
 			Fields: Fields{
@@ -167,7 +167,7 @@ func extractOverviewProductionFromDocV9(doc *goquery.Document) ([]Quantifiable, 
 				return
 			}
 		}
-		activeNbr := ParseInt(s.Text())
+		activeNbr := utils.ParseInt(s.Text())
 		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	})
 	return res, nil
@@ -184,21 +184,21 @@ func extractResourcesDetailsFromFullPageFromDocV9(doc *goquery.Document) Resourc
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", "")))
 	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", "")))
 	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", "")))
-	out.Metal.Available = ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	out.Metal.StorageCapacity = ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Metal.CurrentProduction = ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Crystal.Available = ParseInt(crystalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	out.Crystal.StorageCapacity = ParseInt(crystalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Crystal.CurrentProduction = ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Deuterium.Available = ParseInt(deuteriumDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	out.Deuterium.StorageCapacity = ParseInt(deuteriumDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Deuterium.CurrentProduction = ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Energy.Available = ParseInt(energyDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	out.Energy.CurrentProduction = ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Energy.Consumption = ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
-	out.Darkmatter.Available = ParseInt(darkmatterDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
-	out.Darkmatter.Purchased = ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
-	out.Darkmatter.Found = ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Metal.Available = utils.ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Crystal.Available = utils.ParseInt(crystalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Crystal.StorageCapacity = utils.ParseInt(crystalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Crystal.CurrentProduction = utils.ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Deuterium.Available = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Deuterium.StorageCapacity = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Deuterium.CurrentProduction = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Energy.Available = utils.ParseInt(energyDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Energy.CurrentProduction = utils.ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Energy.Consumption = utils.ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Darkmatter.Available = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Darkmatter.Purchased = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Darkmatter.Found = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	return out
 }
 
@@ -278,7 +278,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 	// Inactivity timer
 	activity := doc.Find("div.detail_txt").Eq(3).Find("font")
 	if len(activity.Text()) == 2 {
-		report.LastActivity = ParseInt(activity.Text())
+		report.LastActivity = utils.ParseInt(activity.Text())
 	}
 
 	// CounterEspionage
@@ -295,10 +295,10 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 		dataType := s.AttrOr("data-type", "")
 		if dataType == "resources" && !resourcesFound {
 			resourcesFound = true
-			report.Metal = ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
-			report.Crystal = ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
-			report.Deuterium = ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
-			report.Energy = ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
+			report.Metal = utils.ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
+			report.Crystal = utils.ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
+			report.Deuterium = utils.ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
+			report.Energy = utils.ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" && !buildingsFound {
 			buildingsFound = true
 			report.HasBuildingsInformation = s.Find("li.detail_list_fail").Size() == 0
@@ -311,7 +311,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
 				case MetalMine.ID:
@@ -366,7 +366,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
 				case EspionageTechnology.ID:
@@ -415,7 +415,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
 				case SmallCargo.ID:
@@ -466,7 +466,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
 				case RocketLauncher.ID:

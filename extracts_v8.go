@@ -99,7 +99,7 @@ func extractEspionageReportFromDocV8(doc *goquery.Document, location *time.Locat
 	// Inactivity timer
 	activity := doc.Find("div.detail_txt").Eq(3).Find("font")
 	if len(activity.Text()) == 2 {
-		report.LastActivity = ParseInt(activity.Text())
+		report.LastActivity = utils.ParseInt(activity.Text())
 	}
 
 	// CounterEspionage
@@ -115,10 +115,10 @@ func extractEspionageReportFromDocV8(doc *goquery.Document, location *time.Locat
 		dataType := s.AttrOr("data-type", "")
 		if dataType == "resources" && !resourcesFound {
 			resourcesFound = true
-			report.Metal = ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
-			report.Crystal = ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
-			report.Deuterium = ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
-			report.Energy = ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
+			report.Metal = utils.ParseInt(s.Find("li").Eq(0).AttrOr("title", "0"))
+			report.Crystal = utils.ParseInt(s.Find("li").Eq(1).AttrOr("title", "0"))
+			report.Deuterium = utils.ParseInt(s.Find("li").Eq(2).AttrOr("title", "0"))
+			report.Energy = utils.ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
 			report.HasBuildingsInformation = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
@@ -130,7 +130,7 @@ func extractEspionageReportFromDocV8(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
 				case MetalMine.ID:
@@ -185,7 +185,7 @@ func extractEspionageReportFromDocV8(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
 				case EspionageTechnology.ID:
@@ -234,7 +234,7 @@ func extractEspionageReportFromDocV8(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
 				case SmallCargo.ID:
@@ -285,7 +285,7 @@ func extractEspionageReportFromDocV8(doc *goquery.Document, location *time.Locat
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := ParseInt(s2.Find("span.fright").Text())
+				l := utils.ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
 				case RocketLauncher.ID:

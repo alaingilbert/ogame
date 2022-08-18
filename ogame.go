@@ -3006,7 +3006,7 @@ func getNbr(doc *goquery.Document, name string) int64 {
 	div := doc.Find("div." + name)
 	level := div.Find("span.level")
 	level.Children().Remove()
-	return ParseInt(level.Text())
+	return utils.ParseInt(level.Text())
 }
 
 func getNbrShips(doc *goquery.Document, name string) int64 {
@@ -3019,7 +3019,7 @@ func getNbrShips(doc *goquery.Document, name string) int64 {
 	if len(m) != 2 {
 		return 0
 	}
-	return ParseInt(m[1])
+	return utils.ParseInt(m[1])
 }
 
 func (b *OGame) getCachedResearch() Researches {
@@ -3626,9 +3626,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 		newResources = resources
 	}
 
-	newResources.Metal = MaxInt(newResources.Metal, 0)
-	newResources.Crystal = MaxInt(newResources.Crystal, 0)
-	newResources.Deuterium = MaxInt(newResources.Deuterium, 0)
+	newResources.Metal = utils.MaxInt(newResources.Metal, 0)
+	newResources.Crystal = utils.MaxInt(newResources.Crystal, 0)
+	newResources.Deuterium = utils.MaxInt(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
 	if b.IsV8() || b.IsV9() {
@@ -3645,9 +3645,9 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 	payload.Set("retreatAfterDefenderRetreat", "0")
 	if mission == ParkInThatAlly || mission == Expedition {
 		if mission == Expedition { // Expedition 1 to 18
-			holdingTime = Clamp(holdingTime, 1, 18)
+			holdingTime = utils.Clamp(holdingTime, 1, 18)
 		} else if mission == ParkInThatAlly { // ParkInThatAlly 0, 1, 2, 4, 8, 16, 32
-			holdingTime = Clamp(holdingTime, 0, 32)
+			holdingTime = utils.Clamp(holdingTime, 0, 32)
 		}
 		payload.Set("holdingtime", FI64(holdingTime))
 	}
