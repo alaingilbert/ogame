@@ -1603,7 +1603,7 @@ func constructFinalURL(b *OGame, vals url.Values) string {
 
 	allianceID := vals.Get("allianceId")
 	if allianceID != "" {
-		finalURL = b.serverURL + "/game/allianceInfo.php?allianceID=" + allianceID
+		finalURL = b.serverURL + "/game/allianceInfo.php?allianceId=" + allianceID
 	}
 	return finalURL
 }
