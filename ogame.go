@@ -82,7 +82,6 @@ type OGame struct {
 	auctioneerCallbacks   []func(any)
 	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
 	closeChatCh           chan struct{}
-	chatRetry             *ExponentialBackoff
 	ws                    *websocket.Conn
 	taskRunnerInst        *taskRunner.TaskRunner[*Prioritize]
 	loginWrapper          func(func() (bool, error)) error
@@ -750,15 +749,15 @@ func (b *OGame) loginPart3(userAccount Account, page OverviewPage) error {
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
 			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
-			b.chatRetry = NewExponentialBackoff(60)
+			chatRetry := NewExponentialBackoff(60)
 		LOOP:
 			for {
 				select {
 				case <-b.closeChatCh:
 					break LOOP
 				default:
-					b.connectChat(chatHost, chatPort)
-					b.chatRetry.Wait()
+					b.connectChat(chatRetry, chatHost, chatPort)
+					chatRetry.Wait()
 				}
 			}
 		}(b)
@@ -935,11 +934,11 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly, config)
 }
 
-func (b *OGame) connectChat(host, port string) {
+func (b *OGame) connectChat(chatRetry *ExponentialBackoff, host, port string) {
 	if b.IsV8() || b.IsV9() {
-		b.connectChatV8(host, port)
+		b.connectChatV8(chatRetry, host, port)
 	} else {
-		b.connectChatV7(host, port)
+		b.connectChatV7(chatRetry, host, port)
 	}
 }
 
@@ -956,7 +955,7 @@ func yeast(num int64) (encoded string) {
 	return
 }
 
-func (b *OGame) connectChatV8(host, port string) {
+func (b *OGame) connectChatV8(chatRetry *ExponentialBackoff, host, port string) {
 	token := yeast(time.Now().UnixNano() / 1000000)
 	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/?EIO=4&transport=polling&t="+token, nil)
 	if err != nil {
@@ -970,7 +969,7 @@ func (b *OGame) connectChatV8(host, port string) {
 		return
 	}
 	defer resp.Body.Close()
-	b.chatRetry.Reset()
+	chatRetry.Reset()
 	by, _ := ioutil.ReadAll(resp.Body)
 	m := regexp.MustCompile(`"sid":"([^"]+)"`).FindSubmatch(by)
 	if len(m) != 2 {
@@ -1134,7 +1133,7 @@ LOOP:
 	}
 }
 
-func (b *OGame) connectChatV7(host, port string) {
+func (b *OGame) connectChatV7(chatRetry *ExponentialBackoff, host, port string) {
 	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/1/?t="+FI64(time.Now().UnixNano()/int64(time.Millisecond)), nil)
 	if err != nil {
 		b.error("failed to create request:", err)
@@ -1147,7 +1146,7 @@ func (b *OGame) connectChatV7(host, port string) {
 		return
 	}
 	defer resp.Body.Close()
-	b.chatRetry.Reset()
+	chatRetry.Reset()
 	by, _ := ioutil.ReadAll(resp.Body)
 	token := strings.Split(string(by), ":")[0]
 
