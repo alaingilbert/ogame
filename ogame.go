@@ -1567,7 +1567,7 @@ func getPageName(vals url.Values) string {
 	component := vals.Get("component")
 	if page == "ingame" ||
 		(page == "componentOnly" && component == FetchEventboxAjaxPageName) ||
-		(page == "componentOnly" && component == EventListAjaxPageName && vals.Get("action") != FetchEventboxAjaxPageName) {
+		(page == "componentOnly" && component == EventListAjaxPageName && vals.Get("action") != "fetchEventBox") {
 		page = component
 	}
 	return page
