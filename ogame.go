@@ -2015,19 +2015,19 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 		payload.Set("associationId", FI64(id))
 		payload.Set("mode", "3")
 	}
-	bobyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
+	bodyBytes, err := b.postPageContent(url.Values{"page": {"ajaxChat"}}, payload)
 	if err != nil {
 		return err
 	}
-	if strings.Contains(string(bobyBytes), "INVALID_PARAMETERS") {
+	if strings.Contains(string(bodyBytes), "INVALID_PARAMETERS") {
 		return errors.New("invalid parameters")
 	}
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(bobyBytes)))
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(bodyBytes)))
 	if doc.Find("title").Text() == "OGame Lobby" {
 		return ErrNotLogged
 	}
 	var res ChatPostResp
-	if err := json.Unmarshal(bobyBytes, &res); err != nil {
+	if err := json.Unmarshal(bodyBytes, &res); err != nil {
 		return err
 	}
 	b.ajaxChatToken = res.NewToken
