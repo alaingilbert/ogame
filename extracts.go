@@ -111,6 +111,8 @@ func convertCelestial(b *OGame, celestial ICelestial) Celestial {
 		return convertPlanet(b, v)
 	case ExtractorMoon:
 		return convertMoon(b, v)
+	case *ExtractorMoon:
+		return convertMoon(b, *v)
 	}
 	return nil
 }
