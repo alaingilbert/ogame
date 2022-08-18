@@ -95,7 +95,7 @@ func (b *Prioritize) LoginWithExistingCookies() (bool, error) {
 }
 
 // Login to ogame server
-// Can fails with BadCredentialsError
+// Can fail with BadCredentialsError
 func (b *Prioritize) Login() error {
 	b.begin("Login")
 	defer b.done()
