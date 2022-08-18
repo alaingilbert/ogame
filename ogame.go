@@ -420,8 +420,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		return false, err
 	}
 
-	vals := url.Values{"page": {"ingame"}, "component": {OverviewPageName}}
-	pageHTML, err := b.getPageContent(vals, SkipRetry)
+	page, err := getPage[OverviewPage](b, SkipRetry)
 	if err != nil {
 		if err == ErrNotLogged {
 			b.debug("get login link")
@@ -433,7 +432,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			if err != nil {
 				return true, err
 			}
-			pageHTML, err = b.getPageContent(vals, SkipRetry)
+			page, err := getPage[OverviewPage](b, SkipRetry)
 			if err != nil {
 				if err == ErrNotLogged {
 					err := b.login()
@@ -441,10 +440,6 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 				}
 			}
 			b.debug("login using existing cookies")
-			page, err := ParsePage[OverviewPage](b, pageHTML)
-			if err != nil {
-				return false, err
-			}
 			if err := b.loginPart3(userAccount, page); err != nil {
 				return false, err
 			}
@@ -459,10 +454,6 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		return false, err
 	}
 	b.debug("login using existing cookies")
-	page, err := ParsePage[OverviewPage](b, pageHTML)
-	if err != nil {
-		return false, err
-	}
 	if err := b.loginPart3(userAccount, page); err != nil {
 		return false, err
 	}
