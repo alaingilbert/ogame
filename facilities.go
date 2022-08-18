@@ -25,27 +25,27 @@ func (f Facilities) Lazy() LazyFacilities {
 
 // ByID gets the facility level by facility id
 func (f Facilities) ByID(id ID) int64 {
-	if id == RoboticsFactory.ID {
+	if id == RoboticsFactoryID {
 		return f.RoboticsFactory
-	} else if id == Shipyard.ID {
+	} else if id == ShipyardID {
 		return f.Shipyard
-	} else if id == ResearchLab.ID {
+	} else if id == ResearchLabID {
 		return f.ResearchLab
-	} else if id == AllianceDepot.ID {
+	} else if id == AllianceDepotID {
 		return f.AllianceDepot
-	} else if id == MissileSilo.ID {
+	} else if id == MissileSiloID {
 		return f.MissileSilo
-	} else if id == NaniteFactory.ID {
+	} else if id == NaniteFactoryID {
 		return f.NaniteFactory
-	} else if id == Terraformer.ID {
+	} else if id == TerraformerID {
 		return f.Terraformer
-	} else if id == SpaceDock.ID {
+	} else if id == SpaceDockID {
 		return f.SpaceDock
-	} else if id == LunarBase.ID {
+	} else if id == LunarBaseID {
 		return f.LunarBase
-	} else if id == SensorPhalanx.ID {
+	} else if id == SensorPhalanxID {
 		return f.SensorPhalanx
-	} else if id == JumpGate.ID {
+	} else if id == JumpGateID {
 		return f.JumpGate
 	}
 	return 0
