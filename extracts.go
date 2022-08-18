@@ -50,3 +50,67 @@ func (m ExtractorMoon) Name() string             { return m.name }
 func (m ExtractorMoon) Diameter() int64          { return m.diameter }
 func (m ExtractorMoon) Coordinate() Coordinate   { return m.coordinate }
 func (m ExtractorMoon) Fields() Fields           { return m.fields }
+
+func convertPlanets(b *OGame, planetsIn []ExtractorPlanet) []Planet {
+	out := make([]Planet, 0)
+	for _, planet := range planetsIn {
+		out = append(out, convertPlanet(b, planet))
+	}
+	return out
+}
+
+func convertPlanet(b *OGame, planet ExtractorPlanet) Planet {
+	newPlanet := Planet{
+		ogame:       b,
+		Img:         planet.Img(),
+		ID:          planet.ID(),
+		Name:        planet.Name(),
+		Diameter:    planet.Diameter(),
+		Coordinate:  planet.Coordinate(),
+		Fields:      planet.Fields(),
+		Temperature: planet.Temperature(),
+	}
+	if planet.Moon() != nil {
+		newPlanet.Moon = convertMoon(b, *planet.Moon())
+	}
+	return newPlanet
+}
+
+func convertMoons(b *OGame, moonsIn []ExtractorMoon) []Moon {
+	out := make([]Moon, 0)
+	for _, moon := range moonsIn {
+		tmp := convertMoon(b, moon)
+		out = append(out, *tmp)
+	}
+	return out
+}
+
+func convertMoon(b *OGame, moonIn ExtractorMoon) *Moon {
+	return &Moon{
+		ogame:      b,
+		ID:         moonIn.ID(),
+		Img:        moonIn.Img(),
+		Name:       moonIn.Name(),
+		Diameter:   moonIn.Diameter(),
+		Coordinate: moonIn.Coordinate(),
+		Fields:     moonIn.Fields(),
+	}
+}
+
+func convertCelestials(b *OGame, celestials []ICelestial) []Celestial {
+	out := make([]Celestial, 0)
+	for _, celestial := range celestials {
+		out = append(out, convertCelestial(b, celestial))
+	}
+	return out
+}
+
+func convertCelestial(b *OGame, celestial ICelestial) Celestial {
+	switch v := celestial.(type) {
+	case ExtractorPlanet:
+		return convertPlanet(b, v)
+	case ExtractorMoon:
+		return convertMoon(b, v)
+	}
+	return nil
+}
