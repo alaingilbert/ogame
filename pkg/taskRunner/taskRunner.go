@@ -41,11 +41,12 @@ type ITask interface {
 }
 
 func NewTaskRunner[T ITask](ctx context.Context, factory func() T) *TaskRunner[T] {
+	chanLen := 100
 	r := &TaskRunner[T]{}
 	r.factory = factory
 	r.tasks = NewPriorityQueue[*item]()
-	r.tasksPushCh = make(chan *item, 100)
-	r.tasksPopCh = make(chan struct{}, 100)
+	r.tasksPushCh = make(chan *item, chanLen)
+	r.tasksPopCh = make(chan struct{}, chanLen)
 	r.ctx = ctx
 	r.start()
 	return r
