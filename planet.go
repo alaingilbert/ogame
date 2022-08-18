@@ -82,7 +82,7 @@ func (p Planet) GetProduction() ([]Quantifiable, int64, error) {
 }
 
 // GetResourceSettings gets the resources settings for specified planetID
-func (p *Planet) GetResourceSettings(options ...Option) (ResourceSettings, error) {
+func (p Planet) GetResourceSettings(options ...Option) (ResourceSettings, error) {
 	return p.ogame.GetResourceSettings(p.ID, options...)
 }
 
@@ -117,7 +117,7 @@ func (p Planet) TearDown(buildingID ID) error {
 }
 
 // BuildCancelable builds any cancelable ogame objects (building, technology)
-func (p *Planet) BuildCancelable(id ID) error {
+func (p Planet) BuildCancelable(id ID) error {
 	return p.ogame.BuildCancelable(CelestialID(p.ID), id)
 }
 
@@ -132,7 +132,7 @@ func (p Planet) BuildDefense(defenseID ID, nbr int64) error {
 }
 
 // BuildShips builds a ship unit
-func (p *Planet) BuildShips(shipID ID, nbr int64) error {
+func (p Planet) BuildShips(shipID ID, nbr int64) error {
 	return p.ogame.BuildShips(CelestialID(p.ID), shipID, nbr)
 }
 
@@ -189,16 +189,16 @@ func (p Planet) ActivateItem(ref string) error {
 }
 
 // GetResourcesProductions gets the resources production
-func (p *Planet) GetResourcesProductions() (Resources, error) {
+func (p Planet) GetResourcesProductions() (Resources, error) {
 	return p.ogame.GetResourcesProductions(p.ID)
 }
 
 // FlightTime calculate flight time and fuel needed
-func (p *Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
+func (p Planet) FlightTime(destination Coordinate, speed Speed, ships ShipsInfos, missionID MissionID) (secs, fuel int64) {
 	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships, missionID)
 }
 
 // SendIPM send interplanetary missiles
-func (p *Planet) SendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
+func (p Planet) SendIPM(planetID PlanetID, coord Coordinate, nbr int64, priority ID) (int64, error) {
 	return p.ogame.SendIPM(planetID, coord, nbr, priority)
 }
