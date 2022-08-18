@@ -98,10 +98,10 @@ type Prioritizable interface {
 	TearDown(celestialID CelestialID, id ID) error
 
 	// Planet specific functions
+	DestroyRockets(PlanetID, int64, int64) error
 	GetResourceSettings(PlanetID, ...Option) (ResourceSettings, error)
 	GetResourcesProductions(PlanetID) (Resources, error)
 	GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
-	DestroyRockets(PlanetID, int64, int64) error
 	SendIPM(PlanetID, Coordinate, int64, ID) (int64, error)
 	SetResourceSettings(PlanetID, ResourceSettings) error
 
@@ -115,12 +115,11 @@ type Prioritizable interface {
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	Prioritizable
-	ValidateAccount(code string) error
 	AddAccount(number int, lang string) (*AddAccountRes, error)
 	BytesDownloaded() int64
 	BytesUploaded() int64
-	IsPioneers() bool
 	CharacterClass() CharacterClass
+	ConstructionTime(id ID, nbr int64, facilities Facilities) time.Duration
 	Disable()
 	Distance(origin, destination Coordinate) int64
 	Enable()
@@ -150,10 +149,10 @@ type Wrapper interface {
 	IsConnected() bool
 	IsDonutGalaxy() bool
 	IsDonutSystem() bool
-	ConstructionTime(id ID, nbr int64, facilities Facilities) time.Duration
 	IsEnabled() bool
 	IsLocked() bool
 	IsLoggedIn() bool
+	IsPioneers() bool
 	IsVacationModeEnabled() bool
 	IsV7() bool
 	IsV9() bool
@@ -173,6 +172,7 @@ type Wrapper interface {
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
+	ValidateAccount(code string) error
 	WithPriority(priority taskRunner.Priority) Prioritizable
 }
 
@@ -206,19 +206,19 @@ type Building interface {
 // DefenderObj base interface for all defensive units (ships, defenses)
 type DefenderObj interface {
 	BaseOgameObj
-	GetStructuralIntegrity(Researches) int64
-	GetShieldPower(Researches) int64
-	GetWeaponPower(Researches) int64
-	GetRapidfireFrom() map[ID]int64
 	GetRapidfireAgainst() map[ID]int64
+	GetRapidfireFrom() map[ID]int64
+	GetShieldPower(Researches) int64
+	GetStructuralIntegrity(Researches) int64
+	GetWeaponPower(Researches) int64
 }
 
 // Ship interface implemented by all ships units
 type Ship interface {
 	DefenderObj
 	GetCargoCapacity(techs Researches, probeRaids, isCollector, isPioneers bool) int64
-	GetSpeed(techs Researches, isCollector, isGeneral bool) int64
 	GetFuelConsumption(techs Researches, fleetDeutSaveFactor float64, isGeneral bool) int64
+	GetSpeed(techs Researches, isCollector, isGeneral bool) int64
 }
 
 // Defense interface implemented by all defenses units
@@ -228,31 +228,31 @@ type Defense interface {
 
 // Celestial ...
 type Celestial interface {
-	GetID() CelestialID
-	GetType() CelestialType
-	GetName() string
-	GetDiameter() int64
-	GetCoordinate() Coordinate
-	GetFields() Fields
-	GetResources() (Resources, error)
-	GetResourcesDetails() (ResourcesDetails, error)
-	GetFacilities(...Option) (Facilities, error)
-	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
-	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
-	GetDefense(...Option) (DefensesInfos, error)
-	GetShips(...Option) (ShipsInfos, error)
-	BuildDefense(defenseID ID, nbr int64) error
-	ConstructionsBeingBuilt() (ID, int64, ID, int64)
-	GetProduction() ([]Quantifiable, int64, error)
-	GetResourcesBuildings(...Option) (ResourcesBuildings, error)
+	ActivateItem(string) error
 	Build(id ID, nbr int64) error
 	BuildBuilding(buildingID ID) error
+	BuildDefense(defenseID ID, nbr int64) error
 	BuildTechnology(technologyID ID) error
-	CancelResearch() error
 	CancelBuilding() error
-	TearDown(buildingID ID) error
+	CancelResearch() error
+	ConstructionsBeingBuilt() (ID, int64, ID, int64)
+	EnsureFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
+	GetCoordinate() Coordinate
+	GetDefense(...Option) (DefensesInfos, error)
+	GetDiameter() int64
+	GetFacilities(...Option) (Facilities, error)
+	GetFields() Fields
+	GetID() CelestialID
 	GetItems() ([]Item, error)
-	ActivateItem(string) error
+	GetName() string
+	GetProduction() ([]Quantifiable, int64, error)
+	GetResources() (Resources, error)
+	GetResourcesBuildings(...Option) (ResourcesBuildings, error)
+	GetResourcesDetails() (ResourcesDetails, error)
+	GetShips(...Option) (ShipsInfos, error)
+	GetType() CelestialType
+	SendFleet([]Quantifiable, Speed, Coordinate, MissionID, Resources, int64, int64) (Fleet, error)
+	TearDown(buildingID ID) error
 }
 
 // Extractor ...
