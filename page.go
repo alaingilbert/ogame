@@ -153,6 +153,10 @@ func (p DefensesPage) ExtractDefense() (DefensesInfos, error) {
 	return p.b.extractor.ExtractDefenseFromDoc(p.GetDoc())
 }
 
+func (p OverviewPage) ExtractActiveItems() ([]ActiveItem, error) {
+	return p.b.extractor.ExtractActiveItems(p.content)
+}
+
 func (p OverviewPage) ExtractDMCosts() (DMCosts, error) {
 	return p.b.extractor.ExtractDMCosts(p.content)
 }

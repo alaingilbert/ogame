@@ -2612,10 +2612,8 @@ func (b *OGame) getItems(celestialID CelestialID) (items []Item, err error) {
 }
 
 func (b *OGame) getActiveItems(celestialID CelestialID) (items []ActiveItem, err error) {
-	params := url.Values{"page": {"ingame"}, "component": {"overview"}}
-	pageHTML, _ := b.getPageContent(params, ChangePlanet(celestialID))
-	items, err = b.extractor.ExtractActiveItems(pageHTML)
-	return
+	page, _ := getPage[OverviewPage](b, ChangePlanet(celestialID))
+	return page.ExtractActiveItems()
 }
 
 type MessageSuccess struct {
