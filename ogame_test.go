@@ -2,10 +2,8 @@ package ogame
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/hashicorp/go-version"
 	"io/ioutil"
-	"reflect"
 	"regexp"
 	"testing"
 	"time"
@@ -3384,15 +3382,4 @@ func TestVersion(t *testing.T) {
 	assert.True(t, version.Must(version.NewVersion("8.7.4-pl3")).GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4-pl3"))))
 	assert.True(t, version.Must(version.NewVersion("8.7.4-pl4")).GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4-pl3"))))
 	assert.True(t, version.Must(version.NewVersion("8.7.5-pl3")).GreaterThanOrEqual(version.Must(version.NewVersion("8.7.5-pl3"))))
-}
-
-func TestParsePage(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("samples/unversioned/defence.html")
-	page, err := ParsePage[DefensesPage](&OGame{extractor: NewExtractorV6()}, pageHTMLBytes)
-	page.ExtractDefense()
-	planets := page.ExtractPlanets()
-	fmt.Println(reflect.TypeOf(page), err, planets)
-	def, err := page.ExtractDefense()
-	fmt.Println(def, err)
-	assert.Equal(t, 1, 1)
 }
