@@ -160,7 +160,7 @@ func (m Moon) ActivateItem(ref string) error {
 //
 
 // Phalanx uses 5000 deuterium to scan a coordinate
-func (m *Moon) Phalanx(coord Coordinate) ([]Fleet, error) {
+func (m Moon) Phalanx(coord Coordinate) ([]Fleet, error) {
 	return m.ogame.Phalanx(m.ID, coord)
 }
 
