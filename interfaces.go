@@ -266,149 +266,149 @@ type Celestial interface {
 
 // Extractor ...
 type Extractor interface {
-	ExtractIsInVacation(pageHTML []byte) bool
-	ExtractPlanets(pageHTML []byte) []ExtractorPlanet
-	ExtractPlanet(pageHTML []byte, v any) (ExtractorPlanet, error)
-	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
-	ExtractMoons(pageHTML []byte) []ExtractorMoon
-	ExtractMoon(pageHTML []byte, v any) (ExtractorMoon, error)
-	ExtractCelestials(pageHTML []byte) ([]ICelestial, error)
-	ExtractCelestial(pageHTML []byte, v any) (ICelestial, error)
-	ExtractServerTime(pageHTML []byte) (time.Time, error)
-	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
-	ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error)
-	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
-	ExtractFleets(pageHTML []byte, location *time.Location) (res []Fleet)
-	ExtractSlots(pageHTML []byte) Slots
-	ExtractOgameTimestamp(pageHTML []byte) int64
-	ExtractResources(pageHTML []byte) Resources
-	ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails
-	ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error)
-	ExtractAttacks(pageHTML []byte, ownCoords []Coordinate) ([]AttackEvent, error)
-	ExtractOfferOfTheDay(pageHTML []byte) (int64, string, PlanetResources, Multiplier, error)
-	ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error)
-	ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error)
-	ExtractMarketplaceMessages(pageHTML []byte, location *time.Location) ([]MarketplaceMessage, int64, error)
-	ExtractDefense(pageHTML []byte) (DefensesInfos, error)
-	ExtractShips(pageHTML []byte) (ShipsInfos, error)
-	ExtractFacilities(pageHTML []byte) (Facilities, error)
-	ExtractResearch(pageHTML []byte) Researches
-	ExtractProduction(pageHTML []byte) ([]Quantifiable, int64, error)
-	ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int64, error)
-	ExtractFleet1Ships(pageHTML []byte) ShipsInfos
-	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int64)
-	ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int64)
-	ExtractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error)
-	ExtractResourcesProductions(pageHTML []byte) (Resources, error)
-	ExtractPreferences(pageHTML []byte) Preferences
-	ExtractSpioAnz(pageHTML []byte) int64
-	ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool
-	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
-	ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error)
-	ExtractPlanetID(pageHTML []byte) (CelestialID, error)
-	ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64
-	ExtractOGameTimestampFromBytes(pageHTML []byte) int64
-	ExtractPlanetType(pageHTML []byte) (CelestialType, error)
+	ExtractActiveItems(pageHTML []byte) ([]ActiveItem, error)
+	ExtractAdmiral(pageHTML []byte) bool
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
-	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
-	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
-	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
-	ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
-	ExtractCoord(v string) (coord Coordinate)
-	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error)
-	ExtractPhalanx(pageHTML []byte) ([]Fleet, error)
-	ExtractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int64)
-	ExtractFederation(pageHTML []byte) url.Values
-	ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
-	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
+	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
+	ExtractAttacks(pageHTML []byte, ownCoords []Coordinate) ([]AttackEvent, error)
+	ExtractAuction(pageHTML []byte) (Auction, error)
+	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
 	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
+	ExtractCancelFleetToken(pageHTML []byte, fleetID FleetID) (string, error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
+	ExtractCelestial(pageHTML []byte, v any) (ICelestial, error)
+	ExtractCelestials(pageHTML []byte) ([]ICelestial, error)
+	ExtractCharacterClass(pageHTML []byte) (CharacterClass, error)
+	ExtractCombatReportMessagesSummary(pageHTML []byte) ([]CombatReportSummary, int64)
+	ExtractCommander(pageHTML []byte) bool
+	ExtractConstructions(pageHTML []byte) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
+	ExtractCoord(v string) (coord Coordinate)
+	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
+	ExtractDefense(pageHTML []byte) (DefensesInfos, error)
+	ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error)
 	ExtractEmpire(pageHTML []byte) ([]EmpireCelestial, error)
 	ExtractEmpireJSON(pageHTML []byte) (any, error)
-	ExtractCharacterClass(pageHTML []byte) (CharacterClass, error)
-	ExtractCommander(pageHTML []byte) bool
-	ExtractAdmiral(pageHTML []byte) bool
 	ExtractEngineer(pageHTML []byte) bool
+	ExtractEspionageReport(pageHTML []byte, location *time.Location) (EspionageReport, error)
+	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]EspionageReportSummary, int64)
+	ExtractExpeditionMessages(pageHTML []byte, location *time.Location) ([]ExpeditionMessage, int64, error)
+	ExtractFacilities(pageHTML []byte) (Facilities, error)
+	ExtractFederation(pageHTML []byte) url.Values
+	ExtractFleet1Ships(pageHTML []byte) ShipsInfos
+	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
+	ExtractFleets(pageHTML []byte, location *time.Location) (res []Fleet)
+	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
+	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (SystemInfos, error)
 	ExtractGeologist(pageHTML []byte) bool
-	ExtractTechnocrat(pageHTML []byte) bool
-	ExtractAuction(pageHTML []byte) (Auction, error)
+	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
 	ExtractHighscore(pageHTML []byte) (Highscore, error)
-	ExtractAllResources(pageHTML []byte) (map[CelestialID]Resources, error)
-	ExtractDMCosts(pageHTML []byte) (DMCosts, error)
-	ExtractBuffActivation(pageHTML []byte) (string, []Item, error)
-	ExtractActiveItems(pageHTML []byte) ([]ActiveItem, error)
+	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
+	ExtractIsInVacation(pageHTML []byte) bool
 	ExtractIsMobile(pageHTML []byte) bool
-	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
-	ExtractBodyIDFromDoc(doc *goquery.Document) string
-	ExtractIsInVacationFromDoc(doc *goquery.Document) bool
-	ExtractPlanetsFromDoc(doc *goquery.Document) []ExtractorPlanet
-	ExtractOgameTimestampFromDoc(doc *goquery.Document) int64
-	ExtractResourcesFromDoc(doc *goquery.Document) Resources
-	ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails
-	ExtractPlanetFromDoc(doc *goquery.Document, v any) (ExtractorPlanet, error)
-	ExtractMoonsFromDoc(doc *goquery.Document) []ExtractorMoon
-	ExtractMoonFromDoc(doc *goquery.Document, v any) (ExtractorMoon, error)
-	ExtractCelestialsFromDoc(doc *goquery.Document) ([]ICelestial, error)
-	ExtractCelestialFromDoc(doc *goquery.Document, v any) (ICelestial, error)
-	ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error)
-	ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error)
-	ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error)
-	ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error)
-	ExtractResearchFromDoc(doc *goquery.Document) Researches
-	ExtractOGameSessionFromDoc(doc *goquery.Document) string
+	ExtractJumpGate(pageHTML []byte) (ShipsInfos, string, []MoonID, int64)
+	ExtractMarketplaceMessages(pageHTML []byte, location *time.Location) ([]MarketplaceMessage, int64, error)
+	ExtractMoon(pageHTML []byte, v any) (ExtractorMoon, error)
+	ExtractMoons(pageHTML []byte) []ExtractorMoon
+	ExtractOGameTimestampFromBytes(pageHTML []byte) int64
+	ExtractOfferOfTheDay(pageHTML []byte) (int64, string, PlanetResources, Multiplier, error)
+	ExtractOgameTimestamp(pageHTML []byte) int64
+	ExtractOverviewProduction(pageHTML []byte) ([]Quantifiable, int64, error)
+	ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64
+	ExtractPhalanx(pageHTML []byte) ([]Fleet, error)
+	ExtractPlanet(pageHTML []byte, v any) (ExtractorPlanet, error)
+	ExtractPlanetCoordinate(pageHTML []byte) (Coordinate, error)
+	ExtractPlanetID(pageHTML []byte) (CelestialID, error)
+	ExtractPlanetType(pageHTML []byte) (CelestialType, error)
+	ExtractPlanets(pageHTML []byte) []ExtractorPlanet
+	ExtractPreferences(pageHTML []byte) Preferences
+	ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool
+	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
+	ExtractProduction(pageHTML []byte) ([]Quantifiable, int64, error)
+	ExtractResearch(pageHTML []byte) Researches
+	ExtractResourceSettings(pageHTML []byte) (ResourceSettings, error)
+	ExtractResources(pageHTML []byte) Resources
+	ExtractResourcesBuildings(pageHTML []byte) (ResourcesBuildings, error)
+	ExtractResourcesDetails(pageHTML []byte) (out ResourcesDetails, err error)
+	ExtractResourcesDetailsFromFullPage(pageHTML []byte) ResourcesDetails
+	ExtractResourcesProductions(pageHTML []byte) (Resources, error)
+	ExtractServerTime(pageHTML []byte) (time.Time, error)
+	ExtractShips(pageHTML []byte) (ShipsInfos, error)
+	ExtractSlots(pageHTML []byte) Slots
+	ExtractSpioAnz(pageHTML []byte) int64
+	ExtractTechnocrat(pageHTML []byte) bool
+	ExtractTechs(pageHTML []byte) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
+	ExtractUserInfos(pageHTML []byte, lang string) (UserInfos, error)
+	ExtractActivateAutofocusFromDoc(doc *goquery.Document) bool
+	ExtractAdmiralFromDoc(doc *goquery.Document) bool
+	ExtractAnimatedOverviewFromDoc(doc *goquery.Document) bool
+	ExtractAnimatedSlidersFromDoc(doc *goquery.Document) bool
 	ExtractAttacksFromDoc(doc *goquery.Document, ownCoords []Coordinate) ([]AttackEvent, error)
-	ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources PlanetResources, multiplier Multiplier, err error)
-	ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
-	ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
-	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos)
-	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int64)
+	ExtractAuctioneerNotificationsFromDoc(doc *goquery.Document) bool
+	ExtractBodyIDFromDoc(doc *goquery.Document) string
+	ExtractCelestialFromDoc(doc *goquery.Document, v any) (ICelestial, error)
+	ExtractCelestialsFromDoc(doc *goquery.Document) ([]ICelestial, error)
+	ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error)
 	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]CombatReportSummary, int64)
-	ExtractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ExpeditionMessage, int64, error)
-	ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error)
-	ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error)
-	ExtractPreferencesFromDoc(doc *goquery.Document) Preferences
-	ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error)
-	ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet
-	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string)
-	ExtractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []Fleet)
-	ExtractSlotsFromDoc(doc *goquery.Document) Slots
-	ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error)
-	ExtractSpioAnzFromDoc(doc *goquery.Document) int64
+	ExtractCommanderFromDoc(doc *goquery.Document) bool
+	ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error)
 	ExtractDisableChatBarFromDoc(doc *goquery.Document) bool
 	ExtractDisableOutlawWarningFromDoc(doc *goquery.Document) bool
-	ExtractMobileVersionFromDoc(doc *goquery.Document) bool
-	ExtractShowOldDropDownsFromDoc(doc *goquery.Document) bool
-	ExtractActivateAutofocusFromDoc(doc *goquery.Document) bool
-	ExtractEventsShowFromDoc(doc *goquery.Document) int64
-	ExtractSortSettingFromDoc(doc *goquery.Document) int64
-	ExtractSortOrderFromDoc(doc *goquery.Document) int64
-	ExtractShowDetailOverlayFromDoc(doc *goquery.Document) bool
-	ExtractAnimatedSlidersFromDoc(doc *goquery.Document) bool
-	ExtractAnimatedOverviewFromDoc(doc *goquery.Document) bool
-	ExtractPopupsNoticesFromDoc(doc *goquery.Document) bool
-	ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool
-	ExtractSpioReportPicturesFromDoc(doc *goquery.Document) bool
-	ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int64
-	ExtractAuctioneerNotificationsFromDoc(doc *goquery.Document) bool
 	ExtractEconomyNotificationsFromDoc(doc *goquery.Document) bool
-	ExtractShowActivityMinutesFromDoc(doc *goquery.Document) bool
-	ExtractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool
-	ExtractNotifBuildListFromDoc(doc *goquery.Document) bool
-	ExtractNotifFriendlyFleetActivitiesFromDoc(doc *goquery.Document) bool
-	ExtractNotifHostileFleetActivitiesFromDoc(doc *goquery.Document) bool
-	ExtractNotifForeignEspionageFromDoc(doc *goquery.Document) bool
+	ExtractEngineerFromDoc(doc *goquery.Document) bool
+	ExtractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (EspionageReport, error)
+	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]EspionageReportSummary, int64)
+	ExtractEventsShowFromDoc(doc *goquery.Document) int64
+	ExtractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ExpeditionMessage, int64, error)
+	ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error)
+	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ShipsInfos)
+	ExtractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []Fleet)
+	ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []Fleet
+	ExtractGeologistFromDoc(doc *goquery.Document) bool
+	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
+	ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error)
+	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string)
+	ExtractIsInVacationFromDoc(doc *goquery.Document) bool
+	ExtractIsMobileFromDoc(doc *goquery.Document) bool
+	ExtractMobileVersionFromDoc(doc *goquery.Document) bool
+	ExtractMoonFromDoc(doc *goquery.Document, v any) (ExtractorMoon, error)
+	ExtractMoonsFromDoc(doc *goquery.Document) []ExtractorMoon
+	ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int64
+	ExtractNotifAccountFromDoc(doc *goquery.Document) bool
 	ExtractNotifAllianceBroadcastsFromDoc(doc *goquery.Document) bool
 	ExtractNotifAllianceMessagesFromDoc(doc *goquery.Document) bool
 	ExtractNotifAuctionsFromDoc(doc *goquery.Document) bool
-	ExtractNotifAccountFromDoc(doc *goquery.Document) bool
+	ExtractNotifBuildListFromDoc(doc *goquery.Document) bool
+	ExtractNotifForeignEspionageFromDoc(doc *goquery.Document) bool
+	ExtractNotifFriendlyFleetActivitiesFromDoc(doc *goquery.Document) bool
+	ExtractNotifHostileFleetActivitiesFromDoc(doc *goquery.Document) bool
+	ExtractOGameSessionFromDoc(doc *goquery.Document) string
+	ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources PlanetResources, multiplier Multiplier, err error)
+	ExtractOgameTimestampFromDoc(doc *goquery.Document) int64
+	ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
+	ExtractPlanetFromDoc(doc *goquery.Document, v any) (ExtractorPlanet, error)
 	ExtractPlanetIDFromDoc(doc *goquery.Document) (CelestialID, error)
 	ExtractPlanetTypeFromDoc(doc *goquery.Document) (CelestialType, error)
-	ExtractCharacterClassFromDoc(doc *goquery.Document) (CharacterClass, error)
-	ExtractCommanderFromDoc(doc *goquery.Document) bool
-	ExtractAdmiralFromDoc(doc *goquery.Document) bool
-	ExtractEngineerFromDoc(doc *goquery.Document) bool
-	ExtractGeologistFromDoc(doc *goquery.Document) bool
+	ExtractPlanetsFromDoc(doc *goquery.Document) []ExtractorPlanet
+	ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool
+	ExtractPopupsNoticesFromDoc(doc *goquery.Document) bool
+	ExtractPreferencesFromDoc(doc *goquery.Document) Preferences
+	ExtractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool
+	ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
+	ExtractResearchFromDoc(doc *goquery.Document) Researches
+	ExtractResourceSettingsFromDoc(doc *goquery.Document) (ResourceSettings, error)
+	ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error)
+	ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails
+	ExtractResourcesFromDoc(doc *goquery.Document) Resources
+	ExtractResourcesProductionsFromDoc(doc *goquery.Document) (Resources, error)
+	ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error)
+	ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error)
+	ExtractShowActivityMinutesFromDoc(doc *goquery.Document) bool
+	ExtractShowDetailOverlayFromDoc(doc *goquery.Document) bool
+	ExtractShowOldDropDownsFromDoc(doc *goquery.Document) bool
+	ExtractSlotsFromDoc(doc *goquery.Document) Slots
+	ExtractSortOrderFromDoc(doc *goquery.Document) int64
+	ExtractSortSettingFromDoc(doc *goquery.Document) int64
+	ExtractSpioAnzFromDoc(doc *goquery.Document) int64
+	ExtractSpioReportPicturesFromDoc(doc *goquery.Document) bool
 	ExtractTechnocratFromDoc(doc *goquery.Document) bool
-	ExtractHighscoreFromDoc(doc *goquery.Document) (Highscore, error)
-	ExtractIsMobileFromDoc(doc *goquery.Document) bool
 }
