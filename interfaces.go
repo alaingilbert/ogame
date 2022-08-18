@@ -12,7 +12,6 @@ import (
 
 // Prioritizable ...
 type Prioritizable interface {
-	RecruitOfficer(typ, days int64) error
 	Abandon(any) error
 	ActivateItem(string, CelestialID) error
 	Begin() Prioritizable
@@ -66,6 +65,7 @@ type Prioritizable interface {
 	OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
 	OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID CelestialID) error
 	PostPageContent(url.Values, url.Values) ([]byte, error)
+	RecruitOfficer(typ, days int64) error
 	SendMessage(playerID int64, message string) error
 	SendMessageAlliance(associationID int64, message string) error
 	ServerTime() time.Time
