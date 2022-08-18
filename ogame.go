@@ -1527,13 +1527,12 @@ func (b *OGame) preRequestChecks() error {
 }
 
 func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) ([]byte, error) {
-	var req *http.Request
-	var err error
-	if method == http.MethodGet {
-		req, err = http.NewRequest(method, finalURL, nil)
-	} else {
-		req, err = http.NewRequest(method, finalURL, strings.NewReader(payload.Encode()))
+	var body io.Reader
+	if method == http.MethodPost {
+		body = strings.NewReader(payload.Encode())
 	}
+
+	req, err := http.NewRequest(method, finalURL, body)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -1551,11 +1550,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	if err != nil {
 		return []byte{}, err
 	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
+	defer resp.Body.Close()
 
 	if resp.StatusCode >= http.StatusInternalServerError {
 		return []byte{}, err
