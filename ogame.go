@@ -1622,68 +1622,14 @@ func retryPolicyFromConfig(b *OGame, cfg options) func(func() error) error {
 }
 
 func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) {
-	var payload url.Values
-	method := http.MethodGet
-
-	cfg := getOptions(opts...)
-
-	if err := b.preRequestChecks(); err != nil {
-		return []byte{}, err
-	}
-
-	setCPParam(b, vals, cfg)
-
-	alterPayload(method, b, vals, payload)
-
-	finalURL := constructFinalURL(b, vals)
-
-	page := getPageName(vals)
-	var pageHTMLBytes []byte
-
-	clb := func() (err error) {
-		// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
-		// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
-		b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
-		defer func() { b.client.CheckRedirect = nil }()
-
-		pageHTMLBytes, err = b.execRequest(method, finalURL, payload, vals)
-		if err != nil {
-			return err
-		}
-
-		if detectLoggedOut(page, vals, pageHTMLBytes) {
-			b.error("Err not logged on page : ", page)
-			atomic.StoreInt32(&b.isConnectedAtom, 0)
-			return ErrNotLogged
-		}
-
-		return nil
-	}
-
-	retryPolicy := retryPolicyFromConfig(b, cfg)
-	if err := retryPolicy(clb); err != nil {
-		b.error(err)
-		return []byte{}, err
-	}
-
-	if err := processResponseHTML(method, b, pageHTMLBytes, page, payload, vals); err != nil {
-		return []byte{}, err
-	}
-
-	if !cfg.SkipInterceptor {
-		go func() {
-			for _, fn := range b.interceptorCallbacks {
-				fn(method, finalURL, vals, payload, pageHTMLBytes)
-			}
-		}()
-	}
-
-	return pageHTMLBytes, nil
+	return b.pageContent(http.MethodGet, vals, nil, opts...)
 }
 
 func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byte, error) {
-	method := http.MethodPost
+	return b.pageContent(http.MethodPost, vals, payload, opts...)
+}
 
+func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Option) ([]byte, error) {
 	cfg := getOptions(opts...)
 
 	if err := b.preRequestChecks(); err != nil {
