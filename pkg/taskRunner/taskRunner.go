@@ -27,6 +27,20 @@ func (i *item) GetPriority() int { return int(i.priority) }
 func (i *item) GetIndex() int    { return i.index }
 func (i *item) SetIndex(idx int) { i.index = idx }
 
+// TaskRunner ...
+//
+// Whenever we call "WithPriority(...)" a new task will be pushed in the "pushCh" channel and then the code will block
+// until the task can actually be executed.
+//
+// The task runner starts 2 threads.
+// - One that receive new tasks from the "WithPriority" function and put them in the priority queue. It then
+//   notifies the "popCh" that a new task has been added.
+// - The second thread pop tasks from the PQ. Then notify the task that it can be processed. This will unblock the
+//   code at "WithPriority", then it waits until that task is done being processed. When the task is completed,
+//   it will wait for another one from the "popCh".
+//
+// This way we can ensure that we ever only have 1 task being executed at the time, but we can queue as many
+// as we want with different priorities.
 type TaskRunner[T ITask] struct {
 	tasks       *PriorityQueue[*item]
 	tasksLock   sync.Mutex
