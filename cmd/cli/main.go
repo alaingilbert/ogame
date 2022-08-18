@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/wrapper"
 	"log"
 	"os"
 
-	"github.com/alaingilbert/ogame"
 	"gopkg.in/abiosoft/ishell.v2"
 )
 
@@ -28,7 +28,7 @@ func main() {
 	shell := ishell.New()
 	shell.Println("logging to " + universe + " universe")
 
-	bot, err := ogame.New(universe, username, password, LANGUAGE)
+	bot, err := wrapper.New(universe, username, password, LANGUAGE)
 	if err != nil {
 		log.Fatal(err)
 	}

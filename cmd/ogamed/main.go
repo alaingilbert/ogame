@@ -2,11 +2,11 @@ package main
 
 import (
 	"crypto/subtle"
+	"github.com/alaingilbert/ogame/pkg/wrapper"
 	"log"
 	"os"
 	"strconv"
 
-	"github.com/alaingilbert/ogame"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"gopkg.in/urfave/cli.v2"
@@ -189,7 +189,7 @@ func start(c *cli.Context) error {
 	corsEnabled := c.Bool("cors-enabled")
 	njaApiKey := c.String("nja-api-key")
 
-	params := ogame.Params{
+	params := wrapper.Params{
 		Universe:        universe,
 		Username:        username,
 		Password:        password,
@@ -205,10 +205,10 @@ func start(c *cli.Context) error {
 		CookiesFilename: cookiesFilename,
 	}
 	if njaApiKey != "" {
-		params.CaptchaCallback = ogame.NinjaSolver(njaApiKey)
+		params.CaptchaCallback = wrapper.NinjaSolver(njaApiKey)
 	}
 
-	bot, err := ogame.NewWithParams(params)
+	bot, err := wrapper.NewWithParams(params)
 	if err != nil {
 		return err
 	}
@@ -240,100 +240,100 @@ func start(c *cli.Context) error {
 	e.HideBanner = true
 	e.HidePort = true
 	e.Debug = false
-	e.GET("/", ogame.HomeHandler)
-	e.GET("/tasks", ogame.TasksHandler)
+	e.GET("/", wrapper.HomeHandler)
+	e.GET("/tasks", wrapper.TasksHandler)
 
 	// CAPTCHA Handler
-	e.GET("/bot/captcha", ogame.GetCaptchaHandler)
-	e.POST("/bot/captcha/solve", ogame.GetCaptchaSolverHandler)
+	e.GET("/bot/captcha", wrapper.GetCaptchaHandler)
+	e.POST("/bot/captcha/solve", wrapper.GetCaptchaSolverHandler)
 
-	e.GET("/bot/server", ogame.GetServerHandler)
-	e.GET("/bot/server-data", ogame.GetServerDataHandler)
-	e.POST("/bot/set-user-agent", ogame.SetUserAgentHandler)
-	e.GET("/bot/server-url", ogame.ServerURLHandler)
-	e.GET("/bot/language", ogame.GetLanguageHandler)
-	e.GET("/bot/empire/type/:typeID", ogame.GetEmpireHandler)
-	e.POST("/bot/page-content", ogame.PageContentHandler)
-	e.GET("/bot/login", ogame.LoginHandler)
-	e.GET("/bot/logout", ogame.LogoutHandler)
-	e.GET("/bot/username", ogame.GetUsernameHandler)
-	e.GET("/bot/universe-name", ogame.GetUniverseNameHandler)
-	e.GET("/bot/server/speed", ogame.GetUniverseSpeedHandler)
-	e.GET("/bot/server/speed-fleet", ogame.GetUniverseSpeedFleetHandler)
-	e.GET("/bot/server/version", ogame.ServerVersionHandler)
-	e.GET("/bot/server/time", ogame.ServerTimeHandler)
-	e.GET("/bot/is-under-attack", ogame.IsUnderAttackHandler)
-	e.GET("/bot/is-vacation-mode", ogame.IsVacationModeHandler)
-	e.GET("/bot/user-infos", ogame.GetUserInfosHandler)
-	e.GET("/bot/character-class", ogame.GetCharacterClassHandler)
-	e.GET("/bot/has-commander", ogame.HasCommanderHandler)
-	e.GET("/bot/has-admiral", ogame.HasAdmiralHandler)
-	e.GET("/bot/has-engineer", ogame.HasEngineerHandler)
-	e.GET("/bot/has-geologist", ogame.HasGeologistHandler)
-	e.GET("/bot/has-technocrat", ogame.HasTechnocratHandler)
-	e.POST("/bot/send-message", ogame.SendMessageHandler)
-	e.GET("/bot/fleets", ogame.GetFleetsHandler)
-	e.GET("/bot/fleets/slots", ogame.GetSlotsHandler)
-	e.POST("/bot/fleets/:fleetID/cancel", ogame.CancelFleetHandler)
-	e.GET("/bot/espionage-report/:msgid", ogame.GetEspionageReportHandler)
-	e.GET("/bot/espionage-report/:galaxy/:system/:position", ogame.GetEspionageReportForHandler)
-	e.GET("/bot/espionage-report", ogame.GetEspionageReportMessagesHandler)
-	e.POST("/bot/delete-report/:messageID", ogame.DeleteMessageHandler)
-	e.POST("/bot/delete-all-espionage-reports", ogame.DeleteEspionageMessagesHandler)
-	e.POST("/bot/delete-all-reports/:tabIndex", ogame.DeleteMessagesFromTabHandler)
-	e.GET("/bot/attacks", ogame.GetAttacksHandler)
-	e.GET("/bot/get-auction", ogame.GetAuctionHandler)
-	e.POST("/bot/do-auction", ogame.DoAuctionHandler)
-	e.GET("/bot/galaxy-infos/:galaxy/:system", ogame.GalaxyInfosHandler)
-	e.GET("/bot/get-research", ogame.GetResearchHandler)
-	e.GET("/bot/buy-offer-of-the-day", ogame.BuyOfferOfTheDayHandler)
-	e.GET("/bot/price/:ogameID/:nbr", ogame.GetPriceHandler)
-	e.GET("/bot/moons", ogame.GetMoonsHandler)
-	e.GET("/bot/moons/:moonID", ogame.GetMoonHandler)
-	e.GET("/bot/moons/:galaxy/:system/:position", ogame.GetMoonByCoordHandler)
-	e.GET("/bot/celestials/:celestialID/items", ogame.GetCelestialItemsHandler)
-	e.GET("/bot/celestials/:celestialID/items/:itemRef/activate", ogame.ActivateCelestialItemHandler)
-	e.GET("/bot/celestials/:celestialID/techs", ogame.TechsHandler)
-	e.GET("/bot/planets", ogame.GetPlanetsHandler)
-	e.GET("/bot/planets/:planetID", ogame.GetPlanetHandler)
-	e.GET("/bot/planets/:galaxy/:system/:position", ogame.GetPlanetByCoordHandler)
-	e.GET("/bot/planets/:planetID/resources-details", ogame.GetResourcesDetailsHandler)
-	e.GET("/bot/planets/:planetID/resource-settings", ogame.GetResourceSettingsHandler)
-	e.POST("/bot/planets/:planetID/resource-settings", ogame.SetResourceSettingsHandler)
-	e.GET("/bot/planets/:planetID/resources-buildings", ogame.GetResourcesBuildingsHandler)
-	e.GET("/bot/planets/:planetID/defence", ogame.GetDefenseHandler)
-	e.GET("/bot/planets/:planetID/ships", ogame.GetShipsHandler)
-	e.GET("/bot/planets/:planetID/facilities", ogame.GetFacilitiesHandler)
-	e.POST("/bot/planets/:planetID/build/:ogameID/:nbr", ogame.BuildHandler)
-	e.POST("/bot/planets/:planetID/build/cancelable/:ogameID", ogame.BuildCancelableHandler)
-	e.POST("/bot/planets/:planetID/build/production/:ogameID/:nbr", ogame.BuildProductionHandler)
-	e.POST("/bot/planets/:planetID/build/building/:ogameID", ogame.BuildBuildingHandler)
-	e.POST("/bot/planets/:planetID/build/technology/:ogameID", ogame.BuildTechnologyHandler)
-	e.POST("/bot/planets/:planetID/build/defence/:ogameID/:nbr", ogame.BuildDefenseHandler)
-	e.POST("/bot/planets/:planetID/build/ships/:ogameID/:nbr", ogame.BuildShipsHandler)
-	e.POST("/bot/planets/:planetID/teardown/:ogameID", ogame.TeardownHandler)
-	e.GET("/bot/planets/:planetID/production", ogame.GetProductionHandler)
-	e.GET("/bot/planets/:planetID/constructions", ogame.ConstructionsBeingBuiltHandler)
-	e.POST("/bot/planets/:planetID/cancel-building", ogame.CancelBuildingHandler)
-	e.POST("/bot/planets/:planetID/cancel-research", ogame.CancelResearchHandler)
-	e.GET("/bot/planets/:planetID/resources", ogame.GetResourcesHandler)
-	e.POST("/bot/planets/:planetID/send-fleet", ogame.SendFleetHandler)
-	e.POST("/bot/planets/:planetID/send-ipm", ogame.SendIPMHandler)
-	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", ogame.PhalanxHandler)
-	e.POST("/bot/moons/:moonID/jump-gate", ogame.JumpGateHandler)
-	e.GET("/game/allianceInfo.php", ogame.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
+	e.GET("/bot/server", wrapper.GetServerHandler)
+	e.GET("/bot/server-data", wrapper.GetServerDataHandler)
+	e.POST("/bot/set-user-agent", wrapper.SetUserAgentHandler)
+	e.GET("/bot/server-url", wrapper.ServerURLHandler)
+	e.GET("/bot/language", wrapper.GetLanguageHandler)
+	e.GET("/bot/empire/type/:typeID", wrapper.GetEmpireHandler)
+	e.POST("/bot/page-content", wrapper.PageContentHandler)
+	e.GET("/bot/login", wrapper.LoginHandler)
+	e.GET("/bot/logout", wrapper.LogoutHandler)
+	e.GET("/bot/username", wrapper.GetUsernameHandler)
+	e.GET("/bot/universe-name", wrapper.GetUniverseNameHandler)
+	e.GET("/bot/server/speed", wrapper.GetUniverseSpeedHandler)
+	e.GET("/bot/server/speed-fleet", wrapper.GetUniverseSpeedFleetHandler)
+	e.GET("/bot/server/version", wrapper.ServerVersionHandler)
+	e.GET("/bot/server/time", wrapper.ServerTimeHandler)
+	e.GET("/bot/is-under-attack", wrapper.IsUnderAttackHandler)
+	e.GET("/bot/is-vacation-mode", wrapper.IsVacationModeHandler)
+	e.GET("/bot/user-infos", wrapper.GetUserInfosHandler)
+	e.GET("/bot/character-class", wrapper.GetCharacterClassHandler)
+	e.GET("/bot/has-commander", wrapper.HasCommanderHandler)
+	e.GET("/bot/has-admiral", wrapper.HasAdmiralHandler)
+	e.GET("/bot/has-engineer", wrapper.HasEngineerHandler)
+	e.GET("/bot/has-geologist", wrapper.HasGeologistHandler)
+	e.GET("/bot/has-technocrat", wrapper.HasTechnocratHandler)
+	e.POST("/bot/send-message", wrapper.SendMessageHandler)
+	e.GET("/bot/fleets", wrapper.GetFleetsHandler)
+	e.GET("/bot/fleets/slots", wrapper.GetSlotsHandler)
+	e.POST("/bot/fleets/:fleetID/cancel", wrapper.CancelFleetHandler)
+	e.GET("/bot/espionage-report/:msgid", wrapper.GetEspionageReportHandler)
+	e.GET("/bot/espionage-report/:galaxy/:system/:position", wrapper.GetEspionageReportForHandler)
+	e.GET("/bot/espionage-report", wrapper.GetEspionageReportMessagesHandler)
+	e.POST("/bot/delete-report/:messageID", wrapper.DeleteMessageHandler)
+	e.POST("/bot/delete-all-espionage-reports", wrapper.DeleteEspionageMessagesHandler)
+	e.POST("/bot/delete-all-reports/:tabIndex", wrapper.DeleteMessagesFromTabHandler)
+	e.GET("/bot/attacks", wrapper.GetAttacksHandler)
+	e.GET("/bot/get-auction", wrapper.GetAuctionHandler)
+	e.POST("/bot/do-auction", wrapper.DoAuctionHandler)
+	e.GET("/bot/galaxy-infos/:galaxy/:system", wrapper.GalaxyInfosHandler)
+	e.GET("/bot/get-research", wrapper.GetResearchHandler)
+	e.GET("/bot/buy-offer-of-the-day", wrapper.BuyOfferOfTheDayHandler)
+	e.GET("/bot/price/:ogameID/:nbr", wrapper.GetPriceHandler)
+	e.GET("/bot/moons", wrapper.GetMoonsHandler)
+	e.GET("/bot/moons/:moonID", wrapper.GetMoonHandler)
+	e.GET("/bot/moons/:galaxy/:system/:position", wrapper.GetMoonByCoordHandler)
+	e.GET("/bot/celestials/:celestialID/items", wrapper.GetCelestialItemsHandler)
+	e.GET("/bot/celestials/:celestialID/items/:itemRef/activate", wrapper.ActivateCelestialItemHandler)
+	e.GET("/bot/celestials/:celestialID/techs", wrapper.TechsHandler)
+	e.GET("/bot/planets", wrapper.GetPlanetsHandler)
+	e.GET("/bot/planets/:planetID", wrapper.GetPlanetHandler)
+	e.GET("/bot/planets/:galaxy/:system/:position", wrapper.GetPlanetByCoordHandler)
+	e.GET("/bot/planets/:planetID/resources-details", wrapper.GetResourcesDetailsHandler)
+	e.GET("/bot/planets/:planetID/resource-settings", wrapper.GetResourceSettingsHandler)
+	e.POST("/bot/planets/:planetID/resource-settings", wrapper.SetResourceSettingsHandler)
+	e.GET("/bot/planets/:planetID/resources-buildings", wrapper.GetResourcesBuildingsHandler)
+	e.GET("/bot/planets/:planetID/defence", wrapper.GetDefenseHandler)
+	e.GET("/bot/planets/:planetID/ships", wrapper.GetShipsHandler)
+	e.GET("/bot/planets/:planetID/facilities", wrapper.GetFacilitiesHandler)
+	e.POST("/bot/planets/:planetID/build/:ogameID/:nbr", wrapper.BuildHandler)
+	e.POST("/bot/planets/:planetID/build/cancelable/:ogameID", wrapper.BuildCancelableHandler)
+	e.POST("/bot/planets/:planetID/build/production/:ogameID/:nbr", wrapper.BuildProductionHandler)
+	e.POST("/bot/planets/:planetID/build/building/:ogameID", wrapper.BuildBuildingHandler)
+	e.POST("/bot/planets/:planetID/build/technology/:ogameID", wrapper.BuildTechnologyHandler)
+	e.POST("/bot/planets/:planetID/build/defence/:ogameID/:nbr", wrapper.BuildDefenseHandler)
+	e.POST("/bot/planets/:planetID/build/ships/:ogameID/:nbr", wrapper.BuildShipsHandler)
+	e.POST("/bot/planets/:planetID/teardown/:ogameID", wrapper.TeardownHandler)
+	e.GET("/bot/planets/:planetID/production", wrapper.GetProductionHandler)
+	e.GET("/bot/planets/:planetID/constructions", wrapper.ConstructionsBeingBuiltHandler)
+	e.POST("/bot/planets/:planetID/cancel-building", wrapper.CancelBuildingHandler)
+	e.POST("/bot/planets/:planetID/cancel-research", wrapper.CancelResearchHandler)
+	e.GET("/bot/planets/:planetID/resources", wrapper.GetResourcesHandler)
+	e.POST("/bot/planets/:planetID/send-fleet", wrapper.SendFleetHandler)
+	e.POST("/bot/planets/:planetID/send-ipm", wrapper.SendIPMHandler)
+	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", wrapper.PhalanxHandler)
+	e.POST("/bot/moons/:moonID/jump-gate", wrapper.JumpGateHandler)
+	e.GET("/game/allianceInfo.php", wrapper.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
 
 	// Get/Post Page Content
-	e.GET("/game/index.php", ogame.GetFromGameHandler)
-	e.POST("/game/index.php", ogame.PostToGameHandler)
+	e.GET("/game/index.php", wrapper.GetFromGameHandler)
+	e.POST("/game/index.php", wrapper.PostToGameHandler)
 
 	// For AntiGame plugin
 	// Static content
-	e.GET("/cdn/*", ogame.GetStaticHandler)
-	e.GET("/assets/css/*", ogame.GetStaticHandler)
-	e.GET("/headerCache/*", ogame.GetStaticHandler)
-	e.GET("/favicon.ico", ogame.GetStaticHandler)
-	e.GET("/game/sw.js", ogame.GetStaticHandler)
+	e.GET("/cdn/*", wrapper.GetStaticHandler)
+	e.GET("/assets/css/*", wrapper.GetStaticHandler)
+	e.GET("/headerCache/*", wrapper.GetStaticHandler)
+	e.GET("/favicon.ico", wrapper.GetStaticHandler)
+	e.GET("/game/sw.js", wrapper.GetStaticHandler)
 
 	// JSON API
 	/*
@@ -342,8 +342,8 @@ func start(c *cli.Context) error {
 		/api/players.xml
 		/api/universe.xml
 	*/
-	e.GET("/api/*", ogame.GetStaticHandler)
-	e.HEAD("/api/*", ogame.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
+	e.GET("/api/*", wrapper.GetStaticHandler)
+	e.HEAD("/api/*", wrapper.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
 
 	if enableTLS {
 		log.Println("Enable TLS Support")
