@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"regexp"
 	"strings"
 )
@@ -77,7 +78,7 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	nextAuction := doc.Find("#nextAuction")
 	if nextAuction.Size() > 0 {
 		// Find time until next auction starts
-		auction.Endtime = DoParseI64(nextAuction.Text())
+		auction.Endtime = utils.DoParseI64(nextAuction.Text())
 		auction.HasFinished = true
 	} else {
 		endAtApprox := doc.Find("p.auction_info b").Text()
@@ -85,7 +86,7 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 		if len(m) != 2 {
 			return Auction{}, errors.New("failed to find end time approx")
 		}
-		endTimeMinutes, err := ParseI64(m[1])
+		endTimeMinutes, err := utils.ParseI64(m[1])
 		if err != nil {
 			return Auction{}, errors.New("invalid end time approx: " + err.Error())
 		}
@@ -93,10 +94,10 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	}
 
 	auction.HighestBidder = strings.TrimSpace(doc.Find("a.currentPlayer").Text())
-	auction.HighestBidderUserID = DoParseI64(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""))
-	auction.NumBids = DoParseI64(doc.Find("div.numberOfBids").Text())
+	auction.HighestBidderUserID = utils.DoParseI64(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""))
+	auction.NumBids = utils.DoParseI64(doc.Find("div.numberOfBids").Text())
 	auction.CurrentBid = ParseInt(doc.Find("div.currentSum").Text())
-	auction.Inventory = DoParseI64(doc.Find("span.level.amount").Text())
+	auction.Inventory = utils.DoParseI64(doc.Find("span.level.amount").Text())
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
 	multiplierRegex := regexp.MustCompile(`multiplier\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
@@ -130,7 +131,7 @@ func extractAuctionFromDocV874(doc *goquery.Document) (Auction, error) {
 	}
 	var alreadyBid int64
 	if m[1] != "false" {
-		alreadyBid = DoParseI64(m[1])
+		alreadyBid = utils.DoParseI64(m[1])
 	}
 	auction.AlreadyBid = alreadyBid
 

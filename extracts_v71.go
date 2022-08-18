@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"math"
 	"regexp"
 	"strconv"
@@ -378,16 +379,16 @@ func getCharacterClass(characterClassStr string) CharacterClass {
 
 func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
-	report.ID = DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
+	report.ID = utils.DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()
 	txt := spanLink.Text()
 	figure := spanLink.Find("figure").First()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
 	if len(m) == 5 {
-		report.Coordinate.Galaxy = DoParseI64(m[2])
-		report.Coordinate.System = DoParseI64(m[3])
-		report.Coordinate.Position = DoParseI64(m[4])
+		report.Coordinate.Galaxy = utils.DoParseI64(m[2])
+		report.Coordinate.System = utils.DoParseI64(m[3])
+		report.Coordinate.Position = utils.DoParseI64(m[4])
 	} else {
 		return report, errors.New("failed to extract coordinate")
 	}
@@ -459,7 +460,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	ceTxt := doc.Find("div.detail_txt").Eq(2).Text()
 	m1 := regexp.MustCompile(`(\d+)%`).FindStringSubmatch(ceTxt)
 	if len(m1) == 2 {
-		report.CounterEspionage = DoParseI64(m1[1])
+		report.CounterEspionage = utils.DoParseI64(m1[1])
 	}
 
 	hasError := false
@@ -482,7 +483,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
-				buildingID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
@@ -537,7 +538,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
-				researchID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
@@ -586,7 +587,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
-				shipID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
@@ -637,7 +638,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
-				defenceID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
@@ -681,15 +682,15 @@ func extractDestroyRocketsFromDocV71(doc *goquery.Document) (abm, ipm int64, tok
 		return
 	}
 	token = m[1]
-	abm = DoParseI64(doc.Find("table tr").Eq(1).Find("td").Eq(1).Text())
-	ipm = DoParseI64(doc.Find("table tr").Eq(2).Find("td").Eq(1).Text())
+	abm = utils.DoParseI64(doc.Find("table tr").Eq(1).Find("td").Eq(1).Text())
+	ipm = utils.DoParseI64(doc.Find("table tr").Eq(2).Find("td").Eq(1).Text())
 	return
 }
 
 func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
 	durationFloat, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
 	duration = int64(math.Ceil(durationFloat))
-	max = DoParseI64(doc.Find("input#missileCount").AttrOr("data-max", "0"))
+	max = utils.DoParseI64(doc.Find("input#missileCount").AttrOr("data-max", "0"))
 	token = doc.Find("input[name=token]").AttrOr("value", "")
 	return
 }
@@ -721,9 +722,9 @@ func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) 
 	if len(m) == 0 {
 		return []Quantifiable{}, nil
 	}
-	idInt := DoParseI64(m[1])
+	idInt := utils.DoParseI64(m[1])
 	activeID := ID(idInt)
-	activeNbr := DoParseI64(active.Find("div.shipSumCount").Text())
+	activeNbr := utils.DoParseI64(active.Find("div.shipSumCount").Text())
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	doc.Find("table.queue td").Each(func(i int, s *goquery.Selection) {
 		link := s.Find("img")
@@ -732,7 +733,7 @@ func extractProductionFromDocV71(doc *goquery.Document) ([]Quantifiable, error) 
 		if len(m) == 0 {
 			return
 		}
-		itemID := DoParseI64(m[1])
+		itemID := utils.DoParseI64(m[1])
 		itemNbr := ParseInt(s.Text())
 		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
 	})
@@ -795,27 +796,27 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 	if len(m) != 2 {
 		return out, errors.New("failed to find site")
 	}
-	out.CurrPage = DoParseI64(m[1])
+	out.CurrPage = utils.DoParseI64(m[1])
 
 	m = regexp.MustCompile(`var currentCategory = (\d+);`).FindStringSubmatch(script)
 	if len(m) != 2 {
 		return out, errors.New("failed to find currentCategory")
 	}
-	out.Category = DoParseI64(m[1])
+	out.Category = utils.DoParseI64(m[1])
 
 	m = regexp.MustCompile(`var currentType = (\d+);`).FindStringSubmatch(script)
 	if len(m) != 2 {
 		return out, errors.New("failed to find currentType")
 	}
-	out.Type = DoParseI64(m[1])
+	out.Type = utils.DoParseI64(m[1])
 
 	changeSiteSize := s.Find("select.changeSite option").Size()
 	out.NbPage = MaxInt(int64(changeSiteSize)-1, 0)
 
 	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
 		p := HighscorePlayer{}
-		p.Position = DoParseI64(s.Find("td.position").Text())
-		p.ID = DoParseI64(s.Find("td.sendmsg a").AttrOr("data-playerid", "0"))
+		p.Position = utils.DoParseI64(s.Find("td.position").Text())
+		p.ID = utils.DoParseI64(s.Find("td.sendmsg a").AttrOr("data-playerid", "0"))
 		p.Name = strings.TrimSpace(s.Find("span.playername").Text())
 		tdName := s.Find("td.name")
 		allyTag := tdName.Find("span.ally-tag")
@@ -823,7 +824,7 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 			href := allyTag.Find("a").AttrOr("href", "")
 			m := regexp.MustCompile(`allianceId=(\d+)`).FindStringSubmatch(href)
 			if len(m) == 2 {
-				p.AllianceID = DoParseI64(m[1])
+				p.AllianceID = utils.DoParseI64(m[1])
 			}
 			allyTag.Remove()
 		}
@@ -833,9 +834,9 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out Highscore, err error
 			return
 		}
 		p.Homeworld.Type = PlanetType
-		p.Homeworld.Galaxy = DoParseI64(m[1])
-		p.Homeworld.System = DoParseI64(m[2])
-		p.Homeworld.Position = DoParseI64(m[3])
+		p.Homeworld.Galaxy = utils.DoParseI64(m[1])
+		p.Homeworld.System = utils.DoParseI64(m[2])
+		p.Homeworld.Position = utils.DoParseI64(m[3])
 		honorScoreSpan := s.Find("span.honorScore span")
 		if honorScoreSpan == nil {
 			return
@@ -871,7 +872,7 @@ func extractAllResourcesV71(pageHTML []byte) (out map[CelestialID]Resources, err
 		return out, err
 	}
 	for k, v := range data {
-		ki := DoParseI64(k)
+		ki := utils.DoParseI64(k)
 		out[CelestialID(ki)] = Resources{Metal: v.Input.Metal, Crystal: v.Input.Crystal, Deuterium: v.Input.Deuterium}
 	}
 	return
@@ -899,10 +900,10 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 				r = regexp.MustCompile(`unionunion(\d+)`)
 				m = r.FindStringSubmatch(classes)
 				if len(m) == 2 {
-					id = DoParseI64(m[1])
+					id = utils.DoParseI64(m[1])
 				}
 			} else {
-				id = DoParseI64(m[2])
+				id = utils.DoParseI64(m[2])
 			}
 
 			classes, _ := s.Attr("class")
@@ -911,8 +912,8 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 			td := s.Find("td.countDown")
 			isHostile := td.HasClass("hostile") || td.Find("span.hostile").Size() > 0
 			isFriendly := td.HasClass("friendly") || td.Find("span.friendly").Size() > 0
-			missionTypeInt := DoParseI64(s.AttrOr("data-mission-type", ""))
-			arrivalTimeInt := DoParseI64(s.AttrOr("data-arrival-time", ""))
+			missionTypeInt := utils.DoParseI64(s.AttrOr("data-mission-type", ""))
+			arrivalTimeInt := utils.DoParseI64(s.AttrOr("data-arrival-time", ""))
 			missionType := MissionID(missionTypeInt)
 			if rowType == "allianceAttack" {
 				missionType = GroupedAttack
@@ -926,7 +927,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 			attack.MissionType = missionType
 			if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy || missionType == GroupedAttack {
 				linkSendMail := s.Find("a.sendMail")
-				attack.AttackerID = DoParseI64(linkSendMail.AttrOr("data-playerid", ""))
+				attack.AttackerID = utils.DoParseI64(linkSendMail.AttrOr("data-playerid", ""))
 				attack.AttackerName = linkSendMail.AttrOr("title", "")
 				if attack.AttackerID != 0 {
 					coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
@@ -966,7 +967,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 			for _, c := range classesArr {
 				m := rgx.FindStringSubmatch(c)
 				if len(m) == 2 {
-					attack.UnionID = DoParseI64(m[1])
+					attack.UnionID = utils.DoParseI64(m[1])
 				}
 			}
 

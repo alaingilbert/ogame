@@ -10,6 +10,7 @@ import (
 	err2 "errors"
 	"fmt"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"image"
 	"image/color"
 	"image/png"
@@ -510,7 +511,7 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 			if update.CallbackQuery != nil {
 				_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
 				_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
-				v, err := ParseI64(update.CallbackQuery.Data)
+				v, err := utils.ParseI64(update.CallbackQuery.Data)
 				if err != nil {
 					return 0, err
 				}
@@ -1064,7 +1065,7 @@ LOOP:
 				arg := out[1]
 				if name == "new bid" {
 					if firstArg, ok := arg.(map[string]any); ok {
-						auctionID := DoParseI64(doCastStr(firstArg["auctionId"]))
+						auctionID := utils.DoParseI64(doCastStr(firstArg["auctionId"]))
 						pck1 := AuctioneerNewBid{
 							Sum:       int64(doCastF64(firstArg["sum"])),
 							Price:     int64(doCastF64(firstArg["price"])),
@@ -1084,13 +1085,13 @@ LOOP:
 							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
 							rgx := regexp.MustCompile(`\d+`)
 							txt := rgx.FindString(doc.Find("b").Text())
-							approx := DoParseI64(txt)
+							approx := utils.DoParseI64(txt)
 							pck = AuctioneerTimeRemaining{Approx: approx * 60}
 						} else if strings.Contains(timeLeftMsg, "nextAuction") {
 							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
 							rgx := regexp.MustCompile(`\d+`)
 							txt := rgx.FindString(doc.Find("span").Text())
-							secs := DoParseI64(txt)
+							secs := utils.DoParseI64(txt)
 							pck = AuctioneerNextAuction{Secs: secs}
 						}
 					}
@@ -1103,7 +1104,7 @@ LOOP:
 							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
 							rgx := regexp.MustCompile(`\d+`)
 							txt := rgx.FindString(doc.Find("b").Text())
-							approx := DoParseI64(txt)
+							approx := utils.DoParseI64(txt)
 							pck1.Approx = approx * 60
 						}
 						pck = pck1
@@ -1213,7 +1214,7 @@ LOOP:
 				if len(args) > 0 {
 					if name, ok := out["name"].(string); ok && name == "new bid" {
 						if firstArg, ok := args[0].(map[string]any); ok {
-							auctionID := DoParseI64(doCastStr(firstArg["auctionId"]))
+							auctionID := utils.DoParseI64(doCastStr(firstArg["auctionId"]))
 							pck1 := AuctioneerNewBid{
 								Sum:       int64(doCastF64(firstArg["sum"])),
 								Price:     int64(doCastF64(firstArg["price"])),
@@ -1233,13 +1234,13 @@ LOOP:
 								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
 								rgx := regexp.MustCompile(`\d+`)
 								txt := rgx.FindString(doc.Find("b").Text())
-								approx := DoParseI64(txt)
+								approx := utils.DoParseI64(txt)
 								pck = AuctioneerTimeRemaining{Approx: approx * 60}
 							} else if strings.Contains(timeLeftMsg, "nextAuction") {
 								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
 								rgx := regexp.MustCompile(`\d+`)
 								txt := rgx.FindString(doc.Find("span").Text())
-								secs := DoParseI64(txt)
+								secs := utils.DoParseI64(txt)
 								pck = AuctioneerNextAuction{Secs: secs}
 							}
 						}
@@ -1252,7 +1253,7 @@ LOOP:
 								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
 								rgx := regexp.MustCompile(`\d+`)
 								txt := rgx.FindString(doc.Find("b").Text())
-								approx := DoParseI64(txt)
+								approx := utils.DoParseI64(txt)
 								pck1.Approx = approx * 60
 							}
 							pck = pck1
@@ -3580,7 +3581,7 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 			acsValues := s.AttrOr("value", "")
 			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
 			if len(m) == 2 {
-				optUnionID := DoParseI64(m[1])
+				optUnionID := utils.DoParseI64(m[1])
 				if unionID == optUnionID {
 					found = true
 					payload.Add("acsValues", acsValues)

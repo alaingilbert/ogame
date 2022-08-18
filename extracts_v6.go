@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"math"
 	"net/url"
 	"regexp"
@@ -169,7 +170,7 @@ func extractMoonByCoordFromDocV6(doc *goquery.Document, coord Coordinate) (Extra
 }
 
 func extractOgameTimestampFromDocV6(doc *goquery.Document) int64 {
-	ogameTimestamp := DoParseI64(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
+	ogameTimestamp := utils.DoParseI64(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
 	return ogameTimestamp
 }
 
@@ -378,8 +379,8 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock, ownCo
 		if !isHostile {
 			return
 		}
-		missionTypeInt := DoParseI64(s.AttrOr("data-mission-type", ""))
-		arrivalTimeInt := DoParseI64(s.AttrOr("data-arrival-time", ""))
+		missionTypeInt := utils.DoParseI64(s.AttrOr("data-mission-type", ""))
+		arrivalTimeInt := utils.DoParseI64(s.AttrOr("data-arrival-time", ""))
 		missionType := MissionID(missionTypeInt)
 		if missionType != Attack && missionType != GroupedAttack && missionType != Destroy &&
 			missionType != MissileAttack && missionType != Spy {
@@ -389,7 +390,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock, ownCo
 		attack.MissionType = missionType
 		if missionType == Attack || missionType == MissileAttack || missionType == Spy || missionType == Destroy || missionType == GroupedAttack {
 			linkSendMail := s.Find("a.sendMail")
-			attack.AttackerID = DoParseI64(linkSendMail.AttrOr("data-playerid", ""))
+			attack.AttackerID = utils.DoParseI64(linkSendMail.AttrOr("data-playerid", ""))
 			attack.AttackerName = linkSendMail.AttrOr("title", "")
 			if attack.AttackerID != 0 {
 				coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
@@ -429,7 +430,7 @@ func extractAttacksFromDocV6(doc *goquery.Document, clock clockwork.Clock, ownCo
 		for _, c := range classesArr {
 			m := rgx.FindStringSubmatch(c)
 			if len(m) == 2 {
-				attack.UnionID = DoParseI64(m[1])
+				attack.UnionID = utils.DoParseI64(m[1])
 			}
 		}
 
@@ -515,9 +516,9 @@ func extractProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, error) {
 	if len(m) == 0 {
 		return []Quantifiable{}, nil
 	}
-	idInt := DoParseI64(m[1])
+	idInt := utils.DoParseI64(m[1])
 	activeID := ID(idInt)
-	activeNbr := DoParseI64(active.Find("div.shipSumCount").Text())
+	activeNbr := utils.DoParseI64(active.Find("div.shipSumCount").Text())
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	doc.Find("div#pqueue ul li").Each(func(i int, s *goquery.Selection) {
 		link := s.Find("a")
@@ -536,7 +537,7 @@ func extractProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, error) {
 				}
 			}
 		}
-		itemID := DoParseI64(itemIDstr)
+		itemID := utils.DoParseI64(itemIDstr)
 		itemNbr := ParseInt(s.Find("span.number").Text())
 		res = append(res, Quantifiable{ID: ID(itemID), Nbr: itemNbr})
 	})
@@ -551,9 +552,9 @@ func extractOverviewProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, 
 	if len(m) == 0 {
 		return []Quantifiable{}, nil
 	}
-	idInt := DoParseI64(m[1])
+	idInt := utils.DoParseI64(m[1])
 	activeID := ID(idInt)
-	activeNbr := DoParseI64(active.Find("div.shipSumCount").Text())
+	activeNbr := utils.DoParseI64(active.Find("div.shipSumCount").Text())
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
 		link := s.Find("a")
@@ -562,7 +563,7 @@ func extractOverviewProductionFromDocV6(doc *goquery.Document) ([]Quantifiable, 
 		if len(m) == 0 {
 			return
 		}
-		idInt := DoParseI64(m[1])
+		idInt := utils.DoParseI64(m[1])
 		activeID := ID(idInt)
 		activeNbr := ParseInt(link.Text())
 		res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
@@ -589,10 +590,10 @@ func extractFleet1ShipsFromDocV6(doc *goquery.Document) (s ShipsInfos) {
 
 func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]EspionageReportSummary, int64) {
 	msgs := make([]EspionageReportSummary, 0)
-	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
+	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := ParseI64(idStr); err == nil {
+			if id, err := utils.ParseI64(idStr); err == nil {
 				messageType := Report
 				if s.Find("span.espionageDefText").Size() > 0 {
 					messageType = Action
@@ -624,10 +625,10 @@ func extractEspionageReportMessageIDsFromDocV6(doc *goquery.Document) ([]Espiona
 
 func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReportSummary, int64) {
 	msgs := make([]CombatReportSummary, 0)
-	nbPage := DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
+	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
-			if id, err := ParseI64(idStr); err == nil {
+			if id, err := utils.ParseI64(idStr); err == nil {
 				report := CombatReportSummary{ID: id}
 				report.Destination = extractCoordV6(s.Find("div.msg_head a").Text())
 				if s.Find("div.msg_head figure").HasClass("planet") {
@@ -659,10 +660,10 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 				if len(m) != 5 {
 					return
 				}
-				galaxy := DoParseI64(m[1])
-				system := DoParseI64(m[2])
-				position := DoParseI64(m[3])
-				planetType := DoParseI64(m[4])
+				galaxy := utils.DoParseI64(m[1])
+				system := utils.DoParseI64(m[2])
+				position := utils.DoParseI64(m[3])
+				planetType := utils.DoParseI64(m[4])
 				report.Origin = &Coordinate{galaxy, system, position, CelestialType(planetType)}
 				if report.Origin.Equal(report.Destination) {
 					report.Origin = nil
@@ -677,16 +678,16 @@ func extractCombatReportMessagesFromDocV6(doc *goquery.Document) ([]CombatReport
 
 func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
-	report.ID = DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
+	report.ID = utils.DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()
 	txt := spanLink.Text()
 	figure := spanLink.Find("figure").First()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
 	if len(m) == 5 {
-		report.Coordinate.Galaxy = DoParseI64(m[2])
-		report.Coordinate.System = DoParseI64(m[3])
-		report.Coordinate.Position = DoParseI64(m[4])
+		report.Coordinate.Galaxy = utils.DoParseI64(m[2])
+		report.Coordinate.System = utils.DoParseI64(m[3])
+		report.Coordinate.Position = utils.DoParseI64(m[4])
 	} else {
 		return report, errors.New("failed to extract coordinate")
 	}
@@ -742,7 +743,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 	ceTxt := doc.Find("div.detail_txt").Eq(1).Text()
 	m1 := regexp.MustCompile(`(\d+)%`).FindStringSubmatch(ceTxt)
 	if len(m1) == 2 {
-		report.CounterEspionage = DoParseI64(m1[1])
+		report.CounterEspionage = utils.DoParseI64(m1[1])
 	}
 
 	hasError := false
@@ -763,7 +764,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
-				buildingID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
@@ -818,7 +819,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
-				researchID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
@@ -867,7 +868,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
-				shipID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
@@ -912,7 +913,7 @@ func extractEspionageReportFromDocV6(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
-				defenceID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
@@ -1005,7 +1006,7 @@ func extractResourceSettingsFromDocV6(doc *goquery.Document) (ResourceSettings, 
 		_, selectedExists := s.Attr("selected")
 		if selectedExists {
 			a, _ := s.Attr("value")
-			val := DoParseI64(a)
+			val := utils.DoParseI64(a)
 			vals = append(vals, val)
 		}
 	})
@@ -1071,8 +1072,8 @@ func extractFleetsFromEventListFromDocV6(doc *goquery.Document) []Fleet {
 }
 
 func extractIPMFromDocV6(doc *goquery.Document) (duration, max int64, token string) {
-	duration = DoParseI64(doc.Find("span#timer").AttrOr("data-duration", "0"))
-	max = DoParseI64(doc.Find("input[name=anz]").AttrOr("data-max", "0"))
+	duration = utils.DoParseI64(doc.Find("span#timer").AttrOr("data-duration", "0"))
+	max = utils.DoParseI64(doc.Find("input[name=anz]").AttrOr("data-max", "0"))
 	token = doc.Find("input[name=token]").AttrOr("value", "")
 	return
 }
@@ -1097,27 +1098,27 @@ func extractFleetsFromDocV6(doc *goquery.Document, location *time.Location) (res
 			dest.Type = DebrisType
 		}
 
-		id := DoParseI64(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"))
+		id := utils.DoParseI64(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"))
 
 		timerID := s.Find("span.timer").AttrOr("id", "")
 		m := regexp.MustCompile(`getElementByIdWithCache\("` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
 		var arriveIn int64
 		if len(m) == 2 {
-			arriveIn = DoParseI64(m[1])
+			arriveIn = utils.DoParseI64(m[1])
 		}
 
 		timerNextID := s.Find("span.nextTimer").AttrOr("id", "")
 		m = regexp.MustCompile(`getElementByIdWithCache\("` + timerNextID + `"\),\s*(\d+)\s*\);`).FindStringSubmatch(script)
 		var backIn int64
 		if len(m) == 2 {
-			backIn = DoParseI64(m[1])
+			backIn = utils.DoParseI64(m[1])
 		}
 
-		missionType := DoParseI64(s.AttrOr("data-mission-type", ""))
+		missionType := utils.DoParseI64(s.AttrOr("data-mission-type", ""))
 		returnFlight, _ := strconv.ParseBool(s.AttrOr("data-return-flight", ""))
 		inDeepSpace := s.Find("span.fleetDetailButton a").HasClass("fleet_icon_forward_end")
-		arrivalTime := DoParseI64(s.AttrOr("data-arrival-time", ""))
-		endTime := DoParseI64(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""))
+		arrivalTime := utils.DoParseI64(s.AttrOr("data-arrival-time", ""))
+		endTime := utils.DoParseI64(s.Find("a.openCloseDetails").AttrOr("data-end-time", ""))
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := Resources{}
@@ -1128,8 +1129,8 @@ func extractFleetsFromDocV6(doc *goquery.Document, location *time.Location) (res
 		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
 		fedAttackURL, _ := url.Parse(fedAttackHref)
 		fedAttackQuery := fedAttackURL.Query()
-		targetPlanetID := DoParseI64(fedAttackQuery.Get("target"))
-		unionID := DoParseI64(fedAttackQuery.Get("union"))
+		targetPlanetID := utils.DoParseI64(fedAttackQuery.Get("target"))
+		unionID := utils.DoParseI64(fedAttackQuery.Get("union"))
 
 		fleet := Fleet{}
 		fleet.ID = FleetID(id)
@@ -1191,14 +1192,14 @@ func extractSlotsFromDocV6(doc *goquery.Document) Slots {
 		txt := doc.Find("div#slots>div").Eq(0).Text()
 		m := r.FindStringSubmatch(txt)
 		if len(m) == 3 {
-			slots.InUse = DoParseI64(m[1])
-			slots.Total = DoParseI64(m[2])
+			slots.InUse = utils.DoParseI64(m[1])
+			slots.Total = utils.DoParseI64(m[2])
 		}
 		txt = doc.Find("div#slots>div").Eq(1).Text()
 		m = r.FindStringSubmatch(txt)
 		if len(m) == 3 {
-			slots.ExpInUse = DoParseI64(m[1])
-			slots.ExpTotal = DoParseI64(m[2])
+			slots.ExpInUse = utils.DoParseI64(m[1])
+			slots.ExpTotal = utils.DoParseI64(m[2])
 		}
 	}
 	return slots
@@ -1221,7 +1222,7 @@ func extractServerTimeFromDocV6(doc *goquery.Document) (time.Time, error) {
 }
 
 func extractSpioAnzFromDocV6(doc *goquery.Document) int64 {
-	out := DoParseI64(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
+	out := utils.DoParseI64(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
 	return out
 }
 
@@ -1256,15 +1257,15 @@ func extractActivateAutofocusFromDocV6(doc *goquery.Document) bool {
 }
 
 func extractEventsShowFromDocV6(doc *goquery.Document) int64 {
-	return DoParseI64(doc.Find("select[name=eventsShow] option[selected]").AttrOr("value", "1"))
+	return utils.DoParseI64(doc.Find("select[name=eventsShow] option[selected]").AttrOr("value", "1"))
 }
 
 func extractSortSettingFromDocV6(doc *goquery.Document) int64 {
-	return DoParseI64(doc.Find("select#sortSetting option[selected]").AttrOr("value", "0"))
+	return utils.DoParseI64(doc.Find("select#sortSetting option[selected]").AttrOr("value", "0"))
 }
 
 func extractSortOrderFromDocV6(doc *goquery.Document) int64 {
-	return DoParseI64(doc.Find("select#sortOrder option[selected]").AttrOr("value", "0"))
+	return utils.DoParseI64(doc.Find("select#sortOrder option[selected]").AttrOr("value", "0"))
 }
 
 func extractShowDetailOverlayFromDocV6(doc *goquery.Document) bool {
@@ -1298,7 +1299,7 @@ func extractSpioReportPicturesFromDocV6(doc *goquery.Document) bool {
 }
 
 func extractMsgResultsPerPageFromDocV6(doc *goquery.Document) int64 {
-	return DoParseI64(doc.Find("select[name=msgResultsPerPage] option[selected]").AttrOr("value", "10"))
+	return utils.DoParseI64(doc.Find("select[name=msgResultsPerPage] option[selected]").AttrOr("value", "10"))
 }
 
 func extractAuctioneerNotificationsFromDocV6(doc *goquery.Document) bool {
@@ -1386,9 +1387,9 @@ func extractPlanetCoordinateV6(pageHTML []byte) (Coordinate, error) {
 	if len(m) == 0 {
 		return Coordinate{}, errors.New("planet coordinate not found")
 	}
-	galaxy := DoParseI64(string(m[1]))
-	system := DoParseI64(string(m[2]))
-	position := DoParseI64(string(m[3]))
+	galaxy := utils.DoParseI64(string(m[1]))
+	system := utils.DoParseI64(string(m[2]))
+	position := utils.DoParseI64(string(m[3]))
 	planetType, _ := extractPlanetTypeV6(pageHTML)
 	return Coordinate{galaxy, system, position, planetType}, nil
 }
@@ -1398,12 +1399,12 @@ func extractPlanetIDV6(pageHTML []byte) (CelestialID, error) {
 	if len(m) == 0 {
 		return 0, errors.New("planet id not found")
 	}
-	planetID := DoParseI64(string(m[1]))
+	planetID := utils.DoParseI64(string(m[1]))
 	return CelestialID(planetID), nil
 }
 
 func extractPlanetIDFromDocV6(doc *goquery.Document) (CelestialID, error) {
-	planetID := DoParseI64(doc.Find("meta[name=ogame-planet-id]").AttrOr("content", "0"))
+	planetID := utils.DoParseI64(doc.Find("meta[name=ogame-planet-id]").AttrOr("content", "0"))
 	if planetID == 0 {
 		return 0, errors.New("planet id not found")
 	}
@@ -1424,7 +1425,7 @@ func extractOGameTimestampFromBytesV6(pageHTML []byte) int64 {
 	if len(m) != 2 {
 		return 0
 	}
-	ts := DoParseI64(string(m[1]))
+	ts := utils.DoParseI64(string(m[1]))
 	return ts
 }
 
@@ -1598,9 +1599,9 @@ func extractCoordV6(v string) (coord Coordinate) {
 	coordRgx := regexp.MustCompile(`\[(\d+):(\d+):(\d+)]`)
 	m := coordRgx.FindStringSubmatch(v)
 	if len(m) == 4 {
-		coord.Galaxy = DoParseI64(m[1])
-		coord.System = DoParseI64(m[2])
-		coord.Position = DoParseI64(m[3])
+		coord.Galaxy = utils.DoParseI64(m[1])
+		coord.System = utils.DoParseI64(m[2])
+		coord.Position = utils.DoParseI64(m[3])
 	}
 	return
 }
@@ -1615,7 +1616,7 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			if strings.Contains(activityDivClass, "minute15") {
 				activity = 15
 			} else if strings.Contains(activityDivClass, "showMinutes") {
-				activity = DoParseI64(strings.TrimSpace(activityDiv.Text()))
+				activity = utils.DoParseI64(strings.TrimSpace(activityDiv.Text()))
 			}
 		}
 		return activity
@@ -1662,10 +1663,10 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 			recyclersTxt := s.Find("div#debris" + position + " ul.ListLinks li").Eq(2).Text()
 
 			planetInfos := new(PlanetInfos)
-			planetInfos.ID = DoParseI64(s.Find("td.colonized").AttrOr("data-planet-id", ""))
+			planetInfos.ID = utils.DoParseI64(s.Find("td.colonized").AttrOr("data-planet-id", ""))
 
-			moonID := DoParseI64(s.Find("td.moon").AttrOr("data-moon-id", ""))
-			moonSize := DoParseI64(strings.Split(s.Find("td.moon span#moonsize").Text(), " ")[0])
+			moonID := utils.DoParseI64(s.Find("td.moon").AttrOr("data-moon-id", ""))
+			moonSize := utils.DoParseI64(strings.Split(s.Find("td.moon span#moonsize").Text(), " ")[0])
 			if moonID > 0 {
 				planetInfos.Moon = new(MoonInfos)
 				planetInfos.Moon.ID = moonID
@@ -1678,8 +1679,8 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 				longID, _ := allianceSpan.Attr("rel")
 				planetInfos.Alliance = new(AllianceInfos)
 				planetInfos.Alliance.Name = allianceSpan.Find("h1").Text()
-				planetInfos.Alliance.ID = DoParseI64(strings.TrimPrefix(longID, "alliance"))
-				planetInfos.Alliance.Rank = DoParseI64(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text())
+				planetInfos.Alliance.ID = utils.DoParseI64(strings.TrimPrefix(longID, "alliance"))
+				planetInfos.Alliance.Rank = utils.DoParseI64(allianceSpan.Find("ul.ListLinks li").First().Find("a").Text())
 				planetInfos.Alliance.Member = ParseInt(prefixedNumRgx.FindStringSubmatch(allianceSpan.Find("ul.ListLinks li").Eq(1).Text())[1])
 			}
 
@@ -1713,9 +1714,9 @@ func extractGalaxyInfosV6(pageHTML []byte, botPlayerName string, botPlayerID, bo
 				tooltips.Each(func(i int, s *goquery.Selection) {
 					idAttr, _ := s.Attr("id")
 					if strings.HasPrefix(idAttr, "player") {
-						playerID = DoParseI64(regexp.MustCompile(`player(\d+)`).FindStringSubmatch(idAttr)[1])
+						playerID = utils.DoParseI64(regexp.MustCompile(`player(\d+)`).FindStringSubmatch(idAttr)[1])
 						playerName = s.Find("h1").Find("span").Text()
-						playerRank = DoParseI64(s.Find("li.rank").Find("a").Text())
+						playerRank = utils.DoParseI64(s.Find("li.rank").Find("a").Text())
 					}
 				})
 			}
@@ -1787,13 +1788,13 @@ func extractPhalanxV6(pageHTML []byte) ([]Fleet, error) {
 
 	m := regexp.MustCompile(`var mytime = ([0-9]+)`).FindSubmatch(pageHTML)
 	if len(m) > 0 {
-		ogameTimestamp = DoParseI64(string(m[1]))
+		ogameTimestamp = utils.DoParseI64(string(m[1]))
 	}
 
 	eventFleet.Each(func(i int, s *goquery.Selection) {
-		mission := DoParseI64(s.AttrOr("data-mission-type", "0"))
+		mission := utils.DoParseI64(s.AttrOr("data-mission-type", "0"))
 		returning, _ := strconv.ParseBool(s.AttrOr("data-return-flight", "false"))
-		arrivalTime := DoParseI64(s.AttrOr("data-arrival-time", "0"))
+		arrivalTime := utils.DoParseI64(s.AttrOr("data-arrival-time", "0"))
 		arriveIn := arrivalTime - ogameTimestamp
 		if arriveIn < 0 {
 			arriveIn = 0
@@ -1913,8 +1914,8 @@ func extractCancelBuildingInfosV6(pageHTML []byte) (token string, techID, listID
 	if len(m) < 3 {
 		return "", 0, 0, errors.New("unable to find techid/listid")
 	}
-	techID = DoParseI64(m[1])
-	listID = DoParseI64(m[2])
+	techID = utils.DoParseI64(m[1])
+	listID = utils.DoParseI64(m[2])
 	return
 }
 
@@ -1933,8 +1934,8 @@ func extractCancelResearchInfosV6(pageHTML []byte) (token string, techID, listID
 	if len(m) < 3 {
 		return "", 0, 0, errors.New("unable to find techid/listid")
 	}
-	techID = DoParseI64(m[1])
-	listID = DoParseI64(m[2])
+	techID = utils.DoParseI64(m[1])
+	listID = utils.DoParseI64(m[2])
 	return
 }
 
@@ -1959,7 +1960,7 @@ var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
 func extractPlanetFromSelectionV6(s *goquery.Selection) (ExtractorPlanet, error) {
 	el, _ := s.Attr("id")
-	id, err := ParseI64(strings.TrimPrefix(el, "planet-"))
+	id, err := utils.ParseI64(strings.TrimPrefix(el, "planet-"))
 	if err != nil {
 		return ExtractorPlanet{}, err
 	}
@@ -1980,15 +1981,15 @@ func extractPlanetFromSelectionV6(s *goquery.Selection) (ExtractorPlanet, error)
 	res.img = s.Find("img.planetPic").AttrOr("src", "")
 	res.id = PlanetID(id)
 	res.name = strings.TrimSpace(m[1])
-	res.coordinate.Galaxy = DoParseI64(m[2])
-	res.coordinate.System = DoParseI64(m[3])
-	res.coordinate.Position = DoParseI64(m[4])
+	res.coordinate.Galaxy = utils.DoParseI64(m[2])
+	res.coordinate.System = utils.DoParseI64(m[3])
+	res.coordinate.Position = utils.DoParseI64(m[4])
 	res.coordinate.Type = PlanetType
 	res.diameter = ParseInt(m[5])
-	res.fields.Built = DoParseI64(m[6])
-	res.fields.Total = DoParseI64(m[7])
-	res.temperature.Min = DoParseI64(m[8])
-	res.temperature.Max = DoParseI64(m[9])
+	res.fields.Built = utils.DoParseI64(m[6])
+	res.fields.Total = utils.DoParseI64(m[7])
+	res.temperature.Min = utils.DoParseI64(m[8])
+	res.temperature.Max = utils.DoParseI64(m[9])
 
 	res.moon, _ = extractMoonFromPlanetSelectionV6(s)
 
@@ -2001,7 +2002,7 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection) (ExtractorMoon, err
 		return ExtractorMoon{}, errors.New("no moon found")
 	}
 	m := cpRgx.FindStringSubmatch(href)
-	id := DoParseI64(m[1])
+	id := utils.DoParseI64(m[1])
 	title, _ := moonLink.Attr("title")
 	root, err := html.Parse(strings.NewReader(title))
 	if err != nil {
@@ -2015,13 +2016,13 @@ func extractMoonFromSelectionV6(moonLink *goquery.Selection) (ExtractorMoon, err
 	moon := ExtractorMoon{}
 	moon.id = MoonID(id)
 	moon.name = strings.TrimSpace(mm[1])
-	moon.coordinate.Galaxy = DoParseI64(mm[2])
-	moon.coordinate.System = DoParseI64(mm[3])
-	moon.coordinate.Position = DoParseI64(mm[4])
+	moon.coordinate.Galaxy = utils.DoParseI64(mm[2])
+	moon.coordinate.System = utils.DoParseI64(mm[3])
+	moon.coordinate.Position = utils.DoParseI64(mm[4])
 	moon.coordinate.Type = MoonType
 	moon.diameter = ParseInt(mm[5])
-	moon.fields.Built = DoParseI64(mm[6])
-	moon.fields.Total = DoParseI64(mm[7])
+	moon.fields.Built = utils.DoParseI64(mm[6])
+	moon.fields.Total = utils.DoParseI64(mm[7])
 	moon.img = moonLink.Find("img.icon-moon").AttrOr("src", "")
 	return moon, nil
 }
@@ -2059,8 +2060,8 @@ func extractEmpire(pageHTML []byte) ([]EmpireCelestial, error) {
 		temperatureStr := doCastStr(planet["temperature"])
 		m := temperatureRgx.FindStringSubmatch(temperatureStr)
 		if len(m) == 3 {
-			tempMin = DoParseI64(m[1])
-			tempMax = DoParseI64(m[2])
+			tempMin = utils.DoParseI64(m[1])
+			tempMax = utils.DoParseI64(m[2])
 		}
 		mm := diameterRgx.FindStringSubmatch(doCastStr(planet["diameter"]))
 		energyStr := doCastStr(planet["energy"])
@@ -2229,7 +2230,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	nextAuction := doc.Find("#nextAuction")
 	if nextAuction.Size() > 0 {
 		// Find time until next auction starts
-		auction.Endtime = DoParseI64(nextAuction.Text())
+		auction.Endtime = utils.DoParseI64(nextAuction.Text())
 		auction.HasFinished = true
 	} else {
 		endAtApprox := doc.Find("p.auction_info b").Text()
@@ -2237,7 +2238,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 		if len(m) != 2 {
 			return Auction{}, errors.New("failed to find end time approx")
 		}
-		endTimeMinutes, err := ParseI64(m[1])
+		endTimeMinutes, err := utils.ParseI64(m[1])
 		if err != nil {
 			return Auction{}, errors.New("invalid end time approx: " + err.Error())
 		}
@@ -2245,10 +2246,10 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 
 	auction.HighestBidder = strings.TrimSpace(doc.Find("a.currentPlayer").Text())
-	auction.HighestBidderUserID = DoParseI64(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""))
-	auction.NumBids = DoParseI64(doc.Find("div.numberOfBids").Text())
+	auction.HighestBidderUserID = utils.DoParseI64(doc.Find("a.currentPlayer").AttrOr("data-player-id", ""))
+	auction.NumBids = utils.DoParseI64(doc.Find("div.numberOfBids").Text())
 	auction.CurrentBid = ParseInt(doc.Find("div.currentSum").Text())
-	auction.Inventory = DoParseI64(doc.Find("span.level.amount").Text())
+	auction.Inventory = utils.DoParseI64(doc.Find("span.level.amount").Text())
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
 	multiplierRegex := regexp.MustCompile(`multiplier\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())
@@ -2282,7 +2283,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (Auction, error) {
 	}
 	var alreadyBid int64
 	if m[1] != "false" {
-		alreadyBid = DoParseI64(m[1])
+		alreadyBid = utils.DoParseI64(m[1])
 	}
 	auction.AlreadyBid = alreadyBid
 

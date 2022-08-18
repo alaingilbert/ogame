@@ -3,6 +3,7 @@ package ogame
 import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"regexp"
 	"strings"
 	"time"
@@ -32,8 +33,8 @@ func extractEmpireV9(pageHTML []byte) ([]EmpireCelestial, error) {
 		temperatureStr := doCastStr(planet["temperature"])
 		m := temperatureRgx.FindStringSubmatch(temperatureStr)
 		if len(m) == 3 {
-			tempMin = DoParseI64(m[1])
-			tempMax = DoParseI64(m[2])
+			tempMin = utils.DoParseI64(m[1])
+			tempMax = utils.DoParseI64(m[2])
 		}
 		mm := diameterRgx.FindStringSubmatch(doCastStr(planet["diameter"]))
 		energyStr := doCastStr(planet["energy"])
@@ -47,8 +48,8 @@ func extractEmpireV9(pageHTML []byte) ([]EmpireCelestial, error) {
 			Img:      doCastStr(planet["image"]),
 			Type:     celestialType,
 			Fields: Fields{
-				Built: DoParseI64(doCastStr(planet["fieldUsed"])),
-				Total: DoParseI64(doCastStr(planet["fieldMax"])),
+				Built: utils.DoParseI64(doCastStr(planet["fieldUsed"])),
+				Total: utils.DoParseI64(doCastStr(planet["fieldMax"])),
 			},
 			Temperature: Temperature{
 				Min: tempMin,
@@ -152,9 +153,9 @@ func extractOverviewProductionFromDocV9(doc *goquery.Document) ([]Quantifiable, 
 	if len(m) == 0 {
 		return []Quantifiable{}, nil
 	}
-	idInt := DoParseI64(m[1])
+	idInt := utils.DoParseI64(m[1])
 	activeID := ID(idInt)
-	activeNbr := DoParseI64(active.Find("div.shipSumCount").Text())
+	activeNbr := utils.DoParseI64(active.Find("div.shipSumCount").Text())
 	res = append(res, Quantifiable{ID: activeID, Nbr: activeNbr})
 	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
 		img := s.Find("img")
@@ -203,16 +204,16 @@ func extractResourcesDetailsFromFullPageFromDocV9(doc *goquery.Document) Resourc
 
 func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Location) (EspionageReport, error) {
 	report := EspionageReport{}
-	report.ID = DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
+	report.ID = utils.DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()
 	txt := spanLink.Text()
 	figure := spanLink.Find("figure").First()
 	r := regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]`)
 	m := r.FindStringSubmatch(txt)
 	if len(m) == 5 {
-		report.Coordinate.Galaxy = DoParseI64(m[2])
-		report.Coordinate.System = DoParseI64(m[3])
-		report.Coordinate.Position = DoParseI64(m[4])
+		report.Coordinate.Galaxy = utils.DoParseI64(m[2])
+		report.Coordinate.System = utils.DoParseI64(m[3])
+		report.Coordinate.Position = utils.DoParseI64(m[4])
 	} else {
 		return report, errors.New("failed to extract coordinate")
 	}
@@ -284,7 +285,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 	ceTxt := doc.Find("div.detail_txt").Eq(2).Text()
 	m1 := regexp.MustCompile(`(\d+)%`).FindStringSubmatch(ceTxt)
 	if len(m1) == 2 {
-		report.CounterEspionage = DoParseI64(m1[1])
+		report.CounterEspionage = utils.DoParseI64(m1[1])
 	}
 
 	hasError := false
@@ -309,7 +310,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
-				buildingID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(buildingID) {
@@ -364,7 +365,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
-				researchID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(researchID) {
@@ -413,7 +414,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
-				shipID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(shipID) {
@@ -464,7 +465,7 @@ func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Locat
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
-				defenceID := DoParseI64(r.FindStringSubmatch(imgClass)[1])
+				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
 				l := ParseInt(s2.Find("span.fright").Text())
 				level := &l
 				switch ID(defenceID) {
