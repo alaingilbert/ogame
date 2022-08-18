@@ -118,7 +118,7 @@ func extractCelestialsFromDocV6(doc *goquery.Document) []ICelestial {
 	for _, planet := range planets {
 		celestials = append(celestials, planet)
 		if planet.moon != nil {
-			celestials = append(celestials, planet.Moon())
+			celestials = append(celestials, *planet.Moon())
 		}
 	}
 	return celestials
