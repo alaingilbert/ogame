@@ -3,13 +3,13 @@ package ogame
 import (
 	"bytes"
 	"compress/gzip"
-	"container/heap"
 	"context"
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
 	err2 "errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/taskRunner"
 	"image"
 	"image/color"
 	"image/png"
@@ -84,10 +84,7 @@ type OGame struct {
 	closeChatCh           chan struct{}
 	chatRetry             *ExponentialBackoff
 	ws                    *websocket.Conn
-	tasks                 priorityQueue
-	tasksLock             sync.Mutex
-	tasksPushCh           chan *item
-	tasksPopCh            chan struct{}
+	taskRunnerInst        *taskRunner.TaskRunner[*Prioritize]
 	loginWrapper          func(func() (bool, error)) error
 	getServerDataWrapper  func(func() (ServerData, error)) (ServerData, error)
 	loginProxyTransport   http.RoundTripper
@@ -310,11 +307,8 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 		b.client = client
 	}
 
-	b.tasks = make(priorityQueue, 0)
-	heap.Init(&b.tasks)
-	b.tasksPushCh = make(chan *item, 100)
-	b.tasksPopCh = make(chan struct{}, 100)
-	b.taskRunner()
+	factory := func() *Prioritize { return &Prioritize{bot: b} }
+	b.taskRunnerInst = taskRunner.NewTaskRunner(b.ctx, factory)
 
 	b.wsCallbacks = make(map[string]func([]byte))
 
@@ -4180,26 +4174,6 @@ func (b *OGame) addAccount(number int, lang string) (*AddAccountRes, error) {
 	return AddAccount(b.client, b.ctx, b.lobby, accountGroup, b.bearerToken)
 }
 
-func (b *OGame) taskRunner() {
-	go func() {
-		for t := range b.tasksPushCh {
-			b.tasksLock.Lock()
-			heap.Push(&b.tasks, t)
-			b.tasksLock.Unlock()
-			b.tasksPopCh <- struct{}{}
-		}
-	}()
-	go func() {
-		for range b.tasksPopCh {
-			b.tasksLock.Lock()
-			task := heap.Pop(&b.tasks).(*item)
-			b.tasksLock.Unlock()
-			close(task.canBeProcessedCh)
-			<-task.isDoneCh
-		}
-	}()
-}
-
 func (b *OGame) getCachedCelestial(v any) Celestial {
 	switch vv := v.(type) {
 	case Celestial:
@@ -4285,44 +4259,8 @@ func (b *OGame) getCachedCelestials() []Celestial {
 	return celestials
 }
 
-func (b *OGame) withPriority(priority int) *Prioritize {
-	canBeProcessedCh := make(chan struct{})
-	taskIsDoneCh := make(chan struct{})
-	task := new(item)
-	task.priority = priority
-	task.canBeProcessedCh = canBeProcessedCh
-	task.isDoneCh = taskIsDoneCh
-	b.tasksPushCh <- task
-	<-canBeProcessedCh
-	return &Prioritize{bot: b, taskIsDoneCh: taskIsDoneCh}
-}
-
-// TasksOverview overview of tasks in heap
-type TasksOverview struct {
-	Low       int64
-	Normal    int64
-	Important int64
-	Critical  int64
-	Total     int64
-}
-
-func (b *OGame) getTasks() (out TasksOverview) {
-	b.tasksLock.Lock()
-	out.Total = int64(b.tasks.Len())
-	for _, item := range b.tasks {
-		switch item.priority {
-		case Low:
-			out.Low++
-		case Normal:
-			out.Normal++
-		case Important:
-			out.Important++
-		case Critical:
-			out.Critical++
-		}
-	}
-	b.tasksLock.Unlock()
-	return
+func (b *OGame) getTasks() (out taskRunner.TasksOverview) {
+	return b.taskRunnerInst.GetTasks()
 }
 
 // Public interface -----------------------------------------------------------
@@ -4403,8 +4341,8 @@ func (b *OGame) AddAccount(number int, lang string) (*AddAccountRes, error) {
 }
 
 // WithPriority ...
-func (b *OGame) WithPriority(priority int) Prioritizable {
-	return b.withPriority(priority)
+func (b *OGame) WithPriority(priority taskRunner.Priority) Prioritizable {
+	return b.taskRunnerInst.WithPriority(priority)
 }
 
 // Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
@@ -5014,7 +4952,7 @@ func (b *OGame) GetAllResources() (map[CelestialID]Resources, error) {
 }
 
 // GetTasks return how many tasks are queued in the heap.
-func (b *OGame) GetTasks() TasksOverview {
+func (b *OGame) GetTasks() taskRunner.TasksOverview {
 	return b.getTasks()
 }
 

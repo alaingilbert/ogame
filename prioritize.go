@@ -24,6 +24,10 @@ type Prioritize struct {
 	isTx         int32
 }
 
+func (b *Prioritize) SetTaskDoneCh(ch chan struct{}) {
+	b.taskIsDoneCh = ch
+}
+
 // SetInitiator ...
 func (b *Prioritize) SetInitiator(initiator string) Prioritizable {
 	b.initiator = initiator

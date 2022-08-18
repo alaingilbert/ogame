@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"crypto/tls"
+	"github.com/alaingilbert/ogame/pkg/taskRunner"
 	"net/http"
 	"net/url"
 	"time"
@@ -141,7 +142,7 @@ type Wrapper interface {
 	GetServerData() ServerData
 	GetSession() string
 	GetState() (bool, string)
-	GetTasks() TasksOverview
+	GetTasks() taskRunner.TasksOverview
 	GetUniverseName() string
 	GetUniverseSpeed() int64
 	GetUniverseSpeedFleet() int64
@@ -172,7 +173,7 @@ type Wrapper interface {
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
-	WithPriority(priority int) Prioritizable
+	WithPriority(priority taskRunner.Priority) Prioritizable
 }
 
 // BaseOgameObj base interface for all ogame objects (buildings, technologies, ships, defenses)

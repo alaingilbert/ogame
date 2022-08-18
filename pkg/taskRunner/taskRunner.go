@@ -1,0 +1,112 @@
+package taskRunner
+
+import (
+	"container/heap"
+	"context"
+	"sync"
+)
+
+type Priority int64
+
+// Priorities
+const (
+	Low Priority = iota + 1
+	Normal
+	Important
+	Critical
+)
+
+type TaskRunner[T ITask] struct {
+	tasks       priorityQueue
+	tasksLock   sync.Mutex
+	tasksPushCh chan *item
+	tasksPopCh  chan struct{}
+	factory     func() T
+	ctx         context.Context
+}
+
+type ITask interface {
+	SetTaskDoneCh(ch chan struct{})
+}
+
+func NewTaskRunner[T ITask](ctx context.Context, factory func() T) *TaskRunner[T] {
+	r := &TaskRunner[T]{}
+	r.factory = factory
+	r.tasks = make(priorityQueue, 0)
+	heap.Init(&r.tasks)
+	r.tasksPushCh = make(chan *item, 100)
+	r.tasksPopCh = make(chan struct{}, 100)
+	r.ctx = ctx
+	r.start()
+	return r
+}
+
+func (r *TaskRunner[T]) start() {
+	go func() {
+		for t := range r.tasksPushCh {
+			r.tasksLock.Lock()
+			heap.Push(&r.tasks, t)
+			r.tasksLock.Unlock()
+			select {
+			case r.tasksPopCh <- struct{}{}:
+			case <-r.ctx.Done():
+				return
+			}
+		}
+	}()
+	go func() {
+		for range r.tasksPopCh {
+			r.tasksLock.Lock()
+			task := heap.Pop(&r.tasks).(*item)
+			r.tasksLock.Unlock()
+			close(task.canBeProcessedCh)
+			select {
+			case <-task.isDoneCh:
+			case <-r.ctx.Done():
+				return
+			}
+		}
+	}()
+}
+
+func (r *TaskRunner[T]) WithPriority(priority Priority) T {
+	canBeProcessedCh := make(chan struct{})
+	taskIsDoneCh := make(chan struct{})
+	task := new(item)
+	task.priority = priority
+	task.canBeProcessedCh = canBeProcessedCh
+	task.isDoneCh = taskIsDoneCh
+	r.tasksPushCh <- task
+	<-canBeProcessedCh
+	t := r.factory()
+	t.SetTaskDoneCh(taskIsDoneCh)
+	return t
+}
+
+// TasksOverview overview of tasks in heap
+type TasksOverview struct {
+	Low       Priority
+	Normal    Priority
+	Important Priority
+	Critical  Priority
+	Total     int64
+}
+
+func (r *TaskRunner[T]) GetTasks() (out TasksOverview) {
+	r.tasksLock.Lock()
+	out.Total = int64(r.tasks.Len())
+	for _, item := range r.tasks {
+		switch item.priority {
+		case Low:
+			out.Low++
+		case Normal:
+			out.Normal++
+		case Important:
+			out.Important++
+		case Critical:
+			out.Critical++
+		}
+	}
+	r.tasksLock.Unlock()
+	return
+}

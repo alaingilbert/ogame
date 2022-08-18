@@ -1,10 +1,10 @@
-package ogame
+package taskRunner
 
 // item ...
 type item struct {
 	canBeProcessedCh chan struct{}
 	isDoneCh         chan struct{}
-	priority         int
+	priority         Priority
 	index            int // The index of the item in the heap.
 }
 
