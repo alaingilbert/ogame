@@ -114,8 +114,8 @@ func (e ExtractorV71) ExtractAllResources(pageHTML []byte) (map[CelestialID]Reso
 }
 
 // ExtractAttacksFromDoc ...
-func (e ExtractorV71) ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error) {
-	return extractAttacksFromDocV71(doc, clock, ownCoords)
+func (e ExtractorV71) ExtractAttacksFromDoc(doc *goquery.Document, ownCoords []Coordinate) ([]AttackEvent, error) {
+	return e.extractAttacksFromDoc(doc, clockwork.NewRealClock(), ownCoords)
 }
 
 // ExtractAttacks ...
@@ -125,7 +125,11 @@ func (e ExtractorV71) ExtractAttacks(pageHTML []byte, ownCoords []Coordinate) ([
 
 func (e ExtractorV71) extractAttacks(pageHTML []byte, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractAttacksFromDoc(doc, clock, ownCoords)
+	return e.extractAttacksFromDoc(doc, clock, ownCoords)
+}
+
+func (e ExtractorV71) extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error) {
+	return extractAttacksFromDocV71(doc, clock, ownCoords)
 }
 
 // DMCost ...

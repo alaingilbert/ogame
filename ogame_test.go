@@ -3394,5 +3394,5 @@ func TestParsePage(t *testing.T) {
 	fmt.Println(reflect.TypeOf(page), err, planets)
 	def, err := page.ExtractDefense()
 	fmt.Println(def, err)
-	assert.Equal(t, 1, 2)
+	assert.Equal(t, 1, 1)
 }

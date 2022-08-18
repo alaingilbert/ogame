@@ -7,32 +7,48 @@ import (
 
 var ErrParsePageType = errors.New("failed to parse requested page type")
 
+func AutoParseFullPage(b *OGame, pageHTML []byte) IFullPage {
+	fullPage := FullPage{Page{b: b, content: pageHTML}}
+	if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) {
+		return OverviewPage{fullPage}
+	} else if bytes.Contains(pageHTML, []byte(`currentPage = "preferences";`)) {
+		return PreferencesPage{fullPage}
+	} else if bytes.Contains(pageHTML, []byte(`currentPage = "research";`)) {
+		return ResearchPage{fullPage}
+	}
+	return fullPage
+}
+
 // ParsePage given a pageHTML and an extractor for the game version this html represent,
 // returns a page of type T
 func ParsePage[T FullPagePages](b *OGame, pageHTML []byte) (T, error) {
 	var zero T
+	fullPage := FullPage{Page{b: b, content: pageHTML}}
 	switch any(zero).(type) {
 	case OverviewPage:
 		if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) {
-			return T(OverviewPage{FullPage{Page{b: b, content: pageHTML}}}), nil
+			return T(OverviewPage{fullPage}), nil
 		}
 	case DefensesPage:
-		c, err := ParseDefensesPageContent(b, pageHTML)
-		return T(c), err
+		if isDefensesPage(b.extractor, pageHTML) {
+			return T(DefensesPage{fullPage}), nil
+		}
 	case ShipyardPage:
 		if bytes.Contains(pageHTML, []byte(`currentPage = "shipyard";`)) {
-			return T(ShipyardPage{FullPage{Page{b: b, content: pageHTML}}}), nil
+			return T(ShipyardPage{fullPage}), nil
 		}
 	case ResearchPage:
-		return T(ResearchPage{FullPage{Page{b: b, content: pageHTML}}}), nil
+		return T(ResearchPage{fullPage}), nil
 	case FacilitiesPage:
-		return T(FacilitiesPage{FullPage{Page{b: b, content: pageHTML}}}), nil
+		return T(FacilitiesPage{fullPage}), nil
 	case SuppliesPage:
-		return T(SuppliesPage{FullPage{Page{b: b, content: pageHTML}}}), nil
+		return T(SuppliesPage{fullPage}), nil
 	case ResourcesSettingsPage:
-		return T(ResourcesSettingsPage{FullPage{Page{b: b, content: pageHTML}}}), nil
+		return T(ResourcesSettingsPage{fullPage}), nil
+	case PreferencesPage:
+		return T(PreferencesPage{fullPage}), nil
 	case MovementPage:
-		return T(MovementPage{FullPage{Page{b: b, content: pageHTML}}}), nil
+		return T(MovementPage{fullPage}), nil
 	default:
 		return zero, errors.New("page type not implemented")
 	}
@@ -41,29 +57,29 @@ func ParsePage[T FullPagePages](b *OGame, pageHTML []byte) (T, error) {
 
 func ParseAjaxPage[T AjaxPagePages](b *OGame, pageHTML []byte) (T, error) {
 	var zero T
+	page := Page{b: b, content: pageHTML}
 	switch any(zero).(type) {
 	case EventListAjaxPage:
-		return T(EventListAjaxPage{Page{b: b, content: pageHTML}}), nil
+		return T(EventListAjaxPage{page}), nil
 	case MissileAttackLayerAjaxPage:
-		return T(MissileAttackLayerAjaxPage{Page{b: b, content: pageHTML}}), nil
+		return T(MissileAttackLayerAjaxPage{page}), nil
 	case RocketlayerAjaxPage:
-		return T(RocketlayerAjaxPage{Page{b: b, content: pageHTML}}), nil
+		return T(RocketlayerAjaxPage{page}), nil
+	case PhalanxAjaxPage:
+		return T(PhalanxAjaxPage{page}), nil
 	case FetchTechsAjaxPage:
-		return T(FetchTechsAjaxPage{Page{b: b, content: pageHTML}}), nil
+		return T(FetchTechsAjaxPage{page}), nil
 	}
 	return zero, ErrParsePageType
 }
 
-func ParseDefensesPageContent(b *OGame, pageHTML []byte) (out DefensesPage, err error) {
+func isDefensesPage(e Extractor, pageHTML []byte) bool {
 	var target string
-	switch b.extractor.(type) {
+	switch e.(type) {
 	case *ExtractorV6:
 		target = `currentPage="defense";`
 	default:
 		target = `currentPage = "defenses";`
 	}
-	if bytes.Contains(pageHTML, []byte(target)) {
-		return DefensesPage{FullPage{Page{b: b, content: pageHTML}}}, nil
-	}
-	return out, ErrParsePageType
+	return bytes.Contains(pageHTML, []byte(target))
 }

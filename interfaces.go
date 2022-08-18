@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/clockwork"
 )
 
 // Prioritizable ...
@@ -348,7 +347,7 @@ type Extractor interface {
 	ExtractFacilitiesFromDoc(doc *goquery.Document) (Facilities, error)
 	ExtractResearchFromDoc(doc *goquery.Document) Researches
 	ExtractOGameSessionFromDoc(doc *goquery.Document) string
-	ExtractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoords []Coordinate) ([]AttackEvent, error)
+	ExtractAttacksFromDoc(doc *goquery.Document, ownCoords []Coordinate) ([]AttackEvent, error)
 	ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources PlanetResources, multiplier Multiplier, err error)
 	ExtractProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)
 	ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]Quantifiable, error)

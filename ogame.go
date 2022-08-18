@@ -447,7 +447,11 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 				}
 			}
 			b.debug("login using existing cookies")
-			if err := b.loginPart3(userAccount, pageHTML); err != nil {
+			page, err := ParsePage[OverviewPage](b, pageHTML)
+			if err != nil {
+				return false, err
+			}
+			if err := b.loginPart3(userAccount, page); err != nil {
 				return false, err
 			}
 			if err := b.client.Jar.(*cookiejar.Jar).Save(); err != nil {
@@ -461,7 +465,11 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		return false, err
 	}
 	b.debug("login using existing cookies")
-	if err := b.loginPart3(userAccount, pageHTML); err != nil {
+	page, err := ParsePage[OverviewPage](b, pageHTML)
+	if err != nil {
+		return false, err
+	}
+	if err := b.loginPart3(userAccount, page); err != nil {
 		return false, err
 	}
 	return true, nil
@@ -643,7 +651,11 @@ func (b *OGame) login() error {
 	if err := b.loginPart2(server); err != nil {
 		return err
 	}
-	if err := b.loginPart3(userAccount, pageHTML); err != nil {
+	page, err := ParsePage[OverviewPage](b, pageHTML)
+	if err != nil {
+		return err
+	}
+	if err := b.loginPart3(userAccount, page); err != nil {
 		return err
 	}
 
@@ -714,7 +726,7 @@ func (b *OGame) loginPart2(server Server) error {
 	return nil
 }
 
-func (b *OGame) loginPart3(userAccount Account, pageHTML []byte) error {
+func (b *OGame) loginPart3(userAccount Account, page OverviewPage) error {
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
 		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("9.0.0"))) {
 			b.extractor = NewExtractorV9()
@@ -736,24 +748,20 @@ func (b *OGame) loginPart3(userAccount Account, pageHTML []byte) error {
 	b.debug("logged in as " + userAccount.Name + " on " + b.Universe + "-" + b.language)
 
 	b.debug("extract information from html")
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	if err != nil {
-		return err
-	}
-	b.ogameSession = b.extractor.ExtractOGameSessionFromDoc(doc)
+	b.ogameSession = page.ExtractOGameSession()
 	if b.ogameSession == "" {
 		return ErrBadCredentials
 	}
 
-	serverTime, _ := b.extractor.ExtractServerTime(pageHTML)
+	serverTime, _ := page.ExtractServerTime()
 	b.location = serverTime.Location()
 
-	b.cacheFullPageInfo(OverviewPageName, pageHTML)
+	b.cacheFullPageInfo(page)
 
 	_, _ = b.getPage(PreferencesPageName) // Will update preferences cached values
 
 	// Extract chat host and port
-	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(pageHTML)
+	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(page.content)
 	chatHost := string(m[1])
 	chatPort := string(m[2])
 
@@ -780,27 +788,26 @@ func (b *OGame) loginPart3(userAccount Account, pageHTML []byte) error {
 	return nil
 }
 
-func (b *OGame) cacheFullPageInfo(page string, pageHTML []byte) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+func (b *OGame) cacheFullPageInfo(page IFullPage) {
 	b.planetsMu.Lock()
-	b.planets = b.extractor.ExtractPlanetsFromDoc(doc, b)
+	b.planets = page.ExtractPlanets()
 	b.planetsMu.Unlock()
-	b.isVacationModeEnabled = b.extractor.ExtractIsInVacationFromDoc(doc)
-	b.ajaxChatToken, _ = b.extractor.ExtractAjaxChatToken(pageHTML)
-	b.characterClass, _ = b.extractor.ExtractCharacterClassFromDoc(doc)
-	b.hasCommander = b.extractor.ExtractCommanderFromDoc(doc)
-	b.hasAdmiral = b.extractor.ExtractAdmiralFromDoc(doc)
-	b.hasEngineer = b.extractor.ExtractEngineerFromDoc(doc)
-	b.hasGeologist = b.extractor.ExtractGeologistFromDoc(doc)
-	b.hasTechnocrat = b.extractor.ExtractTechnocratFromDoc(doc)
+	b.isVacationModeEnabled = page.ExtractIsInVacation()
+	b.ajaxChatToken, _ = page.ExtractAjaxChatToken()
+	b.characterClass, _ = page.ExtractCharacterClass()
+	b.hasCommander = page.ExtractCommander()
+	b.hasAdmiral = page.ExtractAdmiral()
+	b.hasEngineer = page.ExtractEngineer()
+	b.hasGeologist = page.ExtractGeologist()
+	b.hasTechnocrat = page.ExtractTechnocrat()
 
-	switch page {
-	case OverviewPageName:
-		b.Player, _ = b.extractor.ExtractUserInfos(pageHTML, b.language)
-	case PreferencesPageName:
-		b.CachedPreferences = b.extractor.ExtractPreferencesFromDoc(doc)
-	case ResearchPageName:
-		researches := b.extractor.ExtractResearchFromDoc(doc)
+	switch castedPage := page.(type) {
+	case OverviewPage:
+		b.Player, _ = castedPage.ExtractUserInfos()
+	case PreferencesPage:
+		b.CachedPreferences = castedPage.ExtractPreferences()
+	case ResearchPage:
+		researches := castedPage.ExtractResearch()
 		b.researches = &researches
 	}
 }
@@ -1437,10 +1444,7 @@ func isLogged(pageHTML []byte) bool {
 
 // IsKnowFullPage ...
 func IsKnowFullPage(vals url.Values) bool {
-	page := vals.Get("page")
-	if page == "ingame" {
-		page = vals.Get("component")
-	}
+	page := getPageName(vals)
 	return page == OverviewPageName ||
 		page == TraderOverviewPageName ||
 		page == ResearchPageName ||
@@ -1463,12 +1467,13 @@ func IsKnowFullPage(vals url.Values) bool {
 		page == FleetdispatchPageName
 }
 
+func IsEmpirePage(vals url.Values) bool {
+	return vals.Get("page") == "standalone" && vals.Get("component") == "empire"
+}
+
 // IsAjaxPage either the requested page is a partial/ajax page
 func IsAjaxPage(vals url.Values) bool {
-	page := vals.Get("page")
-	if page == "ingame" {
-		page = vals.Get("component")
-	}
+	page := getPageName(vals)
 	ajax := vals.Get("ajax")
 	asJson := vals.Get("asJson")
 	return page == FetchEventboxAjaxPageName ||
@@ -1562,49 +1567,91 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	return by, nil
 }
 
-func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) {
-	var cfg options
+func getPageName(vals url.Values) string {
+	page := vals.Get("page")
+	component := vals.Get("component")
+	if page == "ingame" ||
+		(page == "componentOnly" && component == FetchEventboxAjaxPageName) ||
+		(page == "componentOnly" && component == EventListAjaxPageName && vals.Get("action") != FetchEventboxAjaxPageName) {
+		page = component
+	}
+	return page
+}
+
+func getOptions(opts ...Option) (out options) {
 	for _, opt := range opts {
-		opt(&cfg)
+		opt(&out)
 	}
+	return
+}
 
-	if err := b.preRequestChecks(); err != nil {
-		return []byte{}, err
-	}
-
+func setCPParam(b *OGame, vals url.Values, cfg options) {
 	if vals.Get("cp") == "" &&
 		cfg.ChangePlanet != 0 &&
 		b.getCachedCelestial(cfg.ChangePlanet) != nil {
 		vals.Set("cp", FI64(cfg.ChangePlanet))
 	}
+}
 
+func detectLoggedOut(page string, vals url.Values, pageHTML []byte) bool {
+	if vals.Get("allianceId") != "" {
+		return false
+	}
+	return (page != LogoutPageName && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTML)) ||
+		(page == EventListAjaxPageName && !bytes.Contains(pageHTML, []byte("eventListWrap"))) ||
+		(page == FetchEventboxAjaxPageName && !canParseEventBox(pageHTML)) ||
+		(page == GalaxyContentAjaxPageName && !canParseSystemInfos(pageHTML))
+}
+
+func constructFinalURL(b *OGame, vals url.Values) string {
 	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
 
 	allianceID := vals.Get("allianceId")
 	if allianceID != "" {
 		finalURL = b.serverURL + "/game/allianceInfo.php?allianceID=" + allianceID
 	}
+	return finalURL
+}
 
-	page := vals.Get("page")
-	if page == "ingame" ||
-		(page == "componentOnly" && vals.Get("component") == FetchEventboxAjaxPageName) ||
-		(page == "componentOnly" && vals.Get("component") == EventListAjaxPageName && vals.Get("action") != FetchEventboxAjaxPageName) {
-		page = vals.Get("component")
+func retryPolicyFromConfig(b *OGame, cfg options) func(func() error) error {
+	retryPolicy := b.withRetry
+	if cfg.SkipRetry {
+		retryPolicy = b.withoutRetry
 	}
+	return retryPolicy
+}
+
+func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) {
+	var payload url.Values
+	method := http.MethodGet
+
+	cfg := getOptions(opts...)
+
+	if err := b.preRequestChecks(); err != nil {
+		return []byte{}, err
+	}
+
+	setCPParam(b, vals, cfg)
+
+	alterPayload(method, b, vals, payload)
+
+	finalURL := constructFinalURL(b, vals)
+
+	page := getPageName(vals)
 	var pageHTMLBytes []byte
 
 	clb := func() (err error) {
-		pageHTMLBytes, err = b.execRequest(http.MethodGet, finalURL, nil, vals)
+		// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
+		// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
+		b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+		defer func() { b.client.CheckRedirect = nil }()
+
+		pageHTMLBytes, err = b.execRequest(method, finalURL, payload, vals)
 		if err != nil {
 			return err
 		}
 
-		if allianceID != "" {
-			return nil
-		}
-		if (page != LogoutPageName && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !isLogged(pageHTMLBytes)) ||
-			(page == EventListAjaxPageName && !bytes.Contains(pageHTMLBytes, []byte("eventListWrap"))) ||
-			(page == FetchEventboxAjaxPageName && !canParseEventBox(pageHTMLBytes)) {
+		if detectLoggedOut(page, vals, pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
 			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
@@ -1613,32 +1660,20 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 		return nil
 	}
 
-	var err error
-	if cfg.SkipRetry {
-		err = clb()
-	} else {
-		err = b.withRetry(clb)
-	}
-	if err != nil {
+	retryPolicy := retryPolicyFromConfig(b, cfg)
+	if err := retryPolicy(clb); err != nil {
 		b.error(err)
 		return []byte{}, err
 	}
 
-	if !IsAjaxPage(vals) && isLogged(pageHTMLBytes) {
-		page := vals.Get("page")
-		component := vals.Get("component")
-		if page != "standalone" && component != "empire" {
-			if page == "ingame" {
-				page = component
-			}
-			b.cacheFullPageInfo(page, pageHTMLBytes)
-		}
+	if err := processResponseHTML(method, b, pageHTMLBytes, page, payload, vals); err != nil {
+		return []byte{}, err
 	}
 
 	if !cfg.SkipInterceptor {
 		go func() {
 			for _, fn := range b.interceptorCallbacks {
-				fn(http.MethodGet, finalURL, vals, nil, pageHTMLBytes)
+				fn(method, finalURL, vals, payload, pageHTMLBytes)
 			}
 		}()
 	}
@@ -1647,75 +1682,100 @@ func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) 
 }
 
 func (b *OGame) postPageContent(vals, payload url.Values, opts ...Option) ([]byte, error) {
-	var cfg options
-	for _, opt := range opts {
-		opt(&cfg)
-	}
+	method := http.MethodPost
+
+	cfg := getOptions(opts...)
 
 	if err := b.preRequestChecks(); err != nil {
 		return []byte{}, err
 	}
 
-	if vals.Get("cp") == "" &&
-		cfg.ChangePlanet != 0 &&
-		b.getCachedCelestial(cfg.ChangePlanet) != nil {
-		vals.Set("cp", FI64(cfg.ChangePlanet))
-	}
+	setCPParam(b, vals, cfg)
 
-	if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
-		payload.Set("token", b.ajaxChatToken)
-	}
+	alterPayload(method, b, vals, payload)
 
-	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
-	page := vals.Get("page")
-	if page == "ingame" {
-		page = vals.Get("component")
-	}
+	finalURL := constructFinalURL(b, vals)
+
+	page := getPageName(vals)
 	var pageHTMLBytes []byte
 
-	if err := b.withRetry(func() (err error) {
+	clb := func() (err error) {
 		// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
 		// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
 		b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
 		defer func() { b.client.CheckRedirect = nil }()
 
-		pageHTMLBytes, err = b.execRequest(http.MethodPost, finalURL, payload, vals)
+		pageHTMLBytes, err = b.execRequest(method, finalURL, payload, vals)
 		if err != nil {
 			return err
 		}
 
-		if page == "galaxyContent" && !canParseSystemInfos(pageHTMLBytes) {
+		if detectLoggedOut(page, vals, pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
-			b.error(string(pageHTMLBytes))
 			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ErrNotLogged
 		}
 
 		return nil
-	}); err != nil {
+	}
+
+	retryPolicy := retryPolicyFromConfig(b, cfg)
+	if err := retryPolicy(clb); err != nil {
 		b.error(err)
 		return []byte{}, err
 	}
 
-	if page == "preferences" {
-		b.CachedPreferences = b.extractor.ExtractPreferences(pageHTMLBytes)
-	} else if page == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
-		var res ChatPostResp
-		if err := json.Unmarshal(pageHTMLBytes, &res); err != nil {
-			return []byte{}, err
-		}
-		b.ajaxChatToken = res.NewToken
+	if err := processResponseHTML(method, b, pageHTMLBytes, page, payload, vals); err != nil {
+		return []byte{}, err
 	}
 
 	if !cfg.SkipInterceptor {
 		go func() {
 			for _, fn := range b.interceptorCallbacks {
-				fn(http.MethodPost, finalURL, vals, payload, pageHTMLBytes)
+				fn(method, finalURL, vals, payload, pageHTMLBytes)
 			}
 		}()
 	}
 
 	return pageHTMLBytes, nil
+}
+
+func alterPayload(method string, b *OGame, vals, payload url.Values) {
+	switch method {
+	case http.MethodPost:
+		if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
+			payload.Set("token", b.ajaxChatToken)
+		}
+	}
+}
+
+func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, payload, vals url.Values) error {
+	switch method {
+	case http.MethodGet:
+		if !IsAjaxPage(vals) && !IsEmpirePage(vals) && isLogged(pageHTML) {
+			parsedFullPage := AutoParseFullPage(b, pageHTML)
+			b.cacheFullPageInfo(parsedFullPage)
+		}
+
+	case http.MethodPost:
+		if page == PreferencesPageName {
+			b.CachedPreferences = b.extractor.ExtractPreferences(pageHTML)
+		} else if page == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
+			if err := extractNewChatToken(b, pageHTML); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func extractNewChatToken(b *OGame, pageHTMLBytes []byte) error {
+	var res ChatPostResp
+	if err := json.Unmarshal(pageHTMLBytes, &res); err != nil {
+		return err
+	}
+	b.ajaxChatToken = res.NewToken
+	return nil
 }
 
 func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
@@ -1730,6 +1790,10 @@ type eventboxResp struct {
 	Hostile  int
 	Neutral  int
 	Friendly int
+}
+
+func (b *OGame) withoutRetry(fn func() error) error {
+	return fn()
 }
 
 func (b *OGame) withRetry(fn func() error) error {
@@ -2253,16 +2317,16 @@ func (b *OGame) getUnsafePhalanx(moonID MoonID, coord Coordinate) ([]Fleet, erro
 		return nil, errors.New("cannot scan own planet")
 	}
 
-	pageHTML, _ := b.getPageContent(url.Values{
-		"page":     {"phalanx"},
+	vals := url.Values{
+		"page":     {PhalanxAjaxPageName},
 		"galaxy":   {FI64(coord.Galaxy)},
 		"system":   {FI64(coord.System)},
 		"position": {FI64(coord.Position)},
 		"ajax":     {"1"},
-		"cp":       {FI64(moonID)},
 		"token":    {planetInfos.OverlayToken},
-	})
-	return b.extractor.ExtractPhalanx(pageHTML)
+	}
+	page, _ := getAjaxPage[PhalanxAjaxPage](b, vals, ChangePlanet(moonID.Celestial()))
+	return page.ExtractPhalanx()
 }
 
 func moonIDInSlice(needle MoonID, haystack []MoonID) bool {
@@ -2950,10 +3014,7 @@ func (b *OGame) getAttacks(opts ...Option) (out []AttackEvent, err error) {
 }
 
 func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error) {
-	var cfg options
-	for _, opt := range opts {
-		opt(&cfg)
-	}
+	cfg := getOptions(opts...)
 	var res SystemInfos
 	if galaxy < 1 || galaxy > b.server.Settings.UniverseSize {
 		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.Settings.UniverseSize)

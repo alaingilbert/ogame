@@ -18,8 +18,8 @@ func parserErr(_ any, err error) error {
 	return err
 }
 
-func TestParseDefensesPageContent(t *testing.T) {
-	assert.NoError(t, parserErr(ParseDefensesPageContent(&OGame{extractor: NewExtractorV6()}, MustReadFile("samples/unversioned/defence.html"))))
-	assert.NoError(t, parserErr(ParseDefensesPageContent(&OGame{extractor: NewExtractorV7()}, MustReadFile("samples/v7/defenses.html"))))
-	assert.Error(t, parserErr(ParseDefensesPageContent(&OGame{extractor: NewExtractorV7()}, MustReadFile("samples/v7/overview.html"))))
+func TestParsePageContent(t *testing.T) {
+	assert.NoError(t, parserErr(ParsePage[DefensesPage](&OGame{extractor: NewExtractorV6()}, MustReadFile("samples/unversioned/defence.html"))))
+	assert.NoError(t, parserErr(ParsePage[DefensesPage](&OGame{extractor: NewExtractorV7()}, MustReadFile("samples/v7/defenses.html"))))
+	assert.Error(t, parserErr(ParsePage[DefensesPage](&OGame{extractor: NewExtractorV7()}, MustReadFile("samples/v7/overview.html"))))
 }

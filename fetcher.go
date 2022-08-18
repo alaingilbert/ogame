@@ -105,6 +105,7 @@ func getAjaxPage[T AjaxPagePages](b *OGame, vals url.Values, opts ...Option) (T,
 	case MissileAttackLayerAjaxPage:
 	case FetchTechsAjaxPage:
 	case RocketlayerAjaxPage:
+	case PhalanxAjaxPage:
 	default:
 		panic("not implemented")
 	}
