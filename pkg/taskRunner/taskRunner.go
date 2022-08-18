@@ -16,8 +16,28 @@ const (
 	Critical
 )
 
+// item ...
+type item struct {
+	canBeProcessedCh chan struct{}
+	isDoneCh         chan struct{}
+	priority         Priority
+	index            int // The index of the item in the heap.
+}
+
+func (i *item) GetPriority() int {
+	return int(i.priority)
+}
+
+func (i *item) GetIndex() int {
+	return i.index
+}
+
+func (i *item) SetIndex(idx int) {
+	i.index = idx
+}
+
 type TaskRunner[T ITask] struct {
-	tasks       priorityQueue
+	tasks       priorityQueue[*item]
 	tasksLock   sync.Mutex
 	tasksPushCh chan *item
 	tasksPopCh  chan struct{}
@@ -32,7 +52,7 @@ type ITask interface {
 func NewTaskRunner[T ITask](ctx context.Context, factory func() T) *TaskRunner[T] {
 	r := &TaskRunner[T]{}
 	r.factory = factory
-	r.tasks = make(priorityQueue, 0)
+	r.tasks = make(priorityQueue[*item], 0)
 	heap.Init(&r.tasks)
 	r.tasksPushCh = make(chan *item, 100)
 	r.tasksPopCh = make(chan struct{}, 100)
