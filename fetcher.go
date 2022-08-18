@@ -88,6 +88,8 @@ func getPage[T FullPagePages](b *OGame, opts ...Option) (T, error) {
 		pageName = FacilitiesPageName
 	case MovementPage:
 		pageName = MovementPageName
+	case PreferencesPage:
+		pageName = PreferencesPageName
 	default:
 		panic("not implemented")
 	}
