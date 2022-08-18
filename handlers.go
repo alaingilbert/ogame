@@ -951,7 +951,7 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	allianceID := c.QueryParam("allianceId")
 	vals := url.Values{"allianceId": {allianceID}}
-	pageHTML, _ := bot.GetAlliancePageContent(vals)
+	pageHTML, _ := bot.GetPageContent(vals)
 	return c.HTML(http.StatusOK, string(pageHTML))
 }
 

@@ -1719,14 +1719,6 @@ func extractNewChatToken(b *OGame, pageHTMLBytes []byte) error {
 	return nil
 }
 
-func (b *OGame) getAlliancePageContent(vals url.Values) ([]byte, error) {
-	if err := b.preRequestChecks(); err != nil {
-		return []byte{}, err
-	}
-	finalURL := b.serverURL + "/game/allianceInfo.php?" + vals.Encode()
-	return b.execRequest(http.MethodGet, finalURL, nil, vals)
-}
-
 type eventboxResp struct {
 	Hostile  int
 	Neutral  int
@@ -4545,11 +4537,6 @@ func (b *OGame) ConstructionTime(id ID, nbr int64, facilities Facilities) time.D
 // FleetDeutSaveFactor returns the fleet deut save factor
 func (b *OGame) FleetDeutSaveFactor() float64 {
 	return b.serverData.GlobalDeuteriumSaveFactor
-}
-
-// GetAlliancePageContent gets the html for a specific alliance page
-func (b *OGame) GetAlliancePageContent(vals url.Values) ([]byte, error) {
-	return b.WithPriority(Normal).GetPageContent(vals)
 }
 
 // GetPageContent gets the html for a specific ogame page
