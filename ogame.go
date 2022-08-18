@@ -367,11 +367,7 @@ func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
+	defer resp.Body.Close()
 	return readBody(resp)
 }
 
@@ -973,11 +969,7 @@ func (b *OGame) connectChatV8(host, port string) {
 		b.error("failed to get socket.io token:", err)
 		return
 	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
+	defer resp.Body.Close()
 	b.chatRetry.Reset()
 	by, _ := ioutil.ReadAll(resp.Body)
 	m := regexp.MustCompile(`"sid":"([^"]+)"`).FindSubmatch(by)
@@ -1154,11 +1146,7 @@ func (b *OGame) connectChatV7(host, port string) {
 		b.error("failed to get socket.io token:", err)
 		return
 	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
+	defer resp.Body.Close()
 	b.chatRetry.Reset()
 	by, _ := ioutil.ReadAll(resp.Body)
 	token := strings.Split(string(by), ":")[0]
@@ -2993,11 +2981,7 @@ func (b *OGame) setResourceSettings(planetID PlanetID, settings ResourceSettings
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
+	defer resp.Body.Close()
 	return nil
 }
 
@@ -4121,11 +4105,7 @@ func (b *OGame) getPublicIP() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer func() {
-		if err := resp.Body.Close(); err != nil {
-			b.error(err)
-		}
-	}()
+	defer resp.Body.Close()
 	by, err := readBody(resp)
 	if err != nil {
 		return "", err
