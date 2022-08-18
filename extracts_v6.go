@@ -149,26 +149,6 @@ func extractMoonsFromDocV6(doc *goquery.Document) []ExtractorMoon {
 	return res
 }
 
-func extractPlanetMoonByCoordFromDocV6[T CelestialTypes](doc *goquery.Document, coord Coordinate) (T, error) {
-	var zero T
-	celestial, err := extractCelestialByCoordFromDocV6(doc, coord)
-	if err != nil {
-		return zero, err
-	}
-	if typed, ok := celestial.(T); ok {
-		return typed, nil
-	}
-	return zero, errors.New("invalid coordinate")
-}
-
-func extractPlanetByCoordFromDocV6(doc *goquery.Document, coord Coordinate) (ExtractorPlanet, error) {
-	return extractPlanetMoonByCoordFromDocV6[ExtractorPlanet](doc, coord)
-}
-
-func extractMoonByCoordFromDocV6(doc *goquery.Document, coord Coordinate) (ExtractorMoon, error) {
-	return extractPlanetMoonByCoordFromDocV6[ExtractorMoon](doc, coord)
-}
-
 func extractOgameTimestampFromDocV6(doc *goquery.Document) int64 {
 	ogameTimestamp := utils.DoParseI64(doc.Find("meta[name=ogame-timestamp]").AttrOr("content", "0"))
 	return ogameTimestamp
