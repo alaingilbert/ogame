@@ -226,6 +226,15 @@ type Defense interface {
 	DefenderObj
 }
 
+type ICelestial interface {
+	CelestialID() CelestialID
+	Name() string
+	Diameter() int64
+	Fields() Fields
+	Coordinate() Coordinate
+	Img() string
+}
+
 // Celestial ...
 type Celestial interface {
 	ActivateItem(string) error
@@ -258,13 +267,13 @@ type Celestial interface {
 // Extractor ...
 type Extractor interface {
 	ExtractIsInVacation(pageHTML []byte) bool
-	ExtractPlanets(pageHTML []byte, b *OGame) []Planet
-	ExtractPlanet(pageHTML []byte, b *OGame, v any) (Planet, error)
+	ExtractPlanets(pageHTML []byte) []ExtractorPlanet
+	ExtractPlanet(pageHTML []byte, v any) (ExtractorPlanet, error)
 	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
-	ExtractMoons(pageHTML []byte, b *OGame) []Moon
-	ExtractMoon(pageHTML []byte, b *OGame, v any) (Moon, error)
-	ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error)
-	ExtractCelestial(pageHTML []byte, b *OGame, v any) (Celestial, error)
+	ExtractMoons(pageHTML []byte) []ExtractorMoon
+	ExtractMoon(pageHTML []byte, v any) (ExtractorMoon, error)
+	ExtractCelestials(pageHTML []byte) ([]ICelestial, error)
+	ExtractCelestial(pageHTML []byte, v any) (ICelestial, error)
 	ExtractServerTime(pageHTML []byte) (time.Time, error)
 	ExtractFleetsFromEventList(pageHTML []byte) []Fleet
 	ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, token string, err error)
@@ -332,15 +341,15 @@ type Extractor interface {
 	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
 	ExtractBodyIDFromDoc(doc *goquery.Document) string
 	ExtractIsInVacationFromDoc(doc *goquery.Document) bool
-	ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet
+	ExtractPlanetsFromDoc(doc *goquery.Document) []ExtractorPlanet
 	ExtractOgameTimestampFromDoc(doc *goquery.Document) int64
 	ExtractResourcesFromDoc(doc *goquery.Document) Resources
 	ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ResourcesDetails
-	ExtractPlanetFromDoc(doc *goquery.Document, b *OGame, v any) (Planet, error)
-	ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon
-	ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v any) (Moon, error)
-	ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error)
-	ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v any) (Celestial, error)
+	ExtractPlanetFromDoc(doc *goquery.Document, v any) (ExtractorPlanet, error)
+	ExtractMoonsFromDoc(doc *goquery.Document) []ExtractorMoon
+	ExtractMoonFromDoc(doc *goquery.Document, v any) (ExtractorMoon, error)
+	ExtractCelestialsFromDoc(doc *goquery.Document) ([]ICelestial, error)
+	ExtractCelestialFromDoc(doc *goquery.Document, v any) (ICelestial, error)
 	ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ResourcesBuildings, error)
 	ExtractDefenseFromDoc(doc *goquery.Document) (DefensesInfos, error)
 	ExtractShipsFromDoc(doc *goquery.Document) (ShipsInfos, error)

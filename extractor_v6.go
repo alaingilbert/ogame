@@ -66,39 +66,39 @@ func (e ExtractorV6) ExtractIsInVacation(pageHTML []byte) bool {
 }
 
 // ExtractPlanets ...
-func (e ExtractorV6) ExtractPlanets(pageHTML []byte, b *OGame) []Planet {
+func (e ExtractorV6) ExtractPlanets(pageHTML []byte) []ExtractorPlanet {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractPlanetsFromDoc(doc, b)
+	return e.ExtractPlanetsFromDoc(doc)
 }
 
 // ExtractPlanet ...
-func (e ExtractorV6) ExtractPlanet(pageHTML []byte, b *OGame, v any) (Planet, error) {
+func (e ExtractorV6) ExtractPlanet(pageHTML []byte, v any) (ExtractorPlanet, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractPlanetFromDoc(doc, b, v)
+	return e.ExtractPlanetFromDoc(doc, v)
 }
 
 // ExtractMoons ...
-func (e ExtractorV6) ExtractMoons(pageHTML []byte, b *OGame) []Moon {
+func (e ExtractorV6) ExtractMoons(pageHTML []byte) []ExtractorMoon {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractMoonsFromDoc(doc, b)
+	return e.ExtractMoonsFromDoc(doc)
 }
 
 // ExtractMoon ...
-func (e ExtractorV6) ExtractMoon(pageHTML []byte, b *OGame, v any) (Moon, error) {
+func (e ExtractorV6) ExtractMoon(pageHTML []byte, v any) (ExtractorMoon, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractMoonFromDoc(doc, b, v)
+	return e.ExtractMoonFromDoc(doc, v)
 }
 
 // ExtractCelestials ...
-func (e ExtractorV6) ExtractCelestials(pageHTML []byte, b *OGame) ([]Celestial, error) {
+func (e ExtractorV6) ExtractCelestials(pageHTML []byte) ([]ICelestial, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractCelestialsFromDoc(doc, b)
+	return e.ExtractCelestialsFromDoc(doc)
 }
 
 // ExtractCelestial ...
-func (e ExtractorV6) ExtractCelestial(pageHTML []byte, b *OGame, v any) (Celestial, error) {
+func (e ExtractorV6) ExtractCelestial(pageHTML []byte, v any) (ICelestial, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractCelestialFromDoc(doc, b, v)
+	return e.ExtractCelestialFromDoc(doc, v)
 }
 
 // ExtractServerTime ...
@@ -339,8 +339,8 @@ func (e ExtractorV6) ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
 }
 
 // ExtractPlanetsFromDoc ...
-func (e ExtractorV6) ExtractPlanetsFromDoc(doc *goquery.Document, b *OGame) []Planet {
-	return extractPlanetsFromDocV6(doc, b)
+func (e ExtractorV6) ExtractPlanetsFromDoc(doc *goquery.Document) []ExtractorPlanet {
+	return extractPlanetsFromDocV6(doc)
 }
 
 // ExtractOgameTimestampFromDoc ...
@@ -359,28 +359,28 @@ func (e ExtractorV6) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Doc
 }
 
 // ExtractPlanetFromDoc ...
-func (e ExtractorV6) ExtractPlanetFromDoc(doc *goquery.Document, b *OGame, v any) (Planet, error) {
-	return extractPlanetFromDocV6(doc, b, v)
+func (e ExtractorV6) ExtractPlanetFromDoc(doc *goquery.Document, v any) (ExtractorPlanet, error) {
+	return extractPlanetFromDocV6(doc, v)
 }
 
 // ExtractMoonsFromDoc ...
-func (e ExtractorV6) ExtractMoonsFromDoc(doc *goquery.Document, b *OGame) []Moon {
-	return extractMoonsFromDocV6(doc, b)
+func (e ExtractorV6) ExtractMoonsFromDoc(doc *goquery.Document) []ExtractorMoon {
+	return extractMoonsFromDocV6(doc)
 }
 
 // ExtractMoonFromDoc ...
-func (e ExtractorV6) ExtractMoonFromDoc(doc *goquery.Document, b *OGame, v any) (Moon, error) {
-	return extractMoonFromDocV6(doc, b, v)
+func (e ExtractorV6) ExtractMoonFromDoc(doc *goquery.Document, v any) (ExtractorMoon, error) {
+	return extractMoonFromDocV6(doc, v)
 }
 
 // ExtractCelestialsFromDoc ...
-func (e ExtractorV6) ExtractCelestialsFromDoc(doc *goquery.Document, b *OGame) ([]Celestial, error) {
-	return extractCelestialsFromDocV6(doc, b), nil
+func (e ExtractorV6) ExtractCelestialsFromDoc(doc *goquery.Document) ([]ICelestial, error) {
+	return extractCelestialsFromDocV6(doc), nil
 }
 
 // ExtractCelestialFromDoc ...
-func (e ExtractorV6) ExtractCelestialFromDoc(doc *goquery.Document, b *OGame, v any) (Celestial, error) {
-	return extractCelestialFromDocV6(doc, b, v)
+func (e ExtractorV6) ExtractCelestialFromDoc(doc *goquery.Document, v any) (ICelestial, error) {
+	return extractCelestialFromDocV6(doc, v)
 }
 
 // ExtractResourcesBuildingsFromDoc ...

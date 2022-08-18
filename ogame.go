@@ -768,9 +768,75 @@ func (b *OGame) loginPart3(userAccount Account, page OverviewPage) error {
 	return nil
 }
 
+func convertPlanets(b *OGame, planetsIn []ExtractorPlanet) []Planet {
+	out := make([]Planet, 0)
+	for _, planet := range planetsIn {
+		out = append(out, convertPlanet(b, planet))
+	}
+	return out
+}
+
+func convertPlanet(b *OGame, planet ExtractorPlanet) Planet {
+	newPlanet := Planet{
+		ogame:       b,
+		Img:         planet.Img(),
+		ID:          planet.ID(),
+		Name:        planet.Name(),
+		Diameter:    planet.Diameter(),
+		Coordinate:  planet.Coordinate(),
+		Fields:      planet.Fields(),
+		Temperature: planet.Temperature(),
+	}
+	if planet.Moon() != nil {
+		criss := planet.Moon()
+		fmt.Println("???", criss, criss == nil)
+		newPlanet.Moon = convertMoon(b, *planet.Moon())
+	}
+	return newPlanet
+}
+
+func convertMoons(b *OGame, moonsIn []ExtractorMoon) []Moon {
+	out := make([]Moon, 0)
+	for _, moon := range moonsIn {
+		tmp := convertMoon(b, moon)
+		out = append(out, *tmp)
+	}
+	return out
+}
+
+func convertMoon(b *OGame, moonIn ExtractorMoon) *Moon {
+	return &Moon{
+		ogame:      b,
+		ID:         moonIn.ID(),
+		Img:        moonIn.Img(),
+		Name:       moonIn.Name(),
+		Diameter:   moonIn.Diameter(),
+		Coordinate: moonIn.Coordinate(),
+		Fields:     moonIn.Fields(),
+	}
+}
+
+func convertCelestials(b *OGame, celestials []ICelestial) []Celestial {
+	out := make([]Celestial, 0)
+	for _, celestial := range celestials {
+		out = append(out, convertCelestial(b, celestial))
+	}
+	return out
+}
+
+func convertCelestial(b *OGame, celestial ICelestial) Celestial {
+	switch v := celestial.(type) {
+	case ExtractorPlanet:
+		return convertPlanet(b, v)
+	case ExtractorMoon:
+		return convertMoon(b, v)
+	}
+	return nil
+}
+
 func (b *OGame) cacheFullPageInfo(page IFullPage) {
 	b.planetsMu.Lock()
-	b.planets = page.ExtractPlanets()
+	b.planets = convertPlanets(b, page.ExtractPlanets())
 	b.planetsMu.Unlock()
 	b.isVacationModeEnabled = page.ExtractIsInVacation()
 	b.ajaxChatToken, _ = page.ExtractAjaxChatToken()
@@ -1897,32 +1963,49 @@ type resourcesResp struct {
 
 func (b *OGame) getPlanets() []Planet {
 	page, _ := getPage[OverviewPage](b)
-	return page.ExtractPlanets()
+	return convertPlanets(b, page.ExtractPlanets())
 }
 
 func (b *OGame) getPlanet(v any) (Planet, error) {
 	page, _ := getPage[OverviewPage](b)
-	return page.ExtractPlanet(v)
+	planet, err := page.ExtractPlanet(v)
+	if err != nil {
+		return Planet{}, err
+	}
+	return convertPlanet(b, planet), nil
 }
 
 func (b *OGame) getMoons() []Moon {
 	page, _ := getPage[OverviewPage](b)
-	return page.ExtractMoons()
+	return convertMoons(b, page.ExtractMoons())
 }
 
 func (b *OGame) getMoon(v any) (Moon, error) {
 	page, _ := getPage[OverviewPage](b)
-	return page.ExtractMoon(v)
+	moon, err := page.ExtractMoon(v)
+	if err != nil {
+		return Moon{}, err
+	}
+	cMoon := convertMoon(b, moon)
+	return *cMoon, nil
 }
 
 func (b *OGame) getCelestials() ([]Celestial, error) {
 	page, _ := getPage[OverviewPage](b)
-	return page.ExtractCelestials()
+	celestials, err := page.ExtractCelestials()
+	if err != nil {
+		return nil, err
+	}
+	return convertCelestials(b, celestials), nil
 }
 
 func (b *OGame) getCelestial(v any) (Celestial, error) {
 	page, _ := getPage[OverviewPage](b)
-	return page.ExtractCelestial(v)
+	celestial, err := page.ExtractCelestial(v)
+	if err != nil {
+		return nil, err
+	}
+	return convertCelestial(b, celestial), nil
 }
 
 func (b *OGame) recruitOfficer(typ, days int64) error {
@@ -1954,7 +2037,7 @@ func (b *OGame) abandon(v any) error {
 	if err != nil {
 		return errors.New("invalid parameter")
 	}
-	pageHTML, _ := b.getPage(PlanetlayerPageName, ChangePlanet(planet.GetID()))
+	pageHTML, _ := b.getPage(PlanetlayerPageName, ChangePlanet(planet.CelestialID()))
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
 	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
@@ -2185,7 +2268,7 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 	moonFacilitiesHTML, _ := b.getPage(FacilitiesPageName, ChangePlanet(moonID.Celestial()))
 
 	// Extract bunch of infos from the html
-	moon, err := b.extractor.ExtractMoon(moonFacilitiesHTML, b, moonID)
+	moon, err := b.extractor.ExtractMoon(moonFacilitiesHTML, moonID)
 	if err != nil {
 		return res, errors.New("moon not found")
 	}
@@ -2200,8 +2283,8 @@ func (b *OGame) getPhalanx(moonID MoonID, coord Coordinate) ([]Fleet, error) {
 
 	// Verify that coordinate is in phalanx range
 	phalanxRange := SensorPhalanx.GetRange(phalanxLvl, b.isDiscoverer())
-	if moon.Coordinate.Galaxy != coord.Galaxy ||
-		systemDistance(b.serverData.Systems, moon.Coordinate.System, coord.System, b.serverData.DonutSystem) > phalanxRange {
+	if moon.Coordinate().Galaxy != coord.Galaxy ||
+		systemDistance(b.serverData.Systems, moon.Coordinate().System, coord.System, b.serverData.DonutSystem) > phalanxRange {
 		return res, errors.New("coordinate not in phalanx range")
 	}
 
@@ -3488,12 +3571,12 @@ func (b *OGame) sendFleet(celestialID CelestialID, ships []Quantifiable, speed S
 
 	// Ensure we're not trying to attack/spy ourselves
 	destinationIsMyOwnPlanet := false
-	myCelestials, _ := b.extractor.ExtractCelestialsFromDoc(fleet1Doc, b)
+	myCelestials, _ := b.extractor.ExtractCelestialsFromDoc(fleet1Doc)
 	for _, c := range myCelestials {
-		if c.GetCoordinate().Equal(where) && c.GetID() == celestialID {
+		if c.Coordinate().Equal(where) && c.CelestialID() == celestialID {
 			return Fleet{}, errors.New("origin and destination are the same")
 		}
-		if c.GetCoordinate().Equal(where) {
+		if c.Coordinate().Equal(where) {
 			destinationIsMyOwnPlanet = true
 			break
 		}

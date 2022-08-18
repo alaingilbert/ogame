@@ -58,7 +58,7 @@ type MovementPage struct{ FullPage }
 type IFullPage interface {
 	ExtractOGameSession() string
 	ExtractIsInVacation() bool
-	ExtractPlanets() []Planet
+	ExtractPlanets() []ExtractorPlanet
 	ExtractAjaxChatToken() (string, error)
 	ExtractCharacterClass() (CharacterClass, error)
 	ExtractCommander() bool
@@ -117,28 +117,28 @@ func (p FullPage) ExtractServerTime() (time.Time, error) {
 	return p.b.extractor.ExtractServerTimeFromDoc(p.GetDoc())
 }
 
-func (p FullPage) ExtractPlanets() []Planet {
-	return p.b.extractor.ExtractPlanetsFromDoc(p.GetDoc(), p.b)
+func (p FullPage) ExtractPlanets() []ExtractorPlanet {
+	return p.b.extractor.ExtractPlanetsFromDoc(p.GetDoc())
 }
 
-func (p FullPage) ExtractPlanet(v any) (Planet, error) {
-	return p.b.extractor.ExtractPlanetFromDoc(p.GetDoc(), p.b, v)
+func (p FullPage) ExtractPlanet(v any) (ExtractorPlanet, error) {
+	return p.b.extractor.ExtractPlanetFromDoc(p.GetDoc(), v)
 }
 
-func (p FullPage) ExtractMoons() []Moon {
-	return p.b.extractor.ExtractMoonsFromDoc(p.GetDoc(), p.b)
+func (p FullPage) ExtractMoons() []ExtractorMoon {
+	return p.b.extractor.ExtractMoonsFromDoc(p.GetDoc())
 }
 
-func (p FullPage) ExtractMoon(v any) (Moon, error) {
-	return p.b.extractor.ExtractMoonFromDoc(p.GetDoc(), p.b, v)
+func (p FullPage) ExtractMoon(v any) (ExtractorMoon, error) {
+	return p.b.extractor.ExtractMoonFromDoc(p.GetDoc(), v)
 }
 
-func (p FullPage) ExtractCelestials() ([]Celestial, error) {
-	return p.b.extractor.ExtractCelestialsFromDoc(p.GetDoc(), p.b)
+func (p FullPage) ExtractCelestials() ([]ICelestial, error) {
+	return p.b.extractor.ExtractCelestialsFromDoc(p.GetDoc())
 }
 
-func (p FullPage) ExtractCelestial(v any) (Celestial, error) {
-	return p.b.extractor.ExtractCelestialFromDoc(p.GetDoc(), p.b, v)
+func (p FullPage) ExtractCelestial(v any) (ICelestial, error) {
+	return p.b.extractor.ExtractCelestialFromDoc(p.GetDoc(), v)
 }
 
 func (p ResearchPage) ExtractResearch() Researches {
