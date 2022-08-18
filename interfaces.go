@@ -22,12 +22,13 @@ type Prioritizable interface {
 	CollectAllMarketplaceMessages() error
 	CollectMarketplaceMessage(MarketplaceMessage) error
 	CreateUnion(fleet Fleet, unionUsers []string) (int64, error)
-	DoAuction(bid map[CelestialID]Resources) error
-	Done()
 	DeleteAllMessagesFromTab(tabID MessagesTabID) error
 	DeleteMessage(msgID int64) error
+	DoAuction(bid map[CelestialID]Resources) error
+	Done()
 	FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos, mission MissionID) (secs, fuel int64)
 	GalaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error)
+	GetActiveItems(CelestialID) ([]ActiveItem, error)
 	GetAllResources() (map[CelestialID]Resources, error)
 	GetAttacks(...Option) ([]AttackEvent, error)
 	GetAuction() (Auction, error)
@@ -46,7 +47,6 @@ type Prioritizable interface {
 	GetFleets(...Option) ([]Fleet, Slots)
 	GetFleetsFromEventList() []Fleet
 	GetItems(CelestialID) ([]Item, error)
-	GetActiveItems(CelestialID) ([]ActiveItem, error)
 	GetMoon(any) (Moon, error)
 	GetMoons() []Moon
 	GetPageContent(url.Values) ([]byte, error)
@@ -92,8 +92,8 @@ type Prioritizable interface {
 	GetResources(CelestialID) (Resources, error)
 	GetResourcesBuildings(CelestialID, ...Option) (ResourcesBuildings, error)
 	GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-	GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
 	GetShips(CelestialID, ...Option) (ShipsInfos, error)
+	GetTechs(celestialID CelestialID) (ResourcesBuildings, Facilities, ShipsInfos, DefensesInfos, Researches, error)
 	SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
 	TearDown(celestialID CelestialID, id ID) error
 
@@ -131,7 +131,6 @@ type Wrapper interface {
 	GetCachedPlayer() UserInfos
 	GetCachedPreferences() Preferences
 	GetClient() *OGameClient
-	SetClient(*OGameClient)
 	GetExtractor() Extractor
 	GetLanguage() string
 	GetNbSystems() int64
@@ -153,9 +152,9 @@ type Wrapper interface {
 	IsLocked() bool
 	IsLoggedIn() bool
 	IsPioneers() bool
-	IsVacationModeEnabled() bool
 	IsV7() bool
 	IsV9() bool
+	IsVacationModeEnabled() bool
 	Location() *time.Location
 	OnStateChange(clb func(locked bool, actor string))
 	Quiet(bool)
@@ -167,8 +166,9 @@ type Wrapper interface {
 	RemoveWSCallback(string)
 	ServerURL() string
 	ServerVersion() string
-	SetLoginWrapper(func(func() (bool, error)) error)
+	SetClient(*OGameClient)
 	SetGetServerDataWrapper(func(func() (ServerData, error)) (ServerData, error))
+	SetLoginWrapper(func(func() (bool, error)) error)
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetUserAgent(newUserAgent string)
