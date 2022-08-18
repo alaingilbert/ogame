@@ -1,10 +1,28 @@
 package taskRunner
 
+import "container/heap"
+
 type IPQItem interface {
 	GetIndex() int
 	SetIndex(idx int)
 	GetPriority() int
 }
+
+type PriorityQueue[T IPQItem] struct {
+	items priorityQueue[T]
+}
+
+func NewPriorityQueue[T IPQItem]() *PriorityQueue[T] {
+	pq := new(PriorityQueue[T])
+	pq.items = make(priorityQueue[T], 0)
+	heap.Init(&pq.items)
+	return pq
+}
+
+func (p *PriorityQueue[T]) Push(item T) { heap.Push(&p.items, item) }
+func (p *PriorityQueue[T]) Pop() T      { return heap.Pop(&p.items).(T) }
+func (p *PriorityQueue[T]) Len() int    { return p.items.Len() }
+func (p *PriorityQueue[T]) Items() []T  { return p.items }
 
 // A priorityQueue implements heap.Interface and holds Items.
 type priorityQueue[T IPQItem] []T

@@ -1,7 +1,6 @@
 package taskRunner
 
 import (
-	"container/heap"
 	"context"
 	"sync"
 )
@@ -29,7 +28,7 @@ func (i *item) GetIndex() int    { return i.index }
 func (i *item) SetIndex(idx int) { i.index = idx }
 
 type TaskRunner[T ITask] struct {
-	tasks       priorityQueue[*item]
+	tasks       *PriorityQueue[*item]
 	tasksLock   sync.Mutex
 	tasksPushCh chan *item
 	tasksPopCh  chan struct{}
@@ -44,8 +43,7 @@ type ITask interface {
 func NewTaskRunner[T ITask](ctx context.Context, factory func() T) *TaskRunner[T] {
 	r := &TaskRunner[T]{}
 	r.factory = factory
-	r.tasks = make(priorityQueue[*item], 0)
-	heap.Init(&r.tasks)
+	r.tasks = NewPriorityQueue[*item]()
 	r.tasksPushCh = make(chan *item, 100)
 	r.tasksPopCh = make(chan struct{}, 100)
 	r.ctx = ctx
@@ -57,7 +55,7 @@ func (r *TaskRunner[T]) start() {
 	go func() {
 		for t := range r.tasksPushCh {
 			r.tasksLock.Lock()
-			heap.Push(&r.tasks, t)
+			r.tasks.Push(t)
 			r.tasksLock.Unlock()
 			select {
 			case r.tasksPopCh <- struct{}{}:
@@ -69,7 +67,7 @@ func (r *TaskRunner[T]) start() {
 	go func() {
 		for range r.tasksPopCh {
 			r.tasksLock.Lock()
-			task := heap.Pop(&r.tasks).(*item)
+			task := r.tasks.Pop()
 			r.tasksLock.Unlock()
 			close(task.canBeProcessedCh)
 			select {
@@ -107,7 +105,7 @@ type TasksOverview struct {
 func (r *TaskRunner[T]) GetTasks() (out TasksOverview) {
 	r.tasksLock.Lock()
 	out.Total = int64(r.tasks.Len())
-	for _, item := range r.tasks {
+	for _, item := range r.tasks.Items() {
 		switch item.priority {
 		case Low:
 			out.Low++
