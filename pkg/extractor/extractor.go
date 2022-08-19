@@ -51,7 +51,7 @@ type Extractor interface {
 	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (ogame.SystemInfos, error)
 	ExtractGeologist(pageHTML []byte) bool
 	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
-	ExtractHighscore(pageHTML []byte) (v6.Highscore, error)
+	ExtractHighscore(pageHTML []byte) (ogame.Highscore, error)
 	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
 	ExtractIsInVacation(pageHTML []byte) bool
 	ExtractIsMobile(pageHTML []byte) bool
@@ -115,7 +115,7 @@ type Extractor interface {
 	ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []ogame.Fleet
 	ExtractGeologistFromDoc(doc *goquery.Document) bool
 	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
-	ExtractHighscoreFromDoc(doc *goquery.Document) (v6.Highscore, error)
+	ExtractHighscoreFromDoc(doc *goquery.Document) (ogame.Highscore, error)
 	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string)
 	ExtractIsInVacationFromDoc(doc *goquery.Document) bool
 	ExtractIsMobileFromDoc(doc *goquery.Document) bool

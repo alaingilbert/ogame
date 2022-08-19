@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
-	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/extractor/v7"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
@@ -98,13 +97,13 @@ func (e *Extractor) ExtractProductionFromDoc(doc *goquery.Document) ([]ogame.Qua
 }
 
 // ExtractHighscore ...
-func (e *Extractor) ExtractHighscore(pageHTML []byte) (v6.Highscore, error) {
+func (e *Extractor) ExtractHighscore(pageHTML []byte) (ogame.Highscore, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractHighscoreFromDoc(doc)
 }
 
 // ExtractHighscoreFromDoc ...
-func (e *Extractor) ExtractHighscoreFromDoc(doc *goquery.Document) (v6.Highscore, error) {
+func (e *Extractor) ExtractHighscoreFromDoc(doc *goquery.Document) (ogame.Highscore, error) {
 	return extractHighscoreFromDocV71(doc)
 }
 

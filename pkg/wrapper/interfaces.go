@@ -3,7 +3,6 @@ package wrapper
 import (
 	"crypto/tls"
 	"github.com/alaingilbert/ogame/pkg/extractor"
-	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
 	"net/http"
@@ -87,7 +86,7 @@ type Prioritizable interface {
 	GetSlots() ogame.Slots
 	GetUserInfos() ogame.UserInfos
 	HeadersForPage(url string) (http.Header, error)
-	Highscore(category, typ, page int64) (v6.Highscore, error)
+	Highscore(category, typ, page int64) (ogame.Highscore, error)
 	IsUnderAttack() (bool, error)
 	Login() error
 	LoginWithBearerToken(token string) (bool, error)

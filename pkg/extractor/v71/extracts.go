@@ -743,7 +743,7 @@ func extractProductionFromDocV71(doc *goquery.Document) ([]ogame.Quantifiable, e
 	return res, nil
 }
 
-func extractHighscoreFromDocV71(doc *goquery.Document) (out v6.Highscore, err error) {
+func extractHighscoreFromDocV71(doc *goquery.Document) (out ogame.Highscore, err error) {
 	s := doc.Selection
 	isFullPage := doc.Find("#stat_list_content").Size() == 1
 	if isFullPage {
@@ -773,7 +773,7 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out v6.Highscore, err er
 	out.NbPage = utils.MaxInt(int64(changeSiteSize)-1, 0)
 
 	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
-		p := v6.HighscorePlayer{}
+		p := ogame.HighscorePlayer{}
 		p.Position = utils.DoParseI64(s.Find("td.position").Text())
 		p.ID = utils.DoParseI64(s.Find("td.sendmsg a").AttrOr("data-playerid", "0"))
 		p.Name = strings.TrimSpace(s.Find("span.playername").Text())

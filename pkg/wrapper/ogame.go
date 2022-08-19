@@ -2283,7 +2283,7 @@ func (b *OGame) createUnion(fleet ogame.Fleet, unionUsers []string) (int64, erro
 	return res.UnionID, nil
 }
 
-func (b *OGame) highscore(category, typ, page int64) (out v6.Highscore, err error) {
+func (b *OGame) highscore(category, typ, page int64) (out ogame.Highscore, err error) {
 	if category < 1 || category > 2 {
 		return out, errors.New("category must be in [1, 2] (1:player, 2:alliance)")
 	}
@@ -4702,7 +4702,7 @@ func (b *OGame) DoAuction(bid map[ogame.CelestialID]ogame.Resources) error {
 }
 
 // Highscore ...
-func (b *OGame) Highscore(category, typ, page int64) (v6.Highscore, error) {
+func (b *OGame) Highscore(category, typ, page int64) (ogame.Highscore, error) {
 	return b.WithPriority(taskRunner.Normal).Highscore(category, typ, page)
 }
 
