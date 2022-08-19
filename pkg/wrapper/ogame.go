@@ -86,7 +86,7 @@ type OGame struct {
 	serverURL             string
 	client                *OGameClient
 	logger                *log.Logger
-	chatCallbacks         []func(msg ChatMsg)
+	chatCallbacks         []func(msg ogame.ChatMsg)
 	wsCallbacks           map[string]func(msg []byte)
 	auctioneerCallbacks   []func(any)
 	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
@@ -1016,7 +1016,7 @@ LOOP:
 		} else if strings.HasPrefix(buf, `42/chat,["chat",`) {
 			payload := strings.TrimPrefix(buf, `42/chat,["chat",`)
 			payload = strings.TrimSuffix(payload, `]`)
-			var chatMsg ChatMsg
+			var chatMsg ogame.ChatMsg
 			if err := json.Unmarshal([]byte(payload), &chatMsg); err != nil {
 				b.error("Unable to unmarshal chat payload", err, payload)
 				continue
@@ -1261,7 +1261,7 @@ LOOP:
 			b.error("Failed to connect to chat")
 		} else if bytes.HasPrefix(msg, []byte("5::/chat:")) {
 			payload := bytes.TrimPrefix(msg, []byte("5::/chat:"))
-			var chatPayload ChatPayload
+			var chatPayload ogame.ChatPayload
 			if err := json.Unmarshal(payload, &chatPayload); err != nil {
 				b.error("Unable to unmarshal chat payload", err, payload)
 				continue
@@ -4624,7 +4624,7 @@ func (b *OGame) RemoveWSCallback(id string) {
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received
-func (b *OGame) RegisterChatCallback(fn func(msg ChatMsg)) {
+func (b *OGame) RegisterChatCallback(fn func(msg ogame.ChatMsg)) {
 	b.chatCallbacks = append(b.chatCallbacks, fn)
 }
 

@@ -190,7 +190,7 @@ type Wrapper interface {
 	Quiet(bool)
 	ReconnectChat() bool
 	RegisterAuctioneerCallback(func(any))
-	RegisterChatCallback(func(ChatMsg))
+	RegisterChatCallback(func(ogame.ChatMsg))
 	RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
 	RegisterWSCallback(string, func([]byte))
 	RemoveWSCallback(string)
