@@ -9,14 +9,6 @@ import (
 	"time"
 )
 
-// Priorities
-const (
-	Low       = 1
-	Normal    = 2
-	Important = 3
-	Critical  = 4
-)
-
 // Prioritize ...
 type Prioritize struct {
 	bot          *OGame

@@ -5,7 +5,7 @@ import (
 )
 
 type Celestial interface {
-	GetCelestialID() CelestialID
+	GetID() CelestialID
 	GetName() string
 	GetDiameter() int64
 	GetFields() Fields

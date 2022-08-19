@@ -12,7 +12,7 @@ type Planet struct {
 	Moon        *Moon
 }
 
-func (p Planet) GetCelestialID() CelestialID { return p.ID.Celestial() }
+func (p Planet) GetID() CelestialID          { return p.ID.Celestial() }
 func (p Planet) GetImg() string              { return p.Img }
 func (p Planet) GetName() string             { return p.Name }
 func (p Planet) GetDiameter() int64          { return p.Diameter }
@@ -30,9 +30,9 @@ type Moon struct {
 	Fields     Fields
 }
 
-func (m Moon) GetCelestialID() CelestialID { return m.ID.Celestial() }
-func (m Moon) GetImg() string              { return m.Img }
-func (m Moon) GetName() string             { return m.Name }
-func (m Moon) GetDiameter() int64          { return m.Diameter }
-func (m Moon) GetCoordinate() Coordinate   { return m.Coordinate }
-func (m Moon) GetFields() Fields           { return m.Fields }
+func (m Moon) GetID() CelestialID        { return m.ID.Celestial() }
+func (m Moon) GetImg() string            { return m.Img }
+func (m Moon) GetName() string           { return m.Name }
+func (m Moon) GetDiameter() int64        { return m.Diameter }
+func (m Moon) GetCoordinate() Coordinate { return m.Coordinate }
+func (m Moon) GetFields() Fields         { return m.Fields }

@@ -97,7 +97,7 @@ func ExtractBodyIDFromDocV6(doc *goquery.Document) string {
 func extractCelestialByIDFromDocV6(doc *goquery.Document, celestialID ogame.CelestialID) (ogame.Celestial, error) {
 	celestials := extractCelestialsFromDocV6(doc)
 	for _, celestial := range celestials {
-		if celestial.GetCelestialID() == celestialID {
+		if celestial.GetID() == celestialID {
 			return celestial, nil
 		}
 	}
@@ -189,9 +189,9 @@ func extractCelestialFromDocV6(doc *goquery.Document, v any) (ogame.Celestial, e
 	//case ogame2.Moon:
 	//return extractCelestialByIDFromDocV6(doc, vv.GetID())
 	case ogame.Planet:
-		return extractCelestialByIDFromDocV6(doc, vv.GetCelestialID())
+		return extractCelestialByIDFromDocV6(doc, vv.GetID())
 	case ogame.Moon:
-		return extractCelestialByIDFromDocV6(doc, vv.GetCelestialID())
+		return extractCelestialByIDFromDocV6(doc, vv.GetID())
 	case ogame.PlanetID:
 		return extractCelestialByIDFromDocV6(doc, vv.Celestial())
 	case ogame.MoonID:

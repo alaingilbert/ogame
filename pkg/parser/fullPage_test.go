@@ -15,19 +15,19 @@ func TestExtractCelestial(t *testing.T) {
 	p := FullPage{Page: Page{e: v9.NewExtractor(), content: pageHTML}}
 	celestial, err := p.ExtractCelestial(33640820)
 	assert.NoError(t, err)
-	assert.Equal(t, ogame.CelestialID(33640820), celestial.GetCelestialID())
+	assert.Equal(t, ogame.CelestialID(33640820), celestial.GetID())
 	celestial1, err := p.ExtractCelestial(celestial)
 	assert.NoError(t, err)
-	assert.Equal(t, ogame.CelestialID(33640820), celestial1.GetCelestialID())
+	assert.Equal(t, ogame.CelestialID(33640820), celestial1.GetID())
 
 	pageHTML, _ = ioutil.ReadFile("../../samples/v7.1/en/moon_facilities.html")
 	p = FullPage{Page: Page{e: v71.NewExtractor(), content: pageHTML}}
 	celestial2, err := p.ExtractCelestial(33780773)
 	assert.NoError(t, err)
-	assert.Equal(t, ogame.CelestialID(33780773), celestial2.GetCelestialID())
+	assert.Equal(t, ogame.CelestialID(33780773), celestial2.GetID())
 	celestial3, err := p.ExtractCelestial(celestial2)
 	assert.NoError(t, err)
-	assert.Equal(t, ogame.CelestialID(33780773), celestial3.GetCelestialID())
+	assert.Equal(t, ogame.CelestialID(33780773), celestial3.GetID())
 
 	_, err = p.ExtractCelestial(Page{})
 	assert.EqualError(t, err, v6.ErrUnsupportedType.Error())
