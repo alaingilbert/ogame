@@ -1452,14 +1452,20 @@ func setCPParam(b *OGame, vals url.Values, cfg Options) {
 	}
 }
 
-func detectLoggedOut(page string, vals url.Values, pageHTML []byte) bool {
+func detectLoggedOut(method, page string, vals url.Values, pageHTML []byte) bool {
 	if vals.Get("allianceId") != "" {
 		return false
 	}
-	return (page != LogoutPageName && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !v6.IsLogged(pageHTML)) ||
-		(page == EventListAjaxPageName && !bytes.Contains(pageHTML, []byte("eventListWrap"))) ||
-		(page == FetchEventboxAjaxPageName && !canParseEventBox(pageHTML)) ||
-		(page == GalaxyContentAjaxPageName && !canParseSystemInfos(pageHTML))
+	switch method {
+	case http.MethodGet:
+		return (page != LogoutPageName && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !v6.IsLogged(pageHTML)) ||
+			(page == EventListAjaxPageName && !bytes.Contains(pageHTML, []byte("eventListWrap"))) ||
+			(page == FetchEventboxAjaxPageName && !canParseEventBox(pageHTML))
+
+	case http.MethodPost:
+		return page == GalaxyContentAjaxPageName && !canParseSystemInfos(pageHTML)
+	}
+	return false
 }
 
 func constructFinalURL(b *OGame, vals url.Values) string {
@@ -1515,7 +1521,7 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 			return err
 		}
 
-		if detectLoggedOut(page, vals, pageHTMLBytes) {
+		if detectLoggedOut(method, page, vals, pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
 			atomic.StoreInt32(&b.isConnectedAtom, 0)
 			return ogame.ErrNotLogged
