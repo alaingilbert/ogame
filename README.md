@@ -49,13 +49,13 @@ import "github.com/alaingilbert/ogame/pkg/ogame"
 import "fmt"
 
 func main() {
-    level := int64(5)
-    universeSpeed := int64(1)
-    hasTechnocrat := false
-    isDiscoverer := false
-    facilities := ogame.Facilities{RoboticsFactory: 10, NaniteFactory: 2}
-    duration := ogame.MetalMine.ConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
-    fmt.Println("Building time:", duration)
+	level := int64(5)
+	universeSpeed := int64(1)
+	hasTechnocrat := false
+	isDiscoverer := false
+	facilities := ogame.Facilities{RoboticsFactory: 10, NaniteFactory: 2}
+	duration := ogame.MetalMine.ConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
+	fmt.Println("Building time:", duration)
 	
 	// OR if you want to know the construction time for anything that can be built, using an ID
 	id := ogame.MetalMineID
