@@ -10,8 +10,10 @@ import (
 	"time"
 )
 
-// Celestial ...
+// Celestial superset of ogame.Celestial.
+// Add methods that can be called for a planet or moon.
 type Celestial interface {
+	ogame.Celestial
 	ActivateItem(string) error
 	Build(id ogame.ID, nbr int64) error
 	BuildBuilding(buildingID ogame.ID) error
@@ -21,20 +23,14 @@ type Celestial interface {
 	CancelResearch() error
 	ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64)
 	EnsureFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
-	GetCoordinate() ogame.Coordinate
 	GetDefense(...Option) (ogame.DefensesInfos, error)
-	GetDiameter() int64
 	GetFacilities(...Option) (ogame.Facilities, error)
-	GetFields() ogame.Fields
-	GetID() ogame.CelestialID
 	GetItems() ([]ogame.Item, error)
-	GetName() string
 	GetProduction() ([]ogame.Quantifiable, int64, error)
 	GetResources() (ogame.Resources, error)
 	GetResourcesBuildings(...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails() (ogame.ResourcesDetails, error)
 	GetShips(...Option) (ogame.ShipsInfos, error)
-	GetType() ogame.CelestialType
 	SendFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	TearDown(buildingID ogame.ID) error
 }
