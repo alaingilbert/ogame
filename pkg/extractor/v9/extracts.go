@@ -25,7 +25,7 @@ func extractCancelResearchInfos(pageHTML []byte, lifeformEnabled bool) (token st
 	return v7.ExtractCancelInfos(pageHTML, "cancelLinkresearch", "cancelresearch", tableIdx)
 }
 
-func extractEmpireV9(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
+func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 	var out []ogame.EmpireCelestial
 	raw, err := v6.ExtractEmpireJSON(pageHTML)
 	if err != nil {
@@ -161,7 +161,7 @@ func extractEmpireV9(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 	return out, nil
 }
 
-func extractOverviewProductionFromDocV9(doc *goquery.Document) ([]ogame.Quantifiable, error) {
+func extractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
 	active := doc.Find("table.construction").Eq(4)
 	href, _ := active.Find("td a").Attr("href")
@@ -189,11 +189,11 @@ func extractOverviewProductionFromDocV9(doc *goquery.Document) ([]ogame.Quantifi
 	return res, nil
 }
 
-func extractResourcesFromDocV9(doc *goquery.Document) ogame.Resources {
-	return extractResourcesDetailsFromFullPageFromDocV9(doc).Available()
+func extractResourcesFromDoc(doc *goquery.Document) ogame.Resources {
+	return extractResourcesDetailsFromFullPageFromDoc(doc).Available()
 }
 
-func extractResourcesDetailsFromFullPageFromDocV9(doc *goquery.Document) ogame.ResourcesDetails {
+func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.ResourcesDetails {
 	out := ogame.ResourcesDetails{}
 	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#metal_box").AttrOr("title", "")))
 	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#crystal_box").AttrOr("title", "")))
@@ -218,7 +218,7 @@ func extractResourcesDetailsFromFullPageFromDocV9(doc *goquery.Document) ogame.R
 	return out
 }
 
-func extractEspionageReportFromDocV9(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
+func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
 	report := ogame.EspionageReport{}
 	report.ID = utils.DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()

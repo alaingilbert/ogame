@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func extractIsInVacationFromDocV8(doc *goquery.Document) bool {
+func extractIsInVacationFromDoc(doc *goquery.Document) bool {
 	href := doc.Find("div#advice-bar a").AttrOr("href", "")
 	if href == "" {
 		return false
@@ -25,7 +25,7 @@ func extractIsInVacationFromDocV8(doc *goquery.Document) bool {
 	return false
 }
 
-func extractEspionageReportFromDocV8(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
+func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
 	report := ogame.EspionageReport{}
 	report.ID = utils.DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()

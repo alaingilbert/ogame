@@ -15,17 +15,17 @@ import (
 	"github.com/alaingilbert/clockwork"
 )
 
-func GetNbrV7(doc *goquery.Document, name string) int64 {
+func GetNbr(doc *goquery.Document, name string) int64 {
 	val := utils.DoParseI64(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"))
 	return val
 }
 
-func getNbrV7Ships(doc *goquery.Document, name string) int64 {
+func getNbrShips(doc *goquery.Document, name string) int64 {
 	val := utils.DoParseI64(doc.Find("span."+name+" span.amount").First().AttrOr("data-value", "0"))
 	return val
 }
 
-func extractPremiumTokenV7(pageHTML []byte, days int64) (token string, err error) {
+func extractPremiumToken(pageHTML []byte, days int64) (token string, err error) {
 	rgx := regexp.MustCompile(`\?page=premium&buynow=1&type=\d&days=` + utils.FI64(days) + `&token=(\w+)`)
 	m := rgx.FindSubmatch(pageHTML)
 	if len(m) < 2 {
@@ -35,7 +35,7 @@ func extractPremiumTokenV7(pageHTML []byte, days int64) (token string, err error
 	return
 }
 
-func extractResourcesDetailsFromFullPageFromDocV7(doc *goquery.Document) ogame.ResourcesDetails {
+func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.ResourcesDetails {
 	out := ogame.ResourcesDetails{}
 	out.Metal.Available = utils.ParseInt(strings.Split(doc.Find("span#resources_metal").AttrOr("data-raw", "0"), ".")[0])
 	out.Crystal.Available = utils.ParseInt(strings.Split(doc.Find("span#resources_crystal").AttrOr("data-raw", "0"), ".")[0])
@@ -60,96 +60,96 @@ func extractResourcesDetailsFromFullPageFromDocV7(doc *goquery.Document) ogame.R
 	return out
 }
 
-func ExtractFacilitiesFromDocV7(doc *goquery.Document) (ogame.Facilities, error) {
+func ExtractFacilitiesFromDoc(doc *goquery.Document) (ogame.Facilities, error) {
 	res := ogame.Facilities{}
-	res.RoboticsFactory = GetNbrV7(doc, "roboticsFactory")
-	res.Shipyard = GetNbrV7(doc, "shipyard")
-	res.ResearchLab = GetNbrV7(doc, "researchLaboratory")
-	res.AllianceDepot = GetNbrV7(doc, "allianceDepot")
-	res.MissileSilo = GetNbrV7(doc, "missileSilo")
-	res.NaniteFactory = GetNbrV7(doc, "naniteFactory")
-	res.Terraformer = GetNbrV7(doc, "terraformer")
-	res.SpaceDock = GetNbrV7(doc, "repairDock")
-	res.LunarBase = GetNbrV7(doc, "lunarBase")         // TODO: ensure name is correct
-	res.SensorPhalanx = GetNbrV7(doc, "sensorPhalanx") // TODO: ensure name is correct
-	res.JumpGate = GetNbrV7(doc, "jumpGate")           // TODO: ensure name is correct
+	res.RoboticsFactory = GetNbr(doc, "roboticsFactory")
+	res.Shipyard = GetNbr(doc, "shipyard")
+	res.ResearchLab = GetNbr(doc, "researchLaboratory")
+	res.AllianceDepot = GetNbr(doc, "allianceDepot")
+	res.MissileSilo = GetNbr(doc, "missileSilo")
+	res.NaniteFactory = GetNbr(doc, "naniteFactory")
+	res.Terraformer = GetNbr(doc, "terraformer")
+	res.SpaceDock = GetNbr(doc, "repairDock")
+	res.LunarBase = GetNbr(doc, "lunarBase")         // TODO: ensure name is correct
+	res.SensorPhalanx = GetNbr(doc, "sensorPhalanx") // TODO: ensure name is correct
+	res.JumpGate = GetNbr(doc, "jumpGate")           // TODO: ensure name is correct
 	return res, nil
 }
 
-func extractDefenseFromDocV7(doc *goquery.Document) (ogame.DefensesInfos, error) {
+func extractDefenseFromDoc(doc *goquery.Document) (ogame.DefensesInfos, error) {
 	res := ogame.DefensesInfos{}
-	res.RocketLauncher = getNbrV7Ships(doc, "rocketLauncher")
-	res.LightLaser = getNbrV7Ships(doc, "laserCannonLight")
-	res.HeavyLaser = getNbrV7Ships(doc, "laserCannonHeavy")
-	res.GaussCannon = getNbrV7Ships(doc, "gaussCannon")
-	res.IonCannon = getNbrV7Ships(doc, "ionCannon")
-	res.PlasmaTurret = getNbrV7Ships(doc, "plasmaCannon")
-	res.SmallShieldDome = getNbrV7Ships(doc, "shieldDomeSmall")
-	res.LargeShieldDome = getNbrV7Ships(doc, "shieldDomeLarge")
-	res.AntiBallisticMissiles = getNbrV7Ships(doc, "missileInterceptor")
-	res.InterplanetaryMissiles = getNbrV7Ships(doc, "missileInterplanetary")
+	res.RocketLauncher = getNbrShips(doc, "rocketLauncher")
+	res.LightLaser = getNbrShips(doc, "laserCannonLight")
+	res.HeavyLaser = getNbrShips(doc, "laserCannonHeavy")
+	res.GaussCannon = getNbrShips(doc, "gaussCannon")
+	res.IonCannon = getNbrShips(doc, "ionCannon")
+	res.PlasmaTurret = getNbrShips(doc, "plasmaCannon")
+	res.SmallShieldDome = getNbrShips(doc, "shieldDomeSmall")
+	res.LargeShieldDome = getNbrShips(doc, "shieldDomeLarge")
+	res.AntiBallisticMissiles = getNbrShips(doc, "missileInterceptor")
+	res.InterplanetaryMissiles = getNbrShips(doc, "missileInterplanetary")
 	return res, nil
 }
 
-func extractResearchFromDocV7(doc *goquery.Document) ogame.Researches {
+func extractResearchFromDoc(doc *goquery.Document) ogame.Researches {
 	doc.Find("span.textlabel").Remove()
 	res := ogame.Researches{}
-	res.EnergyTechnology = GetNbrV7(doc, "energyTechnology")
-	res.LaserTechnology = GetNbrV7(doc, "laserTechnology")
-	res.IonTechnology = GetNbrV7(doc, "ionTechnology")
-	res.HyperspaceTechnology = GetNbrV7(doc, "hyperspaceTechnology")
-	res.PlasmaTechnology = GetNbrV7(doc, "plasmaTechnology")
-	res.CombustionDrive = GetNbrV7(doc, "combustionDriveTechnology")
-	res.ImpulseDrive = GetNbrV7(doc, "impulseDriveTechnology")
-	res.HyperspaceDrive = GetNbrV7(doc, "hyperspaceDriveTechnology")
-	res.EspionageTechnology = GetNbrV7(doc, "espionageTechnology")
-	res.ComputerTechnology = GetNbrV7(doc, "computerTechnology")
-	res.Astrophysics = GetNbrV7(doc, "astrophysicsTechnology")
-	res.IntergalacticResearchNetwork = GetNbrV7(doc, "researchNetworkTechnology")
-	res.GravitonTechnology = GetNbrV7(doc, "gravitonTechnology")
-	res.WeaponsTechnology = GetNbrV7(doc, "weaponsTechnology")
-	res.ShieldingTechnology = GetNbrV7(doc, "shieldingTechnology")
-	res.ArmourTechnology = GetNbrV7(doc, "armorTechnology")
+	res.EnergyTechnology = GetNbr(doc, "energyTechnology")
+	res.LaserTechnology = GetNbr(doc, "laserTechnology")
+	res.IonTechnology = GetNbr(doc, "ionTechnology")
+	res.HyperspaceTechnology = GetNbr(doc, "hyperspaceTechnology")
+	res.PlasmaTechnology = GetNbr(doc, "plasmaTechnology")
+	res.CombustionDrive = GetNbr(doc, "combustionDriveTechnology")
+	res.ImpulseDrive = GetNbr(doc, "impulseDriveTechnology")
+	res.HyperspaceDrive = GetNbr(doc, "hyperspaceDriveTechnology")
+	res.EspionageTechnology = GetNbr(doc, "espionageTechnology")
+	res.ComputerTechnology = GetNbr(doc, "computerTechnology")
+	res.Astrophysics = GetNbr(doc, "astrophysicsTechnology")
+	res.IntergalacticResearchNetwork = GetNbr(doc, "researchNetworkTechnology")
+	res.GravitonTechnology = GetNbr(doc, "gravitonTechnology")
+	res.WeaponsTechnology = GetNbr(doc, "weaponsTechnology")
+	res.ShieldingTechnology = GetNbr(doc, "shieldingTechnology")
+	res.ArmourTechnology = GetNbr(doc, "armorTechnology")
 	return res
 }
 
-func extractShipsFromDocV7(doc *goquery.Document) (ogame.ShipsInfos, error) {
+func extractShipsFromDoc(doc *goquery.Document) (ogame.ShipsInfos, error) {
 	res := ogame.ShipsInfos{}
-	res.LightFighter = getNbrV7Ships(doc, "fighterLight")
-	res.HeavyFighter = getNbrV7Ships(doc, "fighterHeavy")
-	res.Cruiser = getNbrV7Ships(doc, "cruiser")
-	res.Battleship = getNbrV7Ships(doc, "battleship")
-	res.Battlecruiser = getNbrV7Ships(doc, "interceptor")
-	res.Bomber = getNbrV7Ships(doc, "bomber")
-	res.Destroyer = getNbrV7Ships(doc, "destroyer")
-	res.Deathstar = getNbrV7Ships(doc, "deathstar")
-	res.Reaper = getNbrV7Ships(doc, "reaper")
-	res.Pathfinder = getNbrV7Ships(doc, "explorer")
-	res.SmallCargo = getNbrV7Ships(doc, "transporterSmall")
-	res.LargeCargo = getNbrV7Ships(doc, "transporterLarge")
-	res.ColonyShip = getNbrV7Ships(doc, "colonyShip")
-	res.Recycler = getNbrV7Ships(doc, "recycler")
-	res.EspionageProbe = getNbrV7Ships(doc, "espionageProbe")
-	res.SolarSatellite = getNbrV7Ships(doc, "solarSatellite")
-	res.Crawler = getNbrV7Ships(doc, "resbuggy")
+	res.LightFighter = getNbrShips(doc, "fighterLight")
+	res.HeavyFighter = getNbrShips(doc, "fighterHeavy")
+	res.Cruiser = getNbrShips(doc, "cruiser")
+	res.Battleship = getNbrShips(doc, "battleship")
+	res.Battlecruiser = getNbrShips(doc, "interceptor")
+	res.Bomber = getNbrShips(doc, "bomber")
+	res.Destroyer = getNbrShips(doc, "destroyer")
+	res.Deathstar = getNbrShips(doc, "deathstar")
+	res.Reaper = getNbrShips(doc, "reaper")
+	res.Pathfinder = getNbrShips(doc, "explorer")
+	res.SmallCargo = getNbrShips(doc, "transporterSmall")
+	res.LargeCargo = getNbrShips(doc, "transporterLarge")
+	res.ColonyShip = getNbrShips(doc, "colonyShip")
+	res.Recycler = getNbrShips(doc, "recycler")
+	res.EspionageProbe = getNbrShips(doc, "espionageProbe")
+	res.SolarSatellite = getNbrShips(doc, "solarSatellite")
+	res.Crawler = getNbrShips(doc, "resbuggy")
 	return res, nil
 }
 
-func extractResourcesBuildingsFromDocV7(doc *goquery.Document) (ogame.ResourcesBuildings, error) {
+func extractResourcesBuildingsFromDoc(doc *goquery.Document) (ogame.ResourcesBuildings, error) {
 	res := ogame.ResourcesBuildings{}
-	res.MetalMine = GetNbrV7(doc, "metalMine")
-	res.CrystalMine = GetNbrV7(doc, "crystalMine")
-	res.DeuteriumSynthesizer = GetNbrV7(doc, "deuteriumSynthesizer")
-	res.SolarPlant = GetNbrV7(doc, "solarPlant")
-	res.FusionReactor = GetNbrV7(doc, "fusionPlant")
-	res.SolarSatellite = getNbrV7Ships(doc, "solarSatellite")
-	res.MetalStorage = GetNbrV7(doc, "metalStorage")
-	res.CrystalStorage = GetNbrV7(doc, "crystalStorage")
-	res.DeuteriumTank = GetNbrV7(doc, "deuteriumStorage")
+	res.MetalMine = GetNbr(doc, "metalMine")
+	res.CrystalMine = GetNbr(doc, "crystalMine")
+	res.DeuteriumSynthesizer = GetNbr(doc, "deuteriumSynthesizer")
+	res.SolarPlant = GetNbr(doc, "solarPlant")
+	res.FusionReactor = GetNbr(doc, "fusionPlant")
+	res.SolarSatellite = getNbrShips(doc, "solarSatellite")
+	res.MetalStorage = GetNbr(doc, "metalStorage")
+	res.CrystalStorage = GetNbr(doc, "crystalStorage")
+	res.DeuteriumTank = GetNbr(doc, "deuteriumStorage")
 	return res, nil
 }
 
-type resourcesRespV7 struct {
+type resourcesResp struct {
 	Metal struct {
 		ActualFormat string
 		Actual       int64
@@ -189,8 +189,8 @@ type resourcesRespV7 struct {
 	HonorScore int64
 }
 
-func extractResourcesDetailsV7(pageHTML []byte) (out ogame.ResourcesDetails, err error) {
-	var res resourcesRespV7
+func extractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err error) {
+	var res resourcesResp
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if v6.IsLogged(pageHTML) {
 			return out, ogame.ErrInvalidPlanetID
@@ -220,7 +220,7 @@ func extractResourcesDetailsV7(pageHTML []byte) (out ogame.ResourcesDetails, err
 	return
 }
 
-func ExtractConstructionsV7(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
+func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
 		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
@@ -236,14 +236,14 @@ func ExtractConstructionsV7(pageHTML []byte, clock clockwork.Clock) (buildingID 
 	return
 }
 
-func extractIPMFromDocV7(doc *goquery.Document) (duration, max int64, token string) {
+func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
 	duration = utils.DoParseI64(doc.Find("span#timer").AttrOr("data-duration", "0"))
 	max = utils.DoParseI64(doc.Find("input[name=missileCount]").AttrOr("data-max", "0"))
 	token = doc.Find("input[name=token]").AttrOr("value", "")
 	return
 }
 
-func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ogame.ShipsInfos) {
+func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
 	onclick := doc.Find("div#fleetdispatchcomponent")
 	h, _ := onclick.Html()
 	matches := regexp.MustCompile(`var shipsOnPlanet = ([^;]+);`).FindStringSubmatch(h)
@@ -264,7 +264,7 @@ func extractFleet1ShipsFromDocV7(doc *goquery.Document) (s ogame.ShipsInfos) {
 	return
 }
 
-func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]ogame.CombatReportSummary, int64) {
+func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64) {
 	msgs := make([]ogame.CombatReportSummary, 0)
 	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
@@ -322,7 +322,7 @@ func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]ogame.Combat
 	return msgs, nbPage
 }
 
-func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
+func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
 	report := ogame.EspionageReport{}
 	report.ID = utils.DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()
@@ -620,15 +620,15 @@ func ExtractCancelInfos(pageHTML []byte, linkVarName, fnName string, tableIdx in
 	return
 }
 
-func extractCancelBuildingInfosV7(pageHTML []byte) (token string, techID, listID int64, err error) {
+func extractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return ExtractCancelInfos(pageHTML, "cancelLinkbuilding", "cancelbuilding", 0)
 }
 
-func extractCancelResearchInfosV7(pageHTML []byte) (token string, techID, listID int64, err error) {
+func extractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
 	return ExtractCancelInfos(pageHTML, "cancelLinkresearch", "cancelresearch", 1)
 }
 
-func extractResourceSettingsFromDocV7(doc *goquery.Document) (ogame.ResourceSettings, error) {
+func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, error) {
 	bodyID := v6.ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return ogame.ResourceSettings{}, ogame.ErrInvalidPlanetID
@@ -658,7 +658,7 @@ func extractResourceSettingsFromDocV7(doc *goquery.Document) (ogame.ResourceSett
 	return res, nil
 }
 
-func extractOverviewProductionFromDocV7(doc *goquery.Document) ([]ogame.Quantifiable, error) {
+func extractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
 	active := doc.Find("table.construction").Eq(2)
 	href, _ := active.Find("td a").Attr("href")
@@ -685,7 +685,7 @@ func extractOverviewProductionFromDocV7(doc *goquery.Document) ([]ogame.Quantifi
 	return res, nil
 }
 
-func extractOverviewShipSumCountdownFromBytesV7(pageHTML []byte) int64 {
+func extractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
 	var shipSumCountdown int64
 	shipSumCountdownMatch := regexp.MustCompile(`var restTimeship2 = (\d+);`).FindSubmatch(pageHTML)
 	if len(shipSumCountdownMatch) > 0 {
@@ -694,7 +694,7 @@ func extractOverviewShipSumCountdownFromBytesV7(pageHTML []byte) int64 {
 	return shipSumCountdown
 }
 
-func extractCharacterClassFromDocV7(doc *goquery.Document) (ogame.CharacterClass, error) {
+func extractCharacterClassFromDoc(doc *goquery.Document) (ogame.CharacterClass, error) {
 	characterClassDiv := doc.Find("div#characterclass a div")
 	if characterClassDiv.HasClass("miner") {
 		return ogame.Collector, nil
@@ -706,7 +706,7 @@ func extractCharacterClassFromDocV7(doc *goquery.Document) (ogame.CharacterClass
 	return 0, errors.New("character class not found")
 }
 
-func extractExpeditionMessagesFromDocV7(doc *goquery.Document, location *time.Location) ([]ogame.ExpeditionMessage, int64, error) {
+func extractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ogame.ExpeditionMessage, int64, error) {
 	msgs := make([]ogame.ExpeditionMessage, 0)
 	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
@@ -725,7 +725,7 @@ func extractExpeditionMessagesFromDocV7(doc *goquery.Document, location *time.Lo
 	return msgs, nbPage, nil
 }
 
-func extractMarketplaceMessagesFromDocV7(doc *goquery.Document, location *time.Location) ([]ogame.MarketplaceMessage, int64, error) {
+func extractMarketplaceMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ogame.MarketplaceMessage, int64, error) {
 	msgs := make([]ogame.MarketplaceMessage, 0)
 	tab := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-tab", ""))
 	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
