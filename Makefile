@@ -37,6 +37,7 @@ cover:
 
 count:
 	@find \
+		./pkg \
 		./*.go \
 		./cmd \
 		-name '*.go' \
