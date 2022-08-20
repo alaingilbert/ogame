@@ -47,10 +47,6 @@ func (r ResourcesBuildings) Lazy() LazyResourcesBuildings {
 
 // ByID gets the resource building level from a building id
 func (r ResourcesBuildings) ByID(id ID) int64 {
-	return resourcesBuildingByID(id, r)
-}
-
-func resourcesBuildingByID(id ID, r IResourcesBuildings) int64 {
 	switch id {
 	case MetalMineID:
 		return r.GetMetalMine()

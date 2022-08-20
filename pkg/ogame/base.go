@@ -80,15 +80,15 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings IResourcesBuilding
 		id := req.ID
 		levelNeeded := req.Lvl
 		if id.IsResourceBuilding() {
-			if resourcesBuildingByID(id, resourcesBuildings) < levelNeeded {
+			if resourcesBuildings.ByID(id) < levelNeeded {
 				return false
 			}
 		} else if id.IsFacility() {
-			if facilityByID(id, facilities) < levelNeeded {
+			if facilities.ByID(id) < levelNeeded {
 				return false
 			}
 		} else if id.IsTech() {
-			if researchByID(id, researches) < levelNeeded {
+			if researches.ByID(id) < levelNeeded {
 				return false
 			}
 		}

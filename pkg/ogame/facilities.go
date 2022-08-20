@@ -53,10 +53,6 @@ func (f Facilities) Lazy() LazyFacilities {
 
 // ByID gets the facility level by facility id
 func (f Facilities) ByID(id ID) int64 {
-	return facilityByID(id, f)
-}
-
-func facilityByID(id ID, f IFacilities) int64 {
 	switch id {
 	case RoboticsFactoryID:
 		return f.GetRoboticsFactory()

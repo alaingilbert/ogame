@@ -92,6 +92,7 @@ type BuildingAccelerators interface {
 }
 
 type IFacilities interface {
+	ByID(ID) int64
 	GetRoboticsFactory() int64
 	GetShipyard() int64
 	GetResearchLab() int64
@@ -106,6 +107,7 @@ type IFacilities interface {
 }
 
 type IResearches interface {
+	ByID(ID) int64
 	GetEnergyTechnology() int64
 	GetLaserTechnology() int64
 	GetIonTechnology() int64
@@ -125,6 +127,7 @@ type IResearches interface {
 }
 
 type IResourcesBuildings interface {
+	ByID(ID) int64
 	GetMetalMine() int64
 	GetCrystalMine() int64
 	GetDeuteriumSynthesizer() int64

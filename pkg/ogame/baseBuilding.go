@@ -46,9 +46,9 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Bu
 // GetLevel returns current level of a building
 func (b BaseBuilding) GetLevel(resourcesBuildings IResourcesBuildings, facilities IFacilities, _ IResearches) int64 {
 	if b.ID.IsResourceBuilding() {
-		return resourcesBuildingByID(b.ID, resourcesBuildings)
+		return resourcesBuildings.ByID(b.ID)
 	} else if b.ID.IsFacility() {
-		return facilityByID(b.ID, facilities)
+		return facilities.ByID(b.ID)
 	}
 	return 0
 }

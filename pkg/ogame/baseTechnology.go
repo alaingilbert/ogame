@@ -34,5 +34,5 @@ func (b BaseTechnology) ConstructionTime(level, universeSpeed int64, facilities 
 
 // GetLevel returns current level of a technology
 func (b BaseTechnology) GetLevel(_ IResourcesBuildings, _ IFacilities, researches IResearches) int64 {
-	return researchByID(b.ID, researches)
+	return researches.ByID(b.ID)
 }

@@ -75,43 +75,39 @@ func (s Researches) Lazy() LazyResearches {
 
 // ByID gets the player research level by research id
 func (s Researches) ByID(id ID) int64 {
-	return researchByID(id, s)
-}
-
-func researchByID(id ID, researches IResearches) int64 {
 	switch id {
 	case EnergyTechnologyID:
-		return researches.GetEnergyTechnology()
+		return s.GetEnergyTechnology()
 	case LaserTechnologyID:
-		return researches.GetLaserTechnology()
+		return s.GetLaserTechnology()
 	case IonTechnologyID:
-		return researches.GetIonTechnology()
+		return s.GetIonTechnology()
 	case HyperspaceTechnologyID:
-		return researches.GetHyperspaceTechnology()
+		return s.GetHyperspaceTechnology()
 	case PlasmaTechnologyID:
-		return researches.GetPlasmaTechnology()
+		return s.GetPlasmaTechnology()
 	case CombustionDriveID:
-		return researches.GetCombustionDrive()
+		return s.GetCombustionDrive()
 	case ImpulseDriveID:
-		return researches.GetImpulseDrive()
+		return s.GetImpulseDrive()
 	case HyperspaceDriveID:
-		return researches.GetHyperspaceDrive()
+		return s.GetHyperspaceDrive()
 	case EspionageTechnologyID:
-		return researches.GetEspionageTechnology()
+		return s.GetEspionageTechnology()
 	case ComputerTechnologyID:
-		return researches.GetComputerTechnology()
+		return s.GetComputerTechnology()
 	case AstrophysicsID:
-		return researches.GetAstrophysics()
+		return s.GetAstrophysics()
 	case IntergalacticResearchNetworkID:
-		return researches.GetIntergalacticResearchNetwork()
+		return s.GetIntergalacticResearchNetwork()
 	case GravitonTechnologyID:
-		return researches.GetGravitonTechnology()
+		return s.GetGravitonTechnology()
 	case WeaponsTechnologyID:
-		return researches.GetWeaponsTechnology()
+		return s.GetWeaponsTechnology()
 	case ShieldingTechnologyID:
-		return researches.GetShieldingTechnology()
+		return s.GetShieldingTechnology()
 	case ArmourTechnologyID:
-		return researches.GetArmourTechnology()
+		return s.GetArmourTechnology()
 	}
 	return 0
 }
