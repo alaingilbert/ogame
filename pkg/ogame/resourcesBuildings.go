@@ -47,24 +47,29 @@ func (r ResourcesBuildings) Lazy() LazyResourcesBuildings {
 
 // ByID gets the resource building level from a building id
 func (r ResourcesBuildings) ByID(id ID) int64 {
-	if id == MetalMineID {
-		return r.MetalMine
-	} else if id == CrystalMineID {
-		return r.CrystalMine
-	} else if id == DeuteriumSynthesizerID {
-		return r.DeuteriumSynthesizer
-	} else if id == SolarPlantID {
-		return r.SolarPlant
-	} else if id == FusionReactorID {
-		return r.FusionReactor
-	} else if id == SolarSatelliteID {
-		return r.SolarSatellite
-	} else if id == MetalStorageID {
-		return r.MetalStorage
-	} else if id == CrystalStorageID {
-		return r.CrystalStorage
-	} else if id == DeuteriumTankID {
-		return r.DeuteriumTank
+	return resourcesBuildingByID(id, r)
+}
+
+func resourcesBuildingByID(id ID, r IResourcesBuildings) int64 {
+	switch id {
+	case MetalMineID:
+		return r.GetMetalMine()
+	case CrystalMineID:
+		return r.GetCrystalMine()
+	case DeuteriumSynthesizerID:
+		return r.GetDeuteriumSynthesizer()
+	case SolarPlantID:
+		return r.GetSolarPlant()
+	case FusionReactorID:
+		return r.GetFusionReactor()
+	case SolarSatelliteID:
+		return r.GetSolarSatellite()
+	case MetalStorageID:
+		return r.GetMetalStorage()
+	case CrystalStorageID:
+		return r.GetCrystalStorage()
+	case DeuteriumTankID:
+		return r.GetDeuteriumTank()
 	}
 	return 0
 }

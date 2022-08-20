@@ -80,29 +80,11 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings IResourcesBuilding
 		id := req.ID
 		levelNeeded := req.Lvl
 		if id.IsResourceBuilding() {
-			if (id == MetalMineID && resourcesBuildings.GetMetalMine() < levelNeeded) ||
-				(id == CrystalMineID && resourcesBuildings.GetCrystalMine() < levelNeeded) ||
-				(id == DeuteriumSynthesizerID && resourcesBuildings.GetDeuteriumSynthesizer() < levelNeeded) ||
-				(id == SolarPlantID && resourcesBuildings.GetSolarPlant() < levelNeeded) ||
-				(id == FusionReactorID && resourcesBuildings.GetFusionReactor() < levelNeeded) ||
-				(id == SolarSatelliteID && resourcesBuildings.GetSolarSatellite() < levelNeeded) ||
-				(id == MetalStorageID && resourcesBuildings.GetMetalStorage() < levelNeeded) ||
-				(id == CrystalStorageID && resourcesBuildings.GetCrystalStorage() < levelNeeded) ||
-				(id == DeuteriumTankID && resourcesBuildings.GetDeuteriumTank() < levelNeeded) {
+			if resourcesBuildingByID(id, resourcesBuildings) < levelNeeded {
 				return false
 			}
 		} else if id.IsFacility() {
-			if (id == AllianceDepotID && facilities.GetAllianceDepot() < levelNeeded) ||
-				(id == RoboticsFactoryID && facilities.GetRoboticsFactory() < levelNeeded) ||
-				(id == ShipyardID && facilities.GetShipyard() < levelNeeded) ||
-				(id == ResearchLabID && facilities.GetResearchLab() < levelNeeded) ||
-				(id == MissileSiloID && facilities.GetMissileSilo() < levelNeeded) ||
-				(id == NaniteFactoryID && facilities.GetNaniteFactory() < levelNeeded) ||
-				(id == TerraformerID && facilities.GetTerraformer() < levelNeeded) ||
-				(id == SpaceDockID && facilities.GetSpaceDock() < levelNeeded) ||
-				(id == LunarBaseID && facilities.GetLunarBase() < levelNeeded) ||
-				(id == SensorPhalanxID && facilities.GetSensorPhalanx() < levelNeeded) ||
-				(id == JumpGateID && facilities.GetJumpGate() < levelNeeded) {
+			if facilityByID(id, facilities) < levelNeeded {
 				return false
 			}
 		} else if id.IsTech() {

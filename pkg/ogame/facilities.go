@@ -53,29 +53,33 @@ func (f Facilities) Lazy() LazyFacilities {
 
 // ByID gets the facility level by facility id
 func (f Facilities) ByID(id ID) int64 {
+	return facilityByID(id, f)
+}
+
+func facilityByID(id ID, f IFacilities) int64 {
 	switch id {
 	case RoboticsFactoryID:
-		return f.RoboticsFactory
+		return f.GetRoboticsFactory()
 	case ShipyardID:
-		return f.Shipyard
+		return f.GetShipyard()
 	case ResearchLabID:
-		return f.ResearchLab
+		return f.GetResearchLab()
 	case AllianceDepotID:
-		return f.AllianceDepot
+		return f.GetAllianceDepot()
 	case MissileSiloID:
-		return f.MissileSilo
+		return f.GetMissileSilo()
 	case NaniteFactoryID:
-		return f.NaniteFactory
+		return f.GetNaniteFactory()
 	case TerraformerID:
-		return f.Terraformer
+		return f.GetTerraformer()
 	case SpaceDockID:
-		return f.SpaceDock
+		return f.GetSpaceDock()
 	case LunarBaseID:
-		return f.LunarBase
+		return f.GetLunarBase()
 	case SensorPhalanxID:
-		return f.SensorPhalanx
+		return f.GetSensorPhalanx()
 	case JumpGateID:
-		return f.JumpGate
+		return f.GetJumpGate()
 	}
 	return 0
 }
