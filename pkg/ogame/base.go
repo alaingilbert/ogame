@@ -72,7 +72,6 @@ func (b Base) IsAvailable(t CelestialType, lazyResourcesBuildings LazyResourcesB
 		var req requirement
 		req, q = q[0], q[1:]
 		if t == PlanetType && b.ID.IsTech() {
-			// TODO: Fix this
 			reqs := Objs.ByID(req.ID).GetRequirements()
 			for k, v := range reqs {
 				q = append(q, requirement{k, v})
