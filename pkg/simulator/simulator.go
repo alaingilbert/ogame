@@ -53,9 +53,9 @@ type CombatUnit struct {
 const (
 	maxArmourLevel uint64 = 36
 	maxShieldLevel uint64 = 42
-	idMask         uint64 = 31
-	shieldMask     uint64 = 8388576
-	hullMask       uint64 = 35184363700224
+	idMask         uint64 = 0b00000000_00000000_00000000_00000000_00000000_00000000_00000000_00011111
+	shieldMask     uint64 = 0b00000000_00000000_00000000_00000000_00000000_01111111_11111111_11100000
+	hullMask       uint64 = 0b00000000_00000000_00011111_11111111_11111111_10000000_00000000_00000000
 )
 
 func getUnitID(unit *CombatUnit) uint64 {
