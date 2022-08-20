@@ -5,12 +5,12 @@ import (
 )
 
 type Celestial interface {
-	GetID() CelestialID
-	GetName() string
+	GetCoordinate() Coordinate
 	GetDiameter() int64
 	GetFields() Fields
-	GetCoordinate() Coordinate
+	GetID() CelestialID
 	GetImg() string
+	GetName() string
 }
 
 // BaseOgameObj base interface for all ogame objects (buildings, technologies, ships, defenses)
