@@ -23,8 +23,8 @@ func (b Base) GetRequirements() map[ID]int64 {
 }
 
 // IsAvailable returns either or not the object is available to us
-func (b Base) IsAvailable(t CelestialType, lazyResourcesBuildings LazyResourcesBuildings,
-	lazyFacilities LazyFacilities, lazyResearches LazyResearches, energy int64, characterClass CharacterClass) bool {
+func (b Base) IsAvailable(t CelestialType, resourcesBuildings IResourcesBuildings,
+	facilities IFacilities, researches IResearches, energy int64, characterClass CharacterClass) bool {
 	if t != PlanetType && t != MoonType {
 		return false
 	}
@@ -80,15 +80,44 @@ func (b Base) IsAvailable(t CelestialType, lazyResourcesBuildings LazyResourcesB
 		id := req.ID
 		levelNeeded := req.Lvl
 		if id.IsResourceBuilding() {
-			if lazyResourcesBuildings().ByID(id) < levelNeeded {
+			if (id == MetalMineID && resourcesBuildings.GetMetalMine() < levelNeeded) ||
+				(id == CrystalMineID && resourcesBuildings.GetCrystalMine() < levelNeeded) ||
+				(id == DeuteriumSynthesizerID && resourcesBuildings.GetDeuteriumSynthesizer() < levelNeeded) ||
+				(id == SolarPlantID && resourcesBuildings.GetSolarPlant() < levelNeeded) ||
+				(id == FusionReactorID && resourcesBuildings.GetFusionReactor() < levelNeeded) ||
+				(id == SolarSatelliteID && resourcesBuildings.GetSolarSatellite() < levelNeeded) ||
+				(id == MetalStorageID && resourcesBuildings.GetMetalStorage() < levelNeeded) ||
+				(id == CrystalStorageID && resourcesBuildings.GetCrystalStorage() < levelNeeded) ||
+				(id == DeuteriumTankID && resourcesBuildings.GetDeuteriumTank() < levelNeeded) {
 				return false
 			}
 		} else if id.IsFacility() {
-			if lazyFacilities().ByID(id) < levelNeeded {
+			if (id == AllianceDepotID && facilities.GetAllianceDepot() < levelNeeded) ||
+				(id == RoboticsFactoryID && facilities.GetRoboticsFactory() < levelNeeded) ||
+				(id == ShipyardID && facilities.GetShipyard() < levelNeeded) ||
+				(id == ResearchLabID && facilities.GetResearchLab() < levelNeeded) ||
+				(id == MissileSiloID && facilities.GetMissileSilo() < levelNeeded) ||
+				(id == NaniteFactoryID && facilities.GetNaniteFactory() < levelNeeded) ||
+				(id == TerraformerID && facilities.GetTerraformer() < levelNeeded) ||
+				(id == SpaceDockID && facilities.GetSpaceDock() < levelNeeded) ||
+				(id == LunarBaseID && facilities.GetLunarBase() < levelNeeded) ||
+				(id == SensorPhalanxID && facilities.GetSensorPhalanx() < levelNeeded) ||
+				(id == JumpGateID && facilities.GetJumpGate() < levelNeeded) {
 				return false
 			}
 		} else if id.IsTech() {
-			if lazyResearches().ByID(id) < levelNeeded {
+			if (id == EnergyTechnologyID && researches.GetEnergyTechnology() < levelNeeded) ||
+				(id == LaserTechnologyID && researches.GetLaserTechnology() < levelNeeded) ||
+				(id == IonTechnologyID && researches.GetIonTechnology() < levelNeeded) ||
+				(id == HyperspaceTechnologyID && researches.GetHyperspaceTechnology() < levelNeeded) ||
+				(id == PlasmaTechnologyID && researches.GetPlasmaTechnology() < levelNeeded) ||
+				(id == CombustionDriveID && researches.GetCombustionDrive() < levelNeeded) ||
+				(id == ImpulseDriveID && researches.GetImpulseDrive() < levelNeeded) ||
+				(id == HyperspaceDriveID && researches.GetHyperspaceDrive() < levelNeeded) ||
+				(id == EspionageTechnologyID && researches.GetEspionageTechnology() < levelNeeded) ||
+				(id == ComputerTechnologyID && researches.GetComputerTechnology() < levelNeeded) ||
+				(id == AstrophysicsID && researches.GetAstrophysics() < levelNeeded) ||
+				(id == IntergalacticResearchNetworkID && researches.GetIntergalacticResearchNetwork() < levelNeeded) {
 				return false
 			}
 		}

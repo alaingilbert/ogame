@@ -7,6 +7,18 @@ import (
 // LazyFacilities ...
 type LazyFacilities func() Facilities
 
+func (f LazyFacilities) GetRoboticsFactory() int64 { return f().RoboticsFactory }
+func (f LazyFacilities) GetShipyard() int64        { return f().Shipyard }
+func (f LazyFacilities) GetResearchLab() int64     { return f().ResearchLab }
+func (f LazyFacilities) GetAllianceDepot() int64   { return f().AllianceDepot }
+func (f LazyFacilities) GetMissileSilo() int64     { return f().MissileSilo }
+func (f LazyFacilities) GetNaniteFactory() int64   { return f().NaniteFactory }
+func (f LazyFacilities) GetTerraformer() int64     { return f().Terraformer }
+func (f LazyFacilities) GetSpaceDock() int64       { return f().SpaceDock }
+func (f LazyFacilities) GetLunarBase() int64       { return f().LunarBase }
+func (f LazyFacilities) GetSensorPhalanx() int64   { return f().SensorPhalanx }
+func (f LazyFacilities) GetJumpGate() int64        { return f().JumpGate }
+
 // Facilities represent a planet facilities information
 type Facilities struct {
 	RoboticsFactory int64 // 14
@@ -22,10 +34,17 @@ type Facilities struct {
 	JumpGate        int64 // 43
 }
 
-func (f Facilities) GetNaniteFactory() int64   { return f.NaniteFactory }
 func (f Facilities) GetRoboticsFactory() int64 { return f.RoboticsFactory }
-func (f Facilities) GetResearchLab() int64     { return f.ResearchLab }
 func (f Facilities) GetShipyard() int64        { return f.Shipyard }
+func (f Facilities) GetResearchLab() int64     { return f.ResearchLab }
+func (f Facilities) GetAllianceDepot() int64   { return f.AllianceDepot }
+func (f Facilities) GetMissileSilo() int64     { return f.MissileSilo }
+func (f Facilities) GetNaniteFactory() int64   { return f.NaniteFactory }
+func (f Facilities) GetTerraformer() int64     { return f.Terraformer }
+func (f Facilities) GetSpaceDock() int64       { return f.SpaceDock }
+func (f Facilities) GetLunarBase() int64       { return f.LunarBase }
+func (f Facilities) GetSensorPhalanx() int64   { return f.SensorPhalanx }
+func (f Facilities) GetJumpGate() int64        { return f.JumpGate }
 
 // Lazy returns a function that return self
 func (f Facilities) Lazy() LazyFacilities {

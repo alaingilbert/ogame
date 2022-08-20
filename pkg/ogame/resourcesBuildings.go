@@ -7,6 +7,16 @@ import (
 // LazyResourcesBuildings ...
 type LazyResourcesBuildings func() ResourcesBuildings
 
+func (r LazyResourcesBuildings) GetMetalMine() int64            { return r().MetalMine }
+func (r LazyResourcesBuildings) GetCrystalMine() int64          { return r().CrystalMine }
+func (r LazyResourcesBuildings) GetDeuteriumSynthesizer() int64 { return r().DeuteriumSynthesizer }
+func (r LazyResourcesBuildings) GetSolarPlant() int64           { return r().SolarPlant }
+func (r LazyResourcesBuildings) GetFusionReactor() int64        { return r().FusionReactor }
+func (r LazyResourcesBuildings) GetSolarSatellite() int64       { return r().SolarSatellite }
+func (r LazyResourcesBuildings) GetMetalStorage() int64         { return r().MetalStorage }
+func (r LazyResourcesBuildings) GetCrystalStorage() int64       { return r().CrystalStorage }
+func (r LazyResourcesBuildings) GetDeuteriumTank() int64        { return r().DeuteriumTank }
+
 // ResourcesBuildings represent a planet resource buildings
 type ResourcesBuildings struct {
 	MetalMine            int64 // 1
@@ -19,6 +29,16 @@ type ResourcesBuildings struct {
 	CrystalStorage       int64 // 23
 	DeuteriumTank        int64 // 24
 }
+
+func (r ResourcesBuildings) GetMetalMine() int64            { return r.MetalMine }
+func (r ResourcesBuildings) GetCrystalMine() int64          { return r.CrystalMine }
+func (r ResourcesBuildings) GetDeuteriumSynthesizer() int64 { return r.DeuteriumSynthesizer }
+func (r ResourcesBuildings) GetSolarPlant() int64           { return r.SolarPlant }
+func (r ResourcesBuildings) GetFusionReactor() int64        { return r.FusionReactor }
+func (r ResourcesBuildings) GetSolarSatellite() int64       { return r.SolarSatellite }
+func (r ResourcesBuildings) GetMetalStorage() int64         { return r.MetalStorage }
+func (r ResourcesBuildings) GetCrystalStorage() int64       { return r.CrystalStorage }
+func (r ResourcesBuildings) GetDeuteriumTank() int64        { return r.DeuteriumTank }
 
 // Lazy returns a function that return self
 func (r ResourcesBuildings) Lazy() LazyResourcesBuildings {

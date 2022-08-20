@@ -7,6 +7,25 @@ import (
 // LazyResearches ...
 type LazyResearches func() Researches
 
+func (s LazyResearches) GetEnergyTechnology() int64     { return s().EnergyTechnology }
+func (s LazyResearches) GetLaserTechnology() int64      { return s().LaserTechnology }
+func (s LazyResearches) GetIonTechnology() int64        { return s().IonTechnology }
+func (s LazyResearches) GetHyperspaceTechnology() int64 { return s().HyperspaceTechnology }
+func (s LazyResearches) GetPlasmaTechnology() int64     { return s().PlasmaTechnology }
+func (s LazyResearches) GetCombustionDrive() int64      { return s().CombustionDrive }
+func (s LazyResearches) GetImpulseDrive() int64         { return s().ImpulseDrive }
+func (s LazyResearches) GetHyperspaceDrive() int64      { return s().HyperspaceDrive }
+func (s LazyResearches) GetEspionageTechnology() int64  { return s().EspionageTechnology }
+func (s LazyResearches) GetComputerTechnology() int64   { return s().ComputerTechnology }
+func (s LazyResearches) GetAstrophysics() int64         { return s().Astrophysics }
+func (s LazyResearches) GetIntergalacticResearchNetwork() int64 {
+	return s().IntergalacticResearchNetwork
+}
+func (s LazyResearches) GetGravitonTechnology() int64  { return s().GravitonTechnology }
+func (s LazyResearches) GetWeaponsTechnology() int64   { return s().WeaponsTechnology }
+func (s LazyResearches) GetShieldingTechnology() int64 { return s().ShieldingTechnology }
+func (s LazyResearches) GetArmourTechnology() int64    { return s().ArmourTechnology }
+
 // Researches represent player's researches
 type Researches struct {
 	EnergyTechnology             int64 // 113
@@ -26,6 +45,23 @@ type Researches struct {
 	ShieldingTechnology          int64 // 110
 	ArmourTechnology             int64 // 111
 }
+
+func (s Researches) GetEnergyTechnology() int64             { return s.EnergyTechnology }
+func (s Researches) GetLaserTechnology() int64              { return s.LaserTechnology }
+func (s Researches) GetIonTechnology() int64                { return s.IonTechnology }
+func (s Researches) GetHyperspaceTechnology() int64         { return s.HyperspaceTechnology }
+func (s Researches) GetPlasmaTechnology() int64             { return s.PlasmaTechnology }
+func (s Researches) GetCombustionDrive() int64              { return s.CombustionDrive }
+func (s Researches) GetImpulseDrive() int64                 { return s.ImpulseDrive }
+func (s Researches) GetHyperspaceDrive() int64              { return s.HyperspaceDrive }
+func (s Researches) GetEspionageTechnology() int64          { return s.EspionageTechnology }
+func (s Researches) GetComputerTechnology() int64           { return s.ComputerTechnology }
+func (s Researches) GetAstrophysics() int64                 { return s.Astrophysics }
+func (s Researches) GetIntergalacticResearchNetwork() int64 { return s.IntergalacticResearchNetwork }
+func (s Researches) GetGravitonTechnology() int64           { return s.GravitonTechnology }
+func (s Researches) GetWeaponsTechnology() int64            { return s.WeaponsTechnology }
+func (s Researches) GetShieldingTechnology() int64          { return s.ShieldingTechnology }
+func (s Researches) GetArmourTechnology() int64             { return s.ArmourTechnology }
 
 // ToPtr returns a pointer to self
 func (s Researches) ToPtr() *Researches {

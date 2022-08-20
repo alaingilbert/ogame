@@ -21,7 +21,7 @@ type BaseOgameObj interface {
 	GetName() string
 	GetPrice(int64) Resources
 	GetRequirements() map[ID]int64
-	IsAvailable(CelestialType, LazyResourcesBuildings, LazyFacilities, LazyResearches, int64, CharacterClass) bool
+	IsAvailable(CelestialType, IResourcesBuildings, IFacilities, IResearches, int64, CharacterClass) bool
 }
 
 // DefenderObj base interface for all defensive units (ships, defenses)
@@ -89,4 +89,49 @@ type DefenseAccelerators interface {
 type BuildingAccelerators interface {
 	GetNaniteFactory() int64
 	GetRoboticsFactory() int64
+}
+
+type IFacilities interface {
+	GetRoboticsFactory() int64
+	GetShipyard() int64
+	GetResearchLab() int64
+	GetAllianceDepot() int64
+	GetMissileSilo() int64
+	GetNaniteFactory() int64
+	GetTerraformer() int64
+	GetSpaceDock() int64
+	GetLunarBase() int64
+	GetSensorPhalanx() int64
+	GetJumpGate() int64
+}
+
+type IResearches interface {
+	GetEnergyTechnology() int64
+	GetLaserTechnology() int64
+	GetIonTechnology() int64
+	GetHyperspaceTechnology() int64
+	GetPlasmaTechnology() int64
+	GetCombustionDrive() int64
+	GetImpulseDrive() int64
+	GetHyperspaceDrive() int64
+	GetEspionageTechnology() int64
+	GetComputerTechnology() int64
+	GetAstrophysics() int64
+	GetIntergalacticResearchNetwork() int64
+	GetGravitonTechnology() int64
+	GetWeaponsTechnology() int64
+	GetShieldingTechnology() int64
+	GetArmourTechnology() int64
+}
+
+type IResourcesBuildings interface {
+	GetMetalMine() int64
+	GetCrystalMine() int64
+	GetDeuteriumSynthesizer() int64
+	GetSolarPlant() int64
+	GetFusionReactor() int64
+	GetSolarSatellite() int64
+	GetMetalStorage() int64
+	GetCrystalStorage() int64
+	GetDeuteriumTank() int64
 }
