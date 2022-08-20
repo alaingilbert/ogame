@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
-	"github.com/labstack/echo"
+	echo "github.com/labstack/echo/v4"
 	"net/http"
 	"net/url"
 	"strings"
