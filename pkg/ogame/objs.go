@@ -67,6 +67,18 @@ var (
 	PlasmaTechnology             = register[*plasmaTechnology](newPlasmaTechnology)
 	ShieldingTechnology          = register[*shieldingTechnology](newShieldingTechnology)
 	WeaponsTechnology            = register[*weaponsTechnology](newWeaponsTechnology)
+	ResidentialSector            = register[*residentialSector](newResidentialSector) // Lifeform
+	BiosphereFarm                = register[*biosphereFarm](newBiosphereFarm)
+	ResearchCentre               = register[*researchCentre](newResearchCentre)
+	AcademyOfSciences            = register[*academyOfSciences](newAcademyOfSciences)
+	NeuroCalibrationCentre       = register[*neuroCalibrationCentre](newNeuroCalibrationCentre)
+	HighEnergySmelting           = register[*highEnergySmelting](newHighEnergySmelting)
+	FoodSilo                     = register[*foodSilo](newFoodSilo)
+	FusionPoweredProduction      = register[*fusionPoweredProduction](newFusionPoweredProduction)
+	Skyscraper                   = register[*skyscraper](newSkyscraper)
+	BiotechLab                   = register[*biotechLab](newBiotechLab)
+	Metropolis                   = register[*metropolis](newMetropolis)
+	PlanetaryShield              = register[*planetaryShield](newPlanetaryShield)
 )
 
 type ObjsStruct struct{ m map[ID]BaseOgameObj }
