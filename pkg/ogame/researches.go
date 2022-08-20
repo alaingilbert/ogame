@@ -75,37 +75,38 @@ func (s Researches) Lazy() LazyResearches {
 
 // ByID gets the player research level by research id
 func (s Researches) ByID(id ID) int64 {
-	if id == EnergyTechnologyID {
+	switch id {
+	case EnergyTechnologyID:
 		return s.EnergyTechnology
-	} else if id == LaserTechnologyID {
+	case LaserTechnologyID:
 		return s.LaserTechnology
-	} else if id == IonTechnologyID {
+	case IonTechnologyID:
 		return s.IonTechnology
-	} else if id == HyperspaceTechnologyID {
+	case HyperspaceTechnologyID:
 		return s.HyperspaceTechnology
-	} else if id == PlasmaTechnologyID {
+	case PlasmaTechnologyID:
 		return s.PlasmaTechnology
-	} else if id == CombustionDriveID {
+	case CombustionDriveID:
 		return s.CombustionDrive
-	} else if id == ImpulseDriveID {
+	case ImpulseDriveID:
 		return s.ImpulseDrive
-	} else if id == HyperspaceDriveID {
+	case HyperspaceDriveID:
 		return s.HyperspaceDrive
-	} else if id == EspionageTechnologyID {
+	case EspionageTechnologyID:
 		return s.EspionageTechnology
-	} else if id == ComputerTechnologyID {
+	case ComputerTechnologyID:
 		return s.ComputerTechnology
-	} else if id == AstrophysicsID {
+	case AstrophysicsID:
 		return s.Astrophysics
-	} else if id == IntergalacticResearchNetworkID {
+	case IntergalacticResearchNetworkID:
 		return s.IntergalacticResearchNetwork
-	} else if id == GravitonTechnologyID {
+	case GravitonTechnologyID:
 		return s.GravitonTechnology
-	} else if id == WeaponsTechnologyID {
+	case WeaponsTechnologyID:
 		return s.WeaponsTechnology
-	} else if id == ShieldingTechnologyID {
+	case ShieldingTechnologyID:
 		return s.ShieldingTechnology
-	} else if id == ArmourTechnologyID {
+	case ArmourTechnologyID:
 		return s.ArmourTechnology
 	}
 	return 0
