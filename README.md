@@ -14,6 +14,10 @@ Discord: https://discord.gg/4dZtZpz
 
 ---
 
+How to migrate to v48 : https://github.com/alaingilbert/ogame/wiki/Migration-to-v48
+
+---
+
 # ogame library
 
 ### Verify attack example
