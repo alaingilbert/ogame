@@ -17,18 +17,18 @@ type BaseDefender struct {
 }
 
 // GetStructuralIntegrity returns structural integrity of a defender unit
-func (b BaseDefender) GetStructuralIntegrity(researches Researches) int64 {
-	return int64(float64(b.StructuralIntegrity) * (1 + float64(researches.ArmourTechnology)*0.1))
+func (b BaseDefender) GetStructuralIntegrity(researches IResearches) int64 {
+	return int64(float64(b.StructuralIntegrity) * (1 + float64(researches.GetArmourTechnology())*0.1))
 }
 
 // GetShieldPower returns shield power of a defender unit
-func (b BaseDefender) GetShieldPower(researches Researches) int64 {
-	return int64(float64(b.ShieldPower) * (1 + float64(researches.ShieldingTechnology)*0.1))
+func (b BaseDefender) GetShieldPower(researches IResearches) int64 {
+	return int64(float64(b.ShieldPower) * (1 + float64(researches.GetShieldingTechnology())*0.1))
 }
 
 // GetWeaponPower returns weapon power of a defender unit
-func (b BaseDefender) GetWeaponPower(researches Researches) int64 {
-	return int64(float64(b.WeaponPower) * (1 + float64(researches.WeaponsTechnology)*0.1))
+func (b BaseDefender) GetWeaponPower(researches IResearches) int64 {
+	return int64(float64(b.WeaponPower) * (1 + float64(researches.GetWeaponsTechnology())*0.1))
 }
 
 // GetRapidfireFrom returns which ships have rapid fire against the defender unit

@@ -11,9 +11,9 @@ type BaseBuilding struct {
 }
 
 // DeconstructionPrice returns the price to tear down to given level
-func (b BaseBuilding) DeconstructionPrice(level int64, techs Researches) Resources {
+func (b BaseBuilding) DeconstructionPrice(level int64, techs IResearches) Resources {
 	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
-		return int64(math.Floor(float64(baseCost)*math.Pow(increaseFactor, float64(level-1))) * (1 - 0.04*float64(techs.IonTechnology)))
+		return int64(math.Floor(float64(baseCost)*math.Pow(increaseFactor, float64(level-1))) * (1 - 0.04*float64(techs.GetIonTechnology())))
 	}
 	return Resources{
 		Metal:     tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
@@ -44,11 +44,11 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Bu
 }
 
 // GetLevel returns current level of a building
-func (b BaseBuilding) GetLevel(lazyResourcesBuildings LazyResourcesBuildings, lazyFacilities LazyFacilities, _ LazyResearches) int64 {
+func (b BaseBuilding) GetLevel(resourcesBuildings IResourcesBuildings, facilities IFacilities, _ IResearches) int64 {
 	if b.ID.IsResourceBuilding() {
-		return lazyResourcesBuildings().ByID(b.ID)
+		return resourcesBuildingByID(b.ID, resourcesBuildings)
 	} else if b.ID.IsFacility() {
-		return lazyFacilities().ByID(b.ID)
+		return facilityByID(b.ID, facilities)
 	}
 	return 0
 }
