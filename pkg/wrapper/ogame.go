@@ -1511,10 +1511,12 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 	var pageHTMLBytes []byte
 
 	clb := func() (err error) {
-		// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
-		// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
-		b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
-		defer func() { b.client.CheckRedirect = nil }()
+		if method == http.MethodPost {
+			// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
+			// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
+			b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+			defer func() { b.client.CheckRedirect = nil }()
+		}
 
 		pageHTMLBytes, err = b.execRequest(method, finalURL, payload, vals)
 		if err != nil {
