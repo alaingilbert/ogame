@@ -20,6 +20,7 @@ type Celestial interface {
 	BuildDefense(defenseID ogame.ID, nbr int64) error
 	BuildTechnology(technologyID ogame.ID) error
 	CancelBuilding() error
+	CancelLfBuilding() error
 	CancelResearch() error
 	ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64)
 	EnsureFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)

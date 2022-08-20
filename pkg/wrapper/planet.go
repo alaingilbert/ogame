@@ -117,6 +117,11 @@ func (p Planet) CancelBuilding() error {
 	return p.ogame.CancelBuilding(ogame.CelestialID(p.ID))
 }
 
+// CancelLfBuilding cancel the construction of a lifeform building
+func (p Planet) CancelLfBuilding() error {
+	return p.ogame.CancelLfBuilding(ogame.CelestialID(p.ID))
+}
+
 // CancelResearch cancel the research
 func (p Planet) CancelResearch() error {
 	return p.ogame.CancelResearch(p.ID.Celestial())
