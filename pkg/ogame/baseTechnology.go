@@ -12,7 +12,7 @@ type BaseTechnology struct {
 
 // ConstructionTime returns the duration it takes to build given technology
 func (b BaseTechnology) ConstructionTime(level, universeSpeed int64, facilities Facilities, hasTechnocrat, isDiscoverer bool) time.Duration {
-	price := b.GetPrice(int64(level))
+	price := b.GetPrice(level)
 	metalCost := float64(price.Metal)
 	crystalCost := float64(price.Crystal)
 	researchLabLvl := float64(facilities.ResearchLab)
