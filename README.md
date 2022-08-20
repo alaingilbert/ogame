@@ -59,7 +59,7 @@ func main() {
 	
 	// OR if you want to know the construction time for anything that can be built, using an ID
 	id := ogame.MetalMineID
-	ogame.Objs.ByID(id).ConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
+	duration := ogame.Objs.ByID(id).ConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
 	fmt.Println("Building time:", duration)
 }
 ```
