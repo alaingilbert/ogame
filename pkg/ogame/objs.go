@@ -2,346 +2,85 @@ package ogame
 
 // All ogame objects
 var (
-	AllianceDepot                = newAllianceDepot() // Buildings
-	CrystalMine                  = newCrystalMine()
-	CrystalStorage               = newCrystalStorage()
-	DeuteriumSynthesizer         = newDeuteriumSynthesizer()
-	DeuteriumTank                = newDeuteriumTank()
-	FusionReactor                = newFusionReactor()
-	MetalMine                    = newMetalMine()
-	MetalStorage                 = newMetalStorage()
-	MissileSilo                  = newMissileSilo()
-	NaniteFactory                = newNaniteFactory()
-	ResearchLab                  = newResearchLab()
-	RoboticsFactory              = newRoboticsFactory()
-	SeabedDeuteriumDen           = newSeabedDeuteriumDen()
-	ShieldedMetalDen             = newShieldedMetalDen()
-	Shipyard                     = newShipyard()
-	SolarPlant                   = newSolarPlant()
-	SpaceDock                    = newSpaceDock()
-	LunarBase                    = newLunarBase()
-	SensorPhalanx                = newSensorPhalanx()
-	JumpGate                     = newJumpGate()
-	Terraformer                  = newTerraformer()
-	UndergroundCrystalDen        = newUndergroundCrystalDen()
-	SolarSatellite               = newSolarSatellite()
-	AntiBallisticMissiles        = newAntiBallisticMissiles() // Defense
-	GaussCannon                  = newGaussCannon()
-	HeavyLaser                   = newHeavyLaser()
-	InterplanetaryMissiles       = newInterplanetaryMissiles()
-	IonCannon                    = newIonCannon()
-	LargeShieldDome              = newLargeShieldDome()
-	LightLaser                   = newLightLaser()
-	PlasmaTurret                 = newPlasmaTurret()
-	RocketLauncher               = newRocketLauncher()
-	SmallShieldDome              = newSmallShieldDome()
-	Battlecruiser                = newBattlecruiser() // Ships
-	Battleship                   = newBattleship()
-	Bomber                       = newBomber()
-	ColonyShip                   = newColonyShip()
-	Cruiser                      = newCruiser()
-	Deathstar                    = newDeathstar()
-	Destroyer                    = newDestroyer()
-	EspionageProbe               = newEspionageProbe()
-	HeavyFighter                 = newHeavyFighter()
-	LargeCargo                   = newLargeCargo()
-	LightFighter                 = newLightFighter()
-	Recycler                     = newRecycler()
-	SmallCargo                   = newSmallCargo()
-	Crawler                      = newCrawler()
-	Reaper                       = newReaper()
-	Pathfinder                   = newPathfinder()
-	ArmourTechnology             = newArmourTechnology() // Technologies
-	Astrophysics                 = newAstrophysics()
-	CombustionDrive              = newCombustionDrive()
-	ComputerTechnology           = newComputerTechnology()
-	EnergyTechnology             = newEnergyTechnology()
-	EspionageTechnology          = newEspionageTechnology()
-	GravitonTechnology           = newGravitonTechnology()
-	HyperspaceDrive              = newHyperspaceDrive()
-	HyperspaceTechnology         = newHyperspaceTechnology()
-	ImpulseDrive                 = newImpulseDrive()
-	IntergalacticResearchNetwork = newIntergalacticResearchNetwork()
-	IonTechnology                = newIonTechnology()
-	LaserTechnology              = newLaserTechnology()
-	PlasmaTechnology             = newPlasmaTechnology()
-	ShieldingTechnology          = newShieldingTechnology()
-	WeaponsTechnology            = newWeaponsTechnology()
+	AllianceDepot                = register[*allianceDepot](newAllianceDepot) // Buildings
+	CrystalMine                  = register[*crystalMine](newCrystalMine)
+	CrystalStorage               = register[*crystalStorage](newCrystalStorage)
+	DeuteriumSynthesizer         = register[*deuteriumSynthesizer](newDeuteriumSynthesizer)
+	DeuteriumTank                = register[*deuteriumTank](newDeuteriumTank)
+	FusionReactor                = register[*fusionReactor](newFusionReactor)
+	MetalMine                    = register[*metalMine](newMetalMine)
+	MetalStorage                 = register[*metalStorage](newMetalStorage)
+	MissileSilo                  = register[*missileSilo](newMissileSilo)
+	NaniteFactory                = register[*naniteFactory](newNaniteFactory)
+	ResearchLab                  = register[*researchLab](newResearchLab)
+	RoboticsFactory              = register[*roboticsFactory](newRoboticsFactory)
+	SeabedDeuteriumDen           = register[*seabedDeuteriumDen](newSeabedDeuteriumDen)
+	ShieldedMetalDen             = register[*shieldedMetalDen](newShieldedMetalDen)
+	Shipyard                     = register[*shipyard](newShipyard)
+	SolarPlant                   = register[*solarPlant](newSolarPlant)
+	SpaceDock                    = register[*spaceDock](newSpaceDock)
+	LunarBase                    = register[*lunarBase](newLunarBase)
+	SensorPhalanx                = register[*sensorPhalanx](newSensorPhalanx)
+	JumpGate                     = register[*jumpGate](newJumpGate)
+	Terraformer                  = register[*terraformer](newTerraformer)
+	UndergroundCrystalDen        = register[*undergroundCrystalDen](newUndergroundCrystalDen)
+	SolarSatellite               = register[*solarSatellite](newSolarSatellite)
+	AntiBallisticMissiles        = register[*antiBallisticMissiles](newAntiBallisticMissiles) // Defense
+	GaussCannon                  = register[*gaussCannon](newGaussCannon)
+	HeavyLaser                   = register[*heavyLaser](newHeavyLaser)
+	InterplanetaryMissiles       = register[*interplanetaryMissiles](newInterplanetaryMissiles)
+	IonCannon                    = register[*ionCannon](newIonCannon)
+	LargeShieldDome              = register[*largeShieldDome](newLargeShieldDome)
+	LightLaser                   = register[*lightLaser](newLightLaser)
+	PlasmaTurret                 = register[*plasmaTurret](newPlasmaTurret)
+	RocketLauncher               = register[*rocketLauncher](newRocketLauncher)
+	SmallShieldDome              = register[*smallShieldDome](newSmallShieldDome)
+	Battlecruiser                = register[*battlecruiser](newBattlecruiser) // Ships
+	Battleship                   = register[*battleship](newBattleship)
+	Bomber                       = register[*bomber](newBomber)
+	ColonyShip                   = register[*colonyShip](newColonyShip)
+	Cruiser                      = register[*cruiser](newCruiser)
+	Deathstar                    = register[*deathstar](newDeathstar)
+	Destroyer                    = register[*destroyer](newDestroyer)
+	EspionageProbe               = register[*espionageProbe](newEspionageProbe)
+	HeavyFighter                 = register[*heavyFighter](newHeavyFighter)
+	LargeCargo                   = register[*largeCargo](newLargeCargo)
+	LightFighter                 = register[*lightFighter](newLightFighter)
+	Recycler                     = register[*recycler](newRecycler)
+	SmallCargo                   = register[*smallCargo](newSmallCargo)
+	Crawler                      = register[*crawler](newCrawler)
+	Reaper                       = register[*reaper](newReaper)
+	Pathfinder                   = register[*pathfinder](newPathfinder)
+	ArmourTechnology             = register[*armourTechnology](newArmourTechnology) // Technologies
+	Astrophysics                 = register[*astrophysics](newAstrophysics)
+	CombustionDrive              = register[*combustionDrive](newCombustionDrive)
+	ComputerTechnology           = register[*computerTechnology](newComputerTechnology)
+	EnergyTechnology             = register[*energyTechnology](newEnergyTechnology)
+	EspionageTechnology          = register[*espionageTechnology](newEspionageTechnology)
+	GravitonTechnology           = register[*gravitonTechnology](newGravitonTechnology)
+	HyperspaceDrive              = register[*hyperspaceDrive](newHyperspaceDrive)
+	HyperspaceTechnology         = register[*hyperspaceTechnology](newHyperspaceTechnology)
+	ImpulseDrive                 = register[*impulseDrive](newImpulseDrive)
+	IntergalacticResearchNetwork = register[*intergalacticResearchNetwork](newIntergalacticResearchNetwork)
+	IonTechnology                = register[*ionTechnology](newIonTechnology)
+	LaserTechnology              = register[*laserTechnology](newLaserTechnology)
+	PlasmaTechnology             = register[*plasmaTechnology](newPlasmaTechnology)
+	ShieldingTechnology          = register[*shieldingTechnology](newShieldingTechnology)
+	WeaponsTechnology            = register[*weaponsTechnology](newWeaponsTechnology)
 )
 
-// ObjsStruct structure containing all possible ogame objects
-type ObjsStruct struct {
-	AllianceDepot                *allianceDepot
-	CrystalMine                  *crystalMine
-	CrystalStorage               *crystalStorage
-	DeuteriumSynthesizer         *deuteriumSynthesizer
-	DeuteriumTank                *deuteriumTank
-	FusionReactor                *fusionReactor
-	MetalMine                    *metalMine
-	MetalStorage                 *metalStorage
-	MissileSilo                  *missileSilo
-	NaniteFactory                *naniteFactory
-	ResearchLab                  *researchLab
-	RoboticsFactory              *roboticsFactory
-	SeabedDeuteriumDen           *seabedDeuteriumDen
-	ShieldedMetalDen             *shieldedMetalDen
-	Shipyard                     *shipyard
-	SolarPlant                   *solarPlant
-	SpaceDock                    *spaceDock
-	LunarBase                    *lunarBase
-	SensorPhalanx                *sensorPhalanx
-	JumpGate                     *jumpGate
-	Terraformer                  *terraformer
-	UndergroundCrystalDen        *undergroundCrystalDen
-	SolarSatellite               *solarSatellite
-	AntiBallisticMissiles        *antiBallisticMissiles
-	GaussCannon                  *gaussCannon
-	HeavyLaser                   *heavyLaser
-	InterplanetaryMissiles       *interplanetaryMissiles
-	IonCannon                    *ionCannon
-	LargeShieldDome              *largeShieldDome
-	LightLaser                   *lightLaser
-	PlasmaTurret                 *plasmaTurret
-	RocketLauncher               *rocketLauncher
-	SmallShieldDome              *smallShieldDome
-	Battlecruiser                *battlecruiser
-	Battleship                   *battleship
-	Bomber                       *bomber
-	ColonyShip                   *colonyShip
-	Cruiser                      *cruiser
-	Deathstar                    *deathstar
-	Destroyer                    *destroyer
-	EspionageProbe               *espionageProbe
-	HeavyFighter                 *heavyFighter
-	LargeCargo                   *largeCargo
-	LightFighter                 *lightFighter
-	Recycler                     *recycler
-	SmallCargo                   *smallCargo
-	Crawler                      *crawler
-	Reaper                       *reaper
-	Pathfinder                   *pathfinder
-	ArmourTechnology             *armourTechnology
-	Astrophysics                 *astrophysics
-	CombustionDrive              *combustionDrive
-	ComputerTechnology           *computerTechnology
-	EnergyTechnology             *energyTechnology
-	EspionageTechnology          *espionageTechnology
-	GravitonTechnology           *gravitonTechnology
-	HyperspaceDrive              *hyperspaceDrive
-	HyperspaceTechnology         *hyperspaceTechnology
-	ImpulseDrive                 *impulseDrive
-	IntergalacticResearchNetwork *intergalacticResearchNetwork
-	IonTechnology                *ionTechnology
-	LaserTechnology              *laserTechnology
-	PlasmaTechnology             *plasmaTechnology
-	ShieldingTechnology          *shieldingTechnology
-	WeaponsTechnology            *weaponsTechnology
+type ObjsStruct struct{ m map[ID]BaseOgameObj }
+
+func (o ObjsStruct) ByID(id ID) BaseOgameObj {
+	return o.m[id]
 }
 
-// ByID gets an object by id
-func (o *ObjsStruct) ByID(id ID) BaseOgameObj {
-	switch id {
-	case AllianceDepotID:
-		return o.AllianceDepot
-	case CrystalMineID:
-		return o.CrystalMine
-	case CrystalStorageID:
-		return o.CrystalStorage
-	case DeuteriumSynthesizerID:
-		return o.DeuteriumSynthesizer
-	case DeuteriumTankID:
-		return o.DeuteriumTank
-	case FusionReactorID:
-		return o.FusionReactor
-	case MetalMineID:
-		return o.MetalMine
-	case MetalStorageID:
-		return o.MetalStorage
-	case MissileSiloID:
-		return o.MissileSilo
-	case NaniteFactoryID:
-		return o.NaniteFactory
-	case ResearchLabID:
-		return o.ResearchLab
-	case RoboticsFactoryID:
-		return o.RoboticsFactory
-	case SeabedDeuteriumDenID:
-		return o.SeabedDeuteriumDen
-	case ShieldedMetalDenID:
-		return o.ShieldedMetalDen
-	case ShipyardID:
-		return o.Shipyard
-	case SolarPlantID:
-		return o.SolarPlant
-	case SpaceDockID:
-		return o.SpaceDock
-	case LunarBaseID:
-		return o.LunarBase
-	case SensorPhalanxID:
-		return o.SensorPhalanx
-	case JumpGateID:
-		return o.JumpGate
-	case TerraformerID:
-		return o.Terraformer
-	case UndergroundCrystalDenID:
-		return o.UndergroundCrystalDen
-	case SolarSatelliteID:
-		return o.SolarSatellite
-	case AntiBallisticMissilesID:
-		return o.AntiBallisticMissiles
-	case GaussCannonID:
-		return o.GaussCannon
-	case HeavyLaserID:
-		return o.HeavyLaser
-	case InterplanetaryMissilesID:
-		return o.InterplanetaryMissiles
-	case IonCannonID:
-		return o.IonCannon
-	case LargeShieldDomeID:
-		return o.LargeShieldDome
-	case LightLaserID:
-		return o.LightLaser
-	case PlasmaTurretID:
-		return o.PlasmaTurret
-	case RocketLauncherID:
-		return o.RocketLauncher
-	case SmallShieldDomeID:
-		return o.SmallShieldDome
-	case BattlecruiserID:
-		return o.Battlecruiser
-	case BattleshipID:
-		return o.Battleship
-	case BomberID:
-		return o.Bomber
-	case ColonyShipID:
-		return o.ColonyShip
-	case CruiserID:
-		return o.Cruiser
-	case DeathstarID:
-		return o.Deathstar
-	case DestroyerID:
-		return o.Destroyer
-	case EspionageProbeID:
-		return o.EspionageProbe
-	case HeavyFighterID:
-		return o.HeavyFighter
-	case LargeCargoID:
-		return o.LargeCargo
-	case LightFighterID:
-		return o.LightFighter
-	case RecyclerID:
-		return o.Recycler
-	case SmallCargoID:
-		return o.SmallCargo
-	case CrawlerID:
-		return o.Crawler
-	case ReaperID:
-		return o.Reaper
-	case PathfinderID:
-		return o.Pathfinder
-	case ArmourTechnologyID:
-		return o.ArmourTechnology
-	case AstrophysicsID:
-		return o.Astrophysics
-	case CombustionDriveID:
-		return o.CombustionDrive
-	case ComputerTechnologyID:
-		return o.ComputerTechnology
-	case EnergyTechnologyID:
-		return o.EnergyTechnology
-	case EspionageTechnologyID:
-		return o.EspionageTechnology
-	case GravitonTechnologyID:
-		return o.GravitonTechnology
-	case HyperspaceDriveID:
-		return o.HyperspaceDrive
-	case HyperspaceTechnologyID:
-		return o.HyperspaceTechnology
-	case ImpulseDriveID:
-		return o.ImpulseDrive
-	case IntergalacticResearchNetworkID:
-		return o.IntergalacticResearchNetwork
-	case IonTechnologyID:
-		return o.IonTechnology
-	case LaserTechnologyID:
-		return o.LaserTechnology
-	case PlasmaTechnologyID:
-		return o.PlasmaTechnology
-	case ShieldingTechnologyID:
-		return o.ShieldingTechnology
-	case WeaponsTechnologyID:
-		return o.WeaponsTechnology
-	}
-	return nil
-}
+var Objs = ObjsStruct{m: make(map[ID]BaseOgameObj)}
 
-// Objs all ogame objects
-var Objs = ObjsStruct{
-	AllianceDepot:                AllianceDepot,
-	CrystalMine:                  CrystalMine,
-	CrystalStorage:               CrystalStorage,
-	DeuteriumSynthesizer:         DeuteriumSynthesizer,
-	DeuteriumTank:                DeuteriumTank,
-	FusionReactor:                FusionReactor,
-	MetalMine:                    MetalMine,
-	MetalStorage:                 MetalStorage,
-	MissileSilo:                  MissileSilo,
-	NaniteFactory:                NaniteFactory,
-	ResearchLab:                  ResearchLab,
-	RoboticsFactory:              RoboticsFactory,
-	SeabedDeuteriumDen:           SeabedDeuteriumDen,
-	ShieldedMetalDen:             ShieldedMetalDen,
-	Shipyard:                     Shipyard,
-	SolarPlant:                   SolarPlant,
-	SpaceDock:                    SpaceDock,
-	LunarBase:                    LunarBase,
-	SensorPhalanx:                SensorPhalanx,
-	JumpGate:                     JumpGate,
-	Terraformer:                  Terraformer,
-	UndergroundCrystalDen:        UndergroundCrystalDen,
-	SolarSatellite:               SolarSatellite,
-	AntiBallisticMissiles:        AntiBallisticMissiles,
-	GaussCannon:                  GaussCannon,
-	HeavyLaser:                   HeavyLaser,
-	InterplanetaryMissiles:       InterplanetaryMissiles,
-	IonCannon:                    IonCannon,
-	LargeShieldDome:              LargeShieldDome,
-	LightLaser:                   LightLaser,
-	PlasmaTurret:                 PlasmaTurret,
-	RocketLauncher:               RocketLauncher,
-	SmallShieldDome:              SmallShieldDome,
-	Battlecruiser:                Battlecruiser,
-	Battleship:                   Battleship,
-	Bomber:                       Bomber,
-	ColonyShip:                   ColonyShip,
-	Cruiser:                      Cruiser,
-	Deathstar:                    Deathstar,
-	Destroyer:                    Destroyer,
-	EspionageProbe:               EspionageProbe,
-	HeavyFighter:                 HeavyFighter,
-	LargeCargo:                   LargeCargo,
-	LightFighter:                 LightFighter,
-	Recycler:                     Recycler,
-	SmallCargo:                   SmallCargo,
-	Crawler:                      Crawler,
-	Reaper:                       Reaper,
-	Pathfinder:                   Pathfinder,
-	ArmourTechnology:             ArmourTechnology,
-	Astrophysics:                 Astrophysics,
-	CombustionDrive:              CombustionDrive,
-	ComputerTechnology:           ComputerTechnology,
-	EnergyTechnology:             EnergyTechnology,
-	EspionageTechnology:          EspionageTechnology,
-	GravitonTechnology:           GravitonTechnology,
-	HyperspaceDrive:              HyperspaceDrive,
-	HyperspaceTechnology:         HyperspaceTechnology,
-	ImpulseDrive:                 ImpulseDrive,
-	IntergalacticResearchNetwork: IntergalacticResearchNetwork,
-	IonTechnology:                IonTechnology,
-	LaserTechnology:              LaserTechnology,
-	PlasmaTechnology:             PlasmaTechnology,
-	ShieldingTechnology:          ShieldingTechnology,
-	WeaponsTechnology:            WeaponsTechnology,
+func register[T BaseOgameObj](constructorFn func() T) T {
+	inst := constructorFn()
+	Objs.m[inst.GetID()] = inst
+	return inst
 }
 
 // Defenses array of all defenses objects
