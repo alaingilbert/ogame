@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"net/url"
+	"regexp"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -13,8 +14,9 @@ import (
 
 // Extractor ...
 type Extractor struct {
-	loc  *time.Location
-	lang string
+	loc             *time.Location
+	lang            string
+	lifeformEnabled bool
 }
 
 // NewExtractor ...
@@ -24,8 +26,10 @@ func NewExtractor() *Extractor {
 	return &Extractor{}
 }
 
-func (e *Extractor) SetLocation(loc *time.Location) { e.loc = loc }
-func (e *Extractor) SetLanguage(lang string)        { e.lang = lang }
+func (e *Extractor) SetLocation(loc *time.Location)          { e.loc = loc }
+func (e *Extractor) SetLanguage(lang string)                 { e.lang = lang }
+func (e *Extractor) SetLifeformEnabled(lifeformEnabled bool) { e.lifeformEnabled = lifeformEnabled }
+func (e *Extractor) GetLifeformEnabled() bool                { return e.lifeformEnabled }
 func (e *Extractor) GetLocation() *time.Location {
 	if e.loc == nil {
 		return time.UTC
@@ -37,6 +41,10 @@ func (e *Extractor) GetLanguage() string {
 		return "en"
 	}
 	return e.lang
+}
+
+func (e *Extractor) ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
+	panic("implement me")
 }
 
 // ExtractActiveItems ...
@@ -77,6 +85,18 @@ func (e *Extractor) ExtractExpeditionMessages(pageHTML []byte) ([]ogame.Expediti
 // ExtractExpeditionMessagesFromDoc ...
 func (e *Extractor) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ogame.ExpeditionMessage, int64, error) {
 	panic("implement me")
+}
+
+// ExtractLifeformEnabled ...
+func (e *Extractor) ExtractLifeformEnabled(pageHTML []byte) bool {
+	lifeformEnabledMatch := regexp.MustCompile(`"lifeformEnabled":(\btrue\b|\bfalse\b)`).FindSubmatch(pageHTML)
+	if len(lifeformEnabledMatch) < 2 {
+		return false
+	}
+	if bytes.Equal(lifeformEnabledMatch[1], []byte("true")) {
+		return true
+	}
+	return false
 }
 
 // ExtractIsInVacation ...

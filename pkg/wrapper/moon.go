@@ -67,6 +67,11 @@ func (m Moon) CancelBuilding() error {
 	return m.ogame.CancelBuilding(ogame.CelestialID(m.ID))
 }
 
+// CancelLfBuilding cancel the construction of a lifeform building
+func (p Moon) CancelLfBuilding() error {
+	return p.ogame.CancelLfBuilding(ogame.CelestialID(p.ID))
+}
+
 // CancelResearch cancel the research
 func (m Moon) CancelResearch() error {
 	return m.ogame.CancelResearch(m.ID.Celestial())

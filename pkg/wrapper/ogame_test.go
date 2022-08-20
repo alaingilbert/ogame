@@ -2166,6 +2166,40 @@ func TestCancelV7(t *testing.T) {
 	assert.Equal(t, int64(1336041), listID)
 }
 
+func TestCancelBuildingV902(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v9.0.2/en/overview_all_queues.html")
+	token, id, listID, _ := v9.NewExtractor().ExtractCancelBuildingInfos(pageHTMLBytes)
+	assert.Equal(t, "66f639922a3c76fe6074d12ae36e573e", token)
+	assert.Equal(t, int64(1), id)
+	assert.Equal(t, int64(3469488), listID)
+}
+
+func TestCancelLfBuildingLFV902(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
+	token, id, listID, _ := v9.NewExtractor().ExtractCancelLfBuildingInfos(pageHTMLBytes)
+	assert.Equal(t, "07287218c9661bcc67b05ec1b6171fe8", token)
+	assert.Equal(t, int64(11101), id)
+	assert.Equal(t, int64(3998104), listID)
+}
+
+func TestCancelResearchV902(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v9.0.2/en/overview_all_queues.html")
+	token, id, listID, _ := v9.NewExtractor().ExtractCancelResearchInfos(pageHTMLBytes)
+	assert.Equal(t, "66f639922a3c76fe6074d12ae36e573e", token)
+	assert.Equal(t, int64(108), id)
+	assert.Equal(t, int64(3469490), listID)
+}
+
+func TestCancelResearchLFV902(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
+	e := v9.NewExtractor()
+	e.SetLifeformEnabled(true)
+	token, id, listID, _ := e.ExtractCancelResearchInfos(pageHTMLBytes)
+	assert.Equal(t, "07287218c9661bcc67b05ec1b6171fe8", token)
+	assert.Equal(t, int64(113), id)
+	assert.Equal(t, int64(3998106), listID)
+}
+
 func TestCancelResearch(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/unversioned/overview_active_queue2.html")
 	token, techID, listID, _ := v6.NewExtractor().ExtractCancelResearchInfos(pageHTMLBytes)
@@ -2468,7 +2502,7 @@ func TestV71ExtractOverviewProduction(t *testing.T) {
 }
 
 func TestV902ExtractOverviewProduction(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v9.0.2/en/overview_all_queues.html")
+	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
 	prods, countdown, _ := v9.NewExtractor().ExtractOverviewProduction(pageHTMLBytes)
 	assert.Equal(t, 4, len(prods))
 	assert.Equal(t, int64(1660), countdown)

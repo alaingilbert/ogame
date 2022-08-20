@@ -58,6 +58,8 @@ type Resources struct {
 	Deuterium  int64
 	Energy     int64
 	Darkmatter int64
+	Lifeform   int64
+	Food       int64
 }
 
 func (r Resources) String() string {

@@ -17,6 +17,16 @@ func NewExtractor() *Extractor {
 	return &Extractor{}
 }
 
+// ExtractCancelLfBuildingInfos ...
+func (e *Extractor) ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
+	return extractCancelLfBuildingInfos(pageHTML)
+}
+
+// ExtractCancelResearchInfos ...
+func (e *Extractor) ExtractCancelResearchInfos(pageHTML []byte) (token string, id, listID int64, err error) {
+	return extractCancelResearchInfos(pageHTML, e.GetLifeformEnabled())
+}
+
 // ExtractEmpire ...
 func (e *Extractor) ExtractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 	return extractEmpireV9(pageHTML)

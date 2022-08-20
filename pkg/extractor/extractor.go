@@ -16,7 +16,10 @@ type Extractor interface {
 	SetLanguage(lang string)
 	GetLocation() *time.Location
 	SetLocation(loc *time.Location)
+	GetLifeformEnabled() bool
+	SetLifeformEnabled(lifeformEnabled bool)
 	ExtractActiveItems(pageHTML []byte) ([]ogame.ActiveItem, error)
+	ExtractLifeformEnabled(pageHTML []byte) bool
 	ExtractAdmiral(pageHTML []byte) bool
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
 	ExtractAllResources(pageHTML []byte) (map[ogame.CelestialID]ogame.Resources, error)
@@ -24,6 +27,7 @@ type Extractor interface {
 	ExtractAuction(pageHTML []byte) (ogame.Auction, error)
 	ExtractBuffActivation(pageHTML []byte) (string, []ogame.Item, error)
 	ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error)
+	ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error)
 	ExtractCancelFleetToken(pageHTML []byte, fleetID ogame.FleetID) (string, error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCelestial(pageHTML []byte, v any) (ogame.Celestial, error)

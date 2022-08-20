@@ -88,7 +88,7 @@ func TestResourcesDetails_Available(t *testing.T) {
 	d.Deuterium.Available = 3
 	d.Energy.Available = 4
 	d.Darkmatter.Available = 5
-	assert.Equal(t, Resources{1, 2, 3, 4, 5}, d.Available())
+	assert.Equal(t, Resources{1, 2, 3, 4, 5, 0, 0}, d.Available())
 }
 
 func TestResources_FitsIn(t *testing.T) {

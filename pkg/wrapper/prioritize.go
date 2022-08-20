@@ -389,6 +389,13 @@ func (b *Prioritize) CancelBuilding(celestialID ogame.CelestialID) error {
 	return b.bot.cancelBuilding(celestialID)
 }
 
+// CancelLfBuilding cancel the construction of a lifeform building on a specified planet
+func (b *Prioritize) CancelLfBuilding(celestialID ogame.CelestialID) error {
+	b.begin("CancelLfBuilding")
+	defer b.done()
+	return b.bot.cancelLfBuilding(celestialID)
+}
+
 // CancelResearch cancel the research
 func (b *Prioritize) CancelResearch(celestialID ogame.CelestialID) error {
 	b.begin("CancelResearch")

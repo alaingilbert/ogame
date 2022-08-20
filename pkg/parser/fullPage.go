@@ -41,6 +41,10 @@ func (p FullPage) ExtractTechnocrat() bool {
 	return p.e.ExtractTechnocratFromDoc(p.GetDoc())
 }
 
+func (p FullPage) ExtractLifeformEnabled() bool {
+	return p.e.ExtractLifeformEnabled(p.GetContent())
+}
+
 func (p FullPage) ExtractServerTime() (time.Time, error) {
 	return p.e.ExtractServerTimeFromDoc(p.GetDoc())
 }

@@ -600,44 +600,32 @@ func extractEspionageReportFromDocV7(doc *goquery.Document, location *time.Locat
 	return report, nil
 }
 
-func extractCancelBuildingInfosV7(pageHTML []byte) (token string, techID, listID int64, err error) {
-	r1 := regexp.MustCompile(`cancelLinkbuilding[^?]+\?page=ingame&component=overview&modus=2&token=(\w+)&action=cancel`)
+func ExtractCancelInfos(pageHTML []byte, linkVarName, fnName string, tableIdx int) (token string, id, listID int64, err error) {
+	r1 := regexp.MustCompile(linkVarName + `[^?]+\?page=ingame&component=overview&modus=2&token=(\w+)&action=cancel`)
 	m1 := r1.FindSubmatch(pageHTML)
 	if len(m1) < 2 {
 		return "", 0, 0, errors.New("unable to find token")
 	}
 	token = string(m1[1])
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	t := doc.Find("table.construction").Eq(0)
+	t := doc.Find("table.construction").Eq(tableIdx)
 	a, _ := t.Find("a.abortNow").Attr("onclick")
-	r := regexp.MustCompile(`cancelbuilding\((\d+),\s?(\d+),`)
+	r := regexp.MustCompile(fnName + `\((\d+),\s?(\d+),`)
 	m := r.FindStringSubmatch(a)
 	if len(m) < 3 {
-		return "", 0, 0, errors.New("unable to find techid/listid")
+		return "", 0, 0, errors.New("unable to find id/listid")
 	}
-	techID = utils.DoParseI64(m[1])
+	id = utils.DoParseI64(m[1])
 	listID = utils.DoParseI64(m[2])
 	return
 }
 
+func extractCancelBuildingInfosV7(pageHTML []byte) (token string, techID, listID int64, err error) {
+	return ExtractCancelInfos(pageHTML, "cancelLinkbuilding", "cancelbuilding", 0)
+}
+
 func extractCancelResearchInfosV7(pageHTML []byte) (token string, techID, listID int64, err error) {
-	r1 := regexp.MustCompile(`cancelLinkresearch[^?]+\?page=ingame&component=overview&modus=2&token=(\w+)&action=cancel`)
-	m1 := r1.FindSubmatch(pageHTML)
-	if len(m1) < 2 {
-		return "", 0, 0, errors.New("unable to find token")
-	}
-	token = string(m1[1])
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	t := doc.Find("table.construction").Eq(1)
-	a, _ := t.Find("a.abortNow").Attr("onclick")
-	r := regexp.MustCompile(`cancelresearch\((\d+),\s?(\d+),`)
-	m := r.FindStringSubmatch(a)
-	if len(m) < 3 {
-		return "", 0, 0, errors.New("unable to find techid/listid")
-	}
-	techID = utils.DoParseI64(m[1])
-	listID = utils.DoParseI64(m[2])
-	return
+	return ExtractCancelInfos(pageHTML, "cancelLinkresearch", "cancelresearch", 1)
 }
 
 func extractResourceSettingsFromDocV7(doc *goquery.Document) (ogame.ResourceSettings, error) {

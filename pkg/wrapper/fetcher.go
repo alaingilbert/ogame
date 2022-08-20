@@ -11,6 +11,7 @@ const (
 	PreferencesPageName      = "preferences"
 	ResourceSettingsPageName = "resourceSettings"
 	DefensesPageName         = "defenses"
+	LfbuildingsPageName      = "lfbuildings"
 	SuppliesPageName         = "supplies"
 	FacilitiesPageName       = "facilities"
 	FleetdispatchPageName    = "fleetdispatch"

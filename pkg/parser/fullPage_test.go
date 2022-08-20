@@ -11,7 +11,7 @@ import (
 )
 
 func TestExtractCelestial(t *testing.T) {
-	pageHTML, _ := ioutil.ReadFile("../../samples/v9.0.2/en/overview_all_queues.html")
+	pageHTML, _ := ioutil.ReadFile("../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
 	p := FullPage{Page: Page{e: v9.NewExtractor(), content: pageHTML}}
 	celestial, err := p.ExtractCelestial(33640820)
 	assert.NoError(t, err)
