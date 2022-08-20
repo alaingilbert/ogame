@@ -67,21 +67,25 @@ type Building interface {
 	DeconstructionPrice(lvl int64, techs Researches) Resources
 }
 
+// BuildAccelerators levels of things we need to calculate construction time of anything
 type BuildAccelerators interface {
 	TechAccelerators
 	BuildingAccelerators
 	DefenseAccelerators
 }
 
+// TechAccelerators to calculate techs construction time, we need research lab level
 type TechAccelerators interface {
 	GetResearchLab() int64
 }
 
+// DefenseAccelerators to calculate defense construction time (ships / defenses), we need nanite and shipyard levels
 type DefenseAccelerators interface {
 	GetNaniteFactory() int64
 	GetShipyard() int64
 }
 
+// BuildingAccelerators to calculate building construction time, we need nanite and robotic levels
 type BuildingAccelerators interface {
 	GetNaniteFactory() int64
 	GetRoboticsFactory() int64
