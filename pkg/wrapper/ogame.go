@@ -633,6 +633,7 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 		}
 		b.extractor.SetLanguage(b.language)
 		b.extractor.SetLocation(b.location)
+		b.extractor.SetLifeformEnabled(page.ExtractLifeformEnabled())
 	} else {
 		b.error("failed to parse ogame version: " + err.Error())
 	}

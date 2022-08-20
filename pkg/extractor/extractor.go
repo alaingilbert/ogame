@@ -19,6 +19,7 @@ type Extractor interface {
 	GetLifeformEnabled() bool
 	SetLifeformEnabled(lifeformEnabled bool)
 	ExtractActiveItems(pageHTML []byte) ([]ogame.ActiveItem, error)
+	ExtractLifeformEnabled(pageHTML []byte) bool
 	ExtractAdmiral(pageHTML []byte) bool
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
 	ExtractAllResources(pageHTML []byte) (map[ogame.CelestialID]ogame.Resources, error)

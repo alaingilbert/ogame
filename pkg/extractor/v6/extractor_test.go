@@ -174,3 +174,14 @@ func TestExtractAttacks1(t *testing.T) {
 	assert.Equal(t, int64(1), attacks[0].Missiles)
 	assert.Nil(t, attacks[0].Ships)
 }
+
+func TestExtractLifeformEnabled(t *testing.T) {
+	pageHTML, _ := ioutil.ReadFile("../../../samples/unversioned/overview_active.html")
+	assert.False(t, NewExtractor().ExtractLifeformEnabled(pageHTML))
+
+	pageHTML, _ = ioutil.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
+	assert.False(t, NewExtractor().ExtractLifeformEnabled(pageHTML))
+
+	pageHTML, _ = ioutil.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
+	assert.True(t, NewExtractor().ExtractLifeformEnabled(pageHTML))
+}
