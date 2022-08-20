@@ -271,7 +271,7 @@ func extractCombatReportMessagesFromDocV7(doc *goquery.Document) ([]ogame.Combat
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := utils.ParseI64(idStr); err == nil {
 				report := ogame.CombatReportSummary{ID: id}
-				report.Destination = v6.ExtractCoordV6(s.Find("div.msg_head a").Text())
+				report.Destination = v6.ExtractCoord(s.Find("div.msg_head a").Text())
 				if s.Find("div.msg_head figure").HasClass("planet") {
 					report.Destination.Type = ogame.PlanetType
 				} else if s.Find("div.msg_head figure").HasClass("moon") {
@@ -629,7 +629,7 @@ func extractCancelResearchInfosV7(pageHTML []byte) (token string, techID, listID
 }
 
 func extractResourceSettingsFromDocV7(doc *goquery.Document) (ogame.ResourceSettings, error) {
-	bodyID := v6.ExtractBodyIDFromDocV6(doc)
+	bodyID := v6.ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return ogame.ResourceSettings{}, ogame.ErrInvalidPlanetID
 	}
@@ -714,7 +714,7 @@ func extractExpeditionMessagesFromDocV7(doc *goquery.Document, location *time.Lo
 			if id, err := utils.ParseI64(idStr); err == nil {
 				msg := ogame.ExpeditionMessage{ID: id}
 				msg.CreatedAt, _ = time.ParseInLocation("02.01.2006 15:04:05", s.Find(".msg_date").Text(), location)
-				msg.Coordinate = v6.ExtractCoordV6(s.Find(".msg_title a").Text())
+				msg.Coordinate = v6.ExtractCoord(s.Find(".msg_title a").Text())
 				msg.Coordinate.Type = ogame.PlanetType
 				msg.Content, _ = s.Find("span.msg_content").Html()
 				msg.Content = strings.TrimSpace(msg.Content)

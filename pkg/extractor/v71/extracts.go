@@ -840,7 +840,7 @@ func extractAllResourcesV71(pageHTML []byte) (out map[ogame.CelestialID]ogame.Re
 func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownCoords []ogame.Coordinate) ([]ogame.AttackEvent, error) {
 	attacks := make([]*ogame.AttackEvent, 0)
 	out := make([]ogame.AttackEvent, 0)
-	if doc.Find("body").Size() == 1 && v6.ExtractOGameSessionFromDocV6(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
+	if doc.Find("body").Size() == 1 && v6.ExtractOGameSessionFromDoc(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
 		return out, ogame.ErrEventsBoxNotDisplayed
 	} else if doc.Find("div#eventListWrap").Size() == 0 {
 		return out, ogame.ErrNotLogged
@@ -890,7 +890,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 				attack.AttackerName = linkSendMail.AttrOr("title", "")
 				if attack.AttackerID != 0 {
 					coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
-					attack.Origin = v6.ExtractCoordV6(coordsOrigin)
+					attack.Origin = v6.ExtractCoord(coordsOrigin)
 					attack.Origin.Type = ogame.PlanetType
 					if s.Find("td.originFleet figure").HasClass("moon") {
 						attack.Origin.Type = ogame.MoonType
@@ -931,7 +931,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 			}
 
 			destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
-			attack.Destination = v6.ExtractCoordV6(destCoords)
+			attack.Destination = v6.ExtractCoord(destCoords)
 			attack.Destination.Type = ogame.PlanetType
 			if s.Find("td.destFleet figure").HasClass("moon") {
 				attack.Destination.Type = ogame.MoonType

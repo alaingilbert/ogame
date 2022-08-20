@@ -2146,7 +2146,7 @@ func TestExtractGalaxyInfos_alliance_es(t *testing.T) {
 
 func TestUniverseSpeed(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/unversioned/techtree_universe_speed.html")
-	universeSpeed := v6.ExtractUniverseSpeedV6(pageHTMLBytes)
+	universeSpeed := v6.ExtractUniverseSpeed(pageHTMLBytes)
 	assert.Equal(t, int64(7), universeSpeed)
 }
 
