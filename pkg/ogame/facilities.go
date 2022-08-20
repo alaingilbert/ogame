@@ -22,6 +22,11 @@ type Facilities struct {
 	JumpGate        int64 // 43
 }
 
+func (f Facilities) GetNaniteFactory() int64   { return f.NaniteFactory }
+func (f Facilities) GetRoboticsFactory() int64 { return f.RoboticsFactory }
+func (f Facilities) GetResearchLab() int64     { return f.ResearchLab }
+func (f Facilities) GetShipyard() int64        { return f.Shipyard }
+
 // Lazy returns a function that return self
 func (f Facilities) Lazy() LazyFacilities {
 	return func() Facilities { return f }

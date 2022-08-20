@@ -23,13 +23,12 @@ func (b BaseBuilding) DeconstructionPrice(level int64, techs Researches) Resourc
 	}
 }
 
-// ConstructionTime returns the duration it takes to build given level. Deconstruction time is the same function.
-func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Facilities, hasTechnocrat, isDiscoverer bool) time.Duration {
+func (b BaseBuilding) BuildingConstructionTime(level, universeSpeed int64, acc BuildingAccelerators) time.Duration {
 	price := b.GetPrice(level)
 	metalCost := float64(price.Metal)
 	crystalCost := float64(price.Crystal)
-	roboticLvl := float64(facilities.RoboticsFactory)
-	naniteLvl := float64(facilities.NaniteFactory)
+	roboticLvl := float64(acc.GetRoboticsFactory())
+	naniteLvl := float64(acc.GetNaniteFactory())
 	hours := (metalCost + crystalCost) / (2500 * (1 + roboticLvl) * float64(universeSpeed) * math.Pow(2, naniteLvl))
 	secs := hours * 3600
 	if b.ID != NaniteFactoryID && (level-1) < 5 {
@@ -37,6 +36,11 @@ func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities Fa
 	}
 	secs = math.Max(1, secs)
 	return time.Duration(int64(math.Floor(secs))) * time.Second
+}
+
+// ConstructionTime returns the duration it takes to build given level. Deconstruction time is the same function.
+func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, _, _ bool) time.Duration {
+	return b.BuildingConstructionTime(level, universeSpeed, facilities)
 }
 
 // GetLevel returns current level of a building

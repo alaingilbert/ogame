@@ -16,7 +16,7 @@ type Celestial interface {
 
 // BaseOgameObj base interface for all ogame objects (buildings, technologies, ships, defenses)
 type BaseOgameObj interface {
-	ConstructionTime(nbr, universeSpeed int64, facilities Facilities, hasTechnocrat, isDiscoverer bool) time.Duration
+	ConstructionTime(nbr, universeSpeed int64, acc BuildAccelerators, hasTechnocrat, isDiscoverer bool) time.Duration
 	GetID() ID
 	GetName() string
 	GetPrice(int64) Resources
@@ -27,6 +27,7 @@ type BaseOgameObj interface {
 // DefenderObj base interface for all defensive units (ships, defenses)
 type DefenderObj interface {
 	BaseOgameObj
+	DefenderConstructionTime(nbr, universeSpeed int64, acc DefenseAccelerators) time.Duration
 	GetRapidfireAgainst() map[ID]int64
 	GetRapidfireFrom() map[ID]int64
 	GetShieldPower(Researches) int64
@@ -56,10 +57,32 @@ type Levelable interface {
 // Technology interface that all technologies implement
 type Technology interface {
 	Levelable
+	TechnologyConstructionTime(nbr, universeSpeed int64, acc TechAccelerators, hasTechnocrat, isDiscoverer bool) time.Duration
 }
 
 // Building interface that all buildings implement
 type Building interface {
 	Levelable
+	BuildingConstructionTime(nbr, universeSpeed int64, acc BuildingAccelerators) time.Duration
 	DeconstructionPrice(lvl int64, techs Researches) Resources
+}
+
+type BuildAccelerators interface {
+	TechAccelerators
+	BuildingAccelerators
+	DefenseAccelerators
+}
+
+type TechAccelerators interface {
+	GetResearchLab() int64
+}
+
+type DefenseAccelerators interface {
+	GetNaniteFactory() int64
+	GetShipyard() int64
+}
+
+type BuildingAccelerators interface {
+	GetNaniteFactory() int64
+	GetRoboticsFactory() int64
 }

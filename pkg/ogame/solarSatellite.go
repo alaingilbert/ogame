@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"math"
+	"time"
 )
 
 type solarSatellite struct {
@@ -43,4 +44,8 @@ func (s *solarSatellite) GetLevel(LazyResourcesBuildings, LazyFacilities, LazyRe
 // DeconstructionPrice only useful so the solar satellite can implement Building interface
 func (s *solarSatellite) DeconstructionPrice(level int64, techs Researches) Resources {
 	return Resources{}
+}
+
+func (s *solarSatellite) BuildingConstructionTime(_, _ int64, _ BuildingAccelerators) time.Duration {
+	panic("Solar satellite should not be a building")
 }
