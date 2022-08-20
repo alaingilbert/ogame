@@ -3,13 +3,12 @@ package main
 import (
 	"crypto/subtle"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"gopkg.in/urfave/cli.v2"
 	"log"
 	"os"
 	"strconv"
-
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
-	"gopkg.in/urfave/cli.v2"
 )
 
 var version = "0.0.0"
