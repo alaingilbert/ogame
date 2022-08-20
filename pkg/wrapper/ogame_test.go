@@ -2146,7 +2146,7 @@ func TestExtractGalaxyInfos_alliance_es(t *testing.T) {
 
 func TestUniverseSpeed(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/unversioned/techtree_universe_speed.html")
-	universeSpeed := v6.ExtractUniverseSpeedV6(pageHTMLBytes)
+	universeSpeed := v6.ExtractUniverseSpeed(pageHTMLBytes)
 	assert.Equal(t, int64(7), universeSpeed)
 }
 
@@ -2227,7 +2227,7 @@ func TestGetConstructions(t *testing.T) {
 func TestGetConstructionsV7(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v7/overview_supplies_in_construction.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 9, 6, 43, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown := v7.ExtractConstructionsV7(pageHTMLBytes, clock)
+	buildingID, buildingCountdown, researchID, researchCountdown := v7.ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalMineID, buildingID)
 	assert.Equal(t, int64(62), buildingCountdown)
 	assert.Equal(t, ogame.EnergyTechnologyID, researchID)

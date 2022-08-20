@@ -29,7 +29,7 @@ func (e *Extractor) ExtractCancelResearchInfos(pageHTML []byte) (token string, i
 
 // ExtractEmpire ...
 func (e *Extractor) ExtractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
-	return extractEmpireV9(pageHTML)
+	return extractEmpire(pageHTML)
 }
 
 // ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
@@ -42,7 +42,7 @@ func (e *Extractor) ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifi
 
 // ExtractOverviewProductionFromDoc extracts ships/defenses (partial) production from the overview page
 func (e *Extractor) ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
-	return extractOverviewProductionFromDocV9(doc)
+	return extractOverviewProductionFromDoc(doc)
 }
 
 // ExtractEspionageReport ...
@@ -53,7 +53,7 @@ func (e *Extractor) ExtractEspionageReport(pageHTML []byte) (ogame.EspionageRepo
 
 // ExtractEspionageReportFromDoc ...
 func (e *Extractor) ExtractEspionageReportFromDoc(doc *goquery.Document) (ogame.EspionageReport, error) {
-	return extractEspionageReportFromDocV9(doc, e.GetLocation())
+	return extractEspionageReportFromDoc(doc, e.GetLocation())
 }
 
 // ExtractResources ...
@@ -64,7 +64,7 @@ func (e *Extractor) ExtractResources(pageHTML []byte) ogame.Resources {
 
 // ExtractResourcesFromDoc ...
 func (e *Extractor) ExtractResourcesFromDoc(doc *goquery.Document) ogame.Resources {
-	return extractResourcesFromDocV9(doc)
+	return extractResourcesFromDoc(doc)
 }
 
 // ExtractResourcesDetailsFromFullPage ...
@@ -75,5 +75,5 @@ func (e *Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.R
 
 // ExtractResourcesDetailsFromFullPageFromDoc ...
 func (e *Extractor) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.ResourcesDetails {
-	return extractResourcesDetailsFromFullPageFromDocV9(doc)
+	return extractResourcesDetailsFromFullPageFromDoc(doc)
 }

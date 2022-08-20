@@ -25,13 +25,13 @@ func (e *Extractor) ExtractOfferOfTheDay(pageHTML []byte) (int64, string, ogame.
 
 // ExtractOfferOfTheDayFromDoc ...
 func (e *Extractor) ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources ogame.PlanetResources, multiplier ogame.Multiplier, err error) {
-	return extractOfferOfTheDayFromDocV874(doc)
+	return extractOfferOfTheDayFromDoc(doc)
 }
 
 // ExtractAuction ...
 func (e *Extractor) ExtractAuction(pageHTML []byte) (ogame.Auction, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return extractAuctionFromDocV874(doc)
+	return extractAuctionFromDoc(doc)
 }
 
 // ExtractBuffActivation ...
@@ -42,5 +42,5 @@ func (e *Extractor) ExtractBuffActivation(pageHTML []byte) (string, []ogame.Item
 
 // ExtractBuffActivationFromDoc ...
 func (e *Extractor) ExtractBuffActivationFromDoc(doc *goquery.Document) (string, []ogame.Item, error) {
-	return extractBuffActivationFromDocV874(doc)
+	return extractBuffActivationFromDoc(doc)
 }

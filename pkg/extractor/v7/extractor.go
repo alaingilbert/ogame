@@ -22,7 +22,7 @@ func NewExtractor() *Extractor {
 
 // ExtractPremiumToken ...
 func (e Extractor) ExtractPremiumToken(pageHTML []byte, days int64) (string, error) {
-	return extractPremiumTokenV7(pageHTML, days)
+	return extractPremiumToken(pageHTML, days)
 }
 
 // ExtractResourcesDetailsFromFullPage ...
@@ -33,7 +33,7 @@ func (e Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.Re
 
 // ExtractResourcesDetailsFromFullPageFromDoc ...
 func (e Extractor) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.ResourcesDetails {
-	return extractResourcesDetailsFromFullPageFromDocV7(doc)
+	return extractResourcesDetailsFromFullPageFromDoc(doc)
 }
 
 // ExtractExpeditionMessages ...
@@ -92,12 +92,12 @@ func (e Extractor) ExtractResourcesBuildings(pageHTML []byte) (ogame.ResourcesBu
 
 // ExtractResourcesDetails ...
 func (e Extractor) ExtractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err error) {
-	return extractResourcesDetailsV7(pageHTML)
+	return extractResourcesDetails(pageHTML)
 }
 
 // ExtractConstructions ...
 func (e Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
-	return ExtractConstructionsV7(pageHTML, clockwork.NewRealClock())
+	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
 }
 
 // ExtractFleet1Ships ...
@@ -120,7 +120,7 @@ func (e Extractor) ExtractIPM(pageHTML []byte) (duration, max int64, token strin
 
 // ExtractIPMFromDoc ...
 func (e Extractor) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
-	return extractIPMFromDocV7(doc)
+	return extractIPMFromDoc(doc)
 }
 
 // ExtractEspionageReport ...
@@ -139,80 +139,80 @@ func (e Extractor) ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifia
 
 // ExtractOverviewShipSumCountdownFromBytes ...
 func (e Extractor) ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
-	return extractOverviewShipSumCountdownFromBytesV7(pageHTML)
+	return extractOverviewShipSumCountdownFromBytes(pageHTML)
 }
 
 // ExtractOverviewProductionFromDoc extracts ships/defenses (partial) production from the overview page
 func (e Extractor) ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
-	return extractOverviewProductionFromDocV7(doc)
+	return extractOverviewProductionFromDoc(doc)
 }
 
 // ExtractFleet1ShipsFromDoc ...
 func (e Extractor) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
-	return extractFleet1ShipsFromDocV7(doc)
+	return extractFleet1ShipsFromDoc(doc)
 }
 
 // ExtractResourceSettingsFromDoc ...
 func (e Extractor) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, error) {
-	return extractResourceSettingsFromDocV7(doc)
+	return extractResourceSettingsFromDoc(doc)
 }
 
 // ExtractDefenseFromDoc ...
 func (e Extractor) ExtractDefenseFromDoc(doc *goquery.Document) (ogame.DefensesInfos, error) {
-	return extractDefenseFromDocV7(doc)
+	return extractDefenseFromDoc(doc)
 }
 
 // ExtractExpeditionMessagesFromDoc ...
 func (e Extractor) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ogame.ExpeditionMessage, int64, error) {
-	return extractExpeditionMessagesFromDocV7(doc, e.GetLocation())
+	return extractExpeditionMessagesFromDoc(doc, e.GetLocation())
 }
 
 // ExtractMarketplaceMessagesFromDoc ...
 func (e Extractor) ExtractMarketplaceMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ogame.MarketplaceMessage, int64, error) {
-	return extractMarketplaceMessagesFromDocV7(doc, location)
+	return extractMarketplaceMessagesFromDoc(doc, location)
 }
 
 // ExtractFacilitiesFromDoc ...
 func (e Extractor) ExtractFacilitiesFromDoc(doc *goquery.Document) (ogame.Facilities, error) {
-	return ExtractFacilitiesFromDocV7(doc)
+	return ExtractFacilitiesFromDoc(doc)
 }
 
 // ExtractResearchFromDoc ...
 func (e Extractor) ExtractResearchFromDoc(doc *goquery.Document) ogame.Researches {
-	return extractResearchFromDocV7(doc)
+	return extractResearchFromDoc(doc)
 }
 
 // ExtractShipsFromDoc ...
 func (e Extractor) ExtractShipsFromDoc(doc *goquery.Document) (ogame.ShipsInfos, error) {
-	return extractShipsFromDocV7(doc)
+	return extractShipsFromDoc(doc)
 }
 
 // ExtractResourcesBuildingsFromDoc ...
 func (e Extractor) ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ogame.ResourcesBuildings, error) {
-	return extractResourcesBuildingsFromDocV7(doc)
+	return extractResourcesBuildingsFromDoc(doc)
 }
 
 // ExtractCombatReportMessagesFromDoc ...
 func (e Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64) {
-	return extractCombatReportMessagesFromDocV7(doc)
+	return extractCombatReportMessagesFromDoc(doc)
 }
 
 // ExtractEspionageReportFromDoc ...
 func (e Extractor) ExtractEspionageReportFromDoc(doc *goquery.Document) (ogame.EspionageReport, error) {
-	return extractEspionageReportFromDocV7(doc, e.GetLocation())
+	return extractEspionageReportFromDoc(doc, e.GetLocation())
 }
 
 // ExtractCancelBuildingInfos ...
 func (e Extractor) ExtractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
-	return extractCancelBuildingInfosV7(pageHTML)
+	return extractCancelBuildingInfos(pageHTML)
 }
 
 // ExtractCancelResearchInfos ...
 func (e Extractor) ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
-	return extractCancelResearchInfosV7(pageHTML)
+	return extractCancelResearchInfos(pageHTML)
 }
 
 // ExtractCharacterClassFromDoc ...
 func (e Extractor) ExtractCharacterClassFromDoc(doc *goquery.Document) (ogame.CharacterClass, error) {
-	return extractCharacterClassFromDocV7(doc)
+	return extractCharacterClassFromDoc(doc)
 }

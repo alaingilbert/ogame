@@ -19,7 +19,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-type resourcesRespV71 struct {
+type resourcesResp struct {
 	Resources struct {
 		Metal struct {
 			Amount  float64 `json:"amount"`
@@ -155,8 +155,8 @@ type resourcesRespV71 struct {
 	} `json:"techs"`
 }
 
-func extractResourcesDetailsV71(pageHTML []byte) (out ogame.ResourcesDetails, err error) {
-	var res resourcesRespV71
+func extractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err error) {
+	var res resourcesResp
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if v6.IsLogged(pageHTML) {
 			return out, ogame.ErrInvalidPlanetID
@@ -186,7 +186,7 @@ func extractResourcesDetailsV71(pageHTML []byte) (out ogame.ResourcesDetails, er
 	return
 }
 
-type planetTechsRespV71 struct {
+type planetTechsResp struct {
 	Num1   int64 `json:"1"`
 	Num2   int64 `json:"2"`
 	Num3   int64 `json:"3"`
@@ -251,8 +251,8 @@ type planetTechsRespV71 struct {
 	Num503 int64 `json:"503"`
 }
 
-func extractTechsV71(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, err error) {
-	var res planetTechsRespV71
+func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, err error) {
+	var res planetTechsResp
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if v6.IsLogged(pageHTML) {
 			return supplies, facilities, shipsInfos, defenses, researches, ogame.ErrInvalidPlanetID
@@ -380,7 +380,7 @@ func GetCharacterClass(characterClassStr string) ogame.CharacterClass {
 	return ogame.NoClass
 }
 
-func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
+func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
 	report := ogame.EspionageReport{}
 	report.ID = utils.DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
 	spanLink := doc.Find("span.msg_title a").First()
@@ -676,7 +676,7 @@ func extractEspionageReportFromDocV71(doc *goquery.Document, location *time.Loca
 	return report, nil
 }
 
-func extractDestroyRocketsFromDocV71(doc *goquery.Document) (abm, ipm int64, token string, err error) {
+func extractDestroyRocketsFromDoc(doc *goquery.Document) (abm, ipm int64, token string, err error) {
 	scriptTxt := doc.Find("script").Text()
 	r := regexp.MustCompile(`missileToken = "([^"]+)"`)
 	m := r.FindStringSubmatch(scriptTxt)
@@ -690,7 +690,7 @@ func extractDestroyRocketsFromDocV71(doc *goquery.Document) (abm, ipm int64, tok
 	return
 }
 
-func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token string) {
+func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
 	durationFloat, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
 	duration = int64(math.Ceil(durationFloat))
 	max = utils.DoParseI64(doc.Find("input#missileCount").AttrOr("data-max", "0"))
@@ -698,16 +698,16 @@ func extractIPMFromDocV71(doc *goquery.Document) (duration, max int64, token str
 	return
 }
 
-func extractFacilitiesFromDocV71(doc *goquery.Document) (ogame.Facilities, error) {
-	res, err := v7.ExtractFacilitiesFromDocV7(doc)
+func extractFacilitiesFromDoc(doc *goquery.Document) (ogame.Facilities, error) {
+	res, err := v7.ExtractFacilitiesFromDoc(doc)
 	if err != nil {
 		return ogame.Facilities{}, err
 	}
-	res.LunarBase = v7.GetNbrV7(doc, "moonbase")
+	res.LunarBase = v7.GetNbr(doc, "moonbase")
 	return res, nil
 }
 
-func extractCancelFleetTokenFromDocV71(doc *goquery.Document, fleetID ogame.FleetID) (string, error) {
+func extractCancelFleetTokenFromDoc(doc *goquery.Document, fleetID ogame.FleetID) (string, error) {
 	href := doc.Find("div#fleet"+utils.FI64(fleetID)+" a.icon_link").AttrOr("href", "")
 	m := regexp.MustCompile(`token=([^"]+)`).FindStringSubmatch(href)
 	if len(m) != 2 {
@@ -717,7 +717,7 @@ func extractCancelFleetTokenFromDocV71(doc *goquery.Document, fleetID ogame.Flee
 	return token, nil
 }
 
-func extractProductionFromDocV71(doc *goquery.Document) ([]ogame.Quantifiable, error) {
+func extractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
 	active := doc.Find("table.construction")
 	href, _ := active.Find("td a").Attr("href")
@@ -743,7 +743,7 @@ func extractProductionFromDocV71(doc *goquery.Document) ([]ogame.Quantifiable, e
 	return res, nil
 }
 
-func extractHighscoreFromDocV71(doc *goquery.Document) (out ogame.Highscore, err error) {
+func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err error) {
 	s := doc.Selection
 	isFullPage := doc.Find("#stat_list_content").Size() == 1
 	if isFullPage {
@@ -814,7 +814,7 @@ func extractHighscoreFromDocV71(doc *goquery.Document) (out ogame.Highscore, err
 	return
 }
 
-func extractAllResourcesV71(pageHTML []byte) (out map[ogame.CelestialID]ogame.Resources, err error) {
+func extractAllResources(pageHTML []byte) (out map[ogame.CelestialID]ogame.Resources, err error) {
 	out = make(map[ogame.CelestialID]ogame.Resources)
 	m := regexp.MustCompile(`var planetResources\s?=\s?([^;]+);`).FindSubmatch(pageHTML)
 	if len(m) != 2 {
@@ -837,10 +837,10 @@ func extractAllResourcesV71(pageHTML []byte) (out map[ogame.CelestialID]ogame.Re
 	return
 }
 
-func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownCoords []ogame.Coordinate) ([]ogame.AttackEvent, error) {
+func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoords []ogame.Coordinate) ([]ogame.AttackEvent, error) {
 	attacks := make([]*ogame.AttackEvent, 0)
 	out := make([]ogame.AttackEvent, 0)
-	if doc.Find("body").Size() == 1 && v6.ExtractOGameSessionFromDocV6(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
+	if doc.Find("body").Size() == 1 && v6.ExtractOGameSessionFromDoc(doc) != "" && doc.Find("div#eventListWrap").Size() == 0 {
 		return out, ogame.ErrEventsBoxNotDisplayed
 	} else if doc.Find("div#eventListWrap").Size() == 0 {
 		return out, ogame.ErrNotLogged
@@ -890,7 +890,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 				attack.AttackerName = linkSendMail.AttrOr("title", "")
 				if attack.AttackerID != 0 {
 					coordsOrigin := strings.TrimSpace(s.Find("td.coordsOrigin").Text())
-					attack.Origin = v6.ExtractCoordV6(coordsOrigin)
+					attack.Origin = v6.ExtractCoord(coordsOrigin)
 					attack.Origin.Type = ogame.PlanetType
 					if s.Find("td.originFleet figure").HasClass("moon") {
 						attack.Origin.Type = ogame.MoonType
@@ -931,7 +931,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 			}
 
 			destCoords := strings.TrimSpace(s.Find("td.destCoords").Text())
-			attack.Destination = v6.ExtractCoordV6(destCoords)
+			attack.Destination = v6.ExtractCoord(destCoords)
 			attack.Destination.Type = ogame.PlanetType
 			if s.Find("td.destFleet figure").HasClass("moon") {
 				attack.Destination.Type = ogame.MoonType
@@ -990,7 +990,7 @@ func extractAttacksFromDocV71(doc *goquery.Document, clock clockwork.Clock, ownC
 	return out, nil
 }
 
-func extractDMCostsFromDocV71(doc *goquery.Document) (ogame.DMCosts, error) {
+func extractDMCostsFromDoc(doc *goquery.Document) (ogame.DMCosts, error) {
 	tmp := func(s *goquery.Selection) (id ogame.ID, nbr, cost int64, canBuy, isComplete bool, buyAndActivate string, token string) {
 		imgAlt := s.Find("img.queuePic").AttrOr("alt", "")
 		if n, err := fmt.Sscanf(imgAlt, "techId_%d", &id); err != nil || n != 1 {
@@ -1034,7 +1034,7 @@ func extractDMCostsFromDocV71(doc *goquery.Document) (ogame.DMCosts, error) {
 	return out, nil
 }
 
-func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items []ogame.Item, err error) {
+func extractBuffActivationFromDoc(doc *goquery.Document) (token string, items []ogame.Item, err error) {
 	scriptTxt := doc.Find("script").Text()
 	r := regexp.MustCompile(`activateToken = "([^"]+)"`)
 	m := r.FindStringSubmatch(scriptTxt)
@@ -1060,7 +1060,7 @@ func extractBuffActivationFromDocV71(doc *goquery.Document) (token string, items
 	return
 }
 
-func extractActiveItemsFromDocV71(doc *goquery.Document) (items []ogame.ActiveItem, err error) {
+func extractActiveItemsFromDoc(doc *goquery.Document) (items []ogame.ActiveItem, err error) {
 	doc.Find("ul.active_items div").Each(func(i int, s *goquery.Selection) {
 		dataID := utils.ParseInt(s.AttrOr("data-id", ""))
 		if dataID == 0 {
@@ -1081,7 +1081,7 @@ func extractActiveItemsFromDocV71(doc *goquery.Document) (items []ogame.ActiveIt
 	return
 }
 
-func extractIsMobileFromDocV71(doc *goquery.Document) bool {
+func extractIsMobileFromDoc(doc *goquery.Document) bool {
 	r := regexp.MustCompile(`var isMobile = (true|false);`)
 	scripts := doc.Find("script")
 	for i := 0; i < scripts.Size(); i++ {

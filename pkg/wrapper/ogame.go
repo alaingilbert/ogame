@@ -3991,7 +3991,7 @@ func (b *OGame) getCachedCelestials() []Celestial {
 	for _, p := range b.GetCachedPlanets() {
 		celestials = append(celestials, p)
 		if p.Moon != nil {
-			celestials = append(celestials, *p.Moon)
+			celestials = append(celestials, p.Moon)
 		}
 	}
 	return celestials

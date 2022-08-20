@@ -25,7 +25,7 @@ func (e *Extractor) ExtractIsInVacation(pageHTML []byte) bool {
 
 // ExtractIsInVacationFromDoc ...
 func (e *Extractor) ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
-	return extractIsInVacationFromDocV8(doc)
+	return extractIsInVacationFromDoc(doc)
 }
 
 // ExtractEspionageReport ...
@@ -36,5 +36,5 @@ func (e *Extractor) ExtractEspionageReport(pageHTML []byte) (ogame.EspionageRepo
 
 // ExtractEspionageReportFromDoc ...
 func (e *Extractor) ExtractEspionageReportFromDoc(doc *goquery.Document) (ogame.EspionageReport, error) {
-	return extractEspionageReportFromDocV8(doc, e.GetLocation())
+	return extractEspionageReportFromDoc(doc, e.GetLocation())
 }

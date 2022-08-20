@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func extractBuffActivationFromDocV874(doc *goquery.Document) (token string, items []ogame.Item, err error) {
+func extractBuffActivationFromDoc(doc *goquery.Document) (token string, items []ogame.Item, err error) {
 	scriptTxt := doc.Find("script").Text()
 	r := regexp.MustCompile(`token = "([^"]+)"`)
 	m := r.FindStringSubmatch(scriptTxt)
@@ -37,7 +37,7 @@ func extractBuffActivationFromDocV874(doc *goquery.Document) (token string, item
 	return
 }
 
-func extractOfferOfTheDayFromDocV874(doc *goquery.Document) (price int64, importToken string, planetResources ogame.PlanetResources, multiplier ogame.Multiplier, err error) {
+func extractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources ogame.PlanetResources, multiplier ogame.Multiplier, err error) {
 	s := doc.Find("div.js_import_price")
 	if s.Size() == 0 {
 		err = errors.New("failed to extract offer of the day price")
@@ -70,8 +70,8 @@ func extractOfferOfTheDayFromDocV874(doc *goquery.Document) (price int64, import
 	return
 }
 
-// extractAuctionFromDocV874 extract auction information from page "traderAuctioneer"
-func extractAuctionFromDocV874(doc *goquery.Document) (ogame.Auction, error) {
+// extractAuctionFromDoc extract auction information from page "traderAuctioneer"
+func extractAuctionFromDoc(doc *goquery.Document) (ogame.Auction, error) {
 	auction := ogame.Auction{}
 	auction.HasFinished = false
 

@@ -26,12 +26,12 @@ func (e *Extractor) ExtractCancelFleetToken(pageHTML []byte, fleetID ogame.Fleet
 
 // ExtractCancelFleetTokenFromDoc ...
 func (e *Extractor) ExtractCancelFleetTokenFromDoc(doc *goquery.Document, fleetID ogame.FleetID) (string, error) {
-	return extractCancelFleetTokenFromDocV71(doc, fleetID)
+	return extractCancelFleetTokenFromDoc(doc, fleetID)
 }
 
 // ExtractFacilitiesFromDoc ...
 func (e *Extractor) ExtractFacilitiesFromDoc(doc *goquery.Document) (ogame.Facilities, error) {
-	return extractFacilitiesFromDocV71(doc)
+	return extractFacilitiesFromDoc(doc)
 }
 
 // ExtractFacilities ...
@@ -42,12 +42,12 @@ func (e *Extractor) ExtractFacilities(pageHTML []byte) (ogame.Facilities, error)
 
 // ExtractResourcesDetails ...
 func (e *Extractor) ExtractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err error) {
-	return extractResourcesDetailsV71(pageHTML)
+	return extractResourcesDetails(pageHTML)
 }
 
 // ExtractTechs ...
 func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error) {
-	return extractTechsV71(pageHTML)
+	return extractTechs(pageHTML)
 }
 
 // ExtractEspionageReport ...
@@ -58,7 +58,7 @@ func (e *Extractor) ExtractEspionageReport(pageHTML []byte) (ogame.EspionageRepo
 
 // ExtractEspionageReportFromDoc ...
 func (e *Extractor) ExtractEspionageReportFromDoc(doc *goquery.Document) (ogame.EspionageReport, error) {
-	return extractEspionageReportFromDocV71(doc, e.GetLocation())
+	return extractEspionageReportFromDoc(doc, e.GetLocation())
 }
 
 // ExtractDestroyRockets ...
@@ -69,7 +69,7 @@ func (e *Extractor) ExtractDestroyRockets(pageHTML []byte) (abm, ipm int64, toke
 
 // ExtractDestroyRocketsFromDoc ...
 func (e *Extractor) ExtractDestroyRocketsFromDoc(doc *goquery.Document) (abm, ipm int64, token string, err error) {
-	return extractDestroyRocketsFromDocV71(doc)
+	return extractDestroyRocketsFromDoc(doc)
 }
 
 // ExtractIPM ...
@@ -80,7 +80,7 @@ func (e *Extractor) ExtractIPM(pageHTML []byte) (duration int64, max int64, toke
 
 // ExtractIPMFromDoc ...
 func (e *Extractor) ExtractIPMFromDoc(doc *goquery.Document) (duration int64, max int64, token string) {
-	return extractIPMFromDocV71(doc)
+	return extractIPMFromDoc(doc)
 }
 
 // ExtractProduction extracts ships/defenses production from the shipyard page
@@ -93,7 +93,7 @@ func (e *Extractor) ExtractProduction(pageHTML []byte) ([]ogame.Quantifiable, in
 
 // ExtractProductionFromDoc extracts ships/defenses production from the shipyard page
 func (e *Extractor) ExtractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
-	return extractProductionFromDocV71(doc)
+	return extractProductionFromDoc(doc)
 }
 
 // ExtractHighscore ...
@@ -104,12 +104,12 @@ func (e *Extractor) ExtractHighscore(pageHTML []byte) (ogame.Highscore, error) {
 
 // ExtractHighscoreFromDoc ...
 func (e *Extractor) ExtractHighscoreFromDoc(doc *goquery.Document) (ogame.Highscore, error) {
-	return extractHighscoreFromDocV71(doc)
+	return extractHighscoreFromDoc(doc)
 }
 
 // ExtractAllResources ...
 func (e *Extractor) ExtractAllResources(pageHTML []byte) (map[ogame.CelestialID]ogame.Resources, error) {
-	return extractAllResourcesV71(pageHTML)
+	return extractAllResources(pageHTML)
 }
 
 // ExtractAttacksFromDoc ...
@@ -128,7 +128,7 @@ func (e *Extractor) extractAttacks(pageHTML []byte, clock clockwork.Clock, ownCo
 }
 
 func (e *Extractor) extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoords []ogame.Coordinate) ([]ogame.AttackEvent, error) {
-	return extractAttacksFromDocV71(doc, clock, ownCoords)
+	return extractAttacksFromDoc(doc, clock, ownCoords)
 }
 
 // ExtractDMCosts ...
@@ -139,7 +139,7 @@ func (e *Extractor) ExtractDMCosts(pageHTML []byte) (ogame.DMCosts, error) {
 
 // ExtractDMCostsFromDoc ...
 func (e *Extractor) ExtractDMCostsFromDoc(doc *goquery.Document) (ogame.DMCosts, error) {
-	return extractDMCostsFromDocV71(doc)
+	return extractDMCostsFromDoc(doc)
 }
 
 // ExtractBuffActivation ...
@@ -150,7 +150,7 @@ func (e *Extractor) ExtractBuffActivation(pageHTML []byte) (string, []ogame.Item
 
 // ExtractBuffActivationFromDoc ...
 func (e *Extractor) ExtractBuffActivationFromDoc(doc *goquery.Document) (string, []ogame.Item, error) {
-	return extractBuffActivationFromDocV71(doc)
+	return extractBuffActivationFromDoc(doc)
 }
 
 // ExtractActiveItems ...
@@ -161,7 +161,7 @@ func (e *Extractor) ExtractActiveItems(pageHTML []byte) ([]ogame.ActiveItem, err
 
 // ExtractActiveItemsFromDoc ...
 func (e *Extractor) ExtractActiveItemsFromDoc(doc *goquery.Document) ([]ogame.ActiveItem, error) {
-	return extractActiveItemsFromDocV71(doc)
+	return extractActiveItemsFromDoc(doc)
 }
 
 // ExtractIsMobile ...
@@ -172,5 +172,5 @@ func (e *Extractor) ExtractIsMobile(pageHTML []byte) bool {
 
 // ExtractIsMobileFromDoc ...
 func (e *Extractor) ExtractIsMobileFromDoc(doc *goquery.Document) bool {
-	return extractIsMobileFromDocV71(doc)
+	return extractIsMobileFromDoc(doc)
 }
