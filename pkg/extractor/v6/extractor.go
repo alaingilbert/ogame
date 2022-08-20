@@ -13,8 +13,9 @@ import (
 
 // Extractor ...
 type Extractor struct {
-	loc  *time.Location
-	lang string
+	loc             *time.Location
+	lang            string
+	lifeformEnabled bool
 }
 
 // NewExtractor ...
@@ -24,8 +25,10 @@ func NewExtractor() *Extractor {
 	return &Extractor{}
 }
 
-func (e *Extractor) SetLocation(loc *time.Location) { e.loc = loc }
-func (e *Extractor) SetLanguage(lang string)        { e.lang = lang }
+func (e *Extractor) SetLocation(loc *time.Location)          { e.loc = loc }
+func (e *Extractor) SetLanguage(lang string)                 { e.lang = lang }
+func (e *Extractor) SetLifeformEnabled(lifeformEnabled bool) { e.lifeformEnabled = lifeformEnabled }
+func (e *Extractor) GetLifeformEnabled() bool                { return e.lifeformEnabled }
 func (e *Extractor) GetLocation() *time.Location {
 	if e.loc == nil {
 		return time.UTC

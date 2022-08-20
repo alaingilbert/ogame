@@ -17,8 +17,12 @@ func extractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int
 	return v7.ExtractCancelInfos(pageHTML, "cancelLinklfbuilding", "cancellfbuilding", 1)
 }
 
-func extractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
-	return v7.ExtractCancelInfos(pageHTML, "cancelLinkresearch", "cancelresearch", 2)
+func extractCancelResearchInfos(pageHTML []byte, lifeformEnabled bool) (token string, techID, listID int64, err error) {
+	tableIdx := 1
+	if lifeformEnabled {
+		tableIdx = 2
+	}
+	return v7.ExtractCancelInfos(pageHTML, "cancelLinkresearch", "cancelresearch", tableIdx)
 }
 
 func extractEmpireV9(pageHTML []byte) ([]ogame.EmpireCelestial, error) {

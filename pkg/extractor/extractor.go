@@ -16,6 +16,8 @@ type Extractor interface {
 	SetLanguage(lang string)
 	GetLocation() *time.Location
 	SetLocation(loc *time.Location)
+	GetLifeformEnabled() bool
+	SetLifeformEnabled(lifeformEnabled bool)
 	ExtractActiveItems(pageHTML []byte) ([]ogame.ActiveItem, error)
 	ExtractAdmiral(pageHTML []byte) bool
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)

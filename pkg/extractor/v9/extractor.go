@@ -24,7 +24,7 @@ func (e *Extractor) ExtractCancelLfBuildingInfos(pageHTML []byte) (token string,
 
 // ExtractCancelResearchInfos ...
 func (e *Extractor) ExtractCancelResearchInfos(pageHTML []byte) (token string, id, listID int64, err error) {
-	return extractCancelResearchInfos(pageHTML)
+	return extractCancelResearchInfos(pageHTML, e.GetLifeformEnabled())
 }
 
 // ExtractEmpire ...
