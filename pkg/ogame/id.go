@@ -197,9 +197,24 @@ func (o ID) IsResourceBuilding() bool {
 		o == SeabedDeuteriumDenID
 }
 
+func (o ID) IsLfBuilding() bool {
+	return o == ResidentialSectorID ||
+		o == BiosphereFarmID ||
+		o == ResearchCentreID ||
+		o == AcademyOfSciencesID ||
+		o == NeuroCalibrationCentreID ||
+		o == HighEnergySmeltingID ||
+		o == FoodSiloID ||
+		o == FusionPoweredProductionID ||
+		o == SkyscraperID ||
+		o == BiotechLabID ||
+		o == MetropolisID ||
+		o == PlanetaryShieldID
+}
+
 // IsBuilding returns either or not the id is a building (facility, resource building)
 func (o ID) IsBuilding() bool {
-	return o.IsResourceBuilding() || o.IsFacility()
+	return o.IsResourceBuilding() || o.IsLfBuilding() || o.IsFacility()
 }
 
 // IsTech returns either or not the id is a technology

@@ -109,6 +109,7 @@ type Prioritizable interface {
 	BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr int64) error
 	BuildTechnology(celestialID ogame.CelestialID, technologyID ogame.ID) error
 	CancelBuilding(ogame.CelestialID) error
+	CancelLfBuilding(ogame.CelestialID) error
 	CancelResearch(ogame.CelestialID) error
 	ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64)
 	EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)

@@ -2166,6 +2166,22 @@ func TestCancelV7(t *testing.T) {
 	assert.Equal(t, int64(1336041), listID)
 }
 
+func TestCancelLfBuildingV902(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v9.0.2/en/overview_all_queues.html")
+	token, id, listID, _ := v9.NewExtractor().ExtractCancelLfBuildingInfos(pageHTMLBytes)
+	assert.Equal(t, "07287218c9661bcc67b05ec1b6171fe8", token)
+	assert.Equal(t, int64(11101), id)
+	assert.Equal(t, int64(3998104), listID)
+}
+
+func TestCancelResearchV902(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v9.0.2/en/overview_all_queues.html")
+	token, id, listID, _ := v9.NewExtractor().ExtractCancelResearchInfos(pageHTMLBytes)
+	assert.Equal(t, "07287218c9661bcc67b05ec1b6171fe8", token)
+	assert.Equal(t, int64(113), id)
+	assert.Equal(t, int64(3998106), listID)
+}
+
 func TestCancelResearch(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/unversioned/overview_active_queue2.html")
 	token, techID, listID, _ := v6.NewExtractor().ExtractCancelResearchInfos(pageHTMLBytes)

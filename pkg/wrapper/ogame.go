@@ -513,6 +513,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 	}
 	cookies = append(cookies, cookie)
 	b.client.Jar.SetCookies(u, cookies)
+	fmt.Println("bearer", out.Token)
 	b.bearerToken = out.Token
 	return out, nil
 }
@@ -2949,6 +2950,8 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 		page = DefensesPageName
 	} else if id.IsShip() {
 		page = ShipyardPageName
+	} else if id.IsLfBuilding() {
+		page = LfbuildingsPageName
 	} else if id.IsBuilding() {
 		page = SuppliesPageName
 	} else if id.IsTech() {
@@ -3055,6 +3058,15 @@ func (b *OGame) cancelBuilding(celestialID ogame.CelestialID) error {
 	}
 	token, techID, listID, _ := page.ExtractCancelBuildingInfos()
 	return b.cancel(token, techID, listID)
+}
+
+func (b *OGame) cancelLfBuilding(celestialID ogame.CelestialID) error {
+	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	if err != nil {
+		return err
+	}
+	token, id, listID, _ := page.ExtractCancelLfBuildingInfos()
+	return b.cancel(token, id, listID)
 }
 
 func (b *OGame) cancelResearch(celestialID ogame.CelestialID) error {
@@ -4455,6 +4467,11 @@ func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID
 // CancelBuilding cancel the construction of a building on a specified planet
 func (b *OGame) CancelBuilding(celestialID ogame.CelestialID) error {
 	return b.WithPriority(taskRunner.Normal).CancelBuilding(celestialID)
+}
+
+// CancelLfBuilding cancel the construction of a lifeform building on a specified planet
+func (b *OGame) CancelLfBuilding(celestialID ogame.CelestialID) error {
+	return b.WithPriority(taskRunner.Normal).CancelLfBuilding(celestialID)
 }
 
 // CancelResearch cancel the research

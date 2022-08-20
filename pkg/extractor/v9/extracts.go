@@ -1,6 +1,7 @@
 package v9
 
 import (
+	"bytes"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/ogame/pkg/extractor/v6"
@@ -11,6 +12,34 @@ import (
 	"strings"
 	"time"
 )
+
+func extractCancelInfos(pageHTML []byte, linkVarName, fnName string, tableIdx int) (token string, id, listID int64, err error) {
+	r1 := regexp.MustCompile(linkVarName + `[^?]+\?page=ingame&component=overview&modus=2&token=(\w+)&action=cancel`)
+	m1 := r1.FindSubmatch(pageHTML)
+	if len(m1) < 2 {
+		return "", 0, 0, errors.New("unable to find token")
+	}
+	token = string(m1[1])
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	t := doc.Find("table.construction").Eq(tableIdx)
+	a, _ := t.Find("a.abortNow").Attr("onclick")
+	r := regexp.MustCompile(fnName + `\((\d+),\s?(\d+),`)
+	m := r.FindStringSubmatch(a)
+	if len(m) < 3 {
+		return "", 0, 0, errors.New("unable to find id/listid")
+	}
+	id = utils.DoParseI64(m[1])
+	listID = utils.DoParseI64(m[2])
+	return
+}
+
+func extractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
+	return extractCancelInfos(pageHTML, "cancelLinklfbuilding", "cancellfbuilding", 1)
+}
+
+func extractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
+	return extractCancelInfos(pageHTML, "cancelLinkresearch", "cancelresearch", 2)
+}
 
 func extractEmpireV9(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 	var out []ogame.EmpireCelestial

@@ -39,6 +39,10 @@ func (e *Extractor) GetLanguage() string {
 	return e.lang
 }
 
+func (e *Extractor) ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
+	panic("implement me")
+}
+
 // ExtractActiveItems ...
 func (e *Extractor) ExtractActiveItems(pageHTML []byte) ([]ogame.ActiveItem, error) {
 	panic("implement me")

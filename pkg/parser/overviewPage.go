@@ -27,3 +27,7 @@ func (p OverviewPage) ExtractCancelResearchInfos() (token string, techID, listID
 func (p OverviewPage) ExtractCancelBuildingInfos() (token string, techID, listID int64, err error) {
 	return p.e.ExtractCancelBuildingInfos(p.content)
 }
+
+func (p OverviewPage) ExtractCancelLfBuildingInfos() (token string, id, listID int64, err error) {
+	return p.e.ExtractCancelLfBuildingInfos(p.content)
+}
