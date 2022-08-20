@@ -11,6 +11,7 @@ type Celestial interface {
 	GetID() CelestialID
 	GetImg() string
 	GetName() string
+	GetType() CelestialType
 }
 
 // BaseOgameObj base interface for all ogame objects (buildings, technologies, ships, defenses)
