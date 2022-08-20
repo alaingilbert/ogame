@@ -106,18 +106,7 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings IResourcesBuilding
 				return false
 			}
 		} else if id.IsTech() {
-			if (id == EnergyTechnologyID && researches.GetEnergyTechnology() < levelNeeded) ||
-				(id == LaserTechnologyID && researches.GetLaserTechnology() < levelNeeded) ||
-				(id == IonTechnologyID && researches.GetIonTechnology() < levelNeeded) ||
-				(id == HyperspaceTechnologyID && researches.GetHyperspaceTechnology() < levelNeeded) ||
-				(id == PlasmaTechnologyID && researches.GetPlasmaTechnology() < levelNeeded) ||
-				(id == CombustionDriveID && researches.GetCombustionDrive() < levelNeeded) ||
-				(id == ImpulseDriveID && researches.GetImpulseDrive() < levelNeeded) ||
-				(id == HyperspaceDriveID && researches.GetHyperspaceDrive() < levelNeeded) ||
-				(id == EspionageTechnologyID && researches.GetEspionageTechnology() < levelNeeded) ||
-				(id == ComputerTechnologyID && researches.GetComputerTechnology() < levelNeeded) ||
-				(id == AstrophysicsID && researches.GetAstrophysics() < levelNeeded) ||
-				(id == IntergalacticResearchNetworkID && researches.GetIntergalacticResearchNetwork() < levelNeeded) {
+			if researchByID(id, researches) < levelNeeded {
 				return false
 			}
 		}
