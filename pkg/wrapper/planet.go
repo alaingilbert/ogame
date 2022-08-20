@@ -23,7 +23,6 @@ func (p Planet) String() string {
 	return fmt.Sprintf("%s %s", p.Name, p.Coordinate)
 }
 
-func (p Planet) GetCelestialID() ogame.CelestialID { return p.ID.Celestial() }
 func (p Planet) GetImg() string                    { return p.Img }
 func (p Planet) GetName() string                   { return p.Name }
 func (p Planet) GetDiameter() int64                { return p.Diameter }

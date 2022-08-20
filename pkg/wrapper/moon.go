@@ -16,12 +16,11 @@ type Moon struct {
 	Fields     ogame.Fields
 }
 
-func (m Moon) GetCelestialID() ogame.CelestialID { return m.ID.Celestial() }
-func (m Moon) GetImg() string                    { return m.Img }
-func (m Moon) GetName() string                   { return m.Name }
-func (m Moon) GetDiameter() int64                { return m.Diameter }
-func (m Moon) GetCoordinate() ogame.Coordinate   { return m.Coordinate }
-func (m Moon) GetFields() ogame.Fields           { return m.Fields }
+func (m Moon) GetImg() string                  { return m.Img }
+func (m Moon) GetName() string                 { return m.Name }
+func (m Moon) GetDiameter() int64              { return m.Diameter }
+func (m Moon) GetCoordinate() ogame.Coordinate { return m.Coordinate }
+func (m Moon) GetFields() ogame.Fields         { return m.Fields }
 
 // GetID ...
 func (m Moon) GetID() ogame.CelestialID {
