@@ -39,6 +39,6 @@ func TestEnergyTechnologyConstructionTime(t *testing.T) {
 
 func TestEnergyTechnology_GetLevel(t *testing.T) {
 	et := newEnergyTechnology()
-	l := et.GetLevel(ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{EnergyTechnology: 4}.Lazy())
+	l := et.GetLevel(ResourcesBuildings{}, Facilities{}, Researches{EnergyTechnology: 4})
 	assert.Equal(t, int64(4), l)
 }

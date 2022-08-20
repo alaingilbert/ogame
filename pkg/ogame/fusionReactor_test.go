@@ -14,11 +14,11 @@ func TestFusionReactorCapacity(t *testing.T) {
 
 func TestFusionReactor_IsAvailable(t *testing.T) {
 	fr := newFusionReactor()
-	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy(), 0, NoClass))
-	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 4}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 3}.Lazy(), 0, NoClass))
-	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 5}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 2}.Lazy(), 0, NoClass))
-	assert.True(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 5}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 3}.Lazy(), 0, NoClass))
-	assert.True(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 6}.Lazy(), Facilities{ResearchLab: 1}.Lazy(), Researches{EnergyTechnology: 4}.Lazy(), 0, NoClass))
+	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{}, Facilities{}, Researches{}, 0, NoClass))
+	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 4}, Facilities{ResearchLab: 1}, Researches{EnergyTechnology: 3}, 0, NoClass))
+	assert.False(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 5}, Facilities{ResearchLab: 1}, Researches{EnergyTechnology: 2}, 0, NoClass))
+	assert.True(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 5}, Facilities{ResearchLab: 1}, Researches{EnergyTechnology: 3}, 0, NoClass))
+	assert.True(t, fr.IsAvailable(PlanetType, ResourcesBuildings{DeuteriumSynthesizer: 6}, Facilities{ResearchLab: 1}, Researches{EnergyTechnology: 4}, 0, NoClass))
 }
 
 func TestFusionReactor_Production(t *testing.T) {

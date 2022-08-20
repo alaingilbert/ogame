@@ -14,7 +14,7 @@ func TestSolarSatelliteSpeed(t *testing.T) {
 
 func TestSolarSatellite_GetLevel(t *testing.T) {
 	ss := newSolarSatellite()
-	assert.Equal(t, int64(0), ss.GetLevel(ResourcesBuildings{SolarSatellite: 10}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy()))
+	assert.Equal(t, int64(0), ss.GetLevel(ResourcesBuildings{SolarSatellite: 10}, Facilities{}, Researches{}))
 }
 
 func TestSolarSatellite_Production(t *testing.T) {

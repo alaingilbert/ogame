@@ -11,5 +11,5 @@ func TestBaseBuilding_GetLevel(t *testing.T) {
 		BaseBuilding
 	}
 	bb.ID = ID(123456)
-	assert.Equal(t, int64(0), bb.GetLevel(ResourcesBuildings{}.Lazy(), Facilities{}.Lazy(), Researches{}.Lazy()))
+	assert.Equal(t, int64(0), bb.GetLevel(ResourcesBuildings{}, Facilities{}, Researches{}))
 }
