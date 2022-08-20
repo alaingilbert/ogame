@@ -16,6 +16,7 @@ func (r LazyResourcesBuildings) GetSolarSatellite() int64       { return r().Sol
 func (r LazyResourcesBuildings) GetMetalStorage() int64         { return r().MetalStorage }
 func (r LazyResourcesBuildings) GetCrystalStorage() int64       { return r().CrystalStorage }
 func (r LazyResourcesBuildings) GetDeuteriumTank() int64        { return r().DeuteriumTank }
+func (r LazyResourcesBuildings) ByID(id ID) int64               { return r().ByID(id) }
 
 // ResourcesBuildings represent a planet resource buildings
 type ResourcesBuildings struct {

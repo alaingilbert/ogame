@@ -25,6 +25,7 @@ func (s LazyResearches) GetGravitonTechnology() int64  { return s().GravitonTech
 func (s LazyResearches) GetWeaponsTechnology() int64   { return s().WeaponsTechnology }
 func (s LazyResearches) GetShieldingTechnology() int64 { return s().ShieldingTechnology }
 func (s LazyResearches) GetArmourTechnology() int64    { return s().ArmourTechnology }
+func (s LazyResearches) ByID(id ID) int64              { return s().ByID(id) }
 
 // Researches represent player's researches
 type Researches struct {

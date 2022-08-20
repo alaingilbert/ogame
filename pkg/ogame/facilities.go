@@ -18,6 +18,7 @@ func (f LazyFacilities) GetSpaceDock() int64       { return f().SpaceDock }
 func (f LazyFacilities) GetLunarBase() int64       { return f().LunarBase }
 func (f LazyFacilities) GetSensorPhalanx() int64   { return f().SensorPhalanx }
 func (f LazyFacilities) GetJumpGate() int64        { return f().JumpGate }
+func (f LazyFacilities) ByID(id ID) int64          { return f().ByID(id) }
 
 // Facilities represent a planet facilities information
 type Facilities struct {
