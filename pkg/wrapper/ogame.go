@@ -513,7 +513,6 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 	}
 	cookies = append(cookies, cookie)
 	b.client.Jar.SetCookies(u, cookies)
-	fmt.Println("bearer", out.Token)
 	b.bearerToken = out.Token
 	return out, nil
 }
