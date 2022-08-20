@@ -632,7 +632,6 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 			b.extractor = v7.NewExtractor()
 		}
 		b.extractor.SetLanguage(b.language)
-		b.extractor.SetLocation(b.location)
 		b.extractor.SetLifeformEnabled(page.ExtractLifeformEnabled())
 	} else {
 		b.error("failed to parse ogame version: " + err.Error())
@@ -650,6 +649,7 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 
 	serverTime, _ := page.ExtractServerTime()
 	b.location = serverTime.Location()
+	b.extractor.SetLocation(b.location)
 
 	b.cacheFullPageInfo(page)
 
