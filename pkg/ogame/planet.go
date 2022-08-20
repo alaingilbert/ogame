@@ -20,6 +20,7 @@ func (p Planet) GetCoordinate() Coordinate   { return p.Coordinate }
 func (p Planet) GetFields() Fields           { return p.Fields }
 func (p Planet) GetTemperature() Temperature { return p.Temperature }
 func (p Planet) GetMoon() *Moon              { return p.Moon }
+func (p Planet) GetType() CelestialType      { return PlanetType }
 
 type Moon struct {
 	ID         MoonID
@@ -36,3 +37,4 @@ func (m Moon) GetName() string           { return m.Name }
 func (m Moon) GetDiameter() int64        { return m.Diameter }
 func (m Moon) GetCoordinate() Coordinate { return m.Coordinate }
 func (m Moon) GetFields() Fields         { return m.Fields }
+func (p Moon) GetType() CelestialType    { return MoonType }
