@@ -691,14 +691,16 @@ func convertPlanets(b *OGame, planetsIn []ogame.Planet) []Planet {
 
 func convertPlanet(b *OGame, planet ogame.Planet) Planet {
 	newPlanet := Planet{
-		ogame:       b,
-		Img:         planet.Img,
-		ID:          planet.ID,
-		Name:        planet.Name,
-		Diameter:    planet.Diameter,
-		Coordinate:  planet.Coordinate,
-		Fields:      planet.Fields,
-		Temperature: planet.Temperature,
+		ogame: b,
+		Planet: ogame.Planet{
+			Img:         planet.Img,
+			ID:          planet.ID,
+			Name:        planet.Name,
+			Diameter:    planet.Diameter,
+			Coordinate:  planet.Coordinate,
+			Fields:      planet.Fields,
+			Temperature: planet.Temperature,
+		},
 	}
 	if planet.Moon != nil {
 		newPlanet.Moon = convertMoon(b, *planet.Moon)
@@ -717,13 +719,15 @@ func convertMoons(b *OGame, moonsIn []ogame.Moon) []Moon {
 
 func convertMoon(b *OGame, moonIn ogame.Moon) *Moon {
 	return &Moon{
-		ogame:      b,
-		ID:         moonIn.ID,
-		Img:        moonIn.Img,
-		Name:       moonIn.Name,
-		Diameter:   moonIn.Diameter,
-		Coordinate: moonIn.Coordinate,
-		Fields:     moonIn.Fields,
+		ogame: b,
+		Moon: ogame.Moon{
+			ID:         moonIn.ID,
+			Img:        moonIn.Img,
+			Name:       moonIn.Name,
+			Diameter:   moonIn.Diameter,
+			Coordinate: moonIn.Coordinate,
+			Fields:     moonIn.Fields,
+		},
 	}
 }
 

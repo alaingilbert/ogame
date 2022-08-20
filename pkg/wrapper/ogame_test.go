@@ -3081,39 +3081,21 @@ func TestExtractIPMV71(t *testing.T) {
 
 func TestFixAttackEvents(t *testing.T) {
 	// Test when moon name matches
-	planets := []Planet{
-		{
-			Coordinate: ogame.Coordinate{1, 2, 3, ogame.PlanetType},
-			Name:       "My Planet",
-			Moon: &Moon{
-				Name: "VeryLongName Moon",
-			},
-		},
-	}
+	p1 := Planet{}
+	p1.Name = "My Planet"
+	p1.Coordinate = ogame.Coordinate{1, 2, 3, ogame.PlanetType}
+	p1.Moon = &Moon{Moon: ogame.Moon{Name: "VeryLongName Moon"}}
+	planets := []Planet{p1}
+
 	attacks := []ogame.AttackEvent{
-		{
-			DestinationName: "VeryLongName Moon",
-			Destination:     ogame.Coordinate{1, 2, 3, ogame.PlanetType},
-		},
+		{DestinationName: "VeryLongName Moon", Destination: ogame.Coordinate{1, 2, 3, ogame.PlanetType}},
 	}
 	fixAttackEvents(attacks, planets)
 	assert.Equal(t, ogame.MoonType, attacks[0].Destination.Type) // Fixed to moon type
 
 	// Test when the moon name doesn't match
-	planets = []Planet{
-		{
-			Coordinate: ogame.Coordinate{1, 2, 3, ogame.PlanetType},
-			Name:       "My Planet",
-			Moon: &Moon{
-				Name: "VeryLongName Moon",
-			},
-		},
-	}
 	attacks = []ogame.AttackEvent{
-		{
-			DestinationName: "My Planet",
-			Destination:     ogame.Coordinate{1, 2, 3, ogame.PlanetType},
-		},
+		{DestinationName: "My Planet", Destination: ogame.Coordinate{1, 2, 3, ogame.PlanetType}},
 	}
 	fixAttackEvents(attacks, planets)
 	assert.Equal(t, ogame.PlanetType, attacks[0].Destination.Type) // Did not change

@@ -18,5 +18,5 @@ func TestTemperature_Mean(t *testing.T) {
 }
 
 func TestPlanet_String(t *testing.T) {
-	assert.Equal(t, "Earth [P:1:1:3]", Planet{Name: "Earth", Coordinate: ogame.Coordinate{Galaxy: 1, System: 1, Position: 3, Type: ogame.PlanetType}}.String())
+	assert.Equal(t, "Earth [P:1:1:3]", Planet{Planet: ogame.Planet{Name: "Earth", Coordinate: ogame.Coordinate{Galaxy: 1, System: 1, Position: 3, Type: ogame.PlanetType}}}.String())
 }

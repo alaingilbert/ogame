@@ -7,15 +7,9 @@ import (
 
 // Planet ogame planet object
 type Planet struct {
-	ogame       *OGame
-	ID          ogame.PlanetID
-	Name        string
-	Img         string
-	Diameter    int64
-	Coordinate  ogame.Coordinate
-	Fields      ogame.Fields
-	Temperature ogame.Temperature
-	Moon        *Moon
+	ogame.Planet
+	ogame *OGame
+	Moon  *Moon
 }
 
 // String ..
@@ -23,23 +17,7 @@ func (p Planet) String() string {
 	return fmt.Sprintf("%s %s", p.Name, p.Coordinate)
 }
 
-func (p Planet) GetImg() string                    { return p.Img }
-func (p Planet) GetName() string                   { return p.Name }
-func (p Planet) GetDiameter() int64                { return p.Diameter }
-func (p Planet) GetCoordinate() ogame.Coordinate   { return p.Coordinate }
-func (p Planet) GetFields() ogame.Fields           { return p.Fields }
-func (p Planet) GetTemperature() ogame.Temperature { return p.Temperature }
-func (p Planet) GetMoon() *Moon                    { return p.Moon }
-
-// GetID ...
-func (p Planet) GetID() ogame.CelestialID {
-	return p.ID.Celestial()
-}
-
-// GetType ...
-func (p Planet) GetType() ogame.CelestialType {
-	return ogame.PlanetType
-}
+func (p Planet) GetMoon() *Moon { return p.Moon }
 
 // GetProduction get what is in the production queue.
 // (ships & defense being built)

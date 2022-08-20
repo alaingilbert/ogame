@@ -7,29 +7,8 @@ import (
 
 // Moon ogame moon object
 type Moon struct {
-	ogame      *OGame
-	ID         ogame.MoonID
-	Img        string
-	Name       string
-	Diameter   int64
-	Coordinate ogame.Coordinate
-	Fields     ogame.Fields
-}
-
-func (m Moon) GetImg() string                  { return m.Img }
-func (m Moon) GetName() string                 { return m.Name }
-func (m Moon) GetDiameter() int64              { return m.Diameter }
-func (m Moon) GetCoordinate() ogame.Coordinate { return m.Coordinate }
-func (m Moon) GetFields() ogame.Fields         { return m.Fields }
-
-// GetID ...
-func (m Moon) GetID() ogame.CelestialID {
-	return m.ID.Celestial()
-}
-
-// GetType ...
-func (m Moon) GetType() ogame.CelestialType {
-	return ogame.MoonType
+	ogame.Moon
+	ogame *OGame
 }
 
 // GetProduction get what is in the production queue.
