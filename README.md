@@ -1,6 +1,6 @@
 <img src="./logo.png" width="300" />
 
-[![Build Status](https://travis-ci.org/alaingilbert/ogame.svg?branch=master)](https://travis-ci.org/alaingilbert/ogame) [![codecov](https://codecov.io/gh/alaingilbert/ogame/branch/master/graph/badge.svg)](https://codecov.io/gh/alaingilbert/ogame) [![discord](https://img.shields.io/discord/546546108277719052.svg)](https://discord.gg/4dZtZpz)
+[![discord](https://img.shields.io/discord/546546108277719052.svg)](https://discord.gg/4dZtZpz)
 
 # OGame automation toolkit
 
@@ -14,6 +14,10 @@ Discord: https://discord.gg/4dZtZpz
 
 ---
 
+How to migrate to v48 : https://github.com/alaingilbert/ogame/wiki/Migration-to-v48
+
+---
+
 # ogame library
 
 ### Verify attack example
@@ -23,14 +27,15 @@ package main
 
 import "fmt"
 import "os"
-import "github.com/alaingilbert/ogame"
+import "github.com/alaingilbert/ogame/pkg/ogame"
+import "github.com/alaingilbert/ogame/pkg/wrapper"
 
 func main() {
 	universe := os.Getenv("UNIVERSE") // eg: Bellatrix
 	username := os.Getenv("USERNAME") // eg: email@gmail.com
 	password := os.Getenv("PASSWORD") // eg: *****
 	language := os.Getenv("LANGUAGE") // eg: en
-	bot, err := ogame.New(universe, username, password, language)
+	bot, err := wrapper.New(universe, username, password, language)
 	if err != nil {
 		panic(err)
 	}
@@ -39,9 +44,33 @@ func main() {
 }
 ```
 
+### Calculate building time example
+
+```go
+package main
+
+import "github.com/alaingilbert/ogame/pkg/ogame"
+import "fmt"
+
+func main() {
+	level := int64(5)
+	universeSpeed := int64(1)
+	hasTechnocrat := false
+	isDiscoverer := false
+	facilities := ogame.Facilities{RoboticsFactory: 10, NaniteFactory: 2}
+	duration := ogame.MetalMine.ConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
+	fmt.Println("Building time:", duration)
+	
+	// OR if you want to know the construction time for anything that can be built, using an ID
+	id := ogame.MetalMineID
+	duration := ogame.Objs.ByID(id).ConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
+	fmt.Println("Building time:", duration)
+}
+```
+
 ##### How to get started
 
-- Ensure you have go 1.12 or above `go version`
+- Ensure you have go 1.18 or above `go version`
 - Copy and paste the above example in a file `main.go`
 - Create your own module `go mod init my_project`
 - Install dependencies `go mod vendor`
@@ -50,148 +79,164 @@ func main() {
 ### Available methods
 
 ```go
-IsV7() bool
-GetExtractor() Extractor
-SetOGameCredentials(username, password, otpSecret string)
-SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool) error
-SetLoginWrapper(func(func() error) error)
-GetClient() *OGameClient
-Enable()
+AddAccount(number int, lang string) (*AddAccountRes, error)
+BytesDownloaded() int64
+BytesUploaded() int64
+CharacterClass() ogame.CharacterClass
+ConstructionTime(id ogame.ID, nbr int64, facilities ogame.Facilities) time.Duration
 Disable()
-IsEnabled() bool
-Quiet(bool)
-GetTasks() TasksOverview
-Tx(clb func(tx *Prioritize) error) error
-Begin() *Prioritize
-BeginNamed(name string) *Prioritize
-WithPriority(priority int) *Prioritize
+Distance(origin, destination ogame.Coordinate) int64
+Enable()
+FleetDeutSaveFactor() float64
+GetCachedCelestial(any) Celestial
+GetCachedCelestials() []Celestial
+GetCachedMoons() []Moon
+GetCachedPlanets() []Planet
+GetCachedPlayer() ogame.UserInfos
+GetCachedPreferences() ogame.Preferences
+GetClient() *OGameClient
+GetExtractor() extractor.Extractor
+GetLanguage() string
+GetNbSystems() int64
 GetPublicIP() (string, error)
-OnStateChange(clb func(locked bool, actor string))
-GetState() (bool, string)
-IsLocked() bool
-GetSession() string
-AddAccount(number int, lang string) (NewAccount, error)
+GetResearchSpeed() int64
 GetServer() Server
 GetServerData() ServerData
-SetUserAgent(newUserAgent string)
-ServerURL() string
-GetLanguage() string
-GetPageContent(url.Values) ([]byte, error)
-GetAlliancePageContent(url.Values) ([]byte, error)
-PostPageContent(url.Values, url.Values) ([]byte, error)
-LoginWithExistingCookies() (bool, error)
-Login() error
-Logout()
-IsLoggedIn() bool
-IsConnected() bool
-GetUsername() string
+GetSession() string
+GetState() (bool, string)
+GetTasks() taskRunner.TasksOverview
 GetUniverseName() string
 GetUniverseSpeed() int64
 GetUniverseSpeedFleet() int64
-GetResearchSpeed() int64
-GetNbSystems() int64
+GetUsername() string
+IsConnected() bool
 IsDonutGalaxy() bool
 IsDonutSystem() bool
-FleetDeutSaveFactor() float64
-ServerVersion() string
-ServerTime() time.Time
-Location() *time.Location
-IsUnderAttack() (bool, error)
-SetVacationMode() error
-GetUserInfos() UserInfos
-SendMessage(playerID int64, message string) error
-SendMessageAlliance(associationID int64, message string) error
-ReconnectChat() bool
-GetFleets(...Option) ([]Fleet, Slots)
-GetFleetsFromEventList() []Fleet
-CancelFleet(FleetID) error
-GetAttacks() ([]AttackEvent, error)
-GalaxyInfos(galaxy, system int64, opts ...Option) (SystemInfos, error)
-GetCachedResearch() Researches
-GetResearch() Researches
-GetCachedPlanets() []Planet
-GetCachedMoons() []Moon
-GetCachedCelestials() []Celestial
-GetCachedCelestial(interface{}) Celestial
-GetCachedPlayer() UserInfos
-GetCachedPreferences() Preferences
+IsEnabled() bool
+IsLocked() bool
+IsLoggedIn() bool
+IsPioneers() bool
+IsV7() bool
+IsV9() bool
 IsVacationModeEnabled() bool
-GetPlanets() []Planet
-GetPlanet(interface{}) (Planet, error)
-GetMoons() []Moon
-GetMoon(interface{}) (Moon, error)
-GetCelestial(interface{}) (Celestial, error)
-GetCelestials() ([]Celestial, error)
-Abandon(interface{}) error
-CollectAllMarketplaceMessages() error
-CollectMarketplaceMessage(MarketplaceMessage) error
-GetExpeditionMessages() ([]ExpeditionMessage, error)
-GetExpeditionMessageAt(time.Time) (ExpeditionMessage, error)
-GetEspionageReportMessages() ([]EspionageReportSummary, error)
-GetEspionageReportFor(Coordinate) (EspionageReport, error)
-GetEspionageReport(msgID int64) (EspionageReport, error)
-GetCombatReportSummaryFor(Coordinate) (CombatReportSummary, error)
-DeleteMessage(msgID int64) error
-DeleteAllMessagesFromTab(tabID int64) error
-Distance(origin, destination Coordinate) int64
-FlightTime(origin, destination Coordinate, speed Speed, ships ShipsInfos) (secs, fuel int64)
+Location() *time.Location
+OnStateChange(clb func(locked bool, actor string))
+Quiet(bool)
+ReconnectChat() bool
+RegisterAuctioneerCallback(func(any))
+RegisterChatCallback(func(ChatMsg))
+RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
 RegisterWSCallback(string, func([]byte))
 RemoveWSCallback(string)
-RegisterChatCallback(func(ChatMsg))
-RegisterAuctioneerCallback(func([]byte))
-RegisterHTMLInterceptor(func(method, url string, params, payload url.Values, pageHTML []byte))
-GetSlots() Slots
+ServerURL() string
+ServerVersion() string
+SetClient(*OGameClient)
+SetGetServerDataWrapper(func(func() (ServerData, error)) (ServerData, error))
+SetLoginWrapper(func(func() (bool, error)) error)
+SetOGameCredentials(username, password, otpSecret, bearerToken string)
+SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
+SetUserAgent(newUserAgent string)
+ValidateAccount(code string) error
+WithPriority(priority taskRunner.Priority) Prioritizable
+
+Abandon(any) error
+ActivateItem(string, ogame.CelestialID) error
+Begin() Prioritizable
+BeginNamed(name string) Prioritizable
+BuyMarketplace(itemID int64, celestialID ogame.CelestialID) error
 BuyOfferOfTheDay() error
-BytesDownloaded() int64
-BytesUploaded() int64
-CreateUnion(fleet Fleet, unionUsers []string) (int64, error)
-GetEmpire(nbr int64) (interface{}, error)
+CancelFleet(ogame.FleetID) error
+CollectAllMarketplaceMessages() error
+CollectMarketplaceMessage(ogame.MarketplaceMessage) error
+CreateUnion(fleet ogame.Fleet, unionUsers []string) (int64, error)
+DeleteAllMessagesFromTab(tabID ogame.MessagesTabID) error
+DeleteMessage(msgID int64) error
+DoAuction(bid map[ogame.CelestialID]ogame.Resources) error
+Done()
+FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, mission ogame.MissionID) (secs, fuel int64)
+GalaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemInfos, error)
+GetActiveItems(ogame.CelestialID) ([]ogame.ActiveItem, error)
+GetAllResources() (map[ogame.CelestialID]ogame.Resources, error)
+GetAttacks(...Option) ([]ogame.AttackEvent, error)
+GetAuction() (ogame.Auction, error)
+GetCachedResearch() ogame.Researches
+GetCelestial(any) (Celestial, error)
+GetCelestials() ([]Celestial, error)
+GetCombatReportSummaryFor(ogame.Coordinate) (ogame.CombatReportSummary, error)
+GetDMCosts(ogame.CelestialID) (ogame.DMCosts, error)
+GetEmpire(ogame.CelestialType) ([]ogame.EmpireCelestial, error)
+GetEmpireJSON(nbr int64) (any, error)
+GetEspionageReport(msgID int64) (ogame.EspionageReport, error)
+GetEspionageReportFor(ogame.Coordinate) (ogame.EspionageReport, error)
+GetEspionageReportMessages() ([]ogame.EspionageReportSummary, error)
+GetExpeditionMessageAt(time.Time) (ogame.ExpeditionMessage, error)
+GetExpeditionMessages() ([]ogame.ExpeditionMessage, error)
+GetFleets(...Option) ([]ogame.Fleet, ogame.Slots)
+GetFleetsFromEventList() []ogame.Fleet
+GetItems(ogame.CelestialID) ([]ogame.Item, error)
+GetMoon(any) (Moon, error)
+GetMoons() []Moon
+GetPageContent(url.Values) ([]byte, error)
+GetPlanet(any) (Planet, error)
+GetPlanets() []Planet
+GetResearch() ogame.Researches
+GetSlots() ogame.Slots
+GetUserInfos() ogame.UserInfos
 HeadersForPage(url string) (http.Header, error)
-CharacterClass() CharacterClass
-GetAuction() (Auction, error)
-DoAuction(bid map[CelestialID]Resources) error
-Highscore(category, typ, page int64) (Highscore, error)
-GetAllResources() (map[CelestialID]Resources, error)
-GetDMCosts(CelestialID) (DMCosts, error)
-UseDM(string, CelestialID) error
-GetItems(CelestialID) ([]Item, error)
-ActivateItem(string, CelestialID) error
+Highscore(category, typ, page int64) (v6.Highscore, error)
+IsUnderAttack() (bool, error)
+Login() error
+LoginWithBearerToken(token string) (bool, error)
+LoginWithExistingCookies() (bool, error)
+Logout()
+OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error
+OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error
+PostPageContent(url.Values, url.Values) ([]byte, error)
+RecruitOfficer(typ, days int64) error
+SendMessage(playerID int64, message string) error
+SendMessageAlliance(associationID int64, message string) error
+ServerTime() time.Time
+SetInitiator(initiator string) Prioritizable
+SetVacationMode() error
+Tx(clb func(tx Prioritizable) error) error
+UseDM(string, ogame.CelestialID) error
 
 // Planet or Moon functions
-GetResources(CelestialID) (Resources, error)
-GetResourcesDetails(CelestialID) (ResourcesDetails, error)
-SendFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
-EnsureFleet(celestialID CelestialID, ships []Quantifiable, speed Speed, where Coordinate, mission MissionID, resources Resources, holdingTime, unionID int64) (Fleet, error)
-Build(celestialID CelestialID, id ID, nbr int64) error
-BuildCancelable(CelestialID, ID) error
-BuildProduction(celestialID CelestialID, id ID, nbr int64) error
-BuildBuilding(celestialID CelestialID, buildingID ID) error
-BuildDefense(celestialID CelestialID, defenseID ID, nbr int64) error
-BuildShips(celestialID CelestialID, shipID ID, nbr int64) error
-CancelBuilding(CelestialID) error
-TearDown(celestialID CelestialID, id ID) error
-ConstructionsBeingBuilt(CelestialID) (buildingID ID, buildingCountdown int64, researchID ID, researchCountdown int64)
-GetProduction(CelestialID) ([]Quantifiable, int64, error)
-GetFacilities(CelestialID) (Facilities, error)
-GetDefense(CelestialID) (DefensesInfos, error)
-GetShips(CelestialID) (ShipsInfos, error)
-GetResourcesBuildings(CelestialID) (ResourcesBuildings, error)
-CancelResearch(CelestialID) error
-BuildTechnology(celestialID CelestialID, technologyID ID) error
+Build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) error
+BuildBuilding(celestialID ogame.CelestialID, buildingID ogame.ID) error
+BuildCancelable(ogame.CelestialID, ogame.ID) error
+BuildDefense(celestialID ogame.CelestialID, defenseID ogame.ID, nbr int64) error
+BuildProduction(celestialID ogame.CelestialID, id ogame.ID, nbr int64) error
+BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr int64) error
+BuildTechnology(celestialID ogame.CelestialID, technologyID ogame.ID) error
+CancelBuilding(ogame.CelestialID) error
+CancelResearch(ogame.CelestialID) error
+ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64)
+EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
+GetDefense(ogame.CelestialID, ...Option) (ogame.DefensesInfos, error)
+GetFacilities(ogame.CelestialID, ...Option) (ogame.Facilities, error)
+GetProduction(ogame.CelestialID) ([]ogame.Quantifiable, int64, error)
+GetResources(ogame.CelestialID) (ogame.Resources, error)
+GetResourcesBuildings(ogame.CelestialID, ...Option) (ogame.ResourcesBuildings, error)
+GetResourcesDetails(ogame.CelestialID) (ogame.ResourcesDetails, error)
+GetShips(ogame.CelestialID, ...Option) (ogame.ShipsInfos, error)
+GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error)
+SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
+TearDown(celestialID ogame.CelestialID, id ogame.ID) error
 
 // Planet specific functions
-GetResourceSettings(PlanetID) (ResourceSettings, error)
-SetResourceSettings(PlanetID, ResourceSettings) error
-SendIPM(PlanetID, Coordinate, int64, ID) (int64, error)
-//GetResourcesProductionRatio(PlanetID) (float64, error)
-GetResourcesProductions(PlanetID) (Resources, error)
-GetResourcesProductionsLight(ResourcesBuildings, Researches, ResourceSettings, Temperature) Resources
+DestroyRockets(ogame.PlanetID, int64, int64) error
+GetResourceSettings(ogame.PlanetID, ...Option) (ogame.ResourceSettings, error)
+GetResourcesProductions(ogame.PlanetID) (ogame.Resources, error)
+GetResourcesProductionsLight(ogame.ResourcesBuildings, ogame.Researches, ogame.ResourceSettings, ogame.Temperature) ogame.Resources
+SendIPM(ogame.PlanetID, ogame.Coordinate, int64, ogame.ID) (int64, error)
+SetResourceSettings(ogame.PlanetID, ogame.ResourceSettings) error
 
 // Moon specific functions
-Phalanx(MoonID, Coordinate) ([]Fleet, error)
-UnsafePhalanx(MoonID, Coordinate) ([]Fleet, error)
-JumpGate(origin, dest MoonID, ships ShipsInfos) (bool, int64, error)
-JumpGateDestinations(origin MoonID) ([]MoonID, int64, error)
+JumpGate(origin, dest ogame.MoonID, ships ogame.ShipsInfos) (bool, int64, error)
+JumpGateDestinations(origin ogame.MoonID) ([]ogame.MoonID, int64, error)
+Phalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.Fleet, error)
+UnsafePhalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.Fleet, error)
 ```
 
 ### Full documentation

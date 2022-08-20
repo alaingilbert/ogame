@@ -2,16 +2,16 @@ package main
 
 import (
 	"C"
-
-	"github.com/alaingilbert/ogame"
+	ogame2 "github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/wrapper"
 )
 
-var bot *ogame.OGame
+var bot *wrapper.OGame
 
 //export OGame
 func OGame(universe, username, password, language *C.char) (errorMsg *C.char) {
 	var err error
-	bot, err = ogame.New(C.GoString(universe), C.GoString(username), C.GoString(password), C.GoString(language))
+	bot, err = wrapper.New(C.GoString(universe), C.GoString(username), C.GoString(password), C.GoString(language))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -81,7 +81,7 @@ func GetFleets() {
 
 //export CancelFleet
 func CancelFleet(fleetID C.int) (errorMsg *C.char) {
-	err := bot.CancelFleet(ogame.FleetID(int(fleetID)))
+	err := bot.CancelFleet(ogame2.FleetID(int(fleetID)))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -112,7 +112,7 @@ func GetResearch() (energyTechnology, laserTechnology, ionTechnology, hyperspace
 //export GetPlanetByCoord
 func GetPlanetByCoord(galaxyIn, systemIn, positionIn C.int) (id C.int, name *C.char, diameter, galaxy, system, position, fieldsBuilt, fieldsTotal,
 	temperatureMin, temperatureMax C.int, img *C.char, errorMsg *C.char) {
-	p, err := bot.GetPlanet(ogame.Coordinate{Galaxy: int64(galaxyIn), System: int64(systemIn), Position: int64(positionIn)})
+	p, err := bot.GetPlanet(ogame2.Coordinate{Galaxy: int64(galaxyIn), System: int64(systemIn), Position: int64(positionIn)})
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -124,7 +124,7 @@ func GetPlanetByCoord(galaxyIn, systemIn, positionIn C.int) (id C.int, name *C.c
 //export GetPlanet
 func GetPlanet(planetID C.int) (id C.int, name *C.char, diameter, galaxy, system, position, fieldsBuilt, fieldsTotal,
 	temperatureMin, temperatureMax C.int, img *C.char, errorMsg *C.char) {
-	p, err := bot.GetPlanet(ogame.PlanetID(planetID))
+	p, err := bot.GetPlanet(ogame2.PlanetID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -188,7 +188,7 @@ func DeleteMessage(msgID C.int) (errorMsg *C.char) {
 //export GetResourceSettings
 func GetResourceSettings(planetID C.int) (metalMine, crystalMine, deuteriumSynthesizer, solarPlant, fusionReactor,
 	solarSatellite C.int, errorMsg *C.char) {
-	r, err := bot.GetResourceSettings(ogame.PlanetID(planetID))
+	r, err := bot.GetResourceSettings(ogame2.PlanetID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 		return
@@ -200,7 +200,7 @@ func GetResourceSettings(planetID C.int) (metalMine, crystalMine, deuteriumSynth
 //export SetResourceSettings
 func SetResourceSettings(planetID, metalMine, crystalMine, deuteriumSynthesizer, solarPlant, fusionReactor,
 	solarSatellite C.int) (errorMsg *C.char) {
-	settings := ogame.ResourceSettings{
+	settings := ogame2.ResourceSettings{
 		MetalMine:            int64(metalMine),
 		CrystalMine:          int64(crystalMine),
 		DeuteriumSynthesizer: int64(deuteriumSynthesizer),
@@ -208,7 +208,7 @@ func SetResourceSettings(planetID, metalMine, crystalMine, deuteriumSynthesizer,
 		FusionReactor:        int64(fusionReactor),
 		SolarSatellite:       int64(solarSatellite),
 	}
-	err := bot.SetResourceSettings(ogame.PlanetID(planetID), settings)
+	err := bot.SetResourceSettings(ogame2.PlanetID(planetID), settings)
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -218,7 +218,7 @@ func SetResourceSettings(planetID, metalMine, crystalMine, deuteriumSynthesizer,
 //export GetResourcesBuildings
 func GetResourcesBuildings(planetID C.int) (metalMine, crystalMine, deuteriumSynthesizer, solarPlant, fusionReactor,
 	solarSatellite, metalStorage, crystalStorage, deuteriumTank C.int, errorMsg *C.char) {
-	r, err := bot.GetResourcesBuildings(ogame.CelestialID(planetID))
+	r, err := bot.GetResourcesBuildings(ogame2.CelestialID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 		return
@@ -231,7 +231,7 @@ func GetResourcesBuildings(planetID C.int) (metalMine, crystalMine, deuteriumSyn
 //export GetDefense
 func GetDefense(planetID C.int) (rocketLauncher, lightLaser, heavyLaser, gaussCannon, ionCannon, plasmaTurret,
 	smallShieldDome, largeShieldDome, antiBallisticMissiles, interplanetaryMissiles C.int, errorMsg *C.char) {
-	d, err := bot.GetDefense(ogame.CelestialID(planetID))
+	d, err := bot.GetDefense(ogame2.CelestialID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 		return
@@ -244,7 +244,7 @@ func GetDefense(planetID C.int) (rocketLauncher, lightLaser, heavyLaser, gaussCa
 //export GetShips
 func GetShips(planetID C.int) (lightFighter, heavyFighter, cruiser, battleship, battlecruiser, bomber, destroyer,
 	deathstar, smallCargo, largeCargo, colonyShip, recycler, espionageProbe, solarSatellite C.int, errorMsg *C.char) {
-	s, err := bot.GetShips(ogame.CelestialID(planetID))
+	s, err := bot.GetShips(ogame2.CelestialID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 		return
@@ -257,7 +257,7 @@ func GetShips(planetID C.int) (lightFighter, heavyFighter, cruiser, battleship, 
 //export GetFacilities
 func GetFacilities(planetID C.int) (roboticsFactory, shipyard, researchLab, allianceDepot, missileSilo, naniteFactory,
 	terraformer, spaceDock C.int, errorMsg *C.char) {
-	f, err := bot.GetFacilities(ogame.CelestialID(planetID))
+	f, err := bot.GetFacilities(ogame2.CelestialID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 		return
@@ -268,7 +268,7 @@ func GetFacilities(planetID C.int) (roboticsFactory, shipyard, researchLab, alli
 
 //export Build
 func Build(planetID, ogameID, nbr C.int) (errorMsg *C.char) {
-	err := bot.Build(ogame.CelestialID(planetID), ogame.ID(ogameID), int64(nbr))
+	err := bot.Build(ogame2.CelestialID(planetID), ogame2.ID(ogameID), int64(nbr))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -277,7 +277,7 @@ func Build(planetID, ogameID, nbr C.int) (errorMsg *C.char) {
 
 //export BuildCancelable
 func BuildCancelable(planetID, ogameID C.int) (errorMsg *C.char) {
-	err := bot.BuildCancelable(ogame.CelestialID(planetID), ogame.ID(ogameID))
+	err := bot.BuildCancelable(ogame2.CelestialID(planetID), ogame2.ID(ogameID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -286,7 +286,7 @@ func BuildCancelable(planetID, ogameID C.int) (errorMsg *C.char) {
 
 //export BuildProduction
 func BuildProduction(planetID, ogameID, nbr C.int) (errorMsg *C.char) {
-	err := bot.BuildProduction(ogame.CelestialID(planetID), ogame.ID(ogameID), int64(nbr))
+	err := bot.BuildProduction(ogame2.CelestialID(planetID), ogame2.ID(ogameID), int64(nbr))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -295,7 +295,7 @@ func BuildProduction(planetID, ogameID, nbr C.int) (errorMsg *C.char) {
 
 //export BuildBuilding
 func BuildBuilding(planetID, buildingID C.int) (errorMsg *C.char) {
-	err := bot.BuildBuilding(ogame.CelestialID(planetID), ogame.ID(buildingID))
+	err := bot.BuildBuilding(ogame2.CelestialID(planetID), ogame2.ID(buildingID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -304,7 +304,7 @@ func BuildBuilding(planetID, buildingID C.int) (errorMsg *C.char) {
 
 //export BuildTechnology
 func BuildTechnology(planetID, technologyID C.int) (errorMsg *C.char) {
-	err := bot.BuildTechnology(ogame.CelestialID(planetID), ogame.ID(technologyID))
+	err := bot.BuildTechnology(ogame2.CelestialID(planetID), ogame2.ID(technologyID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -313,7 +313,7 @@ func BuildTechnology(planetID, technologyID C.int) (errorMsg *C.char) {
 
 //export BuildDefense
 func BuildDefense(planetID, defenseID, nbr C.int) (errorMsg *C.char) {
-	err := bot.BuildDefense(ogame.CelestialID(planetID), ogame.ID(defenseID), int64(nbr))
+	err := bot.BuildDefense(ogame2.CelestialID(planetID), ogame2.ID(defenseID), int64(nbr))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -322,7 +322,7 @@ func BuildDefense(planetID, defenseID, nbr C.int) (errorMsg *C.char) {
 
 //export BuildShips
 func BuildShips(planetID, shipID, nbr C.int) (errorMsg *C.char) {
-	err := bot.BuildShips(ogame.CelestialID(planetID), ogame.ID(shipID), int64(nbr))
+	err := bot.BuildShips(ogame2.CelestialID(planetID), ogame2.ID(shipID), int64(nbr))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -333,13 +333,13 @@ func BuildShips(planetID, shipID, nbr C.int) (errorMsg *C.char) {
 
 //export ConstructionsBeingBuilt
 func ConstructionsBeingBuilt(planetID C.int) (buildingID, buildingCountdown, researchID, researchCountdown C.int) {
-	a, b, c, d := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
+	a, b, c, d := bot.ConstructionsBeingBuilt(ogame2.CelestialID(planetID))
 	return C.int(a), C.int(b), C.int(c), C.int(d)
 }
 
 //export CancelBuilding
 func CancelBuilding(planetID C.int) (errorMsg *C.char) {
-	err := bot.CancelBuilding(ogame.CelestialID(planetID))
+	err := bot.CancelBuilding(ogame2.CelestialID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -348,7 +348,7 @@ func CancelBuilding(planetID C.int) (errorMsg *C.char) {
 
 //export CancelResearch
 func CancelResearch(planetID C.int) (errorMsg *C.char) {
-	err := bot.CancelResearch(ogame.CelestialID(planetID))
+	err := bot.CancelResearch(ogame2.CelestialID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -357,7 +357,7 @@ func CancelResearch(planetID C.int) (errorMsg *C.char) {
 
 //export GetResources
 func GetResources(planetID C.int) (metal, crystal, deuterium, energy, darkmatter C.int, errorMsg *C.char) {
-	r, err := bot.GetResources(ogame.CelestialID(planetID))
+	r, err := bot.GetResources(ogame2.CelestialID(planetID))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
@@ -368,53 +368,53 @@ func GetResources(planetID C.int) (metal, crystal, deuterium, energy, darkmatter
 func SendFleet(planetID, lightFighter, heavyFighter, cruiser, battleship, battlecruiser, bomber, destroyer, deathstar,
 	smallCargo, largeCargo, colonyShip, recycler, espionageProbe, speed, planetType, galaxy, system, position, mission,
 	metal, crystal, deuterium C.int, holdingTime, unionID int64) (fleetID C.int, errorMsg *C.char) {
-	ships := make([]ogame.Quantifiable, 0)
+	ships := make([]ogame2.Quantifiable, 0)
 	if int(lightFighter) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(lightFighter)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(lightFighter)})
 	}
 	if int(heavyFighter) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(heavyFighter)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(heavyFighter)})
 	}
 	if int(cruiser) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(cruiser)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(cruiser)})
 	}
 	if int(battleship) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(battleship)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(battleship)})
 	}
 	if int(battlecruiser) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(battlecruiser)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(battlecruiser)})
 	}
 	if int(bomber) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(bomber)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(bomber)})
 	}
 	if int(destroyer) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(destroyer)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(destroyer)})
 	}
 	if int(deathstar) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(deathstar)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(deathstar)})
 	}
 	if int(smallCargo) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(smallCargo)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(smallCargo)})
 	}
 	if int(largeCargo) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(largeCargo)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(largeCargo)})
 	}
 	if int(colonyShip) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(colonyShip)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(colonyShip)})
 	}
 	if int(recycler) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(recycler)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(recycler)})
 	}
 	if int(espionageProbe) > 0 {
-		ships = append(ships, ogame.Quantifiable{ID: ogame.LightFighterID, Nbr: int64(espionageProbe)})
+		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(espionageProbe)})
 	}
 	fleet, err := bot.SendFleet(
-		ogame.CelestialID(planetID),
+		ogame2.CelestialID(planetID),
 		ships,
-		ogame.Speed(speed),
-		ogame.Coordinate{Galaxy: int64(galaxy), System: int64(system), Position: int64(position), Type: ogame.CelestialType(planetType)},
-		ogame.MissionID(mission),
-		ogame.Resources{Metal: int64(metal), Crystal: int64(crystal), Deuterium: int64(deuterium)},
+		ogame2.Speed(speed),
+		ogame2.Coordinate{Galaxy: int64(galaxy), System: int64(system), Position: int64(position), Type: ogame2.CelestialType(planetType)},
+		ogame2.MissionID(mission),
+		ogame2.Resources{Metal: int64(metal), Crystal: int64(crystal), Deuterium: int64(deuterium)},
 		holdingTime,
 		unionID,
 	)
