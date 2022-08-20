@@ -7,6 +7,7 @@ import (
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 	"regexp"
+	"sort"
 	"strings"
 	"unicode"
 )
@@ -62,6 +63,20 @@ func ParseCoord(str string) (coord Coordinate, err error) {
 
 var namesChars = "ЁАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяёァイウオガキケコサザシスズソタダチッテデトドニノバパビフプヘマミムャヤラルレロンー偵列加反収器回型塔大太子察射導小履巡帶弾彈惡戦戰抗探撃收星機死残殖毀民洋滅漿炮爆發砲磁罩者能船艦衛諜護路車軌軽輕輸農送運道重間闘防陽際離雷電飛骸鬥魔"
 var namesRgx = regexp.MustCompile("[^a-zA-Zα-ωΑ-Ω" + namesChars + "]+")
+
+func unique(s string) string {
+	//s = strings.ToLower(s)
+	m := make(map[rune]struct{})
+	for _, c := range s {
+		m[c] = struct{}{}
+	}
+	arr := make([]string, 0)
+	for k := range m {
+		arr = append(arr, string(k))
+	}
+	sort.Slice(arr, func(i, j int) bool { return arr[i] < arr[j] })
+	return strings.Join(arr, "")
+}
 
 // DefenceName2ID ...
 func DefenceName2ID(name string) ID {

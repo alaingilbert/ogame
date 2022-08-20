@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -112,20 +111,6 @@ func GetNbrShips(doc *goquery.Document, name string) int64 {
 		return 0
 	}
 	return ParseInt(m[1])
-}
-
-func unique(s string) string {
-	//s = strings.ToLower(s)
-	m := make(map[rune]struct{})
-	for _, c := range s {
-		m[c] = struct{}{}
-	}
-	arr := make([]string, 0)
-	for k := range m {
-		arr = append(arr, string(k))
-	}
-	sort.Slice(arr, func(i, j int) bool { return arr[i] < arr[j] })
-	return strings.Join(arr, "")
 }
 
 func ReadBody(resp *http.Response) (respContent []byte, err error) {
