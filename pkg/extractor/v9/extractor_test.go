@@ -87,3 +87,11 @@ func TestCancelLfBuildingLF(t *testing.T) {
 	assert.Equal(t, int64(11101), id)
 	assert.Equal(t, int64(3998104), listID)
 }
+
+func TestCancelBuilding(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
+	token, id, listID, _ := NewExtractor().ExtractCancelBuildingInfos(pageHTMLBytes)
+	assert.Equal(t, "66f639922a3c76fe6074d12ae36e573e", token)
+	assert.Equal(t, int64(1), id)
+	assert.Equal(t, int64(3469488), listID)
+}
