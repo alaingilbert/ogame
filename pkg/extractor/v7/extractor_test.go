@@ -1,6 +1,7 @@
 package v7
 
 import (
+	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -307,4 +308,14 @@ func TestExtractFleetSlot_FleetDispatch(t *testing.T) {
 	assert.Equal(t, int64(4), s.Total)
 	assert.Equal(t, int64(0), s.ExpInUse)
 	assert.Equal(t, int64(1), s.ExpTotal)
+}
+
+func TestGetConstructionsV7(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/overview_supplies_in_construction.html")
+	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 9, 6, 43, 0, time.UTC))
+	buildingID, buildingCountdown, researchID, researchCountdown := ExtractConstructions(pageHTMLBytes, clock)
+	assert.Equal(t, ogame.MetalMineID, buildingID)
+	assert.Equal(t, int64(62), buildingCountdown)
+	assert.Equal(t, ogame.EnergyTechnologyID, researchID)
+	assert.Equal(t, int64(271), researchCountdown)
 }

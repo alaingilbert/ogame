@@ -2,18 +2,14 @@ package wrapper
 
 import (
 	"bytes"
-	"github.com/alaingilbert/ogame/pkg/extractor/v7"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/hashicorp/go-version"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"regexp"
 	"testing"
-	"time"
-
-	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/clockwork"
-	"github.com/stretchr/testify/assert"
 )
 
 func BenchmarkUserInfoRegex(b *testing.B) {
@@ -45,22 +41,6 @@ func TestWrapper(t *testing.T) {
 	var bot Wrapper
 	bot, _ = NewNoLogin("", "", "", "", "", "", "", 0, nil)
 	assert.NotNil(t, bot)
-}
-
-func TestParseInt2(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/unversioned/deathstar_price.html")
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
-	title := doc.Find("li.metal").AttrOr("title", "")
-	metalStr := regexp.MustCompile(`([\d.]+)`).FindStringSubmatch(title)[1]
-	metal := utils.ParseInt(metalStr)
-	assert.Equal(t, int64(5000000), metal)
-
-	pageHTMLBytes, _ = ioutil.ReadFile("../../samples/unversioned/mrd_price.html")
-	doc, _ = goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
-	title = doc.Find("li.metal").AttrOr("title", "")
-	metalStr = regexp.MustCompile(`([\d.]+)`).FindStringSubmatch(title)[1]
-	metal = utils.ParseInt(metalStr)
-	assert.Equal(t, int64(1555733200), metal)
 }
 
 //func TestGetResourcesProductionsLight(t *testing.T) {
@@ -131,25 +111,10 @@ func TestExtractCargoCapacity(t *testing.T) {
 //	assert.Equal(t, 49, infos.Position(5).Activity)
 //}
 
-func TestGetConstructionsV7(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../samples/v7/overview_supplies_in_construction.html")
-	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 9, 6, 43, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown := v7.ExtractConstructions(pageHTMLBytes, clock)
-	assert.Equal(t, ogame.MetalMineID, buildingID)
-	assert.Equal(t, int64(62), buildingCountdown)
-	assert.Equal(t, ogame.EnergyTechnologyID, researchID)
-	assert.Equal(t, int64(271), researchCountdown)
-}
-
 func TestExtractFleetsFromEventList(t *testing.T) {
 	//pageHTMLBytes, _ := ioutil.ReadFile("../../samples/eventlist_test.html")
 	//fleets := NewExtractor().ExtractFleetsFromEventList(pageHTMLBytes)
 	//assert.Equal(t, 4, len(fleets))
-}
-
-func TestI64Ptr(t *testing.T) {
-	v := int64(6)
-	assert.Equal(t, &v, utils.I64Ptr(6))
 }
 
 func TestGalaxyDistance(t *testing.T) {
