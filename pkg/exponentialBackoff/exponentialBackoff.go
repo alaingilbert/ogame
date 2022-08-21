@@ -1,4 +1,4 @@
-package wrapper
+package exponentialBackoff
 
 import (
 	"context"
@@ -15,8 +15,8 @@ type ExponentialBackoff struct {
 	max   int
 }
 
-// NewExponentialBackoff ...
-func NewExponentialBackoff(ctx context.Context, clock clockwork.Clock, max int) *ExponentialBackoff {
+// New ...
+func New(ctx context.Context, clock clockwork.Clock, max int) *ExponentialBackoff {
 	if max < 0 {
 		max = 0
 	}

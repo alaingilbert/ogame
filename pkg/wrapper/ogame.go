@@ -9,6 +9,7 @@ import (
 	err2 "errors"
 	"fmt"
 	"github.com/alaingilbert/clockwork"
+	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
 	"github.com/alaingilbert/ogame/pkg/extractor"
 	"github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/extractor/v7"
@@ -665,7 +666,7 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
 			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
-			chatRetry := NewExponentialBackoff(context.Background(), clockwork.NewRealClock(), 60)
+			chatRetry := exponentialBackoff.New(context.Background(), clockwork.NewRealClock(), 60)
 			chatRetry.LoopForever(func() bool {
 				select {
 				case <-b.closeChatCh:
@@ -919,7 +920,7 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly, config)
 }
 
-func (b *OGame) connectChat(chatRetry *ExponentialBackoff, host, port string) {
+func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
 	if b.IsV8() || b.IsV9() {
 		b.connectChatV8(chatRetry, host, port)
 	} else {
@@ -940,7 +941,7 @@ func yeast(num int64) (encoded string) {
 	return
 }
 
-func (b *OGame) connectChatV8(chatRetry *ExponentialBackoff, host, port string) {
+func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
 	token := yeast(time.Now().UnixNano() / 1000000)
 	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/?EIO=4&transport=polling&t="+token, nil)
 	if err != nil {
@@ -1118,7 +1119,7 @@ LOOP:
 	}
 }
 
-func (b *OGame) connectChatV7(chatRetry *ExponentialBackoff, host, port string) {
+func (b *OGame) connectChatV7(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
 	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/1/?t="+utils.FI64(time.Now().UnixNano()/int64(time.Millisecond)), nil)
 	if err != nil {
 		b.error("failed to create request:", err)

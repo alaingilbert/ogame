@@ -1,4 +1,4 @@
-package wrapper
+package exponentialBackoff
 
 import (
 	"context"
@@ -28,7 +28,7 @@ func TestExponentialBackoff_Wait(t *testing.T) {
 		atomic.AddUint32(&counter, 1)
 		wg.Done()
 	}()
-	e := NewExponentialBackoff(context.Background(), clock, 60)
+	e := New(context.Background(), clock, 60)
 	e.Wait() // First time has no wait
 	e.Wait() // Wait 1s
 	e.Wait() // Wait 2s
