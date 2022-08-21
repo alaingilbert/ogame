@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	err2 "errors"
 	"fmt"
+	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/extractor"
 	"github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/extractor/v7"
@@ -663,7 +664,7 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
 			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
-			chatRetry := NewExponentialBackoff(context.Background(), 60)
+			chatRetry := NewExponentialBackoff(context.Background(), clockwork.NewRealClock(), 60)
 			chatRetry.LoopForever(func() bool {
 				select {
 				case <-b.closeChatCh:

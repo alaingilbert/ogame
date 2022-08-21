@@ -3,6 +3,7 @@ package wrapper
 import (
 	"context"
 	"github.com/alaingilbert/clockwork"
+	"sync/atomic"
 	"time"
 )
 
@@ -10,24 +11,20 @@ import (
 type ExponentialBackoff struct {
 	ctx   context.Context
 	clock clockwork.Clock
-	val   int
+	val   uint32 // atomic
 	max   int
 }
 
 // NewExponentialBackoff ...
-func NewExponentialBackoff(ctx context.Context, max int) *ExponentialBackoff {
+func NewExponentialBackoff(ctx context.Context, clock clockwork.Clock, max int) *ExponentialBackoff {
 	if max < 0 {
 		max = 0
 	}
 	e := new(ExponentialBackoff)
 	e.ctx = ctx
-	e.clock = clockwork.NewRealClock()
+	e.clock = clock
 	e.max = max
 	return e
-}
-
-func (e *ExponentialBackoff) SetClock(clock clockwork.Clock) {
-	e.clock = clock
 }
 
 // LoopForever execute the callback with exponential backoff
@@ -50,24 +47,25 @@ func (e *ExponentialBackoff) LoopForever(clb func() bool) {
 
 // Wait ...
 func (e *ExponentialBackoff) Wait() {
-	if e.val == 0 {
-		e.val = 1
-	} else {
-		select {
-		case <-e.clock.After(time.Duration(e.val) * time.Second):
-		case <-e.ctx.Done():
-			return
-		}
-		e.val *= 2
-		if e.max > 0 {
-			if e.val > e.max {
-				e.val = e.max
-			}
-		}
+	currVal := atomic.LoadUint32(&e.val)
+	if currVal == 0 {
+		atomic.StoreUint32(&e.val, 1)
+		return
+	}
+
+	newVal := currVal * 2
+	if e.max > 0 && newVal > uint32(e.max) {
+		newVal = uint32(e.max)
+	}
+	atomic.StoreUint32(&e.val, newVal)
+	select {
+	case <-e.clock.After(time.Duration(currVal) * time.Second):
+	case <-e.ctx.Done():
+		return
 	}
 }
 
 // Reset ...
 func (e *ExponentialBackoff) Reset() {
-	e.val = 0
+	atomic.StoreUint32(&e.val, 0)
 }
