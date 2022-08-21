@@ -2,14 +2,16 @@ package wrapper
 
 import (
 	"context"
+	"github.com/alaingilbert/clockwork"
 	"time"
 )
 
 // ExponentialBackoff ...
 type ExponentialBackoff struct {
-	ctx context.Context
-	val int
-	max int
+	ctx   context.Context
+	clock clockwork.Clock
+	val   int
+	max   int
 }
 
 // NewExponentialBackoff ...
@@ -19,8 +21,13 @@ func NewExponentialBackoff(ctx context.Context, max int) *ExponentialBackoff {
 	}
 	e := new(ExponentialBackoff)
 	e.ctx = ctx
+	e.clock = clockwork.NewRealClock()
 	e.max = max
 	return e
+}
+
+func (e *ExponentialBackoff) SetClock(clock clockwork.Clock) {
+	e.clock = clock
 }
 
 // LoopForever execute the callback with exponential backoff
@@ -47,7 +54,7 @@ func (e *ExponentialBackoff) Wait() {
 		e.val = 1
 	} else {
 		select {
-		case <-time.After(time.Duration(e.val) * time.Second):
+		case <-e.clock.After(time.Duration(e.val) * time.Second):
 		case <-e.ctx.Done():
 			return
 		}
