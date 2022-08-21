@@ -6,6 +6,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -15,6 +17,7 @@ type IHttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 	Get(url string) (*http.Response, error)
 	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
+	PostForm(url string, data url.Values) (resp *http.Response, err error)
 }
 
 // Client special http client that can throttle requests per seconds (RPS).
@@ -88,6 +91,10 @@ func (c *Client) Post(url, contentType string, body io.Reader) (resp *http.Respo
 	}
 	req.Header.Set("Content-Type", contentType)
 	return c.do(req)
+}
+
+func (c *Client) PostForm(url string, data url.Values) (resp *http.Response, err error) {
+	return c.Post(url, "application/x-www-form-urlencoded", strings.NewReader(data.Encode()))
 }
 
 func (c *Client) Get(url string) (*http.Response, error) {
