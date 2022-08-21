@@ -23,6 +23,24 @@ func NewExponentialBackoff(ctx context.Context, max int) *ExponentialBackoff {
 	return e
 }
 
+// LoopForever execute the callback with exponential backoff
+// The callback return true if we should continue retrying
+// or false if we should stop and exit.
+func (e *ExponentialBackoff) LoopForever(clb func() bool) {
+	for {
+		keepLooping := clb()
+		if !keepLooping {
+			return
+		}
+		e.Wait()
+		select {
+		case <-e.ctx.Done():
+			return
+		default:
+		}
+	}
+}
+
 // Wait ...
 func (e *ExponentialBackoff) Wait() {
 	if e.val == 0 {

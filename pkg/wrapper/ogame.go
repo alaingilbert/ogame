@@ -664,16 +664,15 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 		go func(b *OGame) {
 			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
 			chatRetry := NewExponentialBackoff(context.Background(), 60)
-		LOOP:
-			for {
+			chatRetry.LoopForever(func() bool {
 				select {
 				case <-b.closeChatCh:
-					break LOOP
+					return false
 				default:
 					b.connectChat(chatRetry, chatHost, chatPort)
-					chatRetry.Wait()
 				}
-			}
+				return true
+			})
 		}(b)
 	} else {
 		b.ReconnectChat()
