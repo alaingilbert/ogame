@@ -1,4 +1,4 @@
-package wrapper
+package httpclient
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ func (f RoundTripFunc) RoundTrip(req *http.Request) (*http.Response, error) {
 }
 
 func TestOgameClient_Do(t *testing.T) {
-	c := OGameClient{userAgent: "test", Client: &http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
+	c := Client{userAgent: "test", Client: &http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 		// Test request parameters
 		return &http.Response{
 			StatusCode: 200,
@@ -35,7 +35,7 @@ func TestOgameClient_Do(t *testing.T) {
 }
 
 func TestOgameClient_SetUserAgent(t *testing.T) {
-	c := OGameClient{userAgent: "test", Client: &http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
+	c := Client{userAgent: "test", Client: &http.Client{Transport: RoundTripFunc(func(req *http.Request) *http.Response {
 		// Test request parameters
 		return &http.Response{
 			StatusCode: 200,

@@ -3,6 +3,7 @@ package wrapper
 import (
 	"crypto/tls"
 	"github.com/alaingilbert/ogame/pkg/extractor"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
 	"net/http"
@@ -158,7 +159,7 @@ type Wrapper interface {
 	GetCachedPlanets() []Planet
 	GetCachedPlayer() ogame.UserInfos
 	GetCachedPreferences() ogame.Preferences
-	GetClient() *OGameClient
+	GetClient() *httpclient.Client
 	GetExtractor() extractor.Extractor
 	GetLanguage() string
 	GetNbSystems() int64
@@ -194,7 +195,7 @@ type Wrapper interface {
 	RemoveWSCallback(string)
 	ServerURL() string
 	ServerVersion() string
-	SetClient(*OGameClient)
+	SetClient(*httpclient.Client)
 	SetGetServerDataWrapper(func(func() (ServerData, error)) (ServerData, error))
 	SetLoginWrapper(func(func() (bool, error)) error)
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)

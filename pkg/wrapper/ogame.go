@@ -16,6 +16,7 @@ import (
 	"github.com/alaingilbert/ogame/pkg/extractor/v8"
 	"github.com/alaingilbert/ogame/pkg/extractor/v874"
 	"github.com/alaingilbert/ogame/pkg/extractor/v9"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/parser"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
@@ -85,7 +86,7 @@ type OGame struct {
 	serverData            ServerData
 	location              *time.Location
 	serverURL             string
-	client                *OGameClient
+	client                *httpclient.Client
 	logger                *log.Logger
 	chatCallbacks         []func(msg ogame.ChatMsg)
 	wsCallbacks           map[string]func(msg []byte)
@@ -136,7 +137,7 @@ type Params struct {
 	Lobby           string
 	APINewHostname  string
 	CookiesFilename string
-	Client          *OGameClient
+	Client          *httpclient.Client
 	CaptchaCallback CaptchaCallback
 }
 
@@ -158,7 +159,7 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 }
 
 func (b *OGame) validateAccount(code string) error {
-	return b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+	return b.client.WithTransport(b.loginProxyTransport, func(client httpclient.IHttpClient) error {
 		return ValidateAccount(client, b.ctx, b.lobby, code)
 	})
 }
@@ -204,7 +205,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
+func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *httpclient.Client) (*OGame, error) {
 	b := new(OGame)
 	b.getServerDataWrapper = DefaultGetServerDataWrapper
 	b.loginWrapper = DefaultLoginWrapper
@@ -237,7 +238,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 			}
 		}
 
-		b.client = NewOGameClient()
+		b.client = httpclient.NewClient()
 		b.client.Jar = jar
 		b.client.SetUserAgent(defaultUserAgent)
 	} else {
@@ -468,7 +469,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 }
 
 func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
-	if err := b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+	if err := b.client.WithTransport(b.loginProxyTransport, func(client httpclient.IHttpClient) error {
 		var challengeID string
 		tried := false
 		for {
@@ -840,7 +841,7 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 // execute a request using the login proxy transport if set
 func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Response, err error) {
 	req = req.WithContext(b.ctx)
-	_ = b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+	_ = b.client.WithTransport(b.loginProxyTransport, func(client httpclient.IHttpClient) error {
 		resp, err = client.Do(req)
 		return nil
 	})
@@ -4029,17 +4030,17 @@ func (b *OGame) IsConnected() bool {
 }
 
 // GetClient get the http client used by the bot
-func (b *OGame) GetClient() *OGameClient {
+func (b *OGame) GetClient() *httpclient.Client {
 	return b.client
 }
 
 // SetClient set the http client used by the bot
-func (b *OGame) SetClient(client *OGameClient) {
+func (b *OGame) SetClient(client *httpclient.Client) {
 	b.client = client
 }
 
 // GetLoginClient get the http client used by the bot for login operations
-func (b *OGame) GetLoginClient() *OGameClient {
+func (b *OGame) GetLoginClient() *httpclient.Client {
 	return b.client
 }
 

@@ -1,4 +1,4 @@
-package wrapper
+package httpclient
 
 import (
 	"bytes"
@@ -16,8 +16,8 @@ type IHttpClient interface {
 	Get(url string) (*http.Response, error)
 }
 
-// OGameClient ...
-type OGameClient struct {
+// Client ...
+type Client struct {
 	sync.Mutex
 	*http.Client
 	userAgent       string
@@ -29,21 +29,21 @@ type OGameClient struct {
 	bytesUploaded   int64
 }
 
-func (c *OGameClient) BytesDownloaded() int64 {
+func (c *Client) BytesDownloaded() int64 {
 	c.Lock()
 	defer c.Unlock()
 	return c.bytesDownloaded
 }
 
-func (c *OGameClient) BytesUploaded() int64 {
+func (c *Client) BytesUploaded() int64 {
 	c.Lock()
 	defer c.Unlock()
 	return c.bytesUploaded
 }
 
-// NewOGameClient ...
-func NewOGameClient() *OGameClient {
-	client := &OGameClient{
+// NewClient ...
+func NewClient() *Client {
+	client := &Client{
 		Client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
@@ -65,11 +65,11 @@ func NewOGameClient() *OGameClient {
 }
 
 // SetMaxRPS ...
-func (c *OGameClient) SetMaxRPS(maxRPS int32) {
+func (c *Client) SetMaxRPS(maxRPS int32) {
 	atomic.StoreInt32(&c.maxRPS, maxRPS)
 }
 
-func (c *OGameClient) incrRPS() {
+func (c *Client) incrRPS() {
 	newRPS := atomic.AddInt32(&c.rpsCounter, 1)
 	maxRPS := atomic.LoadInt32(&c.maxRPS)
 	if maxRPS > 0 && newRPS > maxRPS {
@@ -79,11 +79,11 @@ func (c *OGameClient) incrRPS() {
 	}
 }
 
-func (c *OGameClient) Get(url string) (*http.Response, error) {
+func (c *Client) Get(url string) (*http.Response, error) {
 	return c.get(url)
 }
 
-func (c *OGameClient) get(url string) (*http.Response, error) {
+func (c *Client) get(url string) (*http.Response, error) {
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
@@ -92,11 +92,11 @@ func (c *OGameClient) get(url string) (*http.Response, error) {
 }
 
 // Do executes a request
-func (c *OGameClient) Do(req *http.Request) (*http.Response, error) {
+func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	return c.do(req)
 }
 
-func (c *OGameClient) do(req *http.Request) (*http.Response, error) {
+func (c *Client) do(req *http.Request) (*http.Response, error) {
 	c.incrRPS()
 	req.Header.Add("User-Agent", c.userAgent)
 	resp, err := c.Client.Do(req)
@@ -112,7 +112,7 @@ func (c *OGameClient) do(req *http.Request) (*http.Response, error) {
 	return resp, err
 }
 
-func (c *OGameClient) WithTransport(tr http.RoundTripper, clb func(IHttpClient) error) error {
+func (c *Client) WithTransport(tr http.RoundTripper, clb func(IHttpClient) error) error {
 	c.Lock()
 	defer c.Unlock()
 	if tr != nil {
@@ -123,31 +123,31 @@ func (c *OGameClient) WithTransport(tr http.RoundTripper, clb func(IHttpClient) 
 	return clb(c)
 }
 
-func (c *OGameClient) SetTransport(tr http.RoundTripper) {
+func (c *Client) SetTransport(tr http.RoundTripper) {
 	c.Lock()
 	defer c.Unlock()
 	c.Transport = tr
 }
 
-func (c *OGameClient) UserAgent() string {
+func (c *Client) UserAgent() string {
 	c.Lock()
 	defer c.Unlock()
 	return c.userAgent
 }
 
-func (c *OGameClient) SetUserAgent(userAgent string) {
+func (c *Client) SetUserAgent(userAgent string) {
 	c.Lock()
 	defer c.Unlock()
 	c.userAgent = userAgent
 }
 
 // FakeDo for testing purposes
-func (c *OGameClient) FakeDo() {
+func (c *Client) FakeDo() {
 	c.incrRPS()
 	fmt.Println("FakeDo")
 }
 
 // GetRPS gets the current client RPS
-func (c *OGameClient) GetRPS() int32 {
+func (c *Client) GetRPS() int32 {
 	return atomic.LoadInt32(&c.rps)
 }
