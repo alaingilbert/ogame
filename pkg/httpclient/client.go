@@ -14,6 +14,7 @@ import (
 type IHttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 	Get(url string) (*http.Response, error)
+	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
 }
 
 // Client special http client that can throttle requests per seconds (RPS).
@@ -78,6 +79,15 @@ func (c *Client) incrRPS() {
 		// fmt.Printf("throttle %d\n", s)
 		time.Sleep(time.Duration(s))
 	}
+}
+
+func (c *Client) Post(url, contentType string, body io.Reader) (resp *http.Response, err error) {
+	req, err := http.NewRequest(http.MethodPost, url, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", contentType)
+	return c.do(req)
 }
 
 func (c *Client) Get(url string) (*http.Response, error) {
