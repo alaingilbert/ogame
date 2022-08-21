@@ -25,3 +25,10 @@ func TestParsePageContent(t *testing.T) {
 	assert.NoError(t, parserErr(ParsePage[DefensesPage](v7.NewExtractor(), MustReadFile("../../samples/v7/defenses.html"))))
 	assert.Error(t, parserErr(ParsePage[DefensesPage](v7.NewExtractor(), MustReadFile("../../samples/v7/overview.html"))))
 }
+
+func TestParsePageGetDoc(t *testing.T) {
+	p, _ := ParsePage[DefensesPage](v7.NewExtractor(), MustReadFile("../../samples/v7/defenses.html"))
+	assert.Nil(t, p.doc)
+	p.GetDoc()
+	assert.NotNil(t, p.doc)
+}
