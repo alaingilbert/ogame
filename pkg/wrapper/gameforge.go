@@ -47,7 +47,7 @@ var (
 )
 
 // Register a new gameforge lobby account
-func Register(client *http.Client, ctx context.Context, lobby, email, password, challengeID, lang string) error {
+func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, password, challengeID, lang string) error {
 	if lang == "" {
 		lang = "en"
 	}
@@ -131,7 +131,7 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 }
 
 // RedeemCode ...
-func RedeemCode(client *http.Client, ctx context.Context, lobby, email, password, otpSecret, token string) error {
+func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, email, password, otpSecret, token string) error {
 	postSessionsRes, err := GFLogin(client, ctx, lobby, email, password, otpSecret, "")
 	if err != nil {
 		return err
@@ -179,7 +179,7 @@ func RedeemCode(client *http.Client, ctx context.Context, lobby, email, password
 }
 
 // LoginAndAddAccount adds an account to a gameforge lobby
-func LoginAndAddAccount(client *http.Client, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (*AddAccountRes, error) {
+func LoginAndAddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (*AddAccountRes, error) {
 	postSessionsRes, err := GFLogin(client, ctx, lobby, username, password, otpSecret, "")
 	if err != nil {
 		return nil, err
