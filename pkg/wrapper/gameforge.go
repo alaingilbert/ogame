@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-// ogame cookie name for token id
+// TokenCookieName ogame cookie name for token id
 const TokenCookieName = "gf-token-production"
 const ChallengeIDCookieName = "gf-challenge-id"
 
