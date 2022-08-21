@@ -160,7 +160,7 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 }
 
 func (b *OGame) validateAccount(code string) error {
-	return b.client.WithTransport(b.loginProxyTransport, func(client httpclient.IHttpClient) error {
+	return b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		return ValidateAccount(client, b.ctx, b.lobby, code)
 	})
 }
@@ -470,7 +470,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 }
 
 func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
-	if err := b.client.WithTransport(b.loginProxyTransport, func(client httpclient.IHttpClient) error {
+	if err := b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		var challengeID string
 		tried := false
 		for {
@@ -842,7 +842,7 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 // execute a request using the login proxy transport if set
 func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Response, err error) {
 	req = req.WithContext(b.ctx)
-	_ = b.client.WithTransport(b.loginProxyTransport, func(client httpclient.IHttpClient) error {
+	_ = b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		resp, err = client.Do(req)
 		return nil
 	})

@@ -130,7 +130,7 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 	return resp, err
 }
 
-func (c *Client) WithTransport(tr http.RoundTripper, clb func(IHttpClient) error) error {
+func (c *Client) WithTransport(tr http.RoundTripper, clb func(*Client) error) error {
 	c.Lock()
 	defer c.Unlock()
 	if tr != nil {
