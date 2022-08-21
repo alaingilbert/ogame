@@ -181,16 +181,7 @@ func extractMoonFromDoc(doc *goquery.Document, v any) (ogame.Moon, error) {
 
 func extractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, error) {
 	switch vv := v.(type) {
-	// TODO: fix this
-	//case wrapper.Celestial:
-	//	return extractCelestialByIDFromDoc(doc, vv.GetID())
-	//case ogame2.Planet:
-	//	return extractCelestialByIDFromDoc(doc, vv.GetID())
-	//case ogame2.Moon:
-	//return extractCelestialByIDFromDoc(doc, vv.GetID())
-	case ogame.Planet:
-		return extractCelestialByIDFromDoc(doc, vv.GetID())
-	case ogame.Moon:
+	case ogame.Celestial:
 		return extractCelestialByIDFromDoc(doc, vv.GetID())
 	case ogame.PlanetID:
 		return extractCelestialByIDFromDoc(doc, vv.Celestial())
