@@ -16,7 +16,8 @@ type IHttpClient interface {
 	Get(url string) (*http.Response, error)
 }
 
-// Client ...
+// Client special http client that can throttle requests per seconds (RPS).
+// Also collect stats about current RPS and overall bytes downloaded/uploaded.
 type Client struct {
 	sync.Mutex
 	*http.Client
