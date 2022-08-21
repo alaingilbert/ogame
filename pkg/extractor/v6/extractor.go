@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"net/url"
-	"regexp"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -89,14 +88,7 @@ func (e *Extractor) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]o
 
 // ExtractLifeformEnabled ...
 func (e *Extractor) ExtractLifeformEnabled(pageHTML []byte) bool {
-	lifeformEnabledMatch := regexp.MustCompile(`"lifeformEnabled":(\btrue\b|\bfalse\b)`).FindSubmatch(pageHTML)
-	if len(lifeformEnabledMatch) < 2 {
-		return false
-	}
-	if bytes.Equal(lifeformEnabledMatch[1], []byte("true")) {
-		return true
-	}
-	return false
+	return bytes.Contains(pageHTML, []byte(`lifeformEnabled":true`))
 }
 
 // ExtractIsInVacation ...
