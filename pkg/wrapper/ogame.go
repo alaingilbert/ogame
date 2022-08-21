@@ -663,7 +663,7 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
 			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
-			chatRetry := NewExponentialBackoff(60)
+			chatRetry := NewExponentialBackoff(context.Background(), 60)
 		LOOP:
 			for {
 				select {

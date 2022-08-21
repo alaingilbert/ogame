@@ -1,19 +1,24 @@
 package wrapper
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // ExponentialBackoff ...
 type ExponentialBackoff struct {
+	ctx context.Context
 	val int
 	max int
 }
 
 // NewExponentialBackoff ...
-func NewExponentialBackoff(max int) *ExponentialBackoff {
+func NewExponentialBackoff(ctx context.Context, max int) *ExponentialBackoff {
 	if max < 0 {
 		max = 0
 	}
 	e := new(ExponentialBackoff)
+	e.ctx = ctx
 	e.max = max
 	return e
 }
@@ -23,7 +28,11 @@ func (e *ExponentialBackoff) Wait() {
 	if e.val == 0 {
 		e.val = 1
 	} else {
-		time.Sleep(time.Duration(e.val) * time.Second)
+		select {
+		case <-time.After(time.Duration(e.val) * time.Second):
+		case <-e.ctx.Done():
+			return
+		}
 		e.val *= 2
 		if e.max > 0 {
 			if e.val > e.max {
