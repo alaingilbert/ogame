@@ -474,6 +474,11 @@ func (e *Extractor) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.Sh
 	return extractFleet1ShipsFromDoc(doc)
 }
 
+// ExtractFleetDispatchACSFromDoc ...
+func (e *Extractor) ExtractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues {
+	return extractFleetDispatchACSFromDoc(doc)
+}
+
 // ExtractEspionageReportMessageIDsFromDoc ...
 func (e *Extractor) ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64) {
 	return extractEspionageReportMessageIDsFromDoc(doc)

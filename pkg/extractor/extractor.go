@@ -123,6 +123,7 @@ type FleetDispatchExtractorBytes interface {
 type FleetDispatchExtractorDoc interface {
 	FleetsExtractorBytes
 	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos)
+	ExtractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues
 }
 
 type FleetDispatchExtractorBytesDoc interface {
@@ -463,7 +464,7 @@ type Extractor interface {
 	PremiumExtractorBytes
 	TraderAuctioneerExtractorBytes
 	TraderImportExportExtractorBytes
-	
+
 	TraderImportExportExtractorDoc
 
 	ExtractCoord(v string) (coord ogame.Coordinate)

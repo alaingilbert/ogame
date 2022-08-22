@@ -3384,19 +3384,16 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 
 	if unionID != 0 {
 		found := false
-		fleet1Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
-			acsValues := s.AttrOr("value", "")
-			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
-			if len(m) == 2 {
-				optUnionID := utils.DoParseI64(m[1])
-				if unionID == optUnionID {
-					found = true
-					payload.Add("acsValues", acsValues)
-					payload.Add("union", m[1])
-					mission = ogame.GroupedAttack
-				}
+		acsArr := b.extractor.ExtractFleetDispatchACSFromDoc(fleet1Doc)
+		for _, acs := range acsArr {
+			if unionID == acs.Union {
+				found = true
+				payload.Add("acsValues", acs.ACSValues)
+				payload.Add("union", utils.FI64(acs.Union))
+				mission = ogame.GroupedAttack
+				break
 			}
-		})
+		}
 		if !found {
 			return ogame.Fleet{}, ogame.ErrUnionNotFound
 		}
@@ -4739,4 +4736,23 @@ func (b *OGame) OfferSellMarketplace(itemID any, quantity, priceType, price, pri
 // OfferBuyMarketplace buy offer on marketplace
 func (b *OGame) OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error {
 	return b.WithPriority(taskRunner.Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+type IGetCoordinate interface {
+	GetCoordinate() ogame.Coordinate
+}
+
+func ConvertToCoordinate(v any) (out ogame.Coordinate) {
+	if celestial, ok := v.(IGetCoordinate); ok {
+		out = celestial.GetCoordinate()
+	} else if coord, ok := v.(ogame.Coordinate); ok {
+		out = coord
+	} else if coordStr, ok := v.(string); ok {
+		coord, err := ogame.ParseCoord(coordStr)
+		if err != nil {
+			return
+		}
+		out = coord
+	}
+	return
 }

@@ -568,6 +568,19 @@ func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
 	return
 }
 
+func extractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues {
+	out := make([]ogame.ACSValues, 0)
+	doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
+		acsValues := s.AttrOr("value", "")
+		m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
+		if len(m) == 2 {
+			optUnionID := utils.DoParseI64(m[1])
+			out = append(out, ogame.ACSValues{ACSValues: acsValues, Union: optUnionID})
+		}
+	})
+	return out
+}
+
 func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64) {
 	msgs := make([]ogame.EspionageReportSummary, 0)
 	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
