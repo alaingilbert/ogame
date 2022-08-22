@@ -19,6 +19,10 @@ import (
 	"golang.org/x/net/html"
 )
 
+func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
+	return !doc.Find("a.demolish_link div").HasClass("demolish_img_disabled")
+}
+
 func extractIsInVacationFromDoc(doc *goquery.Document) bool {
 	href := doc.Find("div#advice-bar a").AttrOr("href", "")
 	if href == "" {
@@ -1396,6 +1400,14 @@ func extractPlanetCoordinate(pageHTML []byte) (ogame.Coordinate, error) {
 	position := utils.DoParseI64(string(m[3]))
 	planetType, _ := extractPlanetType(pageHTML)
 	return ogame.Coordinate{galaxy, system, position, planetType}, nil
+}
+
+func extractTearDownToken(pageHTML []byte) (string, error) {
+	m := regexp.MustCompile(`modus=3&token=([^&]+)&`).FindSubmatch(pageHTML)
+	if len(m) != 2 {
+		return "", errors.New("unable to find tear down token")
+	}
+	return string(m[1]), nil
 }
 
 func extractPlanetID(pageHTML []byte) (ogame.CelestialID, error) {

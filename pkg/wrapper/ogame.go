@@ -2887,15 +2887,6 @@ func getToken(b *OGame, page string, celestialID ogame.CelestialID) (string, err
 	return string(m[1]), nil
 }
 
-func getDemolishToken(b *OGame, page string, celestialID ogame.CelestialID) (string, error) {
-	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
-	m := regexp.MustCompile(`modus=3&token=([^&]+)&`).FindSubmatch(pageHTML)
-	if len(m) != 2 {
-		return "", errors.New("unable to find form token")
-	}
-	return string(m[1]), nil
-}
-
 func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 	var page string
 	if id.IsResourceBuilding() {
@@ -2906,12 +2897,13 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		return errors.New("invalid id " + id.String())
 	}
 
-	token, err := getDemolishToken(b, page, celestialID)
+	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
+	token, err := b.extractor.ExtractTearDownToken(pageHTML)
 	if err != nil {
 		return err
 	}
 
-	pageHTML, _ := b.getPageContent(url.Values{
+	pageHTML, _ = b.getPageContent(url.Values{
 		"page":       {"ingame"},
 		"component":  {"technologydetails"},
 		"ajax":       {"1"},
@@ -2920,12 +2912,7 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		"cp":         {utils.FI64(celestialID)},
 	})
 
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	if err != nil {
-		return err
-	}
-	imgDisabled := doc.Find("a.demolish_link div").HasClass("demolish_img_disabled")
-	if imgDisabled {
+	if !b.extractor.ExtractTearDownButtonEnabled(pageHTML) {
 		return errors.New("tear down button is disabled")
 	}
 

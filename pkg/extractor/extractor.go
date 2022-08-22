@@ -163,6 +163,7 @@ type ResearchExtractorBytesDoc interface {
 
 type FacilitiesExtractorBytes interface {
 	ExtractFacilities(pageHTML []byte) (ogame.Facilities, error)
+	ExtractTearDownToken(pageHTML []byte) (string, error)
 }
 
 type FacilitiesExtractorDoc interface {
@@ -407,6 +408,7 @@ type MessagesMarketplaceExtractorBytes interface {
 // ResourcesBuildingsExtractorBytes supplies page
 type ResourcesBuildingsExtractorBytes interface {
 	ExtractResourcesBuildings(pageHTML []byte) (ogame.ResourcesBuildings, error)
+	ExtractTearDownToken(pageHTML []byte) (string, error)
 }
 
 type ResourcesBuildingsExtractorDoc interface {
@@ -425,6 +427,19 @@ type PremiumExtractorBytes interface {
 
 type PlanetLayerExtractorDoc interface {
 	ExtractAbandonInformation(doc *goquery.Document) (abandonToken string, token string)
+}
+
+type TechnologyDetailsExtractorBytes interface {
+	ExtractTearDownButtonEnabled(pageHTML []byte) bool
+}
+
+type TechnologyDetailsExtractorDoc interface {
+	ExtractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool
+}
+
+type TechnologyDetailsExtractorBytesDoc interface {
+	TechnologyDetailsExtractorBytes
+	TechnologyDetailsExtractorDoc
 }
 
 // Extractor ...
@@ -454,6 +469,7 @@ type Extractor interface {
 	ResourcesBuildingsExtractorBytesDoc
 	ResourcesSettingsExtractorBytesDoc
 	ShipyardExtractorBytesDoc
+	TechnologyDetailsExtractorBytesDoc
 
 	BuffActivationExtractorBytes
 	DestroyRocketsExtractorBytes

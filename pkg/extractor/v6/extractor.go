@@ -86,6 +86,12 @@ func (e *Extractor) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]o
 	panic("implement me")
 }
 
+// ExtractTearDownButtonEnabled ...
+func (e *Extractor) ExtractTearDownButtonEnabled(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractTearDownButtonEnabledFromDoc(doc)
+}
+
 // ExtractLifeformEnabled ...
 func (e *Extractor) ExtractLifeformEnabled(pageHTML []byte) bool {
 	return bytes.Contains(pageHTML, []byte(`lifeformEnabled":true`))
@@ -231,6 +237,11 @@ func (e *Extractor) ExtractFacilities(pageHTML []byte) (ogame.Facilities, error)
 	return e.ExtractFacilitiesFromDoc(doc)
 }
 
+// ExtractTearDownToken ...
+func (e *Extractor) ExtractTearDownToken(pageHTML []byte) (string, error) {
+	return extractTearDownToken(pageHTML)
+}
+
 // ExtractResearch ...
 func (e *Extractor) ExtractResearch(pageHTML []byte) ogame.Researches {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
@@ -368,6 +379,11 @@ func (e *Extractor) ExtractBodyIDFromDoc(doc *goquery.Document) string {
 // ExtractIsInVacationFromDoc ...
 func (e *Extractor) ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
 	return extractIsInVacationFromDoc(doc)
+}
+
+// ExtractTearDownButtonEnabledFromDoc ...
+func (e *Extractor) ExtractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
+	return extractTearDownButtonEnabledFromDoc(doc)
 }
 
 // ExtractPlanetsFromDoc ...
