@@ -73,7 +73,7 @@ func (e Extractor) ExtractShips(pageHTML []byte) (ogame.ShipsInfos, error) {
 }
 
 // ExtractResourceSettings ...
-func (e Extractor) ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, error) {
+func (e Extractor) ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, string, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractResourceSettingsFromDoc(doc)
 }
@@ -153,7 +153,7 @@ func (e Extractor) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.Shi
 }
 
 // ExtractResourceSettingsFromDoc ...
-func (e Extractor) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, error) {
+func (e Extractor) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
 	return extractResourceSettingsFromDoc(doc)
 }
 

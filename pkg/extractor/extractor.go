@@ -355,12 +355,12 @@ type FetchTechsExtractorBytes interface {
 }
 
 type ResourcesSettingsExtractorBytes interface {
-	ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, error)
+	ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, string, error)
 	ExtractResourcesProductions(pageHTML []byte) (ogame.Resources, error)
 }
 
 type ResourcesSettingsExtractorDoc interface {
-	ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, error)
+	ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error)
 	ExtractResourcesProductionsFromDoc(doc *goquery.Document) (ogame.Resources, error)
 }
 

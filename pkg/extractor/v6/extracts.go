@@ -989,10 +989,10 @@ func extractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
 	return prefs
 }
 
-func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, error) {
+func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
 	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
-		return ogame.ResourceSettings{}, ogame.ErrInvalidPlanetID
+		return ogame.ResourceSettings{}, "", ogame.ErrInvalidPlanetID
 	}
 	vals := make([]int64, 0)
 	doc.Find("option").Each(func(i int, s *goquery.Selection) {
@@ -1004,7 +1004,7 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 		}
 	})
 	if len(vals) != 6 {
-		return ogame.ResourceSettings{}, errors.New("failed to find all resource settings")
+		return ogame.ResourceSettings{}, "", errors.New("failed to find all resource settings")
 	}
 
 	res := ogame.ResourceSettings{}
@@ -1015,7 +1015,12 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 	res.FusionReactor = vals[4]
 	res.SolarSatellite = vals[5]
 
-	return res, nil
+	token, exists := doc.Find("form input[name=token]").Attr("value")
+	if !exists {
+		return ogame.ResourceSettings{}, "", errors.New("unable to find token")
+	}
+
+	return res, token, nil
 }
 
 func extractFleetsFromEventListFromDoc(doc *goquery.Document) []ogame.Fleet {

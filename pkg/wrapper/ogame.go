@@ -2783,19 +2783,15 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 func (b *OGame) getResourceSettings(planetID ogame.PlanetID, options ...Option) (ogame.ResourceSettings, error) {
 	options = append(options, ChangePlanet(planetID.Celestial()))
 	page, _ := getPage[parser.ResourcesSettingsPage](b, options...)
-	return page.ExtractResourceSettings()
+	settings, _, err := page.ExtractResourceSettings()
+	return settings, err
 }
 
 func (b *OGame) setResourceSettings(planetID ogame.PlanetID, settings ogame.ResourceSettings) error {
 	pageHTML, _ := b.getPage(ResourceSettingsPageName, ChangePlanet(planetID.Celestial()))
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	bodyID := b.extractor.ExtractBodyIDFromDoc(doc)
-	if bodyID == "overview" {
-		return ogame.ErrInvalidPlanetID
-	}
-	token, exists := doc.Find("form input[name=token]").Attr("value")
-	if !exists {
-		return errors.New("unable to find token")
+	_, token, err := b.extractor.ExtractResourceSettings(pageHTML)
+	if err != nil {
+		return err
 	}
 	payload := url.Values{
 		"saveSettings": {"1"},

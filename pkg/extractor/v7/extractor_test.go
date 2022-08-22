@@ -109,7 +109,7 @@ func TestExtractResourcesBuildings(t *testing.T) {
 
 func TestExtractResourceSettings(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/resource_settings.html")
-	settings, _ := NewExtractor().ExtractResourceSettings(pageHTMLBytes)
+	settings, _, _ := NewExtractor().ExtractResourceSettings(pageHTMLBytes)
 	assert.Equal(t, ogame.ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 0, SolarSatellite: 0, Crawler: 0}, settings)
 }
 
