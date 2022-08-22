@@ -247,7 +247,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	}
 
 	factory := func() *Prioritize { return &Prioritize{bot: b} }
-	b.taskRunnerInst = taskRunner.NewTaskRunner(b.ctx, factory)
+	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
 
 	b.wsCallbacks = make(map[string]func([]byte))
 
