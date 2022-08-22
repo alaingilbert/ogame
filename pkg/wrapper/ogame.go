@@ -3385,13 +3385,13 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	if unionID != 0 {
 		found := false
 		fleet1Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
-			acsValue := s.AttrOr("value", "")
-			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValue)
+			acsValues := s.AttrOr("value", "")
+			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
 			if len(m) == 2 {
 				optUnionID := utils.DoParseI64(m[1])
 				if unionID == optUnionID {
 					found = true
-					payload.Add("acsValues", acsValue)
+					payload.Add("acsValues", acsValues)
 					payload.Add("union", m[1])
 					mission = ogame.GroupedAttack
 				}
