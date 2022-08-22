@@ -709,6 +709,11 @@ func (e *Extractor) ExtractTechnocratFromDoc(doc *goquery.Document) bool {
 	return extractTechnocratFromDoc(doc)
 }
 
+// ExtractAbandonInformation ...
+func (e *Extractor) ExtractAbandonInformation(doc *goquery.Document) (string, string) {
+	return extractAbandonInformation(doc)
+}
+
 // </ Extract from doc> -------------------------------------------------------
 
 // <Works with []byte only> ---------------------------------------------------

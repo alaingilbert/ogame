@@ -1826,8 +1826,7 @@ func (b *OGame) abandon(v any) error {
 	}
 	pageHTML, _ := b.getPage(PlanetlayerPageName, ChangePlanet(planet.GetID()))
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
-	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
+	abandonToken, token := b.extractor.ExtractAbandonInformation(doc)
 	payload := url.Values{
 		"abandon":  {abandonToken},
 		"token":    {token},

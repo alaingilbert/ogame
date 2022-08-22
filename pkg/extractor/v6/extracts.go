@@ -1375,6 +1375,12 @@ func extractTechnocratFromDoc(doc *goquery.Document) bool {
 	return doc.Find("div#officers a.technocrat").HasClass("on")
 }
 
+func extractAbandonInformation(doc *goquery.Document) (string, string) {
+	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
+	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
+	return abandonToken, token
+}
+
 func extractPlanetCoordinate(pageHTML []byte) (ogame.Coordinate, error) {
 	m := regexp.MustCompile(`<meta name="ogame-planet-coordinates" content="(\d+):(\d+):(\d+)"/>`).FindSubmatch(pageHTML)
 	if len(m) == 0 {

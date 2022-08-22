@@ -423,6 +423,10 @@ type PremiumExtractorBytes interface {
 	ExtractPremiumToken(pageHTML []byte, days int64) (token string, err error)
 }
 
+type PlanetLayerExtractorDoc interface {
+	ExtractAbandonInformation(doc *goquery.Document) (abandonToken string, token string)
+}
+
 // Extractor ...
 type Extractor interface {
 	GetLanguage() string
@@ -465,6 +469,7 @@ type Extractor interface {
 	TraderAuctioneerExtractorBytes
 	TraderImportExportExtractorBytes
 
+	PlanetLayerExtractorDoc
 	TraderImportExportExtractorDoc
 
 	ExtractCoord(v string) (coord ogame.Coordinate)
