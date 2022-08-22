@@ -849,7 +849,7 @@ func SendFleetHandler(c echo.Context) error {
 			for _, s := range values {
 				a := strings.Split(s, ",")
 				shipID, err := utils.ParseI64(a[0])
-				if err != nil || !ogame.IsShipID(shipID) {
+				if err != nil || !ogame.ID(shipID).IsShip() {
 					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ship id "+a[0]))
 				}
 				nbr, err := utils.ParseI64(a[1])
@@ -1266,7 +1266,7 @@ func JumpGateHandler(c echo.Context) error {
 			for _, s := range values {
 				a := strings.Split(s, ",")
 				shipID, err := utils.ParseI64(a[0])
-				if err != nil || !ogame.IsShipID(shipID) {
+				if err != nil || !ogame.ID(shipID).IsShip() {
 					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ship id "+a[0]))
 				}
 				nbr, err := utils.ParseI64(a[1])

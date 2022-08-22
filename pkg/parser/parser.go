@@ -18,7 +18,7 @@ type Page struct {
 	content []byte
 }
 
-func (p Page) GetContent() []byte { return p.content }
+func (p *Page) GetContent() []byte { return p.content }
 
 func (p *Page) GetDoc() *goquery.Document {
 	if p.doc == nil {

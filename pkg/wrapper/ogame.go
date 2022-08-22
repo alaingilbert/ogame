@@ -8,6 +8,8 @@ import (
 	"encoding/json"
 	err2 "errors"
 	"fmt"
+	"github.com/alaingilbert/clockwork"
+	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
 	"github.com/alaingilbert/ogame/pkg/extractor"
 	"github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/extractor/v7"
@@ -15,6 +17,7 @@ import (
 	"github.com/alaingilbert/ogame/pkg/extractor/v8"
 	"github.com/alaingilbert/ogame/pkg/extractor/v874"
 	"github.com/alaingilbert/ogame/pkg/extractor/v9"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/parser"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
@@ -84,7 +87,7 @@ type OGame struct {
 	serverData            ServerData
 	location              *time.Location
 	serverURL             string
-	client                *OGameClient
+	client                *httpclient.Client
 	logger                *log.Logger
 	chatCallbacks         []func(msg ogame.ChatMsg)
 	wsCallbacks           map[string]func(msg []byte)
@@ -135,7 +138,7 @@ type Params struct {
 	Lobby           string
 	APINewHostname  string
 	CookiesFilename string
-	Client          *OGameClient
+	Client          *httpclient.Client
 	CaptchaCallback CaptchaCallback
 }
 
@@ -157,7 +160,7 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 }
 
 func (b *OGame) validateAccount(code string) error {
-	return b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+	return b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		return ValidateAccount(client, b.ctx, b.lobby, code)
 	})
 }
@@ -203,7 +206,7 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *OGameClient) (*OGame, error) {
+func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *httpclient.Client) (*OGame, error) {
 	b := new(OGame)
 	b.getServerDataWrapper = DefaultGetServerDataWrapper
 	b.loginWrapper = DefaultLoginWrapper
@@ -236,7 +239,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 			}
 		}
 
-		b.client = NewOGameClient()
+		b.client = httpclient.NewClient()
 		b.client.Jar = jar
 		b.client.SetUserAgent(defaultUserAgent)
 	} else {
@@ -244,7 +247,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	}
 
 	factory := func() *Prioritize { return &Prioritize{bot: b} }
-	b.taskRunnerInst = taskRunner.NewTaskRunner(b.ctx, factory)
+	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
 
 	b.wsCallbacks = make(map[string]func([]byte))
 
@@ -467,7 +470,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 }
 
 func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
-	if err := b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+	if err := b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		var challengeID string
 		tried := false
 		for {
@@ -663,17 +666,16 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
 			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
-			chatRetry := NewExponentialBackoff(60)
-		LOOP:
-			for {
+			chatRetry := exponentialBackoff.New(context.Background(), clockwork.NewRealClock(), 60)
+			chatRetry.LoopForever(func() bool {
 				select {
 				case <-b.closeChatCh:
-					break LOOP
+					return false
 				default:
 					b.connectChat(chatRetry, chatHost, chatPort)
-					chatRetry.Wait()
 				}
-			}
+				return true
+			})
 		}(b)
 	} else {
 		b.ReconnectChat()
@@ -840,7 +842,7 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 // execute a request using the login proxy transport if set
 func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Response, err error) {
 	req = req.WithContext(b.ctx)
-	_ = b.client.WithTransport(b.loginProxyTransport, func(client IHttpClient) error {
+	_ = b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		resp, err = client.Do(req)
 		return nil
 	})
@@ -918,7 +920,7 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly, config)
 }
 
-func (b *OGame) connectChat(chatRetry *ExponentialBackoff, host, port string) {
+func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
 	if b.IsV8() || b.IsV9() {
 		b.connectChatV8(chatRetry, host, port)
 	} else {
@@ -939,7 +941,7 @@ func yeast(num int64) (encoded string) {
 	return
 }
 
-func (b *OGame) connectChatV8(chatRetry *ExponentialBackoff, host, port string) {
+func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
 	token := yeast(time.Now().UnixNano() / 1000000)
 	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/?EIO=4&transport=polling&t="+token, nil)
 	if err != nil {
@@ -1117,7 +1119,7 @@ LOOP:
 	}
 }
 
-func (b *OGame) connectChatV7(chatRetry *ExponentialBackoff, host, port string) {
+func (b *OGame) connectChatV7(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
 	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/1/?t="+utils.FI64(time.Now().UnixNano()/int64(time.Millisecond)), nil)
 	if err != nil {
 		b.error("failed to create request:", err)
@@ -1824,8 +1826,7 @@ func (b *OGame) abandon(v any) error {
 	}
 	pageHTML, _ := b.getPage(PlanetlayerPageName, ChangePlanet(planet.GetID()))
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
-	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
+	abandonToken, token := b.extractor.ExtractAbandonInformation(doc)
 	payload := url.Values{
 		"abandon":  {abandonToken},
 		"token":    {token},
@@ -2782,19 +2783,15 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 func (b *OGame) getResourceSettings(planetID ogame.PlanetID, options ...Option) (ogame.ResourceSettings, error) {
 	options = append(options, ChangePlanet(planetID.Celestial()))
 	page, _ := getPage[parser.ResourcesSettingsPage](b, options...)
-	return page.ExtractResourceSettings()
+	settings, _, err := page.ExtractResourceSettings()
+	return settings, err
 }
 
 func (b *OGame) setResourceSettings(planetID ogame.PlanetID, settings ogame.ResourceSettings) error {
 	pageHTML, _ := b.getPage(ResourceSettingsPageName, ChangePlanet(planetID.Celestial()))
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	bodyID := b.extractor.ExtractBodyIDFromDoc(doc)
-	if bodyID == "overview" {
-		return ogame.ErrInvalidPlanetID
-	}
-	token, exists := doc.Find("form input[name=token]").Attr("value")
-	if !exists {
-		return errors.New("unable to find token")
+	_, token, err := b.extractor.ExtractResourceSettings(pageHTML)
+	if err != nil {
+		return err
 	}
 	payload := url.Values{
 		"saveSettings": {"1"},
@@ -2882,21 +2879,7 @@ func (b *OGame) IsV9() bool {
 
 func getToken(b *OGame, page string, celestialID ogame.CelestialID) (string, error) {
 	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
-	rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
-	m := rgx.FindSubmatch(pageHTML)
-	if len(m) != 2 {
-		return "", errors.New("unable to find form token")
-	}
-	return string(m[1]), nil
-}
-
-func getDemolishToken(b *OGame, page string, celestialID ogame.CelestialID) (string, error) {
-	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
-	m := regexp.MustCompile(`modus=3&token=([^&]+)&`).FindSubmatch(pageHTML)
-	if len(m) != 2 {
-		return "", errors.New("unable to find form token")
-	}
-	return string(m[1]), nil
+	return b.extractor.ExtractUpgradeToken(pageHTML)
 }
 
 func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
@@ -2909,12 +2892,13 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		return errors.New("invalid id " + id.String())
 	}
 
-	token, err := getDemolishToken(b, page, celestialID)
+	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
+	token, err := b.extractor.ExtractTearDownToken(pageHTML)
 	if err != nil {
 		return err
 	}
 
-	pageHTML, _ := b.getPageContent(url.Values{
+	pageHTML, _ = b.getPageContent(url.Values{
 		"page":       {"ingame"},
 		"component":  {"technologydetails"},
 		"ajax":       {"1"},
@@ -2923,12 +2907,7 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		"cp":         {utils.FI64(celestialID)},
 	})
 
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	if err != nil {
-		return err
-	}
-	imgDisabled := doc.Find("a.demolish_link div").HasClass("demolish_img_disabled")
-	if imgDisabled {
+	if !b.extractor.ExtractTearDownButtonEnabled(pageHTML) {
 		return errors.New("tear down button is disabled")
 	}
 
@@ -3382,19 +3361,16 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 
 	if unionID != 0 {
 		found := false
-		fleet1Doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
-			acsValues := s.AttrOr("value", "")
-			m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
-			if len(m) == 2 {
-				optUnionID := utils.DoParseI64(m[1])
-				if unionID == optUnionID {
-					found = true
-					payload.Add("acsValues", acsValues)
-					payload.Add("union", m[1])
-					mission = ogame.GroupedAttack
-				}
+		acsArr := b.extractor.ExtractFleetDispatchACSFromDoc(fleet1Doc)
+		for _, acs := range acsArr {
+			if unionID == acs.Union {
+				found = true
+				payload.Add("acsValues", acs.ACSValues)
+				payload.Add("union", utils.FI64(acs.Union))
+				mission = ogame.GroupedAttack
+				break
 			}
-		})
+		}
 		if !found {
 			return ogame.Fleet{}, ogame.ErrUnionNotFound
 		}
@@ -4029,17 +4005,17 @@ func (b *OGame) IsConnected() bool {
 }
 
 // GetClient get the http client used by the bot
-func (b *OGame) GetClient() *OGameClient {
+func (b *OGame) GetClient() *httpclient.Client {
 	return b.client
 }
 
 // SetClient set the http client used by the bot
-func (b *OGame) SetClient(client *OGameClient) {
+func (b *OGame) SetClient(client *httpclient.Client) {
 	b.client = client
 }
 
 // GetLoginClient get the http client used by the bot for login operations
-func (b *OGame) GetLoginClient() *OGameClient {
+func (b *OGame) GetLoginClient() *httpclient.Client {
 	return b.client
 }
 

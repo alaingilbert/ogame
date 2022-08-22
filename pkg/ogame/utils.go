@@ -12,36 +12,6 @@ import (
 	"unicode"
 )
 
-// IsDefenseID helper returns if an integer is a defense id
-func IsDefenseID(id int64) bool {
-	return ID(id).IsDefense()
-}
-
-// IsShipID helper returns if an integer is a ship id
-func IsShipID(id int64) bool {
-	return ID(id).IsShip()
-}
-
-// IsTechID helper returns if an integer is a tech id
-func IsTechID(id int64) bool {
-	return ID(id).IsTech()
-}
-
-// IsBuildingID helper returns if an integer is a building id
-func IsBuildingID(id int64) bool {
-	return ID(id).IsBuilding()
-}
-
-// IsResourceBuildingID helper returns if an integer is a resource defense id
-func IsResourceBuildingID(id int64) bool {
-	return ID(id).IsResourceBuilding()
-}
-
-// IsFacilityID helper returns if an integer is a facility id
-func IsFacilityID(id int64) bool {
-	return ID(id).IsFacility()
-}
-
 // ParseCoord parse a coordinate from a string
 func ParseCoord(str string) (coord Coordinate, err error) {
 	m := regexp.MustCompile(`^\[?(([PMD]):)?(\d{1,3}):(\d{1,3}):(\d{1,3})]?$`).FindStringSubmatch(str)

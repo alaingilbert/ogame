@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"net/url"
-	"regexp"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -87,16 +86,20 @@ func (e *Extractor) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]o
 	panic("implement me")
 }
 
+// ExtractTearDownButtonEnabled ...
+func (e *Extractor) ExtractTearDownButtonEnabled(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractTearDownButtonEnabledFromDoc(doc)
+}
+
+// ExtractUpgradeToken ...
+func (e *Extractor) ExtractUpgradeToken(pageHTML []byte) (string, error) {
+	return extractUpgradeToken(pageHTML)
+}
+
 // ExtractLifeformEnabled ...
 func (e *Extractor) ExtractLifeformEnabled(pageHTML []byte) bool {
-	lifeformEnabledMatch := regexp.MustCompile(`"lifeformEnabled":(\btrue\b|\bfalse\b)`).FindSubmatch(pageHTML)
-	if len(lifeformEnabledMatch) < 2 {
-		return false
-	}
-	if bytes.Equal(lifeformEnabledMatch[1], []byte("true")) {
-		return true
-	}
-	return false
+	return bytes.Contains(pageHTML, []byte(`lifeformEnabled":true`))
 }
 
 // ExtractIsInVacation ...
@@ -194,7 +197,7 @@ func (e *Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.R
 }
 
 // ExtractResourceSettings ...
-func (e *Extractor) ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, error) {
+func (e *Extractor) ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, string, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractResourceSettingsFromDoc(doc)
 }
@@ -237,6 +240,11 @@ func (e *Extractor) ExtractShips(pageHTML []byte) (ogame.ShipsInfos, error) {
 func (e *Extractor) ExtractFacilities(pageHTML []byte) (ogame.Facilities, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractFacilitiesFromDoc(doc)
+}
+
+// ExtractTearDownToken ...
+func (e *Extractor) ExtractTearDownToken(pageHTML []byte) (string, error) {
+	return extractTearDownToken(pageHTML)
 }
 
 // ExtractResearch ...
@@ -378,6 +386,11 @@ func (e *Extractor) ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
 	return extractIsInVacationFromDoc(doc)
 }
 
+// ExtractTearDownButtonEnabledFromDoc ...
+func (e *Extractor) ExtractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
+	return extractTearDownButtonEnabledFromDoc(doc)
+}
+
 // ExtractPlanetsFromDoc ...
 func (e *Extractor) ExtractPlanetsFromDoc(doc *goquery.Document) []ogame.Planet {
 	return extractPlanetsFromDoc(doc)
@@ -482,6 +495,11 @@ func (e *Extractor) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.Sh
 	return extractFleet1ShipsFromDoc(doc)
 }
 
+// ExtractFleetDispatchACSFromDoc ...
+func (e *Extractor) ExtractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues {
+	return extractFleetDispatchACSFromDoc(doc)
+}
+
 // ExtractEspionageReportMessageIDsFromDoc ...
 func (e *Extractor) ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64) {
 	return extractEspionageReportMessageIDsFromDoc(doc)
@@ -508,7 +526,7 @@ func (e *Extractor) ExtractPreferencesFromDoc(doc *goquery.Document) ogame.Prefe
 }
 
 // ExtractResourceSettingsFromDoc ...
-func (e *Extractor) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, error) {
+func (e *Extractor) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
 	return extractResourceSettingsFromDoc(doc)
 }
 
@@ -710,6 +728,11 @@ func (e *Extractor) ExtractGeologistFromDoc(doc *goquery.Document) bool {
 // ExtractTechnocratFromDoc ...
 func (e *Extractor) ExtractTechnocratFromDoc(doc *goquery.Document) bool {
 	return extractTechnocratFromDoc(doc)
+}
+
+// ExtractAbandonInformation ...
+func (e *Extractor) ExtractAbandonInformation(doc *goquery.Document) (string, string) {
+	return extractAbandonInformation(doc)
 }
 
 // </ Extract from doc> -------------------------------------------------------

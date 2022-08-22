@@ -19,6 +19,19 @@ import (
 	"golang.org/x/net/html"
 )
 
+func extractUpgradeToken(pageHTML []byte) (string, error) {
+	rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
+	m := rgx.FindSubmatch(pageHTML)
+	if len(m) != 2 {
+		return "", errors.New("unable to find form token")
+	}
+	return string(m[1]), nil
+}
+
+func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
+	return !doc.Find("a.demolish_link div").HasClass("demolish_img_disabled")
+}
+
 func extractIsInVacationFromDoc(doc *goquery.Document) bool {
 	href := doc.Find("div#advice-bar a").AttrOr("href", "")
 	if href == "" {
@@ -181,16 +194,7 @@ func extractMoonFromDoc(doc *goquery.Document, v any) (ogame.Moon, error) {
 
 func extractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, error) {
 	switch vv := v.(type) {
-	// TODO: fix this
-	//case wrapper.Celestial:
-	//	return extractCelestialByIDFromDoc(doc, vv.GetID())
-	//case ogame2.Planet:
-	//	return extractCelestialByIDFromDoc(doc, vv.GetID())
-	//case ogame2.Moon:
-	//return extractCelestialByIDFromDoc(doc, vv.GetID())
-	case ogame.Planet:
-		return extractCelestialByIDFromDoc(doc, vv.GetID())
-	case ogame.Moon:
+	case ogame.Celestial:
 		return extractCelestialByIDFromDoc(doc, vv.GetID())
 	case ogame.PlanetID:
 		return extractCelestialByIDFromDoc(doc, vv.Celestial())
@@ -575,6 +579,19 @@ func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
 		s.Set(k, v)
 	}
 	return
+}
+
+func extractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues {
+	out := make([]ogame.ACSValues, 0)
+	doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
+		acsValues := s.AttrOr("value", "")
+		m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
+		if len(m) == 2 {
+			optUnionID := utils.DoParseI64(m[1])
+			out = append(out, ogame.ACSValues{ACSValues: acsValues, Union: optUnionID})
+		}
+	})
+	return out
 }
 
 func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64) {
@@ -985,10 +1002,10 @@ func extractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
 	return prefs
 }
 
-func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, error) {
+func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
 	bodyID := ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
-		return ogame.ResourceSettings{}, ogame.ErrInvalidPlanetID
+		return ogame.ResourceSettings{}, "", ogame.ErrInvalidPlanetID
 	}
 	vals := make([]int64, 0)
 	doc.Find("option").Each(func(i int, s *goquery.Selection) {
@@ -1000,7 +1017,7 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 		}
 	})
 	if len(vals) != 6 {
-		return ogame.ResourceSettings{}, errors.New("failed to find all resource settings")
+		return ogame.ResourceSettings{}, "", errors.New("failed to find all resource settings")
 	}
 
 	res := ogame.ResourceSettings{}
@@ -1011,7 +1028,12 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 	res.FusionReactor = vals[4]
 	res.SolarSatellite = vals[5]
 
-	return res, nil
+	token, exists := doc.Find("form input[name=token]").Attr("value")
+	if !exists {
+		return ogame.ResourceSettings{}, "", errors.New("unable to find token")
+	}
+
+	return res, token, nil
 }
 
 func extractFleetsFromEventListFromDoc(doc *goquery.Document) []ogame.Fleet {
@@ -1371,6 +1393,12 @@ func extractTechnocratFromDoc(doc *goquery.Document) bool {
 	return doc.Find("div#officers a.technocrat").HasClass("on")
 }
 
+func extractAbandonInformation(doc *goquery.Document) (string, string) {
+	abandonToken := doc.Find("form#planetMaintenanceDelete input[name=abandon]").AttrOr("value", "")
+	token := doc.Find("form#planetMaintenanceDelete input[name=token]").AttrOr("value", "")
+	return abandonToken, token
+}
+
 func extractPlanetCoordinate(pageHTML []byte) (ogame.Coordinate, error) {
 	m := regexp.MustCompile(`<meta name="ogame-planet-coordinates" content="(\d+):(\d+):(\d+)"/>`).FindSubmatch(pageHTML)
 	if len(m) == 0 {
@@ -1381,6 +1409,14 @@ func extractPlanetCoordinate(pageHTML []byte) (ogame.Coordinate, error) {
 	position := utils.DoParseI64(string(m[3]))
 	planetType, _ := extractPlanetType(pageHTML)
 	return ogame.Coordinate{galaxy, system, position, planetType}, nil
+}
+
+func extractTearDownToken(pageHTML []byte) (string, error) {
+	m := regexp.MustCompile(`modus=3&token=([^&]+)&`).FindSubmatch(pageHTML)
+	if len(m) != 2 {
+		return "", errors.New("unable to find tear down token")
+	}
+	return string(m[1]), nil
 }
 
 func extractPlanetID(pageHTML []byte) (ogame.CelestialID, error) {

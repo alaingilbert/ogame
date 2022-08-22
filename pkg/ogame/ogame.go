@@ -249,3 +249,8 @@ type Preferences struct {
 		Account                 bool
 	}
 }
+
+type ACSValues struct {
+	ACSValues string
+	Union     int64
+}

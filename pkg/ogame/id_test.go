@@ -6,39 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIsShipID(t *testing.T) {
-	assert.True(t, IsShipID(int64(SmallCargoID)))
-	assert.False(t, IsShipID(int64(RocketLauncherID)))
-}
-
-func TestIsDefenseID(t *testing.T) {
-	assert.True(t, IsDefenseID(int64(RocketLauncherID)))
-	assert.False(t, IsDefenseID(int64(SmallCargoID)))
-}
-
-func TestIsTechID(t *testing.T) {
-	assert.True(t, IsTechID(int64(CombustionDriveID)))
-	assert.False(t, IsTechID(int64(SmallCargoID)))
-}
-
-func TestIsBuildingID(t *testing.T) {
-	assert.True(t, IsBuildingID(int64(MetalMineID)))
-	assert.True(t, IsBuildingID(int64(RoboticsFactoryID)))
-	assert.False(t, IsBuildingID(int64(SmallCargoID)))
-}
-
-func TestIsResourceBuildingID(t *testing.T) {
-	assert.True(t, IsResourceBuildingID(int64(MetalMineID)))
-	assert.False(t, IsResourceBuildingID(int64(RoboticsFactoryID)))
-	assert.False(t, IsResourceBuildingID(int64(SmallCargoID)))
-}
-
-func TestIsFacilityID(t *testing.T) {
-	assert.False(t, IsFacilityID(int64(MetalMineID)))
-	assert.True(t, IsFacilityID(int64(RoboticsFactoryID)))
-	assert.False(t, IsFacilityID(int64(SmallCargoID)))
-}
-
 func TestIsValidIPMTarget(t *testing.T) {
 	assert.True(t, ID(0).IsValidIPMTarget())
 	assert.True(t, RocketLauncherID.IsValidIPMTarget())

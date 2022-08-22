@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/pquerna/otp"
@@ -19,7 +20,7 @@ import (
 	"time"
 )
 
-// ogame cookie name for token id
+// TokenCookieName ogame cookie name for token id
 const TokenCookieName = "gf-token-production"
 const ChallengeIDCookieName = "gf-challenge-id"
 
@@ -46,7 +47,7 @@ var (
 )
 
 // Register a new gameforge lobby account
-func Register(client *http.Client, ctx context.Context, lobby, email, password, challengeID, lang string) error {
+func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, password, challengeID, lang string) error {
 	if lang == "" {
 		lang = "en"
 	}
@@ -112,7 +113,7 @@ func Register(client *http.Client, ctx context.Context, lobby, email, password, 
 }
 
 // ValidateAccount validate a gameforge account
-func ValidateAccount(client IHttpClient, ctx context.Context, lobby, code string) error {
+func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, code string) error {
 	if len(code) != 36 {
 		return errors.New("invalid validation code")
 	}
@@ -130,7 +131,7 @@ func ValidateAccount(client IHttpClient, ctx context.Context, lobby, code string
 }
 
 // RedeemCode ...
-func RedeemCode(client *http.Client, ctx context.Context, lobby, email, password, otpSecret, token string) error {
+func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, email, password, otpSecret, token string) error {
 	postSessionsRes, err := GFLogin(client, ctx, lobby, email, password, otpSecret, "")
 	if err != nil {
 		return err
@@ -178,7 +179,7 @@ func RedeemCode(client *http.Client, ctx context.Context, lobby, email, password
 }
 
 // LoginAndAddAccount adds an account to a gameforge lobby
-func LoginAndAddAccount(client *http.Client, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (*AddAccountRes, error) {
+func LoginAndAddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (*AddAccountRes, error) {
 	postSessionsRes, err := GFLogin(client, ctx, lobby, username, password, otpSecret, "")
 	if err != nil {
 		return nil, err
@@ -208,7 +209,7 @@ type AddAccountRes struct {
 
 func (r AddAccountRes) GetBearerToken() string { return r.BearerToken }
 
-func AddAccount(client IHttpClient, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
+func AddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
 	var payload struct {
 		AccountGroup string `json:"accountGroup"`
 		Locale       string `json:"locale"`
@@ -262,7 +263,7 @@ type GFLoginRes struct {
 
 func (r GFLoginRes) GetBearerToken() string { return r.Token }
 
-func GFLogin(client IHttpClient, ctx context.Context, lobby, username, password, otpSecret, challengeID string) (out *GFLoginRes, err error) {
+func GFLogin(client httpclient.IHttpClient, ctx context.Context, lobby, username, password, otpSecret, challengeID string) (out *GFLoginRes, err error) {
 	gameEnvironmentID, platformGameID, err := getConfiguration(client, ctx, lobby)
 	if err != nil {
 		return out, err
@@ -319,7 +320,7 @@ func GFLogin(client IHttpClient, ctx context.Context, lobby, username, password,
 	return out, nil
 }
 
-func getConfiguration(client IHttpClient, ctx context.Context, lobby string) (string, string, error) {
+func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby string) (string, string, error) {
 	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
 	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
 	if err != nil {
@@ -392,7 +393,7 @@ func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpS
 	return req, nil
 }
 
-func StartCaptchaChallenge(client IHttpClient, ctx context.Context, challengeID string) (questionRaw, iconsRaw []byte, err error) {
+func StartCaptchaChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string) (questionRaw, iconsRaw []byte, err error) {
 	req, err := http.NewRequest(http.MethodGet, "https://challenge.gameforge.com/challenge/"+challengeID, nil)
 	if err != nil {
 		return
@@ -445,7 +446,7 @@ func StartCaptchaChallenge(client IHttpClient, ctx context.Context, challengeID 
 	return
 }
 
-func SolveChallenge(client IHttpClient, ctx context.Context, challengeID string, answer int64) error {
+func SolveChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string, answer int64) error {
 	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
 	body := strings.NewReader(`{"answer":` + utils.FI64(answer) + `}`)
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
@@ -493,7 +494,7 @@ type Server struct {
 	}
 }
 
-func GetServers(lobby string, client IHttpClient, ctx context.Context) ([]Server, error) {
+func GetServers(lobby string, client httpclient.IHttpClient, ctx context.Context) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest(http.MethodGet, "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
 	if err != nil {
@@ -557,7 +558,7 @@ type ServerData struct {
 }
 
 // GetServerData gets the server data from xml api
-func GetServerData(client IHttpClient, ctx context.Context, serverNumber int64, serverLang string) (ServerData, error) {
+func GetServerData(client httpclient.IHttpClient, ctx context.Context, serverNumber int64, serverLang string) (ServerData, error) {
 	var serverData ServerData
 	req, err := http.NewRequest(http.MethodGet, "https://s"+utils.FI64(serverNumber)+"-"+serverLang+".ogame.gameforge.com/api/serverData.xml", nil)
 	if err != nil {
@@ -601,7 +602,7 @@ type Account struct {
 	}
 }
 
-func GetUserAccounts(client IHttpClient, ctx context.Context, lobby, bearerToken string) ([]Account, error) {
+func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, bearerToken string) ([]Account, error) {
 	var userAccounts []Account
 	req, err := http.NewRequest(http.MethodGet, "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
 	if err != nil {
@@ -625,7 +626,7 @@ func GetUserAccounts(client IHttpClient, ctx context.Context, lobby, bearerToken
 	return userAccounts, nil
 }
 
-func GetLoginLink(client IHttpClient, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
+func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
 	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d&clickedButton=account_list",
 		lobby, userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
 	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
