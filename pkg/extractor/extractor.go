@@ -136,6 +136,7 @@ type ShipyardExtractorBytes interface {
 	ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64
 	ExtractProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error)
 	ExtractShips(pageHTML []byte) (ogame.ShipsInfos, error)
+	ExtractUpgradeToken(pageHTML []byte) (string, error)
 }
 
 type ShipyardExtractorDoc interface {
@@ -150,6 +151,7 @@ type ShipyardExtractorBytesDoc interface {
 
 type ResearchExtractorBytes interface {
 	ExtractResearch(pageHTML []byte) ogame.Researches
+	ExtractUpgradeToken(pageHTML []byte) (string, error)
 }
 
 type ResearchExtractorDoc interface {
@@ -224,6 +226,7 @@ type PreferencesExtractorBytesDoc interface {
 
 type DefensesExtractorBytes interface {
 	ExtractDefense(pageHTML []byte) (ogame.DefensesInfos, error)
+	ExtractUpgradeToken(pageHTML []byte) (string, error)
 }
 
 type DefensesExtractorDoc interface {
@@ -405,10 +408,19 @@ type MessagesMarketplaceExtractorBytes interface {
 	ExtractMarketplaceMessages(pageHTML []byte) ([]ogame.MarketplaceMessage, int64, error)
 }
 
+type LfBuildingsExtractorBytes interface {
+	ExtractUpgradeToken(pageHTML []byte) (string, error)
+}
+
+type LfBuildingsExtractorBytesDoc interface {
+	LfBuildingsExtractorBytes
+}
+
 // ResourcesBuildingsExtractorBytes supplies page
 type ResourcesBuildingsExtractorBytes interface {
 	ExtractResourcesBuildings(pageHTML []byte) (ogame.ResourcesBuildings, error)
 	ExtractTearDownToken(pageHTML []byte) (string, error)
+	ExtractUpgradeToken(pageHTML []byte) (string, error)
 }
 
 type ResourcesBuildingsExtractorDoc interface {
@@ -451,19 +463,20 @@ type Extractor interface {
 	GetLifeformEnabled() bool
 	SetLifeformEnabled(lifeformEnabled bool)
 
-	FullPageExtractorBytesDoc
-	OverviewExtractorBytesDoc
 	DefensesExtractorBytesDoc
 	EspionageReportExtractorBytesDoc
 	EventListExtractorBytesDoc
 	FacilitiesExtractorBytesDoc
 	FleetDispatchExtractorBytesDoc
+	FullPageExtractorBytesDoc
 	HighscoreExtractorBytesDoc
+	LfBuildingsExtractorBytesDoc
 	MessagesCombatReportExtractorBytesDoc
 	MessagesEspionageReportExtractorBytesDoc
 	MessagesExpeditionExtractorBytesDoc
 	MissileAttackLayerExtractorBytesDoc
 	MovementExtractorBytesDoc
+	OverviewExtractorBytesDoc
 	PreferencesExtractorBytesDoc
 	ResearchExtractorBytesDoc
 	ResourcesBuildingsExtractorBytesDoc

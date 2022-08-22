@@ -92,6 +92,11 @@ func (e *Extractor) ExtractTearDownButtonEnabled(pageHTML []byte) bool {
 	return e.ExtractTearDownButtonEnabledFromDoc(doc)
 }
 
+// ExtractUpgradeToken ...
+func (e *Extractor) ExtractUpgradeToken(pageHTML []byte) (string, error) {
+	return extractUpgradeToken(pageHTML)
+}
+
 // ExtractLifeformEnabled ...
 func (e *Extractor) ExtractLifeformEnabled(pageHTML []byte) bool {
 	return bytes.Contains(pageHTML, []byte(`lifeformEnabled":true`))

@@ -19,6 +19,15 @@ import (
 	"golang.org/x/net/html"
 )
 
+func extractUpgradeToken(pageHTML []byte) (string, error) {
+	rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
+	m := rgx.FindSubmatch(pageHTML)
+	if len(m) != 2 {
+		return "", errors.New("unable to find form token")
+	}
+	return string(m[1]), nil
+}
+
 func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
 	return !doc.Find("a.demolish_link div").HasClass("demolish_img_disabled")
 }

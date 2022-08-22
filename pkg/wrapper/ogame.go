@@ -2879,12 +2879,7 @@ func (b *OGame) IsV9() bool {
 
 func getToken(b *OGame, page string, celestialID ogame.CelestialID) (string, error) {
 	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
-	rgx := regexp.MustCompile(`var upgradeEndpoint = ".+&token=([^&]+)&`)
-	m := rgx.FindSubmatch(pageHTML)
-	if len(m) != 2 {
-		return "", errors.New("unable to find form token")
-	}
-	return string(m[1]), nil
+	return b.extractor.ExtractUpgradeToken(pageHTML)
 }
 
 func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
