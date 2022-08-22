@@ -4736,22 +4736,3 @@ func (b *OGame) OfferSellMarketplace(itemID any, quantity, priceType, price, pri
 func (b *OGame) OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error {
 	return b.WithPriority(taskRunner.Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
 }
-
-type IGetCoordinate interface {
-	GetCoordinate() ogame.Coordinate
-}
-
-func ConvertToCoordinate(v any) (out ogame.Coordinate) {
-	if celestial, ok := v.(IGetCoordinate); ok {
-		out = celestial.GetCoordinate()
-	} else if coord, ok := v.(ogame.Coordinate); ok {
-		out = coord
-	} else if coordStr, ok := v.(string); ok {
-		coord, err := ogame.ParseCoord(coordStr)
-		if err != nil {
-			return
-		}
-		out = coord
-	}
-	return
-}
