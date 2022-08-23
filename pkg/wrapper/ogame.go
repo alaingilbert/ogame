@@ -1749,12 +1749,18 @@ func (b *OGame) setVacationMode() error {
 }
 
 func (b *OGame) getPlanets() []Planet {
-	page, _ := getPage[parser.OverviewPage](b)
+	page, err := getPage[parser.OverviewPage](b)
+	if err != nil {
+		return []Planet{}
+	}
 	return convertPlanets(b, page.ExtractPlanets())
 }
 
 func (b *OGame) getPlanet(v any) (Planet, error) {
-	page, _ := getPage[parser.OverviewPage](b)
+	page, err := getPage[parser.OverviewPage](b)
+	if err != nil {
+		return Planet{}, err
+	}
 	planet, err := page.ExtractPlanet(v)
 	if err != nil {
 		return Planet{}, err
@@ -1763,12 +1769,18 @@ func (b *OGame) getPlanet(v any) (Planet, error) {
 }
 
 func (b *OGame) getMoons() []Moon {
-	page, _ := getPage[parser.OverviewPage](b)
+	page, err := getPage[parser.OverviewPage](b)
+	if err != nil {
+		return []Moon{}
+	}
 	return convertMoons(b, page.ExtractMoons())
 }
 
 func (b *OGame) getMoon(v any) (Moon, error) {
-	page, _ := getPage[parser.OverviewPage](b)
+	page, err := getPage[parser.OverviewPage](b)
+	if err != nil {
+		return Moon{}, err
+	}
 	moon, err := page.ExtractMoon(v)
 	if err != nil {
 		return Moon{}, err
@@ -1778,7 +1790,10 @@ func (b *OGame) getMoon(v any) (Moon, error) {
 }
 
 func (b *OGame) getCelestials() ([]Celestial, error) {
-	page, _ := getPage[parser.OverviewPage](b)
+	page, err := getPage[parser.OverviewPage](b)
+	if err != nil {
+		return nil, err
+	}
 	celestials, err := page.ExtractCelestials()
 	if err != nil {
 		return nil, err
@@ -1787,7 +1802,10 @@ func (b *OGame) getCelestials() ([]Celestial, error) {
 }
 
 func (b *OGame) getCelestial(v any) (Celestial, error) {
-	page, _ := getPage[parser.OverviewPage](b)
+	page, err := getPage[parser.OverviewPage](b)
+	if err != nil {
+		return nil, err
+	}
 	celestial, err := page.ExtractCelestial(v)
 	if err != nil {
 		return nil, err
@@ -1819,7 +1837,10 @@ func (b *OGame) recruitOfficer(typ, days int64) error {
 }
 
 func (b *OGame) abandon(v any) error {
-	page, _ := getPage[parser.OverviewPage](b)
+	page, err := getPage[parser.OverviewPage](b)
+	if err != nil {
+		return err
+	}
 	planet, err := page.ExtractPlanet(v)
 	if err != nil {
 		return errors.New("invalid parameter")
@@ -1909,7 +1930,10 @@ func (b *OGame) getFleetsFromEventList() []ogame.Fleet {
 }
 
 func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots) {
-	page, _ := getPage[parser.MovementPage](b, opts...)
+	page, err := getPage[parser.MovementPage](b, opts...)
+	if err != nil {
+		return []ogame.Fleet{}, ogame.Slots{}
+	}
 	fleets := page.ExtractFleets()
 	slots := page.ExtractSlots()
 	return fleets, slots
@@ -2091,7 +2115,10 @@ func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([
 		"ajax":     {"1"},
 		"token":    {planetInfos.OverlayToken},
 	}
-	page, _ := getAjaxPage[parser.PhalanxAjaxPage](b, vals, ChangePlanet(moonID.Celestial()))
+	page, err := getAjaxPage[parser.PhalanxAjaxPage](b, vals, ChangePlanet(moonID.Celestial()))
+	if err != nil {
+		return []ogame.Fleet{}, err
+	}
 	return page.ExtractPhalanx()
 }
 
@@ -2286,7 +2313,10 @@ func (b *OGame) getAllResources() (map[ogame.CelestialID]ogame.Resources, error)
 }
 
 func (b *OGame) getDMCosts(celestialID ogame.CelestialID) (ogame.DMCosts, error) {
-	page, _ := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	if err != nil {
+		return ogame.DMCosts{}, err
+	}
 	return page.ExtractDMCosts()
 }
 
@@ -2294,7 +2324,10 @@ func (b *OGame) useDM(typ string, celestialID ogame.CelestialID) error {
 	if typ != "buildings" && typ != "research" && typ != "shipyard" {
 		return fmt.Errorf("invalid type %s", typ)
 	}
-	page, _ := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	if err != nil {
+		return err
+	}
 	costs, err := page.ExtractDMCosts()
 	if err != nil {
 		return err
@@ -2460,7 +2493,10 @@ func (b *OGame) getItems(celestialID ogame.CelestialID) (items []ogame.Item, err
 }
 
 func (b *OGame) getActiveItems(celestialID ogame.CelestialID) (items []ogame.ActiveItem, err error) {
-	page, _ := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	if err != nil {
+		return []ogame.ActiveItem{}, err
+	}
 	return page.ExtractActiveItems()
 }
 
@@ -2782,7 +2818,10 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 
 func (b *OGame) getResourceSettings(planetID ogame.PlanetID, options ...Option) (ogame.ResourceSettings, error) {
 	options = append(options, ChangePlanet(planetID.Celestial()))
-	page, _ := getPage[parser.ResourcesSettingsPage](b, options...)
+	page, err := getPage[parser.ResourcesSettingsPage](b, options...)
+	if err != nil {
+		return ogame.ResourceSettings{}, err
+	}
 	settings, _, err := page.ExtractResourceSettings()
 	return settings, err
 }
@@ -2821,7 +2860,10 @@ func (b *OGame) getCachedResearch() ogame.Researches {
 }
 
 func (b *OGame) getResearch() ogame.Researches {
-	page, _ := getPage[parser.ResearchPage](b)
+	page, err := getPage[parser.ResearchPage](b)
+	if err != nil {
+		return ogame.Researches{}
+	}
 	researches := page.ExtractResearch()
 	b.researches = &researches
 	return researches
@@ -2829,36 +2871,54 @@ func (b *OGame) getResearch() ogame.Researches {
 
 func (b *OGame) getResourcesBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.ResourcesBuildings, error) {
 	options = append(options, ChangePlanet(celestialID))
-	page, _ := getPage[parser.SuppliesPage](b, options...)
+	page, err := getPage[parser.SuppliesPage](b, options...)
+	if err != nil {
+		return ogame.ResourcesBuildings{}, err
+	}
 	return page.ExtractResourcesBuildings()
 }
 
 func (b *OGame) getDefense(celestialID ogame.CelestialID, options ...Option) (ogame.DefensesInfos, error) {
 	options = append(options, ChangePlanet(celestialID))
-	page, _ := getPage[parser.DefensesPage](b, options...)
+	page, err := getPage[parser.DefensesPage](b, options...)
+	if err != nil {
+		return ogame.DefensesInfos{}, err
+	}
 	return page.ExtractDefense()
 }
 
 func (b *OGame) getShips(celestialID ogame.CelestialID, options ...Option) (ogame.ShipsInfos, error) {
 	options = append(options, ChangePlanet(celestialID))
-	page, _ := getPage[parser.ShipyardPage](b, options...)
+	page, err := getPage[parser.ShipyardPage](b, options...)
+	if err != nil {
+		return ogame.ShipsInfos{}, err
+	}
 	return page.ExtractShips()
 }
 
 func (b *OGame) getFacilities(celestialID ogame.CelestialID, options ...Option) (ogame.Facilities, error) {
 	options = append(options, ChangePlanet(celestialID))
-	page, _ := getPage[parser.FacilitiesPage](b, options...)
+	page, err := getPage[parser.FacilitiesPage](b, options...)
+	if err != nil {
+		return ogame.Facilities{}, err
+	}
 	return page.ExtractFacilities()
 }
 
 func (b *OGame) getTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error) {
 	vals := url.Values{"page": {FetchTechsName}}
-	page, _ := getAjaxPage[parser.FetchTechsAjaxPage](b, vals, ChangePlanet(celestialID))
+	page, err := getAjaxPage[parser.FetchTechsAjaxPage](b, vals, ChangePlanet(celestialID))
+	if err != nil {
+		return ogame.ResourcesBuildings{}, ogame.Facilities{}, ogame.ShipsInfos{}, ogame.DefensesInfos{}, ogame.Researches{}, err
+	}
 	return page.ExtractTechs()
 }
 
 func (b *OGame) getProduction(celestialID ogame.CelestialID) ([]ogame.Quantifiable, int64, error) {
-	page, _ := getPage[parser.ShipyardPage](b, ChangePlanet(celestialID))
+	page, err := getPage[parser.ShipyardPage](b, ChangePlanet(celestialID))
+	if err != nil {
+		return []ogame.Quantifiable{}, 0, err
+	}
 	return page.ExtractProduction()
 }
 
@@ -3020,7 +3080,10 @@ func (b *OGame) buildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 }
 
 func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64) {
-	page, _ := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
+	if err != nil {
+		return ogame.ID(0), 0, ogame.ID(0), 0
+	}
 	return page.ExtractConstructions()
 }
 
