@@ -198,7 +198,7 @@ func (o ID) IsResourceBuilding() bool {
 }
 
 func (o ID) IsLfBuilding() bool {
-	return o == ResidentialSectorID ||
+	return o == ResidentialSectorID || // humans
 		o == BiosphereFarmID ||
 		o == ResearchCentreID ||
 		o == AcademyOfSciencesID ||
@@ -209,7 +209,43 @@ func (o ID) IsLfBuilding() bool {
 		o == SkyscraperID ||
 		o == BiotechLabID ||
 		o == MetropolisID ||
-		o == PlanetaryShieldID
+		o == PlanetaryShieldID || // rocktal
+		o == MeditationEnclaveID ||
+		o == CrystalFarmID ||
+		o == RuneTechnologiumID ||
+		o == RuneForgeID ||
+		o == OriktoriumID ||
+		o == MagmaForgeID ||
+		o == DisruptionChamberID ||
+		o == MegalithID ||
+		o == CrystalRefineryID ||
+		o == DeuteriumSynthesiserID ||
+		o == MineralResearchCentreID ||
+		o == MetalRecyclingPlantID ||
+		o == AssemblyLineID || // mechas
+		o == FusionCellFactoryID ||
+		o == RoboticsResearchCentreID ||
+		o == UpdateNetworkID ||
+		o == QuantumComputerCentreID ||
+		o == AutomatisedAssemblyCentreID ||
+		o == HighPerformanceTransformerID ||
+		o == MicrochipAssemblyLineID ||
+		o == ProductionAssemblyHallID ||
+		o == HighPerformanceSynthesiserID ||
+		o == ChipMassProductionID ||
+		o == NanoRepairBotsID ||
+		o == SanctuaryID || // kaelesh
+		o == AntimatterCondenserID ||
+		o == VortexChamberID ||
+		o == HallsOfRealisationID ||
+		o == ForumOfTranscendenceID ||
+		o == AntimatterConvectorID ||
+		o == CloningLaboratoryID ||
+		o == ChrysalisAcceleratorID ||
+		o == BioModifierID ||
+		o == PsionicModulatorID ||
+		o == ShipManufacturingHallID ||
+		o == SupraRefractorID
 }
 
 // IsBuilding returns either or not the id is a building (facility, resource building)
