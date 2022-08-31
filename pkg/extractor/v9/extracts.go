@@ -3,6 +3,7 @@ package v9
 import (
 	"errors"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/extractor/v6"
 	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
 	"github.com/alaingilbert/ogame/pkg/extractor/v71"
@@ -12,6 +13,22 @@ import (
 	"strings"
 	"time"
 )
+
+func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
+	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
+	if len(buildingCountdownMatch) > 0 {
+		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
+		buildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
+		buildingID = ogame.ID(buildingIDInt)
+	}
+	researchCountdownMatch := regexp.MustCompile(`var restTimeresearch = (\d+) -`).FindSubmatch(pageHTML)
+	if len(researchCountdownMatch) > 0 {
+		researchCountdown = int64(utils.ToInt(researchCountdownMatch[1])) - clock.Now().Unix()
+		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
+		researchID = ogame.ID(researchIDInt)
+	}
+	return
+}
 
 func extractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
 	return v7.ExtractCancelInfos(pageHTML, "cancelLinklfbuilding", "cancellfbuilding", 1)

@@ -560,7 +560,8 @@ type ServerData struct {
 // GetServerData gets the server data from xml api
 func GetServerData(client httpclient.IHttpClient, ctx context.Context, serverNumber int64, serverLang string) (ServerData, error) {
 	var serverData ServerData
-	req, err := http.NewRequest(http.MethodGet, "https://s"+utils.FI64(serverNumber)+"-"+serverLang+".ogame.gameforge.com/api/serverData.xml", nil)
+	serverDataURL := "https://s" + utils.FI64(serverNumber) + "-" + serverLang + ".ogame.gameforge.com/api/serverData.xml"
+	req, err := http.NewRequest(http.MethodGet, serverDataURL, nil)
 	if err != nil {
 		return serverData, err
 	}
@@ -576,7 +577,7 @@ func GetServerData(client httpclient.IHttpClient, ctx context.Context, serverNum
 		return serverData, err
 	}
 	if err := xml.Unmarshal(by, &serverData); err != nil {
-		return serverData, err
+		return serverData, fmt.Errorf("failed to xml unmarshal %s : %w", serverDataURL, err)
 	}
 	return serverData, nil
 }
