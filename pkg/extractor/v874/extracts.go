@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
-	"regexp"
-	"strings"
 )
 
 func extractBuffActivationFromDoc(doc *goquery.Document) (token string, items []ogame.Item, err error) {

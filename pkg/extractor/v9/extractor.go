@@ -2,9 +2,10 @@ package v9
 
 import (
 	"bytes"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
-	"github.com/alaingilbert/ogame/pkg/extractor/v874"
+	v874 "github.com/alaingilbert/ogame/pkg/extractor/v874"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
@@ -82,4 +83,13 @@ func (e *Extractor) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Docu
 // ExtractConstructions ...
 func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
 	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
+}
+
+func (e *Extractor) ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, string, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractResourceSettingsFromDoc(doc)
+}
+
+func (e *Extractor) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
+	return extractResourceSettingsFromDoc(doc)
 }
