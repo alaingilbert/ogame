@@ -23,5 +23,5 @@ func (r ResourceSettings) String() string {
 		"       Fusion Reactor: " + utils.FI64(r.FusionReactor) + "\n" +
 		"      Solar Satellite: " + utils.FI64(r.SolarSatellite) + "\n" +
 		"              Crawler: " + utils.FI64(r.Crawler) + "\n" +
-		"     PlasmaTechnology: " + utils.FI64(r.PlasmaTechnology)
+		"    Plasma Technology: " + utils.FI64(r.PlasmaTechnology)
 }
