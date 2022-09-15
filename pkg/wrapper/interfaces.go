@@ -37,6 +37,7 @@ type Celestial interface {
 	SendFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	TearDown(buildingID ogame.ID) error
 	GetLfBuildings(...Option) (ogame.LfBuildings, error)
+	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error)
 }
 
 // Prioritizable list of all actions that needs to communicate with ogame server.
