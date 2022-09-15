@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/extractor/v6"
-	"github.com/alaingilbert/ogame/pkg/extractor/v7"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/utils"
 	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
+	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/utils"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -249,13 +250,27 @@ type planetTechsResp struct {
 	Num408 int64 `json:"408"`
 	Num502 int64 `json:"502"`
 	Num503 int64 `json:"503"`
+
+	// LFbuildings
+	Num11101 int64 `json:"11101"`
+	Num11102 int64 `json:"11102"`
+	Num11103 int64 `json:"11103"`
+	Num11104 int64 `json:"11104"`
+	Num11105 int64 `json:"11105"`
+	Num11106 int64 `json:"11106"`
+	Num11107 int64 `json:"11107"`
+	Num11108 int64 `json:"11108"`
+	Num11109 int64 `json:"11109"`
+	Num11110 int64 `json:"11110"`
+	Num11111 int64 `json:"11111"`
+	Num11112 int64 `json:"11112"`
 }
 
-func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, err error) {
+func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, lfBuildings ogame.LfBuildings, err error) {
 	var res planetTechsResp
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if v6.IsLogged(pageHTML) {
-			return supplies, facilities, shipsInfos, defenses, researches, ogame.ErrInvalidPlanetID
+			return supplies, facilities, shipsInfos, defenses, researches, lfBuildings, ogame.ErrInvalidPlanetID
 		}
 		return
 	}
@@ -331,6 +346,20 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		WeaponsTechnology:            res.Num109,
 		ShieldingTechnology:          res.Num110,
 		ArmourTechnology:             res.Num111,
+	}
+	lfBuildings = ogame.LfBuildings{
+		ResidentialSector:       res.Num11101,
+		BiosphereFarm:           res.Num11102,
+		ResearchCentre:          res.Num11103,
+		AcademyOfSciences:       res.Num11104,
+		NeuroCalibrationCentre:  res.Num11105,
+		HighEnergySmelting:      res.Num11106,
+		FoodSilo:                res.Num11107,
+		FusionPoweredProduction: res.Num11108,
+		Skyscraper:              res.Num11109,
+		BiotechLab:              res.Num11110,
+		Metropolis:              res.Num11111,
+		PlanetaryShield:         res.Num11112,
 	}
 	return
 }
