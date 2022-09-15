@@ -123,3 +123,12 @@ func TestExtractResourceSettings(t *testing.T) {
 	settings, _, _ := NewExtractor().ExtractResourceSettings(pageHTMLBytes)
 	assert.Equal(t, ogame.ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100, Crawler: 100, PlasmaTechnology: 100}, settings)
 }
+
+func TestExtractUserInfos(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/overview.html")
+	info, err := NewExtractor().ExtractUserInfos(pageHTMLBytes)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(30478), info.Points)
+	assert.Equal(t, int64(1102), info.Rank)
+	assert.Equal(t, int64(2931), info.Total)
+}
