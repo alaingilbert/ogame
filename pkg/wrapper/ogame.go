@@ -2843,6 +2843,7 @@ func (b *OGame) setResourceSettings(planetID ogame.PlanetID, settings ogame.Reso
 		"last12":       {utils.FI64(settings.FusionReactor)},
 		"last212":      {utils.FI64(settings.SolarSatellite)},
 		"last217":      {utils.FI64(settings.Crawler)},
+		"last122":      {utils.FI64(settings.PlasmaTechnology)},
 	}
 	url2 := b.serverURL + "/game/index.php?page=resourceSettings"
 	resp, err := b.client.PostForm(url2, payload)
