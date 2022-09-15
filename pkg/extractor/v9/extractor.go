@@ -85,11 +85,24 @@ func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, 
 	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
 }
 
+// ExtractResourceSettings ...
 func (e *Extractor) ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, string, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractResourceSettingsFromDoc(doc)
 }
 
+// ExtractResourceSettingsFromDoc ...
 func (e *Extractor) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
 	return extractResourceSettingsFromDoc(doc)
+}
+
+// ExtractLfBuildings ...
+func (e *Extractor) ExtractLfBuildings(pageHTML []byte) (ogame.LfBuildings, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractLfBuildingsFromDoc(doc)
+}
+
+// ExtractLfBuildingsFromDoc ...
+func (e *Extractor) ExtractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
+	return extractLfBuildingsFromDoc(doc)
 }

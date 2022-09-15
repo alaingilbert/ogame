@@ -3,11 +3,12 @@ package parser
 import (
 	"bytes"
 	"errors"
+	"time"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/ogame/pkg/extractor"
 	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/ogame"
-	"time"
 )
 
 var ErrParsePageType = errors.New("failed to parse requested page type")
@@ -44,6 +45,7 @@ type FacilitiesPage struct{ FullPage }
 type ShipyardPage struct{ FullPage }
 type DefensesPage struct{ FullPage }
 type MovementPage struct{ FullPage }
+type LfBuildingsPage struct{ FullPage }
 
 type FullPagePages interface {
 	OverviewPage |
@@ -51,6 +53,7 @@ type FullPagePages interface {
 		SuppliesPage |
 		ResourcesSettingsPage |
 		FacilitiesPage |
+		LfBuildingsPage |
 		//TraderOverviewPageContent |
 		//TraderResourcesPageContent |
 		ResearchPage |
@@ -127,6 +130,8 @@ func ParsePage[T FullPagePages](e extractor.Extractor, pageHTML []byte) (T, erro
 		return T(ResearchPage{fullPage}), nil
 	case FacilitiesPage:
 		return T(FacilitiesPage{fullPage}), nil
+	case LfBuildingsPage:
+		return T(LfBuildingsPage{fullPage}), nil
 	case SuppliesPage:
 		return T(SuppliesPage{fullPage}), nil
 	case ResourcesSettingsPage:
