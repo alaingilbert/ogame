@@ -2,6 +2,7 @@ package wrapper
 
 import (
 	"fmt"
+
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
@@ -150,4 +151,14 @@ func (p Planet) FlightTime(destination ogame.Coordinate, speed ogame.Speed, ship
 // SendIPM send interplanetary missiles
 func (p Planet) SendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int64, priority ogame.ID) (int64, error) {
 	return p.ogame.SendIPM(planetID, coord, nbr, priority)
+}
+
+// GetLfBuildings gets the lifeform buildings levels
+func (p Planet) GetLfBuildings(options ...Option) (ogame.LfBuildings, error) {
+	return p.ogame.getLfBuildings(p.ID.Celestial(), options...)
+}
+
+// GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)
+func (p Planet) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error) {
+	return p.ogame.GetTechs(p.ID.Celestial())
 }
