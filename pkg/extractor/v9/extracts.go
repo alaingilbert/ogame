@@ -2,16 +2,17 @@ package v9
 
 import (
 	"errors"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/clockwork"
-	"github.com/alaingilbert/ogame/pkg/extractor/v6"
-	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
-	"github.com/alaingilbert/ogame/pkg/extractor/v71"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/utils"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
+	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
+	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
+	v71 "github.com/alaingilbert/ogame/pkg/extractor/v71"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/utils"
 )
 
 func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
@@ -531,4 +532,41 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 		return report, ogame.ErrDeactivateHidePictures
 	}
 	return report, nil
+}
+
+func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
+	bodyID := v6.ExtractBodyIDFromDoc(doc)
+	if bodyID == "overview" {
+		return ogame.ResourceSettings{}, "", ogame.ErrInvalidPlanetID
+	}
+	vals := make([]int64, 0)
+	doc.Find("option").Each(func(i int, s *goquery.Selection) {
+		_, selectedExists := s.Attr("selected")
+		if selectedExists {
+			a, _ := s.Attr("value")
+			val := utils.DoParseI64(a)
+			vals = append(vals, val)
+		}
+	})
+
+	if len(vals) != 8 {
+		return ogame.ResourceSettings{}, "", errors.New("failed to find all resource settings")
+	}
+
+	res := ogame.ResourceSettings{}
+	res.MetalMine = vals[0]
+	res.CrystalMine = vals[1]
+	res.DeuteriumSynthesizer = vals[2]
+	res.SolarPlant = vals[3]
+	res.FusionReactor = vals[4]
+	res.SolarSatellite = vals[5]
+	res.Crawler = vals[6]
+	res.PlasmaTechnology = vals[7]
+
+	token, exists := doc.Find("form input[name=token]").Attr("value")
+	if !exists {
+		return ogame.ResourceSettings{}, "", errors.New("unable to find token")
+	}
+
+	return res, token, nil
 }

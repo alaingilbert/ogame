@@ -1,12 +1,13 @@
 package v9
 
 import (
-	"github.com/alaingilbert/clockwork"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"testing"
 	"time"
+
+	"github.com/alaingilbert/clockwork"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
@@ -115,4 +116,19 @@ func TestGetConstructions(t *testing.T) {
 	assert.Equal(t, int64(33483), buildingCountdown)
 	assert.Equal(t, ogame.ComputerTechnologyID, researchID)
 	assert.Equal(t, int64(18355), researchCountdown)
+}
+
+func TestExtractResourceSettings(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/resource_settings.html")
+	settings, _, _ := NewExtractor().ExtractResourceSettings(pageHTMLBytes)
+	assert.Equal(t, ogame.ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100, Crawler: 100, PlasmaTechnology: 100}, settings)
+}
+
+func TestExtractUserInfos(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/overview.html")
+	info, err := NewExtractor().ExtractUserInfos(pageHTMLBytes)
+	assert.NoError(t, err)
+	assert.Equal(t, int64(30478), info.Points)
+	assert.Equal(t, int64(1102), info.Rank)
+	assert.Equal(t, int64(2931), info.Total)
 }
