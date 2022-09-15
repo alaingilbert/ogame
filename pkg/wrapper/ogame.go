@@ -8,20 +8,6 @@ import (
 	"encoding/json"
 	err2 "errors"
 	"fmt"
-	"github.com/alaingilbert/clockwork"
-	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
-	"github.com/alaingilbert/ogame/pkg/extractor"
-	"github.com/alaingilbert/ogame/pkg/extractor/v6"
-	"github.com/alaingilbert/ogame/pkg/extractor/v7"
-	"github.com/alaingilbert/ogame/pkg/extractor/v71"
-	"github.com/alaingilbert/ogame/pkg/extractor/v8"
-	"github.com/alaingilbert/ogame/pkg/extractor/v874"
-	"github.com/alaingilbert/ogame/pkg/extractor/v9"
-	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/parser"
-	"github.com/alaingilbert/ogame/pkg/taskRunner"
-	"github.com/alaingilbert/ogame/pkg/utils"
 	"image"
 	"image/color"
 	"image/png"
@@ -41,6 +27,21 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/alaingilbert/clockwork"
+	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
+	"github.com/alaingilbert/ogame/pkg/extractor"
+	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
+	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
+	v71 "github.com/alaingilbert/ogame/pkg/extractor/v71"
+	v8 "github.com/alaingilbert/ogame/pkg/extractor/v8"
+	v874 "github.com/alaingilbert/ogame/pkg/extractor/v874"
+	v9 "github.com/alaingilbert/ogame/pkg/extractor/v9"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/parser"
+	"github.com/alaingilbert/ogame/pkg/taskRunner"
+	"github.com/alaingilbert/ogame/pkg/utils"
 
 	"github.com/PuerkitoBio/goquery"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -2878,6 +2879,15 @@ func (b *OGame) getResourcesBuildings(celestialID ogame.CelestialID, options ...
 	return page.ExtractResourcesBuildings()
 }
 
+func (b *OGame) getLfBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.LfBuildings, error) {
+	options = append(options, ChangePlanet(celestialID))
+	page, err := getPage[parser.LfBuildingsPage](b, options...)
+	if err != nil {
+		return ogame.LfBuildings{}, err
+	}
+	return page.ExtractLfBuildings()
+}
+
 func (b *OGame) getDefense(celestialID ogame.CelestialID, options ...Option) (ogame.DefensesInfos, error) {
 	options = append(options, ChangePlanet(celestialID))
 	page, err := getPage[parser.DefensesPage](b, options...)
@@ -4663,7 +4673,8 @@ func (b *OGame) RegisterHTMLInterceptor(fn func(method, url string, params, payl
 // Phalanx scan a coordinate from a moon to get fleets information
 // IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
-// 			  and that you have enough deuterium.
+//
+//	and that you have enough deuterium.
 func (b *OGame) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
 	return b.WithPriority(taskRunner.Normal).Phalanx(moonID, coord)
 }
@@ -4776,4 +4787,9 @@ func (b *OGame) OfferSellMarketplace(itemID any, quantity, priceType, price, pri
 // OfferBuyMarketplace buy offer on marketplace
 func (b *OGame) OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error {
 	return b.WithPriority(taskRunner.Normal).OfferBuyMarketplace(itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// GetLfBuildings ...
+func (b *OGame) GetLfBuildings(celestialID ogame.CelestialID, opts ...Option) (ogame.LfBuildings, error) {
+	return b.WithPriority(taskRunner.Normal).GetLfBuildings(celestialID, opts...)
 }

@@ -2,13 +2,14 @@ package wrapper
 
 import (
 	"crypto/tls"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/alaingilbert/ogame/pkg/extractor"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 // Celestial superset of ogame.Celestial.
@@ -125,6 +126,7 @@ type Prioritizable interface {
 	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error)
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
+	GetLfBuildings(ogame.CelestialID, ...Option) (ogame.LfBuildings, error)
 
 	// Planet specific functions
 	DestroyRockets(ogame.PlanetID, int64, int64) error
