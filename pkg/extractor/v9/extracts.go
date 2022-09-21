@@ -549,7 +549,7 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 		}
 	})
 
-	if len(vals) != 8 {
+	if len(vals) < 7 && len(vals) > 8 {
 		return ogame.ResourceSettings{}, "", errors.New("failed to find all resource settings")
 	}
 
@@ -561,7 +561,6 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 	res.FusionReactor = vals[4]
 	res.SolarSatellite = vals[5]
 	res.Crawler = vals[6]
-	res.PlasmaTechnology = vals[7]
 
 	token, exists := doc.Find("form input[name=token]").Attr("value")
 	if !exists {
