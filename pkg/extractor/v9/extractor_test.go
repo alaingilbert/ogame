@@ -118,12 +118,6 @@ func TestGetConstructions(t *testing.T) {
 	assert.Equal(t, int64(18355), researchCountdown)
 }
 
-func TestExtractResourceSettings(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/resource_settings.html")
-	settings, _, _ := NewExtractor().ExtractResourceSettings(pageHTMLBytes)
-	assert.Equal(t, ogame.ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100, Crawler: 100, PlasmaTechnology: 100}, settings)
-}
-
 func TestExtractUserInfos(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/overview.html")
 	info, err := NewExtractor().ExtractUserInfos(pageHTMLBytes)
