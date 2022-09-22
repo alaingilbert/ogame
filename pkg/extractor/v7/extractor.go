@@ -100,6 +100,10 @@ func (e Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, b
 	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
 }
 
+func (e Extractor) ExtractLFConstructions(pageHTML []byte) (LFbuildingID ogame.ID, LFbuildingCountdown int64) {
+        return ExtractLFConstructions(pageHTML, clockwork.NewRealClock())
+}
+
 // ExtractFleet1Ships ...
 func (e Extractor) ExtractFleet1Ships(pageHTML []byte) ogame.ShipsInfos {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))

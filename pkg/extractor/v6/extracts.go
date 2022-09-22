@@ -1921,6 +1921,16 @@ func extractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdo
 	return
 }
 
+func extractLFConstructions(pageHTML []byte) (LFbuildingID ogame.ID, LFbuildingCountdown int64) {
+        LFbuildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("lfbuildingCountdown"\),(\d+),`).FindSubmatch(pageHTML)
+        if len(LFbuildingCountdownMatch) > 0 {
+                LFbuildingCountdown = int64(utils.ToInt(LFbuildingCountdownMatch[1]))
+                LFbuildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
+                LFbuildingID = ogame.ID(LFbuildingIDInt)
+        }
+        return
+}
+
 func extractFleetDeutSaveFactor(pageHTML []byte) float64 {
 	factor := 1.0
 	m := regexp.MustCompile(`var fleetDeutSaveFactor=([+-]?([0-9]*[.])?[0-9]+);`).FindSubmatch(pageHTML)

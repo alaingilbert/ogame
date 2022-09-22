@@ -2,13 +2,14 @@ package wrapper
 
 import (
 	"crypto/tls"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/alaingilbert/ogame/pkg/extractor"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 // Celestial superset of ogame.Celestial.
@@ -24,6 +25,7 @@ type Celestial interface {
 	CancelLfBuilding() error
 	CancelResearch() error
 	ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64)
+	LFConstructionsBeingBuilt() (ogame.ID, int64)
 	EnsureFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	GetDefense(...Option) (ogame.DefensesInfos, error)
 	GetFacilities(...Option) (ogame.Facilities, error)
@@ -35,6 +37,8 @@ type Celestial interface {
 	GetShips(...Option) (ogame.ShipsInfos, error)
 	SendFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	TearDown(buildingID ogame.ID) error
+	GetLfBuildings(...Option) (ogame.LfBuildings, error)
+	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
 }
 
 // Prioritizable list of all actions that needs to communicate with ogame server.
@@ -114,6 +118,7 @@ type Prioritizable interface {
 	CancelLfBuilding(ogame.CelestialID) error
 	CancelResearch(ogame.CelestialID) error
 	ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64)
+	LFConstructionsBeingBuilt(ogame.CelestialID) (LfBuildingID ogame.ID, lfresearchCountdown int64)
 	EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	GetDefense(ogame.CelestialID, ...Option) (ogame.DefensesInfos, error)
 	GetFacilities(ogame.CelestialID, ...Option) (ogame.Facilities, error)
@@ -122,9 +127,10 @@ type Prioritizable interface {
 	GetResourcesBuildings(ogame.CelestialID, ...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails(ogame.CelestialID) (ogame.ResourcesDetails, error)
 	GetShips(ogame.CelestialID, ...Option) (ogame.ShipsInfos, error)
-	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error)
+	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
+	GetLfBuildings(ogame.CelestialID, ...Option) (ogame.LfBuildings, error)
 
 	// Planet specific functions
 	DestroyRockets(ogame.PlanetID, int64, int64) error

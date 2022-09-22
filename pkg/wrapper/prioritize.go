@@ -1,11 +1,12 @@
 package wrapper
 
 import (
-	"github.com/alaingilbert/ogame/pkg/ogame"
 	"net/http"
 	"net/url"
 	"sync/atomic"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
 // Prioritize ...
@@ -382,6 +383,12 @@ func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (oga
 	return b.bot.constructionsBeingBuilt(celestialID)
 }
 
+func (b *Prioritize) LFConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64) {
+        b.begin("LFConstructionsBeingBuilt")
+        defer b.done()
+        return b.bot.LFconstructionsBeingBuilt(celestialID)
+}
+
 // CancelBuilding cancel the construction of a building on a specified planet
 func (b *Prioritize) CancelBuilding(celestialID ogame.CelestialID) error {
 	b.begin("CancelBuilding")
@@ -425,7 +432,7 @@ func (b *Prioritize) GetResourcesDetails(celestialID ogame.CelestialID) (ogame.R
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error) {
+func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
 	b.begin("GetTechs")
 	defer b.done()
 	return b.bot.getTechs(celestialID)
@@ -560,7 +567,8 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 // Phalanx scan a coordinate from a moon to get fleets information
 // IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
-// 			  and that you have enough deuterium.
+//
+//	and that you have enough deuterium.
 func (b *Prioritize) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
 	b.begin("Phalanx")
 	defer b.done()
@@ -705,4 +713,11 @@ func (b *Prioritize) OfferBuyMarketplace(itemID any, quantity, priceType, price,
 	b.begin("OfferBuyMarketplace")
 	defer b.done()
 	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// OfferBuyMarketplace ...
+func (b *Prioritize) GetLfBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.LfBuildings, error) {
+	b.begin("GetLfBuildings")
+	defer b.done()
+	return b.bot.getLfBuildings(celestialID, options...)
 }

@@ -2,6 +2,7 @@ package wrapper
 
 import (
 	"fmt"
+
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
@@ -112,6 +113,10 @@ func (p Planet) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64) {
 	return p.ogame.ConstructionsBeingBuilt(ogame.CelestialID(p.ID))
 }
 
+func (p Planet) LFConstructionsBeingBuilt() (ogame.ID, int64) {
+        return p.ogame.LFConstructionsBeingBuilt(ogame.CelestialID(p.ID))
+}
+
 // CancelBuilding cancel the construction of a building
 func (p Planet) CancelBuilding() error {
 	return p.ogame.CancelBuilding(ogame.CelestialID(p.ID))
@@ -150,4 +155,14 @@ func (p Planet) FlightTime(destination ogame.Coordinate, speed ogame.Speed, ship
 // SendIPM send interplanetary missiles
 func (p Planet) SendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int64, priority ogame.ID) (int64, error) {
 	return p.ogame.SendIPM(planetID, coord, nbr, priority)
+}
+
+// GetLfBuildings gets the lifeform buildings levels
+func (p Planet) GetLfBuildings(options ...Option) (ogame.LfBuildings, error) {
+	return p.ogame.getLfBuildings(p.ID.Celestial(), options...)
+}
+
+// GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)
+func (p Planet) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
+	return p.ogame.GetTechs(p.ID.Celestial())
 }

@@ -20,6 +20,7 @@ func (b BaseBuilding) DeconstructionPrice(level int64, techs IResearches) Resour
 		Crystal:   tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
 		Deuterium: tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
 		Energy:    tmp(b.BaseCost.Energy, b.IncreaseFactor, level),
+		Population: tmp(b.BaseCost.Population, b.IncreaseFactor, level),
 	}
 }
 

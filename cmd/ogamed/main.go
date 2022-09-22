@@ -287,6 +287,7 @@ func start(c *cli.Context) error {
 	e.GET("/bot/get-research", wrapper.GetResearchHandler)
 	e.GET("/bot/buy-offer-of-the-day", wrapper.BuyOfferOfTheDayHandler)
 	e.GET("/bot/price/:ogameID/:nbr", wrapper.GetPriceHandler)
+	e.GET("/bot/requirements/:ogameID", wrapper.GetLFRequirementsHandler)
 	e.GET("/bot/moons", wrapper.GetMoonsHandler)
 	e.GET("/bot/moons/:moonID", wrapper.GetMoonHandler)
 	e.GET("/bot/moons/:galaxy/:system/:position", wrapper.GetMoonByCoordHandler)
@@ -300,6 +301,7 @@ func start(c *cli.Context) error {
 	e.GET("/bot/planets/:planetID/resource-settings", wrapper.GetResourceSettingsHandler)
 	e.POST("/bot/planets/:planetID/resource-settings", wrapper.SetResourceSettingsHandler)
 	e.GET("/bot/planets/:planetID/resources-buildings", wrapper.GetResourcesBuildingsHandler)
+	e.GET("/bot/planets/:planetID/LFbuildings", wrapper.GetLFBuildingsHandler)
 	e.GET("/bot/planets/:planetID/defence", wrapper.GetDefenseHandler)
 	e.GET("/bot/planets/:planetID/ships", wrapper.GetShipsHandler)
 	e.GET("/bot/planets/:planetID/facilities", wrapper.GetFacilitiesHandler)
@@ -313,6 +315,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/teardown/:ogameID", wrapper.TeardownHandler)
 	e.GET("/bot/planets/:planetID/production", wrapper.GetProductionHandler)
 	e.GET("/bot/planets/:planetID/constructions", wrapper.ConstructionsBeingBuiltHandler)
+	e.GET("/bot/planets/:planetID/LFconstructions", wrapper.LFConstructionsBeingBuiltHandler)
 	e.POST("/bot/planets/:planetID/cancel-building", wrapper.CancelBuildingHandler)
 	e.POST("/bot/planets/:planetID/cancel-research", wrapper.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", wrapper.GetResourcesHandler)
@@ -321,6 +324,7 @@ func start(c *cli.Context) error {
 	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", wrapper.PhalanxHandler)
 	e.POST("/bot/moons/:moonID/jump-gate", wrapper.JumpGateHandler)
 	e.GET("/game/allianceInfo.php", wrapper.GetAlliancePageContentHandler) // Example: //game/allianceInfo.php?allianceId=500127
+	
 
 	// Get/Post Page Content
 	e.GET("/game/index.php", wrapper.GetFromGameHandler)

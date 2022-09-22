@@ -16,6 +16,10 @@ func (p OverviewPage) ExtractConstructions() (ogame.ID, int64, ogame.ID, int64) 
 	return p.e.ExtractConstructions(p.content)
 }
 
+func (p OverviewPage) ExtractLFConstructions() (ogame.ID, int64) {
+        return p.e.ExtractLFConstructions(p.content)
+}
+
 func (p OverviewPage) ExtractUserInfos() (ogame.UserInfos, error) {
 	return p.e.ExtractUserInfos(p.content)
 }

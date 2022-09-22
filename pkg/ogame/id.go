@@ -164,7 +164,7 @@ func (o ID) String() string {
 
 // IsValid returns either or not the id is valid
 func (o ID) IsValid() bool {
-	return o.IsDefense() || o.IsShip() || o.IsTech() || o.IsBuilding()
+	return o.IsDefense() || o.IsShip() || o.IsTech() || o.IsBuilding() || o.IsLfBuilding()
 }
 
 // IsFacility returns either or not the id is a facility
@@ -198,7 +198,7 @@ func (o ID) IsResourceBuilding() bool {
 }
 
 func (o ID) IsLfBuilding() bool {
-	return o == ResidentialSectorID || // humans
+	return  o == ResidentialSectorID || // humans
 		o == BiosphereFarmID ||
 		o == ResearchCentreID ||
 		o == AcademyOfSciencesID ||
