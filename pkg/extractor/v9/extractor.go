@@ -81,7 +81,7 @@ func (e *Extractor) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Docu
 }
 
 // ExtractConstructions ...
-func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64) {
+func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfTechID ogame.ID, lfTechCountdown int64) {
 	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
 }
 
@@ -100,4 +100,15 @@ func (e *Extractor) ExtractLfBuildings(pageHTML []byte) (ogame.LfBuildings, erro
 // ExtractLfBuildingsFromDoc ...
 func (e *Extractor) ExtractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
 	return extractLfBuildingsFromDoc(doc)
+}
+
+// ExtractLfTechs ...
+func (e *Extractor) ExtractLfTechs(pageHTML []byte) (ogame.LfTechs, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractLfTechsFromDoc(doc)
+}
+
+// ExtractLfTechsFromDoc ...
+func (e *Extractor) ExtractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
+	return extractLfTechsFromDoc(doc)
 }

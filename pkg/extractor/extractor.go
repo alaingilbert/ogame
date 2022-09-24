@@ -75,7 +75,7 @@ type OverviewExtractorBytes interface {
 	ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)
-	ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64)
+	ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfTechID ogame.ID, lfTechCountdown int64)
 	ExtractDMCosts(pageHTML []byte) (ogame.DMCosts, error)
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error)
@@ -423,6 +423,20 @@ type LfBuildingsExtractorBytesDoc interface {
 	LfBuildingsExtractorDoc
 }
 
+type LfTechsExtractorBytes interface {
+	ExtractUpgradeToken(pageHTML []byte) (string, error)
+	ExtractLfTechs(pageHTML []byte) (ogame.LfTechs, error)
+}
+
+type LfTechsExtractorDoc interface {
+	ExtractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error)
+}
+
+type LfTechsExtractorBytesDoc interface {
+	LfTechsExtractorBytes
+	LfTechsExtractorDoc
+}
+
 // ResourcesBuildingsExtractorBytes supplies page
 type ResourcesBuildingsExtractorBytes interface {
 	ExtractResourcesBuildings(pageHTML []byte) (ogame.ResourcesBuildings, error)
@@ -478,6 +492,7 @@ type Extractor interface {
 	FullPageExtractorBytesDoc
 	HighscoreExtractorBytesDoc
 	LfBuildingsExtractorBytesDoc
+	LfTechsExtractorBytesDoc
 	MessagesCombatReportExtractorBytesDoc
 	MessagesEspionageReportExtractorBytesDoc
 	MessagesExpeditionExtractorBytesDoc

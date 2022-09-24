@@ -809,7 +809,7 @@ func (e *Extractor) ExtractFederation(pageHTML []byte) url.Values {
 }
 
 // ExtractConstructions ...
-func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64) {
+func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfTechID ogame.ID, lfTechCountdown int64) {
 	return extractConstructions(pageHTML)
 }
 
@@ -891,5 +891,15 @@ func (e *Extractor) ExtractLfBuildings(pageHTML []byte) (ogame.LfBuildings, erro
 
 // ExtractLfBuildingsFromDoc ...
 func (e *Extractor) ExtractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
+	panic("not implemented")
+}
+
+// ExtractLfTechs ...
+func (e *Extractor) ExtractLfTechs(pageHTML []byte) (ogame.LfTechs, error) {
+	panic("not implemented")
+}
+
+// ExtractLfTechsFromDoc ...
+func (e *Extractor) ExtractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
 	panic("not implemented")
 }
