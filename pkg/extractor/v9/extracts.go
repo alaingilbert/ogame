@@ -573,7 +573,7 @@ func GetNbr(doc *goquery.Document, name string) int64 {
 func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
 	res := ogame.LfBuildings{}
 	if doc.Find("#lifeform a div").HasClass("lifeform1") {
-		res.Humans = true
+		res.LifeformType = ogame.Humans
 		res.ResidentialSector = GetNbr(doc, "lifeformTech11101")
 		res.BiosphereFarm = GetNbr(doc, "lifeformTech11102")
 		res.ResearchCentre = GetNbr(doc, "lifeformTech11103")
@@ -588,7 +588,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.PlanetaryShield = GetNbr(doc, "lifeformTech11112")
 
 	} else if doc.Find("#lifeform a div").HasClass("lifeform2") {
-		res.Rocktal = true
+		res.LifeformType = ogame.Rocktal
 		res.MeditationEnclave = GetNbr(doc, "lifeformTech12101")
 		res.CrystalFarm = GetNbr(doc, "lifeformTech12102")
 		res.RuneTechnologium = GetNbr(doc, "lifeformTech12103")
@@ -603,7 +603,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.MetalRecyclingPlant = GetNbr(doc, "lifeformTech12112")
 
 	} else if doc.Find("#lifeform a div").HasClass("lifeform3") {
-		res.Mechas = true
+		res.LifeformType = ogame.Mechas
 		res.AssemblyLine = GetNbr(doc, "lifeformTech13101")
 		res.FusionCellFactory = GetNbr(doc, "lifeformTech13102")
 		res.RoboticsResearchCentre = GetNbr(doc, "lifeformTech13103")
@@ -618,7 +618,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.NanoRepairBots = GetNbr(doc, "lifeformTech13112")
 
 	} else if doc.Find("#lifeform a div").HasClass("lifeform4") {
-		res.Kaelesh = true
+		res.LifeformType = ogame.Kaelesh
 		res.Sanctuary = GetNbr(doc, "lifeformTech14101")
 		res.AntimatterCondenser = GetNbr(doc, "lifeformTech14102")
 		res.VortexChamber = GetNbr(doc, "lifeformTech14103")
@@ -633,7 +633,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.SupraRefractor = GetNbr(doc, "lifeformTech14112")
 
 	} else {
-		res.None = true
+		res.LifeformType = ogame.NoneLfType
 	}
 	return res, nil
 }

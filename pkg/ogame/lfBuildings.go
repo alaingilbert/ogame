@@ -7,13 +7,34 @@ import (
 // LazyLfBuildings ...
 type LazyLfBuildings func() LfBuildings
 
+type LifeformType int64
+
+const (
+	NoneLfType LifeformType = iota
+	Humans
+	Rocktal
+	Mechas
+	Kaelesh
+)
+
+func (l *LifeformType) String() string {
+	switch *l {
+	case Humans:
+		return "humans"
+	case Rocktal:
+		return "rocktal"
+	case Mechas:
+		return "mechas"
+	case Kaelesh:
+		return "kaelesh"
+	default:
+		return "none"
+	}
+}
+
 // LfBuildings lifeform buildings
 type LfBuildings struct {
-	None                       bool
-	Humans                     bool
-	Rocktal                    bool
-	Mechas                     bool
-	Kaelesh                    bool
+	LifeformType               LifeformType
 	ResidentialSector          int64 // 11101 // Lifeform (humans)
 	BiosphereFarm              int64 // 11102
 	ResearchCentre             int64 // 11103
