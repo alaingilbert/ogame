@@ -9,18 +9,54 @@ type LazyLfBuildings func() LfBuildings
 
 // LfBuildings lifeform buildings
 type LfBuildings struct {
-	ResidentialSector       int64 // 11101
-	BiosphereFarm           int64 // 11102
-	ResearchCentre          int64 // 11103
-	AcademyOfSciences       int64 // 11104
-	NeuroCalibrationCentre  int64 // 11105
-	HighEnergySmelting      int64 // 11106
-	FoodSilo                int64 // 11107
-	FusionPoweredProduction int64 // 11108
-	Skyscraper              int64 // 11109
-	BiotechLab              int64 // 11110
-	Metropolis              int64 // 11111
-	PlanetaryShield         int64 // 11112
+	ResidentialSector          int64 // 11101 // Lifeform (humans)
+	BiosphereFarm              int64 // 11102
+	ResearchCentre             int64 // 11103
+	AcademyOfSciences          int64 // 11104
+	NeuroCalibrationCentre     int64 // 11105
+	HighEnergySmelting         int64 // 11106
+	FoodSilo                   int64 // 11107
+	FusionPoweredProduction    int64 // 11108
+	Skyscraper                 int64 // 11109
+	BiotechLab                 int64 // 11110
+	Metropolis                 int64 // 11111
+	PlanetaryShield            int64 // 11112
+	MeditationEnclave          int64 // 12101 // Lifeform (rocktal)
+	CrystalFarm                int64 // 12102
+	RuneTechnologium           int64 // 12103
+	RuneForge                  int64 // 12104
+	Oriktorium                 int64 // 12105
+	MagmaForge                 int64 // 12106
+	DisruptionChamber          int64 // 12107
+	Megalith                   int64 // 12108
+	CrystalRefinery            int64 // 12109
+	DeuteriumSynthesiser       int64 // 12110
+	MineralResearchCentre      int64 // 12111
+	MetalRecyclingPlant        int64 // 12112
+	AssemblyLine               int64 // 13101 // Lifeform (mechas)
+	FusionCellFactory          int64 // 13102
+	RoboticsResearchCentre     int64 // 13103
+	UpdateNetwork              int64 // 12304
+	QuantumComputerCentre      int64 // 13105
+	AutomatisedAssemblyCentre  int64 // 13106
+	HighPerformanceTransformer int64 // 13107
+	MicrochipAssemblyLine      int64 // 13108
+	ProductionAssemblyHall     int64 // 13109
+	HighPerformanceSynthesiser int64 // 13110
+	ChipMassProduction         int64 // 13111
+	NanoRepairBots             int64 // 13112
+	Sanctuary                  int64 // 14101 // Lifeform (kaelesh)
+	AntimatterCondenser        int64 // 14102
+	VortexChamber              int64 // 14103
+	HallsOfRealisation         int64 // 14104
+	ForumOfTranscendence       int64 // 14105
+	AntimatterConvector        int64 // 14106
+	CloningLaboratory          int64 // 14107
+	ChrysalisAccelerator       int64 // 14108
+	BioModifier                int64 // 14109
+	PsionicModulator           int64 // 14110
+	ShipManufacturingHall      int64 // 14111
+	SupraRefractor             int64 // 14112
 }
 
 // Lazy returns a function that return self
@@ -55,6 +91,78 @@ func (b LfBuildings) ByID(id ID) int64 {
 		return b.Metropolis
 	case PlanetaryShieldID:
 		return b.PlanetaryShield
+	case MeditationEnclaveID:
+		return b.MeditationEnclave
+	case CrystalFarmID:
+		return b.CrystalFarm
+	case RuneTechnologiumID:
+		return b.RuneTechnologium
+	case RuneForgeID:
+		return b.RuneForge
+	case OriktoriumID:
+		return b.Oriktorium
+	case MagmaForgeID:
+		return b.MagmaForge
+	case DisruptionChamberID:
+		return b.DisruptionChamber
+	case MegalithID:
+		return b.Megalith
+	case CrystalRefineryID:
+		return b.CrystalRefinery
+	case DeuteriumSynthesiserID:
+		return b.DeuteriumSynthesiser
+	case MineralResearchCentreID:
+		return b.MineralResearchCentre
+	case MetalRecyclingPlantID:
+		return b.MetalRecyclingPlant
+	case AssemblyLineID:
+		return b.AssemblyLine
+	case FusionCellFactoryID:
+		return b.FusionCellFactory
+	case RoboticsResearchCentreID:
+		return b.RoboticsResearchCentre
+	case UpdateNetworkID:
+		return b.UpdateNetwork
+	case QuantumComputerCentreID:
+		return b.QuantumComputerCentre
+	case AutomatisedAssemblyCentreID:
+		return b.AutomatisedAssemblyCentre
+	case HighPerformanceTransformerID:
+		return b.HighPerformanceTransformer
+	case MicrochipAssemblyLineID:
+		return b.MicrochipAssemblyLine
+	case ProductionAssemblyHallID:
+		return b.ProductionAssemblyHall
+	case HighPerformanceSynthesiserID:
+		return b.HighPerformanceSynthesiser
+	case ChipMassProductionID:
+		return b.ChipMassProduction
+	case NanoRepairBotsID:
+		return b.NanoRepairBots
+	case SanctuaryID:
+		return b.Sanctuary
+	case AntimatterCondenserID:
+		return b.AntimatterCondenser
+	case VortexChamberID:
+		return b.VortexChamber
+	case HallsOfRealisationID:
+		return b.HallsOfRealisation
+	case ForumOfTranscendenceID:
+		return b.ForumOfTranscendence
+	case AntimatterConvectorID:
+		return b.AntimatterConvector
+	case CloningLaboratoryID:
+		return b.CloningLaboratory
+	case ChrysalisAcceleratorID:
+		return b.ChrysalisAccelerator
+	case BioModifierID:
+		return b.BioModifier
+	case PsionicModulatorID:
+		return b.PsionicModulator
+	case ShipManufacturingHallID:
+		return b.ShipManufacturingHall
+	case SupraRefractorID:
+		return b.SupraRefractor
 	}
 	return 0
 }
