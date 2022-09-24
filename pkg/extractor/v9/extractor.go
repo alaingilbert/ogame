@@ -91,11 +91,6 @@ func (e *Extractor) ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSett
 	return e.ExtractResourceSettingsFromDoc(doc)
 }
 
-// ExtractResourceSettingsFromDoc ...
-func (e *Extractor) ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
-	return extractResourceSettingsFromDoc(doc)
-}
-
 // ExtractLfBuildings ...
 func (e *Extractor) ExtractLfBuildings(pageHTML []byte) (ogame.LfBuildings, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
