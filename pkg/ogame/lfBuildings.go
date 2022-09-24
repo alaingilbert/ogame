@@ -9,6 +9,11 @@ type LazyLfBuildings func() LfBuildings
 
 // LfBuildings lifeform buildings
 type LfBuildings struct {
+	None                       bool
+	Humans                     bool
+	Rocktal                    bool
+	Mechas                     bool
+	Kaelesh                    bool
 	ResidentialSector          int64 // 11101 // Lifeform (humans)
 	BiosphereFarm              int64 // 11102
 	ResearchCentre             int64 // 11103
