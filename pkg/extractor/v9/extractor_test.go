@@ -160,3 +160,22 @@ func TestExtractLfBuildings(t *testing.T) {
 	assert.Equal(t, int64(0), res.Metropolis)
 	assert.Equal(t, int64(0), res.PlanetaryShield)
 }
+
+func TestExtractLfBuildingsRocktal(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/lfbuildings_rocktal.html")
+	res, _ := NewExtractor().ExtractLfBuildings(pageHTMLBytes)
+	assert.Equal(t, int64(0), res.ResidentialSector)
+	assert.Equal(t, int64(0), res.BiosphereFarm)
+	assert.Equal(t, int64(0), res.ResearchCentre)
+	assert.Equal(t, int64(0), res.AcademyOfSciences)
+	assert.Equal(t, int64(0), res.NeuroCalibrationCentre)
+	assert.Equal(t, int64(0), res.HighEnergySmelting)
+	assert.Equal(t, int64(0), res.FoodSilo)
+	assert.Equal(t, int64(0), res.FusionPoweredProduction)
+	assert.Equal(t, int64(0), res.Skyscraper)
+	assert.Equal(t, int64(0), res.BiotechLab)
+	assert.Equal(t, int64(0), res.Metropolis)
+	assert.Equal(t, int64(0), res.PlanetaryShield)
+	assert.Equal(t, int64(2), res.MeditationEnclave)
+	assert.Equal(t, int64(1), res.CrystalFarm)
+}
