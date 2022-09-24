@@ -566,16 +566,16 @@ func GetNbr(doc *goquery.Document, name string) int64 {
 func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
 	res := ogame.LfBuildings{}
 	if doc.Find("#lifeform a div").HasClass("lifeform1") {
-        res.Humans = true
-    } else if doc.Find("#lifeform a div").HasClass("lifeform2") {
-        res.Rocktal = true
-    } else if doc.Find("#lifeform a div").HasClass("lifeform3") {
-        res.Mechas = true
-    } else if doc.Find("#lifeform a div").HasClass("lifeform4") {
-        res.Kaelesh = true
-    } else {
-        res.None = true
-    }
+		res.Humans = true
+ 	} else if doc.Find("#lifeform a div").HasClass("lifeform2") {
+		res.Rocktal = true
+	} else if doc.Find("#lifeform a div").HasClass("lifeform3") {
+		res.Mechas = true
+	} else if doc.Find("#lifeform a div").HasClass("lifeform4") {
+		res.Kaelesh = true
+	} else {
+		res.None = true
+	}
 	res.ResidentialSector = GetNbr(doc, "lifeformTech11101")
 	res.BiosphereFarm = GetNbr(doc, "lifeformTech11102")
 	res.ResearchCentre = GetNbr(doc, "lifeformTech11103")
