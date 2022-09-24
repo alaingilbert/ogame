@@ -3010,6 +3010,8 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 		page = ShipyardPageName
 	} else if id.IsLfBuilding() {
 		page = LfbuildingsPageName
+	} else if id.IsLfTech() {
+		page = LftechsPageName
 	} else if id.IsBuilding() {
 		page = SuppliesPageName
 	} else if id.IsTech() {
@@ -3057,7 +3059,7 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 }
 
 func (b *OGame) buildCancelable(celestialID ogame.CelestialID, id ogame.ID) error {
-	if !id.IsBuilding() && !id.IsTech() && !id.IsLfBuilding() {
+	if !id.IsBuilding() && !id.IsTech() && !id.IsLfBuilding() && !id.IsLfTech() {
 		return errors.New("invalid id " + id.String())
 	}
 	return b.build(celestialID, id, 0)
