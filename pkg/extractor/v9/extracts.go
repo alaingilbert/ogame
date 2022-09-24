@@ -3,6 +3,7 @@ package v9
 import (
 	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,7 +16,9 @@ import (
 	"github.com/alaingilbert/ogame/pkg/utils"
 )
 
-func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
+func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64,
+	researchID ogame.ID, researchCountdown int64,
+	lfBuildingID ogame.ID, lfBuildingCountdown int64) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
 		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
@@ -27,6 +30,12 @@ func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID og
 		researchCountdown = int64(utils.ToInt(researchCountdownMatch[1])) - clock.Now().Unix()
 		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
 		researchID = ogame.ID(researchIDInt)
+	}
+	lfBuildingCountdownMatch := regexp.MustCompile(`var restTimelfbuilding = (\d+) -`).FindSubmatch(pageHTML)
+	if len(lfBuildingCountdownMatch) > 0 {
+		lfBuildingCountdown = int64(utils.ToInt(lfBuildingCountdownMatch[1])) - clock.Now().Unix()
+		lfBuildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
+		lfBuildingID = ogame.ID(lfBuildingIDInt)
 	}
 	return
 }
@@ -218,6 +227,8 @@ func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.Res
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", "")))
 	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", "")))
 	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", "")))
+	populationDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#population_box").AttrOr("title", "")))
+	foodDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#food_box").AttrOr("title", "")))
 	out.Metal.Available = utils.ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
 	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
@@ -233,6 +244,19 @@ func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.Res
 	out.Darkmatter.Available = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
 	out.Darkmatter.Purchased = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Darkmatter.Found = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Food.Available = utils.ParseInt(foodDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Food.StorageCapacity = utils.ParseInt(foodDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Food.Overproduction = utils.ParseInt(foodDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Food.ConsumedIn = utils.ParseInt(foodDoc.Find("table tr").Eq(3).Find("td").Eq(0).Text())
+	out.Food.TimeTillFoodRunsOut = utils.ParseInt(foodDoc.Find("table tr").Eq(4).Find("td").Eq(0).Text())
+	out.Population.Available = utils.ParseInt(populationDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Population.T2Lifeforms = utils.ParseInt(populationDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Population.T3Lifeforms = utils.ParseInt(populationDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Population.LivingSpace = utils.ParseInt(populationDoc.Find("table tr").Eq(3).Find("td").Eq(0).Text())
+	out.Population.Satisfied = utils.ParseInt(populationDoc.Find("table tr").Eq(4).Find("td").Eq(0).Text())
+	out.Population.Hungry, _ = strconv.ParseFloat(populationDoc.Find("table tr").Eq(5).Find("td").Eq(0).Text(), 64)
+	out.Population.GrowthRate, _ = strconv.ParseFloat(strings.TrimPrefix(populationDoc.Find("table tr").Eq(6).Find("td").Eq(0).Text(), "±"), 64)
+	out.Population.BunkerSpace = utils.ParseInt(populationDoc.Find("table tr").Eq(7).Find("td").Eq(0).Text())
 	return out
 }
 
@@ -534,39 +558,60 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	return report, nil
 }
 
-func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error) {
-	bodyID := v6.ExtractBodyIDFromDoc(doc)
-	if bodyID == "overview" {
-		return ogame.ResourceSettings{}, "", ogame.ErrInvalidPlanetID
-	}
-	vals := make([]int64, 0)
-	doc.Find("option").Each(func(i int, s *goquery.Selection) {
-		_, selectedExists := s.Attr("selected")
-		if selectedExists {
-			a, _ := s.Attr("value")
-			val := utils.DoParseI64(a)
-			vals = append(vals, val)
-		}
-	})
+func GetNbr(doc *goquery.Document, name string) int64 {
+	val := utils.DoParseI64(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"))
+	return val
+}
 
-	if len(vals) != 8 {
-		return ogame.ResourceSettings{}, "", errors.New("failed to find all resource settings")
-	}
-
-	res := ogame.ResourceSettings{}
-	res.MetalMine = vals[0]
-	res.CrystalMine = vals[1]
-	res.DeuteriumSynthesizer = vals[2]
-	res.SolarPlant = vals[3]
-	res.FusionReactor = vals[4]
-	res.SolarSatellite = vals[5]
-	res.Crawler = vals[6]
-	res.PlasmaTechnology = vals[7]
-
-	token, exists := doc.Find("form input[name=token]").Attr("value")
-	if !exists {
-		return ogame.ResourceSettings{}, "", errors.New("unable to find token")
-	}
-
-	return res, token, nil
+func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
+	res := ogame.LfBuildings{}
+	res.ResidentialSector = GetNbr(doc, "lifeformTech11101")
+	res.BiosphereFarm = GetNbr(doc, "lifeformTech11102")
+	res.ResearchCentre = GetNbr(doc, "lifeformTech11103")
+	res.AcademyOfSciences = GetNbr(doc, "lifeformTech11104")
+	res.NeuroCalibrationCentre = GetNbr(doc, "lifeformTech11105")
+	res.HighEnergySmelting = GetNbr(doc, "lifeformTech11106")
+	res.FoodSilo = GetNbr(doc, "lifeformTech11107")
+	res.FusionPoweredProduction = GetNbr(doc, "lifeformTech11108")
+	res.Skyscraper = GetNbr(doc, "lifeformTech11109")
+	res.BiotechLab = GetNbr(doc, "lifeformTech11110")
+	res.Metropolis = GetNbr(doc, "lifeformTech11111")
+	res.PlanetaryShield = GetNbr(doc, "lifeformTech11112")
+	res.MeditationEnclave = GetNbr(doc, "lifeformTech12101")
+	res.CrystalFarm = GetNbr(doc, "lifeformTech12102")
+	res.RuneTechnologium = GetNbr(doc, "lifeformTech12103")
+	res.RuneForge = GetNbr(doc, "lifeformTech12104")
+	res.Oriktorium = GetNbr(doc, "lifeformTech12105")
+	res.MagmaForge = GetNbr(doc, "lifeformTech12106")
+	res.DisruptionChamber = GetNbr(doc, "lifeformTech12107")
+	res.Megalith = GetNbr(doc, "lifeformTech12108")
+	res.CrystalRefinery = GetNbr(doc, "lifeformTech12109")
+	res.DeuteriumSynthesiser = GetNbr(doc, "lifeformTech12110")
+	res.MineralResearchCentre = GetNbr(doc, "lifeformTech12111")
+	res.MetalRecyclingPlant = GetNbr(doc, "lifeformTech12112")
+	res.AssemblyLine = GetNbr(doc, "lifeformTech13101")
+	res.FusionCellFactory = GetNbr(doc, "lifeformTech13102")
+	res.RoboticsResearchCentre = GetNbr(doc, "lifeformTech13103")
+	res.UpdateNetwork = GetNbr(doc, "lifeformTech12304")
+	res.QuantumComputerCentre = GetNbr(doc, "lifeformTech13105")
+	res.AutomatisedAssemblyCentre = GetNbr(doc, "lifeformTech13106")
+	res.HighPerformanceTransformer = GetNbr(doc, "lifeformTech13107")
+	res.MicrochipAssemblyLine = GetNbr(doc, "lifeformTech13108")
+	res.ProductionAssemblyHall = GetNbr(doc, "lifeformTech13109")
+	res.HighPerformanceSynthesiser = GetNbr(doc, "lifeformTech13110")
+	res.ChipMassProduction = GetNbr(doc, "lifeformTech13111")
+	res.NanoRepairBots = GetNbr(doc, "lifeformTech13112")
+	res.Sanctuary = GetNbr(doc, "lifeformTech14101")
+	res.AntimatterCondenser = GetNbr(doc, "lifeformTech14102")
+	res.VortexChamber = GetNbr(doc, "lifeformTech14103")
+	res.HallsOfRealisation = GetNbr(doc, "lifeformTech14104")
+	res.ForumOfTranscendence = GetNbr(doc, "lifeformTech14105")
+	res.AntimatterConvector = GetNbr(doc, "lifeformTech14106")
+	res.CloningLaboratory = GetNbr(doc, "lifeformTech14107")
+	res.ChrysalisAccelerator = GetNbr(doc, "lifeformTech14108")
+	res.BioModifier = GetNbr(doc, "lifeformTech14109")
+	res.PsionicModulator = GetNbr(doc, "lifeformTech14110")
+	res.ShipManufacturingHall = GetNbr(doc, "lifeformTech14111")
+	res.SupraRefractor = GetNbr(doc, "lifeformTech14112")
+	return res, nil
 }

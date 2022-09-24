@@ -1090,7 +1090,7 @@ func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string
 	return
 }
 
-func extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []ogame.Fleet) {
+func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifeformEnabled bool) (res []ogame.Fleet) {
 	res = make([]ogame.Fleet, 0)
 	script := doc.Find("body script").Text()
 	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
@@ -1134,9 +1134,17 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res [
 
 		trs := s.Find("table.fleetinfo tr")
 		shipment := ogame.Resources{}
-		shipment.Metal = utils.ParseInt(trs.Eq(trs.Size() - 3).Find("td").Eq(1).Text())
-		shipment.Crystal = utils.ParseInt(trs.Eq(trs.Size() - 2).Find("td").Eq(1).Text())
-		shipment.Deuterium = utils.ParseInt(trs.Eq(trs.Size() - 1).Find("td").Eq(1).Text())
+		metalTrOffset := 3
+		crystalTrOffset := 2
+		DeuteriumTrOffset := 1
+		if lifeformEnabled {
+			metalTrOffset = 4
+			crystalTrOffset = 3
+			DeuteriumTrOffset = 2
+		}
+		shipment.Metal = utils.ParseInt(trs.Eq(trs.Size() - metalTrOffset).Find("td").Eq(1).Text())
+		shipment.Crystal = utils.ParseInt(trs.Eq(trs.Size() - crystalTrOffset).Find("td").Eq(1).Text())
+		shipment.Deuterium = utils.ParseInt(trs.Eq(trs.Size() - DeuteriumTrOffset).Find("td").Eq(1).Text())
 
 		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
 		fedAttackURL, _ := url.Parse(fedAttackHref)
@@ -1905,7 +1913,7 @@ func extractFederation(pageHTML []byte) url.Values {
 	return payload
 }
 
-func extractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
+func extractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64) {
 	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
 		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1]))

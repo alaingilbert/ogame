@@ -11,7 +11,6 @@ type ResourceSettings struct {
 	FusionReactor        int64
 	SolarSatellite       int64
 	Crawler              int64
-	PlasmaTechnology     int64
 }
 
 func (r ResourceSettings) String() string {
@@ -22,6 +21,5 @@ func (r ResourceSettings) String() string {
 		"          Solar Plant: " + utils.FI64(r.SolarPlant) + "\n" +
 		"       Fusion Reactor: " + utils.FI64(r.FusionReactor) + "\n" +
 		"      Solar Satellite: " + utils.FI64(r.SolarSatellite) + "\n" +
-		"              Crawler: " + utils.FI64(r.Crawler) + "\n" +
-		"    Plasma Technology: " + utils.FI64(r.PlasmaTechnology)
+		"              Crawler: " + utils.FI64(r.Crawler)
 }

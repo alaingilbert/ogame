@@ -1,11 +1,12 @@
 package wrapper
 
 import (
-	"github.com/alaingilbert/ogame/pkg/ogame"
 	"net/http"
 	"net/url"
 	"sync/atomic"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
 // Prioritize ...
@@ -376,7 +377,7 @@ func (b *Prioritize) BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, 
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64) {
+func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	b.begin("ConstructionsBeingBuilt")
 	defer b.done()
 	return b.bot.constructionsBeingBuilt(celestialID)
@@ -425,7 +426,7 @@ func (b *Prioritize) GetResourcesDetails(celestialID ogame.CelestialID) (ogame.R
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error) {
+func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
 	b.begin("GetTechs")
 	defer b.done()
 	return b.bot.getTechs(celestialID)
@@ -705,4 +706,11 @@ func (b *Prioritize) OfferBuyMarketplace(itemID any, quantity, priceType, price,
 	b.begin("OfferBuyMarketplace")
 	defer b.done()
 	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)
+}
+
+// GetLfBuildings ...
+func (b *Prioritize) GetLfBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.LfBuildings, error) {
+	b.begin("GetLfBuildings")
+	defer b.done()
+	return b.bot.getLfBuildings(celestialID, options...)
 }

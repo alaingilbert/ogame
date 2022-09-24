@@ -18,7 +18,7 @@ func (m Moon) GetProduction() ([]ogame.Quantifiable, int64, error) {
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (m Moon) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64) {
+func (m Moon) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	return m.ogame.ConstructionsBeingBuilt(ogame.CelestialID(m.ID))
 }
 
@@ -137,3 +137,13 @@ func (m Moon) Phalanx(coord ogame.Coordinate) ([]ogame.Fleet, error) {
 //func (m *Moon) UseJumpGate() error {
 //	return nil
 //}
+
+// GetLfBuildings gets the lifeform buildings levels
+func (m Moon) GetLfBuildings(options ...Option) (ogame.LfBuildings, error) {
+	return m.ogame.GetLfBuildings(m.ID.Celestial(), options...)
+}
+
+// GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)
+func (m Moon) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
+	return m.ogame.GetTechs(m.ID.Celestial())
+}

@@ -2,9 +2,10 @@ package v71
 
 import (
 	"bytes"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
-	"github.com/alaingilbert/ogame/pkg/extractor/v7"
+	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
@@ -46,7 +47,7 @@ func (e *Extractor) ExtractResourcesDetails(pageHTML []byte) (out ogame.Resource
 }
 
 // ExtractTechs ...
-func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error) {
+func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
 	return extractTechs(pageHTML)
 }
 

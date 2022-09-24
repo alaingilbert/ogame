@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/extractor/v6"
-	"github.com/alaingilbert/ogame/pkg/extractor/v7"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/utils"
 	"math"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
+	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/utils"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -44,6 +45,14 @@ type resourcesResp struct {
 			Amount  float64 `json:"amount"`
 			Tooltip string  `json:"tooltip"`
 		} `json:"darkmatter"`
+		Population struct {
+			Amount  float64 `json:"amount"`
+			Tooltip string  `json:"tooltip"`
+		} `json:"population"`
+		Food struct {
+			Amount  float64 `json:"amount"`
+			Tooltip string  `json:"tooltip"`
+		} `json:"food"`
 	} `json:"resources"`
 	HonorScore int64 `json:"honorScore"`
 	Techs      struct {
@@ -171,18 +180,38 @@ func extractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err e
 	out.Deuterium.StorageCapacity = int64(res.Resources.Deuterium.Storage)
 	out.Energy.Available = int64(res.Resources.Energy.Amount)
 	out.Darkmatter.Available = int64(res.Resources.Darkmatter.Amount)
+	out.Population.Available = int64(res.Resources.Population.Amount)
+	out.Food.Available = int64(res.Resources.Food.Amount)
 	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Metal.Tooltip))
 	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Crystal.Tooltip))
 	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Deuterium.Tooltip))
 	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Darkmatter.Tooltip))
 	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Energy.Tooltip))
+	populationDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Population.Tooltip))
+	foodDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Food.Tooltip))
+	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Crystal.StorageCapacity = utils.ParseInt(crystalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Crystal.CurrentProduction = utils.ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Deuterium.StorageCapacity = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Deuterium.CurrentProduction = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Energy.CurrentProduction = utils.ParseInt(energyDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Energy.Consumption = utils.ParseInt(energyDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Darkmatter.Purchased = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Darkmatter.Found = utils.ParseInt(darkmatterDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Food.Available = utils.ParseInt(foodDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Food.StorageCapacity = utils.ParseInt(foodDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Food.Overproduction = utils.ParseInt(foodDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Food.ConsumedIn = utils.ParseInt(foodDoc.Find("table tr").Eq(3).Find("td").Eq(0).Text())
+	out.Food.TimeTillFoodRunsOut = utils.ParseInt(foodDoc.Find("table tr").Eq(4).Find("td").Eq(0).Text())
+	out.Population.Available = utils.ParseInt(populationDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
+	out.Population.T2Lifeforms = utils.ParseInt(populationDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
+	out.Population.T3Lifeforms = utils.ParseInt(populationDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
+	out.Population.LivingSpace = utils.ParseInt(populationDoc.Find("table tr").Eq(3).Find("td").Eq(0).Text())
+	out.Population.Satisfied = utils.ParseInt(populationDoc.Find("table tr").Eq(4).Find("td").Eq(0).Text())
+	out.Population.Hungry, _ = strconv.ParseFloat(populationDoc.Find("table tr").Eq(5).Find("td").Eq(0).Text(), 64)
+	out.Population.GrowthRate, _ = strconv.ParseFloat(strings.TrimPrefix(populationDoc.Find("table tr").Eq(6).Find("td").Eq(0).Text(), "±"), 64)
+	out.Population.BunkerSpace = utils.ParseInt(populationDoc.Find("table tr").Eq(7).Find("td").Eq(0).Text())
 	return
 }
 
@@ -249,13 +278,63 @@ type planetTechsResp struct {
 	Num408 int64 `json:"408"`
 	Num502 int64 `json:"502"`
 	Num503 int64 `json:"503"`
+
+	// LFbuildings
+	Num11101 int64 `json:"11101"`
+	Num11102 int64 `json:"11102"`
+	Num11103 int64 `json:"11103"`
+	Num11104 int64 `json:"11104"`
+	Num11105 int64 `json:"11105"`
+	Num11106 int64 `json:"11106"`
+	Num11107 int64 `json:"11107"`
+	Num11108 int64 `json:"11108"`
+	Num11109 int64 `json:"11109"`
+	Num11110 int64 `json:"11110"`
+	Num11111 int64 `json:"11111"`
+	Num11112 int64 `json:"11112"`
+	Num12101 int64 `json:"12101"`
+	Num12102 int64 `json:"12102"`
+	Num12103 int64 `json:"12103"`
+	Num12104 int64 `json:"12104"`
+	Num12105 int64 `json:"12105"`
+	Num12106 int64 `json:"12106"`
+	Num12107 int64 `json:"12107"`
+	Num12108 int64 `json:"12108"`
+	Num12109 int64 `json:"12109"`
+	Num12110 int64 `json:"12110"`
+	Num12111 int64 `json:"12111"`
+	Num12112 int64 `json:"12112"`
+	Num13101 int64 `json:"13101"`
+	Num13102 int64 `json:"13102"`
+	Num13103 int64 `json:"13103"`
+	Num12304 int64 `json:"12304"`
+	Num13105 int64 `json:"13105"`
+	Num13106 int64 `json:"13106"`
+	Num13107 int64 `json:"13107"`
+	Num13108 int64 `json:"13108"`
+	Num13109 int64 `json:"13109"`
+	Num13110 int64 `json:"13110"`
+	Num13111 int64 `json:"13111"`
+	Num13112 int64 `json:"13112"`
+	Num14101 int64 `json:"14101"`
+	Num14102 int64 `json:"14102"`
+	Num14103 int64 `json:"14103"`
+	Num14104 int64 `json:"14104"`
+	Num14105 int64 `json:"14105"`
+	Num14106 int64 `json:"14106"`
+	Num14107 int64 `json:"14107"`
+	Num14108 int64 `json:"14108"`
+	Num14109 int64 `json:"14109"`
+	Num14110 int64 `json:"14110"`
+	Num14111 int64 `json:"14111"`
+	Num14112 int64 `json:"14112"`
 }
 
-func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, err error) {
+func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, lfBuildings ogame.LfBuildings, err error) {
 	var res planetTechsResp
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if v6.IsLogged(pageHTML) {
-			return supplies, facilities, shipsInfos, defenses, researches, ogame.ErrInvalidPlanetID
+			return supplies, facilities, shipsInfos, defenses, researches, lfBuildings, ogame.ErrInvalidPlanetID
 		}
 		return
 	}
@@ -331,6 +410,56 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		WeaponsTechnology:            res.Num109,
 		ShieldingTechnology:          res.Num110,
 		ArmourTechnology:             res.Num111,
+	}
+	lfBuildings = ogame.LfBuildings{
+		ResidentialSector:          res.Num11101,
+		BiosphereFarm:              res.Num11102,
+		ResearchCentre:             res.Num11103,
+		AcademyOfSciences:          res.Num11104,
+		NeuroCalibrationCentre:     res.Num11105,
+		HighEnergySmelting:         res.Num11106,
+		FoodSilo:                   res.Num11107,
+		FusionPoweredProduction:    res.Num11108,
+		Skyscraper:                 res.Num11109,
+		BiotechLab:                 res.Num11110,
+		Metropolis:                 res.Num11111,
+		PlanetaryShield:            res.Num11112,
+		MeditationEnclave:          res.Num12101,
+		CrystalFarm:                res.Num12102,
+		RuneTechnologium:           res.Num12103,
+		RuneForge:                  res.Num12104,
+		Oriktorium:                 res.Num12105,
+		MagmaForge:                 res.Num12106,
+		DisruptionChamber:          res.Num12107,
+		Megalith:                   res.Num12108,
+		CrystalRefinery:            res.Num12109,
+		DeuteriumSynthesiser:       res.Num12110,
+		MineralResearchCentre:      res.Num12111,
+		MetalRecyclingPlant:        res.Num12112,
+		AssemblyLine:               res.Num13101,
+		FusionCellFactory:          res.Num13102,
+		RoboticsResearchCentre:     res.Num13103,
+		UpdateNetwork:              res.Num12304,
+		QuantumComputerCentre:      res.Num13105,
+		AutomatisedAssemblyCentre:  res.Num13106,
+		HighPerformanceTransformer: res.Num13107,
+		MicrochipAssemblyLine:      res.Num13108,
+		ProductionAssemblyHall:     res.Num13109,
+		HighPerformanceSynthesiser: res.Num13110,
+		ChipMassProduction:         res.Num13111,
+		NanoRepairBots:             res.Num13112,
+		Sanctuary:                  res.Num14101,
+		AntimatterCondenser:        res.Num14102,
+		VortexChamber:              res.Num14103,
+		HallsOfRealisation:         res.Num14104,
+		ForumOfTranscendence:       res.Num14105,
+		AntimatterConvector:        res.Num14106,
+		CloningLaboratory:          res.Num14107,
+		ChrysalisAccelerator:       res.Num14108,
+		BioModifier:                res.Num14109,
+		PsionicModulator:           res.Num14110,
+		ShipManufacturingHall:      res.Num14111,
+		SupraRefractor:             res.Num14112,
 	}
 	return
 }

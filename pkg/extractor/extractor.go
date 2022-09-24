@@ -1,13 +1,14 @@
 package extractor
 
 import (
+	"net/url"
+	"time"
+
 	"github.com/PuerkitoBio/goquery"
 	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
 	v9 "github.com/alaingilbert/ogame/pkg/extractor/v9"
 	"github.com/alaingilbert/ogame/pkg/ogame"
-	"net/url"
-	"time"
 )
 
 type FullPageExtractorBytes interface {
@@ -74,7 +75,7 @@ type OverviewExtractorBytes interface {
 	ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)
-	ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64)
+	ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64)
 	ExtractDMCosts(pageHTML []byte) (ogame.DMCosts, error)
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error)
@@ -355,7 +356,7 @@ type TraderImportExportExtractorDoc interface {
 
 // FetchTechsExtractorBytes ajax page fetchTechs
 type FetchTechsExtractorBytes interface {
-	ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error)
+	ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
 }
 
 type ResourcesSettingsExtractorBytes interface {
@@ -410,10 +411,16 @@ type MessagesMarketplaceExtractorBytes interface {
 
 type LfBuildingsExtractorBytes interface {
 	ExtractUpgradeToken(pageHTML []byte) (string, error)
+	ExtractLfBuildings(pageHTML []byte) (ogame.LfBuildings, error)
+}
+
+type LfBuildingsExtractorDoc interface {
+	ExtractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 }
 
 type LfBuildingsExtractorBytesDoc interface {
 	LfBuildingsExtractorBytes
+	LfBuildingsExtractorDoc
 }
 
 // ResourcesBuildingsExtractorBytes supplies page

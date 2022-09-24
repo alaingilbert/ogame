@@ -2,13 +2,14 @@ package wrapper
 
 import (
 	"crypto/tls"
+	"net/http"
+	"net/url"
+	"time"
+
 	"github.com/alaingilbert/ogame/pkg/extractor"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
-	"net/http"
-	"net/url"
-	"time"
 )
 
 // Celestial superset of ogame.Celestial.
@@ -23,16 +24,18 @@ type Celestial interface {
 	CancelBuilding() error
 	CancelLfBuilding() error
 	CancelResearch() error
-	ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64)
+	ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64)
 	EnsureFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	GetDefense(...Option) (ogame.DefensesInfos, error)
 	GetFacilities(...Option) (ogame.Facilities, error)
 	GetItems() ([]ogame.Item, error)
+	GetLfBuildings(...Option) (ogame.LfBuildings, error)
 	GetProduction() ([]ogame.Quantifiable, int64, error)
 	GetResources() (ogame.Resources, error)
 	GetResourcesBuildings(...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails() (ogame.ResourcesDetails, error)
 	GetShips(...Option) (ogame.ShipsInfos, error)
+	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
 	SendFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	TearDown(buildingID ogame.ID) error
 }
@@ -113,16 +116,17 @@ type Prioritizable interface {
 	CancelBuilding(ogame.CelestialID) error
 	CancelLfBuilding(ogame.CelestialID) error
 	CancelResearch(ogame.CelestialID) error
-	ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64)
+	ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64)
 	EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	GetDefense(ogame.CelestialID, ...Option) (ogame.DefensesInfos, error)
 	GetFacilities(ogame.CelestialID, ...Option) (ogame.Facilities, error)
+	GetLfBuildings(ogame.CelestialID, ...Option) (ogame.LfBuildings, error)
 	GetProduction(ogame.CelestialID) ([]ogame.Quantifiable, int64, error)
 	GetResources(ogame.CelestialID) (ogame.Resources, error)
 	GetResourcesBuildings(ogame.CelestialID, ...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails(ogame.CelestialID) (ogame.ResourcesDetails, error)
 	GetShips(ogame.CelestialID, ...Option) (ogame.ShipsInfos, error)
-	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error)
+	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
 

@@ -202,6 +202,9 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 			ships, _ = f.b.GetShips(f.origin.GetID())
 		}
 	}
+	if f.tx != nil {
+		return f.tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
+	}
 	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
 }
 
