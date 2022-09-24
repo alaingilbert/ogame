@@ -18,12 +18,10 @@ func (m Moon) GetProduction() ([]ogame.Quantifiable, int64, error) {
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (m Moon) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64) {
+func (m Moon) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	return m.ogame.ConstructionsBeingBuilt(ogame.CelestialID(m.ID))
 }
-func (m Moon) LFConstructionsBeingBuilt() (ogame.ID, int64) {
-        return m.ogame.LFConstructionsBeingBuilt(ogame.CelestialID(m.ID))
-}
+
 // GetResourcesBuildings gets the resources buildings levels
 func (m Moon) GetResourcesBuildings(options ...Option) (ogame.ResourcesBuildings, error) {
 	return m.ogame.GetResourcesBuildings(m.ID.Celestial(), options...)

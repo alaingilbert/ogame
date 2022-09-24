@@ -9,11 +9,11 @@ type LazyLfBuildings func() LfBuildings
 
 // LfBuildings lifeform buildings
 type LfBuildings struct {
-	None					   bool
-	Humans					   bool
-	Rocktal					   bool
-	Mechas					   bool
-	Kaelesh					   bool
+	None                       bool
+	Humans                     bool
+	Rocktal                    bool
+	Mechas                     bool
+	Kaelesh                    bool
 	ResidentialSector          int64 // 11101 // Lifeform (humans)
 	BiosphereFarm              int64 // 11102
 	ResearchCentre             int64 // 11103
@@ -63,6 +63,7 @@ type LfBuildings struct {
 	ShipManufacturingHall      int64 // 14111
 	SupraRefractor             int64 // 14112
 }
+
 // Lazy returns a function that return self
 func (b LfBuildings) Lazy() LazyLfBuildings {
 	return func() LfBuildings { return b }
@@ -71,7 +72,6 @@ func (b LfBuildings) Lazy() LazyLfBuildings {
 // ByID gets the lfBuilding level by lfBuilding id
 func (b LfBuildings) ByID(id ID) int64 {
 	switch id {
-	//Humans
 	case ResidentialSectorID:
 		return b.ResidentialSector
 	case BiosphereFarmID:
@@ -96,84 +96,78 @@ func (b LfBuildings) ByID(id ID) int64 {
 		return b.Metropolis
 	case PlanetaryShieldID:
 		return b.PlanetaryShield
-		
-	//Rocktal
 	case MeditationEnclaveID:
-                return b.MeditationEnclave
-        case CrystalFarmID:
-                return b.CrystalFarm
-        case RuneTechnologiumID:
-                return b.RuneTechnologium
-        case RuneForgeID:
-                return b.RuneForge
-        case OriktoriumID:
-                return b.Oriktorium
-        case MagmaForgeID:
-                return b.MagmaForge
-        case DisruptionChamberID:
-                return b.DisruptionChamber
-        case MegalithID:
-                return b.Megalith
-        case CrystalRefineryID:
-                return b.CrystalRefinery
-        case DeuteriumSynthesiserID:
-                return b.DeuteriumSynthesiser
-        case MineralResearchCentreID:
-                return b.MineralResearchCentre
-        case MetalRecyclingPlantID:
-                return b.MetalRecyclingPlant
-				
-	//Mechas
+		return b.MeditationEnclave
+	case CrystalFarmID:
+		return b.CrystalFarm
+	case RuneTechnologiumID:
+		return b.RuneTechnologium
+	case RuneForgeID:
+		return b.RuneForge
+	case OriktoriumID:
+		return b.Oriktorium
+	case MagmaForgeID:
+		return b.MagmaForge
+	case DisruptionChamberID:
+		return b.DisruptionChamber
+	case MegalithID:
+		return b.Megalith
+	case CrystalRefineryID:
+		return b.CrystalRefinery
+	case DeuteriumSynthesiserID:
+		return b.DeuteriumSynthesiser
+	case MineralResearchCentreID:
+		return b.MineralResearchCentre
+	case MetalRecyclingPlantID:
+		return b.MetalRecyclingPlant
 	case AssemblyLineID:
-                return b.AssemblyLine
-        case FusionCellFactoryID:
-                return b.FusionCellFactory
-        case RoboticsResearchCentreID:
-                return b.RoboticsResearchCentre
-        case UpdateNetworkID:
-                return b.UpdateNetwork
-        case QuantumComputerCentreID:
-                return b.QuantumComputerCentre
-        case AutomatisedAssemblyCentreID:
-                return b.AutomatisedAssemblyCentre
-        case HighPerformanceTransformerID:
-                return b.HighPerformanceTransformer
-        case MicrochipAssemblyLineID:
-                return b.MicrochipAssemblyLine
-        case ProductionAssemblyHallID:
-                return b.ProductionAssemblyHall
-        case HighPerformanceSynthesiserID:
-                return b.HighPerformanceSynthesiser
-        case ChipMassProductionID:
-                return b.ChipMassProduction
-        case NanoRepairBotsID:
-                return b.NanoRepairBots
-				
-	//Kaelesh
+		return b.AssemblyLine
+	case FusionCellFactoryID:
+		return b.FusionCellFactory
+	case RoboticsResearchCentreID:
+		return b.RoboticsResearchCentre
+	case UpdateNetworkID:
+		return b.UpdateNetwork
+	case QuantumComputerCentreID:
+		return b.QuantumComputerCentre
+	case AutomatisedAssemblyCentreID:
+		return b.AutomatisedAssemblyCentre
+	case HighPerformanceTransformerID:
+		return b.HighPerformanceTransformer
+	case MicrochipAssemblyLineID:
+		return b.MicrochipAssemblyLine
+	case ProductionAssemblyHallID:
+		return b.ProductionAssemblyHall
+	case HighPerformanceSynthesiserID:
+		return b.HighPerformanceSynthesiser
+	case ChipMassProductionID:
+		return b.ChipMassProduction
+	case NanoRepairBotsID:
+		return b.NanoRepairBots
 	case SanctuaryID:
-                return b.Sanctuary
-        case AntimatterCondenserID:
-                return b.AntimatterCondenser
-        case VortexChamberID:
-                return b.VortexChamber
-        case HallsOfRealisationID:
-                return b.HallsOfRealisation
-        case ForumOfTranscendenceID:
-                return b.ForumOfTranscendence
-        case AntimatterConvectorID:
-                return b.AntimatterConvector
-        case CloningLaboratoryID:
-                return b.CloningLaboratory
-        case ChrysalisAcceleratorID:
-                return b.ChrysalisAccelerator
-        case BioModifierID:
-                return b.BioModifier
-        case PsionicModulatorID:
-                return b.PsionicModulator
-        case ShipManufacturingHallID:
-                return b.ShipManufacturingHall
-        case SupraRefractorID:
-                return b.SupraRefractor
+		return b.Sanctuary
+	case AntimatterCondenserID:
+		return b.AntimatterCondenser
+	case VortexChamberID:
+		return b.VortexChamber
+	case HallsOfRealisationID:
+		return b.HallsOfRealisation
+	case ForumOfTranscendenceID:
+		return b.ForumOfTranscendence
+	case AntimatterConvectorID:
+		return b.AntimatterConvector
+	case CloningLaboratoryID:
+		return b.CloningLaboratory
+	case ChrysalisAcceleratorID:
+		return b.ChrysalisAccelerator
+	case BioModifierID:
+		return b.BioModifier
+	case PsionicModulatorID:
+		return b.PsionicModulator
+	case ShipManufacturingHallID:
+		return b.ShipManufacturingHall
+	case SupraRefractorID:
+		return b.SupraRefractor
 	}
 	return 0
 }
@@ -181,12 +175,12 @@ func (b LfBuildings) ByID(id ID) int64 {
 // BaseLfBuilding base struct for Lifeform buildings
 type BaseLfBuilding struct {
 	BaseBuilding
-	energyIncreaseFactor float64
+	energyIncreaseFactor     float64
 	populationIncreaseFactor float64
 }
 
 // GetPrice returns the price to build the given level
-func (b BaseLfBuilding) GetPrice(level int64) Resources{
+func (b BaseLfBuilding) GetPrice(level int64) Resources {
 	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)) * float64(level))
 	}
@@ -194,17 +188,15 @@ func (b BaseLfBuilding) GetPrice(level int64) Resources{
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)))
 	}
 	return Resources{
-		Metal:     tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
-		Crystal:   tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
-		Deuterium: tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
-		Energy:    tmp(b.BaseCost.Energy, b.energyIncreaseFactor, level),
+		Metal:      tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
+		Crystal:    tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
+		Deuterium:  tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
+		Energy:     tmp(b.BaseCost.Energy, b.energyIncreaseFactor, level),
 		Population: tmp2(b.BaseCost.Population, b.populationIncreaseFactor, level),
 	}
 }
 
-
-
-//Humans
+// Humans
 type residentialSector struct {
 	BaseLfBuilding
 }
@@ -391,520 +383,518 @@ type BaseLfTechnology struct {
 	BaseLevelable
 }
 
-//Rocktal
+// Rocktal
 type meditationEnclave struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newMeditationEnclave() *meditationEnclave {
-        b := new(meditationEnclave)
-        b.Name = "meditation enclave"
-        b.ID = MeditationEnclaveID
-        b.IncreaseFactor = 1.20
-        b.BaseCost = Resources{Metal: 9, Crystal: 3}
-        b.Requirements = map[ID]int64{}
-        return b
+	b := new(meditationEnclave)
+	b.Name = "meditation enclave"
+	b.ID = MeditationEnclaveID
+	b.IncreaseFactor = 1.20
+	b.BaseCost = Resources{Metal: 9, Crystal: 3}
+	b.Requirements = map[ID]int64{}
+	return b
 }
 
 type crystalFarm struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newCrystalFarm() *crystalFarm {
-        b := new(crystalFarm)
-        b.Name = "crystal farm"
-        b.ID = CrystalFarmID
-        b.IncreaseFactor = 1.20
-        b.energyIncreaseFactor = 1.03
-        b.BaseCost = Resources{Metal: 7, Crystal: 2, Energy: 10}
-        b.Requirements = map[ID]int64{}
-        return b
+	b := new(crystalFarm)
+	b.Name = "crystal farm"
+	b.ID = CrystalFarmID
+	b.IncreaseFactor = 1.20
+	b.energyIncreaseFactor = 1.03
+	b.BaseCost = Resources{Metal: 7, Crystal: 2, Energy: 10}
+	b.Requirements = map[ID]int64{}
+	return b
 }
 
 type runeTechnologium struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newRuneTechnologium() *runeTechnologium {
-        b := new(runeTechnologium)
-        b.Name = "rune technologium"
-        b.ID = RuneTechnologiumID
-        b.IncreaseFactor = 1.30
-        b.BaseCost = Resources{Metal: 40000, Crystal: 10000, Deuterium: 15000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22}
-        return b
+	b := new(runeTechnologium)
+	b.Name = "rune technologium"
+	b.ID = RuneTechnologiumID
+	b.IncreaseFactor = 1.30
+	b.BaseCost = Resources{Metal: 40000, Crystal: 10000, Deuterium: 15000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22}
+	return b
 }
 
 type runeForge struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newRuneForge() *runeForge {
-        b := new(runeForge)
-        b.Name = "rune forge"
-        b.ID = RuneForgeID
-        b.IncreaseFactor = 1.70
+	b := new(runeForge)
+	b.Name = "rune forge"
+	b.ID = RuneForgeID
+	b.IncreaseFactor = 1.70
 	b.populationIncreaseFactor = 1.14
-        b.BaseCost = Resources{Metal: 5000, Crystal: 3800, Deuterium: 1000, Population: 16000000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 41}
-        return b
+	b.BaseCost = Resources{Metal: 5000, Crystal: 3800, Deuterium: 1000, Population: 16000000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 41}
+	return b
 }
 
 type oriktorium struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newOriktorium() *oriktorium {
-        b := new(oriktorium)
-        b.Name = "oriktorium"
-        b.ID = OriktoriumID
-        b.IncreaseFactor = 1.70
-        b.populationIncreaseFactor = 1.65
-        b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 90000000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1, CrystalRefineryID: 5}
-        return b
+	b := new(oriktorium)
+	b.Name = "oriktorium"
+	b.ID = OriktoriumID
+	b.IncreaseFactor = 1.70
+	b.populationIncreaseFactor = 1.65
+	b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 90000000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1, CrystalRefineryID: 5}
+	return b
 }
 
 type magmaForge struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newMagmaForge() *magmaForge {
-        b := new(magmaForge)
-        b.Name = "magma forge"
-        b.ID = MagmaForgeID
-        b.IncreaseFactor = 1.40
-        b.BaseCost = Resources{Metal: 10000, Crystal: 8000, Deuterium: 1000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22, RuneTechnologiumID: 5}
-        return b
+	b := new(magmaForge)
+	b.Name = "magma forge"
+	b.ID = MagmaForgeID
+	b.IncreaseFactor = 1.40
+	b.BaseCost = Resources{Metal: 10000, Crystal: 8000, Deuterium: 1000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22, RuneTechnologiumID: 5}
+	return b
 }
 
 type disruptionChamber struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newDisruptionChamber() *disruptionChamber {
-        b := new(disruptionChamber)
-        b.Name = "disruption chamber"
-        b.ID = DisruptionChamberID
-        b.IncreaseFactor = 1.20
-        b.BaseCost = Resources{Metal: 20000, Crystal: 15000, Deuterium: 10000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22, RuneTechnologiumID: 5, MagmaForgeID: 3}
-        return b
+	b := new(disruptionChamber)
+	b.Name = "disruption chamber"
+	b.ID = DisruptionChamberID
+	b.IncreaseFactor = 1.20
+	b.BaseCost = Resources{Metal: 20000, Crystal: 15000, Deuterium: 10000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22, RuneTechnologiumID: 5, MagmaForgeID: 3}
+	return b
 }
 
 type megalith struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newMegalith() *megalith {
-        b := new(megalith)
-        b.Name = "megalith"
-        b.ID = MegalithID
-        b.IncreaseFactor = 1.50
-        b.BaseCost = Resources{Metal: 50000, Crystal: 35000, Deuterium: 15000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1}
-        return b
+	b := new(megalith)
+	b.Name = "megalith"
+	b.ID = MegalithID
+	b.IncreaseFactor = 1.50
+	b.BaseCost = Resources{Metal: 50000, Crystal: 35000, Deuterium: 15000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1}
+	return b
 }
 
 type crystalRefinery struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newCrystalRefinery() *crystalRefinery {
-        b := new(crystalRefinery)
-        b.Name = "crystal refinery"
-        b.ID = CrystalRefineryID
-        b.IncreaseFactor = 1.40
-        b.BaseCost = Resources{Metal: 85000, Crystal: 44000, Deuterium: 25000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1}
-        return b
+	b := new(crystalRefinery)
+	b.Name = "crystal refinery"
+	b.ID = CrystalRefineryID
+	b.IncreaseFactor = 1.40
+	b.BaseCost = Resources{Metal: 85000, Crystal: 44000, Deuterium: 25000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1}
+	return b
 }
 
 type deuteriumSynthesiser struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newDeuteriumSynthesiser() *deuteriumSynthesiser {
-        b := new(deuteriumSynthesiser)
-        b.Name = "deuterium synthesiser"
-        b.ID = DeuteriumSynthesiserID
-        b.IncreaseFactor = 1.40
-        b.BaseCost = Resources{Metal: 120000, Crystal: 50000, Deuterium: 20000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 2}
-        return b
+	b := new(deuteriumSynthesiser)
+	b.Name = "deuterium synthesiser"
+	b.ID = DeuteriumSynthesiserID
+	b.IncreaseFactor = 1.40
+	b.BaseCost = Resources{Metal: 120000, Crystal: 50000, Deuterium: 20000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 2}
+	return b
 }
 
 type mineralResearchCentre struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newMineralResearchCentre() *mineralResearchCentre {
-        b := new(mineralResearchCentre)
-        b.Name = "mineral research centre"
-        b.ID = MineralResearchCentreID
-        b.IncreaseFactor = 1.80
-        b.BaseCost = Resources{Metal: 250000, Crystal: 150000, Deuterium: 100000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1, CrystalRefineryID: 6, OriktoriumID: 1}
-        return b
+	b := new(mineralResearchCentre)
+	b.Name = "mineral research centre"
+	b.ID = MineralResearchCentreID
+	b.IncreaseFactor = 1.80
+	b.BaseCost = Resources{Metal: 250000, Crystal: 150000, Deuterium: 100000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1, CrystalRefineryID: 6, OriktoriumID: 1}
+	return b
 }
 
 type metalRecyclingPlant struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newMetalRecyclingPlant() *metalRecyclingPlant {
-        b := new(metalRecyclingPlant)
-        b.Name = "metal recycling plant"
-        b.ID = MetalRecyclingPlantID
-        b.IncreaseFactor = 1.50
-        b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
-        b.Requirements = map[ID]int64{MeditationEnclaveID: 41, CrystalFarmID: 22, RuneForgeID: 1, MegalithID: 5, CrystalRefineryID: 6, OriktoriumID: 5, RuneTechnologiumID: 5, MagmaForgeID: 3, DisruptionChamberID: 4, MineralResearchCentreID: 5}
-        return b
+	b := new(metalRecyclingPlant)
+	b.Name = "metal recycling plant"
+	b.ID = MetalRecyclingPlantID
+	b.IncreaseFactor = 1.50
+	b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
+	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, CrystalFarmID: 22, RuneForgeID: 1, MegalithID: 5, CrystalRefineryID: 6, OriktoriumID: 5, RuneTechnologiumID: 5, MagmaForgeID: 3, DisruptionChamberID: 4, MineralResearchCentreID: 5}
+	return b
 }
 
-
-//MECHAS
+// Mechas
 type assemblyLine struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newAssemblyLine() *assemblyLine {
-        b := new(assemblyLine)
-        b.Name = "assembly line"
-        b.ID = AssemblyLineID
-        b.IncreaseFactor = 1.21
-        b.BaseCost = Resources{Metal: 6, Crystal: 2}
-        b.Requirements = map[ID]int64{}
-        return b
+	b := new(assemblyLine)
+	b.Name = "assembly line"
+	b.ID = AssemblyLineID
+	b.IncreaseFactor = 1.21
+	b.BaseCost = Resources{Metal: 6, Crystal: 2}
+	b.Requirements = map[ID]int64{}
+	return b
 }
 
 type fusionCellFactory struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newFusionCellFactory() *fusionCellFactory {
-        b := new(fusionCellFactory)
-        b.Name = "fusion cell factory"
-        b.ID = FusionCellFactoryID
-        b.IncreaseFactor = 1.18
-        b.energyIncreaseFactor = 1.02
-        b.BaseCost = Resources{Metal: 5, Crystal: 2, Energy: 8}
-        b.Requirements = map[ID]int64{}
-        return b
+	b := new(fusionCellFactory)
+	b.Name = "fusion cell factory"
+	b.ID = FusionCellFactoryID
+	b.IncreaseFactor = 1.18
+	b.energyIncreaseFactor = 1.02
+	b.BaseCost = Resources{Metal: 5, Crystal: 2, Energy: 8}
+	b.Requirements = map[ID]int64{}
+	return b
 }
 
 type roboticsResearchCentre struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newRoboticsResearchCentre() *roboticsResearchCentre {
-        b := new(roboticsResearchCentre)
-        b.Name = "robotics research centre"
-        b.ID = RoboticsResearchCentreID
-        b.IncreaseFactor = 1.30
-        b.BaseCost = Resources{Metal: 30000, Crystal: 20000, Deuterium: 10000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 20, FusionCellFactoryID: 17}
-        return b
+	b := new(roboticsResearchCentre)
+	b.Name = "robotics research centre"
+	b.ID = RoboticsResearchCentreID
+	b.IncreaseFactor = 1.30
+	b.BaseCost = Resources{Metal: 30000, Crystal: 20000, Deuterium: 10000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 20, FusionCellFactoryID: 17}
+	return b
 }
 
 type updateNetwork struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newUpdateNetwork() *updateNetwork {
-        b := new(updateNetwork)
-        b.Name = "update network"
-        b.ID = UpdateNetworkID
-        b.IncreaseFactor = 1.80
+	b := new(updateNetwork)
+	b.Name = "update network"
+	b.ID = UpdateNetworkID
+	b.IncreaseFactor = 1.80
 	b.populationIncreaseFactor = 1.10
-        b.BaseCost = Resources{Metal: 5000, Crystal: 3800, Deuterium: 1000, Population: 40000000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 41}
-        return b
+	b.BaseCost = Resources{Metal: 5000, Crystal: 3800, Deuterium: 1000, Population: 40000000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 41}
+	return b
 }
 
 type quantumComputerCentre struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newQuantumComputerCentre() *quantumComputerCentre {
-        b := new(quantumComputerCentre)
-        b.Name = "quantum computer centre"
-        b.ID = QuantumComputerCentreID
-        b.IncreaseFactor = 1.80
+	b := new(quantumComputerCentre)
+	b.Name = "quantum computer centre"
+	b.ID = QuantumComputerCentreID
+	b.IncreaseFactor = 1.80
 	b.populationIncreaseFactor = 1.10
-        b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 130000000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 1, ProductionAssemblyHallID: 5}
-        return b
+	b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 130000000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 1, ProductionAssemblyHallID: 5}
+	return b
 }
 
 type automatisedAssemblyCentre struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newAutomatisedAssemblyCentre() *automatisedAssemblyCentre {
-        b := new(automatisedAssemblyCentre)
-        b.Name = "automatised assembly centre"
-        b.ID = AutomatisedAssemblyCentreID
-        b.IncreaseFactor = 1.30
-        b.BaseCost = Resources{Metal: 7500, Crystal: 7000, Deuterium: 1000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 17, FusionCellFactoryID: 20, RoboticsResearchCentreID: 5}
-        return b
+	b := new(automatisedAssemblyCentre)
+	b.Name = "automatised assembly centre"
+	b.ID = AutomatisedAssemblyCentreID
+	b.IncreaseFactor = 1.30
+	b.BaseCost = Resources{Metal: 7500, Crystal: 7000, Deuterium: 1000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 17, FusionCellFactoryID: 20, RoboticsResearchCentreID: 5}
+	return b
 }
 
 type highPerformanceTransformer struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newHighPerformanceTransformer() *highPerformanceTransformer {
-        b := new(highPerformanceTransformer)
-        b.Name = "high performance transformer"
-        b.ID = HighPerformanceTransformerID
-        b.IncreaseFactor = 1.50
-        b.BaseCost = Resources{Metal: 35000, Crystal: 15000, Deuterium: 10000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 17, FusionCellFactoryID: 20, RoboticsResearchCentreID: 5, AutomatisedAssemblyCentreID: 3}
-        return b
+	b := new(highPerformanceTransformer)
+	b.Name = "high performance transformer"
+	b.ID = HighPerformanceTransformerID
+	b.IncreaseFactor = 1.50
+	b.BaseCost = Resources{Metal: 35000, Crystal: 15000, Deuterium: 10000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 17, FusionCellFactoryID: 20, RoboticsResearchCentreID: 5, AutomatisedAssemblyCentreID: 3}
+	return b
 }
 
 type microchipAssemblyLine struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newMicrochipAssemblyLine() *microchipAssemblyLine {
-        b := new(microchipAssemblyLine)
-        b.Name = "microchip assembly line"
-        b.ID = MicrochipAssemblyLineID
-        b.IncreaseFactor = 1.07
-        b.BaseCost = Resources{Metal: 50000, Crystal: 20000, Deuterium: 30000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1}
-        return b
+	b := new(microchipAssemblyLine)
+	b.Name = "microchip assembly line"
+	b.ID = MicrochipAssemblyLineID
+	b.IncreaseFactor = 1.07
+	b.BaseCost = Resources{Metal: 50000, Crystal: 20000, Deuterium: 30000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1}
+	return b
 }
 
 type productionAssemblyHall struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newProductionAssemblyHall() *productionAssemblyHall {
-        b := new(productionAssemblyHall)
-        b.Name = "production assembly hall"
-        b.ID = ProductionAssemblyHallID
-        b.IncreaseFactor = 1.14
-        b.BaseCost = Resources{Metal: 100000, Crystal: 10000, Deuterium: 3000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 1}
-        return b
+	b := new(productionAssemblyHall)
+	b.Name = "production assembly hall"
+	b.ID = ProductionAssemblyHallID
+	b.IncreaseFactor = 1.14
+	b.BaseCost = Resources{Metal: 100000, Crystal: 10000, Deuterium: 3000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 1}
+	return b
 }
 
 type highPerformanceSynthesiser struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newHighPerformanceSynthesiser() *highPerformanceSynthesiser {
-        b := new(highPerformanceSynthesiser)
-        b.Name = "high performance synthesiser"
-        b.ID = HighPerformanceSynthesiserID
-        b.IncreaseFactor = 1.50
-        b.BaseCost = Resources{Metal: 100000, Crystal: 40000, Deuterium: 20000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 2, }
-        return b
+	b := new(highPerformanceSynthesiser)
+	b.Name = "high performance synthesiser"
+	b.ID = HighPerformanceSynthesiserID
+	b.IncreaseFactor = 1.50
+	b.BaseCost = Resources{Metal: 100000, Crystal: 40000, Deuterium: 20000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 2}
+	return b
 }
 
 type chipMassProduction struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newChipMassProduction() *chipMassProduction {
-        b := new(chipMassProduction)
-        b.Name = "chip mass production"
-        b.ID = ChipMassProductionID
-        b.IncreaseFactor = 1.50
-        b.BaseCost = Resources{Metal: 55000, Crystal: 50000, Deuterium: 30000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 1, ProductionAssemblyHallID: 6, QuantumComputerCentreID: 1}
-        return b
+	b := new(chipMassProduction)
+	b.Name = "chip mass production"
+	b.ID = ChipMassProductionID
+	b.IncreaseFactor = 1.50
+	b.BaseCost = Resources{Metal: 55000, Crystal: 50000, Deuterium: 30000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 1, ProductionAssemblyHallID: 6, QuantumComputerCentreID: 1}
+	return b
 }
 
 type nanoRepairBots struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newNanoRepairBots() *nanoRepairBots {
-        b := new(nanoRepairBots)
-        b.Name = "nano repair bots"
-        b.ID = NanoRepairBotsID
-        b.IncreaseFactor = 1.40
-        b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
-        b.Requirements = map[ID]int64{AssemblyLineID: 41, FusionCellFactoryID: 20, MicrochipAssemblyLineID: 5, RoboticsResearchCentreID: 5, HighPerformanceTransformerID: 4, ProductionAssemblyHallID: 6, QuantumComputerCentreID: 5, ChipMassProductionID: 11}
-        return b
+	b := new(nanoRepairBots)
+	b.Name = "nano repair bots"
+	b.ID = NanoRepairBotsID
+	b.IncreaseFactor = 1.40
+	b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
+	b.Requirements = map[ID]int64{AssemblyLineID: 41, FusionCellFactoryID: 20, MicrochipAssemblyLineID: 5, RoboticsResearchCentreID: 5, HighPerformanceTransformerID: 4, ProductionAssemblyHallID: 6, QuantumComputerCentreID: 5, ChipMassProductionID: 11}
+	return b
 }
 
-//KAELESH
+// Kaelesh
 type sanctuary struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newSanctuary() *sanctuary {
-        b := new(sanctuary)
-        b.Name = "sanctuary"
-        b.ID = SanctuaryID
-        b.IncreaseFactor = 1.21
-        b.BaseCost = Resources{Metal: 4, Crystal: 3}
-        b.Requirements = map[ID]int64{}
-        return b
+	b := new(sanctuary)
+	b.Name = "sanctuary"
+	b.ID = SanctuaryID
+	b.IncreaseFactor = 1.21
+	b.BaseCost = Resources{Metal: 4, Crystal: 3}
+	b.Requirements = map[ID]int64{}
+	return b
 }
 
 type antimatterCondenser struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newAntimatterCondenser() *antimatterCondenser {
-        b := new(antimatterCondenser)
-        b.Name = "antimatter condenser"
-        b.ID = AntimatterCondenserID
-        b.IncreaseFactor = 1.21
-        b.energyIncreaseFactor = 1.02
-        b.BaseCost = Resources{Metal: 6, Crystal: 3, Energy: 9}
-        b.Requirements = map[ID]int64{}
-        return b
+	b := new(antimatterCondenser)
+	b.Name = "antimatter condenser"
+	b.ID = AntimatterCondenserID
+	b.IncreaseFactor = 1.21
+	b.energyIncreaseFactor = 1.02
+	b.BaseCost = Resources{Metal: 6, Crystal: 3, Energy: 9}
+	b.Requirements = map[ID]int64{}
+	return b
 }
 
 type vortexChamber struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newVortexChamber() *vortexChamber {
-        b := new(vortexChamber)
-        b.Name = "vortex chamber"
-        b.ID = VortexChamberID
-        b.IncreaseFactor = 1.30
-        b.BaseCost = Resources{Metal: 20000, Crystal: 20000, Deuterium: 30000}
-        b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21}
-        return b
+	b := new(vortexChamber)
+	b.Name = "vortex chamber"
+	b.ID = VortexChamberID
+	b.IncreaseFactor = 1.30
+	b.BaseCost = Resources{Metal: 20000, Crystal: 20000, Deuterium: 30000}
+	b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21}
+	return b
 }
 
 type hallsOfRealisation struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newHallsOfRealisation() *hallsOfRealisation {
-        b := new(hallsOfRealisation)
-        b.Name = "halls of realisation"
-        b.ID = HallsOfRealisationID
-        b.IncreaseFactor = 1.80
+	b := new(hallsOfRealisation)
+	b.Name = "halls of realisation"
+	b.ID = HallsOfRealisationID
+	b.IncreaseFactor = 1.80
 	b.populationIncreaseFactor = 1.10
-        b.BaseCost = Resources{Metal: 7500, Crystal: 5000, Deuterium: 800, Population: 30000000}
-        b.Requirements = map[ID]int64{SanctuaryID: 42}
-        return b
+	b.BaseCost = Resources{Metal: 7500, Crystal: 5000, Deuterium: 800, Population: 30000000}
+	b.Requirements = map[ID]int64{SanctuaryID: 42}
+	return b
 }
 
 type forumOfTranscendence struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newForumOfTranscendence() *forumOfTranscendence {
-        b := new(forumOfTranscendence)
-        b.Name = "forum of transcendence"
-        b.ID = ForumOfTranscendenceID
-        b.IncreaseFactor = 1.80
-        b.populationIncreaseFactor = 1.10
-        b.BaseCost = Resources{Metal: 60000, Crystal: 30000, Deuterium: 50000, Population: 100000000}
-        b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 1, BioModifierID: 5}
-        return b
+	b := new(forumOfTranscendence)
+	b.Name = "forum of transcendence"
+	b.ID = ForumOfTranscendenceID
+	b.IncreaseFactor = 1.80
+	b.populationIncreaseFactor = 1.10
+	b.BaseCost = Resources{Metal: 60000, Crystal: 30000, Deuterium: 50000, Population: 100000000}
+	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 1, BioModifierID: 5}
+	return b
 }
 
 type antimatterConvector struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newAntimatterConvector() *antimatterConvector {
-        b := new(antimatterConvector)
-        b.Name = "antimatter convector"
-        b.ID = AntimatterConvectorID
-        b.IncreaseFactor = 1.25
-        b.BaseCost = Resources{Metal: 8500, Crystal: 5000, Deuterium: 3000}
-        b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21, VortexChamberID: 5}
-        return b
+	b := new(antimatterConvector)
+	b.Name = "antimatter convector"
+	b.ID = AntimatterConvectorID
+	b.IncreaseFactor = 1.25
+	b.BaseCost = Resources{Metal: 8500, Crystal: 5000, Deuterium: 3000}
+	b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21, VortexChamberID: 5}
+	return b
 }
 
 type cloningLaboratory struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newCloningLaboratory() *cloningLaboratory {
-        b := new(cloningLaboratory)
-        b.Name = "cloning laboratory"
-        b.ID = CloningLaboratoryID
-        b.IncreaseFactor = 1.20
-        b.BaseCost = Resources{Metal: 15000, Crystal: 15000, Deuterium: 20000}
-        b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21, VortexChamberID: 5, AntimatterConvectorID: 3}
-        return b
+	b := new(cloningLaboratory)
+	b.Name = "cloning laboratory"
+	b.ID = CloningLaboratoryID
+	b.IncreaseFactor = 1.20
+	b.BaseCost = Resources{Metal: 15000, Crystal: 15000, Deuterium: 20000}
+	b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21, VortexChamberID: 5, AntimatterConvectorID: 3}
+	return b
 }
 
 type chrysalisAccelerator struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newChrysalisAccelerator() *chrysalisAccelerator {
-        b := new(chrysalisAccelerator)
-        b.Name = "chrysalis accelerator"
-        b.ID = ChrysalisAcceleratorID
-        b.IncreaseFactor = 1.05
-        b.BaseCost = Resources{Metal: 75000, Crystal: 25000, Deuterium: 30000}
-        b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1}
-        return b
+	b := new(chrysalisAccelerator)
+	b.Name = "chrysalis accelerator"
+	b.ID = ChrysalisAcceleratorID
+	b.IncreaseFactor = 1.05
+	b.BaseCost = Resources{Metal: 75000, Crystal: 25000, Deuterium: 30000}
+	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1}
+	return b
 }
 
 type bioModifier struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newBioModifier() *bioModifier {
-        b := new(bioModifier)
-        b.Name = "bio modifier"
-        b.ID = BioModifierID
-        b.IncreaseFactor = 1.20
-        b.BaseCost = Resources{Metal: 87500, Crystal: 25000, Deuterium: 30000}
-        b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 1}
-        return b
+	b := new(bioModifier)
+	b.Name = "bio modifier"
+	b.ID = BioModifierID
+	b.IncreaseFactor = 1.20
+	b.BaseCost = Resources{Metal: 87500, Crystal: 25000, Deuterium: 30000}
+	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 1}
+	return b
 }
 
 type psionicModulator struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newPsionicModulator() *psionicModulator {
-        b := new(psionicModulator)
-        b.Name = "psionic modulator"
-        b.ID = PsionicModulatorID
-        b.IncreaseFactor = 1.50
-        b.BaseCost = Resources{Metal: 150000, Crystal: 30000, Deuterium: 30000}
-        b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 2}
-        return b
+	b := new(psionicModulator)
+	b.Name = "psionic modulator"
+	b.ID = PsionicModulatorID
+	b.IncreaseFactor = 1.50
+	b.BaseCost = Resources{Metal: 150000, Crystal: 30000, Deuterium: 30000}
+	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 2}
+	return b
 }
 
 type shipManufacturingHall struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newShipManufacturingHall() *shipManufacturingHall {
-        b := new(shipManufacturingHall)
-        b.Name = "ship manufacturing hall"
-        b.ID = ShipManufacturingHallID
-        b.IncreaseFactor = 1.20
-        b.BaseCost = Resources{Metal: 75000, Crystal: 50000, Deuterium: 55000}
-        b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 1, BioModifierID: 6, ForumOfTranscendenceID: 1}
-        return b
+	b := new(shipManufacturingHall)
+	b.Name = "ship manufacturing hall"
+	b.ID = ShipManufacturingHallID
+	b.IncreaseFactor = 1.20
+	b.BaseCost = Resources{Metal: 75000, Crystal: 50000, Deuterium: 55000}
+	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 1, BioModifierID: 6, ForumOfTranscendenceID: 1}
+	return b
 }
 
 type supraRefractor struct {
-        BaseLfBuilding
+	BaseLfBuilding
 }
 
 func newSupraRefractor() *supraRefractor {
-        b := new(supraRefractor)
-        b.Name = "suprarefractor"
-        b.ID = SupraRefractorID
-        b.IncreaseFactor = 1.40
-        b.BaseCost = Resources{Metal: 500000, Crystal: 250000, Deuterium: 250000}
-        b.Requirements = map[ID]int64{SanctuaryID: 42, AntimatterCondenserID: 21, VortexChamberID: 5, AntimatterConvectorID: 3, CloningLaboratoryID: 4, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 5, BioModifierID: 6, ForumOfTranscendenceID: 5, ShipManufacturingHallID: 5}
-        return b
+	b := new(supraRefractor)
+	b.Name = "suprarefractor"
+	b.ID = SupraRefractorID
+	b.IncreaseFactor = 1.40
+	b.BaseCost = Resources{Metal: 500000, Crystal: 250000, Deuterium: 250000}
+	b.Requirements = map[ID]int64{SanctuaryID: 42, AntimatterCondenserID: 21, VortexChamberID: 5, AntimatterConvectorID: 3, CloningLaboratoryID: 4, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 5, BioModifierID: 6, ForumOfTranscendenceID: 5, ShipManufacturingHallID: 5}
+	return b
 }
-

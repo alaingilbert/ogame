@@ -198,7 +198,7 @@ func (o ID) IsResourceBuilding() bool {
 }
 
 func (o ID) IsLfBuilding() bool {
-	return  o == ResidentialSectorID || // humans
+	return o == ResidentialSectorID || // humans
 		o == BiosphereFarmID ||
 		o == ResearchCentreID ||
 		o == AcademyOfSciencesID ||

@@ -15,7 +15,6 @@ func TestResourceSettings_String(t *testing.T) {
 		FusionReactor:        5,
 		SolarSatellite:       6,
 		Crawler:              7,
-		PlasmaTechnology:     8,
 	}
 	expected := "\n" +
 		"           Metal Mine: 1\n" +
@@ -24,7 +23,6 @@ func TestResourceSettings_String(t *testing.T) {
 		"          Solar Plant: 4\n" +
 		"       Fusion Reactor: 5\n" +
 		"      Solar Satellite: 6\n" +
-		"              Crawler: 7\n" +
-		"    Plasma Technology: 8"
+		"              Crawler: 7"
 	assert.Equal(t, expected, r.String())
 }

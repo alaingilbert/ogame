@@ -377,16 +377,10 @@ func (b *Prioritize) BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, 
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64) {
+func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	b.begin("ConstructionsBeingBuilt")
 	defer b.done()
 	return b.bot.constructionsBeingBuilt(celestialID)
-}
-
-func (b *Prioritize) LFConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64) {
-        b.begin("LFConstructionsBeingBuilt")
-        defer b.done()
-        return b.bot.LFconstructionsBeingBuilt(celestialID)
 }
 
 // CancelBuilding cancel the construction of a building on a specified planet
@@ -567,8 +561,7 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 // Phalanx scan a coordinate from a moon to get fleets information
 // IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
-//
-//	and that you have enough deuterium.
+// 			  and that you have enough deuterium.
 func (b *Prioritize) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
 	b.begin("Phalanx")
 	defer b.done()
@@ -715,7 +708,7 @@ func (b *Prioritize) OfferBuyMarketplace(itemID any, quantity, priceType, price,
 	return b.bot.offerMarketplace(3, itemID, quantity, priceType, price, priceRange, celestialID)
 }
 
-// OfferBuyMarketplace ...
+// GetLfBuildings ...
 func (b *Prioritize) GetLfBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.LfBuildings, error) {
 	b.begin("GetLfBuildings")
 	defer b.done()

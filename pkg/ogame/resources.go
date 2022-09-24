@@ -29,22 +29,22 @@ type ResourcesDetails struct {
 		// DenCapacity       int
 	}
 	Food struct {
-                Available         int64
-                StorageCapacity   int64
-                Overproduction    int64
-		ConsumedIn	  int64
+		Available           int64
+		StorageCapacity     int64
+		Overproduction      int64
+		ConsumedIn          int64
 		TimeTillFoodRunsOut int64
-        }
+	}
 	Population struct {
-                Available         int64
-		T2Lifeforms	  int64
-		T3Lifeforms	  int64
-		LivingSpace	  int64
-		Satisfied	  int64
-		Hungry		  int64
-		GrowthRate	  int64
-		BunkerSpace	  int64
-        }
+		Available   int64
+		T2Lifeforms int64
+		T3Lifeforms int64
+		LivingSpace int64
+		Satisfied   int64
+		Hungry      float64
+		GrowthRate  float64
+		BunkerSpace int64
+	}
 	Energy struct {
 		Available         int64
 		CurrentProduction int64
@@ -78,12 +78,12 @@ type Resources struct {
 	Energy     int64
 	Darkmatter int64
 	Population int64
-	Food	   int64
+	Food       int64
 }
 
 func (r Resources) String() string {
-	return fmt.Sprintf("[%s|%s|%s|%s]",
-		humanize.Comma(r.Metal), humanize.Comma(r.Crystal), humanize.Comma(r.Deuterium), humanize.Comma(r.Population))
+	return fmt.Sprintf("[%s|%s|%s]",
+		humanize.Comma(r.Metal), humanize.Comma(r.Crystal), humanize.Comma(r.Deuterium))
 }
 
 // Total returns the sum of resources

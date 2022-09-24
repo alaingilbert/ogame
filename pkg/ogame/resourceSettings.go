@@ -21,5 +21,5 @@ func (r ResourceSettings) String() string {
 		"          Solar Plant: " + utils.FI64(r.SolarPlant) + "\n" +
 		"       Fusion Reactor: " + utils.FI64(r.FusionReactor) + "\n" +
 		"      Solar Satellite: " + utils.FI64(r.SolarSatellite) + "\n" +
-		"              Crawler: " + utils.FI64(r.Crawler) + "\n"
+		"              Crawler: " + utils.FI64(r.Crawler)
 }

@@ -3,6 +3,7 @@ package v9
 import (
 	"errors"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -15,7 +16,9 @@ import (
 	"github.com/alaingilbert/ogame/pkg/utils"
 )
 
-func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
+func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64,
+	researchID ogame.ID, researchCountdown int64,
+	lfBuildingID ogame.ID, lfBuildingCountdown int64) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
 		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
@@ -28,17 +31,13 @@ func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID og
 		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
 		researchID = ogame.ID(researchIDInt)
 	}
+	lfBuildingCountdownMatch := regexp.MustCompile(`var restTimelfbuilding = (\d+) -`).FindSubmatch(pageHTML)
+	if len(lfBuildingCountdownMatch) > 0 {
+		lfBuildingCountdown = int64(utils.ToInt(lfBuildingCountdownMatch[1])) - clock.Now().Unix()
+		lfBuildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
+		lfBuildingID = ogame.ID(lfBuildingIDInt)
+	}
 	return
-}
-
-func ExtractLFConstructions(pageHTML []byte, clock clockwork.Clock) (LFbuildingID ogame.ID, LFbuildingCountdown int64) {
-        LFbuildingCountdownMatch := regexp.MustCompile(`var restTimelfbuilding = (\d+) -`).FindSubmatch(pageHTML)
-        if len(LFbuildingCountdownMatch) > 0 {
-                LFbuildingCountdown = int64(utils.ToInt(LFbuildingCountdownMatch[1])) - clock.Now().Unix()
-                LFbuildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
-                LFbuildingID = ogame.ID(LFbuildingIDInt)
-        }
-        return
 }
 
 func extractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
@@ -255,8 +254,8 @@ func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.Res
 	out.Population.T3Lifeforms = utils.ParseInt(populationDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Population.LivingSpace = utils.ParseInt(populationDoc.Find("table tr").Eq(3).Find("td").Eq(0).Text())
 	out.Population.Satisfied = utils.ParseInt(populationDoc.Find("table tr").Eq(4).Find("td").Eq(0).Text())
-	out.Population.Hungry = utils.ParseInt(populationDoc.Find("table tr").Eq(5).Find("td").Eq(0).Text())
-	out.Population.GrowthRate = utils.ParseInt(populationDoc.Find("table tr").Eq(6).Find("td").Eq(0).Text())
+	out.Population.Hungry, _ = strconv.ParseFloat(populationDoc.Find("table tr").Eq(5).Find("td").Eq(0).Text(), 64)
+	out.Population.GrowthRate, _ = strconv.ParseFloat(strings.TrimPrefix(populationDoc.Find("table tr").Eq(6).Find("td").Eq(0).Text(), "±"), 64)
 	out.Population.BunkerSpace = utils.ParseInt(populationDoc.Find("table tr").Eq(7).Find("td").Eq(0).Text())
 	return out
 }
@@ -566,7 +565,7 @@ func GetNbr(doc *goquery.Document, name string) int64 {
 
 func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
 	res := ogame.LfBuildings{}
-
+	
 	if doc.Find("#lifeform a div").HasClass("lifeform1") {
         res.Humans = true
     } else if doc.Find("#lifeform a div").HasClass("lifeform2") {
@@ -591,42 +590,41 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 	res.BiotechLab = GetNbr(doc, "lifeformTech11110")
 	res.Metropolis = GetNbr(doc, "lifeformTech11111")
 	res.PlanetaryShield = GetNbr(doc, "lifeformTech11112")
-	//Rocktal
 	res.MeditationEnclave = GetNbr(doc, "lifeformTech12101")
-        res.CrystalFarm = GetNbr(doc, "lifeformTech12102")
-        res.RuneTechnologium = GetNbr(doc, "lifeformTech12103")
-        res.RuneForge = GetNbr(doc, "lifeformTech12104")
-        res.Oriktorium = GetNbr(doc, "lifeformTech12105")
-        res.MagmaForge = GetNbr(doc, "lifeformTech12106")
-        res.DisruptionChamber = GetNbr(doc, "lifeformTech12107")
-        res.Megalith = GetNbr(doc, "lifeformTech12108")
-        res.CrystalRefinery = GetNbr(doc, "lifeformTech12109")
-        res.DeuteriumSynthesiser = GetNbr(doc, "lifeformTech12110")
-        res.MineralResearchCentre = GetNbr(doc, "lifeformTech12111")
-        res.MetalRecyclingPlant = GetNbr(doc, "lifeformTech12112")
+	res.CrystalFarm = GetNbr(doc, "lifeformTech12102")
+	res.RuneTechnologium = GetNbr(doc, "lifeformTech12103")
+	res.RuneForge = GetNbr(doc, "lifeformTech12104")
+	res.Oriktorium = GetNbr(doc, "lifeformTech12105")
+	res.MagmaForge = GetNbr(doc, "lifeformTech12106")
+	res.DisruptionChamber = GetNbr(doc, "lifeformTech12107")
+	res.Megalith = GetNbr(doc, "lifeformTech12108")
+	res.CrystalRefinery = GetNbr(doc, "lifeformTech12109")
+	res.DeuteriumSynthesiser = GetNbr(doc, "lifeformTech12110")
+	res.MineralResearchCentre = GetNbr(doc, "lifeformTech12111")
+	res.MetalRecyclingPlant = GetNbr(doc, "lifeformTech12112")
 	res.AssemblyLine = GetNbr(doc, "lifeformTech13101")
-        res.FusionCellFactory = GetNbr(doc, "lifeformTech13102")
-        res.RoboticsResearchCentre = GetNbr(doc, "lifeformTech13103")
-        res.UpdateNetwork = GetNbr(doc, "lifeformTech13104")
-        res.QuantumComputerCentre = GetNbr(doc, "lifeformTech13105")
-        res.AutomatisedAssemblyCentre = GetNbr(doc, "lifeformTech13106")
-        res.HighPerformanceTransformer = GetNbr(doc, "lifeformTech13107")
-        res.MicrochipAssemblyLine = GetNbr(doc, "lifeformTech13108")
-        res.ProductionAssemblyHall = GetNbr(doc, "lifeformTech13109")
-        res.HighPerformanceSynthesiser = GetNbr(doc, "lifeformTech13110")
-        res.ChipMassProduction = GetNbr(doc, "lifeformTech13111")
-        res.NanoRepairBots = GetNbr(doc, "lifeformTech13112")
+	res.FusionCellFactory = GetNbr(doc, "lifeformTech13102")
+	res.RoboticsResearchCentre = GetNbr(doc, "lifeformTech13103")
+	res.UpdateNetwork = GetNbr(doc, "lifeformTech12304")
+	res.QuantumComputerCentre = GetNbr(doc, "lifeformTech13105")
+	res.AutomatisedAssemblyCentre = GetNbr(doc, "lifeformTech13106")
+	res.HighPerformanceTransformer = GetNbr(doc, "lifeformTech13107")
+	res.MicrochipAssemblyLine = GetNbr(doc, "lifeformTech13108")
+	res.ProductionAssemblyHall = GetNbr(doc, "lifeformTech13109")
+	res.HighPerformanceSynthesiser = GetNbr(doc, "lifeformTech13110")
+	res.ChipMassProduction = GetNbr(doc, "lifeformTech13111")
+	res.NanoRepairBots = GetNbr(doc, "lifeformTech13112")
 	res.Sanctuary = GetNbr(doc, "lifeformTech14101")
-        res.AntimatterCondenser = GetNbr(doc, "lifeformTech14102")
-        res.VortexChamber = GetNbr(doc, "lifeformTech14103")
-        res.HallsOfRealisation = GetNbr(doc, "lifeformTech14104")
-        res.ForumOfTranscendence = GetNbr(doc, "lifeformTech14105")
-        res.AntimatterConvector = GetNbr(doc, "lifeformTech14106")
-        res.CloningLaboratory = GetNbr(doc, "lifeformTech14107")
-        res.ChrysalisAccelerator = GetNbr(doc, "lifeformTech14108")
-        res.BioModifier = GetNbr(doc, "lifeformTech14109")
-        res.PsionicModulator = GetNbr(doc, "lifeformTech14110")
-        res.ShipManufacturingHall = GetNbr(doc, "lifeformTech14111")
-        res.SupraRefractor = GetNbr(doc, "lifeformTech14112")
+	res.AntimatterCondenser = GetNbr(doc, "lifeformTech14102")
+	res.VortexChamber = GetNbr(doc, "lifeformTech14103")
+	res.HallsOfRealisation = GetNbr(doc, "lifeformTech14104")
+	res.ForumOfTranscendence = GetNbr(doc, "lifeformTech14105")
+	res.AntimatterConvector = GetNbr(doc, "lifeformTech14106")
+	res.CloningLaboratory = GetNbr(doc, "lifeformTech14107")
+	res.ChrysalisAccelerator = GetNbr(doc, "lifeformTech14108")
+	res.BioModifier = GetNbr(doc, "lifeformTech14109")
+	res.PsionicModulator = GetNbr(doc, "lifeformTech14110")
+	res.ShipManufacturingHall = GetNbr(doc, "lifeformTech14111")
+	res.SupraRefractor = GetNbr(doc, "lifeformTech14112")
 	return res, nil
 }

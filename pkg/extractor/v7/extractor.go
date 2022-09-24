@@ -96,12 +96,8 @@ func (e Extractor) ExtractResourcesDetails(pageHTML []byte) (out ogame.Resources
 }
 
 // ExtractConstructions ...
-func (e Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
+func (e Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64) {
 	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
-}
-
-func (e Extractor) ExtractLFConstructions(pageHTML []byte) (LFbuildingID ogame.ID, LFbuildingCountdown int64) {
-        return ExtractLFConstructions(pageHTML, clockwork.NewRealClock())
 }
 
 // ExtractFleet1Ships ...

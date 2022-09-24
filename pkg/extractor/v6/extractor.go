@@ -547,7 +547,7 @@ func (e *Extractor) ExtractFleetsFromDoc(doc *goquery.Document) (res []ogame.Fle
 }
 
 func (e *Extractor) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []ogame.Fleet) {
-	return extractFleetsFromDoc(doc, location)
+	return extractFleetsFromDoc(doc, location, e.lifeformEnabled)
 }
 
 // ExtractSlotsFromDoc extract fleet slots from page "fleet1"
@@ -809,12 +809,8 @@ func (e *Extractor) ExtractFederation(pageHTML []byte) url.Values {
 }
 
 // ExtractConstructions ...
-func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
+func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64) {
 	return extractConstructions(pageHTML)
-}
-
-func (e *Extractor) ExtractLFConstructions(pageHTML []byte) (LFbuildingID ogame.ID, LFresearchCountdown int64) {
-        return extractLFConstructions(pageHTML)
 }
 
 // ExtractFleetDeutSaveFactor extract fleet deut save factor

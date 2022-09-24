@@ -24,21 +24,20 @@ type Celestial interface {
 	CancelBuilding() error
 	CancelLfBuilding() error
 	CancelResearch() error
-	ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64)
-	LFConstructionsBeingBuilt() (ogame.ID, int64)
+	ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64)
 	EnsureFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	GetDefense(...Option) (ogame.DefensesInfos, error)
 	GetFacilities(...Option) (ogame.Facilities, error)
 	GetItems() ([]ogame.Item, error)
+	GetLfBuildings(...Option) (ogame.LfBuildings, error)
 	GetProduction() ([]ogame.Quantifiable, int64, error)
 	GetResources() (ogame.Resources, error)
 	GetResourcesBuildings(...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails() (ogame.ResourcesDetails, error)
 	GetShips(...Option) (ogame.ShipsInfos, error)
+	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
 	SendFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	TearDown(buildingID ogame.ID) error
-	GetLfBuildings(...Option) (ogame.LfBuildings, error)
-	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
 }
 
 // Prioritizable list of all actions that needs to communicate with ogame server.
@@ -117,11 +116,11 @@ type Prioritizable interface {
 	CancelBuilding(ogame.CelestialID) error
 	CancelLfBuilding(ogame.CelestialID) error
 	CancelResearch(ogame.CelestialID) error
-	ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64)
-	LFConstructionsBeingBuilt(ogame.CelestialID) (LfBuildingID ogame.ID, lfresearchCountdown int64)
+	ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64)
 	EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	GetDefense(ogame.CelestialID, ...Option) (ogame.DefensesInfos, error)
 	GetFacilities(ogame.CelestialID, ...Option) (ogame.Facilities, error)
+	GetLfBuildings(ogame.CelestialID, ...Option) (ogame.LfBuildings, error)
 	GetProduction(ogame.CelestialID) ([]ogame.Quantifiable, int64, error)
 	GetResources(ogame.CelestialID) (ogame.Resources, error)
 	GetResourcesBuildings(ogame.CelestialID, ...Option) (ogame.ResourcesBuildings, error)
@@ -130,7 +129,6 @@ type Prioritizable interface {
 	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
-	GetLfBuildings(ogame.CelestialID, ...Option) (ogame.LfBuildings, error)
 
 	// Planet specific functions
 	DestroyRockets(ogame.PlanetID, int64, int64) error

@@ -30,6 +30,14 @@ func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 	assert.Equal(t, int64(8000), res.Darkmatter.Found)
 }
 
+func TestExtractResourcesDetailsFromFullPagePopulation(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/overview.html")
+	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	assert.Equal(t, int64(1974118), res.Population.Available)
+	assert.Equal(t, 0.233, res.Population.Hungry)
+	assert.Equal(t, 61.983, res.Population.GrowthRate)
+}
+
 func TestExtractResources(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.0/en/overview.html")
 	res := NewExtractor().ExtractResources(pageHTMLBytes)
@@ -102,7 +110,7 @@ func TestGetConstructions(t *testing.T) {
 	// Without lifeform
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2022, 8, 20, 12, 43, 11, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown := ExtractConstructions(pageHTMLBytes, clock)
+	buildingID, buildingCountdown, researchID, researchCountdown, _, _ := ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalMineID, buildingID)
 	assert.Equal(t, int64(5413), buildingCountdown)
 	assert.Equal(t, ogame.ComputerTechnologyID, researchID)
@@ -111,7 +119,7 @@ func TestGetConstructions(t *testing.T) {
 	// With lifeform
 	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues2.html")
 	clock = clockwork.NewFakeClockAt(time.Date(2022, 8, 28, 17, 22, 26, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown = ExtractConstructions(pageHTMLBytes, clock)
+	buildingID, buildingCountdown, researchID, researchCountdown, _, _ = ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalStorageID, buildingID)
 	assert.Equal(t, int64(33483), buildingCountdown)
 	assert.Equal(t, ogame.ComputerTechnologyID, researchID)
@@ -125,6 +133,17 @@ func TestExtractUserInfos(t *testing.T) {
 	assert.Equal(t, int64(30478), info.Points)
 	assert.Equal(t, int64(1102), info.Rank)
 	assert.Equal(t, int64(2931), info.Total)
+}
+
+func TestExtractFleetResources(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/movement.html")
+	e := NewExtractor()
+	e.SetLocation(time.FixedZone("OGT", 3600))
+	e.SetLifeformEnabled(true)
+	fleets := e.ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, int64(1), fleets[0].Resources.Metal)
+	assert.Equal(t, int64(2), fleets[0].Resources.Crystal)
+	assert.Equal(t, int64(3), fleets[0].Resources.Deuterium)
 }
 
 func TestExtractLfBuildings(t *testing.T) {
@@ -142,4 +161,23 @@ func TestExtractLfBuildings(t *testing.T) {
 	assert.Equal(t, int64(0), res.BiotechLab)
 	assert.Equal(t, int64(0), res.Metropolis)
 	assert.Equal(t, int64(0), res.PlanetaryShield)
+}
+
+func TestExtractLfBuildingsRocktal(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/lfbuildings_rocktal.html")
+	res, _ := NewExtractor().ExtractLfBuildings(pageHTMLBytes)
+	assert.Equal(t, int64(0), res.ResidentialSector)
+	assert.Equal(t, int64(0), res.BiosphereFarm)
+	assert.Equal(t, int64(0), res.ResearchCentre)
+	assert.Equal(t, int64(0), res.AcademyOfSciences)
+	assert.Equal(t, int64(0), res.NeuroCalibrationCentre)
+	assert.Equal(t, int64(0), res.HighEnergySmelting)
+	assert.Equal(t, int64(0), res.FoodSilo)
+	assert.Equal(t, int64(0), res.FusionPoweredProduction)
+	assert.Equal(t, int64(0), res.Skyscraper)
+	assert.Equal(t, int64(0), res.BiotechLab)
+	assert.Equal(t, int64(0), res.Metropolis)
+	assert.Equal(t, int64(0), res.PlanetaryShield)
+	assert.Equal(t, int64(2), res.MeditationEnclave)
+	assert.Equal(t, int64(1), res.CrystalFarm)
 }

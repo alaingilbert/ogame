@@ -81,12 +81,8 @@ func (e *Extractor) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Docu
 }
 
 // ExtractConstructions ...
-func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64) {
+func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64) {
 	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
-}
-
-func (e *Extractor) ExtractLFConstructions(pageHTML []byte) (LfBuildingID ogame.ID, LFbuildingCountdown int64) {
-        return ExtractLFConstructions(pageHTML, clockwork.NewRealClock())
 }
 
 // ExtractResourceSettings ...

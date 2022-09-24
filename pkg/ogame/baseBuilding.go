@@ -16,10 +16,10 @@ func (b BaseBuilding) DeconstructionPrice(level int64, techs IResearches) Resour
 		return int64(math.Floor(float64(baseCost)*math.Pow(increaseFactor, float64(level-1))) * (1 - 0.04*float64(techs.GetIonTechnology())))
 	}
 	return Resources{
-		Metal:     tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
-		Crystal:   tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
-		Deuterium: tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
-		Energy:    tmp(b.BaseCost.Energy, b.IncreaseFactor, level),
+		Metal:      tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
+		Crystal:    tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
+		Deuterium:  tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
+		Energy:     tmp(b.BaseCost.Energy, b.IncreaseFactor, level),
 		Population: tmp(b.BaseCost.Population, b.IncreaseFactor, level),
 	}
 }

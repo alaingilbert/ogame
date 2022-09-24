@@ -3089,20 +3089,12 @@ func (b *OGame) buildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 	return b.buildProduction(celestialID, shipID, nbr)
 }
 
-func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64) {
+func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
 	if err != nil {
-		return ogame.ID(0), 0, ogame.ID(0), 0
+		return ogame.ID(0), 0, ogame.ID(0), 0, ogame.ID(0), 0
 	}
 	return page.ExtractConstructions()
-}
-
-func (b *OGame) LFconstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64) {
-        page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
-        if err != nil {
-                return ogame.ID(0), 0
-        }
-        return page.ExtractLFConstructions()
 }
 
 func (b *OGame) cancel(token string, techID, listID int64) error {
@@ -3158,7 +3150,7 @@ func (b *OGame) getResources(celestialID ogame.CelestialID) (ogame.Resources, er
 		Energy:     res.Energy.Available,
 		Darkmatter: res.Darkmatter.Available,
 		Population: res.Population.Available,
-		Food:	    res.Food.Available,
+		Food:       res.Food.Available,
 	}, nil
 }
 
@@ -4519,12 +4511,8 @@ func (b *OGame) BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64) {
+func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	return b.WithPriority(taskRunner.Normal).ConstructionsBeingBuilt(celestialID)
-}
-
-func (b *OGame) LFConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64) {
-        return b.WithPriority(taskRunner.Normal).LFConstructionsBeingBuilt(celestialID)
 }
 
 // CancelBuilding cancel the construction of a building on a specified planet
