@@ -3,9 +3,10 @@ package v6
 import (
 	"bytes"
 	"errors"
-	"github.com/alaingilbert/ogame/pkg/ogame"
 	"net/url"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/ogame"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -57,7 +58,7 @@ func (e *Extractor) ExtractPremiumToken(pageHTML []byte, days int64) (string, er
 }
 
 // ExtractTechs ...
-func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, error) {
+func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
 	panic("implement me")
 }
 
@@ -880,5 +881,15 @@ func (e *Extractor) ExtractIsMobile(pageHTML []byte) bool {
 
 // ExtractIsMobileFromDoc ...
 func (e *Extractor) ExtractIsMobileFromDoc(doc *goquery.Document) bool {
+	panic("not implemented")
+}
+
+// ExtractLfBuildings ...
+func (e *Extractor) ExtractLfBuildings(pageHTML []byte) (ogame.LfBuildings, error) {
+	panic("not implemented")
+}
+
+// ExtractLfBuildingsFromDoc ...
+func (e *Extractor) ExtractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
 	panic("not implemented")
 }

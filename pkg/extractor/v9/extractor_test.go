@@ -143,3 +143,20 @@ func TestExtractFleetResources(t *testing.T) {
 	assert.Equal(t, int64(2), fleets[0].Resources.Crystal)
 	assert.Equal(t, int64(3), fleets[0].Resources.Deuterium)
 }
+
+func TestExtractLfBuildings(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lfbuildings.html")
+	res, _ := NewExtractor().ExtractLfBuildings(pageHTMLBytes)
+	assert.Equal(t, int64(2), res.ResidentialSector)
+	assert.Equal(t, int64(1), res.BiosphereFarm)
+	assert.Equal(t, int64(0), res.ResearchCentre)
+	assert.Equal(t, int64(0), res.AcademyOfSciences)
+	assert.Equal(t, int64(0), res.NeuroCalibrationCentre)
+	assert.Equal(t, int64(0), res.HighEnergySmelting)
+	assert.Equal(t, int64(0), res.FoodSilo)
+	assert.Equal(t, int64(0), res.FusionPoweredProduction)
+	assert.Equal(t, int64(0), res.Skyscraper)
+	assert.Equal(t, int64(0), res.BiotechLab)
+	assert.Equal(t, int64(0), res.Metropolis)
+	assert.Equal(t, int64(0), res.PlanetaryShield)
+}

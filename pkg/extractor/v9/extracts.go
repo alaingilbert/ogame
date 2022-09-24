@@ -570,3 +570,37 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 
 	return res, token, nil
 }
+
+func GetNbr(doc *goquery.Document, name string) int64 {
+	val := utils.DoParseI64(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"))
+	return val
+}
+
+func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
+	res := ogame.LfBuildings{}
+	// res.ResidentialSector = GetNbr(doc, "residentialSector")
+	// res.BiosphereFarm = GetNbr(doc, "biosphereFarm")
+	// res.ResearchCentre = GetNbr(doc, "researchCentre")
+	// res.AcademyOfSciences = GetNbr(doc, "academyOfSciences")
+	// res.NeuroCalibrationCentre = GetNbr(doc, "neuroCalibrationCentre")
+	// res.HighEnergySmelting = GetNbr(doc, "highEnergySmelting")
+	// res.FoodSilo = GetNbr(doc, "foodSilo")
+	// res.FusionPoweredProduction = GetNbr(doc, "fusionPoweredProduction")
+	// res.Skyscraper = GetNbr(doc, "skyscraper")
+	// res.BiotechLab = GetNbr(doc, "biotechLab")
+	// res.Metropolis = GetNbr(doc, "metropolis")
+	// res.PlanetaryShield = GetNbr(doc, "planetaryShield")
+	res.ResidentialSector = GetNbr(doc, "lifeformTech11101")
+	res.BiosphereFarm = GetNbr(doc, "lifeformTech11102")
+	res.ResearchCentre = GetNbr(doc, "lifeformTech11103")
+	res.AcademyOfSciences = GetNbr(doc, "lifeformTech11104")
+	res.NeuroCalibrationCentre = GetNbr(doc, "lifeformTech11105")
+	res.HighEnergySmelting = GetNbr(doc, "lifeformTech11106")
+	res.FoodSilo = GetNbr(doc, "lifeformTech11107")
+	res.FusionPoweredProduction = GetNbr(doc, "lifeformTech11108")
+	res.Skyscraper = GetNbr(doc, "lifeformTech11109")
+	res.BiotechLab = GetNbr(doc, "lifeformTech11110")
+	res.Metropolis = GetNbr(doc, "lifeformTech11111")
+	res.PlanetaryShield = GetNbr(doc, "lifeformTech11112")
+	return res, nil
+}

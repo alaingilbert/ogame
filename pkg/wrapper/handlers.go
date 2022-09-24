@@ -5,12 +5,13 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/utils"
-	echo "github.com/labstack/echo/v4"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/utils"
+	echo "github.com/labstack/echo/v4"
 )
 
 // APIResp ...
@@ -1294,16 +1295,17 @@ func TechsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
 	}
-	supplies, facilities, ships, defenses, researches, err := bot.GetTechs(ogame.CelestialID(celestialID))
+	supplies, facilities, ships, defenses, researches, lfbuildings, err := bot.GetTechs(ogame.CelestialID(celestialID))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(map[string]any{
-		"supplies":   supplies,
-		"facilities": facilities,
-		"ships":      ships,
-		"defenses":   defenses,
-		"researches": researches,
+		"supplies":    supplies,
+		"facilities":  facilities,
+		"ships":       ships,
+		"defenses":    defenses,
+		"researches":  researches,
+		"lfbuildings": lfbuildings,
 	}))
 }
 

@@ -1,8 +1,9 @@
 package parser
 
 import (
-	"github.com/alaingilbert/ogame/pkg/ogame"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
 func (p FullPage) ExtractOGameSession() string {
@@ -43,6 +44,10 @@ func (p FullPage) ExtractTechnocrat() bool {
 
 func (p FullPage) ExtractLifeformEnabled() bool {
 	return p.e.ExtractLifeformEnabled(p.GetContent())
+}
+
+func (p FullPage) ExtractLfBuildings() (ogame.LfBuildings, error) {
+	return p.e.ExtractLfBuildings(p.GetContent())
 }
 
 func (p FullPage) ExtractServerTime() (time.Time, error) {

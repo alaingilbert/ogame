@@ -1,8 +1,9 @@
 package wrapper
 
 import (
-	"github.com/alaingilbert/ogame/pkg/parser"
 	"net/url"
+
+	"github.com/alaingilbert/ogame/pkg/parser"
 )
 
 // Page names
@@ -82,6 +83,8 @@ func getPage[T parser.FullPagePages](b *OGame, opts ...Option) (T, error) {
 		pageName = DefensesPageName
 	case parser.ResearchPage:
 		pageName = ResearchPageName
+	case parser.LfBuildingsPage:
+		pageName = LfbuildingsPageName
 	case parser.ShipyardPage:
 		pageName = ShipyardPageName
 	case parser.ResourcesSettingsPage:

@@ -137,3 +137,13 @@ func (m Moon) Phalanx(coord ogame.Coordinate) ([]ogame.Fleet, error) {
 //func (m *Moon) UseJumpGate() error {
 //	return nil
 //}
+
+// GetLfBuildings gets the lifeform buildings levels
+func (m Moon) GetLfBuildings(options ...Option) (ogame.LfBuildings, error) {
+	return m.ogame.GetLfBuildings(m.ID.Celestial(), options...)
+}
+
+// GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)
+func (m Moon) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
+	return m.ogame.GetTechs(m.ID.Celestial())
+}
