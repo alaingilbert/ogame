@@ -13,7 +13,7 @@ type LfTechs struct {
 	Rocktal                           bool
 	Mechas                            bool
 	Kaelesh                           bool
-	IntergalacticEnvoys               int64 //Humans techs
+	IntergalacticEnvoys               int64 // Humans techs
 	HighPerformanceExtractors         int64
 	FusionDrives                      int64
 	StealthFieldGenerator             int64
@@ -31,7 +31,7 @@ type LfTechs struct {
 	BattlecruiserMkII                 int64
 	RobotAssistants                   int64
 	Supercomputer                     int64
-	VolcanicBatteries                 int64 //Rocktal techs
+	VolcanicBatteries                 int64 // Rocktal techs
 	AcousticScanning                  int64
 	HighEnergyPumpSystems             int64
 	CargoHoldExpansionCivilianShips   int64
@@ -49,7 +49,7 @@ type LfTechs struct {
 	ObsidianShieldReinforcement       int64
 	RuneShields                       int64
 	RocktalCollectorEnhancement       int64
-	CatalyserTechnology               int64 //Mechas techs
+	CatalyserTechnology               int64 // Mechas techs
 	PlasmaDrive                       int64
 	EfficiencyModule                  int64
 	DepotAI                           int64
@@ -67,7 +67,7 @@ type LfTechs struct {
 	GeneralOverhaulDestroyer          int64
 	ExperimentalWeaponsTechnology     int64
 	MechanGeneralEnhancement          int64
-	HeatRecovery                      int64 //Kaelesh techs
+	HeatRecovery                      int64 // Kaelesh techs
 	SulphideProcess                   int64
 	PsionicNetwork                    int64
 	TelekineticTractorBeam            int64
