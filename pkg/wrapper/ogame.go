@@ -3048,7 +3048,7 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 }
 
 func (b *OGame) buildCancelable(celestialID ogame.CelestialID, id ogame.ID) error {
-	if !id.IsBuilding() && !id.IsTech() {
+	if !id.IsBuilding() && !id.IsTech() && !id.IsLfBuilding() {
 		return errors.New("invalid id " + id.String())
 	}
 	return b.build(celestialID, id, 0)
@@ -3089,10 +3089,10 @@ func (b *OGame) buildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 	return b.buildProduction(celestialID, shipID, nbr)
 }
 
-func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64) {
+func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
 	if err != nil {
-		return ogame.ID(0), 0, ogame.ID(0), 0
+		return ogame.ID(0), 0, ogame.ID(0), 0, ogame.ID(0), 0
 	}
 	return page.ExtractConstructions()
 }
@@ -3149,6 +3149,8 @@ func (b *OGame) getResources(celestialID ogame.CelestialID) (ogame.Resources, er
 		Deuterium:  res.Deuterium.Available,
 		Energy:     res.Energy.Available,
 		Darkmatter: res.Darkmatter.Available,
+		Population: res.Population.Available,
+		Food:       res.Food.Available,
 	}, nil
 }
 
@@ -4509,7 +4511,7 @@ func (b *OGame) BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64) {
+func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	return b.WithPriority(taskRunner.Normal).ConstructionsBeingBuilt(celestialID)
 }
 
@@ -4673,7 +4675,8 @@ func (b *OGame) RegisterHTMLInterceptor(fn func(method, url string, params, payl
 // Phalanx scan a coordinate from a moon to get fleets information
 // IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
-// 			  and that you have enough deuterium.
+//
+//	and that you have enough deuterium.
 func (b *OGame) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
 	return b.WithPriority(taskRunner.Normal).Phalanx(moonID, coord)
 }

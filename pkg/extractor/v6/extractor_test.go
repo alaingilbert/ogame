@@ -1884,7 +1884,7 @@ func TestCancelResearch(t *testing.T) {
 
 func TestGetConstructions(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/unversioned/overview_active.html")
-	buildingID, buildingCountdown, researchID, researchCountdown := NewExtractor().ExtractConstructions(pageHTMLBytes)
+	buildingID, buildingCountdown, researchID, researchCountdown, _, _ := NewExtractor().ExtractConstructions(pageHTMLBytes)
 	assert.Equal(t, ogame.CrystalMineID, buildingID)
 	assert.Equal(t, int64(731), buildingCountdown)
 	assert.Equal(t, ogame.CombustionDriveID, researchID)

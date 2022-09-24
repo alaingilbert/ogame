@@ -538,6 +538,20 @@ func SetResourceSettingsHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(nil))
 }
 
+// GetLfBuildingsHandler ...
+func GetLfBuildingsHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	planetID, err := utils.ParseI64(c.Param("planetID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+	res, err := bot.GetLfBuildings(ogame.CelestialID(planetID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(res))
+}
+
 // GetResourcesBuildingsHandler ...
 func GetResourcesBuildingsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
@@ -750,18 +764,22 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-	buildingID, buildingCountdown, researchID, researchCountdown := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
+	buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
 	return c.JSON(http.StatusOK, SuccessResp(
 		struct {
-			BuildingID        int64
-			BuildingCountdown int64
-			ResearchID        int64
-			ResearchCountdown int64
+			BuildingID          int64
+			BuildingCountdown   int64
+			ResearchID          int64
+			ResearchCountdown   int64
+			LfBuildingID        int64
+			LfBuildingCountdown int64
 		}{
-			BuildingID:        int64(buildingID),
-			BuildingCountdown: buildingCountdown,
-			ResearchID:        int64(researchID),
-			ResearchCountdown: researchCountdown,
+			BuildingID:          int64(buildingID),
+			BuildingCountdown:   buildingCountdown,
+			ResearchID:          int64(researchID),
+			ResearchCountdown:   researchCountdown,
+			LfBuildingID:        int64(lfBuildingID),
+			LfBuildingCountdown: lfBuildingCountdown,
 		},
 	))
 }
@@ -804,6 +822,20 @@ func GetResourcesHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(res))
+}
+
+// GetRequirementsHandler ...
+func GetRequirementsHandler(c echo.Context) error {
+	ogameID, err := utils.ParseI64(c.Param("ogameID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
+	}
+	ogameObj := ogame.Objs.ByID(ogame.ID(ogameID))
+	if ogameObj != nil {
+		requirements := ogameObj.GetRequirements()
+		return c.JSON(http.StatusOK, SuccessResp(requirements))
+	}
+	return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
 }
 
 // GetPriceHandler ...

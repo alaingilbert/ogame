@@ -28,6 +28,23 @@ type ResourcesDetails struct {
 		CurrentProduction int64
 		// DenCapacity       int
 	}
+	Food struct {
+		Available           int64
+		StorageCapacity     int64
+		Overproduction      int64
+		ConsumedIn          int64
+		TimeTillFoodRunsOut int64
+	}
+	Population struct {
+		Available   int64
+		T2Lifeforms int64
+		T3Lifeforms int64
+		LivingSpace int64
+		Satisfied   int64
+		Hungry      float64
+		GrowthRate  float64
+		BunkerSpace int64
+	}
 	Energy struct {
 		Available         int64
 		CurrentProduction int64
@@ -46,6 +63,8 @@ func (r ResourcesDetails) Available() Resources {
 		Metal:      r.Metal.Available,
 		Crystal:    r.Crystal.Available,
 		Deuterium:  r.Deuterium.Available,
+		Food:       r.Food.Available,
+		Population: r.Population.Available,
 		Energy:     r.Energy.Available,
 		Darkmatter: r.Darkmatter.Available,
 	}
@@ -58,7 +77,7 @@ type Resources struct {
 	Deuterium  int64
 	Energy     int64
 	Darkmatter int64
-	Lifeform   int64
+	Population int64
 	Food       int64
 }
 
