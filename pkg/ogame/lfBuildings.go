@@ -9,68 +9,59 @@ type LazyLfBuildings func() LfBuildings
 
 // LfBuildings lifeform buildings
 type LfBuildings struct {
-	//No Lifeform
-	None					bool
-	
-	//humans
-	Humans					bool
-	ResidentialSector       int64 // 11101
-	BiosphereFarm           int64 // 11102
-	ResearchCentre          int64 // 11103
-	AcademyOfSciences       int64 // 11104
-	NeuroCalibrationCentre  int64 // 11105
-	HighEnergySmelting      int64 // 11106
-	FoodSilo                int64 // 11107
-	FusionPoweredProduction int64 // 11108
-	Skyscraper              int64 // 11109
-	BiotechLab              int64 // 11110
-	Metropolis              int64 // 11111
-	PlanetaryShield         int64 // 11112
-
-	//Rocktal
-	Rocktal				bool
-	MeditationEnclave 	int64 // 12101
-	CrystalFarm 		int64 // 12102
-	RuneTechnologium 	int64 // 12103
-	RuneForge  		int64 // 12104
-	Oriktorium 		int64 // 12105
-	MagmaForge 		int64 // 12106
-	DisruptionChamber 	int64 // 12107
-	Megalith 		int64 // 12108
-	CrystalRefinery 	int64 // 12109
-	DeuteriumSynthesiser 	int64 // 12110
-	MineralResearchCentre 	int64 // 12111
-	MetalRecyclingPlant 	int64 // 12112
-
-	//Mechas
-	Mechas				bool
-	AssemblyLine  		int64 // 13101
-	FusionCellFactory 	int64 // 13102
-	RoboticsResearchCentre 	int64 // 13103
-	UpdateNetwork 		int64 // 12304
-	QuantumComputerCentre 	int64 // 13105
-	AutomatisedAssemblyCentre int64 // 13106
+	None					   bool
+	Humans					   bool
+	Rocktal					   bool
+	Mechas					   bool
+	Kaelesh					   bool
+	ResidentialSector          int64 // 11101 // Lifeform (humans)
+	BiosphereFarm              int64 // 11102
+	ResearchCentre             int64 // 11103
+	AcademyOfSciences          int64 // 11104
+	NeuroCalibrationCentre     int64 // 11105
+	HighEnergySmelting         int64 // 11106
+	FoodSilo                   int64 // 11107
+	FusionPoweredProduction    int64 // 11108
+	Skyscraper                 int64 // 11109
+	BiotechLab                 int64 // 11110
+	Metropolis                 int64 // 11111
+	PlanetaryShield            int64 // 11112
+	MeditationEnclave          int64 // 12101 // Lifeform (rocktal)
+	CrystalFarm                int64 // 12102
+	RuneTechnologium           int64 // 12103
+	RuneForge                  int64 // 12104
+	Oriktorium                 int64 // 12105
+	MagmaForge                 int64 // 12106
+	DisruptionChamber          int64 // 12107
+	Megalith                   int64 // 12108
+	CrystalRefinery            int64 // 12109
+	DeuteriumSynthesiser       int64 // 12110
+	MineralResearchCentre      int64 // 12111
+	MetalRecyclingPlant        int64 // 12112
+	AssemblyLine               int64 // 13101 // Lifeform (mechas)
+	FusionCellFactory          int64 // 13102
+	RoboticsResearchCentre     int64 // 13103
+	UpdateNetwork              int64 // 12304
+	QuantumComputerCentre      int64 // 13105
+	AutomatisedAssemblyCentre  int64 // 13106
 	HighPerformanceTransformer int64 // 13107
-	MicrochipAssemblyLine 	int64 // 13108
-	ProductionAssemblyHall 	int64 // 13109
+	MicrochipAssemblyLine      int64 // 13108
+	ProductionAssemblyHall     int64 // 13109
 	HighPerformanceSynthesiser int64 // 13110
-	ChipMassProduction 	int64 // 13111
-	NanoRepairBots 		int64 // 13112
-
-	//Kaelesh
-	Kaelesh			bool
-	Sanctuary 		int64 // 14101
-	AntimatterCondenser 	int64 // 14102
-	VortexChamber 		int64 // 14103
-	HallsOfRealisation 	int64 // 14104
-	ForumOfTranscendence 	int64 // 14105
-	AntimatterConvector 	int64 // 14106
-	CloningLaboratory 	int64 // 14107
-	ChrysalisAccelerator 	int64 // 14108
-	BioModifier 		int64 // 14109
-	PsionicModulator 	int64 // 14110
-	ShipManufacturingHall 	int64 // 14111
-	SupraRefractor 		int64 // 14112
+	ChipMassProduction         int64 // 13111
+	NanoRepairBots             int64 // 13112
+	Sanctuary                  int64 // 14101 // Lifeform (kaelesh)
+	AntimatterCondenser        int64 // 14102
+	VortexChamber              int64 // 14103
+	HallsOfRealisation         int64 // 14104
+	ForumOfTranscendence       int64 // 14105
+	AntimatterConvector        int64 // 14106
+	CloningLaboratory          int64 // 14107
+	ChrysalisAccelerator       int64 // 14108
+	BioModifier                int64 // 14109
+	PsionicModulator           int64 // 14110
+	ShipManufacturingHall      int64 // 14111
+	SupraRefractor             int64 // 14112
 }
 // Lazy returns a function that return self
 func (b LfBuildings) Lazy() LazyLfBuildings {
