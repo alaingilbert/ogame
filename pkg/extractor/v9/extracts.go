@@ -579,7 +579,6 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
         res.None = true
     }
 	
-	//Humans
 	res.ResidentialSector = GetNbr(doc, "lifeformTech11101")
 	res.BiosphereFarm = GetNbr(doc, "lifeformTech11102")
 	res.ResearchCentre = GetNbr(doc, "lifeformTech11103")
@@ -605,7 +604,6 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
         res.DeuteriumSynthesiser = GetNbr(doc, "lifeformTech12110")
         res.MineralResearchCentre = GetNbr(doc, "lifeformTech12111")
         res.MetalRecyclingPlant = GetNbr(doc, "lifeformTech12112")
-	//Mechas
 	res.AssemblyLine = GetNbr(doc, "lifeformTech13101")
         res.FusionCellFactory = GetNbr(doc, "lifeformTech13102")
         res.RoboticsResearchCentre = GetNbr(doc, "lifeformTech13103")
@@ -618,7 +616,6 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
         res.HighPerformanceSynthesiser = GetNbr(doc, "lifeformTech13110")
         res.ChipMassProduction = GetNbr(doc, "lifeformTech13111")
         res.NanoRepairBots = GetNbr(doc, "lifeformTech13112")
-	//Kaelesch
 	res.Sanctuary = GetNbr(doc, "lifeformTech14101")
         res.AntimatterCondenser = GetNbr(doc, "lifeformTech14102")
         res.VortexChamber = GetNbr(doc, "lifeformTech14103")
