@@ -546,7 +546,7 @@ func (e *Extractor) ExtractFleetsFromDoc(doc *goquery.Document) (res []ogame.Fle
 }
 
 func (e *Extractor) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []ogame.Fleet) {
-	return extractFleetsFromDoc(doc, location)
+	return extractFleetsFromDoc(doc, location, e.lifeformEnabled)
 }
 
 // ExtractSlotsFromDoc extract fleet slots from page "fleet1"

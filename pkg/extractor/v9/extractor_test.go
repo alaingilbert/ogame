@@ -132,3 +132,14 @@ func TestExtractUserInfos(t *testing.T) {
 	assert.Equal(t, int64(1102), info.Rank)
 	assert.Equal(t, int64(2931), info.Total)
 }
+
+func TestExtractFleetResources(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/movement.html")
+	e := NewExtractor()
+	e.SetLocation(time.FixedZone("OGT", 3600))
+	e.SetLifeformEnabled(true)
+	fleets := e.ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, int64(1), fleets[0].Resources.Metal)
+	assert.Equal(t, int64(2), fleets[0].Resources.Crystal)
+	assert.Equal(t, int64(3), fleets[0].Resources.Deuterium)
+}
