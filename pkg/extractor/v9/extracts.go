@@ -572,7 +572,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
     } else if doc.Find("#lifeform a div").HasClass("lifeform3") {
         res.Mechas = true
     } else if doc.Find("#lifeform a div").HasClass("lifeform4") {
-        res.Kaelesch = true
+        res.Kaelesh = true
     } else {
         res.None = true
     }
