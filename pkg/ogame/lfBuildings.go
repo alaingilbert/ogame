@@ -9,7 +9,11 @@ type LazyLfBuildings func() LfBuildings
 
 // LfBuildings lifeform buildings
 type LfBuildings struct {
+	//No Lifeform
+	None					bool
+	
 	//humans
+	Humans					bool
 	ResidentialSector       int64 // 11101
 	BiosphereFarm           int64 // 11102
 	ResearchCentre          int64 // 11103
@@ -24,6 +28,7 @@ type LfBuildings struct {
 	PlanetaryShield         int64 // 11112
 
 	//Rocktal
+	Rocktal				bool
 	MeditationEnclave 	int64 // 12101
 	CrystalFarm 		int64 // 12102
 	RuneTechnologium 	int64 // 12103
@@ -38,6 +43,7 @@ type LfBuildings struct {
 	MetalRecyclingPlant 	int64 // 12112
 
 	//Mechas
+	Mechas				bool
 	AssemblyLine  		int64 // 13101
 	FusionCellFactory 	int64 // 13102
 	RoboticsResearchCentre 	int64 // 13103
@@ -52,6 +58,7 @@ type LfBuildings struct {
 	NanoRepairBots 		int64 // 13112
 
 	//Kaelesh
+	Kaelesh			bool
 	Sanctuary 		int64 // 14101
 	AntimatterCondenser 	int64 // 14102
 	VortexChamber 		int64 // 14103
@@ -98,6 +105,7 @@ func (b LfBuildings) ByID(id ID) int64 {
 		return b.Metropolis
 	case PlanetaryShieldID:
 		return b.PlanetaryShield
+		
 	//Rocktal
 	case MeditationEnclaveID:
                 return b.MeditationEnclave
@@ -123,6 +131,7 @@ func (b LfBuildings) ByID(id ID) int64 {
                 return b.MineralResearchCentre
         case MetalRecyclingPlantID:
                 return b.MetalRecyclingPlant
+				
 	//Mechas
 	case AssemblyLineID:
                 return b.AssemblyLine
@@ -148,6 +157,7 @@ func (b LfBuildings) ByID(id ID) int64 {
                 return b.ChipMassProduction
         case NanoRepairBotsID:
                 return b.NanoRepairBots
+				
 	//Kaelesh
 	case SanctuaryID:
                 return b.Sanctuary

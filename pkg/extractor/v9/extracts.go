@@ -578,6 +578,19 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 	// res.BiotechLab = GetNbr(doc, "biotechLab")
 	// res.Metropolis = GetNbr(doc, "metropolis")
 	// res.PlanetaryShield = GetNbr(doc, "planetaryShield")
+	
+	if doc.Find("#lifeform a div").HasClass("lifeform1") {
+        res.Humans = true
+    } else if doc.Find("#lifeform a div").HasClass("lifeform2") {
+        res.Rocktal = true
+    } else if doc.Find("#lifeform a div").HasClass("lifeform3") {
+        res.Mechas = true
+    } else if doc.Find("#lifeform a div").HasClass("lifeform4") {
+        res.Kaelesch = true
+    } else {
+        res.None = true
+    }
+	
 	//Humans
 	res.ResidentialSector = GetNbr(doc, "lifeformTech11101")
 	res.BiosphereFarm = GetNbr(doc, "lifeformTech11102")
