@@ -109,7 +109,7 @@ func (p Planet) EnsureFleet(ships []ogame.Quantifiable, speed ogame.Speed, where
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (p Planet) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
+func (p Planet) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	return p.ogame.ConstructionsBeingBuilt(ogame.CelestialID(p.ID))
 }
 
@@ -156,6 +156,11 @@ func (p Planet) SendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int
 // GetLfBuildings gets the lifeform buildings levels
 func (p Planet) GetLfBuildings(options ...Option) (ogame.LfBuildings, error) {
 	return p.ogame.getLfBuildings(p.ID.Celestial(), options...)
+}
+
+// GetLfTechs gets the lifeform techs levels
+func (p Planet) GetLfTechs(options ...Option) (ogame.LfTechs, error) {
+	return p.ogame.getLfTechs(p.ID.Celestial(), options...)
 }
 
 // GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)

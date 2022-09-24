@@ -377,7 +377,7 @@ func (b *Prioritize) BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, 
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
+func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
 	b.begin("ConstructionsBeingBuilt")
 	defer b.done()
 	return b.bot.constructionsBeingBuilt(celestialID)
@@ -713,4 +713,11 @@ func (b *Prioritize) GetLfBuildings(celestialID ogame.CelestialID, options ...Op
 	b.begin("GetLfBuildings")
 	defer b.done()
 	return b.bot.getLfBuildings(celestialID, options...)
+}
+
+// GetLfTechs ...
+func (b *Prioritize) GetLfTechs(celestialID ogame.CelestialID, options ...Option) (ogame.LfTechs, error) {
+	b.begin("GetLfTechs")
+	defer b.done()
+	return b.bot.getLfTechs(celestialID, options...)
 }

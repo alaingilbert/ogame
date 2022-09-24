@@ -110,7 +110,7 @@ func TestGetConstructions(t *testing.T) {
 	// Without lifeform
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2022, 8, 20, 12, 43, 11, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown, _, _ := ExtractConstructions(pageHTMLBytes, clock)
+	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ := ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalMineID, buildingID)
 	assert.Equal(t, int64(5413), buildingCountdown)
 	assert.Equal(t, ogame.ComputerTechnologyID, researchID)
@@ -119,7 +119,7 @@ func TestGetConstructions(t *testing.T) {
 	// With lifeform
 	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues2.html")
 	clock = clockwork.NewFakeClockAt(time.Date(2022, 8, 28, 17, 22, 26, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown, _, _ = ExtractConstructions(pageHTMLBytes, clock)
+	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ = ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalStorageID, buildingID)
 	assert.Equal(t, int64(33483), buildingCountdown)
 	assert.Equal(t, ogame.ComputerTechnologyID, researchID)

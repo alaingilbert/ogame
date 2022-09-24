@@ -552,6 +552,20 @@ func GetLfBuildingsHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(res))
 }
 
+// GetLfTechsHandler ...
+func GetLfTechsHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	planetID, err := utils.ParseI64(c.Param("planetID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+	res, err := bot.GetLfTechs(ogame.CelestialID(planetID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(res))
+}
+
 // GetResourcesBuildingsHandler ...
 func GetResourcesBuildingsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
@@ -764,7 +778,7 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-	buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
+	buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown, LFTechID, lfTechCountdown := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
 	return c.JSON(http.StatusOK, SuccessResp(
 		struct {
 			BuildingID          int64
@@ -773,6 +787,8 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 			ResearchCountdown   int64
 			LfBuildingID        int64
 			LfBuildingCountdown int64
+			LfTechID            int64
+			LfTechCountdown     int64
 		}{
 			BuildingID:          int64(buildingID),
 			BuildingCountdown:   buildingCountdown,
@@ -780,6 +796,8 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 			ResearchCountdown:   researchCountdown,
 			LfBuildingID:        int64(lfBuildingID),
 			LfBuildingCountdown: lfBuildingCountdown,
+			LfTechID:            int64(LFTechID),
+			LfTechCountdown:     lfTechCountdown,
 		},
 	))
 }

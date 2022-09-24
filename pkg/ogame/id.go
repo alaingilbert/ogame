@@ -164,7 +164,7 @@ func (o ID) String() string {
 
 // IsValid returns either or not the id is valid
 func (o ID) IsValid() bool {
-	return o.IsDefense() || o.IsShip() || o.IsTech() || o.IsBuilding() || o.IsLfBuilding()
+	return o.IsDefense() || o.IsShip() || o.IsTech() || o.IsBuilding() || o.IsLfBuilding() || o.IsLfTech()
 }
 
 // IsFacility returns either or not the id is a facility
@@ -271,6 +271,82 @@ func (o ID) IsTech() bool {
 		o == IntergalacticResearchNetworkID ||
 		o == AstrophysicsID ||
 		o == GravitonTechnologyID
+}
+
+// IsLsTech returns either or not the id is a lifeform technology
+func (o ID) IsLfTech() bool {
+	return o == IntergalacticEnvoysID || //Humans
+		o == HighPerformanceExtractorsID ||
+		o == FusionDrivesID ||
+		o == StealthFieldGeneratorID ||
+		o == OrbitalDenID ||
+		o == ResearchAIID ||
+		o == HighPerformanceTerraformerID ||
+		o == EnhancedProductionTechnologiesID ||
+		o == LightFighterMkIIID ||
+		o == CruiserMkIIID ||
+		o == ImprovedLabTechnologyID ||
+		o == PlasmaTerraformerID ||
+		o == LowTemperatureDrivesID ||
+		o == BomberMkIIID ||
+		o == DestroyerMkIIID ||
+		o == BattlecruiserMkIIID ||
+		o == RobotAssistantsID ||
+		o == SupercomputerID ||
+		o == VolcanicBatteriesID || //Rocktal
+		o == AcousticScanningID ||
+		o == HighEnergyPumpSystemsID ||
+		o == CargoHoldExpansionCivilianShipsID ||
+		o == MagmaPoweredProductionID ||
+		o == GeothermalPowerPlantsID ||
+		o == DepthSoundingID ||
+		o == IonCrystalEnhancementHeavyFighterID ||
+		o == ImprovedStellaratorID ||
+		o == HardenedDiamondDrillHeadsID ||
+		o == SeismicMiningTechnologyID ||
+		o == MagmaPoweredPumpSystemsID ||
+		o == IonCrystalModulesID ||
+		o == OptimisedSiloConstructionMethodID ||
+		o == DiamondEnergyTransmitterID ||
+		o == ObsidianShieldReinforcementID ||
+		o == RuneShieldsID ||
+		o == RocktalCollectorEnhancementID ||
+		o == CatalyserTechnologyID || //Mechas
+		o == PlasmaDriveID ||
+		o == EfficiencyModuleID ||
+		o == DepotAIID ||
+		o == GeneralOverhaulLightFighterID ||
+		o == AutomatedTransportLinesID ||
+		o == ImprovedDroneAIID ||
+		o == ExperimentalRecyclingTechnologyID ||
+		o == GeneralOverhaulCruiserID ||
+		o == SlingshotAutopilotID ||
+		o == HighTemperatureSuperconductorsID ||
+		o == GeneralOverhaulBattleshipID ||
+		o == ArtificialSwarmIntelligenceID ||
+		o == GeneralOverhaulBattlecruiserID ||
+		o == GeneralOverhaulBomberID ||
+		o == GeneralOverhaulDestroyerID ||
+		o == ExperimentalWeaponsTechnologyID ||
+		o == MechanGeneralEnhancementID ||
+		o == HeatRecoveryID || //Kaelesh
+		o == SulphideProcessID ||
+		o == PsionicNetworkID ||
+		o == TelekineticTractorBeamID ||
+		o == EnhancedSensorTechnologyID ||
+		o == NeuromodalCompressorID ||
+		o == NeuroInterfaceID ||
+		o == InterplanetaryAnalysisNetworkID ||
+		o == OverclockingHeavyFighterID ||
+		o == TelekineticDriveID ||
+		o == SixthSenseID ||
+		o == PsychoharmoniserID ||
+		o == EfficientSwarmIntelligenceID ||
+		o == OverclockingLargeCargoID ||
+		o == GravitationSensorsID ||
+		o == OverclockingBattleshipID ||
+		o == PsionicShieldMatrixID ||
+		o == KaeleshDiscovererEnhancementID
 }
 
 // IsDefense returns either or not the id is a defense
