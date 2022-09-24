@@ -332,9 +332,9 @@ func BuildShips(planetID, shipID, nbr C.int) (errorMsg *C.char) {
 // TODO: GetProduction(PlanetID) ([]Quantifiable, error)
 
 //export ConstructionsBeingBuilt
-func ConstructionsBeingBuilt(planetID C.int) (buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown C.int) {
-	a, b, c, d, e, f := bot.ConstructionsBeingBuilt(ogame2.CelestialID(planetID))
-	return C.int(a), C.int(b), C.int(c), C.int(d), C.int(e), C.int(f)
+func ConstructionsBeingBuilt(planetID C.int) (buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown, lfTechID, lfTechCountdown C.int) {
+	a, b, c, d, e, f, g, h := bot.ConstructionsBeingBuilt(ogame2.CelestialID(planetID))
+	return C.int(a), C.int(b), C.int(c), C.int(d), C.int(e), C.int(f), C.int(g), C.int(h)
 }
 
 //export CancelBuilding

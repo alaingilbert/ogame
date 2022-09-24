@@ -8,83 +8,83 @@ import (
 type LazyLfTechs func() LfTechs
 
 type LfTechs struct {
-	None                       bool
-	Humans                     bool
-	Rocktal                    bool
-	Mechas                     bool
-	Kaelesh                    bool
-	IntergalacticEnvoys        int64 //Humans techs
-	HighPerformanceExtractors  int64
-	FusionDrives               int64
-	StealthFieldGenerator      int64
-	OrbitalDen                 int64
-	ResearchAI                 int64
-	HighPerformanceTerraformer int64
-	EnhancedProductionTechnologies int64
-	LightFighterMkII           int64
-	CruiserMkII                int64
-	ImprovedLabTechnology      int64
-	PlasmaTerraformer          int64
-	LowTemperatureDrives       int64
-	BomberMkII                 int64
-	DestroyerMkII              int64
-	BattlecruiserMkII          int64
-	RobotAssistants            int64
-	Supercomputer              int64
-	VolcanicBatteries          int64 //Rocktal techs
-	AcousticScanning           int64
-	HighEnergyPumpSystems      int64
-	CargoHoldExpansionCivilianShips int64
-	MagmaPoweredProduction     int64
-	GeothermalPowerPlants      int64
-	DepthSounding              int64
+	None                              bool
+	Humans                            bool
+	Rocktal                           bool
+	Mechas                            bool
+	Kaelesh                           bool
+	IntergalacticEnvoys               int64 //Humans techs
+	HighPerformanceExtractors         int64
+	FusionDrives                      int64
+	StealthFieldGenerator             int64
+	OrbitalDen                        int64
+	ResearchAI                        int64
+	HighPerformanceTerraformer        int64
+	EnhancedProductionTechnologies    int64
+	LightFighterMkII                  int64
+	CruiserMkII                       int64
+	ImprovedLabTechnology             int64
+	PlasmaTerraformer                 int64
+	LowTemperatureDrives              int64
+	BomberMkII                        int64
+	DestroyerMkII                     int64
+	BattlecruiserMkII                 int64
+	RobotAssistants                   int64
+	Supercomputer                     int64
+	VolcanicBatteries                 int64 //Rocktal techs
+	AcousticScanning                  int64
+	HighEnergyPumpSystems             int64
+	CargoHoldExpansionCivilianShips   int64
+	MagmaPoweredProduction            int64
+	GeothermalPowerPlants             int64
+	DepthSounding                     int64
 	IonCrystalEnhancementHeavyFighter int64
-	ImprovedStellarator        int64
-	HardenedDiamondDrillHeads  int64
-	SeismicMiningTechnology    int64
-	MagmaPoweredPumpSystems    int64
-	IonCrystalModules          int64
-	OptimisedSiloConstructionMethod int64
-	DiamondEnergyTransmitter   int64
-	ObsidianShieldReinforcement int64
-	RuneShields                int64
-	RocktalCollectorEnhancement int64
-	CatalyserTechnology        int64 //Mechas techs
-	PlasmaDrive                int64
-	EfficiencyModule           int64
-	DepotAI                    int64
-	GeneralOverhaulLightFighter int64
-	AutomatedTransportLines    int64
-	ImprovedDroneAI            int64
-	ExperimentalRecyclingTechnology int64
-	GeneralOverhaulCruiser     int64
-	SlingshotAutopilot         int64
-	HighTemperatureSuperconductors int64
-	GeneralOverhaulBattleship  int64
-	ArtificialSwarmIntelligence int64
-	GeneralOverhaulBattlecruiser int64
-	GeneralOverhaulBomber      int64
-	GeneralOverhaulDestroyer   int64
-	ExperimentalWeaponsTechnology int64
-	MechanGeneralEnhancement   int64
-	HeatRecovery               int64 //Kaelesh techs
-	SulphideProcess            int64
-	PsionicNetwork             int64
-	TelekineticTractorBeam     int64
-	EnhancedSensorTechnology   int64
-	NeuromodalCompressor       int64
-	NeuroInterface             int64
-	InterplanetaryAnalysisNetwork int64
-	OverclockingHeavyFighter   int64
-	TelekineticDrive           int64
-	SixthSense                 int64
-	Psychoharmoniser           int64
-	EfficientSwarmIntelligence int64
-	OverclockingLargeCargo     int64
-	GravitationSensors         int64
-	OverclockingBattleship     int64
-	PsionicShieldMatrix        int64
-	KaeleshDiscovererEnhancement int64
+	ImprovedStellarator               int64
+	HardenedDiamondDrillHeads         int64
+	SeismicMiningTechnology           int64
+	MagmaPoweredPumpSystems           int64
+	IonCrystalModules                 int64
+	OptimisedSiloConstructionMethod   int64
+	DiamondEnergyTransmitter          int64
+	ObsidianShieldReinforcement       int64
+	RuneShields                       int64
+	RocktalCollectorEnhancement       int64
+	CatalyserTechnology               int64 //Mechas techs
+	PlasmaDrive                       int64
+	EfficiencyModule                  int64
+	DepotAI                           int64
+	GeneralOverhaulLightFighter       int64
+	AutomatedTransportLines           int64
+	ImprovedDroneAI                   int64
+	ExperimentalRecyclingTechnology   int64
+	GeneralOverhaulCruiser            int64
+	SlingshotAutopilot                int64
+	HighTemperatureSuperconductors    int64
+	GeneralOverhaulBattleship         int64
+	ArtificialSwarmIntelligence       int64
+	GeneralOverhaulBattlecruiser      int64
+	GeneralOverhaulBomber             int64
+	GeneralOverhaulDestroyer          int64
+	ExperimentalWeaponsTechnology     int64
+	MechanGeneralEnhancement          int64
+	HeatRecovery                      int64 //Kaelesh techs
+	SulphideProcess                   int64
+	PsionicNetwork                    int64
+	TelekineticTractorBeam            int64
+	EnhancedSensorTechnology          int64
+	NeuromodalCompressor              int64
+	NeuroInterface                    int64
+	InterplanetaryAnalysisNetwork     int64
+	OverclockingHeavyFighter          int64
+	TelekineticDrive                  int64
+	SixthSense                        int64
+	Psychoharmoniser                  int64
+	EfficientSwarmIntelligence        int64
+	OverclockingLargeCargo            int64
+	GravitationSensors                int64
+	OverclockingBattleship            int64
+	PsionicShieldMatrix               int64
+	KaeleshDiscovererEnhancement      int64
 }
 
 func (b LfTechs) Lazy() LazyLfTechs {
@@ -253,12 +253,11 @@ func (b BaseLfTechs) GetPrice(level int64) Resources {
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)) * float64(level))
 	}
 	return Resources{
-		Metal:      tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
-		Crystal:    tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
-		Deuterium:  tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
+		Metal:     tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
+		Crystal:   tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
+		Deuterium: tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
 	}
 }
-
 
 // Humans
 type intergalacticEnvoys struct {
@@ -512,7 +511,6 @@ func newSupercomputer() *supercomputer {
 	b.Requirements = map[ID]int64{}
 	return b
 }
-
 
 //Rocktal
 type volcanicBatteries struct {

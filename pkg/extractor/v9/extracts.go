@@ -586,8 +586,8 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.BiotechLab = GetNbr(doc, "lifeformTech11110")
 		res.Metropolis = GetNbr(doc, "lifeformTech11111")
 		res.PlanetaryShield = GetNbr(doc, "lifeformTech11112")
-		
- 	} else if doc.Find("#lifeform a div").HasClass("lifeform2") {
+
+	} else if doc.Find("#lifeform a div").HasClass("lifeform2") {
 		res.Rocktal = true
 		res.MeditationEnclave = GetNbr(doc, "lifeformTech12101")
 		res.CrystalFarm = GetNbr(doc, "lifeformTech12102")
@@ -601,7 +601,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.DeuteriumSynthesiser = GetNbr(doc, "lifeformTech12110")
 		res.MineralResearchCentre = GetNbr(doc, "lifeformTech12111")
 		res.MetalRecyclingPlant = GetNbr(doc, "lifeformTech12112")
-		
+
 	} else if doc.Find("#lifeform a div").HasClass("lifeform3") {
 		res.Mechas = true
 		res.AssemblyLine = GetNbr(doc, "lifeformTech13101")
@@ -616,7 +616,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.HighPerformanceSynthesiser = GetNbr(doc, "lifeformTech13110")
 		res.ChipMassProduction = GetNbr(doc, "lifeformTech13111")
 		res.NanoRepairBots = GetNbr(doc, "lifeformTech13112")
-		
+
 	} else if doc.Find("#lifeform a div").HasClass("lifeform4") {
 		res.Kaelesh = true
 		res.Sanctuary = GetNbr(doc, "lifeformTech14101")
@@ -631,13 +631,12 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.PsionicModulator = GetNbr(doc, "lifeformTech14110")
 		res.ShipManufacturingHall = GetNbr(doc, "lifeformTech14111")
 		res.SupraRefractor = GetNbr(doc, "lifeformTech14112")
-		
+
 	} else {
 		res.None = true
 	}
 	return res, nil
 }
-
 
 func extractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
 	res := ogame.LfTechs{}
@@ -659,7 +658,7 @@ func extractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
 	res.DestroyerMkII = GetNbr(doc, "lifeformTech11215")
 	res.BattlecruiserMkII = GetNbr(doc, "lifeformTech11216")
 	res.RobotAssistants = GetNbr(doc, "lifeformTech11217")
-	res.Supercomputer = GetNbr(doc, "lifeformTech11218")	
+	res.Supercomputer = GetNbr(doc, "lifeformTech11218")
 	res.VolcanicBatteries = GetNbr(doc, "lifeformTech12201")
 	res.AcousticScanning = GetNbr(doc, "lifeformTech12202")
 	res.HighEnergyPumpSystems = GetNbr(doc, "lifeformTech12203")
@@ -677,7 +676,7 @@ func extractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
 	res.DiamondEnergyTransmitter = GetNbr(doc, "lifeformTech12215")
 	res.ObsidianShieldReinforcement = GetNbr(doc, "lifeformTech12216")
 	res.RuneShields = GetNbr(doc, "lifeformTech12217")
-	res.RocktalCollectorEnhancement = GetNbr(doc, "lifeformTech12218")	
+	res.RocktalCollectorEnhancement = GetNbr(doc, "lifeformTech12218")
 	res.CatalyserTechnology = GetNbr(doc, "lifeformTech13201")
 	res.PlasmaDrive = GetNbr(doc, "lifeformTech13202")
 	res.EfficiencyModule = GetNbr(doc, "lifeformTech13203")
