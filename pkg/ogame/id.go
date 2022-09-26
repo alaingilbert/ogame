@@ -156,6 +156,246 @@ func (o ID) String() string {
 		res += "Astrophysics"
 	case GravitonTechnologyID:
 		res += "GravitonTechnology"
+	case ResidentialSectorID:
+		res += "ResidentialSector"
+	case BiosphereFarmID:
+		res += "BiosphereFarm"
+	case ResearchCentreID:
+		res += "ResearchCentre"
+	case AcademyOfSciencesID:
+		res += "AcademyOfSciences"
+	case NeuroCalibrationCentreID:
+		res += "NeuroCalibrationCentre"
+	case HighEnergySmeltingID:
+		res += "HighEnergySmelting"
+	case FoodSiloID:
+		res += "FoodSilo"
+	case FusionPoweredProductionID:
+		res += "FusionPoweredProduction"
+	case SkyscraperID:
+		res += "Skyscraper"
+	case BiotechLabID:
+		res += "BiotechLab"
+	case MetropolisID:
+		res += "Metropolis"
+	case PlanetaryShieldID:
+		res += "PlanetaryShield"
+	case MeditationEnclaveID:
+		res += "MeditationEnclave"
+	case CrystalFarmID:
+		res += "CrystalFarm"
+	case RuneTechnologiumID:
+		res += "RuneTechnologium"
+	case RuneForgeID:
+		res += "RuneForge"
+	case OriktoriumID:
+		res += "Oriktorium"
+	case MagmaForgeID:
+		res += "MagmaForge"
+	case DisruptionChamberID:
+		res += "DisruptionChamber"
+	case MegalithID:
+		res += "Megalith"
+	case CrystalRefineryID:
+		res += "CrystalRefinery"
+	case DeuteriumSynthesiserID:
+		res += "DeuteriumSynthesiser"
+	case MineralResearchCentreID:
+		res += "MineralResearchCentre"
+	case MetalRecyclingPlantID:
+		res += "MetalRecyclingPlant"
+	case AssemblyLineID:
+		res += "AssemblyLine"
+	case FusionCellFactoryID:
+		res += "FusionCellFactory"
+	case RoboticsResearchCentreID:
+		res += "RoboticsResearchCentre"
+	case UpdateNetworkID:
+		res += "UpdateNetwork"
+	case QuantumComputerCentreID:
+		res += "QuantumComputerCentre"
+	case AutomatisedAssemblyCentreID:
+		res += "AutomatisedAssemblyCentre"
+	case HighPerformanceTransformerID:
+		res += "HighPerformanceTransformer"
+	case MicrochipAssemblyLineID:
+		res += "MicrochipAssemblyLine"
+	case ProductionAssemblyHallID:
+		res += "ProductionAssemblyHall"
+	case HighPerformanceSynthesiserID:
+		res += "HighPerformanceSynthesiser"
+	case ChipMassProductionID:
+		res += "ChipMassProduction"
+	case NanoRepairBotsID:
+		res += "NanoRepairBots"
+	case SanctuaryID:
+		res += "Sanctuary"
+	case AntimatterCondenserID:
+		res += "AntimatterCondenser"
+	case VortexChamberID:
+		res += "VortexChamber"
+	case HallsOfRealisationID:
+		res += "HallsOfRealisation"
+	case ForumOfTranscendenceID:
+		res += "ForumOfTranscendence"
+	case AntimatterConvectorID:
+		res += "AntimatterConvector"
+	case CloningLaboratoryID:
+		res += "CloningLaboratory"
+	case ChrysalisAcceleratorID:
+		res += "ChrysalisAccelerator"
+	case BioModifierID:
+		res += "BioModifier"
+	case PsionicModulatorID:
+		res += "PsionicModulator"
+	case ShipManufacturingHallID:
+		res += "ShipManufacturingHall"
+	case SupraRefractorID:
+		res += "SupraRefractor"
+	case IntergalacticEnvoysID:
+		res += "IntergalacticEnvoys"
+	case HighPerformanceExtractorsID:
+		res += "HighPerformanceExtractors"
+	case FusionDrivesID:
+		res += "FusionDrives"
+	case StealthFieldGeneratorID:
+		res += "StealthFieldGenerator"
+	case OrbitalDenID:
+		res += "OrbitalDen"
+	case ResearchAIID:
+		res += "ResearchAI"
+	case HighPerformanceTerraformerID:
+		res += "HighPerformanceTerraformer"
+	case EnhancedProductionTechnologiesID:
+		res += "EnhancedProductionTechnologies"
+	case LightFighterMkIIID:
+		res += "LightFighterMkII"
+	case CruiserMkIIID:
+		res += "CruiserMkII"
+	case ImprovedLabTechnologyID:
+		res += "ImprovedLabTechnology"
+	case PlasmaTerraformerID:
+		res += "PlasmaTerraformer"
+	case LowTemperatureDrivesID:
+		res += "LowTemperatureDrives"
+	case BomberMkIIID:
+		res += "BomberMkII"
+	case DestroyerMkIIID:
+		res += "DestroyerMkII"
+	case BattlecruiserMkIIID:
+		res += "BattlecruiserMkII"
+	case RobotAssistantsID:
+		res += "RobotAssistants"
+	case SupercomputerID:
+		res += "Supercomputer"
+	case VolcanicBatteriesID:
+		res += "VolcanicBatteries"
+	case AcousticScanningID:
+		res += "AcousticScanning"
+	case HighEnergyPumpSystemsID:
+		res += "HighEnergyPumpSystems"
+	case CargoHoldExpansionCivilianShipsID:
+		res += "CargoHoldExpansionCivilianShips"
+	case MagmaPoweredProductionID:
+		res += "MagmaPoweredProduction"
+	case GeothermalPowerPlantsID:
+		res += "GeothermalPowerPlants"
+	case DepthSoundingID:
+		res += "DepthSounding"
+	case IonCrystalEnhancementHeavyFighterID:
+		res += "IonCrystalEnhancementHeavyFighter"
+	case ImprovedStellaratorID:
+		res += "ImprovedStellarator"
+	case HardenedDiamondDrillHeadsID:
+		res += "HardenedDiamondDrillHeads"
+	case SeismicMiningTechnologyID:
+		res += "SeismicMiningTechnology"
+	case MagmaPoweredPumpSystemsID:
+		res += "MagmaPoweredPumpSystems"
+	case IonCrystalModulesID:
+		res += "IonCrystalModules"
+	case OptimisedSiloConstructionMethodID:
+		res += "OptimisedSiloConstructionMethod"
+	case DiamondEnergyTransmitterID:
+		res += "DiamondEnergyTransmitter"
+	case ObsidianShieldReinforcementID:
+		res += "ObsidianShieldReinforcement"
+	case RuneShieldsID:
+		res += "RuneShields"
+	case RocktalCollectorEnhancementID:
+		res += "RocktalCollectorEnhancement"
+	case CatalyserTechnologyID:
+		res += "CatalyserTechnology"
+	case PlasmaDriveID:
+		res += "PlasmaDrive"
+	case EfficiencyModuleID:
+		res += "EfficiencyModule"
+	case DepotAIID:
+		res += "DepotAI"
+	case GeneralOverhaulLightFighterID:
+		res += "GeneralOverhaulLightFighter"
+	case AutomatedTransportLinesID:
+		res += "AutomatedTransportLines"
+	case ImprovedDroneAIID:
+		res += "ImprovedDroneAI"
+	case ExperimentalRecyclingTechnologyID:
+		res += "ExperimentalRecyclingTechnology"
+	case GeneralOverhaulCruiserID:
+		res += "GeneralOverhaulCruiser"
+	case SlingshotAutopilotID:
+		res += "SlingshotAutopilot"
+	case HighTemperatureSuperconductorsID:
+		res += "HighTemperatureSuperconductors"
+	case GeneralOverhaulBattleshipID:
+		res += "GeneralOverhaulBattleship"
+	case ArtificialSwarmIntelligenceID:
+		res += "ArtificialSwarmIntelligence"
+	case GeneralOverhaulBattlecruiserID:
+		res += "GeneralOverhaulBattlecruiser"
+	case GeneralOverhaulBomberID:
+		res += "GeneralOverhaulBomber"
+	case GeneralOverhaulDestroyerID:
+		res += "GeneralOverhaulDestroyer"
+	case ExperimentalWeaponsTechnologyID:
+		res += "ExperimentalWeaponsTechnology"
+	case MechanGeneralEnhancementID:
+		res += "MechanGeneralEnhancement"
+	case HeatRecoveryID:
+		res += "HeatRecovery"
+	case SulphideProcessID:
+		res += "SulphideProcess"
+	case PsionicNetworkID:
+		res += "PsionicNetwork"
+	case TelekineticTractorBeamID:
+		res += "TelekineticTractorBeam"
+	case EnhancedSensorTechnologyID:
+		res += "EnhancedSensorTechnology"
+	case NeuromodalCompressorID:
+		res += "NeuromodalCompressor"
+	case NeuroInterfaceID:
+		res += "NeuroInterface"
+	case InterplanetaryAnalysisNetworkID:
+		res += "InterplanetaryAnalysisNetwork"
+	case OverclockingHeavyFighterID:
+		res += "OverclockingHeavyFighter"
+	case TelekineticDriveID:
+		res += "TelekineticDrive"
+	case SixthSenseID:
+		res += "SixthSense"
+	case PsychoharmoniserID:
+		res += "Psychoharmoniser"
+	case EfficientSwarmIntelligenceID:
+		res += "EfficientSwarmIntelligence"
+	case OverclockingLargeCargoID:
+		res += "OverclockingLargeCargo"
+	case GravitationSensorsID:
+		res += "GravitationSensors"
+	case OverclockingBattleshipID:
+		res += "OverclockingBattleship"
+	case PsionicShieldMatrixID:
+		res += "PsionicShieldMatrix"
+	case KaeleshDiscovererEnhancementID:
+		res += "KaeleshDiscovererEnhancement"
 	default:
 		res += "Invalid(" + strconv.FormatInt(int64(o), 10) + ")"
 	}
