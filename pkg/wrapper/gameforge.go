@@ -540,7 +540,7 @@ type ServerData struct {
 	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
 	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
 	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
-	TopScore                      int64   `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
+	TopScore                      float64 `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
 	BonusFields                   int64   `xml:"bonusFields"`                   // 30
 	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
 	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
