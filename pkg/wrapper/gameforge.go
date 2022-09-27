@@ -532,7 +532,7 @@ type ServerData struct {
 	SpeedFleetHolding             int64   `xml:"speedFleetHolding"`             // 1
 	Galaxies                      int64   `xml:"galaxies"`                      // 4
 	Systems                       int64   `xml:"systems"`                       // 499
-	ACS                           bool    `xml:"aCS"`                           // 1
+	ACS                           bool    `xml:"acs"`                           // 1
 	RapidFire                     bool    `xml:"rapidFire"`                     // 1
 	DefToTF                       bool    `xml:"defToTF"`                       // 0
 	DebrisFactor                  float64 `xml:"debrisFactor"`                  // 0.5
@@ -540,7 +540,7 @@ type ServerData struct {
 	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
 	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
 	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
-	TopScore                      int64   `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
+	TopScore                      float64 `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
 	BonusFields                   int64   `xml:"bonusFields"`                   // 30
 	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
 	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
