@@ -527,13 +527,12 @@ type ServerData struct {
 	Domain                        string  `xml:"domain"`                        // s157-ru.ogame.gameforge.com
 	Version                       string  `xml:"version"`                       // 6.8.8-pl2
 	Speed                         int64   `xml:"speed"`                         // 6
-	SpeedFleet                    int64   `xml:"speedFleet"`                    // 6 // Deprecated in 8.1.0
 	SpeedFleetPeaceful            int64   `xml:"speedFleetPeaceful"`            // 1
 	SpeedFleetWar                 int64   `xml:"speedFleetWar"`                 // 1
 	SpeedFleetHolding             int64   `xml:"speedFleetHolding"`             // 1
 	Galaxies                      int64   `xml:"galaxies"`                      // 4
 	Systems                       int64   `xml:"systems"`                       // 499
-	ACS                           bool    `xml:"aCS"`                           // 1
+	ACS                           bool    `xml:"acs"`                           // 1
 	RapidFire                     bool    `xml:"rapidFire"`                     // 1
 	DefToTF                       bool    `xml:"defToTF"`                       // 0
 	DebrisFactor                  float64 `xml:"debrisFactor"`                  // 0.5
@@ -541,6 +540,7 @@ type ServerData struct {
 	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
 	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
 	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
+	TopScore                      float64 `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
 	BonusFields                   int64   `xml:"bonusFields"`                   // 30
 	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
 	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
@@ -554,7 +554,7 @@ type ServerData struct {
 	ResearchDurationDivisor       int64   `xml:"researchDurationDivisor"`       // 2
 	DarkMatterNewAcount           int64   `xml:"darkMatterNewAcount"`           // 8000
 	CargoHyperspaceTechMultiplier int64   `xml:"cargoHyperspaceTechMultiplier"` // 5
-	//TopScore                      int64   `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
+	SpeedFleet                    int64   `xml:"speedFleet"`                    // 6 // Deprecated in 8.1.0
 }
 
 // GetServerData gets the server data from xml api
