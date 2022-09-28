@@ -2,13 +2,14 @@ package main
 
 import (
 	"crypto/subtle"
+	"log"
+	"os"
+	"strconv"
+
 	"github.com/alaingilbert/ogame/pkg/wrapper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/urfave/cli.v2"
-	"log"
-	"os"
-	"strconv"
 )
 
 var version = "0.0.0"
@@ -244,8 +245,10 @@ func start(c *cli.Context) error {
 
 	// CAPTCHA Handler
 	e.GET("/bot/captcha", wrapper.GetCaptchaHandler)
+	e.GET("/bot/captcha/challenge", wrapper.GetCaptchaChallengeHandler)
 	e.POST("/bot/captcha/solve", wrapper.GetCaptchaSolverHandler)
 
+	e.GET("/bot/ip", wrapper.GetPublicIPHandler)
 	e.GET("/bot/server", wrapper.GetServerHandler)
 	e.GET("/bot/server-data", wrapper.GetServerDataHandler)
 	e.POST("/bot/set-user-agent", wrapper.SetUserAgentHandler)
