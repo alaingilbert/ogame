@@ -10,6 +10,7 @@ func TestResidentialSectorCost(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 7, Crystal: 2}, a.GetPrice(1))
 	assert.Equal(t, Resources{Metal: 16, Crystal: 4}, a.GetPrice(2))
 	assert.Equal(t, Resources{Metal: 30, Crystal: 8}, a.GetPrice(3))
+	assert.Equal(t, Resources{Metal: 120594, Crystal: 34455}, a.GetPrice(35))
 }
 
 func TestBiosphereFarmCost(t *testing.T) {
@@ -23,3 +24,8 @@ func TestResearchCenterCost(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 20000, Crystal: 25000, Deuterium: 10000}, a.GetPrice(1))
 	assert.Equal(t, Resources{Metal: 52000, Crystal: 65000, Deuterium: 26000}, a.GetPrice(2))
 }
+
+//func TestResidentialSectorConstructionTime(t *testing.T) {
+//	rs := newResidentialSector()
+//	assert.Equal(t, (6*60*60+58*60+48)*time.Second, rs.ConstructionTime(35, 4, Facilities{}, false, false))
+//}
