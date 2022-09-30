@@ -513,7 +513,7 @@ func (o ID) IsTech() bool {
 		o == GravitonTechnologyID
 }
 
-// IsLsTech returns either or not the id is a lifeform technology
+// IsLfTech returns either or not the id is a lifeform technology
 func (o ID) IsLfTech() bool {
 	return o == IntergalacticEnvoysID || //Humans
 		o == HighPerformanceExtractorsID ||
