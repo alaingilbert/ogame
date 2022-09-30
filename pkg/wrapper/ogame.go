@@ -3080,7 +3080,7 @@ func (b *OGame) buildBuilding(celestialID ogame.CelestialID, buildingID ogame.ID
 }
 
 func (b *OGame) buildTechnology(celestialID ogame.CelestialID, technologyID ogame.ID) error {
-	if !technologyID.IsTech() {
+	if !technologyID.IsTech() && !technologyID.IsLfTech() {
 		return errors.New("invalid technology id " + technologyID.String())
 	}
 	return b.buildCancelable(celestialID, technologyID)
