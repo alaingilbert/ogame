@@ -739,21 +739,16 @@ func extractTechnologyDetailsFromDoc(doc *goquery.Document) (out ogame.Technolog
 	out.Price.Deuterium = utils.DoParseI64(doc.Find("div.costs li.deuterium").AttrOr("data-value", ""))
 	out.Price.Population = utils.DoParseI64(doc.Find("div.costs li.population").AttrOr("data-value", ""))
 
-	if doc.Find("button.downgrade").Length() == 1 {
-		if _, exists := doc.Find("button.downgrade").Attr("disabled"); !exists {
-			out.TearDownEnabled = true
-		}
-	}
+	out.TearDownEnabled = extractTearDownButtonEnabledFromDoc(doc)
 
 	return out, err
 }
 
-func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
-	var tearDownEnabled bool
+func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) (out bool) {
 	if doc.Find("button.downgrade").Length() == 1 {
 		if _, exists := doc.Find("button.downgrade").Attr("disabled"); !exists {
-			tearDownEnabled = true
+			out = true
 		}
 	}
-	return tearDownEnabled
+	return
 }
