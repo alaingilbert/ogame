@@ -10,7 +10,7 @@ require (
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/google/gxui v0.0.0-20151028112939-f85e0a97b3a4
 	github.com/hashicorp/go-version v1.2.0
-	github.com/labstack/echo/v4 v4.9.0
+	github.com/labstack/echo/v4 v4.8.0
 	github.com/magiconair/properties v1.8.1
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/orirawlings/persistent-cookiejar v0.3.0
