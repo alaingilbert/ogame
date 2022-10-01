@@ -334,6 +334,13 @@ func (b *Prioritize) Build(celestialID ogame.CelestialID, id ogame.ID, nbr int64
 	return b.bot.build(celestialID, id, nbr)
 }
 
+// TechnologyDetails extract details from ajax window when clicking supplies/facilities/techs/lf...
+func (b *Prioritize) TechnologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
+	b.begin("TechnologyDetails")
+	defer b.done()
+	return b.bot.technologyDetails(celestialID, id)
+}
+
 // TearDown tears down any ogame building
 func (b *Prioritize) TearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 	b.begin("TearDown")

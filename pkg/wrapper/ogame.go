@@ -2956,6 +2956,18 @@ func (b *OGame) IsV9() bool {
 	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '9'
 }
 
+func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
+	pageHTML, _ := b.getPageContent(url.Values{
+		"page":       {"ingame"},
+		"component":  {"technologydetails"},
+		"ajax":       {"1"},
+		"action":     {"getDetails"},
+		"technology": {utils.FI64(id)},
+		"cp":         {utils.FI64(celestialID)},
+	})
+	return b.extractor.ExtractTechnologyDetails(pageHTML)
+}
+
 func getToken(b *OGame, page string, celestialID ogame.CelestialID) (string, error) {
 	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
 	return b.extractor.ExtractUpgradeToken(pageHTML)
@@ -4489,6 +4501,11 @@ func (b *OGame) GetSlots() ogame.Slots {
 // Build builds any ogame objects (building, technology, ship, defence)
 func (b *OGame) Build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) error {
 	return b.WithPriority(taskRunner.Normal).Build(celestialID, id, nbr)
+}
+
+// TechnologyDetails extract details from ajax window when clicking supplies/facilities/techs/lf...
+func (b *OGame) TechnologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
+	return b.WithPriority(taskRunner.Normal).TechnologyDetails(celestialID, id)
 }
 
 // TearDown tears down any ogame building
