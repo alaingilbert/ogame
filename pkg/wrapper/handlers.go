@@ -1405,3 +1405,43 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
 }
+
+// CaptchaChallenge ...
+type CaptchaChallenge struct {
+	ID       string
+	Question string
+	Icons    string
+}
+
+// GetCaptchaChallengeHandler ...
+func GetCaptchaChallengeHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	_, err := GFLogin(bot.client, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
+	var captchaErr *CaptchaRequiredError
+	if errors.As(err, &captchaErr) {
+		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+		}
+		questionB64 := base64.StdEncoding.EncodeToString(questionRaw)
+		iconsB64 := base64.StdEncoding.EncodeToString(iconsRaw)
+		return c.JSON(http.StatusOK, SuccessResp(CaptchaChallenge{
+			ID:       captchaErr.ChallengeID,
+			Question: questionB64,
+			Icons:    iconsB64,
+		}))
+	} else if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(CaptchaChallenge{}))
+}
+
+// GetPublicIPHandler ...
+func GetPublicIPHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	ip, err := bot.GetPublicIP()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(ip))
+}
