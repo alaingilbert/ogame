@@ -12,8 +12,8 @@ const (
 	PreferencesPageName      = "preferences"
 	ResourceSettingsPageName = "resourceSettings"
 	DefensesPageName         = "defenses"
-	LfbuildingsPageName      = "lfbuildings"
-	LftechsPageName          = "lfresearch"
+	LfBuildingsPageName      = "lfbuildings"
+	LfResearchPageName       = "lfresearch"
 	SuppliesPageName         = "supplies"
 	FacilitiesPageName       = "facilities"
 	FleetdispatchPageName    = "fleetdispatch"
@@ -85,9 +85,9 @@ func getPage[T parser.FullPagePages](b *OGame, opts ...Option) (T, error) {
 	case parser.ResearchPage:
 		pageName = ResearchPageName
 	case parser.LfBuildingsPage:
-		pageName = LfbuildingsPageName
-	case parser.LfTechsPage:
-		pageName = LftechsPageName
+		pageName = LfBuildingsPageName
+	case parser.LfResearchPage:
+		pageName = LfResearchPageName
 	case parser.ShipyardPage:
 		pageName = ShipyardPageName
 	case parser.ResourcesSettingsPage:

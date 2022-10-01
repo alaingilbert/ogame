@@ -143,9 +143,9 @@ func (m Moon) GetLfBuildings(options ...Option) (ogame.LfBuildings, error) {
 	return m.ogame.GetLfBuildings(m.ID.Celestial(), options...)
 }
 
-// GetLfTechs gets the lifeform techs levels
-func (m Moon) GetLfTechs(options ...Option) (ogame.LfTechs, error) {
-	return m.ogame.GetLfTechs(m.ID.Celestial(), options...)
+// GetLfResearch gets the lifeform techs levels
+func (m Moon) GetLfResearch(options ...Option) (ogame.LfResearches, error) {
+	return m.ogame.GetLfResearch(m.ID.Celestial(), options...)
 }
 
 // GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)

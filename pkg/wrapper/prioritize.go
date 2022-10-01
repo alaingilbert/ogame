@@ -715,9 +715,9 @@ func (b *Prioritize) GetLfBuildings(celestialID ogame.CelestialID, options ...Op
 	return b.bot.getLfBuildings(celestialID, options...)
 }
 
-// GetLfTechs ...
-func (b *Prioritize) GetLfTechs(celestialID ogame.CelestialID, options ...Option) (ogame.LfTechs, error) {
-	b.begin("GetLfTechs")
+// GetLfResearch ...
+func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Option) (ogame.LfResearches, error) {
+	b.begin("GetLfResearch")
 	defer b.done()
-	return b.bot.getLfTechs(celestialID, options...)
+	return b.bot.getLfResearch(celestialID, options...)
 }

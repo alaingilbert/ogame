@@ -2888,13 +2888,13 @@ func (b *OGame) getLfBuildings(celestialID ogame.CelestialID, options ...Option)
 	return page.ExtractLfBuildings()
 }
 
-func (b *OGame) getLfTechs(celestialID ogame.CelestialID, options ...Option) (ogame.LfTechs, error) {
+func (b *OGame) getLfResearch(celestialID ogame.CelestialID, options ...Option) (ogame.LfResearches, error) {
 	options = append(options, ChangePlanet(celestialID))
-	page, err := getPage[parser.LfTechsPage](b, options...)
+	page, err := getPage[parser.LfResearchPage](b, options...)
 	if err != nil {
-		return ogame.LfTechs{}, err
+		return ogame.LfResearches{}, err
 	}
-	return page.ExtractLfTechs()
+	return page.ExtractLfResearch()
 }
 
 func (b *OGame) getDefense(celestialID ogame.CelestialID, options ...Option) (ogame.DefensesInfos, error) {
@@ -3009,9 +3009,9 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 	} else if id.IsShip() {
 		page = ShipyardPageName
 	} else if id.IsLfBuilding() {
-		page = LfbuildingsPageName
+		page = LfBuildingsPageName
 	} else if id.IsLfTech() {
-		page = LftechsPageName
+		page = LfResearchPageName
 	} else if id.IsBuilding() {
 		page = SuppliesPageName
 	} else if id.IsTech() {
@@ -4807,7 +4807,7 @@ func (b *OGame) GetLfBuildings(celestialID ogame.CelestialID, opts ...Option) (o
 	return b.WithPriority(taskRunner.Normal).GetLfBuildings(celestialID, opts...)
 }
 
-// GetLfTechs ...
-func (b *OGame) GetLfTechs(celestialID ogame.CelestialID, opts ...Option) (ogame.LfTechs, error) {
-	return b.WithPriority(taskRunner.Normal).GetLfTechs(celestialID, opts...)
+// GetLfResearch ...
+func (b *OGame) GetLfResearch(celestialID ogame.CelestialID, opts ...Option) (ogame.LfResearches, error) {
+	return b.WithPriority(taskRunner.Normal).GetLfResearch(celestialID, opts...)
 }

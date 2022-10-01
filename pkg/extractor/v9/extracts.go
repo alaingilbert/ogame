@@ -19,7 +19,7 @@ import (
 func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64,
 	researchID ogame.ID, researchCountdown int64,
 	lfBuildingID ogame.ID, lfBuildingCountdown int64,
-	lfTechID ogame.ID, lfTechCountdown int64) {
+	lfResearchID ogame.ID, lfResearchCountdown int64) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
 		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
@@ -38,11 +38,11 @@ func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID og
 		lfBuildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
 		lfBuildingID = ogame.ID(lfBuildingIDInt)
 	}
-	lfTechCountdownMatch := regexp.MustCompile(`var restTimelfresearch = (\d+) -`).FindSubmatch(pageHTML)
-	if len(lfTechCountdownMatch) > 0 {
-		lfTechCountdown = int64(utils.ToInt(lfTechCountdownMatch[1])) - clock.Now().Unix()
-		lfTechIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfresearch\((\d+),`).FindSubmatch(pageHTML)[1])
-		lfTechID = ogame.ID(lfTechIDInt)
+	lfResearchCountdownMatch := regexp.MustCompile(`var restTimelfresearch = (\d+) -`).FindSubmatch(pageHTML)
+	if len(lfResearchCountdownMatch) > 0 {
+		lfResearchCountdown = int64(utils.ToInt(lfResearchCountdownMatch[1])) - clock.Now().Unix()
+		lfResearchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfresearch\((\d+),`).FindSubmatch(pageHTML)[1])
+		lfResearchID = ogame.ID(lfResearchIDInt)
 	}
 	return
 }
@@ -638,8 +638,8 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 	return res, nil
 }
 
-func extractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
-	res := ogame.LfTechs{}
+func extractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error) {
+	res := ogame.LfResearches{}
 	// Can have any lifeform techs whatever current planet lifeform is, so take everything
 	res.IntergalacticEnvoys = GetNbr(doc, "lifeformTech11201")
 	res.HighPerformanceExtractors = GetNbr(doc, "lifeformTech11202")
