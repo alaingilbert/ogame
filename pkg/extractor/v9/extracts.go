@@ -747,3 +747,13 @@ func extractTechnologyDetailsFromDoc(doc *goquery.Document) (out ogame.Technolog
 
 	return out, err
 }
+
+func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
+	var tearDownEnabled bool
+	if doc.Find("button.downgrade").Length() == 1 {
+		if _, exists := doc.Find("button.downgrade").Attr("disabled"); !exists {
+			tearDownEnabled = true
+		}
+	}
+	return tearDownEnabled
+}

@@ -146,3 +146,14 @@ func (e *Extractor) ExtractLfResearch(pageHTML []byte) (ogame.LfResearches, erro
 func (e *Extractor) ExtractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error) {
 	return extractLfResearchFromDoc(doc)
 }
+
+// ExtractTearDownButtonEnabled ...
+func (e *Extractor) ExtractTearDownButtonEnabled(pageHTML []byte) bool {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractTearDownButtonEnabledFromDoc(doc)
+}
+
+// ExtractTearDownButtonEnabledFromDoc ...
+func (e *Extractor) ExtractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
+	return extractTearDownButtonEnabledFromDoc(doc)
+}
