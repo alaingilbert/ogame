@@ -2,6 +2,8 @@ package v9
 
 import (
 	"bytes"
+	"encoding/json"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
@@ -17,6 +19,38 @@ type Extractor struct {
 // NewExtractor ...
 func NewExtractor() *Extractor {
 	return &Extractor{}
+}
+
+// ExtractTechnologyDetailsFromDoc ...
+func (e *Extractor) ExtractTechnologyDetailsFromDoc(doc *goquery.Document) (ogame.TechnologyDetails, error) {
+	return extractTechnologyDetailsFromDoc(doc)
+}
+
+type technologyDetailsStruct struct {
+	Target  string `json:"target"`
+	Content struct {
+		Technologydetails string `json:"technologydetails"`
+	} `json:"content"`
+	Files struct {
+		Js  []string `json:"js"`
+		CSS []string `json:"css"`
+	} `json:"files"`
+	Page struct {
+		StateObj string `json:"stateObj"`
+		Title    string `json:"title"`
+		URL      string `json:"url"`
+	} `json:"page"`
+	ServerTime int `json:"serverTime"`
+}
+
+// ExtractTechnologyDetails ...
+func (e *Extractor) ExtractTechnologyDetails(pageHTML []byte) (out ogame.TechnologyDetails, err error) {
+	var technologyDetails technologyDetailsStruct
+	if err := json.Unmarshal(pageHTML, &technologyDetails); err != nil {
+		return out, err
+	}
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(technologyDetails.Content.Technologydetails))
+	return e.ExtractTechnologyDetailsFromDoc(doc)
 }
 
 // ExtractCancelLfBuildingInfos ...

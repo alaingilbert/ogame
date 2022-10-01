@@ -469,6 +469,7 @@ type TechnologyDetailsExtractorBytes interface {
 
 type TechnologyDetailsExtractorDoc interface {
 	ExtractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool
+	ExtractTechnologyDetailsFromDoc(doc *goquery.Document) (ogame.TechnologyDetails, error)
 }
 
 type TechnologyDetailsExtractorBytesDoc interface {

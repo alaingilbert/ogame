@@ -2,6 +2,7 @@ package v9
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -715,4 +716,34 @@ func extractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error)
 	res.KaeleshDiscovererEnhancement = GetNbr(doc, "lifeformTech14218")
 
 	return res, nil
+}
+
+func extractTechnologyDetailsFromDoc(doc *goquery.Document) (out ogame.TechnologyDetails, err error) {
+	out.TechnologyID = ogame.ID(utils.DoParseI64(doc.Find("div#technologydetails").AttrOr("data-technology-id", "")))
+
+	durationStr := doc.Find("li.build_duration time").AttrOr("datetime", "")
+	rgx := regexp.MustCompile(`PT(?:(\d+)H)?(?:(\d+)M)?(\d+)S`)
+	m := rgx.FindStringSubmatch(durationStr)
+	if len(m) != 4 {
+		return out, fmt.Errorf("failed to extract duration: %s", durationStr)
+	}
+	hour := time.Duration(utils.DoParseI64(m[1])) * time.Hour
+	min := time.Duration(utils.DoParseI64(m[2])) * time.Minute
+	sec := time.Duration(utils.DoParseI64(m[3])) * time.Second
+	out.ProductionDuration = hour + min + sec
+
+	out.Level = utils.DoParseI64(doc.Find("span.level").AttrOr("data-value", "")) - 1
+
+	out.Price.Metal = utils.DoParseI64(doc.Find("div.costs li.metal").AttrOr("data-value", ""))
+	out.Price.Crystal = utils.DoParseI64(doc.Find("div.costs li.crystal").AttrOr("data-value", ""))
+	out.Price.Deuterium = utils.DoParseI64(doc.Find("div.costs li.deuterium").AttrOr("data-value", ""))
+	out.Price.Population = utils.DoParseI64(doc.Find("div.costs li.population").AttrOr("data-value", ""))
+
+	if doc.Find("button.downgrade").Length() == 1 {
+		if _, exists := doc.Find("button.downgrade").Attr("disabled"); !exists {
+			out.TearDownEnabled = true
+		}
+	}
+
+	return out, err
 }
