@@ -552,14 +552,14 @@ func GetLfBuildingsHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(res))
 }
 
-// GetLfTechsHandler ...
-func GetLfTechsHandler(c echo.Context) error {
+// GetLfResearchHandler ...
+func GetLfResearchHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	planetID, err := utils.ParseI64(c.Param("planetID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-	res, err := bot.GetLfTechs(ogame.CelestialID(planetID))
+	res, err := bot.GetLfResearch(ogame.CelestialID(planetID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -778,7 +778,7 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-	buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown, LFTechID, lfTechCountdown := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
+	buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown, lfResearchID, lfResearchCountdown := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
 	return c.JSON(http.StatusOK, SuccessResp(
 		struct {
 			BuildingID          int64
@@ -787,8 +787,8 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 			ResearchCountdown   int64
 			LfBuildingID        int64
 			LfBuildingCountdown int64
-			LfTechID            int64
-			LfTechCountdown     int64
+			LfResearchID        int64
+			LfResearchCountdown int64
 		}{
 			BuildingID:          int64(buildingID),
 			BuildingCountdown:   buildingCountdown,
@@ -796,8 +796,8 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 			ResearchCountdown:   researchCountdown,
 			LfBuildingID:        int64(lfBuildingID),
 			LfBuildingCountdown: lfBuildingCountdown,
-			LfTechID:            int64(LFTechID),
-			LfTechCountdown:     lfTechCountdown,
+			LfResearchID:        int64(lfResearchID),
+			LfResearchCountdown: lfResearchCountdown,
 		},
 	))
 }
@@ -1404,4 +1404,44 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 		}
 	}
 	return c.Redirect(http.StatusTemporaryRedirect, "/")
+}
+
+// CaptchaChallenge ...
+type CaptchaChallenge struct {
+	ID       string
+	Question string
+	Icons    string
+}
+
+// GetCaptchaChallengeHandler ...
+func GetCaptchaChallengeHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	_, err := GFLogin(bot.client, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
+	var captchaErr *CaptchaRequiredError
+	if errors.As(err, &captchaErr) {
+		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+		}
+		questionB64 := base64.StdEncoding.EncodeToString(questionRaw)
+		iconsB64 := base64.StdEncoding.EncodeToString(iconsRaw)
+		return c.JSON(http.StatusOK, SuccessResp(CaptchaChallenge{
+			ID:       captchaErr.ChallengeID,
+			Question: questionB64,
+			Icons:    iconsB64,
+		}))
+	} else if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(CaptchaChallenge{}))
+}
+
+// GetPublicIPHandler ...
+func GetPublicIPHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	ip, err := bot.GetPublicIP()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(ip))
 }

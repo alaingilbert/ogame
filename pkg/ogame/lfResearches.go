@@ -4,15 +4,10 @@ import (
 	"math"
 )
 
-// LazyLfTechs ...
-type LazyLfTechs func() LfTechs
+// LazyLfResearches ...
+type LazyLfResearches func() LfResearches
 
-type LfTechs struct {
-	None                              bool
-	Humans                            bool
-	Rocktal                           bool
-	Mechas                            bool
-	Kaelesh                           bool
+type LfResearches struct {
 	IntergalacticEnvoys               int64 // Humans techs
 	HighPerformanceExtractors         int64
 	FusionDrives                      int64
@@ -87,12 +82,12 @@ type LfTechs struct {
 	KaeleshDiscovererEnhancement      int64
 }
 
-func (b LfTechs) Lazy() LazyLfTechs {
-	return func() LfTechs { return b }
+func (b LfResearches) Lazy() LazyLfResearches {
+	return func() LfResearches { return b }
 }
 
-// ByID gets the lfTechs level by lfTechs id
-func (b LfTechs) ByID(id ID) int64 {
+// ByID gets the research level by lfResearch id
+func (b LfResearches) ByID(id ID) int64 {
 	switch id {
 	case IntergalacticEnvoysID:
 		return b.IntergalacticEnvoys
@@ -242,13 +237,13 @@ func (b LfTechs) ByID(id ID) int64 {
 	return 0
 }
 
-// BaseLfTechs base struct for Lifeform techs
-type BaseLfTechs struct {
+// BaseLfResearch base struct for Lifeform techs
+type BaseLfResearch struct {
 	BaseTechnology
 }
 
 // GetPrice returns the price to build the given level
-func (b BaseLfTechs) GetPrice(level int64) Resources {
+func (b BaseLfResearch) GetPrice(level int64) Resources {
 	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)) * float64(level))
 	}
@@ -261,7 +256,7 @@ func (b BaseLfTechs) GetPrice(level int64) Resources {
 
 // Humans
 type intergalacticEnvoys struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newIntergalacticEnvoys() *intergalacticEnvoys {
@@ -275,7 +270,7 @@ func newIntergalacticEnvoys() *intergalacticEnvoys {
 }
 
 type highPerformanceExtractors struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newHighPerformanceExtractors() *highPerformanceExtractors {
@@ -289,7 +284,7 @@ func newHighPerformanceExtractors() *highPerformanceExtractors {
 }
 
 type fusionDrives struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newFusionDrives() *fusionDrives {
@@ -303,7 +298,7 @@ func newFusionDrives() *fusionDrives {
 }
 
 type stealthFieldGenerator struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newStealthFieldGenerator() *stealthFieldGenerator {
@@ -317,7 +312,7 @@ func newStealthFieldGenerator() *stealthFieldGenerator {
 }
 
 type orbitalDen struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newOrbitalDen() *orbitalDen {
@@ -331,7 +326,7 @@ func newOrbitalDen() *orbitalDen {
 }
 
 type researchAI struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newResearchAI() *researchAI {
@@ -345,7 +340,7 @@ func newResearchAI() *researchAI {
 }
 
 type highPerformanceTerraformer struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newHighPerformanceTerraformer() *highPerformanceTerraformer {
@@ -359,7 +354,7 @@ func newHighPerformanceTerraformer() *highPerformanceTerraformer {
 }
 
 type enhancedProductionTechnologies struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newEnhancedProductionTechnologies() *enhancedProductionTechnologies {
@@ -373,7 +368,7 @@ func newEnhancedProductionTechnologies() *enhancedProductionTechnologies {
 }
 
 type lightFighterMkII struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newLightFighterMkII() *lightFighterMkII {
@@ -387,7 +382,7 @@ func newLightFighterMkII() *lightFighterMkII {
 }
 
 type cruiserMkII struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newCruiserMkII() *cruiserMkII {
@@ -401,7 +396,7 @@ func newCruiserMkII() *cruiserMkII {
 }
 
 type improvedLabTechnology struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newImprovedLabTechnology() *improvedLabTechnology {
@@ -415,7 +410,7 @@ func newImprovedLabTechnology() *improvedLabTechnology {
 }
 
 type plasmaTerraformer struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newPlasmaTerraformer() *plasmaTerraformer {
@@ -429,7 +424,7 @@ func newPlasmaTerraformer() *plasmaTerraformer {
 }
 
 type lowTemperatureDrives struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newLowTemperatureDrives() *lowTemperatureDrives {
@@ -443,7 +438,7 @@ func newLowTemperatureDrives() *lowTemperatureDrives {
 }
 
 type bomberMkII struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newBomberMkII() *bomberMkII {
@@ -457,7 +452,7 @@ func newBomberMkII() *bomberMkII {
 }
 
 type destroyerMkII struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newDestroyerMkII() *destroyerMkII {
@@ -471,7 +466,7 @@ func newDestroyerMkII() *destroyerMkII {
 }
 
 type battlecruiserMkII struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newBattlecruiserMkII() *battlecruiserMkII {
@@ -485,7 +480,7 @@ func newBattlecruiserMkII() *battlecruiserMkII {
 }
 
 type robotAssistants struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newRobotAssistants() *robotAssistants {
@@ -499,7 +494,7 @@ func newRobotAssistants() *robotAssistants {
 }
 
 type supercomputer struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newSupercomputer() *supercomputer {
@@ -514,7 +509,7 @@ func newSupercomputer() *supercomputer {
 
 //Rocktal
 type volcanicBatteries struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newVolcanicBatteries() *volcanicBatteries {
@@ -528,7 +523,7 @@ func newVolcanicBatteries() *volcanicBatteries {
 }
 
 type acousticScanning struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newAcousticScanning() *acousticScanning {
@@ -542,7 +537,7 @@ func newAcousticScanning() *acousticScanning {
 }
 
 type highEnergyPumpSystems struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newHighEnergyPumpSystems() *highEnergyPumpSystems {
@@ -556,7 +551,7 @@ func newHighEnergyPumpSystems() *highEnergyPumpSystems {
 }
 
 type cargoHoldExpansionCivilianShips struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newCargoHoldExpansionCivilianShips() *cargoHoldExpansionCivilianShips {
@@ -570,7 +565,7 @@ func newCargoHoldExpansionCivilianShips() *cargoHoldExpansionCivilianShips {
 }
 
 type magmaPoweredProduction struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newMagmaPoweredProduction() *magmaPoweredProduction {
@@ -584,7 +579,7 @@ func newMagmaPoweredProduction() *magmaPoweredProduction {
 }
 
 type geothermalPowerPlants struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newGeothermalPowerPlants() *geothermalPowerPlants {
@@ -598,7 +593,7 @@ func newGeothermalPowerPlants() *geothermalPowerPlants {
 }
 
 type depthSounding struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newDepthSounding() *depthSounding {
@@ -612,7 +607,7 @@ func newDepthSounding() *depthSounding {
 }
 
 type ionCrystalEnhancementHeavyFighter struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newIonCrystalEnhancementHeavyFighter() *ionCrystalEnhancementHeavyFighter {
@@ -626,7 +621,7 @@ func newIonCrystalEnhancementHeavyFighter() *ionCrystalEnhancementHeavyFighter {
 }
 
 type improvedStellarator struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newImprovedStellarator() *improvedStellarator {
@@ -640,7 +635,7 @@ func newImprovedStellarator() *improvedStellarator {
 }
 
 type hardenedDiamondDrillHeads struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newHardenedDiamondDrillHeads() *hardenedDiamondDrillHeads {
@@ -654,7 +649,7 @@ func newHardenedDiamondDrillHeads() *hardenedDiamondDrillHeads {
 }
 
 type seismicMiningTechnology struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newSeismicMiningTechnology() *seismicMiningTechnology {
@@ -668,7 +663,7 @@ func newSeismicMiningTechnology() *seismicMiningTechnology {
 }
 
 type magmaPoweredPumpSystems struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newMagmaPoweredPumpSystems() *magmaPoweredPumpSystems {
@@ -682,7 +677,7 @@ func newMagmaPoweredPumpSystems() *magmaPoweredPumpSystems {
 }
 
 type ionCrystalModules struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newIonCrystalModules() *ionCrystalModules {
@@ -696,7 +691,7 @@ func newIonCrystalModules() *ionCrystalModules {
 }
 
 type optimisedSiloConstructionMethod struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newOptimisedSiloConstructionMethod() *optimisedSiloConstructionMethod {
@@ -710,7 +705,7 @@ func newOptimisedSiloConstructionMethod() *optimisedSiloConstructionMethod {
 }
 
 type diamondEnergyTransmitter struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newDiamondEnergyTransmitter() *diamondEnergyTransmitter {
@@ -724,7 +719,7 @@ func newDiamondEnergyTransmitter() *diamondEnergyTransmitter {
 }
 
 type obsidianShieldReinforcement struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newObsidianShieldReinforcement() *obsidianShieldReinforcement {
@@ -738,7 +733,7 @@ func newObsidianShieldReinforcement() *obsidianShieldReinforcement {
 }
 
 type runeShields struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newRuneShields() *runeShields {
@@ -752,7 +747,7 @@ func newRuneShields() *runeShields {
 }
 
 type rocktalCollectorEnhancement struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newRocktalCollectorEnhancement() *rocktalCollectorEnhancement {
@@ -768,7 +763,7 @@ func newRocktalCollectorEnhancement() *rocktalCollectorEnhancement {
 //Mechas
 
 type catalyserTechnology struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newCatalyserTechnology() *catalyserTechnology {
@@ -782,7 +777,7 @@ func newCatalyserTechnology() *catalyserTechnology {
 }
 
 type plasmaDrive struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newPlasmaDrive() *plasmaDrive {
@@ -796,7 +791,7 @@ func newPlasmaDrive() *plasmaDrive {
 }
 
 type efficiencyModule struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newEfficiencyModule() *efficiencyModule {
@@ -810,7 +805,7 @@ func newEfficiencyModule() *efficiencyModule {
 }
 
 type depotAI struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newDepotAI() *depotAI {
@@ -824,7 +819,7 @@ func newDepotAI() *depotAI {
 }
 
 type generalOverhaulLightFighter struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newGeneralOverhaulLightFighter() *generalOverhaulLightFighter {
@@ -838,7 +833,7 @@ func newGeneralOverhaulLightFighter() *generalOverhaulLightFighter {
 }
 
 type automatedTransportLines struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newAutomatedTransportLines() *automatedTransportLines {
@@ -852,7 +847,7 @@ func newAutomatedTransportLines() *automatedTransportLines {
 }
 
 type improvedDroneAI struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newImprovedDroneAI() *improvedDroneAI {
@@ -866,7 +861,7 @@ func newImprovedDroneAI() *improvedDroneAI {
 }
 
 type experimentalRecyclingTechnology struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newExperimentalRecyclingTechnology() *experimentalRecyclingTechnology {
@@ -880,7 +875,7 @@ func newExperimentalRecyclingTechnology() *experimentalRecyclingTechnology {
 }
 
 type generalOverhaulCruiser struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newGeneralOverhaulCruiser() *generalOverhaulCruiser {
@@ -894,7 +889,7 @@ func newGeneralOverhaulCruiser() *generalOverhaulCruiser {
 }
 
 type slingshotAutopilot struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newSlingshotAutopilot() *slingshotAutopilot {
@@ -908,7 +903,7 @@ func newSlingshotAutopilot() *slingshotAutopilot {
 }
 
 type highTemperatureSuperconductors struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newHighTemperatureSuperconductors() *highTemperatureSuperconductors {
@@ -922,7 +917,7 @@ func newHighTemperatureSuperconductors() *highTemperatureSuperconductors {
 }
 
 type generalOverhaulBattleship struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newGeneralOverhaulBattleship() *generalOverhaulBattleship {
@@ -936,7 +931,7 @@ func newGeneralOverhaulBattleship() *generalOverhaulBattleship {
 }
 
 type artificialSwarmIntelligence struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newArtificialSwarmIntelligence() *artificialSwarmIntelligence {
@@ -950,7 +945,7 @@ func newArtificialSwarmIntelligence() *artificialSwarmIntelligence {
 }
 
 type generalOverhaulBattlecruiser struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newGeneralOverhaulBattlecruiser() *generalOverhaulBattlecruiser {
@@ -964,7 +959,7 @@ func newGeneralOverhaulBattlecruiser() *generalOverhaulBattlecruiser {
 }
 
 type generalOverhaulBomber struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newGeneralOverhaulBomber() *generalOverhaulBomber {
@@ -978,7 +973,7 @@ func newGeneralOverhaulBomber() *generalOverhaulBomber {
 }
 
 type generalOverhaulDestroyer struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newGeneralOverhaulDestroyer() *generalOverhaulDestroyer {
@@ -992,7 +987,7 @@ func newGeneralOverhaulDestroyer() *generalOverhaulDestroyer {
 }
 
 type experimentalWeaponsTechnology struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newExperimentalWeaponsTechnology() *experimentalWeaponsTechnology {
@@ -1006,7 +1001,7 @@ func newExperimentalWeaponsTechnology() *experimentalWeaponsTechnology {
 }
 
 type mechanGeneralEnhancement struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newMechanGeneralEnhancement() *mechanGeneralEnhancement {
@@ -1021,7 +1016,7 @@ func newMechanGeneralEnhancement() *mechanGeneralEnhancement {
 
 //Kaelesh
 type heatRecovery struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newHeatRecovery() *heatRecovery {
@@ -1035,7 +1030,7 @@ func newHeatRecovery() *heatRecovery {
 }
 
 type sulphideProcess struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newSulphideProcess() *sulphideProcess {
@@ -1049,7 +1044,7 @@ func newSulphideProcess() *sulphideProcess {
 }
 
 type psionicNetwork struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newPsionicNetwork() *psionicNetwork {
@@ -1063,7 +1058,7 @@ func newPsionicNetwork() *psionicNetwork {
 }
 
 type telekineticTractorBeam struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newTelekineticTractorBeam() *telekineticTractorBeam {
@@ -1077,7 +1072,7 @@ func newTelekineticTractorBeam() *telekineticTractorBeam {
 }
 
 type enhancedSensorTechnology struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newEnhancedSensorTechnology() *enhancedSensorTechnology {
@@ -1091,7 +1086,7 @@ func newEnhancedSensorTechnology() *enhancedSensorTechnology {
 }
 
 type neuromodalCompressor struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newNeuromodalCompressor() *neuromodalCompressor {
@@ -1105,7 +1100,7 @@ func newNeuromodalCompressor() *neuromodalCompressor {
 }
 
 type neuroInterface struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newNeuroInterface() *neuroInterface {
@@ -1119,7 +1114,7 @@ func newNeuroInterface() *neuroInterface {
 }
 
 type interplanetaryAnalysisNetwork struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newInterplanetaryAnalysisNetwork() *interplanetaryAnalysisNetwork {
@@ -1133,7 +1128,7 @@ func newInterplanetaryAnalysisNetwork() *interplanetaryAnalysisNetwork {
 }
 
 type overclockingHeavyFighter struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newOverclockingHeavyFighter() *overclockingHeavyFighter {
@@ -1147,7 +1142,7 @@ func newOverclockingHeavyFighter() *overclockingHeavyFighter {
 }
 
 type telekineticDrive struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newTelekineticDrive() *telekineticDrive {
@@ -1161,7 +1156,7 @@ func newTelekineticDrive() *telekineticDrive {
 }
 
 type sixthSense struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newSixthSense() *sixthSense {
@@ -1175,7 +1170,7 @@ func newSixthSense() *sixthSense {
 }
 
 type psychoharmoniser struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newPsychoharmoniser() *psychoharmoniser {
@@ -1189,7 +1184,7 @@ func newPsychoharmoniser() *psychoharmoniser {
 }
 
 type efficientSwarmIntelligence struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newEfficientSwarmIntelligence() *efficientSwarmIntelligence {
@@ -1203,7 +1198,7 @@ func newEfficientSwarmIntelligence() *efficientSwarmIntelligence {
 }
 
 type overclockingLargeCargo struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newOverclockingLargeCargo() *overclockingLargeCargo {
@@ -1217,7 +1212,7 @@ func newOverclockingLargeCargo() *overclockingLargeCargo {
 }
 
 type gravitationSensors struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newGravitationSensors() *gravitationSensors {
@@ -1231,7 +1226,7 @@ func newGravitationSensors() *gravitationSensors {
 }
 
 type overclockingBattleship struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newOverclockingBattleship() *overclockingBattleship {
@@ -1245,7 +1240,7 @@ func newOverclockingBattleship() *overclockingBattleship {
 }
 
 type psionicShieldMatrix struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newPsionicShieldMatrix() *psionicShieldMatrix {
@@ -1259,7 +1254,7 @@ func newPsionicShieldMatrix() *psionicShieldMatrix {
 }
 
 type kaeleshDiscovererEnhancement struct {
-	BaseLfTechs
+	BaseLfResearch
 }
 
 func newKaeleshDiscovererEnhancement() *kaeleshDiscovererEnhancement {

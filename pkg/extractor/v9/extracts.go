@@ -2,6 +2,7 @@ package v9
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -19,7 +20,7 @@ import (
 func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64,
 	researchID ogame.ID, researchCountdown int64,
 	lfBuildingID ogame.ID, lfBuildingCountdown int64,
-	lfTechID ogame.ID, lfTechCountdown int64) {
+	lfResearchID ogame.ID, lfResearchCountdown int64) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
 		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
@@ -38,11 +39,11 @@ func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID og
 		lfBuildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
 		lfBuildingID = ogame.ID(lfBuildingIDInt)
 	}
-	lfTechCountdownMatch := regexp.MustCompile(`var restTimelfresearch = (\d+) -`).FindSubmatch(pageHTML)
-	if len(lfTechCountdownMatch) > 0 {
-		lfTechCountdown = int64(utils.ToInt(lfTechCountdownMatch[1])) - clock.Now().Unix()
-		lfTechIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfresearch\((\d+),`).FindSubmatch(pageHTML)[1])
-		lfTechID = ogame.ID(lfTechIDInt)
+	lfResearchCountdownMatch := regexp.MustCompile(`var restTimelfresearch = (\d+) -`).FindSubmatch(pageHTML)
+	if len(lfResearchCountdownMatch) > 0 {
+		lfResearchCountdown = int64(utils.ToInt(lfResearchCountdownMatch[1])) - clock.Now().Unix()
+		lfResearchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfresearch\((\d+),`).FindSubmatch(pageHTML)[1])
+		lfResearchID = ogame.ID(lfResearchIDInt)
 	}
 	return
 }
@@ -638,8 +639,8 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 	return res, nil
 }
 
-func extractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
-	res := ogame.LfTechs{}
+func extractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error) {
+	res := ogame.LfResearches{}
 	// Can have any lifeform techs whatever current planet lifeform is, so take everything
 	res.IntergalacticEnvoys = GetNbr(doc, "lifeformTech11201")
 	res.HighPerformanceExtractors = GetNbr(doc, "lifeformTech11202")
@@ -715,4 +716,39 @@ func extractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
 	res.KaeleshDiscovererEnhancement = GetNbr(doc, "lifeformTech14218")
 
 	return res, nil
+}
+
+func extractTechnologyDetailsFromDoc(doc *goquery.Document) (out ogame.TechnologyDetails, err error) {
+	out.TechnologyID = ogame.ID(utils.DoParseI64(doc.Find("div#technologydetails").AttrOr("data-technology-id", "")))
+
+	durationStr := doc.Find("li.build_duration time").AttrOr("datetime", "")
+	rgx := regexp.MustCompile(`PT(?:(\d+)H)?(?:(\d+)M)?(\d+)S`)
+	m := rgx.FindStringSubmatch(durationStr)
+	if len(m) != 4 {
+		return out, fmt.Errorf("failed to extract duration: %s", durationStr)
+	}
+	hour := time.Duration(utils.DoParseI64(m[1])) * time.Hour
+	min := time.Duration(utils.DoParseI64(m[2])) * time.Minute
+	sec := time.Duration(utils.DoParseI64(m[3])) * time.Second
+	out.ProductionDuration = hour + min + sec
+
+	out.Level = utils.DoParseI64(doc.Find("span.level").AttrOr("data-value", "")) - 1
+
+	out.Price.Metal = utils.DoParseI64(doc.Find("div.costs li.metal").AttrOr("data-value", ""))
+	out.Price.Crystal = utils.DoParseI64(doc.Find("div.costs li.crystal").AttrOr("data-value", ""))
+	out.Price.Deuterium = utils.DoParseI64(doc.Find("div.costs li.deuterium").AttrOr("data-value", ""))
+	out.Price.Population = utils.DoParseI64(doc.Find("div.costs li.population").AttrOr("data-value", ""))
+
+	out.TearDownEnabled = extractTearDownButtonEnabledFromDoc(doc)
+
+	return out, err
+}
+
+func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) (out bool) {
+	if doc.Find("button.downgrade").Length() == 1 {
+		if _, exists := doc.Find("button.downgrade").Attr("disabled"); !exists {
+			out = true
+		}
+	}
+	return
 }

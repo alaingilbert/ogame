@@ -334,6 +334,13 @@ func (b *Prioritize) Build(celestialID ogame.CelestialID, id ogame.ID, nbr int64
 	return b.bot.build(celestialID, id, nbr)
 }
 
+// TechnologyDetails extract details from ajax window when clicking supplies/facilities/techs/lf...
+func (b *Prioritize) TechnologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
+	b.begin("TechnologyDetails")
+	defer b.done()
+	return b.bot.technologyDetails(celestialID, id)
+}
+
 // TearDown tears down any ogame building
 func (b *Prioritize) TearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 	b.begin("TearDown")
@@ -715,9 +722,9 @@ func (b *Prioritize) GetLfBuildings(celestialID ogame.CelestialID, options ...Op
 	return b.bot.getLfBuildings(celestialID, options...)
 }
 
-// GetLfTechs ...
-func (b *Prioritize) GetLfTechs(celestialID ogame.CelestialID, options ...Option) (ogame.LfTechs, error) {
-	b.begin("GetLfTechs")
+// GetLfResearch ...
+func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Option) (ogame.LfResearches, error) {
+	b.begin("GetLfResearch")
 	defer b.done()
-	return b.bot.getLfTechs(celestialID, options...)
+	return b.bot.getLfResearch(celestialID, options...)
 }

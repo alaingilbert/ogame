@@ -399,11 +399,6 @@ func newPlanetaryShield() *planetaryShield {
 	return b
 }
 
-// BaseLfTechnology base struct for lifeform technologies
-type BaseLfTechnology struct {
-	BaseLevelable
-}
-
 // Rocktal
 type meditationEnclave struct {
 	BaseLfBuilding

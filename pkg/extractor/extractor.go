@@ -75,7 +75,7 @@ type OverviewExtractorBytes interface {
 	ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)
-	ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfTechID ogame.ID, lfTechCountdown int64)
+	ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64)
 	ExtractDMCosts(pageHTML []byte) (ogame.DMCosts, error)
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error)
@@ -423,18 +423,18 @@ type LfBuildingsExtractorBytesDoc interface {
 	LfBuildingsExtractorDoc
 }
 
-type LfTechsExtractorBytes interface {
+type LfResearchExtractorBytes interface {
 	ExtractUpgradeToken(pageHTML []byte) (string, error)
-	ExtractLfTechs(pageHTML []byte) (ogame.LfTechs, error)
+	ExtractLfResearch(pageHTML []byte) (ogame.LfResearches, error)
 }
 
-type LfTechsExtractorDoc interface {
-	ExtractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error)
+type LfResearchExtractorDoc interface {
+	ExtractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error)
 }
 
-type LfTechsExtractorBytesDoc interface {
-	LfTechsExtractorBytes
-	LfTechsExtractorDoc
+type LfResearchExtractorBytesDoc interface {
+	LfResearchExtractorBytes
+	LfResearchExtractorDoc
 }
 
 // ResourcesBuildingsExtractorBytes supplies page
@@ -463,11 +463,13 @@ type PlanetLayerExtractorDoc interface {
 }
 
 type TechnologyDetailsExtractorBytes interface {
+	ExtractTechnologyDetails(pageHTML []byte) (ogame.TechnologyDetails, error)
 	ExtractTearDownButtonEnabled(pageHTML []byte) bool
 }
 
 type TechnologyDetailsExtractorDoc interface {
 	ExtractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool
+	ExtractTechnologyDetailsFromDoc(doc *goquery.Document) (ogame.TechnologyDetails, error)
 }
 
 type TechnologyDetailsExtractorBytesDoc interface {
@@ -492,7 +494,7 @@ type Extractor interface {
 	FullPageExtractorBytesDoc
 	HighscoreExtractorBytesDoc
 	LfBuildingsExtractorBytesDoc
-	LfTechsExtractorBytesDoc
+	LfResearchExtractorBytesDoc
 	MessagesCombatReportExtractorBytesDoc
 	MessagesEspionageReportExtractorBytesDoc
 	MessagesExpeditionExtractorBytesDoc

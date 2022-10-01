@@ -205,7 +205,7 @@ const (
 	AssemblyLineID                      ID = 13101 // Lifeform (mechas)
 	FusionCellFactoryID                 ID = 13102
 	RoboticsResearchCentreID            ID = 13103
-	UpdateNetworkID                     ID = 12304
+	UpdateNetworkID                     ID = 13104
 	QuantumComputerCentreID             ID = 13105
 	AutomatisedAssemblyCentreID         ID = 13106
 	HighPerformanceTransformerID        ID = 13107

@@ -43,6 +43,16 @@ func (e *Extractor) GetLanguage() string {
 	return e.lang
 }
 
+// ExtractTechnologyDetails ...
+func (e *Extractor) ExtractTechnologyDetails(pageHTML []byte) (out ogame.TechnologyDetails, err error) {
+	panic("implement me")
+}
+
+// ExtractTechnologyDetailsFromDoc ...
+func (e *Extractor) ExtractTechnologyDetailsFromDoc(doc *goquery.Document) (ogame.TechnologyDetails, error) {
+	panic("implement me")
+}
+
 func (e *Extractor) ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
 	panic("implement me")
 }
@@ -809,7 +819,7 @@ func (e *Extractor) ExtractFederation(pageHTML []byte) url.Values {
 }
 
 // ExtractConstructions ...
-func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfTechID ogame.ID, lfTechCountdown int64) {
+func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64) {
 	return extractConstructions(pageHTML)
 }
 
@@ -894,12 +904,12 @@ func (e *Extractor) ExtractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBu
 	panic("not implemented")
 }
 
-// ExtractLfTechs ...
-func (e *Extractor) ExtractLfTechs(pageHTML []byte) (ogame.LfTechs, error) {
+// ExtractLfResearch ...
+func (e *Extractor) ExtractLfResearch(pageHTML []byte) (ogame.LfResearches, error) {
 	panic("not implemented")
 }
 
-// ExtractLfTechsFromDoc ...
-func (e *Extractor) ExtractLfTechsFromDoc(doc *goquery.Document) (ogame.LfTechs, error) {
+// ExtractLfResearchFromDoc ...
+func (e *Extractor) ExtractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error) {
 	panic("not implemented")
 }

@@ -46,10 +46,6 @@ func (p FullPage) ExtractLifeformEnabled() bool {
 	return p.e.ExtractLifeformEnabled(p.GetContent())
 }
 
-func (p FullPage) ExtractLfBuildings() (ogame.LfBuildings, error) {
-	return p.e.ExtractLfBuildings(p.GetContent())
-}
-
 func (p FullPage) ExtractServerTime() (time.Time, error) {
 	return p.e.ExtractServerTimeFromDoc(p.GetDoc())
 }

@@ -181,3 +181,37 @@ func TestExtractLfBuildingsRocktal(t *testing.T) {
 	assert.Equal(t, int64(2), res.MeditationEnclave)
 	assert.Equal(t, int64(1), res.CrystalFarm)
 }
+
+func TestExtractTechnologyDetails(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_1.html")
+	details, err := NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
+	assert.NoError(t, err)
+	assert.Equal(t, ogame.ID(11105), details.TechnologyID)
+	assert.Equal(t, 41*time.Minute+12*time.Second, details.ProductionDuration)
+	assert.Equal(t, int64(0), details.Level)
+	assert.Equal(t, int64(50000), details.Price.Metal)
+	assert.Equal(t, int64(40000), details.Price.Crystal)
+	assert.Equal(t, int64(50000), details.Price.Deuterium)
+	assert.Equal(t, int64(100000000), details.Price.Population)
+	assert.False(t, details.TearDownEnabled)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_lfbuilding_teardown_enabled.html")
+	details, err = NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
+	assert.NoError(t, err)
+	assert.Equal(t, ogame.ID(11101), details.TechnologyID)
+	assert.Equal(t, 6*time.Hour+58*time.Minute+48*time.Second, details.ProductionDuration)
+	assert.Equal(t, int64(34), details.Level)
+	assert.Equal(t, int64(120594), details.Price.Metal)
+	assert.Equal(t, int64(34455), details.Price.Crystal)
+	assert.Equal(t, int64(0), details.Price.Deuterium)
+	assert.Equal(t, int64(0), details.Price.Population)
+	assert.True(t, details.TearDownEnabled)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_lfbuilding_teardown_disabled.html")
+	details, _ = NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
+	assert.False(t, details.TearDownEnabled)
+
+	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_supplies.html")
+	details, _ = NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
+	assert.True(t, details.TearDownEnabled)
+}
