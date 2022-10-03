@@ -439,7 +439,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		AssemblyLine:               res.Num13101,
 		FusionCellFactory:          res.Num13102,
 		RoboticsResearchCentre:     res.Num13103,
-		UpdateNetwork:              res.Num12304,
+		UpdateNetwork:              res.Num13104,
 		QuantumComputerCentre:      res.Num13105,
 		AutomatisedAssemblyCentre:  res.Num13106,
 		HighPerformanceTransformer: res.Num13107,

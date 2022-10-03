@@ -215,3 +215,13 @@ func TestExtractTechnologyDetails(t *testing.T) {
 	details, _ = NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
 	assert.True(t, details.TearDownEnabled)
 }
+
+func TestExtractOverviewProduction_ships(t *testing.T) {
+	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.5/en/overview_ships.html")
+	prod, _, _ := NewExtractor().ExtractOverviewProduction(pageHTMLBytes)
+	assert.Equal(t, 2, len(prod))
+	assert.Equal(t, ogame.SmallCargoID, prod[0].ID)
+	assert.Equal(t, int64(1), prod[0].Nbr)
+	assert.Equal(t, ogame.SmallCargoID, prod[1].ID)
+	assert.Equal(t, int64(1), prod[1].Nbr)
+}

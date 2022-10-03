@@ -196,9 +196,12 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 	return out, nil
 }
 
-func extractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
+func extractOverviewProductionFromDoc(doc *goquery.Document, lifeformEnabled bool) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
-	active := doc.Find("table.construction").Eq(4)
+	active := doc.Find("table.construction").Eq(2)
+	if lifeformEnabled {
+		active = doc.Find("table.construction").Eq(4)
+	}
 	href, _ := active.Find("td a").Attr("href")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
@@ -608,7 +611,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.AssemblyLine = GetNbr(doc, "lifeformTech13101")
 		res.FusionCellFactory = GetNbr(doc, "lifeformTech13102")
 		res.RoboticsResearchCentre = GetNbr(doc, "lifeformTech13103")
-		res.UpdateNetwork = GetNbr(doc, "lifeformTech12304")
+		res.UpdateNetwork = GetNbr(doc, "lifeformTech13104")
 		res.QuantumComputerCentre = GetNbr(doc, "lifeformTech13105")
 		res.AutomatisedAssemblyCentre = GetNbr(doc, "lifeformTech13106")
 		res.HighPerformanceTransformer = GetNbr(doc, "lifeformTech13107")
