@@ -78,7 +78,7 @@ func (e *Extractor) ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifi
 
 // ExtractOverviewProductionFromDoc extracts ships/defenses (partial) production from the overview page
 func (e *Extractor) ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
-	return extractOverviewProductionFromDoc(doc)
+	return extractOverviewProductionFromDoc(doc, e.GetLifeformEnabled())
 }
 
 // ExtractEspionageReport ...

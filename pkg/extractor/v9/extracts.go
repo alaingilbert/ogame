@@ -196,9 +196,12 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 	return out, nil
 }
 
-func extractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
+func extractOverviewProductionFromDoc(doc *goquery.Document, lifeformEnabled bool) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
-	active := doc.Find("table.construction").Eq(4)
+	active := doc.Find("table.construction").Eq(2)
+	if lifeformEnabled {
+		active = doc.Find("table.construction").Eq(4)
+	}
 	href, _ := active.Find("td a").Attr("href")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
