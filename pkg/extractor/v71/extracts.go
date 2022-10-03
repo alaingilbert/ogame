@@ -307,7 +307,7 @@ type planetTechsResp struct {
 	Num13101 int64 `json:"13101"`
 	Num13102 int64 `json:"13102"`
 	Num13103 int64 `json:"13103"`
-	Num12304 int64 `json:"12304"`
+	Num13104 int64 `json:"13104"`
 	Num13105 int64 `json:"13105"`
 	Num13106 int64 `json:"13106"`
 	Num13107 int64 `json:"13107"`

@@ -62,7 +62,7 @@ type LfBuildings struct {
 	AssemblyLine               int64 // 13101 // Lifeform (mechas)
 	FusionCellFactory          int64 // 13102
 	RoboticsResearchCentre     int64 // 13103
-	UpdateNetwork              int64 // 12304
+	UpdateNetwork              int64 // 13104
 	QuantumComputerCentre      int64 // 13105
 	AutomatisedAssemblyCentre  int64 // 13106
 	HighPerformanceTransformer int64 // 13107
