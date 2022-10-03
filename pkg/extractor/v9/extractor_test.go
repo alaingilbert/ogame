@@ -59,7 +59,9 @@ func TestExtractEspionageReport(t *testing.T) {
 
 func TestExtractOverviewProduction(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
-	prods, countdown, _ := NewExtractor().ExtractOverviewProduction(pageHTMLBytes)
+	e := NewExtractor()
+	e.SetLifeformEnabled(true)
+	prods, countdown, _ := e.ExtractOverviewProduction(pageHTMLBytes)
 	assert.Equal(t, 4, len(prods))
 	assert.Equal(t, int64(1660), countdown)
 	assert.Equal(t, ogame.SmallCargoID, prods[0].ID)
