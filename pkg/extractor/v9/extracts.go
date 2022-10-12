@@ -118,6 +118,12 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 				Deuterium: int64(utils.DoCastF64(planet["deuterium"])),
 				Energy:    energy,
 			},
+			Production: ogame.Resources{
+				Metal:     int64(utils.DoCastF64(planet["production"].(map[string]any)["hourly"].([]any)[0])),
+				Crystal:   int64(utils.DoCastF64(planet["production"].(map[string]any)["hourly"].([]any)[1])),
+				Deuterium: int64(utils.DoCastF64(planet["production"].(map[string]any)["hourly"].([]any)[2])),
+				Energy:    int64(utils.DoCastF64(planet["production"].(map[string]any)["hourly"].([]any)[3])),
+			},
 			Supplies: ogame.ResourcesBuildings{
 				MetalMine:            int64(utils.DoCastF64(planet["1"])),
 				CrystalMine:          int64(utils.DoCastF64(planet["2"])),

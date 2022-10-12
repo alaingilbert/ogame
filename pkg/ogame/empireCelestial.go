@@ -11,6 +11,7 @@ type EmpireCelestial struct {
 	Temperature Temperature
 	Coordinate  Coordinate
 	Resources   Resources
+	Production  Resources
 	Supplies    ResourcesBuildings
 	Facilities  Facilities
 	Defenses    DefensesInfos
