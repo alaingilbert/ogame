@@ -222,6 +222,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	b.playerID = playerID
 
 	b.extractor = v874.NewExtractor()
+	b.extractor.SetLanguage(lang)
 
 	if client == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{
