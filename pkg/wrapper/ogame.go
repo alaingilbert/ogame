@@ -1750,6 +1750,80 @@ func (b *OGame) setVacationMode() error {
 	return err
 }
 
+func (b *OGame) setPreferences(p ogame.Preferences) error {
+	vals := url.Values{"page": {"ingame"}, "component": {"preferences"}}
+	pageHTML, err := b.getPageContent(vals)
+	if err != nil {
+		return err
+	}
+	rgx := regexp.MustCompile(`type='hidden' name='token' value='(\w+)'`)
+	m := rgx.FindSubmatch(pageHTML)
+	if len(m) < 2 {
+		return errors.New("unable to find token")
+	}
+	token := string(m[1])
+	payload := url.Values{
+		"mode":        {"save"},
+		"selectedTab": {"0"},
+		"token":       {token},
+	}
+
+	if p.ShowOldDropDowns {
+		payload.Set("showOldDropDowns", "on")
+	}
+	if p.SpioReportPictures {
+		payload.Set("spioReportPictures", "on")
+	}
+	if p.ActivateAutofocus {
+		payload.Set("activateAutofocus", "on")
+	}
+	if p.ShowDetailOverlay {
+		payload.Set("showDetailOverlay", "on")
+	}
+	if p.AnimatedSliders {
+		payload.Set("animatedSliders", "on")
+	}
+	if p.AnimatedOverview {
+		payload.Set("animatedOverview", "on")
+	}
+	if p.PopupsNotices {
+		payload.Set("popups[notices]", "on")
+	}
+	if p.PopopsCombatreport {
+		payload.Set("popups[combatreport]", "on")
+	}
+	if p.AuctioneerNotifications {
+		payload.Set("auctioneerNotifications", "on")
+	}
+	if p.EconomyNotifications {
+		payload.Set("economyNotifications", "on")
+	}
+	if p.ShowActivityMinutes {
+		payload.Set("showActivityMinutes", "1")
+	}
+	if p.PreserveSystemOnPlanetChange {
+		payload.Set("preserveSystemOnPlanetChange", "1")
+	}
+	if p.DisableOutlawWarning {
+		payload.Set("disableOutlawWarning", "on")
+	}
+	if p.DiscoveryWarningEnabled {
+		payload.Set("discoveryWarningEnabled", "1")
+	}
+	payload.Set("msgResultsPerPage", utils.FI64(p.MsgResultsPerPage))
+	payload.Set("spySystemAutomaticQuantity", utils.FI64(p.SpySystemAutomaticQuantity))
+	payload.Set("spySystemTargetPlanetTypes", utils.FI64(p.SpySystemTargetPlanetTypes))
+	payload.Set("spySystemTargetPlayerTypes", utils.FI64(p.SpySystemTargetPlayerTypes))
+	payload.Set("spySystemIgnoreSpiedInLastXMinutes", utils.FI64(p.SpySystemIgnoreSpiedInLastXMinutes))
+	payload.Set("settings_sort", utils.FI64(p.SortSetting))
+	payload.Set("settings_order", utils.FI64(p.SortOrder))
+	payload.Set("spio_anz", utils.FI64(p.SpioAnz))
+	payload.Set("eventsShow", utils.FI64(p.EventsShow))
+
+	_, err = b.postPageContent(vals, payload)
+	return err
+}
+
 func (b *OGame) getPlanets() []Planet {
 	page, err := getPage[parser.OverviewPage](b)
 	if err != nil {
@@ -4308,6 +4382,11 @@ func (b *OGame) GetCachedPreferences() ogame.Preferences {
 // SetVacationMode puts account in vacation mode
 func (b *OGame) SetVacationMode() error {
 	return b.WithPriority(taskRunner.Normal).SetVacationMode()
+}
+
+// SetPreferences ...
+func (b *OGame) SetPreferences(p ogame.Preferences) error {
+	return b.WithPriority(taskRunner.Normal).SetPreferences(p)
 }
 
 // IsVacationModeEnabled returns either or not the bot is in vacation mode

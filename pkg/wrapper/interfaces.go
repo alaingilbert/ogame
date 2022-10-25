@@ -102,6 +102,7 @@ type Prioritizable interface {
 	SendMessageAlliance(associationID int64, message string) error
 	ServerTime() time.Time
 	SetInitiator(initiator string) Prioritizable
+	SetPreferences(ogame.Preferences) error
 	SetVacationMode() error
 	Tx(clb func(tx Prioritizable) error) error
 	UseDM(string, ogame.CelestialID) error

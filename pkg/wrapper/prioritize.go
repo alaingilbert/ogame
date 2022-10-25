@@ -132,6 +132,13 @@ func (b *Prioritize) SetVacationMode() error {
 	return b.bot.setVacationMode()
 }
 
+// SetPreferences ...
+func (b *Prioritize) SetPreferences(p ogame.Preferences) error {
+	b.begin("SetPreferences")
+	defer b.done()
+	return b.bot.setPreferences(p)
+}
+
 // GetPlanets returns the user planets
 func (b *Prioritize) GetPlanets() []Planet {
 	b.begin("GetPlanets")

@@ -215,27 +215,32 @@ type MarketplaceMessage struct {
 
 // Preferences ...
 type Preferences struct {
-	SpioAnz                      int64
-	DisableChatBar               bool // no-mobile
-	DisableOutlawWarning         bool
-	MobileVersion                bool
-	ShowOldDropDowns             bool
-	ActivateAutofocus            bool
-	EventsShow                   int64 // Hide: 1, Above the content: 2, Below the content: 3
-	SortSetting                  int64 // Order of emergence: 0, Coordinates: 1, Alphabet: 2, Size: 3, Used fields: 4
-	SortOrder                    int64 // Up: 0, Down: 1
-	ShowDetailOverlay            bool
-	AnimatedSliders              bool // no-mobile
-	AnimatedOverview             bool // no-mobile
-	PopupsNotices                bool // no-mobile
-	PopopsCombatreport           bool // no-mobile
-	SpioReportPictures           bool
-	MsgResultsPerPage            int64 // 10, 25, 50
-	AuctioneerNotifications      bool
-	EconomyNotifications         bool
-	ShowActivityMinutes          bool
-	PreserveSystemOnPlanetChange bool
-	UrlaubsModus                 bool // Vacation mode
+	SpioAnz                            int64
+	SpySystemAutomaticQuantity         int64
+	SpySystemTargetPlanetTypes         int64
+	SpySystemTargetPlayerTypes         int64
+	SpySystemIgnoreSpiedInLastXMinutes int64
+	DisableChatBar                     bool // no-mobile
+	DisableOutlawWarning               bool
+	MobileVersion                      bool
+	ShowOldDropDowns                   bool
+	ActivateAutofocus                  bool
+	EventsShow                         int64 // Hide: 1, Above the content: 2, Below the content: 3
+	SortSetting                        int64 // Order of emergence: 0, Coordinates: 1, Alphabet: 2, Size: 3, Used fields: 4
+	SortOrder                          int64 // Up: 0, Down: 1
+	ShowDetailOverlay                  bool
+	AnimatedSliders                    bool // no-mobile
+	AnimatedOverview                   bool // no-mobile
+	PopupsNotices                      bool // no-mobile
+	PopopsCombatreport                 bool // no-mobile
+	SpioReportPictures                 bool
+	MsgResultsPerPage                  int64 // 10, 25, 50
+	AuctioneerNotifications            bool
+	EconomyNotifications               bool
+	ShowActivityMinutes                bool
+	PreserveSystemOnPlanetChange       bool
+	DiscoveryWarningEnabled            bool
+	UrlaubsModus                       bool // Vacation mode
 
 	// Mobile only
 	Notifications struct {
