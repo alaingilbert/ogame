@@ -1728,8 +1728,8 @@ func (b *OGame) fetchEventbox() (res eventboxResp, err error) {
 }
 
 func (b *OGame) isUnderAttack() (bool, error) {
-	res, err := b.fetchEventbox()
-	return res.Hostile > 0, err
+	attacks, err := b.getAttacks()
+	return len(attacks) > 0, err
 }
 
 func (b *OGame) setVacationMode() error {
