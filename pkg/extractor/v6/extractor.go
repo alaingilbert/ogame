@@ -287,13 +287,13 @@ func (e *Extractor) ExtractFleet1Ships(pageHTML []byte) ogame.ShipsInfos {
 }
 
 // ExtractEspionageReportMessageIDs ...
-func (e *Extractor) ExtractEspionageReportMessageIDs(pageHTML []byte) ([]ogame.EspionageReportSummary, int64) {
+func (e *Extractor) ExtractEspionageReportMessageIDs(pageHTML []byte) ([]ogame.EspionageReportSummary, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractEspionageReportMessageIDsFromDoc(doc)
 }
 
 // ExtractCombatReportMessagesSummary ...
-func (e *Extractor) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64) {
+func (e *Extractor) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
@@ -512,12 +512,12 @@ func (e *Extractor) ExtractFleetDispatchACSFromDoc(doc *goquery.Document) []ogam
 }
 
 // ExtractEspionageReportMessageIDsFromDoc ...
-func (e *Extractor) ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64) {
+func (e *Extractor) ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64, error) {
 	return extractEspionageReportMessageIDsFromDoc(doc)
 }
 
 // ExtractCombatReportMessagesFromDoc ...
-func (e *Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64) {
+func (e *Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error) {
 	return extractCombatReportMessagesFromDoc(doc)
 }
 

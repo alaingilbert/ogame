@@ -51,13 +51,13 @@ func TestExtractEspionageReport(t *testing.T) {
 
 func TestExtractCombatReportMessages(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/combat_reports_msgs.html")
-	msgs, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	msgs, _, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
 	assert.Equal(t, 10, len(msgs))
 }
 
 func TestExtractCombatReportMessages_Debris(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/combat_reports_debris.html")
-	msgs, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	msgs, _, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
 	assert.Equal(t, int64(2400), msgs[0].DebrisField)
 }
 

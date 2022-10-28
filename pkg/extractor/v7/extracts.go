@@ -264,7 +264,7 @@ func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
 	return
 }
 
-func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64) {
+func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error) {
 	msgs := make([]ogame.CombatReportSummary, 0)
 	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
@@ -319,7 +319,7 @@ func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatRe
 			}
 		}
 	})
-	return msgs, nbPage
+	return msgs, nbPage, nil
 }
 
 func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {

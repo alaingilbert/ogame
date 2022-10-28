@@ -216,7 +216,7 @@ func HasTechnocratHandler(c echo.Context) error {
 // GetEspionageReportMessagesHandler ...
 func GetEspionageReportMessagesHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	report, err := bot.GetEspionageReportMessages()
+	report, err := bot.GetEspionageReportMessages(-1)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}

@@ -309,13 +309,13 @@ func TestExtractCancelFleetTokenFromDoc(t *testing.T) {
 
 func TestExtractCombatReportMessages(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.1/en/combat_reports.html")
-	msgs, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	msgs, _, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
 	assert.Equal(t, "cr-us-149-fe449460902860455db7ef57a522ae341f931a59", msgs[0].APIKey)
 }
 
 func TestExtractCombatReportMessages_lossContact(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.1/en/combat_reports_loss_contact.html")
-	msgs, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	msgs, _, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
 	assert.Equal(t, 8, len(msgs))
 }
 
@@ -335,7 +335,7 @@ func TestExtractPlanet_ro(t *testing.T) {
 
 func TestV71ExtractEspionageReportMessages(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/unversioned/messages_loot_percentage.html")
-	msgs, _ := NewExtractor().ExtractEspionageReportMessageIDs(pageHTMLBytes)
+	msgs, _, _ := NewExtractor().ExtractEspionageReportMessageIDs(pageHTMLBytes)
 	assert.Equal(t, 1.0, msgs[0].LootPercentage)
 	assert.Equal(t, 0.5, msgs[1].LootPercentage)
 	assert.Equal(t, 0.5, msgs[2].LootPercentage)

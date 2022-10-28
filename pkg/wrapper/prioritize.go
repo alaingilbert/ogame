@@ -484,10 +484,10 @@ func (b *Prioritize) GetEspionageReportFor(coord ogame.Coordinate) (ogame.Espion
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
-func (b *Prioritize) GetEspionageReportMessages() ([]ogame.EspionageReportSummary, error) {
+func (b *Prioritize) GetEspionageReportMessages(maxPage int64) ([]ogame.EspionageReportSummary, error) {
 	b.begin("GetEspionageReportMessages")
 	defer b.done()
-	return b.bot.getEspionageReportMessages()
+	return b.bot.getEspionageReportMessages(maxPage)
 }
 
 // CollectAllMarketplaceMessages collect all marketplace messages
@@ -506,10 +506,10 @@ func (b *Prioritize) CollectMarketplaceMessage(msg ogame.MarketplaceMessage) err
 }
 
 // GetExpeditionMessages gets the expedition messages
-func (b *Prioritize) GetExpeditionMessages() ([]ogame.ExpeditionMessage, error) {
+func (b *Prioritize) GetExpeditionMessages(maxPage int64) ([]ogame.ExpeditionMessage, error) {
 	b.begin("GetExpeditionMessages")
 	defer b.done()
-	return b.bot.getExpeditionMessages()
+	return b.bot.getExpeditionMessages(maxPage)
 }
 
 // GetExpeditionMessageAt gets the expedition message for time t

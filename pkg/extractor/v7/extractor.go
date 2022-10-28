@@ -107,7 +107,7 @@ func (e Extractor) ExtractFleet1Ships(pageHTML []byte) ogame.ShipsInfos {
 }
 
 // ExtractCombatReportMessagesSummary ...
-func (e Extractor) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64) {
+func (e Extractor) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
@@ -193,7 +193,7 @@ func (e Extractor) ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ogam
 }
 
 // ExtractCombatReportMessagesFromDoc ...
-func (e Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64) {
+func (e Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error) {
 	return extractCombatReportMessagesFromDoc(doc)
 }
 

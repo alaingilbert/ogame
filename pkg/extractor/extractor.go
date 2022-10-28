@@ -266,11 +266,11 @@ type BuffActivationExtractorBytes interface {
 }
 
 type MessagesCombatReportExtractorBytes interface {
-	ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64)
+	ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64, error)
 }
 
 type MessagesCombatReportExtractorDoc interface {
-	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64)
+	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error)
 }
 
 type MessagesCombatReportExtractorBytesDoc interface {
@@ -304,11 +304,11 @@ type EspionageReportExtractorBytesDoc interface {
 
 // MessagesEspionageReportExtractorBytes ajax page that display all espionage reports summaries
 type MessagesEspionageReportExtractorBytes interface {
-	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]ogame.EspionageReportSummary, int64)
+	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]ogame.EspionageReportSummary, int64, error)
 }
 
 type MessagesEspionageReportExtractorDoc interface {
-	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64)
+	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64, error)
 }
 
 type MessagesEspionageReportExtractorBytesDoc interface {

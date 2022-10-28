@@ -3612,41 +3612,31 @@ func (b *OGame) getPageMessages(page int64, tabid ogame.MessagesTabID) ([]byte, 
 	return b.postPageContent(url.Values{"page": {"messages"}}, payload)
 }
 
-func (b *OGame) getEspionageReportMessages() ([]ogame.EspionageReportSummary, error) {
-	var page int64 = 1
-	var nbPage int64 = 1
-	msgs := make([]ogame.EspionageReportSummary, 0)
-	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, EspionageMessagesTabID)
-		newMessages, newNbPage := b.extractor.ExtractEspionageReportMessageIDs(pageHTML)
-		msgs = append(msgs, newMessages...)
-		nbPage = newNbPage
-		page++
-	}
-	return msgs, nil
+func (b *OGame) getEspionageReportMessages(maxPage int64) ([]ogame.EspionageReportSummary, error) {
+	return getMessages(b, maxPage, EspionageMessagesTabID, b.extractor.ExtractEspionageReportMessageIDs)
 }
 
-func (b *OGame) getCombatReportMessages() ([]ogame.CombatReportSummary, error) {
-	var page int64 = 1
-	var nbPage int64 = 1
-	msgs := make([]ogame.CombatReportSummary, 0)
-	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, CombatReportsMessagesTabID)
-		newMessages, newNbPage := b.extractor.ExtractCombatReportMessagesSummary(pageHTML)
-		msgs = append(msgs, newMessages...)
-		nbPage = newNbPage
-		page++
-	}
-	return msgs, nil
+func (b *OGame) getCombatReportMessages(maxPage int64) ([]ogame.CombatReportSummary, error) {
+	return getMessages(b, maxPage, CombatReportsMessagesTabID, b.extractor.ExtractCombatReportMessagesSummary)
 }
 
-func (b *OGame) getExpeditionMessages() ([]ogame.ExpeditionMessage, error) {
+func (b *OGame) getExpeditionMessages(maxPage int64) ([]ogame.ExpeditionMessage, error) {
+	return getMessages(b, maxPage, ExpeditionsMessagesTabID, b.extractor.ExtractExpeditionMessages)
+}
+
+func getMessages[T any](b *OGame, maxPage int64, tabID ogame.MessagesTabID, extractor func([]byte) ([]T, int64, error)) ([]T, error) {
 	var page int64 = 1
 	var nbPage int64 = 1
-	msgs := make([]ogame.ExpeditionMessage, 0)
+	msgs := make([]T, 0)
 	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, ExpeditionsMessagesTabID)
-		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML)
+		if maxPage >= 1 && page > maxPage {
+			break
+		}
+		if page > 1 {
+			time.Sleep(utils.RandMs(500, 1500))
+		}
+		pageHTML, _ := b.getPageMessages(page, tabID)
+		newMessages, newNbPage, _ := extractor(pageHTML)
 		msgs = append(msgs, newMessages...)
 		nbPage = newNbPage
 		page++
@@ -3707,26 +3697,16 @@ func (b *OGame) collectMarketplaceMessage(msg ogame.MarketplaceMessage, newToken
 }
 
 func (b *OGame) getMarketplacePurchasesMessages() ([]ogame.MarketplaceMessage, error) {
-	return b.getMarketplaceMessages(MarketplacePurchasesMessagesTabID)
+	return b.getMarketplaceMessages(-1, MarketplacePurchasesMessagesTabID)
 }
 
 func (b *OGame) getMarketplaceSalesMessages() ([]ogame.MarketplaceMessage, error) {
-	return b.getMarketplaceMessages(MarketplaceSalesMessagesTabID)
+	return b.getMarketplaceMessages(-1, MarketplaceSalesMessagesTabID)
 }
 
 // tabID 26: purchases, 27: sales
-func (b *OGame) getMarketplaceMessages(tabID ogame.MessagesTabID) ([]ogame.MarketplaceMessage, error) {
-	var page int64 = 1
-	var nbPage int64 = 1
-	msgs := make([]ogame.MarketplaceMessage, 0)
-	for page <= nbPage {
-		pageHTML, _ := b.getPageMessages(page, tabID)
-		newMessages, newNbPage, _ := b.extractor.ExtractMarketplaceMessages(pageHTML)
-		msgs = append(msgs, newMessages...)
-		nbPage = newNbPage
-		page++
-	}
-	return msgs, nil
+func (b *OGame) getMarketplaceMessages(maxPage int64, tabID ogame.MessagesTabID) ([]ogame.MarketplaceMessage, error) {
+	return getMessages(b, maxPage, tabID, b.extractor.ExtractMarketplaceMessages)
 }
 
 func (b *OGame) getExpeditionMessageAt(t time.Time) (ogame.ExpeditionMessage, error) {
@@ -3734,6 +3714,9 @@ func (b *OGame) getExpeditionMessageAt(t time.Time) (ogame.ExpeditionMessage, er
 	var nbPage int64 = 1
 LOOP:
 	for page <= nbPage {
+		if page > 1 {
+			time.Sleep(utils.RandMs(500, 1500))
+		}
 		pageHTML, _ := b.getPageMessages(page, ExpeditionsMessagesTabID)
 		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML)
 		for _, m := range newMessages {
@@ -3754,11 +3737,14 @@ func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSu
 	var page int64 = 1
 	var nbPage int64 = 1
 	for page <= nbPage {
+		if page > 1 {
+			time.Sleep(utils.RandMs(500, 1500))
+		}
 		pageHTML, err := b.getPageMessages(page, CombatReportsMessagesTabID)
 		if err != nil {
 			return ogame.CombatReportSummary{}, err
 		}
-		newMessages, newNbPage := b.extractor.ExtractCombatReportMessagesSummary(pageHTML)
+		newMessages, newNbPage, _ := b.extractor.ExtractCombatReportMessagesSummary(pageHTML)
 		for _, m := range newMessages {
 			if m.Destination.Equal(coord) {
 				return m, nil
@@ -3779,11 +3765,14 @@ func (b *OGame) getEspionageReportFor(coord ogame.Coordinate) (ogame.EspionageRe
 	var page int64 = 1
 	var nbPage int64 = 1
 	for page <= nbPage {
+		if page > 1 {
+			time.Sleep(utils.RandMs(500, 1500))
+		}
 		pageHTML, err := b.getPageMessages(page, EspionageMessagesTabID)
 		if err != nil {
 			return ogame.EspionageReport{}, err
 		}
-		newMessages, newNbPage := b.extractor.ExtractEspionageReportMessageIDs(pageHTML)
+		newMessages, newNbPage, _ := b.extractor.ExtractEspionageReportMessageIDs(pageHTML)
 		for _, m := range newMessages {
 			if m.Target.Equal(coord) {
 				return b.getEspionageReport(m.ID)
@@ -4612,8 +4601,8 @@ func (b *OGame) GetEspionageReportFor(coord ogame.Coordinate) (ogame.EspionageRe
 }
 
 // GetExpeditionMessages gets the expedition messages
-func (b *OGame) GetExpeditionMessages() ([]ogame.ExpeditionMessage, error) {
-	return b.WithPriority(taskRunner.Normal).GetExpeditionMessages()
+func (b *OGame) GetExpeditionMessages(maxPage int64) ([]ogame.ExpeditionMessage, error) {
+	return b.WithPriority(taskRunner.Normal).GetExpeditionMessages(maxPage)
 }
 
 // GetExpeditionMessageAt gets the expedition message for time t
@@ -4632,8 +4621,8 @@ func (b *OGame) CollectMarketplaceMessage(msg ogame.MarketplaceMessage) error {
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
-func (b *OGame) GetEspionageReportMessages() ([]ogame.EspionageReportSummary, error) {
-	return b.WithPriority(taskRunner.Normal).GetEspionageReportMessages()
+func (b *OGame) GetEspionageReportMessages(maxPage int64) ([]ogame.EspionageReportSummary, error) {
+	return b.WithPriority(taskRunner.Normal).GetEspionageReportMessages(maxPage)
 }
 
 // GetEspionageReport gets a detailed espionage report
