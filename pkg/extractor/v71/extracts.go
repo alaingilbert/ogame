@@ -1090,14 +1090,7 @@ func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoor
 
 				// People invite you to attack your own self, and ogame sees it as friendly.
 				if isFriendly && attack.MissionType == ogame.GroupedAttack {
-					found := false
-					for _, ownCoord := range ownCoords {
-						if attack.Destination.Equal(ownCoord) {
-							found = true
-							break
-						}
-					}
-					if found {
+					if utils.InArray(attack.Destination, ownCoords) {
 						isHostile = true
 					}
 				}
