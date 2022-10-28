@@ -134,3 +134,16 @@ func ReadBody(resp *http.Response) (respContent []byte, err error) {
 	}
 	return by, nil
 }
+
+type Equalable[T any] interface {
+	Equal(other T) bool
+}
+
+func InArray[T Equalable[T]](needle T, haystack []T) bool {
+	for _, el := range haystack {
+		if needle.Equal(el) {
+			return true
+		}
+	}
+	return false
+}
