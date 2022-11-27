@@ -66,7 +66,7 @@ const (
 
 func (b *OGame) getPage(page string, opts ...Option) ([]byte, error) {
 	vals := url.Values{"page": {"ingame"}, "component": {page}}
-	if page == FetchResourcesPageName || page == FetchTechsName {
+	if page == FetchResourcesPageName || page == FetchTechsName || page == LogoutPageName {
 		vals = url.Values{"page": {page}}
 	}
 	return b.getPageContent(vals, opts...)
