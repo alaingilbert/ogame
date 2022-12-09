@@ -3722,6 +3722,67 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	return ogame.Fleet{}, errors.New("could not find new fleet ID")
 }
 
+func (b *OGame) sendDiscovery(celestialID ogame.CelestialID, where ogame.Coordinate) (bool, error) {
+
+	initialFleets, slots := b.getFleets()
+	if slots.InUse == slots.Total {
+		return false, ogame.ErrAllSlotsInUse
+	}
+	if initialFleets == nil {
+	}
+
+	pageHTML, err := b.getPage(GalaxyPageName, ChangePlanet(celestialID))
+	if err != nil {
+		return false, err
+	}
+
+	galaxyDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	galaxyBodyID := b.extractor.ExtractBodyIDFromDoc(galaxyDoc)
+	if galaxyBodyID != GalaxyPageName {
+		now := time.Now().Unix()
+		b.error(ogame.ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
+		return false, ogame.ErrInvalidPlanetID
+	}
+
+	if b.extractor.ExtractIsInVacationFromDoc(galaxyDoc) {
+		return false, ogame.ErrAccountInVacationMode
+	}
+
+	payload := url.Values{}
+
+	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
+	if b.IsV8() || b.IsV9() {
+		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
+	}
+	if len(tokenM) != 2 {
+		return false, errors.New("token not found")
+	}
+
+	payload.Set("token", string(tokenM[1]))
+	payload.Set("galaxy", utils.FI64(where.Galaxy))
+	payload.Set("system", utils.FI64(where.System))
+	payload.Set("position", utils.FI64(where.Position))
+
+	res, _ := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"sendDiscoveryFleet"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+
+	var resStruct struct {
+		Response struct {
+			Success bool   `json:"success"`
+			Message string `json:"message"`
+		} `json:"response"`
+		Components   []any  `json:"components"`
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
+	if err := json.Unmarshal(res, &resStruct); err != nil {
+		return false, errors.New("failed to unmarshal response: " + err.Error())
+	}
+	if resStruct.Response.Success {
+		return true, nil
+	}
+
+	return false, errors.New(resStruct.Response.Message)
+}
+
 func (b *OGame) getPageMessages(page int64, tabid ogame.MessagesTabID) ([]byte, error) {
 	payload := url.Values{
 		"messageId":  {"-1"},
@@ -4780,6 +4841,11 @@ func (b *OGame) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuilding
 func (b *OGame) SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	return b.WithPriority(taskRunner.Normal).SendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
+}
+
+// SendDiscovery sends a discovery fleet
+func (b *OGame) SendDiscovery(celestialID ogame.CelestialID, where ogame.Coordinate) (bool, error) {
+	return b.WithPriority(taskRunner.Normal).SendDiscovery(celestialID, where)
 }
 
 // EnsureFleet either sends all the requested ships or fail
