@@ -1003,9 +1003,11 @@ LOOP:
 				break
 			}
 		}
+		b.Lock()
 		for _, clb := range b.wsCallbacks {
 			go clb([]byte(buf))
 		}
+		b.Unlock()
 		if buf == "3probe" {
 			_ = websocket.Message.Send(b.ws, "5")
 			_ = websocket.Message.Send(b.ws, "40/chat,")
@@ -1174,9 +1176,11 @@ LOOP:
 				break
 			}
 		}
+		b.Lock()
 		for _, clb := range b.wsCallbacks {
 			go clb(buf[0:n])
 		}
+		b.Unlock()
 		msg := bytes.Trim(buf, "\x00")
 		if bytes.Equal(msg, []byte("1::")) {
 			_, _ = b.ws.Write([]byte("1::/chat"))       // subscribe to chat events
