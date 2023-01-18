@@ -140,7 +140,7 @@ func (b *Prioritize) SetPreferences(p ogame.Preferences) error {
 }
 
 // GetPlanets returns the user planets
-func (b *Prioritize) GetPlanets() []Planet {
+func (b *Prioritize) GetPlanets() ([]Planet, error) {
 	b.begin("GetPlanets")
 	defer b.done()
 	return b.bot.getPlanets()
@@ -155,7 +155,7 @@ func (b *Prioritize) GetPlanet(v any) (Planet, error) {
 }
 
 // GetMoons returns the user moons
-func (b *Prioritize) GetMoons() []Moon {
+func (b *Prioritize) GetMoons() ([]Moon, error) {
 	b.begin("GetMoons")
 	defer b.done()
 	return b.bot.getMoons()
@@ -200,14 +200,14 @@ func (b *Prioritize) GetCelestial(v any) (Celestial, error) {
 
 // ServerTime returns server time
 // Timezone is OGT (OGame Time zone)
-func (b *Prioritize) ServerTime() time.Time {
+func (b *Prioritize) ServerTime() (time.Time, error) {
 	b.begin("ServerTime")
 	defer b.done()
 	return b.bot.serverTime()
 }
 
 // GetUserInfos gets the user information
-func (b *Prioritize) GetUserInfos() ogame.UserInfos {
+func (b *Prioritize) GetUserInfos() (ogame.UserInfos, error) {
 	b.begin("GetUserInfos")
 	defer b.done()
 	return b.bot.getUserInfos()
@@ -321,14 +321,14 @@ func (b *Prioritize) GetCachedResearch() ogame.Researches {
 }
 
 // GetResearch gets the player researches information
-func (b *Prioritize) GetResearch() ogame.Researches {
+func (b *Prioritize) GetResearch() (ogame.Researches, error) {
 	b.begin("GetResearch")
 	defer b.done()
 	return b.bot.getResearch()
 }
 
 // GetSlots gets the player current and total slots information
-func (b *Prioritize) GetSlots() ogame.Slots {
+func (b *Prioritize) GetSlots() (ogame.Slots, error) {
 	b.begin("GetSlots")
 	defer b.done()
 	return b.bot.getSlots()

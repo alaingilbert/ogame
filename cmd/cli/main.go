@@ -37,7 +37,8 @@ func main() {
 		Name: "Planet",
 		Help: "Planet infos",
 		Func: func(c *ishell.Context) {
-			p := bot.GetPlanets()[0]
+			planets, _ := bot.GetPlanets()
+			p := planets[0]
 			c.Printf("%s [%d:%d:%d]\n",
 				p.Name, p.Coordinate.Galaxy, p.Coordinate.System, p.Coordinate.Position)
 		},
@@ -47,7 +48,8 @@ func main() {
 		Name: "Planets",
 		Help: "List planets",
 		Func: func(c *ishell.Context) {
-			for _, p := range bot.GetPlanets() {
+			planets, _ := bot.GetPlanets()
+			for _, p := range planets {
 				c.Printf("%s (%d) [%d:%d:%d]\n",
 					p.Name, p.ID, p.Coordinate.Galaxy, p.Coordinate.System, p.Coordinate.Position)
 			}
@@ -75,7 +77,8 @@ func main() {
 		Name: "GetResources",
 		Help: "GetResources",
 		Func: func(c *ishell.Context) {
-			resources, _ := bot.GetPlanets()[0].GetResources()
+			planets, _ := bot.GetPlanets()
+			resources, _ := planets[0].GetResources()
 			c.Printf("Metal: %d, Crystal: %d, Deuterium: %d, Energy: %d, Dark Matter: %d\n",
 				resources.Metal, resources.Crystal, resources.Deuterium, resources.Energy, resources.Darkmatter)
 		},

@@ -6,7 +6,7 @@ func (p MovementPage) ExtractFleets() []ogame.Fleet {
 	return p.e.ExtractFleetsFromDoc(p.GetDoc())
 }
 
-func (p MovementPage) ExtractSlots() ogame.Slots {
+func (p MovementPage) ExtractSlots() (ogame.Slots, error) {
 	return p.e.ExtractSlotsFromDoc(p.GetDoc())
 }
 

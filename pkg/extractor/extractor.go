@@ -94,11 +94,11 @@ type OverviewExtractorBytesDoc interface {
 }
 
 type FleetsExtractorBytes interface {
-	ExtractSlots(pageHTML []byte) ogame.Slots
+	ExtractSlots(pageHTML []byte) (ogame.Slots, error)
 }
 
 type FleetsExtractorDoc interface {
-	ExtractSlotsFromDoc(doc *goquery.Document) ogame.Slots
+	ExtractSlotsFromDoc(doc *goquery.Document) (ogame.Slots, error)
 }
 
 type MovementExtractorBytes interface {

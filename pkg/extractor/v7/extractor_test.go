@@ -303,7 +303,7 @@ func TestExtractUserInfos_es(t *testing.T) {
 
 func TestExtractFleetSlot_FleetDispatch(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/fleetdispatch.html")
-	s := NewExtractor().ExtractSlots(pageHTMLBytes)
+	s, _ := NewExtractor().ExtractSlots(pageHTMLBytes)
 	assert.Equal(t, int64(0), s.InUse)
 	assert.Equal(t, int64(4), s.Total)
 	assert.Equal(t, int64(0), s.ExpInUse)

@@ -184,7 +184,7 @@ func (e *Extractor) extractFleets(pageHTML []byte, location *time.Location) (res
 }
 
 // ExtractSlots ...
-func (e *Extractor) ExtractSlots(pageHTML []byte) ogame.Slots {
+func (e *Extractor) ExtractSlots(pageHTML []byte) (ogame.Slots, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractSlotsFromDoc(doc)
 }
@@ -562,7 +562,7 @@ func (e *Extractor) extractFleetsFromDoc(doc *goquery.Document, location *time.L
 
 // ExtractSlotsFromDoc extract fleet slots from page "fleet1"
 // page "movement" redirect to "fleet1" when there is no fleet
-func (e *Extractor) ExtractSlotsFromDoc(doc *goquery.Document) ogame.Slots {
+func (e *Extractor) ExtractSlotsFromDoc(doc *goquery.Document) (ogame.Slots, error) {
 	return extractSlotsFromDoc(doc)
 }
 

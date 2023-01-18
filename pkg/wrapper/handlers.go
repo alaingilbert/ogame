@@ -146,7 +146,8 @@ func ServerVersionHandler(c echo.Context) error {
 // ServerTimeHandler ...
 func ServerTimeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.ServerTime()))
+	serverTime, _ := bot.ServerTime()
+	return c.JSON(http.StatusOK, SuccessResp(serverTime))
 }
 
 // IsUnderAttackHandler ...
@@ -169,7 +170,8 @@ func IsVacationModeHandler(c echo.Context) error {
 // GetUserInfosHandler ...
 func GetUserInfosHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetUserInfos()))
+	userInfo, _ := bot.GetUserInfos()
+	return c.JSON(http.StatusOK, SuccessResp(userInfo))
 }
 
 // GetCharacterClassHandler ...
@@ -287,7 +289,7 @@ func GetFleetsHandler(c echo.Context) error {
 // GetSlotsHandler ...
 func GetSlotsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	slots := bot.GetSlots()
+	slots, _ := bot.GetSlots()
 	return c.JSON(http.StatusOK, SuccessResp(slots))
 }
 
@@ -332,7 +334,8 @@ func GalaxyInfosHandler(c echo.Context) error {
 // GetResearchHandler ...
 func GetResearchHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetResearch()))
+	researches, _ := bot.GetResearch()
+	return c.JSON(http.StatusOK, SuccessResp(researches))
 }
 
 // BuyOfferOfTheDayHandler ...
@@ -347,7 +350,8 @@ func BuyOfferOfTheDayHandler(c echo.Context) error {
 // GetMoonsHandler ...
 func GetMoonsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetMoons()))
+	moons, _ := bot.GetMoons()
+	return c.JSON(http.StatusOK, SuccessResp(moons))
 }
 
 // GetMoonHandler ...
@@ -389,7 +393,8 @@ func GetMoonByCoordHandler(c echo.Context) error {
 // GetPlanetsHandler ...
 func GetPlanetsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetPlanets()))
+	planets, _ := bot.GetPlanets()
+	return c.JSON(http.StatusOK, SuccessResp(planets))
 }
 
 // GetCelestialItemsHandler ...

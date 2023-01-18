@@ -2411,7 +2411,7 @@ func TestExtractEspionageReport_inactivetimer_over1h(t *testing.T) {
 
 func TestExtractFleetSlotV7_movement(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/movement.html")
-	s := NewExtractor().ExtractSlots(pageHTMLBytes)
+	s, _ := NewExtractor().ExtractSlots(pageHTMLBytes)
 	assert.Equal(t, int64(1), s.InUse)
 	assert.Equal(t, int64(2), s.Total)
 	assert.Equal(t, int64(0), s.ExpInUse)
@@ -2420,7 +2420,7 @@ func TestExtractFleetSlotV7_movement(t *testing.T) {
 
 func TestExtractFleetSlot_fleet1(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/unversioned/fleet1.html")
-	s := NewExtractor().ExtractSlots(pageHTMLBytes)
+	s, _ := NewExtractor().ExtractSlots(pageHTMLBytes)
 	assert.Equal(t, int64(2), s.InUse)
 	assert.Equal(t, int64(14), s.Total)
 	assert.Equal(t, int64(0), s.ExpInUse)
@@ -2429,7 +2429,7 @@ func TestExtractFleetSlot_fleet1(t *testing.T) {
 
 func TestExtractFleetSlot_movement(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/unversioned/fleets_1.html")
-	s := NewExtractor().ExtractSlots(pageHTMLBytes)
+	s, _ := NewExtractor().ExtractSlots(pageHTMLBytes)
 	assert.Equal(t, int64(1), s.InUse)
 	assert.Equal(t, int64(11), s.Total)
 	assert.Equal(t, int64(0), s.ExpInUse)
@@ -2438,7 +2438,7 @@ func TestExtractFleetSlot_movement(t *testing.T) {
 
 func TestExtractFleetSlot_commanders(t *testing.T) {
 	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/unversioned/fleet1_extract_slots_with_commanders.html")
-	s := NewExtractor().ExtractSlots(pageHTMLBytes)
+	s, _ := NewExtractor().ExtractSlots(pageHTMLBytes)
 	assert.Equal(t, int64(13), s.InUse)
 	assert.Equal(t, int64(14), s.Total)
 	assert.Equal(t, int64(2), s.ExpInUse)

@@ -80,13 +80,13 @@ type Prioritizable interface {
 	GetFleetsFromEventList() []ogame.Fleet
 	GetItems(ogame.CelestialID) ([]ogame.Item, error)
 	GetMoon(any) (Moon, error)
-	GetMoons() []Moon
+	GetMoons() ([]Moon, error)
 	GetPageContent(url.Values) ([]byte, error)
 	GetPlanet(any) (Planet, error)
-	GetPlanets() []Planet
-	GetResearch() ogame.Researches
-	GetSlots() ogame.Slots
-	GetUserInfos() ogame.UserInfos
+	GetPlanets() ([]Planet, error)
+	GetResearch() (ogame.Researches, error)
+	GetSlots() (ogame.Slots, error)
+	GetUserInfos() (ogame.UserInfos, error)
 	HeadersForPage(url string) (http.Header, error)
 	Highscore(category, typ, page int64) (ogame.Highscore, error)
 	IsUnderAttack() (bool, error)
@@ -100,7 +100,7 @@ type Prioritizable interface {
 	RecruitOfficer(typ, days int64) error
 	SendMessage(playerID int64, message string) error
 	SendMessageAlliance(associationID int64, message string) error
-	ServerTime() time.Time
+	ServerTime() (time.Time, error)
 	SetInitiator(initiator string) Prioritizable
 	SetPreferences(ogame.Preferences) error
 	SetVacationMode() error
@@ -148,6 +148,10 @@ type Prioritizable interface {
 	Phalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.Fleet, error)
 	UnsafePhalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.Fleet, error)
 }
+
+// Compile time checks to ensure type satisfies Prioritizable interface
+var _ Prioritizable = (*OGame)(nil)
+var _ Prioritizable = (*Prioritize)(nil)
 
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
