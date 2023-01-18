@@ -221,8 +221,10 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	b.language = lang
 	b.playerID = playerID
 
-	b.extractor = v874.NewExtractor()
-	b.extractor.SetLanguage(lang)
+	ext := v874.NewExtractor()
+	ext.SetLanguage(lang)
+	ext.SetLocation(time.UTC)
+	b.extractor = ext
 
 	if client == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{
@@ -623,20 +625,21 @@ func (b *OGame) loginPart2(server Server) error {
 }
 
 func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error {
+	var ext extractor.Extractor = v9.NewExtractor()
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
 		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("9.0.0"))) {
-			b.extractor = v9.NewExtractor()
+			ext = v9.NewExtractor()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4-pl3"))) {
-			b.extractor = v874.NewExtractor()
+			ext = v874.NewExtractor()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
-			b.extractor = v8.NewExtractor()
+			ext = v8.NewExtractor()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
-			b.extractor = v71.NewExtractor()
+			ext = v71.NewExtractor()
 		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.0.0-rc0"))) {
-			b.extractor = v7.NewExtractor()
+			ext = v7.NewExtractor()
 		}
-		b.extractor.SetLanguage(b.language)
-		b.extractor.SetLifeformEnabled(page.ExtractLifeformEnabled())
+		ext.SetLanguage(b.language)
+		ext.SetLifeformEnabled(page.ExtractLifeformEnabled())
 	} else {
 		b.error("failed to parse ogame version: " + err.Error())
 	}
@@ -653,7 +656,8 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 
 	serverTime, _ := page.ExtractServerTime()
 	b.location = serverTime.Location()
-	b.extractor.SetLocation(b.location)
+	ext.SetLocation(b.location)
+	b.extractor = ext
 
 	b.cacheFullPageInfo(page)
 
