@@ -1,6 +1,7 @@
 package wrapper
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +15,12 @@ import (
 
 func randChar() rune {
 	return rune(int64(32+rand.Float64()*94) | 0)
+}
+
+func randFakeHash() string {
+	buf := make([]byte, 32)
+	rand.Read(buf)
+	return hex.EncodeToString(buf)
 }
 
 func genNewXVec() string {
