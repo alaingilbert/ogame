@@ -272,6 +272,56 @@ func ParseBlackbox(encrypted string) (fingerprint JsFingerprint, err error) {
 	return
 }
 
+var ram = []int{0, 4, 8, 16, 32}
+
+var screend = []int{8, 15, 16, 24, 32, 48}
+
+var systems = []struct {
+	Name    string
+	Version string
+}{
+	{Name: "Windows 10", Version: "10"},
+	{Name: "Windows 8.1", Version: "8.1"},
+	{Name: "Windows 8", Version: "8"},
+	{Name: "Windows 7", Version: "7"},
+	{Name: "Unknown", Version: "Unknown"},
+}
+
+var donottrack = []string{"unspecified", "1"}
+
+var hardware = []int{0, 1, 4, 8}
+
+var screenResolution = []struct {
+	Width  int
+	Height int
+}{
+	{Width: 1980, Height: 1080},
+}
+
+var browsers = []struct {
+	Browser string
+	Engine  string
+	Vendor  string
+}{{Browser: "Chrome", Engine: "Blink", Vendor: "Google Inc."},
+	{Browser: "Opera", Engine: "Blink", Vendor: "Google Inc."},
+	{Browser: "Edge", Engine: "Trident", Vendor: "Google Inc."},
+	{Browser: "Internet Explorer", Engine: "Trident", Vendor: "Google Inc."},
+	{Browser: "Safari", Engine: "WebKit", Vendor: "Apple Computer, Inc."},
+	{Browser: "Firefox", Engine: "Gecko", Vendor: ""}}
+
+var languages = []string{"af", "sq", "ar-SA", "ar-IQ", "ar-EG", "ar-LY", "ar-DZ", "ar-MA", "ar-TN", "ar-OM",
+	"ar-YE", "ar-SY", "ar-JO", "ar-LB", "ar-KW", "ar-AE", "ar-BH", "ar-QA", "eu", "bg",
+	"be", "ca", "zh-TW", "zh-CN", "zh-HK", "zh-SG", "hr", "cs", "da", "nl", "nl-BE", "en",
+	"en-US", "en-EG", "en-AU", "en-GB", "en-CA", "en-NZ", "en-IE", "en-ZA", "en-JM",
+	"en-BZ", "en-TT", "et", "fo", "fa", "fi", "fr", "fr-BE", "fr-CA", "fr-CH", "fr-LU",
+	"gd", "gd-IE", "de", "de-CH", "de-AT", "de-LU", "de-LI", "el", "he", "hi", "hu",
+	"is", "id", "it", "it-CH", "ja", "ko", "lv", "lt", "mk", "mt", "no", "pl",
+	"pt-BR", "pt", "rm", "ro", "ro-MO", "ru", "ru-MI", "sz", "sr", "sk", "sl", "sb",
+	"es", "es-AR", "es-GT", "es-CR", "es-PA", "es-DO", "es-MX", "es-VE", "es-CO",
+	"es-PE", "es-EC", "es-CL", "es-UY", "es-PY", "es-BO", "es-SV", "es-HN", "es-NI",
+	"es-PR", "sx", "sv", "sv-FI", "th", "ts", "tn", "tr", "uk", "ur", "ve", "vi", "xh",
+	"ji", "zu"}
+
 var timezones = []string{"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa", "Africa/Algiers", "Africa/Asmera",
 	"Africa/Bamako", "Africa/Bangui", "Africa/Banjul", "Africa/Bissau", "Africa/Blantyre", "Africa/Brazzaville",
 	"Africa/Bujumbura", "Africa/Cairo", "Africa/Casablanca", "Africa/Ceuta", "Africa/Conakry", "Africa/Dakar",
