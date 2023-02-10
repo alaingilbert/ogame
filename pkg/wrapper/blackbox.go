@@ -116,7 +116,7 @@ func DecryptBlackbox(encrypted string) (string, error) {
 	encrypted1 := reverseRetardPseudoB64(encrypted)
 	sb := ""
 	for i := len(encrypted1) - 2; i >= 0; i-- {
-		sb = string(uint8(((uint32(encrypted1[i+1])+256)-uint32(encrypted1[i]))%256)) + sb
+		sb = string(encrypted1[i+1]-encrypted1[i]) + sb
 	}
 	sb = string(encrypted1[0]) + sb
 	out, err := url.QueryUnescape(sb)
