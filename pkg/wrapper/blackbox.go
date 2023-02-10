@@ -99,13 +99,13 @@ func DecryptBlackbox(encrypted string) (string, error) {
 		chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="
 		sb := make([]uint8, 0)
 		for i := 0; i < len(v); {
-			first := uint32(strings.Index(chars, string(v[i])))
+			first := strings.IndexByte(chars, v[i])
 			i++
-			second := uint32(strings.Index(chars, string(v[i])))
+			second := strings.IndexByte(chars, v[i])
 			i++
-			third := uint32(strings.Index(chars, string(v[i])))
+			third := strings.IndexByte(chars, v[i])
 			i++
-			fourth := uint32(strings.Index(chars, string(v[i])))
+			fourth := strings.IndexByte(chars, v[i])
 			i++
 			tmpp := (first << 18) | (second << 12) | (third << 6) | fourth
 			sb = append(sb, uint8(tmpp>>16&255), uint8(tmpp>>8&255), uint8(tmpp&255))
