@@ -98,20 +98,16 @@ func DecryptBlackbox(encrypted string) (string, error) {
 		}
 		chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="
 		sb := make([]uint8, 0)
-		for i := 0; i < len(v); {
-			first := strings.IndexByte(chars, v[i])
-			i++
-			second := strings.IndexByte(chars, v[i])
-			i++
-			third := strings.IndexByte(chars, v[i])
-			i++
-			fourth := strings.IndexByte(chars, v[i])
-			i++
-			tmpp := (first << 18) | (second << 12) | (third << 6) | fourth
-			sb = append(sb, uint8(tmpp>>16&255), uint8(tmpp>>8&255), uint8(tmpp&255))
+		const mask = 255
+		for i := 0; i < len(v); i += 4 {
+			first := strings.IndexByte(chars, v[i+0])
+			second := strings.IndexByte(chars, v[i+1])
+			third := strings.IndexByte(chars, v[i+2])
+			fourth := strings.IndexByte(chars, v[i+3])
+			packed := (first << 18) | (second << 12) | (third << 6) | fourth
+			sb = append(sb, uint8(packed>>16&mask), uint8(packed>>8&mask), uint8(packed>>0&mask))
 		}
-		sb = sb[0 : len(sb)-extraPadding]
-		return sb
+		return sb[0 : len(sb)-extraPadding]
 	}
 	encrypted1 := reverseRetardPseudoB64(encrypted)
 	sb := make([]uint8, len(encrypted1))
