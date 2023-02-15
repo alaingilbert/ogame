@@ -1,9 +1,32 @@
-package wrapper
+package device
 
 import (
-	"github.com/stretchr/testify/assert"
+	"encoding/json"
+	"fmt"
+	"github.com/magiconair/properties/assert"
 	"testing"
 )
+
+func TestDevice_GetBlackbox(t *testing.T) {
+	d, err := NewBuilder("test1").
+		SetOsName(MacOSX).
+		SetBrowserName(Chrome).
+		SetMemory(8).
+		SetHardwareConcurrency(16).
+		ScreenColorDepth(24).
+		SetScreenWidth(1900).
+		SetScreenHeight(900).
+		SetTimezone("America/Los_Angeles").
+		SetLanguages("en-US,en").
+		Build()
+	if err != nil {
+		panic(err)
+	}
+	fprnt, _ := d.GetBlackbox()
+	by, _ := json.Marshal(fprnt)
+	fmt.Println(string(by))
+	assert.Equal(t, 1, 2)
+}
 
 func Test_DecryptBlackbox(t *testing.T) {
 	expected := "[8," +
@@ -41,5 +64,7 @@ func Test_DecryptBlackbox(t *testing.T) {
 		"\"2023-02-09T08:42:07.000Z\"," +
 		"null]"
 	decrypted, _ := DecryptBlackbox("JVqc1PkrbpPF9zilCnzlSKnOAEaSAXTTFILpTrofkrfpG0BytRt86FvA5Rdaf7HjJZH6aNP4KlyBs_YbTX_MLZC15xdmud4QQJi97yFGeLvgEkSH72HQPaLH-StQgsXqHE6VBHPaRqvQAjJ76Ux6n9EDKFqd1fosb6DS9ylskcP1Wsj1Sp3C9DedDzx_wOUXSW6g4wg6bNIGPXDUCD9yotMGap_XOp8EO3Oq3Q90reQYfOAUddsNcqoOPm-f1Ag8ddgLQ3et4hp930V2q9sQdanZPqIHPGyRw_UaTI-05hhfzj2kEHWazPxFsxZEaZvL8zSI0fYoWKwRdNxKuSWU-2TJPGGTwwx63Qs0WYvOD12k8DVajLzkJXnC5xlJnQJlzTuqFoXsVbotUoS0_WvO_CFTlrvtHV6r7xRGdsgpjfJhz_QmVqYYh6zeDkN2ptYjSHqq-WnOPIPP9CZWmwlw2Ues0QNGa53NHIzxX6byF0l5rdsMNVqMvuMVWH2v4UZ2rOUXUITlFnit4kWo3kR12T-h0TKXzf1elfssXJDxKmKbzjGT9FWN8Spelcz-ZJsBMmPJ_TWXx_svY5sAZcbrHU90pukOQHLWD3DWDW7PAGSUxCpcjL4jW43G913C9i-Ryv0xZcsBOnGl2xFEed5DpNkMcagNbtE2bKQHOGjOATFjxililcgpToCy1wlMfbboGD1vsuskVXqs7yFVeqzvY9VKr9QGSb0vpAkuYKPI-ixdw_MmiL_2XMAhVIe-8iRWjL0fhOUVeaviR32x4xZ43hBCptg6oNUMctc5nNEEZcoBNpjRBzmf1TpvodQ3msr8IVOFqtwfRHao3T5u0zlroQdrpApwoNkPRX22HIHiQ6fXO2-oDnCo3RJDe63fRKXbPXDSN26iAzNlnNUJbJ7_YJHBJofrHFCB5ww-cJXHCi9hk8kqj_EnW4y-IFKG6EmA5Eh4sOYbTrMVSnqr4htLfbPpGUt_uPEqW5LzKV2Nve4lWb_4Wb30WZL0Wb_2Lo_xV4mu4BI3aazRAzVqzwY-caLaDEB53RF32w1GeakKO2yiBDpspNoNPqTdFnvhGkqAuBtTuetQg7fwJFSHuuodVY7F_jSW-jOUxCaHrN4QNWeq2w1Bb5_TBjpxp9wTS3uz5BRHbJ7hBjhqzgM5bM8IP3KiCDpyp9k7c6fZC0KmBzpypt8VdtkORHWo2DmdADmazAQ4ms4xYpL0KmGU-l6Q8SVYj8f4XcL5KU6AstcJTH2y6BlKgbTnGEluoOMIOmyezgAzYJDC7x9YrNwUOWyt4RM4a6zcE0FypdcxVoi63xFUeavdSXmt4xyL8VLIPa3iS7fvH1XMOqfXCHbfGIX_JFaIrd8iVIu94hRXfK7gEUGg0QZlnMHzJUp8v-QWSJoIVpsBRHzlOmreLH2uJlil-2_FHYjaRJcQatAmj91Gnwh85kCqAHXELnPdNaDmTqL3TaMGScELYbQKa7zvMZsBR5kJYLgSQ6b9aJr0PKz8S7klabsQZdIrgOQ2h80biNEomOo_csf8YcoDT7IJT6DvWqjrPJDqNZjvMGSuGmDEEUKM7TiLzESS_F-Q3zOA-Uaa4xVjpxKMseMVOmyv1AY4hfRu10OvEDVnreIQQGWXx-88nQBp10u6LZW67S9Uhrb_beFGstcJOYbnSm-h0SBzmMr6Unep2Qo6mcr_XpW-4xVFhvZm0jeO81WgCX2i1BpPgrnnGlB1p9f_SpLmM3-k1hk-cKAMdeBFapzME3jbRrXeAzVlqBCC8V7D6BpgkcH6KFiGtuQUOWub7k-1FojxFkiOw_YtW47E6RtNcqTnDD5wotIEN2SUxvMjXLDgGD1wseUXPG-w4BdFdaXVL1SGuN0PUsA1oQ0yZ6s")
+	decrypted2, _ := DecryptBlackbox(EncryptBlackbox(decrypted))
 	assert.Equal(t, expected, decrypted)
+	assert.Equal(t, expected, decrypted2)
 }

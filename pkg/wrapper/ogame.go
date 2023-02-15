@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	err2 "errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/device"
 	"image"
 	"image/color"
 	"image/png"
@@ -88,7 +89,6 @@ type OGame struct {
 	serverData            ServerData
 	location              *time.Location
 	serverURL             string
-	client                *httpclient.Client
 	logger                *log.Logger
 	chatCallbacks         []func(msg ogame.ChatMsg)
 	wsCallbacks           map[string]func(msg []byte)
@@ -109,16 +109,11 @@ type OGame struct {
 	hasGeologist          bool
 	hasTechnocrat         bool
 	captchaCallback       CaptchaCallback
+	device                *device.Device
 }
 
 // CaptchaCallback ...
 type CaptchaCallback func(question, icons []byte) (int64, error)
-
-const defaultUserAgent = "" +
-	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-	"AppleWebKit/537.36 (KHTML, like Gecko) " +
-	"Chrome/104.0.0.0 " +
-	"Safari/537.36"
 
 // Params parameters for more fine-grained initialization
 type Params struct {
@@ -138,8 +133,7 @@ type Params struct {
 	TLSConfig       *tls.Config
 	Lobby           string
 	APINewHostname  string
-	CookiesFilename string
-	Client          *httpclient.Client
+	Device          *device.Device
 	CaptchaCallback CaptchaCallback
 }
 
@@ -161,14 +155,14 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 }
 
 func (b *OGame) validateAccount(code string) error {
-	return b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
+	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		return ValidateAccount(client, b.ctx, b.lobby, code)
 	})
 }
 
 // New creates a new instance of OGame wrapper.
-func New(universe, username, password, lang string) (*OGame, error) {
-	b, err := NewNoLogin(username, password, "", "", universe, lang, "", 0, nil)
+func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	b, err := NewNoLogin(username, password, "", "", universe, lang, 0, deviceInst)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +174,10 @@ func New(universe, username, password, lang string) (*OGame, error) {
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.BearerToken, params.Universe, params.Lang, params.CookiesFilename, params.PlayerID, params.Client)
+	if params.Device == nil {
+		return nil, errors.New("no device defined")
+	}
+	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.BearerToken, params.Universe, params.Lang, params.PlayerID, params.Device)
 	if err != nil {
 		return nil, err
 	}
@@ -207,8 +204,9 @@ func NewWithParams(params Params) (*OGame, error) {
 }
 
 // NewNoLogin does not auto login.
-func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cookiesFilename string, playerID int64, client *httpclient.Client) (*OGame, error) {
+func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang string, playerID int64, device *device.Device) (*OGame, error) {
 	b := new(OGame)
+	b.device = device
 	b.getServerDataWrapper = DefaultGetServerDataWrapper
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
@@ -225,30 +223,6 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang, cook
 	ext.SetLanguage(lang)
 	ext.SetLocation(time.UTC)
 	b.extractor = ext
-
-	if client == nil {
-		jar, err := cookiejar.New(&cookiejar.Options{
-			Filename:              cookiesFilename,
-			PersistSessionCookies: true,
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		// Ensure we remove any cookies that would set the mobile view
-		cookies := jar.AllCookies()
-		for _, c := range cookies {
-			if c.Name == "device" {
-				jar.RemoveCookie(c)
-			}
-		}
-
-		b.client = httpclient.NewClient()
-		b.client.Jar = jar
-		b.client.SetUserAgent(defaultUserAgent)
-	} else {
-		b.client = client
-	}
 
 	factory := func() *Prioritize { return &Prioritize{bot: b} }
 	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
@@ -337,7 +311,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if err != nil {
 		if err == ogame.ErrNotLogged {
 			b.debug("get login link")
-			loginLink, err := GetLoginLink(b.client, b.ctx, b.lobby, userAccount, token)
+			loginLink, err := GetLoginLink(b.device.GetClient(), b.ctx, b.lobby, userAccount, token)
 			if err != nil {
 				return true, err
 			}
@@ -356,7 +330,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			if err := b.loginPart3(userAccount, page); err != nil {
 				return false, err
 			}
-			if err := b.client.Jar.(*cookiejar.Jar).Save(); err != nil {
+			if err := b.device.GetClient().Jar.(*cookiejar.Jar).Save(); err != nil {
 				return false, err
 			}
 			for _, fn := range b.interceptorCallbacks {
@@ -379,7 +353,7 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	if b.bearerToken != "" {
 		token = b.bearerToken
 	} else {
-		cookies := b.client.Jar.(*cookiejar.Jar).AllCookies()
+		cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
 		for _, c := range cookies {
 			if c.Name == TokenCookieName {
 				token = c.Value
@@ -474,11 +448,11 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 }
 
 func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
-	if err := b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
+	if err := b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		var challengeID string
 		tried := false
 		for {
-			out, err = GFLogin(client, b.ctx, lobby, username, password, otpSecret, challengeID)
+			out, err = GFLogin(b.device, b.ctx, lobby, username, password, otpSecret, challengeID)
 			var captchaErr *CaptchaRequiredError
 			if errors.As(err, &captchaErr) {
 				if tried || b.captchaCallback == nil {
@@ -511,7 +485,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 
 	// put in cookie jar so that we can re-login reusing the cookies
 	u, _ := url.Parse("https://gameforge.com")
-	cookies := b.client.Jar.Cookies(u)
+	cookies := b.device.GetClient().Jar.Cookies(u)
 	cookie := &http.Cookie{
 		Name:   TokenCookieName,
 		Value:  out.Token,
@@ -519,7 +493,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 		Domain: ".gameforge.com",
 	}
 	cookies = append(cookies, cookie)
-	b.client.Jar.SetCookies(u, cookies)
+	b.device.GetClient().Jar.SetCookies(u, cookies)
 	b.bearerToken = out.Token
 	return out, nil
 }
@@ -537,7 +511,7 @@ func (b *OGame) login() error {
 	}
 
 	b.debug("get login link")
-	loginLink, err := GetLoginLink(b.client, b.ctx, b.lobby, userAccount, postSessionsRes.Token)
+	loginLink, err := GetLoginLink(b.device.GetClient(), b.ctx, b.lobby, userAccount, postSessionsRes.Token)
 	if err != nil {
 		return err
 	}
@@ -557,7 +531,7 @@ func (b *OGame) login() error {
 		return err
 	}
 
-	if err := b.client.Jar.(*cookiejar.Jar).Save(); err != nil {
+	if err := b.device.GetClient().Jar.(*cookiejar.Jar).Save(); err != nil {
 		return err
 	}
 	for _, fn := range b.interceptorCallbacks {
@@ -568,12 +542,12 @@ func (b *OGame) login() error {
 
 func (b *OGame) loginPart1(token string) (server Server, userAccount Account, err error) {
 	b.debug("get user accounts")
-	accounts, err := GetUserAccounts(b.client, b.ctx, b.lobby, token)
+	accounts, err := GetUserAccounts(b.device.GetClient(), b.ctx, b.lobby, token)
 	if err != nil {
 		return
 	}
 	b.debug("get servers")
-	servers, err := GetServers(b.lobby, b.client, b.ctx)
+	servers, err := GetServers(b.lobby, b.device.GetClient(), b.ctx)
 	if err != nil {
 		return
 	}
@@ -596,7 +570,7 @@ func (b *OGame) loginPart2(server Server) error {
 	start := time.Now()
 	b.server = server
 	serverData, err := b.getServerDataWrapper(func() (ServerData, error) {
-		return GetServerData(b.client, b.ctx, b.server.Number, b.server.Language)
+		return GetServerData(b.device.GetClient(), b.ctx, b.server.Number, b.server.Language)
 	})
 	if err != nil {
 		return err
@@ -848,7 +822,7 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 // execute a request using the login proxy transport if set
 func (b *OGame) doReqWithLoginProxyTransport(req *http.Request) (resp *http.Response, err error) {
 	req = req.WithContext(b.ctx)
-	_ = b.client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
+	_ = b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		resp, err = client.Do(req)
 		return nil
 	})
@@ -906,15 +880,15 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 	}
 	if proxyAddress == "" {
 		b.loginProxyTransport = nil
-		b.client.SetTransport(http.DefaultTransport)
+		b.device.GetClient().SetTransport(http.DefaultTransport)
 		return nil
 	}
 	transport, err := getTransport(proxyAddress, username, password, proxyType, config)
 	b.loginProxyTransport = transport
 	if loginOnly {
-		b.client.SetTransport(http.DefaultTransport)
+		b.device.GetClient().SetTransport(http.DefaultTransport)
 	} else {
-		b.client.SetTransport(transport)
+		b.device.GetClient().SetTransport(transport)
 	}
 	return err
 }
@@ -1306,7 +1280,7 @@ func (b *OGame) ReconnectChat() bool {
 
 func (b *OGame) logout() {
 	_, _ = b.getPage(LogoutPageName)
-	_ = b.client.Jar.(*cookiejar.Jar).Save()
+	_ = b.device.GetClient().Jar.(*cookiejar.Jar).Save()
 	if atomic.CompareAndSwapInt32(&b.isLoggedInAtom, 1, 0) {
 		select {
 		case <-b.closeChatCh:
@@ -1423,7 +1397,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	}
 
 	req = req.WithContext(b.ctx)
-	resp, err := b.client.Do(req)
+	resp, err := b.device.GetClient().Do(req)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -1527,8 +1501,8 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 		if method == http.MethodPost {
 			// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
 			// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
-			b.client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
-			defer func() { b.client.CheckRedirect = nil }()
+			b.device.GetClient().CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+			defer func() { b.device.GetClient().CheckRedirect = nil }()
 		}
 
 		pageHTMLBytes, err = b.execRequest(method, finalURL, payload, vals)
@@ -2242,7 +2216,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 	}
 
 	req = req.WithContext(b.ctx)
-	resp, err := b.client.Do(req)
+	resp, err := b.device.GetClient().Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -2929,7 +2903,7 @@ func (b *OGame) setResourceSettings(planetID ogame.PlanetID, settings ogame.Reso
 		"last217":      {utils.FI64(settings.Crawler)},
 	}
 	url2 := b.serverURL + "/game/index.php?page=resourceSettings"
-	resp, err := b.client.PostForm(url2, payload)
+	resp, err := b.device.GetClient().PostForm(url2, payload)
 	if err != nil {
 		return err
 	}
@@ -4057,7 +4031,7 @@ func (b *OGame) botUnlock(unlockedBy string) {
 
 func (b *OGame) addAccount(number int, lang string) (*AddAccountRes, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
-	return AddAccount(b.client, b.ctx, b.lobby, accountGroup, b.bearerToken)
+	return AddAccount(b.device.GetClient(), b.ctx, b.lobby, accountGroup, b.bearerToken)
 }
 
 func (b *OGame) getCachedCelestial(v any) Celestial {
@@ -4178,17 +4152,17 @@ func (b *OGame) IsConnected() bool {
 
 // GetClient get the http client used by the bot
 func (b *OGame) GetClient() *httpclient.Client {
-	return b.client
+	return b.device.GetClient()
 }
 
 // SetClient set the http client used by the bot
 func (b *OGame) SetClient(client *httpclient.Client) {
-	b.client = client
+	b.device.SetClient(client)
 }
 
 // GetLoginClient get the http client used by the bot for login operations
 func (b *OGame) GetLoginClient() *httpclient.Client {
-	return b.client
+	return b.device.GetClient()
 }
 
 // GetPublicIP get the public IP used by the bot
@@ -4276,7 +4250,7 @@ func (b *OGame) GetLanguage() string {
 
 // SetUserAgent change the user-agent used by the http client
 func (b *OGame) SetUserAgent(newUserAgent string) {
-	b.client.SetUserAgent(newUserAgent)
+	b.device.GetClient().SetUserAgent(newUserAgent)
 }
 
 // LoginWithBearerToken to ogame server reusing existing token
@@ -4300,12 +4274,12 @@ func (b *OGame) Logout() { b.WithPriority(taskRunner.Normal).Logout() }
 
 // BytesDownloaded returns the amount of bytes downloaded
 func (b *OGame) BytesDownloaded() int64 {
-	return b.client.BytesDownloaded()
+	return b.device.GetClient().BytesDownloaded()
 }
 
 // BytesUploaded returns the amount of bytes uploaded
 func (b *OGame) BytesUploaded() int64 {
-	return b.client.BytesUploaded()
+	return b.device.GetClient().BytesUploaded()
 }
 
 // GetUniverseName get the name of the universe the bot is playing into

@@ -1,11 +1,13 @@
 package wrapper
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
@@ -14,7 +16,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -131,8 +132,8 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 }
 
 // RedeemCode ...
-func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, email, password, otpSecret, token string) error {
-	postSessionsRes, err := GFLogin(client, ctx, lobby, email, password, otpSecret, "")
+func RedeemCode(device *device.Device, ctx context.Context, lobby, email, password, otpSecret, token string) error {
+	postSessionsRes, err := GFLogin(device, ctx, lobby, email, password, otpSecret, "")
 	if err != nil {
 		return err
 	}
@@ -152,7 +153,7 @@ func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, email
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
-	resp, err := client.Do(req)
+	resp, err := device.GetClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -179,12 +180,12 @@ func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, email
 }
 
 // LoginAndAddAccount adds an account to a gameforge lobby
-func LoginAndAddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (*AddAccountRes, error) {
-	postSessionsRes, err := GFLogin(client, ctx, lobby, username, password, otpSecret, "")
+func LoginAndAddAccount(device *device.Device, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (*AddAccountRes, error) {
+	postSessionsRes, err := GFLogin(device, ctx, lobby, username, password, otpSecret, "")
 	if err != nil {
 		return nil, err
 	}
-	servers, err := GetServers(lobby, client, ctx)
+	servers, err := GetServers(lobby, device.GetClient(), ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +193,7 @@ func LoginAndAddAccount(client httpclient.IHttpClient, ctx context.Context, lobb
 	if !found {
 		return nil, errors.New("server not found")
 	}
-	return AddAccount(client, ctx, lobby, server.AccountGroup, postSessionsRes.Token)
+	return AddAccount(device.GetClient(), ctx, lobby, server.AccountGroup, postSessionsRes.Token)
 }
 
 // AddAccountRes response from creating a new account
@@ -263,20 +264,25 @@ type GFLoginRes struct {
 
 func (r GFLoginRes) GetBearerToken() string { return r.Token }
 
-func GFLogin(client httpclient.IHttpClient, ctx context.Context, lobby, username, password, otpSecret, challengeID string) (out *GFLoginRes, err error) {
-	gameEnvironmentID, platformGameID, err := getConfiguration(client, ctx, lobby)
+func GFLogin(dev *device.Device, ctx context.Context, lobby, username, password, otpSecret, challengeID string) (out *GFLoginRes, err error) {
+	gameEnvironmentID, platformGameID, err := getConfiguration(dev.GetClient(), ctx, lobby)
 	if err != nil {
 		return out, err
 	}
 
-	req, err := postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID)
+	blackbox, err := dev.GetBlackbox()
+	if err != nil {
+		return out, err
+	}
+
+	req, err := postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID, blackbox)
 	if err != nil {
 		return out, err
 	}
 
 	req.WithContext(ctx)
 
-	resp, err := client.Do(req)
+	resp, err := dev.GetClient().Do(req)
 	if err != nil {
 		return out, err
 	}
@@ -355,17 +361,31 @@ func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby 
 	return string(gameEnvironmentID), string(platformGameID), nil
 }
 
-func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID string) (*http.Request, error) {
-	payload := url.Values{
-		"autoGameAccountCreation": {"false"},
-		"gameEnvironmentId":       {gameEnvironmentID},
-		"platformGameId":          {platformGameID},
-		"gfLang":                  {"en"},
-		"locale":                  {"en_GB"},
-		"identity":                {username},
-		"password":                {password},
+func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID, blackbox string) (*http.Request, error) {
+	var payload = struct {
+		Identity                string `json:"identity"`
+		Password                string `json:"password"`
+		Locale                  string `json:"locale"`
+		GfLang                  string `json:"gfLang"`
+		PlatformGameID          string `json:"platformGameId"`
+		Blackbox                string `json:"blackbox"`
+		GameEnvironmentID       string `json:"gameEnvironmentId"`
+		AutoGameAccountCreation bool   `json:"autoGameAccountCreation"`
+	}{
+		Identity:                username,
+		Password:                password,
+		Locale:                  "en_GB",
+		GfLang:                  "en",
+		PlatformGameID:          platformGameID,
+		Blackbox:                "tra:" + blackbox,
+		GameEnvironmentID:       gameEnvironmentID,
+		AutoGameAccountCreation: false,
 	}
-	req, err := http.NewRequest(http.MethodPost, "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+	by, err := json.Marshal(&payload)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(http.MethodPost, "https://gameforge.com/api/v1/auth/thin/sessions", bytes.NewReader(by))
 	if err != nil {
 		return nil, err
 	}
@@ -388,7 +408,7 @@ func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpS
 		req.Header.Add("tnt-installation-id", "")
 	}
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
 	return req, nil
 }

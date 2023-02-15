@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/subtle"
+	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -139,12 +140,6 @@ func main() {
 			Value:   "~/.ogame/cert.pem",
 			EnvVars: []string{"OGAMED_TLS_KEYFILE"},
 		},
-		&cli.StringFlag{
-			Name:    "cookies-filename",
-			Usage:   "Path cookies file",
-			Value:   "",
-			EnvVars: []string{"OGAMED_COOKIES_FILENAME"},
-		},
 		&cli.BoolFlag{
 			Name:    "cors-enabled",
 			Usage:   "Enable CORS",
@@ -184,24 +179,39 @@ func start(c *cli.Context) error {
 	tlsCertFile := c.String("tls-cert-file")
 	basicAuthUsername := c.String("basic-auth-username")
 	basicAuthPassword := c.String("basic-auth-password")
-	cookiesFilename := c.String("cookies-filename")
 	corsEnabled := c.Bool("cors-enabled")
 	njaApiKey := c.String("nja-api-key")
 
+	// TODO: put device config in flags & env variables
+	deviceInst, err := device.NewBuilder("device_name").
+		SetOsName(device.Windows).
+		SetBrowserName(device.Chrome).
+		SetMemory(8).
+		SetHardwareConcurrency(16).
+		ScreenColorDepth(24).
+		SetScreenWidth(1900).
+		SetScreenHeight(900).
+		SetTimezone("America/Los_Angeles").
+		SetLanguages("en-US,en").
+		Build()
+	if err != nil {
+		panic(err)
+	}
+
 	params := wrapper.Params{
-		Universe:        universe,
-		Username:        username,
-		Password:        password,
-		Lang:            language,
-		AutoLogin:       autoLogin,
-		Proxy:           proxyAddr,
-		ProxyUsername:   proxyUsername,
-		ProxyPassword:   proxyPassword,
-		ProxyType:       proxyType,
-		ProxyLoginOnly:  proxyLoginOnly,
-		Lobby:           lobby,
-		APINewHostname:  apiNewHostname,
-		CookiesFilename: cookiesFilename,
+		Device:         deviceInst,
+		Universe:       universe,
+		Username:       username,
+		Password:       password,
+		Lang:           language,
+		AutoLogin:      autoLogin,
+		Proxy:          proxyAddr,
+		ProxyUsername:  proxyUsername,
+		ProxyPassword:  proxyPassword,
+		ProxyType:      proxyType,
+		ProxyLoginOnly: proxyLoginOnly,
+		Lobby:          lobby,
+		APINewHostname: apiNewHostname,
 	}
 	if njaApiKey != "" {
 		params.CaptchaCallback = wrapper.NinjaSolver(njaApiKey)

@@ -1036,7 +1036,7 @@ func GetStaticHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := bot.client.Do(req)
+	resp, err := bot.device.GetClient().Do(req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -1368,7 +1368,7 @@ func TechsHandler(c echo.Context) error {
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	_, err := GFLogin(bot.client, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
+	_, err := GFLogin(bot.device, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
 	var captchaErr *CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
 		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
@@ -1421,7 +1421,7 @@ type CaptchaChallenge struct {
 // GetCaptchaChallengeHandler ...
 func GetCaptchaChallengeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	_, err := GFLogin(bot.client, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
+	_, err := GFLogin(bot.device, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
 	var captchaErr *CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
 		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
