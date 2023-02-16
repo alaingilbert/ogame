@@ -957,7 +957,7 @@ func DecryptBlackbox(encrypted string) (string, error) {
 			second := strings.IndexByte(chars, v[i+1])
 			third := strings.IndexByte(chars, v[i+2])
 			fourth := strings.IndexByte(chars, v[i+3])
-			packed := first<<18 | second<<12 | third<<6 | fourth
+			packed := first<<18 | second<<12 | third<<6 | fourth<<0
 			sb = append(sb, uint8(packed>>16&mask), uint8(packed>>8&mask), uint8(packed>>0&mask))
 		}
 		return sb[0 : len(sb)-extraPadding]
