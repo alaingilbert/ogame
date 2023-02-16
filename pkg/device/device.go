@@ -923,12 +923,13 @@ func EncryptBlackbox(raw string) string {
 		}
 		chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="
 		sb := make([]uint8, 0)
+		const mask = 0b11_1111
 		for i := 0; i < len(v); i += 3 {
 			first := uint32(v[i+0])
 			second := uint32(v[i+1])
 			third := uint32(v[i+2])
 			packed := first<<16 | second<<8 | third<<0
-			sb = append(sb, chars[(packed>>18)&63], chars[(packed>>12)&63], chars[(packed>>6)&63], chars[(packed>>0)&63])
+			sb = append(sb, chars[(packed>>18)&mask], chars[(packed>>12)&mask], chars[(packed>>6)&mask], chars[(packed>>0)&mask])
 		}
 		return string(sb[:len(sb)-extraPadding])
 	}
@@ -950,7 +951,7 @@ func DecryptBlackbox(encrypted string) (string, error) {
 		}
 		chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="
 		sb := make([]uint8, 0)
-		const mask = 255
+		const mask = 0b1111_1111
 		for i := 0; i < len(v); i += 4 {
 			first := strings.IndexByte(chars, v[i+0])
 			second := strings.IndexByte(chars, v[i+1])
