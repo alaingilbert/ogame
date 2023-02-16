@@ -907,8 +907,9 @@ var timezones = []string{"Africa/Abidjan", "Africa/Accra", "Africa/Addis_Ababa",
 
 func EncryptBlackbox(raw string) string {
 	retardPseudoB64 := func(v []uint8) string {
-		lenMod3 := len(v) % 3
+		extraPadding := 0
 		for len(v)%3 != 0 {
+			extraPadding++
 			v = append(v, 0)
 		}
 		chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="
@@ -917,13 +918,10 @@ func EncryptBlackbox(raw string) string {
 			first := uint32(v[i+0])
 			second := uint32(v[i+1])
 			third := uint32(v[i+2])
-			tmpRes := first<<16 | second<<8 | third<<0
-			sb = append(sb, chars[(tmpRes>>18)&63], chars[(tmpRes>>12)&63], chars[(tmpRes>>6)&63], chars[(tmpRes>>0)&63])
+			packed := first<<16 | second<<8 | third<<0
+			sb = append(sb, chars[(packed>>18)&63], chars[(packed>>12)&63], chars[(packed>>6)&63], chars[(packed>>0)&63])
 		}
-		if lenMod3 > 0 {
-			return string(sb[:len(sb)+(lenMod3-3)])
-		}
-		return string(sb)
+		return string(sb[:len(sb)-extraPadding])
 	}
 	escaped := url.QueryEscape(raw)
 	sb := make([]uint8, len(escaped))

@@ -3,7 +3,7 @@ package device
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -67,4 +67,10 @@ func Test_DecryptBlackbox(t *testing.T) {
 	decrypted2, _ := DecryptBlackbox(EncryptBlackbox(decrypted))
 	assert.Equal(t, expected, decrypted)
 	assert.Equal(t, expected, decrypted2)
+
+	assert.Equal(t, "dA", EncryptBlackbox("t"))
+	assert.Equal(t, "dNk", EncryptBlackbox("te"))
+	assert.Equal(t, "dNlM", EncryptBlackbox("tes"))
+	assert.Equal(t, "dNlMwA", EncryptBlackbox("test"))
+	assert.Equal(t, "dNlMwPE", EncryptBlackbox("test1"))
 }
