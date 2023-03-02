@@ -105,6 +105,8 @@ type Prioritizable interface {
 	SetVacationMode() error
 	Tx(clb func(tx Prioritizable) error) error
 	UseDM(string, ogame.CelestialID) error
+	GetAvailableDiscoveries() int64
+	GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64) ([]int64, error)
 
 	// Planet or Moon functions
 	Build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) error
@@ -132,6 +134,7 @@ type Prioritizable interface {
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
 	TechnologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error)
+	SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error
 
 	// Planet specific functions
 	DestroyRockets(ogame.PlanetID, int64, int64) error
