@@ -575,7 +575,8 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 // Phalanx scan a coordinate from a moon to get fleets information
 // IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
-// 			  and that you have enough deuterium.
+//
+//	and that you have enough deuterium.
 func (b *Prioritize) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
 	b.begin("Phalanx")
 	defer b.done()
@@ -734,4 +735,24 @@ func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Opt
 	b.begin("GetLfResearch")
 	defer b.done()
 	return b.bot.getLfResearch(celestialID, options...)
+}
+
+// SendDiscoveryFleet
+func (b *Prioritize) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error {
+	b.begin("SendDiscoveryFleet")
+	defer b.done()
+	return b.bot.sendDiscoveryFleet(celestialID, coord)
+}
+
+// GetAvailableDiscoveries
+func (b *Prioritize) GetAvailableDiscoveries() int64 {
+	b.begin("GetAvailableDiscoveries")
+	defer b.done()
+	return b.bot.getAvailableDiscoveries()
+}
+
+func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64) ([]int64, error) {
+	b.begin("GetPositionsAvailableForDiscoveryFleet")
+	defer b.done()
+	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system)
 }

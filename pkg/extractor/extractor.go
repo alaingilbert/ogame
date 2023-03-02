@@ -529,6 +529,9 @@ type Extractor interface {
 	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
 
 	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
+
+	ExtractToken(pageHTML []byte) (string, error)
+	ExtractAvailableDiscoveries(pageHTML []byte) int64
 }
 
 // Compile time checks to ensure type satisfies Extractor interface

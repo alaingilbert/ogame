@@ -157,3 +157,19 @@ func (e *Extractor) ExtractTearDownButtonEnabled(pageHTML []byte) bool {
 func (e *Extractor) ExtractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
 	return extractTearDownButtonEnabledFromDoc(doc)
 }
+
+// ExtractToken ...
+func (e *Extractor) ExtractToken(pageHTML []byte) (string, error) {
+	return extractToken(pageHTML)
+}
+
+// ExtractAvailableDiscoveries ...
+func (e *Extractor) ExtractAvailableDiscoveries(pageHTML []byte) int64 {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractAvailableDiscoveriesFromDoc(doc)
+}
+
+// ExtractAvailableDiscoveriesFromDoc ...
+func (e *Extractor) ExtractAvailableDiscoveriesFromDoc(doc *goquery.Document) int64 {
+	return extractAvailableDiscoveriesFromDoc(doc)
+}

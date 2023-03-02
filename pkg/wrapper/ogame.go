@@ -4123,6 +4123,122 @@ func (b *OGame) getTasks() (out taskRunner.TasksOverview) {
 	return b.taskRunnerInst.GetTasks()
 }
 
+func (b *OGame) sendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error {
+	// Check if the sendDiscoveryFleet button is available for the target.
+	// This checks for the envoys technology, if the planet has enough resources, if there's fleet slots available and if there's no cooldown on the position.
+	galaxyPage, err := b.getGalaxyPage(coord.Galaxy, coord.System)
+	for _, position := range galaxyPage.System.GalaxyContent {
+		if position.Position == coord.Position {
+			for _, availableMission := range position.AvailableMissions {
+				if availableMission.MissionType == 18 && availableMission.CanSend != true {
+					return errors.New("can't send discovery mission.")
+				}
+			}
+		}
+	}
+	if err != nil {
+		return err
+	}
+
+	// Retrieve a token to send along with the JSON request.
+	pageHTML, _ := b.getPageContent(
+		url.Values{
+			"page":      {"ingame"},
+			"component": {"galaxy"},
+		},
+		// Make sure the token is for the origin planet.
+		ChangePlanet(celestialID),
+	)
+	token, err := b.extractor.ExtractToken(pageHTML)
+	if err != nil {
+		return err
+	}
+
+	// Send fleet.
+	_, err = b.postPageContent(url.Values{
+		"page":      {"ingame"},
+		"component": {"fleetdispatch"},
+		"action":    {"sendDiscoveryFleet"},
+		"ajax":      {"1"},
+		"asJson":    {"1"},
+	}, url.Values{
+		"galaxy":   {strconv.Itoa(int(coord.Galaxy))},
+		"system":   {strconv.Itoa(int(coord.System))},
+		"position": {strconv.Itoa(int(coord.Position))},
+		"token":    {token},
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *OGame) getAvailableDiscoveries() int64 {
+	// Return the amount of available discoveries.
+	pageHTML, _ := b.getPageContent(url.Values{
+		"page":      {"ingame"},
+		"component": {"galaxy"},
+	})
+	return b.extractor.ExtractAvailableDiscoveries(pageHTML)
+}
+
+type GalaxyPageContent struct {
+	System struct {
+		GalaxyContent []struct {
+			Position          int64 `json:"position"`
+			AvailableMissions []struct {
+				CanSend     any   `json:"canSend,omitempty"`
+				MissionType int64 `json:"missionType,omitempty"`
+			} `json:"availableMissions"`
+		} `json:"galaxyContent"`
+	} `json:"system"`
+}
+
+func (b *OGame) getGalaxyPage(galaxy int64, system int64) (*GalaxyPageContent, error) {
+	// Get galaxy page content for the desired system.
+	by, err := b.postPageContent(url.Values{
+		"page":      {"ingame"},
+		"component": {"galaxy"},
+		"action":    {"fetchGalaxyContent"},
+		"ajax":      {"1"},
+		"asJson":    {"1"},
+	}, url.Values{
+		"galaxy": {strconv.Itoa(int(galaxy))},
+		"system": {strconv.Itoa(int(system))},
+	})
+	if err != nil {
+		return nil, err
+	}
+	// Parse the json result, only definining the type for the GalaxyContent (Position and AvailableMissions properties).
+	var res GalaxyPageContent
+	err = json.Unmarshal(by, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+func (b *OGame) getPositionsAvailableForDiscoveryFleet(galaxy int64, system int64) ([]int64, error) {
+	galaxyPage, err := b.getGalaxyPage(galaxy, system)
+	if err != nil {
+		return nil, err
+	}
+
+	// Loop through all AvailableMissions in all positions, add those positions that are available.
+	availablePositions := make([]int64, 0)
+	for _, position := range galaxyPage.System.GalaxyContent {
+		for _, availableMission := range position.AvailableMissions {
+			if availableMission.CanSend == true {
+				println(position.Position)
+				availablePositions = append(availablePositions, position.Position)
+			}
+		}
+	}
+
+	return availablePositions, nil
+}
+
 // Public interface -----------------------------------------------------------
 
 // Enable enables communications with OGame Server
@@ -4880,4 +4996,17 @@ func (b *OGame) GetLfBuildings(celestialID ogame.CelestialID, opts ...Option) (o
 // GetLfResearch ...
 func (b *OGame) GetLfResearch(celestialID ogame.CelestialID, opts ...Option) (ogame.LfResearches, error) {
 	return b.WithPriority(taskRunner.Normal).GetLfResearch(celestialID, opts...)
+}
+
+// SendDiscoveryFleet
+func (b *OGame) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error {
+	return b.WithPriority(taskRunner.Normal).SendDiscoveryFleet(celestialID, coord)
+}
+
+func (b *OGame) GetAvailableDiscoveries() int64 {
+	return b.WithPriority(taskRunner.Normal).GetAvailableDiscoveries()
+}
+
+func (b *OGame) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64) ([]int64, error) {
+	return b.WithPriority(taskRunner.Normal).GetPositionsAvailableForDiscoveryFleet(galaxy, system)
 }
