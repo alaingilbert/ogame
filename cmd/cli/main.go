@@ -28,7 +28,7 @@ func main() {
 	shell := ishell.New()
 	shell.Println("logging to " + universe + " universe")
 
-	bot, err := wrapper.New(universe, username, password, LANGUAGE)
+	bot, err := wrapper.New(nil, universe, username, password, LANGUAGE)
 	if err != nil {
 		log.Fatal(err)
 	}

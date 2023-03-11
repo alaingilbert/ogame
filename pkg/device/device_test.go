@@ -1,32 +1,9 @@
 package device
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
-
-func TestDevice_GetBlackbox(t *testing.T) {
-	d, err := NewBuilder("test1").
-		SetOsName(MacOSX).
-		SetBrowserName(Chrome).
-		SetMemory(8).
-		SetHardwareConcurrency(16).
-		ScreenColorDepth(24).
-		SetScreenWidth(1900).
-		SetScreenHeight(900).
-		SetTimezone("America/Los_Angeles").
-		SetLanguages("en-US,en").
-		Build()
-	if err != nil {
-		panic(err)
-	}
-	fprnt, _ := d.GetBlackbox()
-	by, _ := json.Marshal(fprnt)
-	fmt.Println(string(by))
-	assert.Equal(t, 1, 2)
-}
 
 func Test_DecryptBlackbox(t *testing.T) {
 	expected := "[8," +

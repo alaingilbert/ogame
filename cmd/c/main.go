@@ -11,7 +11,7 @@ var bot *wrapper.OGame
 //export OGame
 func OGame(universe, username, password, language *C.char) (errorMsg *C.char) {
 	var err error
-	bot, err = wrapper.New(C.GoString(universe), C.GoString(username), C.GoString(password), C.GoString(language))
+	bot, err = wrapper.New(nil, C.GoString(universe), C.GoString(username), C.GoString(password), C.GoString(language))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}

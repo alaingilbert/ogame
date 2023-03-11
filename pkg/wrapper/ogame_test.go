@@ -39,7 +39,7 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 
 func TestWrapper(t *testing.T) {
 	var bot Wrapper
-	bot, _ = NewNoLogin("", "", "", "", "", "", "", 0, nil)
+	bot, _ = NewNoLogin("", "", "", "", "", "", 0, nil)
 	assert.NotNil(t, bot)
 }
 
