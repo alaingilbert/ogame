@@ -2869,7 +2869,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 		}
 		return res, err
 	}
-	if res.Tmpgalaxy != galaxy || res.Tmpsystem != system {
+	if res.Galaxy() != galaxy || res.System() != system {
 		return ogame.SystemInfos{}, errors.New("not enough deuterium")
 	}
 	return res, err

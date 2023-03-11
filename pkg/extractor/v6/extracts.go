@@ -1707,8 +1707,8 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 	}
 
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
-	res.Tmpgalaxy = utils.ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
-	res.Tmpsystem = utils.ParseInt(doc.Find("table").AttrOr("data-system", "0"))
+	res.SetGalaxy(utils.ParseInt(doc.Find("table").AttrOr("data-galaxy", "0")))
+	res.SetSystem(utils.ParseInt(doc.Find("table").AttrOr("data-system", "0")))
 	isVacationMode := doc.Find("div#warning").Length() == 1
 	if isVacationMode {
 		return res, ogame.ErrAccountInVacationMode
@@ -1807,7 +1807,7 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 			planetInfos.Player.Name = playerName
 			planetInfos.Player.Rank = playerRank
 
-			res.Tmpplanets[i] = planetInfos
+			res.SetPlanet(i, planetInfos)
 		}
 	})
 

@@ -21,7 +21,7 @@ func TestSystemInfos_Each(t *testing.T) {
 	si.Each(func(pi *PlanetInfos) {
 		i++
 	})
-	assert.Equal(t, len(si.Tmpplanets), i)
+	assert.Equal(t, len(si.planets), i)
 }
 
 func TestSystemInfos_MarshalJSON(t *testing.T) {
@@ -40,9 +40,9 @@ func TestSystemInfos_MarshalJSON(t *testing.T) {
 	planetInfos.Player.Rank = 2
 	planetInfos.Date = time.Time{}
 	si := SystemInfos{}
-	si.Tmpgalaxy = 1
-	si.Tmpsystem = 2
-	si.Tmpplanets[1] = &planetInfos
+	si.SetGalaxy(1)
+	si.SetSystem(2)
+	si.SetPlanet(1, &planetInfos)
 	by, _ := json.Marshal(si)
 	expected := `{"Galaxy":1,"System":2,` +
 		`"Planets":[null,` +
