@@ -358,11 +358,11 @@ func (d *Device) GetBlackbox() (string, error) {
 		WebglRenderHash:       randFakeHash(),
 	}
 
-	deviceStorateDir := filepath.Join(DefaultStoragePath(), d.name)
-	if err := os.MkdirAll(deviceStorateDir, 0755); err != nil {
+	deviceStorageDir := filepath.Join(DefaultStoragePath(), d.name)
+	if err := os.MkdirAll(deviceStorageDir, 0755); err != nil {
 		return "", err
 	}
-	fingerprintFilePath := filepath.Join(deviceStorateDir, "fingerprint")
+	fingerprintFilePath := filepath.Join(deviceStorageDir, "fingerprint")
 
 	if diskFpBy, err := os.ReadFile(fingerprintFilePath); err == nil {
 		if fprt, err = ParseBlackbox(string(diskFpBy)); err == nil {
