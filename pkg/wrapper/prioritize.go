@@ -737,14 +737,14 @@ func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Opt
 	return b.bot.getLfResearch(celestialID, options...)
 }
 
-// SendDiscoveryFleet
+// SendDiscoveryFleet ...
 func (b *Prioritize) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error {
 	b.begin("SendDiscoveryFleet")
 	defer b.done()
 	return b.bot.sendDiscoveryFleet(celestialID, coord)
 }
 
-// GetAvailableDiscoveries
+// GetAvailableDiscoveries ...
 func (b *Prioritize) GetAvailableDiscoveries() int64 {
 	b.begin("GetAvailableDiscoveries")
 	defer b.done()

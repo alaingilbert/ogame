@@ -914,11 +914,6 @@ func (e *Extractor) ExtractLfResearchFromDoc(doc *goquery.Document) (ogame.LfRes
 	panic("not implemented")
 }
 
-// ExtractGalaxyToken ...
-func (e *Extractor) ExtractToken(pageHTML []byte) (string, error) {
-	panic("not implemented")
-}
-
 // ExtractAvailableDiscoveries
 func (e *Extractor) ExtractAvailableDiscoveries(pageHTML []byte) int64 {
 	panic("not implemented")

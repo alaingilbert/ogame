@@ -335,6 +335,11 @@ type FederationExtractorBytes interface {
 	ExtractFederation(pageHTML []byte) url.Values
 }
 
+// GalaxyPageExtractorBytes galaxy page
+type GalaxyPageExtractorBytes interface {
+	ExtractAvailableDiscoveries(pageHTML []byte) int64
+}
+
 // GalaxyExtractorBytes ajax page containing galaxy information in galaxy page
 type GalaxyExtractorBytes interface {
 	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (ogame.SystemInfos, error)
@@ -515,6 +520,7 @@ type Extractor interface {
 	FetchResourcesExtractorBytes
 	FetchTechsExtractorBytes
 	GalaxyExtractorBytes
+	GalaxyPageExtractorBytes
 	JumpGateLayerExtractorBytes
 	MessagesMarketplaceExtractorBytes
 	PhalanxExtractorBytes
@@ -529,9 +535,6 @@ type Extractor interface {
 	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
 
 	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
-
-	ExtractToken(pageHTML []byte) (string, error)
-	ExtractAvailableDiscoveries(pageHTML []byte) int64
 }
 
 // Compile time checks to ensure type satisfies Extractor interface

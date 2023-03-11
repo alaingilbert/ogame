@@ -756,19 +756,10 @@ func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) (out bool) {
 	return
 }
 
-func extractToken(pageHTML []byte) (string, error) {
-	rgx := regexp.MustCompile(`var token = "([^"]+)"`)
-	m := rgx.FindSubmatch(pageHTML)
-	if len(m) != 2 {
-		return "", errors.New("unable to find token")
-	}
-	return string(m[1]), nil
-}
-
 func extractAvailableDiscoveriesFromDoc(doc *goquery.Document) int64 {
 	discoveryCount := doc.Find("div#galaxyHeaderDiscoveryCount").Text()
-	rgxTotal := regexp.MustCompile(`\/([0-9]*)`)
-	rgxUsed := regexp.MustCompile(`([0-9]*)\/`)
+	rgxTotal := regexp.MustCompile(`/([0-9]*)`)
+	rgxUsed := regexp.MustCompile(`([0-9]*)/`)
 	totalString := rgxTotal.FindStringSubmatch(discoveryCount)[1]
 	usedString := rgxUsed.FindStringSubmatch(discoveryCount)[1]
 	total, _ := strconv.ParseInt(totalString, 10, 64)
