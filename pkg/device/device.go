@@ -59,6 +59,12 @@ type Builder struct {
 	offlineAudioCtx     float64
 	canvas2DInfo        int
 	client              *httpclient.Client
+	persistor           Persistor
+}
+
+type Persistor interface {
+	Load() ([]byte, error)
+	Save(*JsFingerprint) error
 }
 
 type Device struct {
@@ -78,6 +84,11 @@ func (d *Device) SetClient(client *httpclient.Client) {
 // otherwise will be created when calling Build.
 func NewBuilder(name string) *Builder {
 	return &Builder{name: name}
+}
+
+func (d *Builder) SetPersistor(persistor Persistor) *Builder {
+	d.persistor = persistor
+	return d
 }
 
 func (d *Builder) SetOsName(osName Os) *Builder {
@@ -168,6 +179,31 @@ func DefaultStoragePath() string {
 	return filepath.Join(home, ".ogame", "storage")
 }
 
+type FilePersistor struct {
+	deviceStorageDir string
+}
+
+func (f FilePersistor) Load() ([]byte, error) {
+	fingerprintFilePath := filepath.Join(f.deviceStorageDir, "fingerprint")
+	diskFpBy, err := os.ReadFile(fingerprintFilePath)
+	if err != nil {
+		return nil, err
+	}
+	return diskFpBy, nil
+}
+
+func (f FilePersistor) Save(fprt *JsFingerprint) error {
+	fingerprintFilePath := filepath.Join(f.deviceStorageDir, "fingerprint")
+	by, err := json.Marshal(fprt)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(fingerprintFilePath, by, 0644); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (d *Builder) Build() (*Device, error) {
 	if d.timezone == "" {
 		return nil, errors.New("timezone must be specified")
@@ -250,6 +286,17 @@ func (d *Builder) Build() (*Device, error) {
 		d.setRandomUserAgent()
 		if d.userAgent == "" {
 			return nil, errors.New("userAgent must be specified")
+		}
+	}
+
+	if d.persistor == nil {
+		deviceStorageDir := filepath.Join(DefaultStoragePath(), d.name)
+		if err := os.MkdirAll(deviceStorageDir, 0755); err != nil {
+			return nil, err
+		}
+
+		d.persistor = &FilePersistor{
+			deviceStorageDir: deviceStorageDir,
 		}
 	}
 
@@ -359,14 +406,8 @@ func (d *Device) GetBlackbox() (string, error) {
 		WebglRenderHash:       randFakeHash(),
 	}
 
-	deviceStorageDir := filepath.Join(DefaultStoragePath(), d.name)
-	if err := os.MkdirAll(deviceStorageDir, 0755); err != nil {
-		return "", err
-	}
-	fingerprintFilePath := filepath.Join(deviceStorageDir, "fingerprint")
-
-	if diskFpBy, err := os.ReadFile(fingerprintFilePath); err == nil {
-		if fprt, err = ParseBlackbox(string(diskFpBy)); err == nil {
+	if fpBy, err := d.persistor.Load(); err == nil {
+		if fprt, err = ParseBlackbox(string(fpBy)); err == nil {
 			xVecBy, err := base64.StdEncoding.DecodeString(fprt.XVecB64)
 			xVec := string(xVecBy)
 			if err != nil {
@@ -380,11 +421,12 @@ func (d *Device) GetBlackbox() (string, error) {
 	fprt.Game1DateHeader = game1DateHeader
 	fprt.CalcDeltaMs = elapsed
 
-	by, err := json.Marshal(fprt)
-	if err != nil {
+	if err := d.persistor.Save(fprt); err != nil {
 		return "", err
 	}
-	if err := os.WriteFile(fingerprintFilePath, by, 0644); err != nil {
+
+	by, err := json.Marshal(fprt)
+	if err != nil {
 		return "", err
 	}
 
