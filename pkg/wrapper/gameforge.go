@@ -7,18 +7,19 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/device"
-	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/utils"
-	"github.com/pquerna/otp"
-	"github.com/pquerna/otp/totp"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/utils"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 )
 
 // TokenCookieName ogame cookie name for token id
@@ -647,17 +648,36 @@ func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	return userAccounts, nil
 }
 
-func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
-	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d&clickedButton=account_list",
-		lobby, userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
-	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
+func GetLoginLink(dev *device.Device, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
+	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink", lobby)
+	payload := struct {
+		Server struct {
+			Language string `json:"language"`
+			Number   int64  `json:"number"`
+		} `json:"server"`
+		ID            int64  `json:"id"`
+		ClickedButton string `json:"clickedButton"`
+		Blackbox      string `json:"blackbox"`
+	}{}
+	payload.Server.Language = userAccount.Server.Language
+	payload.Server.Number = userAccount.Server.Number
+	payload.ID = userAccount.ID
+	payload.ClickedButton = "account_list"
+	payload.Blackbox, _ = dev.GetBlackbox()
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return "", err
+	}
+
+	req, err := http.NewRequest(http.MethodPost, ogURL, strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return "", err
 	}
 	req.Header.Add("authorization", "Bearer "+bearerToken)
+	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	req.WithContext(ctx)
-	resp, err := client.Do(req)
+
+	resp, err := dev.GetClient().Do(req.WithContext(ctx))
 	if err != nil {
 		return "", err
 	}

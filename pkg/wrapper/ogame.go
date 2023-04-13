@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	err2 "errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/device"
 	"image"
 	"image/color"
 	"image/png"
@@ -28,6 +27,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/device"
 
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
@@ -311,7 +312,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if err != nil {
 		if err == ogame.ErrNotLogged {
 			b.debug("get login link")
-			loginLink, err := GetLoginLink(b.device.GetClient(), b.ctx, b.lobby, userAccount, token)
+			loginLink, err := GetLoginLink(b.device, b.ctx, b.lobby, userAccount, token)
 			if err != nil {
 				return true, err
 			}
@@ -511,7 +512,7 @@ func (b *OGame) login() error {
 	}
 
 	b.debug("get login link")
-	loginLink, err := GetLoginLink(b.device.GetClient(), b.ctx, b.lobby, userAccount, postSessionsRes.Token)
+	loginLink, err := GetLoginLink(b.device, b.ctx, b.lobby, userAccount, postSessionsRes.Token)
 	if err != nil {
 		return err
 	}
