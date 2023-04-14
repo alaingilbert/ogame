@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/tlsclientconfig"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -298,10 +299,13 @@ func start(c *cli.Context) error {
 		SetScreenHeight(deviceHeight).
 		SetTimezone(deviceTimezone).
 		SetLanguages(deviceLang).
+		SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0").
 		Build()
 	if err != nil {
 		panic(err)
 	}
+
+	tlsclientconfig.AddRoundTripper(deviceInst.GetClient().Transport)
 
 	params := wrapper.Params{
 		Device:         deviceInst,
