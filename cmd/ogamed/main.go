@@ -2,14 +2,15 @@ package main
 
 import (
 	"crypto/subtle"
+	"log"
+	"os"
+	"strconv"
+
 	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/urfave/cli.v2"
-	"log"
-	"os"
-	"strconv"
 )
 
 var version = "0.0.0"
@@ -49,6 +50,66 @@ func main() {
 			Value:   "en",
 			Aliases: []string{"l"},
 			EnvVars: []string{"OGAMED_LANGUAGE"},
+		},
+		&cli.StringFlag{
+			Name:    "device-name",
+			Usage:   "Set the Device Name",
+			Value:   "device_name",
+			EnvVars: []string{"OGAMED_DEVICENAME"},
+		},
+		&cli.StringFlag{
+			Name:    "device-system",
+			Usage:   `Set the Device System (Android, Windows, "MacOSX", Linux, iOS)`,
+			Value:   "windows",
+			EnvVars: []string{"OGAMED_DEVICESYSTEM"},
+		},
+		&cli.StringFlag{
+			Name:    "device-browser",
+			Usage:   "Set the Device Browser (Chrome, Opera, Safari, Edge, Firefox)",
+			Value:   "Chrome",
+			EnvVars: []string{"OGAMED_DEVICEBROWSER"},
+		},
+		&cli.IntFlag{
+			Name:    "device-memory",
+			Usage:   "Set the Device Memory",
+			Value:   8,
+			EnvVars: []string{"OGAMED_DEVICEMEMORY"},
+		},
+		&cli.IntFlag{
+			Name:    "device-concurrency",
+			Usage:   "Set the Device Concurrency",
+			Value:   16,
+			EnvVars: []string{"OGAMED_DEVICECONCURRENCY"},
+		},
+		&cli.IntFlag{
+			Name:    "device-color",
+			Usage:   "Set the Device Color depth",
+			Value:   24,
+			EnvVars: []string{"OGAMED_DEVICECOLOR"},
+		},
+		&cli.IntFlag{
+			Name:    "device-width",
+			Usage:   "Set the Device Width",
+			Value:   1900,
+			EnvVars: []string{"OGAMED_DEVICEWIDTH"},
+		},
+		&cli.IntFlag{
+			Name:    "device-height",
+			Usage:   "Set the Device Height",
+			Value:   900,
+			EnvVars: []string{"OGAMED_DEVICHEIGHT"},
+		},
+		&cli.StringFlag{
+			Name:    "device-timezone",
+			Usage:   "Set the Device Timezone",
+			Value:   "America/Los_Angeles",
+			EnvVars: []string{"OGAMED_DEVICETIMEZONE"},
+		},
+		&cli.StringFlag{
+			Name:    "device-lang",
+			Usage:   "Set the Device Language",
+			Value:   "en-US,en",
+			EnvVars: []string{"OGAMED_DEVICELANG"},
 		},
 		&cli.StringFlag{
 			Name:    "host",
@@ -182,17 +243,61 @@ func start(c *cli.Context) error {
 	corsEnabled := c.Bool("cors-enabled")
 	njaApiKey := c.String("nja-api-key")
 
+	deviceName := c.String("device-name")
+	deviceSystem := c.String("device-system")
+	deviceBrowser := c.String("device-browser")
+	deviceMemory := c.Int("device-memory")
+	deviceConcurrency := c.Int("device-concurrency")
+	deviceColor := c.Int("device-color")
+	deviceWidth := c.Int("device-width")
+	deviceHeight := c.Int("device-height")
+	deviceTimezone := c.String("device-timezone")
+	deviceLang := c.String("device-lang")
+
+	var deviceSystemParam device.Os
+	switch deviceSystem {
+	case "Android":
+		deviceSystemParam = device.Android
+	case "Windows":
+		deviceSystemParam = device.Windows
+	case "MacOSX":
+		deviceSystemParam = device.MacOSX
+	case "Linux":
+		deviceSystemParam = device.Linux
+	case "iOS":
+		deviceSystemParam = device.Linux
+	default:
+		deviceSystemParam = device.Windows
+	}
+
+	var deviceBrowserParam device.Browser
+	switch deviceBrowser {
+	case "Chrome":
+		deviceBrowserParam = device.Chrome
+	case "Opera":
+		deviceBrowserParam = device.Opera
+	case "Safari":
+		deviceBrowserParam = device.Safari
+	case "Edge":
+		deviceBrowserParam = device.Edge
+	case "Firefox":
+		deviceBrowserParam = device.Firefox
+	default:
+		deviceBrowserParam = device.Chrome
+
+	}
+
 	// TODO: put device config in flags & env variables
-	deviceInst, err := device.NewBuilder("device_name").
-		SetOsName(device.Windows).
-		SetBrowserName(device.Chrome).
-		SetMemory(8).
-		SetHardwareConcurrency(16).
-		ScreenColorDepth(24).
-		SetScreenWidth(1900).
-		SetScreenHeight(900).
-		SetTimezone("America/Los_Angeles").
-		SetLanguages("en-US,en").
+	deviceInst, err := device.NewBuilder(deviceName).
+		SetOsName(deviceSystemParam).
+		SetBrowserName(deviceBrowserParam).
+		SetMemory(deviceMemory).
+		SetHardwareConcurrency(deviceConcurrency).
+		ScreenColorDepth(deviceColor).
+		SetScreenWidth(deviceWidth).
+		SetScreenHeight(deviceHeight).
+		SetTimezone(deviceTimezone).
+		SetLanguages(deviceLang).
 		Build()
 	if err != nil {
 		panic(err)
