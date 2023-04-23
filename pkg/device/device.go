@@ -6,10 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/utils"
-	"github.com/martinlindhe/base36"
-	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -17,6 +13,11 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/httpclient"
+	"github.com/alaingilbert/ogame/pkg/utils"
+	"github.com/martinlindhe/base36"
+	cookiejar "github.com/orirawlings/persistent-cookiejar"
 )
 
 type Os string
@@ -456,9 +457,8 @@ func GenNewXVec() string {
 
 func rotateXVec(xvec string) string {
 	nowTs := time.Now().UnixMilli()
-	parts := strings.Split(xvec, " ")
-	part1 := parts[0]
-	prevTs := utils.DoParseI64(parts[1])
+	part1 := xvec[:100]
+	prevTs := utils.DoParseI64(xvec[101:])
 	if prevTs+1000 < nowTs {
 		part1 = part1[1:] + string(randChar())
 	}
