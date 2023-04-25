@@ -151,6 +151,11 @@ func main() {
 			Usage:   "Ninja API key",
 			Value:   "",
 			EnvVars: []string{"NJA_API_KEY"},
+		},&cli.StringFlag{
+			Name:    "device-name",
+			Usage:   "Set the Device Name",
+			Value:   "device_name",
+			EnvVars: []string{"OGAMED_DEVICENAME"},
 		},
 	}
 	app.Action = start
@@ -181,9 +186,9 @@ func start(c *cli.Context) error {
 	basicAuthPassword := c.String("basic-auth-password")
 	corsEnabled := c.Bool("cors-enabled")
 	njaApiKey := c.String("nja-api-key")
-
+	deviceName := c.String("device-name")
 	// TODO: put device config in flags & env variables
-	deviceInst, err := device.NewBuilder("device_name").
+	deviceInst, err := device.NewBuilder(deviceName).
 		SetOsName(device.Windows).
 		SetBrowserName(device.Chrome).
 		SetMemory(8).

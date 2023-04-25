@@ -311,7 +311,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if err != nil {
 		if err == ogame.ErrNotLogged {
 			b.debug("get login link")
-			loginLink, err := GetLoginLink(b.device.GetClient(), b.ctx, b.lobby, userAccount, token)
+			loginLink, err := GetLoginLink(b.device.GetClient(), b.ctx, b.lobby, userAccount, token, b.device)
 			if err != nil {
 				return true, err
 			}
@@ -511,7 +511,7 @@ func (b *OGame) login() error {
 	}
 
 	b.debug("get login link")
-	loginLink, err := GetLoginLink(b.device.GetClient(), b.ctx, b.lobby, userAccount, postSessionsRes.Token)
+	loginLink, err := GetLoginLink(b.device.GetClient(), b.ctx, b.lobby, userAccount, postSessionsRes.Token, b.device)
 	if err != nil {
 		return err
 	}
