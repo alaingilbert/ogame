@@ -647,30 +647,57 @@ func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	return userAccounts, nil
 }
 
-func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
-	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d&clickedButton=account_list",
-		lobby, userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
-	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
+func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby string, userAccount Account, bearerToken string, device *device.Device) (string, error) {
+	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink",
+		lobby)
+
+
+	blackbox, err := device.GetBlackbox()	
+
+		var payload = struct {			
+			Blackbox                string `json:"blackbox"`			
+			Id 						int64 `json:"id"`
+			ClickedButton 			string `json:"ClickedButton"`
+			Server   struct {
+				Language 				string `json:"language"`
+				Number 					int64 `json:"number"`
+			}  `json:"server"`			 
+		}{			
+			Blackbox:                "tra:" + blackbox,					
+			Id: userAccount.ID,
+  			ClickedButton: "quick_join",
+		}
+
+		payload.Server.Language = userAccount.Server.Language
+		payload.Server.Number = userAccount.Server.Number	
+	
+	by, err := json.Marshal(&payload)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Add("authorization", "Bearer "+bearerToken)
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req, err := http.NewRequest(http.MethodPost, ogURL, bytes.NewReader(by))
+	if err != nil {
+		return "", err
+	}	
+	req.Header.Add("content-type", "application/json")	
+	req.Header.Add("authorization", "Bearer "+bearerToken)	
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+
+	by2, err := utils.ReadBody(resp)
 	if err != nil {
 		return "", err
 	}
 	var loginLink struct {
 		URL string
 	}
-	if err := json.Unmarshal(by, &loginLink); err != nil {
-		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by))
+
+	if err := json.Unmarshal(by2, &loginLink); err != nil {
+		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by2))
 	}
 	return loginLink.URL, nil
 }
