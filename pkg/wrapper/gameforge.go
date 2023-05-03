@@ -647,7 +647,7 @@ func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	return userAccounts, nil
 }
 
-func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby string, userAccount Account, bearerToken string, device *device.Device) (string, error) {
+func GetLoginLink(device *device.Device, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
 	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink",
 		lobby)
 
@@ -681,7 +681,7 @@ func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby stri
 	req.Header.Add("content-type", "application/json")
 	req.Header.Add("authorization", "Bearer "+bearerToken)
 	req.WithContext(ctx)
-	resp, err := client.Do(req)
+	resp, err := device.GetClient().Do(req)
 	if err != nil {
 		return "", err
 	}
