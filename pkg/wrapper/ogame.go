@@ -4250,6 +4250,11 @@ func (b *OGame) IsConnected() bool {
 	return atomic.LoadInt32(&b.isConnectedAtom) == 1
 }
 
+// GetDevice get the device used by the bot
+func (b *OGame) GetDevice() *device.Device {
+	return b.device
+}
+
 // GetClient get the http client used by the bot
 func (b *OGame) GetClient() *httpclient.Client {
 	return b.device.GetClient()
