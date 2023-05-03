@@ -651,26 +651,25 @@ func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby stri
 	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink",
 		lobby)
 
+	blackbox, err := device.GetBlackbox()
 
-	blackbox, err := device.GetBlackbox()	
+	var payload = struct {
+		Blackbox      string `json:"blackbox"`
+		Id            int64  `json:"id"`
+		ClickedButton string `json:"ClickedButton"`
+		Server        struct {
+			Language string `json:"language"`
+			Number   int64  `json:"number"`
+		} `json:"server"`
+	}{
+		Blackbox:      "tra:" + blackbox,
+		Id:            userAccount.ID,
+		ClickedButton: "quick_join",
+	}
 
-		var payload = struct {			
-			Blackbox                string `json:"blackbox"`			
-			Id 						int64 `json:"id"`
-			ClickedButton 			string `json:"ClickedButton"`
-			Server   struct {
-				Language 				string `json:"language"`
-				Number 					int64 `json:"number"`
-			}  `json:"server"`			 
-		}{			
-			Blackbox:                "tra:" + blackbox,					
-			Id: userAccount.ID,
-  			ClickedButton: "quick_join",
-		}
+	payload.Server.Language = userAccount.Server.Language
+	payload.Server.Number = userAccount.Server.Number
 
-		payload.Server.Language = userAccount.Server.Language
-		payload.Server.Number = userAccount.Server.Number	
-	
 	by, err := json.Marshal(&payload)
 	if err != nil {
 		return "", err
@@ -678,9 +677,9 @@ func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby stri
 	req, err := http.NewRequest(http.MethodPost, ogURL, bytes.NewReader(by))
 	if err != nil {
 		return "", err
-	}	
-	req.Header.Add("content-type", "application/json")	
-	req.Header.Add("authorization", "Bearer "+bearerToken)	
+	}
+	req.Header.Add("content-type", "application/json")
+	req.Header.Add("authorization", "Bearer "+bearerToken)
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
