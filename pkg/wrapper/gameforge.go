@@ -656,7 +656,7 @@ func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby stri
 	var payload = struct {
 		Blackbox      string `json:"blackbox"`
 		Id            int64  `json:"id"`
-		ClickedButton string `json:"ClickedButton"`
+		ClickedButton string `json:"clickedButton"`
 		Server        struct {
 			Language string `json:"language"`
 			Number   int64  `json:"number"`
@@ -664,7 +664,7 @@ func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby stri
 	}{
 		Blackbox:      "tra:" + blackbox,
 		Id:            userAccount.ID,
-		ClickedButton: "quick_join",
+		ClickedButton: "account_list",
 	}
 
 	payload.Server.Language = userAccount.Server.Language
