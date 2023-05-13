@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	err2 "errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/device"
 	"image"
 	"image/color"
 	"image/png"
