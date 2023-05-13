@@ -151,11 +151,6 @@ func main() {
 			Usage:   "Ninja API key",
 			Value:   "",
 			EnvVars: []string{"NJA_API_KEY"},
-		}, &cli.StringFlag{
-			Name:    "device-name",
-			Usage:   "Set the Device Name",
-			Value:   "device_name",
-			EnvVars: []string{"OGAMED_DEVICENAME"},
 		},
 	}
 	app.Action = start
