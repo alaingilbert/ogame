@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	err2 "errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/device"
 	"image"
 	"image/color"
 	"image/png"
@@ -28,6 +27,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/device"
 
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
@@ -901,7 +902,7 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 }
 
 func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	if b.IsV8() || b.IsV9() {
+	if b.IsV8() || b.IsV9() || b.IsV10() {
 		b.connectChatV8(chatRetry, host, port)
 	} else {
 		b.connectChatV7(chatRetry, host, port)
@@ -3038,6 +3039,11 @@ func (b *OGame) IsV9() bool {
 	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '9'
 }
 
+// IsV10 ...
+func (b *OGame) IsV10() bool {
+	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "10"
+}
+
 func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
 	pageHTML, _ := b.getPageContent(url.Values{
 		"page":       {"ingame"},
@@ -3520,7 +3526,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsV8() || b.IsV9() {
+	if b.IsV8() || b.IsV9() || b.IsV10() {
 		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	}
 	if len(tokenM) != 2 {
@@ -3592,7 +3598,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	newResources.Deuterium = utils.MaxInt(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
-	if b.IsV8() || b.IsV9() {
+	if b.IsV8() || b.IsV9() || b.IsV10() {
 		payload.Set("token", checkRes.NewAjaxToken)
 	}
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
