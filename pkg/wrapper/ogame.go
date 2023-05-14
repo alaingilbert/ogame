@@ -3751,7 +3751,7 @@ func (b *OGame) sendDiscovery(celestialID ogame.CelestialID, where ogame.Coordin
 	payload := url.Values{}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsV8() || b.IsV9() {
+	if b.IsV8() || b.IsV9() || b.IsV10() {
 		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	}
 	if len(tokenM) != 2 {
