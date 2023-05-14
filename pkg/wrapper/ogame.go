@@ -28,6 +28,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/alaingilbert/ogame/pkg/device"
+
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/device"
 
@@ -3526,7 +3528,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsV8() || b.IsV9() {
+	if b.IsV8() || b.IsV9() || b.IsV10() {
 		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	}
 	if len(tokenM) != 2 {
@@ -3598,7 +3600,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	newResources.Deuterium = utils.MaxInt(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
-	if b.IsV8() || b.IsV9() {
+	if b.IsV8() || b.IsV9() || b.IsV10() {
 		payload.Set("token", checkRes.NewAjaxToken)
 	}
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
