@@ -28,8 +28,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/alaingilbert/ogame/pkg/device"
-
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/device"
 
