@@ -236,7 +236,7 @@ func (d *Builder) Build() (*Device, error) {
 	}
 	if d.navigatorVendor == "" {
 		d.setRandomNavigatorVendor()
-		if d.navigatorVendor == "" {
+		if d.navigatorVendor == "" && d.browserName != Firefox {
 			return nil, errors.New("navigatorVendor must be specified")
 		}
 	}
@@ -631,7 +631,7 @@ func (d *Builder) setRandomNavigatorVendor() {
 }
 
 func (d *Builder) setRandomWebglInfo() {
-	if d.osName == Windows {
+	if d.osName == Windows || d.osName == Linux {
 		if d.browserName == Chrome {
 			d.webglInfo = utils.RandChoice([]string{
 				"Google Inc. (NVIDIA),ANGLE (NVIDIA, NVIDIA GeForce GTX 1060 Direct3D11 vs_5_0 ps_5_0, D3D11)",
@@ -803,6 +803,10 @@ func (d *Builder) setRandomOsVersion() {
 	} else if d.osName == Windows {
 		d.osVersion = utils.RandChoice([]string{
 			"7", "8", "10",
+		})
+	} else if d.osName == Linux {
+		d.osVersion = utils.RandChoice([]string{
+			"22.04", "20.04", "18.04",
 		})
 	}
 }
