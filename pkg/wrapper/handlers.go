@@ -408,13 +408,18 @@ func CelestialAbandonHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-	return c.JSON(http.StatusOK, SuccessResp(struct {
-		CelestialID int64
-		Result      string
-	}{
-		CelestialID: celestialID,
-		Result:      "succeed",
-	}))
+	_, err = bot.GetCelestial(celestialID)
+	if err != nil {
+		return c.JSON(http.StatusOK, SuccessResp(struct {
+			CelestialID int64
+			Result      string
+		}{
+			CelestialID: celestialID,
+			Result:      "succeed",
+		}))
+	} else {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "Celestial could not be deleted"))
+	}
 
 }
 
