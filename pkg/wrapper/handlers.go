@@ -397,6 +397,27 @@ func GetPlanetsHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(planets))
 }
 
+// CelestialAbandonHandler ...
+func CelestialAbandonHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := utils.ParseI64(c.Param("celestialID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+	err = bot.Abandon(celestialID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(struct {
+		CelestialID int64
+		Result      string
+	}{
+		CelestialID: celestialID,
+		Result:      "succeed",
+	}))
+
+}
+
 // GetCelestialItemsHandler ...
 func GetCelestialItemsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
