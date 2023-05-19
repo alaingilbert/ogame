@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/alaingilbert/ogame/pkg/ogame"
@@ -1083,6 +1084,7 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 	allianceID := c.QueryParam("allianceId")
 	vals := url.Values{"allianceId": {allianceID}}
 	pageHTML, _ := bot.GetPageContent(vals)
+	pageHTML = removeCookiesBanner(pageHTML)
 	return c.HTML(http.StatusOK, string(pageHTML))
 }
 
@@ -1155,6 +1157,7 @@ func GetFromGameHandler(c echo.Context) error {
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
 	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = removeCookiesBanner(pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1168,6 +1171,7 @@ func PostToGameHandler(c echo.Context) error {
 	payload, _ := c.FormParams()
 	pageHTML, _ := bot.PostPageContent(vals, payload)
 	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = removeCookiesBanner(pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1522,4 +1526,11 @@ func GetPublicIPHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(ip))
+}
+
+func removeCookiesBanner(pageHTML []byte) []byte {
+	regex := `<script[^>]*id="cookiebanner"[^>]*>[\s\S]*?</script>`
+	re := regexp.MustCompile(regex)
+	pageHTML = []byte(re.ReplaceAllString(string(pageHTML), ""))
+	return pageHTML
 }
