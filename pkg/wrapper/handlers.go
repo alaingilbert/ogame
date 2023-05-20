@@ -1,12 +1,12 @@
 package wrapper
 
 import (
-	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/alaingilbert/ogame/pkg/ogame"
@@ -1013,17 +1013,33 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 	return c.HTML(http.StatusOK, string(pageHTML))
 }
 
-func replaceHostname(bot *OGame, html []byte) []byte {
-	serverURLBytes := []byte(bot.serverURL)
-	apiNewHostnameBytes := []byte(bot.apiNewHostname)
-	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
-	doubleEscapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte("\\\\\\/"), -1)
-	escapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte(`\/`), -1)
-	doubleEscapedAPINewHostname := bytes.Replace(apiNewHostnameBytes, []byte("/"), []byte("\\\\\\/"), -1)
-	html = bytes.Replace(html, serverURLBytes, apiNewHostnameBytes, -1)
-	html = bytes.Replace(html, escapedServerURL, escapedAPINewHostname, -1)
-	html = bytes.Replace(html, doubleEscapedServerURL, doubleEscapedAPINewHostname, -1)
-	return html
+func replaceHostnameWithRegxp(bot *OGame, pageHTML []byte, r *http.Request) []byte {
+	requestHostname := "http://" + r.Host
+	if r.TLS != nil {
+		requestHostname = "https://" + r.Host
+	}
+	regexes := []string{
+		//`https://s\d{1,3}-[a-z]{2}\.ogame\.gameforge\.com`,
+		`https://s\d+-[a-z]{2}\.ogame\.gameforge\.com`,
+		`https?:\\/\\/s\d+-[a-z]{2}\.ogame\.gameforge\.com`,
+		`https?:\\\\/\\\\/s\d+-[a-z]{2}\.ogame\.gameforge\.com`,
+	}
+	for idx, regex := range regexes {
+		replaceStr := requestHostname
+		if bot.apiNewHostname != "" {
+			replaceStr = bot.apiNewHostname
+		}
+
+		if idx > 0 {
+			replaceStr = strings.ReplaceAll(replaceStr, `/`, `\/`)
+			if idx > 1 {
+				replaceStr = strings.ReplaceAll(replaceStr, `/`, `\\/`)
+			}
+		}
+
+		pageHTML = regexp.MustCompile(regex).ReplaceAll(pageHTML, []byte(replaceStr))
+	}
+	return pageHTML
 }
 
 // GetStaticHandler ...
@@ -1041,7 +1057,7 @@ func GetStaticHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	defer resp.Body.Close()
-	body, err := utils.ReadBody(resp)
+	pageHTML, err := utils.ReadBody(resp)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -1057,11 +1073,11 @@ func GetStaticHandler(c echo.Context) error {
 	}
 
 	if strings.Contains(c.Request().URL.String(), ".xml") {
-		body = replaceHostname(bot, body)
-		return c.Blob(http.StatusOK, "application/xml", body)
+		pageHTML = replaceHostnameWithRegxp(bot, pageHTML, c.Request())
+		return c.Blob(http.StatusOK, "application/xml", pageHTML)
 	}
 
-	contentType := http.DetectContentType(body)
+	contentType := http.DetectContentType(pageHTML)
 	if strings.Contains(newURL, ".css") {
 		contentType = "text/css"
 	} else if strings.Contains(newURL, ".js") {
@@ -1070,7 +1086,7 @@ func GetStaticHandler(c echo.Context) error {
 		contentType = "image/gif"
 	}
 
-	return c.Blob(http.StatusOK, contentType, body)
+	return c.Blob(http.StatusOK, contentType, pageHTML)
 }
 
 // GetFromGameHandler ...
@@ -1081,7 +1097,7 @@ func GetFromGameHandler(c echo.Context) error {
 		vals = c.QueryParams()
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
-	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = replaceHostnameWithRegxp(bot, pageHTML, c.Request())
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1094,7 +1110,7 @@ func PostToGameHandler(c echo.Context) error {
 	}
 	payload, _ := c.FormParams()
 	pageHTML, _ := bot.PostPageContent(vals, payload)
-	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = replaceHostnameWithRegxp(bot, pageHTML, c.Request())
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 

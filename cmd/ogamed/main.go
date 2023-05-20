@@ -2,14 +2,15 @@ package main
 
 import (
 	"crypto/subtle"
+	"log"
+	"os"
+	"strconv"
+
 	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/urfave/cli.v2"
-	"log"
-	"os"
-	"strconv"
 )
 
 var version = "0.0.0"
@@ -106,8 +107,8 @@ func main() {
 		},
 		&cli.StringFlag{
 			Name:    "api-new-hostname",
-			Usage:   "New OGame Hostname eg: https://someuniverse.example.com",
-			Value:   "http://127.0.0.1:8080",
+			Usage:   "New OGame Hostname eg: http://127.0.0.1:8080 or https://someuniverse.example.com",
+			Value:   "",
 			EnvVars: []string{"OGAMED_NEW_HOSTNAME"},
 		},
 		&cli.StringFlag{
