@@ -1019,16 +1019,25 @@ func replaceHostnameWithRegxp(bot *OGame, pageHTML []byte, r *http.Request) []by
 		requestHostname = "https://" + r.Host
 	}
 	regexes := []string{
+		//`https://s\d{1,3}-[a-z]{2}\.ogame\.gameforge\.com`,
 		`https://s\d+-[a-z]{2}\.ogame\.gameforge\.com`,
 		`https?:\\/\\/s\d+-[a-z]{2}\.ogame\.gameforge\.com`,
 		`https?:\\\\/\\\\/s\d+-[a-z]{2}\.ogame\.gameforge\.com`,
 	}
-	for _, regex := range regexes {
+	for idx, regex := range regexes {
+		replaceStr := requestHostname
 		if bot.apiNewHostname != "" {
-			pageHTML = regexp.MustCompile(regex).ReplaceAll(pageHTML, []byte(bot.apiNewHostname))
-		} else {
-			pageHTML = regexp.MustCompile(regex).ReplaceAll(pageHTML, []byte(requestHostname))
+			replaceStr = bot.apiNewHostname
 		}
+
+		if idx > 0 {
+			replaceStr = strings.ReplaceAll(replaceStr, `/`, `\/`)
+			if idx > 1 {
+				replaceStr = strings.ReplaceAll(replaceStr, `/`, `\\/`)
+			}
+		}
+
+		pageHTML = regexp.MustCompile(regex).ReplaceAll(pageHTML, []byte(replaceStr))
 	}
 	return pageHTML
 }
