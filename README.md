@@ -49,7 +49,7 @@ func main() {
 		SetLanguages("en-US,en").
 		Build()
 
-	ogame, err := wrapper.New(deviceInst, universe, username, password, language)
+	bot, err := wrapper.New(deviceInst, universe, username, password, language)
 	if err != nil {
 		panic(err)
 	}
