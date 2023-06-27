@@ -314,6 +314,7 @@ func start(c *cli.Context) error {
 	e.GET("/bot/celestials/:celestialID/abandon", wrapper.CelestialAbandonHandler)
 	e.GET("/bot/planets", wrapper.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", wrapper.GetPlanetHandler)
+	e.GET("/bot/planets/:planetID/is-under-attack", wrapper.IsUnderAttackByIDHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", wrapper.GetPlanetByCoordHandler)
 	e.GET("/bot/planets/:planetID/resources-details", wrapper.GetResourcesDetailsHandler)
 	e.GET("/bot/planets/:planetID/resource-settings", wrapper.GetResourceSettingsHandler)

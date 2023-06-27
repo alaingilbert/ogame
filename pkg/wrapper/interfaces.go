@@ -93,6 +93,7 @@ type Prioritizable interface {
 	HeadersForPage(url string) (http.Header, error)
 	Highscore(category, typ, page int64) (ogame.Highscore, error)
 	IsUnderAttack() (bool, error)
+	IsUnderAttackByID(CelestialID ogame.CelestialID) (bool, error)
 	Login() error
 	LoginWithBearerToken(token string) (bool, error)
 	LoginWithExistingCookies() (bool, error)

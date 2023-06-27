@@ -161,6 +161,19 @@ func IsUnderAttackHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(isUnderAttack))
 }
 
+func IsUnderAttackByIDHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	planetID, err := utils.ParseI64(c.Param("planetID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+	isUnderAttack, err := bot.IsUnderAttackByID(ogame.CelestialID(planetID))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(isUnderAttack))
+}
+
 // IsVacationModeHandler ...
 func IsVacationModeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)

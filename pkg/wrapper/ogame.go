@@ -1750,6 +1750,11 @@ func (b *OGame) isUnderAttack() (bool, error) {
 	return len(attacks) > 0, err
 }
 
+func (b *OGame) isUnderAttackByID(celestialID ogame.CelestialID) (bool, error) {
+	attacks, err := b.getAttacksByCelestialID(celestialID)
+	return len(attacks) > 0, err
+}
+
 func (b *OGame) setVacationMode() error {
 	vals := url.Values{"page": {"ingame"}, "component": {"preferences"}}
 	pageHTML, err := b.getPageContent(vals)
@@ -2859,6 +2864,29 @@ func fixAttackEvents(attacks []ogame.AttackEvent, planets []Planet) {
 
 func (b *OGame) getAttacks(opts ...Option) (out []ogame.AttackEvent, err error) {
 	vals := url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}}
+	page, err := getAjaxPage[parser.EventListAjaxPage](b, vals, opts...)
+	if err != nil {
+		return
+	}
+	ownCoords := make([]ogame.Coordinate, 0)
+	planets := b.GetCachedPlanets()
+	for _, planet := range planets {
+		ownCoords = append(ownCoords, planet.Coordinate)
+		if planet.Moon != nil {
+			ownCoords = append(ownCoords, planet.Moon.Coordinate)
+		}
+	}
+	out, err = page.ExtractAttacks(ownCoords)
+	if err != nil {
+		return
+	}
+	fixAttackEvents(out, planets)
+	return
+}
+
+func (b *OGame) getAttacksByCelestialID(celestialID ogame.CelestialID, opts ...Option) (out []ogame.AttackEvent, err error) {
+	vals := url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}}
+	opts = append(opts, ChangePlanet(celestialID))
 	page, err := getAjaxPage[parser.EventListAjaxPage](b, vals, opts...)
 	if err != nil {
 		return
@@ -4557,6 +4585,11 @@ func (b *OGame) PostPageContent(vals, payload url.Values) ([]byte, error) {
 // IsUnderAttack returns true if the user is under attack, false otherwise
 func (b *OGame) IsUnderAttack() (bool, error) {
 	return b.WithPriority(taskRunner.Normal).IsUnderAttack()
+}
+
+// IsUnderAttack returns true if the user is under attack, false otherwise
+func (b *OGame) IsUnderAttackByID(CelestialID ogame.CelestialID) (bool, error) {
+	return b.WithPriority(taskRunner.Normal).IsUnderAttackByID(CelestialID)
 }
 
 // GetCachedPlayer returns cached player infos

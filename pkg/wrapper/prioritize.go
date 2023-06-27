@@ -125,6 +125,13 @@ func (b *Prioritize) IsUnderAttack() (bool, error) {
 	return b.bot.isUnderAttack()
 }
 
+// IsUnderAttack returns true if the user is under attack, false otherwise
+func (b *Prioritize) IsUnderAttackByID(CelestialID ogame.CelestialID) (bool, error) {
+	b.begin("IsUnderAttackByID")
+	defer b.done()
+	return b.bot.isUnderAttackByID(CelestialID)
+}
+
 // SetVacationMode puts account in vacation mode
 func (b *Prioritize) SetVacationMode() error {
 	b.begin("SetVacationMode")
