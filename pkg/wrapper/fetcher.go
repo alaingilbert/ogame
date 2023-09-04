@@ -42,6 +42,7 @@ const (
 	FetchEventboxAjaxPageName      = "fetchEventbox"
 	FetchResourcesAjaxPageName     = "fetchResources"
 	GalaxyContentAjaxPageName      = "galaxyContent"
+	GalaxyAjaxPageName             = "galaxy"
 	EventListAjaxPageName          = "eventList"
 	AjaxChatAjaxPageName           = "ajaxChat"
 	NoticesAjaxPageName            = "notices"
