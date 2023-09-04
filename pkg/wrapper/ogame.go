@@ -28,11 +28,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/device"
+
+	"github.com/alaingilbert/clockwork"
 
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
 	"github.com/alaingilbert/ogame/pkg/extractor"
+	v10 "github.com/alaingilbert/ogame/pkg/extractor/v10"
 	v11 "github.com/alaingilbert/ogame/pkg/extractor/v11"
 	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
@@ -663,6 +665,8 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 		b.serverVersion = ogVersion
 		if b.IsVGreaterThanOrEqual("11.0.0-beta25") {
 			ext = v11.NewExtractor()
+		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("10.0.0"))) {
+			ext = v10.NewExtractor()
 		} else if b.IsVGreaterThanOrEqual("9.0.0") {
 			ext = v9.NewExtractor()
 		} else if b.IsVGreaterThanOrEqual("8.7.4-pl3") {
@@ -1431,6 +1435,14 @@ func canParseSystemInfos(by []byte) bool {
 	return err == nil
 }
 
+func canParseNewSystemInfos(by []byte) bool {
+	var success struct {
+		Success bool
+	}
+	err := json.Unmarshal(by, &success)
+	return err == nil
+}
+
 func (b *OGame) preRequestChecks() error {
 	if !b.IsEnabled() {
 		return ogame.ErrBotInactive
@@ -1517,7 +1529,8 @@ func detectLoggedOut(method, page string, vals url.Values, pageHTML []byte) bool
 			(page == FetchEventboxAjaxPageName && !canParseEventBox(pageHTML))
 
 	case http.MethodPost:
-		return page == GalaxyContentAjaxPageName && !canParseSystemInfos(pageHTML)
+		return (page == GalaxyContentAjaxPageName && !canParseSystemInfos(pageHTML)) ||
+			(page == GalaxyAjaxPageName && !canParseNewSystemInfos(pageHTML))
 	}
 	return false
 }
