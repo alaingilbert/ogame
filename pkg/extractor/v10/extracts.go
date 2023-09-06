@@ -19,16 +19,16 @@ type (
 	}
 
 	SystemJson struct {
-		Galaxy            int64         `json:"galaxy"`
-		System            int64         `json:"system"`
+		Galaxy            CInt64        `json:"galaxy"`
+		System            CInt64        `json:"system"`
 		DeuteriumInDebris bool          `json:"deuteriumInDebris"`
 		Content           []ContentJson `json:"galaxyContent"`
 	}
 
 	ContentJson struct {
-		Galaxy   int64       `json:"galaxy"`
-		System   int64       `json:"system"`
-		Position int64       `json:"position"`
+		Galaxy   CInt64      `json:"galaxy"`
+		System   CInt64      `json:"system"`
+		Position CInt64      `json:"position"`
 		Planets  PlanetsList `json:"planets"`
 		Player   PlayerJson  `json:"player"`
 		Filters  string      `json:"positionFilters"`
@@ -37,28 +37,22 @@ type (
 	PlanetsList []PlanetJson
 
 	PlanetJson struct {
-		PlayerID      int64         `json:"playerId"`
-		PlanetID      int64         `json:"planetId"`
+		PlayerID      CInt64        `json:"playerId"`
+		PlanetID      CInt64        `json:"planetId"`
 		PlanetName    string        `json:"planetName"`
 		Image         string        `json:"imageInformation"`
-		PlanetType    int64         `json:"planetType"`
+		PlanetType    CInt64        `json:"planetType"`
 		IsDestroyed   bool          `json:"isDestroyed"`
-		Size          int64         `json:"size,string"`
-		RequiredShips int64         `json:"requiredShips"`
+		Size          CInt64        `json:"size"`
+		RequiredShips CInt64        `json:"requiredShips"`
 		Resources     ResourcesJson `json:"resources"`
 		Activity      ActivityJson  `json:"activity"`
 	}
 
 	ResourcesJson struct {
-		Metal struct {
-			Amount int64 `json:"amount,string"`
-		} `json:"metal"`
-		Crystal struct {
-			Amount int64 `json:"amount,string"`
-		} `json:"crystal"`
-		Deuterium struct {
-			Amount int64 `json:"amount,string"`
-		} `json:"deuterium"`
+		Metal     int64
+		Crystal   int64
+		Deuterium int64
 	}
 
 	ActivityJson struct {
@@ -66,14 +60,14 @@ type (
 	}
 
 	PlayerJson struct {
-		PlayerID          int64    `json:"playerId"`
+		PlayerID          CInt64   `json:"playerId"`
 		PlayerName        string   `json:"playerName"`
-		AllianceID        int64    `json:"allianceId"`
+		AllianceID        CInt64   `json:"allianceId"`
 		AllianceName      string   `json:"allianceName"`
 		AllianceTag       string   `json:"allianceTag"`
 		IsAllianceMember  bool     `json:"isAllianceMember"`
-		PositionPlayer    int64    `json:"highscorePositionPlayer"`
-		PositionAlliance  int64    `json:"highscorePositionAlliance,string"`
+		PositionPlayer    CInt64   `json:"highscorePositionPlayer"`
+		PositionAlliance  CInt64   `json:"highscorePositionAlliance"`
 		IsAdmin           bool     `json:"isAdmin"`
 		IsBanned          bool     `json:"isBanned"`
 		IsOnVacation      bool     `json:"isOnVacation"`
@@ -89,7 +83,28 @@ type (
 		RankTitle string `json:"rankTitle"`
 		RankClass string `json:"rankClass"`
 	}
+	
+	CInt64 int64
 )
+
+func (c *CInt64) UnmarshalJSON(d []byte) error {
+	var tmp int64
+	if err := json.Unmarshal(d, &tmp); err == nil {
+		*c = CInt64(tmp)
+		return nil
+	}
+	var str string
+	if err := json.Unmarshal(d, &str); err != nil {
+		return err
+	}
+	tmp = utils.ParseInt(str)
+	*c = CInt64(tmp)
+	return nil
+}
+
+func (c CInt64) Int64() int64 {
+	return int64(c)
+}
 
 func (p *PlanetsList) UnmarshalJSON(d []byte) error {
 	if d[0] == '[' {
@@ -104,6 +119,32 @@ func (p *PlanetsList) UnmarshalJSON(d []byte) error {
 		*p = []PlanetJson{tmp}
 		return nil
 	}
+	return nil
+}
+
+func (r *ResourcesJson) UnmarshalJSON(d []byte) error {
+	var tmp struct {
+		Metal struct {
+			Amount CInt64 `json:"amount"`
+		} `json:"metal"`
+		Crystal struct {
+			Amount CInt64 `json:"amount"`
+		} `json:"crystal"`
+		Deuterium struct {
+			Amount CInt64 `json:"amount"`
+		} `json:"deuterium"`
+	}
+
+	if err := json.Unmarshal(d, &tmp); err != nil {
+		return err
+	}
+	
+	*r = ResourcesJson{
+		Metal: int64(tmp.Metal.Amount),
+		Crystal: int64(tmp.Crystal.Amount),
+		Deuterium: int64(tmp.Deuterium.Amount),
+	}
+	
 	return nil
 }
 
@@ -152,20 +193,20 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 		return res, err
 	}
 	res.OverlayToken = tmp.Token
-	res.SetGalaxy(tmp.System.Galaxy)
-	res.SetSystem(tmp.System.System)
+	res.SetGalaxy(tmp.System.Galaxy.Int64())
+	res.SetSystem(tmp.System.System.Int64())
 
 	for i, pos := range tmp.System.Content {
 
-		if pos.Position == 16 {
-			res.ExpeditionDebris.Metal = pos.Planets[0].Resources.Metal.Amount
-			res.ExpeditionDebris.Crystal = pos.Planets[0].Resources.Crystal.Amount
-			res.ExpeditionDebris.Deuterium = pos.Planets[0].Resources.Deuterium.Amount
-			res.ExpeditionDebris.PathfindersNeeded = pos.Planets[0].RequiredShips
+		if pos.Position.Int64() == 16 {
+			res.ExpeditionDebris.Metal = pos.Planets[0].Resources.Metal
+			res.ExpeditionDebris.Crystal = pos.Planets[0].Resources.Crystal
+			res.ExpeditionDebris.Deuterium = pos.Planets[0].Resources.Deuterium
+			res.ExpeditionDebris.PathfindersNeeded = pos.Planets[0].RequiredShips.Int64()
 			continue
 		}
 		// TODO: manage asteroids and events in P17
-		if pos.Position == 17 {
+		if pos.Position.Int64() == 17 {
 			continue
 		}
 		if len(pos.Planets) == 0 {
@@ -177,9 +218,9 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 		for _, planet := range pos.Planets {
 
 			// Planet
-			if planet.PlanetType == ogame.PlanetType.Int64() {
+			if planet.PlanetType.Int64() == ogame.PlanetType.Int64() {
 				// Generic infos
-				planetInfos.ID = planet.PlanetID
+				planetInfos.ID = planet.PlanetID.Int64()
 				planetInfos.Name = planet.PlanetName
 				planetInfos.Img = planet.Image
 
@@ -194,49 +235,49 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 
 				planetInfos.Activity = planet.Activity.Minutes
 
-				planetInfos.Coordinate.Galaxy = pos.Galaxy
-				planetInfos.Coordinate.System = pos.System
-				planetInfos.Coordinate.Position = pos.Position
+				planetInfos.Coordinate.Galaxy = pos.Galaxy.Int64()
+				planetInfos.Coordinate.System = pos.System.Int64()
+				planetInfos.Coordinate.Position = pos.Position.Int64()
 				planetInfos.Coordinate.Type = ogame.PlanetType
 
 				planetInfos.Date = time.Now()
 
 				// Player
-				planetInfos.Player.ID = player.PlayerID
+				planetInfos.Player.ID = player.PlayerID.Int64()
 				planetInfos.Player.Name = player.PlayerName
-				planetInfos.Player.Rank = player.PositionPlayer
+				planetInfos.Player.Rank = player.PositionPlayer.Int64()
 
 				planetInfos.Player.IsBandit = strings.Contains(player.Rank.RankClass, "bandit")
 				planetInfos.Player.IsStarlord = strings.Contains(player.Rank.RankClass, "starlord")
 
 				// Alliance
-				if player.AllianceID > 0 {
+				if player.AllianceID.Int64() > 0 {
 					planetInfos.Alliance = new(ogame.AllianceInfos)
-					planetInfos.Alliance.ID = player.AllianceID
+					planetInfos.Alliance.ID = player.AllianceID.Int64()
 					planetInfos.Alliance.Name = player.AllianceName
 					planetInfos.Alliance.Tag = player.AllianceTag
-					planetInfos.Alliance.Rank = player.PositionAlliance
+					planetInfos.Alliance.Rank = player.PositionAlliance.Int64()
 					if player.IsAllianceMember {
 						planetInfos.Alliance.Member = 1
 					}
 				}
 
-			} else if planet.PlanetType == ogame.MoonType.Int64() {
+			} else if planet.PlanetType.Int64() == ogame.MoonType.Int64() {
 				// Moon
 				planetInfos.Moon = new(ogame.MoonInfos)
 
-				planetInfos.Moon.ID = planet.PlanetID
+				planetInfos.Moon.ID = planet.PlanetID.Int64()
 				planetInfos.Moon.Name = planet.PlanetName
-				planetInfos.Moon.Diameter = planet.Size
+				planetInfos.Moon.Diameter = int64(planet.Size)
 
 				planetInfos.Moon.Activity = planet.Activity.Minutes
 
-			} else if planet.PlanetType == ogame.DebrisType.Int64() {
+			} else if planet.PlanetType.Int64() == ogame.DebrisType.Int64() {
 				// Debris Field
-				planetInfos.Debris.Metal = planet.Resources.Metal.Amount
-				planetInfos.Debris.Crystal = planet.Resources.Crystal.Amount
-				planetInfos.Debris.Deuterium = planet.Resources.Deuterium.Amount
-				planetInfos.Debris.RecyclersNeeded = planet.RequiredShips
+				planetInfos.Debris.Metal = planet.Resources.Metal
+				planetInfos.Debris.Crystal = planet.Resources.Crystal
+				planetInfos.Debris.Deuterium = planet.Resources.Deuterium
+				planetInfos.Debris.RecyclersNeeded = planet.RequiredShips.Int64()
 			}
 		}
 		res.SetPlanet(i, planetInfos)
