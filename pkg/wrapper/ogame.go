@@ -936,7 +936,7 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 }
 
 func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	if b.IsV8() || b.IsV9() || b.IsV10() {
+	if b.IsV8() || b.IsV9() || b.IsV10() || b.IsV11() {
 		b.connectChatV8(chatRetry, host, port)
 	} else {
 		b.connectChatV7(chatRetry, host, port)
@@ -2920,7 +2920,12 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 		"galaxy": {utils.FI64(galaxy)},
 		"system": {utils.FI64(system)},
 	}
-	vals := url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
+	var vals url.Values
+	if b.IsV10() || b.IsV11() {
+		vals = url.Values{"page": {"ingame"}, "component": {"galaxy"}, "action": {"fetchGalaxyContent"}, "ajax": {"1"}, "asJson": {"1"}}
+	} else {
+		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
+	}
 	pageHTML, err := b.postPageContent(vals, payload, opts...)
 	if err != nil {
 		return res, err
@@ -3104,6 +3109,16 @@ func (b *OGame) IsV9() bool {
 // IsV10 ...
 func (b *OGame) IsV10() bool {
 	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "10"
+}
+
+// IsV104 ...
+func (b *OGame) IsV104() bool {
+	return len(b.ServerVersion()) > 3 && b.ServerVersion()[:4] == "10.4"
+}
+
+// IsV11 ...
+func (b *OGame) IsV11() bool {
+	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "11"
 }
 
 func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
@@ -3588,7 +3603,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsV8() || b.IsV9() || b.IsV10() {
+	if b.IsV8() || b.IsV9() || b.IsV10() || b.IsV11() {
 		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	}
 	if len(tokenM) != 2 {
@@ -3660,7 +3675,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	newResources.Deuterium = utils.MaxInt(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
-	if b.IsV8() || b.IsV9() || b.IsV10() {
+	if b.IsV8() || b.IsV9() || b.IsV10() || b.IsV11() {
 		payload.Set("token", checkRes.NewAjaxToken)
 	}
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
@@ -3779,7 +3794,7 @@ func (b *OGame) sendDiscovery(celestialID ogame.CelestialID, where ogame.Coordin
 	payload := url.Values{}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsV8() || b.IsV9() || b.IsV10() {
+	if b.IsV8() || b.IsV9() || b.IsV10() || b.IsV11() {
 		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	}
 	if len(tokenM) != 2 {
