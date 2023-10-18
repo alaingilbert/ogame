@@ -33,6 +33,7 @@ import (
 
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
 	"github.com/alaingilbert/ogame/pkg/extractor"
+	v11 "github.com/alaingilbert/ogame/pkg/extractor/v11"
 	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
 	v71 "github.com/alaingilbert/ogame/pkg/extractor/v71"
@@ -88,6 +89,7 @@ type OGame struct {
 	sessionChatCounter    int64
 	server                Server
 	serverData            ServerData
+	serverVersion         *version.Version
 	location              *time.Location
 	serverURL             string
 	logger                *log.Logger
@@ -365,6 +367,28 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	return b.loginWithBearerToken(token)
 }
 
+// V11 IntroBypass
+func (b *OGame) introBypass(page parser.OverviewPage) error {
+	if bytes.Contains(page.GetContent(), []byte(`currentPage = "intro";`)) {
+		b.debug("bypassing intro page")
+		vals := url.Values{
+			"page":      {"ingame"},
+			"component": {"intro"},
+			"action":    {"continueToClassSelection"},
+		}
+		payload := url.Values{
+			"username":  {b.Player.PlayerName},
+			"isVeteran": {"1"},
+		}
+		_, err := b.postPageContent(vals, payload)
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // TelegramSolver ...
 func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 	return func(question, icons []byte) (int64, error) {
@@ -634,17 +658,20 @@ func (b *OGame) loginPart2(server Server) error {
 }
 
 func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error {
-	var ext extractor.Extractor = v9.NewExtractor()
+	var ext extractor.Extractor = v11.NewExtractor()
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
-		if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("9.0.0"))) {
+		b.serverVersion = ogVersion
+		if b.IsVGreaterThanOrEqual("11.0.0-beta25") {
+			ext = v11.NewExtractor()
+		} else if b.IsVGreaterThanOrEqual("9.0.0") {
 			ext = v9.NewExtractor()
-		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.7.4-pl3"))) {
+		} else if b.IsVGreaterThanOrEqual("8.7.4-pl3") {
 			ext = v874.NewExtractor()
-		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("8.0.0"))) {
+		} else if b.IsVGreaterThanOrEqual("8.0.0") {
 			ext = v8.NewExtractor()
-		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.1.0-rc0"))) {
+		} else if b.IsVGreaterThanOrEqual("7.1.0-rc0") {
 			ext = v71.NewExtractor()
-		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("7.0.0-rc0"))) {
+		} else if b.IsVGreaterThanOrEqual("7.0.0") {
 			ext = v7.NewExtractor()
 		}
 		ext.SetLanguage(b.language)
@@ -694,6 +721,11 @@ func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error 
 		}(b)
 	} else {
 		b.ReconnectChat()
+	}
+
+	// V11 Intro bypass
+	if err := b.introBypass(page); err != nil {
+		b.error("failed to bypass intro:", err)
 	}
 
 	return nil
@@ -936,7 +968,7 @@ func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, log
 }
 
 func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	if b.IsV8() || b.IsV9() || b.IsV10() || b.IsV11() {
+	if b.IsVGreaterThanOrEqual("8.0.0") {
 		b.connectChatV8(chatRetry, host, port)
 	} else {
 		b.connectChatV7(chatRetry, host, port)
@@ -2921,7 +2953,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 		"system": {utils.FI64(system)},
 	}
 	var vals url.Values
-	if b.IsV10() || b.IsV11() {
+	if b.IsVGreaterThanOrEqual("10.0.0") {
 		vals = url.Values{"page": {"ingame"}, "component": {"galaxy"}, "action": {"fetchGalaxyContent"}, "ajax": {"1"}, "asJson": {"1"}}
 	} else {
 		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
@@ -2968,11 +3000,8 @@ func (b *OGame) getGalaxyPage(galaxy int64, system int64) (*GalaxyPageContent, e
 
 func (b *OGame) getResourceSettings(planetID ogame.PlanetID, options ...Option) (ogame.ResourceSettings, error) {
 	options = append(options, ChangePlanet(planetID.Celestial()))
-	page, err := getPage[parser.ResourcesSettingsPage](b, options...)
-	if err != nil {
-		return ogame.ResourceSettings{}, err
-	}
-	settings, _, err := page.ExtractResourceSettings()
+	pageHTML, _ := b.getPage(ResourceSettingsPageName, options...)
+	settings, _, err := b.extractor.ExtractResourceSettings(pageHTML)
 	return settings, err
 }
 
@@ -3119,6 +3148,11 @@ func (b *OGame) IsV104() bool {
 // IsV11 ...
 func (b *OGame) IsV11() bool {
 	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "11"
+}
+
+// IsVGreaterThanOrEqual ...
+func (b *OGame) IsVGreaterThanOrEqual(compareVersion string) bool {
+	return b.serverVersion.GreaterThanOrEqual(version.Must(version.NewVersion(compareVersion)))
 }
 
 func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
@@ -3603,7 +3637,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsV8() || b.IsV9() || b.IsV10() || b.IsV11() {
+	if b.IsVGreaterThanOrEqual("8.0.0") {
 		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	}
 	if len(tokenM) != 2 {
@@ -3675,7 +3709,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	newResources.Deuterium = utils.MaxInt(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
-	if b.IsV8() || b.IsV9() || b.IsV10() || b.IsV11() {
+	if b.IsVGreaterThanOrEqual("8.0.0") {
 		payload.Set("token", checkRes.NewAjaxToken)
 	}
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
@@ -3794,7 +3828,7 @@ func (b *OGame) sendDiscovery(celestialID ogame.CelestialID, where ogame.Coordin
 	payload := url.Values{}
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsV8() || b.IsV9() || b.IsV10() || b.IsV11() {
+	if b.IsVGreaterThanOrEqual("8.0.0") {
 		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	}
 	if len(tokenM) != 2 {

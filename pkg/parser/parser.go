@@ -98,7 +98,7 @@ type IFullPage interface {
 
 func AutoParseFullPage(e extractor.Extractor, pageHTML []byte) (out IFullPage) {
 	fullPage := FullPage{Page{e: e, content: pageHTML}}
-	if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) {
+	if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) || bytes.Contains(pageHTML, []byte(`currentPage = "intro";`)) {
 		out = OverviewPage{fullPage}
 	} else if bytes.Contains(pageHTML, []byte(`currentPage = "preferences";`)) {
 		out = PreferencesPage{fullPage}
@@ -117,7 +117,7 @@ func ParsePage[T FullPagePages](e extractor.Extractor, pageHTML []byte) (T, erro
 	fullPage := FullPage{Page{e: e, content: pageHTML}}
 	switch any(zero).(type) {
 	case OverviewPage:
-		if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) {
+		if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) || bytes.Contains(pageHTML, []byte(`currentPage = "intro";`)) {
 			return T(OverviewPage{fullPage}), nil
 		}
 	case DefensesPage:
