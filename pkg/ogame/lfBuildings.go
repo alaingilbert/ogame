@@ -371,7 +371,7 @@ func newMetropolis() *metropolis {
 	b.ID = MetropolisID
 	b.IncreaseFactor = 1.12
 	b.BaseCost = Resources{Metal: 80000, Crystal: 35000, Deuterium: 60000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 40, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1, SkyscraperID: 5, NeuroCalibrationCentreID: 1}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1, SkyscraperID: 6, NeuroCalibrationCentreID: 1}
 	return b
 }
 
