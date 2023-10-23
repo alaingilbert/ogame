@@ -369,7 +369,7 @@ func newMetropolis() *metropolis {
 	b := new(metropolis)
 	b.Name = "metropolis"
 	b.ID = MetropolisID
-	b.IncreaseFactor = 1.12
+	b.IncreaseFactor = 1.5
 	b.BaseCost = Resources{Metal: 80000, Crystal: 35000, Deuterium: 60000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1, SkyscraperID: 6, NeuroCalibrationCentreID: 1}
 	return b
@@ -466,8 +466,8 @@ func newOriktorium() *oriktorium {
 	b := new(oriktorium)
 	b.Name = "oriktorium"
 	b.ID = OriktoriumID
-	b.IncreaseFactor = 1.70
-	b.populationIncreaseFactor = 1.65
+	b.IncreaseFactor = 1.65
+	b.populationIncreaseFactor = 1.1
 	b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 90000000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1, CrystalRefineryID: 5}
 	return b
