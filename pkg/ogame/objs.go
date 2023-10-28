@@ -90,7 +90,7 @@ var (
 	CrystalRefinery                   = register[*crystalRefinery](newCrystalRefinery)
 	DeuteriumSynthesiser              = register[*deuteriumSynthesiser](newDeuteriumSynthesiser)
 	MineralResearchCentre             = register[*mineralResearchCentre](newMineralResearchCentre)
-	MetalRecyclingPlant               = register[*metalRecyclingPlant](newMetalRecyclingPlant)
+	AdvancedRecyclingPlant            = register[*advancedRecyclingPlant](newAdvancedRecyclingPlant)
 	AssemblyLine                      = register[*assemblyLine](newAssemblyLine) //Mechas
 	FusionCellFactory                 = register[*fusionCellFactory](newFusionCellFactory)
 	RoboticsResearchCentre            = register[*roboticsResearchCentre](newRoboticsResearchCentre)

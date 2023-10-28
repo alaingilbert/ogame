@@ -201,7 +201,7 @@ const (
 	CrystalRefineryID                   ID = 12109
 	DeuteriumSynthesiserID              ID = 12110
 	MineralResearchCentreID             ID = 12111
-	MetalRecyclingPlantID               ID = 12112
+	AdvancedRecyclingPlantID            ID = 12112
 	AssemblyLineID                      ID = 13101 // Lifeform (mechas)
 	FusionCellFactoryID                 ID = 13102
 	RoboticsResearchCentreID            ID = 13103

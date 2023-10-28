@@ -58,7 +58,7 @@ type LfBuildings struct {
 	CrystalRefinery            int64 // 12109
 	DeuteriumSynthesiser       int64 // 12110
 	MineralResearchCentre      int64 // 12111
-	MetalRecyclingPlant        int64 // 12112
+	AdvancedRecyclingPlant     int64 // 12112
 	AssemblyLine               int64 // 13101 // Lifeform (mechas)
 	FusionCellFactory          int64 // 13102
 	RoboticsResearchCentre     int64 // 13103
@@ -139,8 +139,8 @@ func (b LfBuildings) ByID(id ID) int64 {
 		return b.DeuteriumSynthesiser
 	case MineralResearchCentreID:
 		return b.MineralResearchCentre
-	case MetalRecyclingPlantID:
-		return b.MetalRecyclingPlant
+	case AdvancedRecyclingPlantID:
+		return b.AdvancedRecyclingPlant
 	case AssemblyLineID:
 		return b.AssemblyLine
 	case FusionCellFactoryID:
@@ -557,14 +557,14 @@ func newMineralResearchCentre() *mineralResearchCentre {
 	return b
 }
 
-type metalRecyclingPlant struct {
+type advancedRecyclingPlant struct {
 	BaseLfBuilding
 }
 
-func newMetalRecyclingPlant() *metalRecyclingPlant {
-	b := new(metalRecyclingPlant)
+func newAdvancedRecyclingPlant() *advancedRecyclingPlant {
+	b := new(advancedRecyclingPlant)
 	b.Name = "metal recycling plant"
-	b.ID = MetalRecyclingPlantID
+	b.ID = AdvancedRecyclingPlantID
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, CrystalFarmID: 22, RuneForgeID: 1, MegalithID: 5, CrystalRefineryID: 6, OriktoriumID: 5, RuneTechnologiumID: 5, MagmaForgeID: 3, DisruptionChamberID: 4, MineralResearchCentreID: 5}

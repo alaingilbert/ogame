@@ -604,7 +604,7 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 		res.CrystalRefinery = GetNbr(doc, "lifeformTech12109")
 		res.DeuteriumSynthesiser = GetNbr(doc, "lifeformTech12110")
 		res.MineralResearchCentre = GetNbr(doc, "lifeformTech12111")
-		res.MetalRecyclingPlant = GetNbr(doc, "lifeformTech12112")
+		res.AdvancedRecyclingPlant = GetNbr(doc, "lifeformTech12112")
 
 	} else if doc.Find("#lifeform a div").HasClass("lifeform3") {
 		res.LifeformType = ogame.Mechas

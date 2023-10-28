@@ -435,7 +435,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		CrystalRefinery:            res.Num12109,
 		DeuteriumSynthesiser:       res.Num12110,
 		MineralResearchCentre:      res.Num12111,
-		MetalRecyclingPlant:        res.Num12112,
+		AdvancedRecyclingPlant:     res.Num12112,
 		AssemblyLine:               res.Num13101,
 		FusionCellFactory:          res.Num13102,
 		RoboticsResearchCentre:     res.Num13103,

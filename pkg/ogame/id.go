@@ -202,8 +202,8 @@ func (o ID) String() string {
 		res += "DeuteriumSynthesiser"
 	case MineralResearchCentreID:
 		res += "MineralResearchCentre"
-	case MetalRecyclingPlantID:
-		res += "MetalRecyclingPlant"
+	case AdvancedRecyclingPlantID:
+		res += "AdvancedRecyclingPlant"
 	case AssemblyLineID:
 		res += "AssemblyLine"
 	case FusionCellFactoryID:
@@ -461,7 +461,7 @@ func (o ID) IsLfBuilding() bool {
 		o == CrystalRefineryID ||
 		o == DeuteriumSynthesiserID ||
 		o == MineralResearchCentreID ||
-		o == MetalRecyclingPlantID ||
+		o == AdvancedRecyclingPlantID ||
 		o == AssemblyLineID || // mechas
 		o == FusionCellFactoryID ||
 		o == RoboticsResearchCentreID ||
