@@ -209,11 +209,12 @@ func (f FilePersistor) Save(fprt *JsFingerprint) error {
 }
 
 func (d *Builder) Build() (*Device, error) {
+	deviceStorageDir := filepath.Join(DefaultStoragePath(), d.name)
+	if err := os.MkdirAll(deviceStorageDir, 0755); err != nil {
+		return nil, err
+	}
+
 	if d.persistor == nil {
-		deviceStorageDir := filepath.Join(DefaultStoragePath(), d.name)
-		if err := os.MkdirAll(deviceStorageDir, 0755); err != nil {
-			return nil, err
-		}
 		d.persistor = &FilePersistor{deviceStorageDir: deviceStorageDir}
 
 		if d.timezone == "" {
