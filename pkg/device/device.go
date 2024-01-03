@@ -1136,6 +1136,9 @@ func ParseBlackbox(decrypted string) (*JsFingerprint, error) {
 	}
 	fingerprint.Canvas2DInfo = int(canvas2DInfo)
 	fingerprint.DateIso, ok = arr[24].(string)
+	if !ok {
+		return nil, errors.New("failed to parse DateIso")
+	}
 	fingerprint.XGame, ok = arr[25].(string)
 	if !ok {
 		return nil, errors.New("failed to parse XGame")
@@ -1158,9 +1161,6 @@ func ParseBlackbox(decrypted string) (*JsFingerprint, error) {
 	fingerprint.UserAgent, ok = arr[29].(string)
 	if !ok {
 		return nil, errors.New("failed to parse UserAgent")
-	}
-	if !ok {
-		return nil, errors.New("failed to parse DateIso")
 	}
 	fingerprint.Game1DateHeader, ok = arr[30].(string)
 	if !ok {
