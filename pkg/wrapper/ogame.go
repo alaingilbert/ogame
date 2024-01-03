@@ -448,6 +448,40 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 	}
 }
 
+// ManualSolver manually solve the captcha
+func ManualSolver() CaptchaCallback {
+	return func(question, icons []byte) (int64, error) {
+		questionImg, err := png.Decode(bytes.NewReader(question))
+		if err != nil {
+			return -1, err
+		}
+		questionFile, err := os.Create("question.png")
+		if err != nil {
+			return -1, err
+		}
+		defer questionFile.Close()
+		if err := png.Encode(questionFile, questionImg); err != nil {
+			return -1, err
+		}
+		iconsImg, err := png.Decode(bytes.NewReader(icons))
+		if err != nil {
+			return -1, err
+		}
+		iconsFile, err := os.Create("icons.png")
+		if err != nil {
+			return -1, err
+		}
+		defer iconsFile.Close()
+		if err := png.Encode(iconsFile, iconsImg); err != nil {
+			return -1, err
+		}
+		var answer int64
+		fmt.Print("Answer: ")
+		_, _ = fmt.Scan(&answer)
+		return answer, nil
+	}
+}
+
 func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
 	if err := b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		var challengeID string

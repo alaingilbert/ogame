@@ -9,3 +9,4 @@ vendor
 /ogame.code-workspace
 cmd/ogamed/bin
 /.vs
+*.png
