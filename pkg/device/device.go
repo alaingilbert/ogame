@@ -63,7 +63,7 @@ type Builder struct {
 }
 
 type Persistor interface {
-	Load() ([]byte, error)
+	Load() (*JsFingerprint, error)
 	Save(*JsFingerprint) error
 }
 
@@ -183,13 +183,17 @@ type FilePersistor struct {
 	deviceStorageDir string
 }
 
-func (f FilePersistor) Load() ([]byte, error) {
+func (f FilePersistor) Load() (*JsFingerprint, error) {
 	fingerprintFilePath := filepath.Join(f.deviceStorageDir, "fingerprint")
 	diskFpBy, err := os.ReadFile(fingerprintFilePath)
 	if err != nil {
 		return nil, err
 	}
-	return diskFpBy, nil
+	fprt, err := ParseBlackbox(string(diskFpBy))
+	if err != nil {
+		return nil, err
+	}
+	return fprt, nil
 }
 
 func (f FilePersistor) Save(fprt *JsFingerprint) error {
@@ -205,98 +209,95 @@ func (f FilePersistor) Save(fprt *JsFingerprint) error {
 }
 
 func (d *Builder) Build() (*Device, error) {
-	if d.timezone == "" {
-		return nil, errors.New("timezone must be specified")
-	}
-	if d.osName == "" {
-		return nil, errors.New("os must be specified")
-	}
-	if d.browserName == "" {
-		return nil, errors.New("browser must be specified")
-	}
-	if !utils.InArr(d.timezone, timezones) {
-		return nil, errors.New("timezone is not valid")
-	}
-	if d.languages == "" {
-		d.languages = "en-US,en"
-	}
-	if d.offlineAudioCtx == 0 {
-		d.offlineAudioCtx = utils.RandFloat(123.8, 124.9)
-	}
-	if d.languages != "" {
-		parts := strings.Split(d.languages, ",")
-		for _, part := range parts {
-			if !utils.InArr(part, languages) {
-				return nil, errors.New("languages is not valid")
-			}
-		}
-	}
-	if d.canvas2DInfo == 0 {
-		d.canvas2DInfo = int(utils.Random(261334512, 1902830807))
-	}
-	if d.browserEngineName == "" {
-		d.setRandomBrowserEngineName()
-		if d.browserEngineName == "" {
-			return nil, errors.New("browserEngineName must be specified")
-		}
-	}
-	if d.osVersion == "" {
-		d.setRandomOsVersion()
-		if d.osVersion == "" {
-			return nil, errors.New("osVersion must be specified")
-		}
-	}
-	if d.memory == 0 {
-		d.setRandomMemory()
-		if d.memory == 0 {
-			return nil, errors.New("memory must be specified")
-		}
-	}
-	if d.hardwareConcurrency == 0 {
-		d.setRandomHardwareConcurrency()
-		if d.hardwareConcurrency == 0 {
-			return nil, errors.New("hardwareConcurrency must be specified")
-		}
-	}
-	if d.screenColorDepth == 0 {
-		d.setRandomScreenColorDepth()
-		if d.screenColorDepth == 0 {
-			return nil, errors.New("screenColorDepth must be specified")
-		}
-	}
-	if d.screenWidth == 0 || d.screenHeight == 0 {
-		d.setRandomScreenSize()
-		if d.screenWidth == 0 || d.screenHeight == 0 {
-			return nil, errors.New("screenWidth/screenHeight must be specified")
-		}
-	}
-	if d.navigatorVendor == "" {
-		d.setRandomNavigatorVendor()
-		if d.navigatorVendor == "" && d.browserName != Firefox {
-			return nil, errors.New("navigatorVendor must be specified")
-		}
-	}
-	if d.webglInfo == "" {
-		d.setRandomWebglInfo()
-		if d.webglInfo == "" {
-			return nil, errors.New("webglInfo must be specified")
-		}
-	}
-	if d.userAgent == "" {
-		d.setRandomUserAgent()
-		if d.userAgent == "" {
-			return nil, errors.New("userAgent must be specified")
-		}
-	}
-
 	if d.persistor == nil {
 		deviceStorageDir := filepath.Join(DefaultStoragePath(), d.name)
 		if err := os.MkdirAll(deviceStorageDir, 0755); err != nil {
 			return nil, err
 		}
+		d.persistor = &FilePersistor{deviceStorageDir: deviceStorageDir}
 
-		d.persistor = &FilePersistor{
-			deviceStorageDir: deviceStorageDir,
+		if d.timezone == "" {
+			return nil, errors.New("timezone must be specified")
+		}
+		if d.osName == "" {
+			return nil, errors.New("os must be specified")
+		}
+		if d.browserName == "" {
+			return nil, errors.New("browser must be specified")
+		}
+		if !utils.InArr(d.timezone, timezones) {
+			return nil, errors.New("timezone is not valid")
+		}
+		if d.languages == "" {
+			d.languages = "en-US,en"
+		}
+		if d.offlineAudioCtx == 0 {
+			d.offlineAudioCtx = utils.RandFloat(123.8, 124.9)
+		}
+		if d.languages != "" {
+			parts := strings.Split(d.languages, ",")
+			for _, part := range parts {
+				if !utils.InArr(part, languages) {
+					return nil, errors.New("languages is not valid")
+				}
+			}
+		}
+		if d.canvas2DInfo == 0 {
+			d.canvas2DInfo = int(utils.Random(261334512, 1902830807))
+		}
+		if d.browserEngineName == "" {
+			d.setRandomBrowserEngineName()
+			if d.browserEngineName == "" {
+				return nil, errors.New("browserEngineName must be specified")
+			}
+		}
+		if d.osVersion == "" {
+			d.setRandomOsVersion()
+			if d.osVersion == "" {
+				return nil, errors.New("osVersion must be specified")
+			}
+		}
+		if d.memory == 0 {
+			d.setRandomMemory()
+			if d.memory == 0 {
+				return nil, errors.New("memory must be specified")
+			}
+		}
+		if d.hardwareConcurrency == 0 {
+			d.setRandomHardwareConcurrency()
+			if d.hardwareConcurrency == 0 {
+				return nil, errors.New("hardwareConcurrency must be specified")
+			}
+		}
+		if d.screenColorDepth == 0 {
+			d.setRandomScreenColorDepth()
+			if d.screenColorDepth == 0 {
+				return nil, errors.New("screenColorDepth must be specified")
+			}
+		}
+		if d.screenWidth == 0 || d.screenHeight == 0 {
+			d.setRandomScreenSize()
+			if d.screenWidth == 0 || d.screenHeight == 0 {
+				return nil, errors.New("screenWidth/screenHeight must be specified")
+			}
+		}
+		if d.navigatorVendor == "" {
+			d.setRandomNavigatorVendor()
+			if d.navigatorVendor == "" && d.browserName != Firefox {
+				return nil, errors.New("navigatorVendor must be specified")
+			}
+		}
+		if d.webglInfo == "" {
+			d.setRandomWebglInfo()
+			if d.webglInfo == "" {
+				return nil, errors.New("webglInfo must be specified")
+			}
+		}
+		if d.userAgent == "" {
+			d.setRandomUserAgent()
+			if d.userAgent == "" {
+				return nil, errors.New("userAgent must be specified")
+			}
 		}
 	}
 
@@ -406,17 +407,15 @@ func (d *Device) GetBlackbox() (string, error) {
 		WebglRenderHash:       randFakeHash(),
 	}
 
-	if fpBy, err := d.persistor.Load(); err == nil {
-		if fprt1, err := ParseBlackbox(string(fpBy)); err == nil {
-			fprt = fprt1
-			xVecBy, err := base64.StdEncoding.DecodeString(fprt.XVecB64)
-			xVec := string(xVecBy)
-			if err != nil {
-				xVec = GenNewXVec()
-			}
-			newXVec := rotateXVec(xVec)
-			fprt.XVecB64 = base64.StdEncoding.EncodeToString([]byte(newXVec))
+	if fprt1, err := d.persistor.Load(); err == nil {
+		fprt = fprt1
+		xVecBy, err := base64.StdEncoding.DecodeString(fprt.XVecB64)
+		xVec := string(xVecBy)
+		if err != nil {
+			xVec = GenNewXVec()
 		}
+		newXVec := rotateXVec(xVec)
+		fprt.XVecB64 = base64.StdEncoding.EncodeToString([]byte(newXVec))
 	}
 
 	fprt.Game1DateHeader = game1DateHeader
