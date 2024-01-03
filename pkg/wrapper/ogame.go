@@ -3252,7 +3252,7 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 		return err
 	}
 
-	if b.IsV104() {
+	if b.IsVGreaterThanOrEqual("10.4.0") {
 		vals := url.Values{
 			"page":      {"componentOnly"},
 			"component": {"buildlistactions"},
