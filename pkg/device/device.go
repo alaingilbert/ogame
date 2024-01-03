@@ -407,7 +407,8 @@ func (d *Device) GetBlackbox() (string, error) {
 	}
 
 	if fpBy, err := d.persistor.Load(); err == nil {
-		if fprt, err = ParseBlackbox(string(fpBy)); err == nil {
+		if fprt1, err := ParseBlackbox(string(fpBy)); err == nil {
+			fprt = fprt1
 			xVecBy, err := base64.StdEncoding.DecodeString(fprt.XVecB64)
 			xVec := string(xVecBy)
 			if err != nil {
