@@ -324,7 +324,7 @@ func (d *Device) GetBlackbox() (string, error) {
 
 	xVec := GenNewXVec()
 	fprt := &JsFingerprint{
-		ConstantVersion:       8,
+		ConstantVersion:       9,
 		UserAgent:             d.userAgent,
 		BrowserName:           string(d.browserName),
 		BrowserEngineName:     d.browserEngineName,
@@ -412,8 +412,6 @@ func (f *JsFingerprint) MarshalJSON() ([]byte, error) {
 	toEnc = append(toEnc, f.ScreenWidth)           // 'd-BEuCA': window.screen.availWidth,
 	toEnc = append(toEnc, f.ScreenHeight)          // 'aM02nQV5': window.screen.availHeight,
 	toEnc = append(toEnc, f.ScreenColorDepth)      // 'ZMk5rRU': window.screen.colorDepth,
-	toEnc = append(toEnc, f.LocalStorageEnabled)   // 'bL8zohR5': Boolean(localStorage),
-	toEnc = append(toEnc, f.SessionStorageEnabled) // 'c8Y6qRuA': Boolean(sessionStorage),
 	toEnc = append(toEnc, f.VideoHash)             // 'dt9DqBc': produceDeterministicHash(getVideoPropsInfo()),
 	toEnc = append(toEnc, f.AudioHash)             // 'YdY6oxI': produceDeterministicHash(getAudioPropsInfo()),
 	toEnc = append(toEnc, f.MediaDevicesHash)      // 'bdI2nwA': produceDeterministicHash(promises[1]),
@@ -994,61 +992,59 @@ func ParseBlackbox(decrypted string) (*JsFingerprint, error) {
 	if !ok {
 		return nil, errors.New("failed to parse ConstantVersion")
 	}
-	fingerprint.ConstantVersion = int(constantVersion)
-	fingerprint.UserAgent, ok = arr[31].(string)
+	fingerprint.Timezone, ok = arr[1].(string)
 	if !ok {
-		return nil, errors.New("failed to parse UserAgent")
+		return nil, errors.New("failed to parse Timezone")
 	}
-	fingerprint.BrowserName, ok = arr[5].(string)
+	fingerprint.NavigatorDoNotTrack, ok = arr[2].(bool)
 	if !ok {
-		return nil, errors.New("failed to parse BrowserName")
+		return nil, errors.New("failed to parse NavigatorDoNotTrack")
 	}
 	fingerprint.BrowserEngineName, ok = arr[3].(string)
 	if !ok {
 		return nil, errors.New("failed to parse BrowserEngineName")
 	}
-	fingerprint.NavigatorVendor, ok = arr[6].(string)
-	if !ok {
-		return nil, errors.New("failed to parse NavigatorVendor")
-	}
-	fingerprint.WebglInfo, ok = arr[11].(string)
-	if !ok {
-		return nil, errors.New("failed to parse WebglInfo")
-	}
-	fingerprint.XVecB64, ok = arr[30].(string)
-	if !ok {
-		return nil, errors.New("failed to parse XVecB64")
-	}
-	fingerprint.XGame, ok = arr[27].(string)
-	if !ok {
-		return nil, errors.New("failed to parse XGame")
-	}
-	fingerprint.Timezone, ok = arr[1].(string)
-	if !ok {
-		return nil, errors.New("failed to parse Timezone")
-	}
 	fingerprint.OsName, ok = arr[4].(string)
 	if !ok {
 		return nil, errors.New("failed to parse OsName")
 	}
-	fingerprint.Version, ok = arr[29].(string)
+	fingerprint.BrowserName, ok = arr[5].(string)
 	if !ok {
-		return nil, errors.New("failed to parse Version")
+		return nil, errors.New("failed to parse BrowserName")
 	}
-	fingerprint.Languages, ok = arr[9].(string)
+	fingerprint.NavigatorVendor, ok = arr[6].(string)
 	if !ok {
-		return nil, errors.New("failed to parse Languages")
+		return nil, errors.New("failed to parse NavigatorVendor")
 	}
 	deviceMemory, ok := arr[7].(float64)
 	if !ok {
 		return nil, errors.New("failed to parse DeviceMemory")
 	}
-	fingerprint.DeviceMemory = int(deviceMemory)
 	hardwareConcurrency, ok := arr[8].(float64)
 	if !ok {
 		return nil, errors.New("failed to parse DeviceMemory")
 	}
 	fingerprint.HardwareConcurrency = int(hardwareConcurrency)
+	fingerprint.Languages, ok = arr[9].(string)
+	if !ok {
+		return nil, errors.New("failed to parse Languages")
+	}
+	fingerprint.PluginsHash, ok = arr[10].(string)
+	if !ok {
+		return nil, errors.New("failed to parse PluginsHash")
+	}
+	fingerprint.WebglInfo, ok = arr[11].(string)
+	if !ok {
+		return nil, errors.New("failed to parse WebglInfo")
+	}
+	fingerprint.FontsHash, ok = arr[12].(string)
+	if !ok {
+		return nil, errors.New("failed to parse FontsHash")
+	}
+	fingerprint.AudioCtxHash, ok = arr[13].(string)
+	if !ok {
+		return nil, errors.New("failed to parse AudioCtxHash")
+	}
 	screenWidth, ok := arr[14].(float64)
 	if !ok {
 		return nil, errors.New("failed to parse ScreenWidth")
@@ -1064,71 +1060,65 @@ func ParseBlackbox(decrypted string) (*JsFingerprint, error) {
 		return nil, errors.New("failed to parse ScreenColorDepth")
 	}
 	fingerprint.ScreenColorDepth = int(screenColorDepth)
-	fingerprint.OfflineAudioCtx, ok = arr[23].(float64)
+	fingerprint.VideoHash, ok = arr[17].(string)
+	if !ok {
+		return nil, errors.New("failed to parse VideoHash")
+	}
+	fingerprint.AudioHash, ok = arr[18].(string)
+	if !ok {
+		return nil, errors.New("failed to parse AudioHash")
+	}
+	fingerprint.MediaDevicesHash, ok = arr[19].(string)
+	if !ok {
+		return nil, errors.New("failed to parse MediaDevicesHash")
+	}
+	fingerprint.PermissionsStatesHash, ok = arr[20].(string)
+	if !ok {
+		return nil, errors.New("failed to parse PermissionsStatesHash")
+	}
+	fingerprint.OfflineAudioCtx, ok = arr[21].(float64)
 	if !ok {
 		return nil, errors.New("failed to parse OfflineAudioCtx")
 	}
-	canvas2DInfo, ok := arr[25].(float64)
+	fingerprint.WebglRenderHash, ok = arr[22].(string)
+	if !ok {
+		return nil, errors.New("failed to parse WebglRenderHash")
+	}
+	canvas2DInfo, ok := arr[23].(float64)
 	if !ok {
 		return nil, errors.New("failed to parse Canvas2DInfo")
 	}
 	fingerprint.Canvas2DInfo = int(canvas2DInfo)
-	fingerprint.DateIso, ok = arr[26].(string)
+	fingerprint.DateIso, ok = arr[24].(string)
+	fingerprint.XGame, ok = arr[25].(string)
 	if !ok {
-		return nil, errors.New("failed to parse DateIso")
+		return nil, errors.New("failed to parse XGame")
 	}
-	fingerprint.Game1DateHeader, ok = arr[32].(string)
-	if !ok {
-		return nil, errors.New("failed to parse Game1DateHeader")
-	}
-	calcDeltaMs, ok := arr[28].(float64)
+	calcDeltaMs, ok := arr[26].(float64)
 	if !ok {
 		return nil, errors.New("failed to parse CalcDeltaMs")
 	}
 	fingerprint.CalcDeltaMs = int64(calcDeltaMs)
-	fingerprint.NavigatorDoNotTrack, ok = arr[2].(bool)
+	fingerprint.Version, ok = arr[27].(string)
 	if !ok {
-		return nil, errors.New("failed to parse NavigatorDoNotTrack")
+		return nil, errors.New("failed to parse Version")
 	}
-	fingerprint.LocalStorageEnabled, ok = arr[17].(bool)
+	fingerprint.DeviceMemory = int(deviceMemory)
+	fingerprint.XVecB64, ok = arr[28].(string)
 	if !ok {
-		return nil, errors.New("failed to parse LocalStorageEnabled")
+		return nil, errors.New("failed to parse XVecB64")
 	}
-	fingerprint.SessionStorageEnabled, ok = arr[18].(bool)
+	fingerprint.ConstantVersion = int(constantVersion)
+	fingerprint.UserAgent, ok = arr[29].(string)
 	if !ok {
-		return nil, errors.New("failed to parse SessionStorageEnabled")
+		return nil, errors.New("failed to parse UserAgent")
 	}
-	fingerprint.VideoHash, ok = arr[19].(string)
 	if !ok {
-		return nil, errors.New("failed to parse VideoHash")
+		return nil, errors.New("failed to parse DateIso")
 	}
-	fingerprint.AudioCtxHash, ok = arr[13].(string)
+	fingerprint.Game1DateHeader, ok = arr[30].(string)
 	if !ok {
-		return nil, errors.New("failed to parse AudioCtxHash")
-	}
-	fingerprint.AudioHash, ok = arr[20].(string)
-	if !ok {
-		return nil, errors.New("failed to parse AudioHash")
-	}
-	fingerprint.FontsHash, ok = arr[12].(string)
-	if !ok {
-		return nil, errors.New("failed to parse FontsHash")
-	}
-	fingerprint.PluginsHash, ok = arr[10].(string)
-	if !ok {
-		return nil, errors.New("failed to parse PluginsHash")
-	}
-	fingerprint.MediaDevicesHash, ok = arr[21].(string)
-	if !ok {
-		return nil, errors.New("failed to parse MediaDevicesHash")
-	}
-	fingerprint.PermissionsStatesHash, ok = arr[22].(string)
-	if !ok {
-		return nil, errors.New("failed to parse PermissionsStatesHash")
-	}
-	fingerprint.WebglRenderHash, ok = arr[24].(string)
-	if !ok {
-		return nil, errors.New("failed to parse WebglRenderHash")
+		return nil, errors.New("failed to parse Game1DateHeader")
 	}
 	return fingerprint, nil
 }
