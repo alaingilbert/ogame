@@ -18,11 +18,6 @@ func OGame(universe, username, password, language *C.char) (errorMsg *C.char) {
 	return
 }
 
-//export SetUserAgent
-func SetUserAgent(newUserAgent string) {
-	bot.SetUserAgent(newUserAgent)
-}
-
 //export ServerURL
 func ServerURL() string {
 	return bot.ServerURL()

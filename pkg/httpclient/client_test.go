@@ -45,9 +45,8 @@ func TestOgameClient_SetUserAgent(t *testing.T) {
 			Header: make(http.Header),
 		}
 	})}}
-	c.SetUserAgent("test1")
 	req, _ := http.NewRequest(http.MethodGet, "http://test.com", nil)
 	_, err := c.Do(req)
 	assert.Nil(t, err)
-	assert.Equal(t, "test1", req.Header.Get("User-Agent"))
+	assert.Equal(t, "test", req.Header.Get("User-Agent"))
 }

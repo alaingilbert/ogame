@@ -68,7 +68,8 @@ type Persistor interface {
 }
 
 type Device struct {
-	Builder
+	client    *httpclient.Client
+	persistor Persistor
 }
 
 func (d *Device) GetClient() *httpclient.Client {
@@ -179,6 +180,8 @@ func DefaultStoragePath() string {
 	return filepath.Join(home, ".ogame", "storage")
 }
 
+// FilePersistor default persistor for the javascript fingerprint
+// save/load the fingerprint from ~/.ogame/storage/<device_name>/fingerprint
 type FilePersistor struct {
 	deviceStorageDir string
 }
@@ -189,11 +192,11 @@ func (f FilePersistor) Load() (*JsFingerprint, error) {
 	if err != nil {
 		return nil, err
 	}
-	fprt, err := ParseBlackbox(string(diskFpBy))
+	fingerprint, err := ParseBlackbox(string(diskFpBy))
 	if err != nil {
 		return nil, err
 	}
-	return fprt, nil
+	return fingerprint, nil
 }
 
 func (f FilePersistor) Save(fprt *JsFingerprint) error {
@@ -208,103 +211,155 @@ func (f FilePersistor) Save(fprt *JsFingerprint) error {
 	return nil
 }
 
+func (d *Builder) newFingerprint() (*JsFingerprint, error) {
+	if d.timezone == "" {
+		return nil, errors.New("timezone must be specified")
+	}
+	if d.osName == "" {
+		return nil, errors.New("os must be specified")
+	}
+	if d.browserName == "" {
+		return nil, errors.New("browser must be specified")
+	}
+	if !utils.InArr(d.timezone, timezones) {
+		return nil, errors.New("timezone is not valid")
+	}
+	if d.languages == "" {
+		d.languages = "en-US,en"
+	}
+	if d.offlineAudioCtx == 0 {
+		d.offlineAudioCtx = utils.RandFloat(123.8, 124.9)
+	}
+	if d.languages != "" {
+		parts := strings.Split(d.languages, ",")
+		for _, part := range parts {
+			if !utils.InArr(part, languages) {
+				return nil, errors.New("languages is not valid")
+			}
+		}
+	}
+	if d.canvas2DInfo == 0 {
+		d.canvas2DInfo = int(utils.Random(261334512, 1902830807))
+	}
+	if d.browserEngineName == "" {
+		d.setRandomBrowserEngineName()
+		if d.browserEngineName == "" {
+			return nil, errors.New("browserEngineName must be specified")
+		}
+	}
+	if d.osVersion == "" {
+		d.setRandomOsVersion()
+		if d.osVersion == "" {
+			return nil, errors.New("osVersion must be specified")
+		}
+	}
+	if d.memory == 0 {
+		d.setRandomMemory()
+		if d.memory == 0 {
+			return nil, errors.New("memory must be specified")
+		}
+	}
+	if d.hardwareConcurrency == 0 {
+		d.setRandomHardwareConcurrency()
+		if d.hardwareConcurrency == 0 {
+			return nil, errors.New("hardwareConcurrency must be specified")
+		}
+	}
+	if d.screenColorDepth == 0 {
+		d.setRandomScreenColorDepth()
+		if d.screenColorDepth == 0 {
+			return nil, errors.New("screenColorDepth must be specified")
+		}
+	}
+	if d.screenWidth == 0 || d.screenHeight == 0 {
+		d.setRandomScreenSize()
+		if d.screenWidth == 0 || d.screenHeight == 0 {
+			return nil, errors.New("screenWidth/screenHeight must be specified")
+		}
+	}
+	if d.navigatorVendor == "" {
+		d.setRandomNavigatorVendor()
+		if d.navigatorVendor == "" && d.browserName != Firefox {
+			return nil, errors.New("navigatorVendor must be specified")
+		}
+	}
+	if d.webglInfo == "" {
+		d.setRandomWebglInfo()
+		if d.webglInfo == "" {
+			return nil, errors.New("webglInfo must be specified")
+		}
+	}
+	if d.userAgent == "" {
+		d.setRandomUserAgent()
+		if d.userAgent == "" {
+			return nil, errors.New("userAgent must be specified")
+		}
+	}
+
+	fprt := &JsFingerprint{
+		ConstantVersion:       9,
+		UserAgent:             d.userAgent,
+		BrowserName:           string(d.browserName),
+		BrowserEngineName:     d.browserEngineName,
+		NavigatorVendor:       d.navigatorVendor,
+		WebglInfo:             d.webglInfo,
+		XVecB64:               base64.StdEncoding.EncodeToString([]byte(GenNewXVec())),
+		XGame:                 Get27RandChars(3),
+		Timezone:              d.timezone,
+		OsName:                string(d.osName),
+		Version:               d.osVersion,
+		Languages:             d.languages,
+		DeviceMemory:          d.memory,
+		HardwareConcurrency:   d.hardwareConcurrency,
+		ScreenWidth:           d.screenWidth,
+		ScreenHeight:          d.screenHeight,
+		ScreenColorDepth:      d.screenColorDepth,
+		OfflineAudioCtx:       d.offlineAudioCtx,
+		Canvas2DInfo:          d.canvas2DInfo,
+		DateIso:               time.Now().UTC().Format(javascriptISOString),
+		NavigatorDoNotTrack:   false,
+		LocalStorageEnabled:   true,
+		SessionStorageEnabled: true,
+		VideoHash:             randFakeHash(),
+		AudioCtxHash:          randFakeHash(),
+		AudioHash:             randFakeHash(),
+		FontsHash:             randFakeHash(),
+		PluginsHash:           randFakeHash(),
+		MediaDevicesHash:      randFakeHash(),
+		PermissionsStatesHash: randFakeHash(),
+		WebglRenderHash:       randFakeHash(),
+		//Game1DateHeader:       game1DateHeader,
+		//CalcDeltaMs:           elapsed,
+	}
+	return fprt, nil
+}
+
 func (d *Builder) Build() (*Device, error) {
-	deviceStorageDir := filepath.Join(DefaultStoragePath(), d.name)
+	defaultStoragePath := DefaultStoragePath()
+	deviceStorageDir := filepath.Join(defaultStoragePath, d.name)
 	if err := os.MkdirAll(deviceStorageDir, 0755); err != nil {
 		return nil, err
 	}
 
 	if d.persistor == nil {
 		d.persistor = &FilePersistor{deviceStorageDir: deviceStorageDir}
+	}
 
-		if d.timezone == "" {
-			return nil, errors.New("timezone must be specified")
+	fprt, err := d.persistor.Load()
+	if err != nil {
+		fprt, err = d.newFingerprint()
+		if err != nil {
+			return nil, err
 		}
-		if d.osName == "" {
-			return nil, errors.New("os must be specified")
-		}
-		if d.browserName == "" {
-			return nil, errors.New("browser must be specified")
-		}
-		if !utils.InArr(d.timezone, timezones) {
-			return nil, errors.New("timezone is not valid")
-		}
-		if d.languages == "" {
-			d.languages = "en-US,en"
-		}
-		if d.offlineAudioCtx == 0 {
-			d.offlineAudioCtx = utils.RandFloat(123.8, 124.9)
-		}
-		if d.languages != "" {
-			parts := strings.Split(d.languages, ",")
-			for _, part := range parts {
-				if !utils.InArr(part, languages) {
-					return nil, errors.New("languages is not valid")
-				}
-			}
-		}
-		if d.canvas2DInfo == 0 {
-			d.canvas2DInfo = int(utils.Random(261334512, 1902830807))
-		}
-		if d.browserEngineName == "" {
-			d.setRandomBrowserEngineName()
-			if d.browserEngineName == "" {
-				return nil, errors.New("browserEngineName must be specified")
-			}
-		}
-		if d.osVersion == "" {
-			d.setRandomOsVersion()
-			if d.osVersion == "" {
-				return nil, errors.New("osVersion must be specified")
-			}
-		}
-		if d.memory == 0 {
-			d.setRandomMemory()
-			if d.memory == 0 {
-				return nil, errors.New("memory must be specified")
-			}
-		}
-		if d.hardwareConcurrency == 0 {
-			d.setRandomHardwareConcurrency()
-			if d.hardwareConcurrency == 0 {
-				return nil, errors.New("hardwareConcurrency must be specified")
-			}
-		}
-		if d.screenColorDepth == 0 {
-			d.setRandomScreenColorDepth()
-			if d.screenColorDepth == 0 {
-				return nil, errors.New("screenColorDepth must be specified")
-			}
-		}
-		if d.screenWidth == 0 || d.screenHeight == 0 {
-			d.setRandomScreenSize()
-			if d.screenWidth == 0 || d.screenHeight == 0 {
-				return nil, errors.New("screenWidth/screenHeight must be specified")
-			}
-		}
-		if d.navigatorVendor == "" {
-			d.setRandomNavigatorVendor()
-			if d.navigatorVendor == "" && d.browserName != Firefox {
-				return nil, errors.New("navigatorVendor must be specified")
-			}
-		}
-		if d.webglInfo == "" {
-			d.setRandomWebglInfo()
-			if d.webglInfo == "" {
-				return nil, errors.New("webglInfo must be specified")
-			}
-		}
-		if d.userAgent == "" {
-			d.setRandomUserAgent()
-			if d.userAgent == "" {
-				return nil, errors.New("userAgent must be specified")
-			}
+		if err := d.persistor.Save(fprt); err != nil {
+			return nil, err
 		}
 	}
+	d.userAgent = fprt.UserAgent
 
 	if d.client == nil {
 		jar, err := cookiejar.New(&cookiejar.Options{
-			Filename:              filepath.Join(DefaultStoragePath(), d.name, "cookies"),
+			Filename:              filepath.Join(defaultStoragePath, d.name, "cookies"),
 			PersistSessionCookies: true,
 		})
 		if err != nil {
@@ -319,12 +374,14 @@ func (d *Builder) Build() (*Device, error) {
 			}
 		}
 
-		d.client = httpclient.NewClient()
+		d.client = httpclient.NewClient(d.userAgent)
 		d.client.Jar = jar
-		d.client.SetUserAgent(d.userAgent)
 	}
 
-	return &Device{Builder: *d}, nil
+	return &Device{
+		persistor: d.persistor,
+		client:    d.client,
+	}, nil
 }
 
 type JsFingerprint struct {
@@ -371,53 +428,17 @@ func (d *Device) GetBlackbox() (string, error) {
 		return "", err
 	}
 
-	xVec := GenNewXVec()
-	fprt := &JsFingerprint{
-		ConstantVersion:       9,
-		UserAgent:             d.userAgent,
-		BrowserName:           string(d.browserName),
-		BrowserEngineName:     d.browserEngineName,
-		NavigatorVendor:       d.navigatorVendor,
-		WebglInfo:             d.webglInfo,
-		XVecB64:               base64.StdEncoding.EncodeToString([]byte(xVec)),
-		XGame:                 Get27RandChars(3),
-		Timezone:              d.timezone,
-		OsName:                string(d.osName),
-		Version:               d.osVersion,
-		Languages:             d.languages,
-		DeviceMemory:          d.memory,
-		HardwareConcurrency:   d.hardwareConcurrency,
-		ScreenWidth:           d.screenWidth,
-		ScreenHeight:          d.screenHeight,
-		ScreenColorDepth:      d.screenColorDepth,
-		OfflineAudioCtx:       d.offlineAudioCtx,
-		Canvas2DInfo:          d.canvas2DInfo,
-		DateIso:               time.Now().UTC().Format(javascriptISOString),
-		Game1DateHeader:       game1DateHeader,
-		CalcDeltaMs:           elapsed,
-		NavigatorDoNotTrack:   false,
-		LocalStorageEnabled:   true,
-		SessionStorageEnabled: true,
-		VideoHash:             randFakeHash(),
-		AudioCtxHash:          randFakeHash(),
-		AudioHash:             randFakeHash(),
-		FontsHash:             randFakeHash(),
-		PluginsHash:           randFakeHash(),
-		MediaDevicesHash:      randFakeHash(),
-		PermissionsStatesHash: randFakeHash(),
-		WebglRenderHash:       randFakeHash(),
+	fprt, err := d.persistor.Load()
+	if err != nil {
+		return "", err
 	}
-
-	if fprt1, err := d.persistor.Load(); err == nil {
-		fprt = fprt1
-		xVecBy, err := base64.StdEncoding.DecodeString(fprt.XVecB64)
-		xVec := string(xVecBy)
-		if err != nil {
-			xVec = GenNewXVec()
-		}
-		newXVec := rotateXVec(xVec)
-		fprt.XVecB64 = base64.StdEncoding.EncodeToString([]byte(newXVec))
+	xVecBy, err := base64.StdEncoding.DecodeString(fprt.XVecB64)
+	xVec := string(xVecBy)
+	if err != nil || xVec == "" {
+		xVec = GenNewXVec()
 	}
+	newXVec := rotateXVec(xVec)
+	fprt.XVecB64 = base64.StdEncoding.EncodeToString([]byte(newXVec))
 
 	fprt.Game1DateHeader = game1DateHeader
 	fprt.CalcDeltaMs = elapsed
@@ -730,13 +751,14 @@ func (d *Builder) setRandomWebglInfo() {
 }
 
 func (d *Builder) setRandomUserAgent() {
+	userAgent := ""
 	if d.osName == MacOSX {
 		if d.browserName == Firefox {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0",
 			})
 		} else if d.browserName == Safari {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.2 Safari/605.1.15",
 				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.3 Safari/605.1.15",
 				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.2 Safari/605.1.15",
@@ -744,7 +766,7 @@ func (d *Builder) setRandomUserAgent() {
 				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
 			})
 		} else if d.browserName == Chrome {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
 				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
 				"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
@@ -752,18 +774,18 @@ func (d *Builder) setRandomUserAgent() {
 		}
 	} else if d.osName == Windows {
 		if d.browserName == Opera {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 OPR/94.0.0.0",
 				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 OPR/94.0.0.0 (Edition std-1)",
 			})
 		} else if d.browserName == Firefox {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/109.0",
 				"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
 				"Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:109.0) Gecko/20100101 Firefox/109.0",
 			})
 		} else if d.browserName == Chrome {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
 				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36",
 				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
@@ -775,18 +797,18 @@ func (d *Builder) setRandomUserAgent() {
 		}
 	} else if d.osName == Linux {
 		if d.browserName == Chrome {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
 			})
 		} else if d.browserName == Firefox {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (X11; Linux armv7l; rv:91.0) Gecko/20100101 Firefox/91.0",
 				"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0",
 			})
 		}
 	} else if d.osName == Android {
 		if d.browserName == Chrome {
-			d.userAgent = utils.RandChoice([]string{
+			userAgent = utils.RandChoice([]string{
 				"Mozilla/5.0 (Linux; Android 8.0; Pixel 2 Build/OPD3.170816.012) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Mobile Safari/537.36",
 				"Mozilla/5.0 (Linux; Android 13; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36",
 				"Mozilla/5.0 (Linux; Android 13; SM-S908E) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Mobile Safari/537.36",
@@ -821,6 +843,7 @@ func (d *Builder) setRandomUserAgent() {
 			})
 		}
 	}
+	d.userAgent = userAgent
 }
 
 func (d *Builder) setRandomMemory() {

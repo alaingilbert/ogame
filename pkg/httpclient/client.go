@@ -47,12 +47,13 @@ func (c *Client) BytesUploaded() int64 {
 }
 
 // NewClient ...
-func NewClient() *Client {
+func NewClient(userAgent string) *Client {
 	client := &Client{
 		Client: &http.Client{
 			Timeout: 30 * time.Second,
 		},
-		maxRPS: 0,
+		maxRPS:    0,
+		userAgent: userAgent,
 	}
 
 	const delay = 1
@@ -151,12 +152,6 @@ func (c *Client) UserAgent() string {
 	c.Lock()
 	defer c.Unlock()
 	return c.userAgent
-}
-
-func (c *Client) SetUserAgent(userAgent string) {
-	c.Lock()
-	defer c.Unlock()
-	c.userAgent = userAgent
 }
 
 // FakeDo for testing purposes

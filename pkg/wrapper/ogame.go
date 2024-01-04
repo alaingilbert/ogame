@@ -4573,11 +4573,6 @@ func (b *OGame) GetLanguage() string {
 	return b.language
 }
 
-// SetUserAgent change the user-agent used by the http client
-func (b *OGame) SetUserAgent(newUserAgent string) {
-	b.device.GetClient().SetUserAgent(newUserAgent)
-}
-
 // LoginWithBearerToken to ogame server reusing existing token
 func (b *OGame) LoginWithBearerToken(token string) (bool, error) {
 	return b.WithPriority(taskRunner.Normal).LoginWithBearerToken(token)
