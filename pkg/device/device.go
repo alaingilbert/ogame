@@ -459,23 +459,27 @@ func (d *Device) GetBlackbox() (string, error) {
 
 func (f *JsFingerprint) MarshalJSON() ([]byte, error) {
 	toEnc := make([]any, 0)
-	toEnc = append(toEnc, f.ConstantVersion)       // dg constant
-	toEnc = append(toEnc, f.Timezone)              // dO4 Intl.DateTimeFormat()['resolvedOptions']().timeZone
-	toEnc = append(toEnc, f.NavigatorDoNotTrack)   // ZNJG navigator.doNotTrack || false
-	toEnc = append(toEnc, f.BrowserEngineName)     // 'cOJRtSqNAQ': getBrowserRenderingEngine(browserInfo['name']),
-	toEnc = append(toEnc, f.OsName)                // 'b-I2rx-E': osInfo['name'],
-	toEnc = append(toEnc, f.BrowserName)           // 'YdFB': browserInfo['name'],
-	toEnc = append(toEnc, f.NavigatorVendor)       // 'dttJrRyO': navigator.vendor,
-	toEnc = append(toEnc, f.DeviceMemory)          // 'bdI_': navigator.deviceMemory || 0,
-	toEnc = append(toEnc, f.HardwareConcurrency)   // 'Y9JA': navigator.hardwareConcurrency || 0,
-	toEnc = append(toEnc, f.Languages)             // 'bM07og': navigator.languages.join(','),
-	toEnc = append(toEnc, f.PluginsHash)           // 'cNxRuCGPAg': produceDeterministicHash(getPluginsInfo()),
-	toEnc = append(toEnc, f.WebglInfo)             // 'Z9dM': webglInfo['vendor'] + ',' + webglInfo['renderer'],
-	toEnc = append(toEnc, f.FontsHash)             // 'ZtVDtyo': produceDeterministicHash(getFontsInfo()),
-	toEnc = append(toEnc, f.AudioCtxHash)          // 'YdY6oxJV': produceDeterministicHash(getAudioContextInfo()),
-	toEnc = append(toEnc, f.ScreenWidth)           // 'd-BEuCA': window.screen.availWidth,
-	toEnc = append(toEnc, f.ScreenHeight)          // 'aM02nQV5': window.screen.availHeight,
-	toEnc = append(toEnc, f.ScreenColorDepth)      // 'ZMk5rRU': window.screen.colorDepth,
+	toEnc = append(toEnc, f.ConstantVersion)     // dg constant
+	toEnc = append(toEnc, f.Timezone)            // dO4 Intl.DateTimeFormat()['resolvedOptions']().timeZone
+	toEnc = append(toEnc, f.NavigatorDoNotTrack) // ZNJG navigator.doNotTrack || false
+	toEnc = append(toEnc, f.BrowserEngineName)   // 'cOJRtSqNAQ': getBrowserRenderingEngine(browserInfo['name']),
+	toEnc = append(toEnc, f.OsName)              // 'b-I2rx-E': osInfo['name'],
+	toEnc = append(toEnc, f.BrowserName)         // 'YdFB': browserInfo['name'],
+	toEnc = append(toEnc, f.NavigatorVendor)     // 'dttJrRyO': navigator.vendor,
+	toEnc = append(toEnc, f.DeviceMemory)        // 'bdI_': navigator.deviceMemory || 0,
+	toEnc = append(toEnc, f.HardwareConcurrency) // 'Y9JA': navigator.hardwareConcurrency || 0,
+	toEnc = append(toEnc, f.Languages)           // 'bM07og': navigator.languages.join(','),
+	toEnc = append(toEnc, f.PluginsHash)         // 'cNxRuCGPAg': produceDeterministicHash(getPluginsInfo()),
+	toEnc = append(toEnc, f.WebglInfo)           // 'Z9dM': webglInfo['vendor'] + ',' + webglInfo['renderer'],
+	toEnc = append(toEnc, f.FontsHash)           // 'ZtVDtyo': produceDeterministicHash(getFontsInfo()),
+	toEnc = append(toEnc, f.AudioCtxHash)        // 'YdY6oxJV': produceDeterministicHash(getAudioContextInfo()),
+	toEnc = append(toEnc, f.ScreenWidth)         // 'd-BEuCA': window.screen.availWidth,
+	toEnc = append(toEnc, f.ScreenHeight)        // 'aM02nQV5': window.screen.availHeight,
+	toEnc = append(toEnc, f.ScreenColorDepth)    // 'ZMk5rRU': window.screen.colorDepth,
+	if f.ConstantVersion == 8 {
+		toEnc = append(toEnc, f.LocalStorageEnabled)   // 'bL8zohR5': Boolean(localStorage),
+		toEnc = append(toEnc, f.SessionStorageEnabled) // 'c8Y6qRuA': Boolean(sessionStorage),
+	}
 	toEnc = append(toEnc, f.VideoHash)             // 'dt9DqBc': produceDeterministicHash(getVideoPropsInfo()),
 	toEnc = append(toEnc, f.AudioHash)             // 'YdY6oxI': produceDeterministicHash(getAudioPropsInfo()),
 	toEnc = append(toEnc, f.MediaDevicesHash)      // 'bdI2nwA': produceDeterministicHash(promises[1]),
