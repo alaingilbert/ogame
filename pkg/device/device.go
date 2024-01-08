@@ -80,6 +80,13 @@ func (d *Device) SetClient(client *httpclient.Client) {
 	d.client = client
 }
 
+func (d *Device) WithClient(tmpClient *http.Client, clb func()) {
+	oldClient := d.client.Client
+	defer func() { d.client.Client = oldClient }()
+	d.client.Client = tmpClient
+	clb()
+}
+
 // NewBuilder creates a new virtual device.
 // If the device already exists in ~/.ogame/devices/<name> it will be loaded from there,
 // otherwise will be created when calling Build.
