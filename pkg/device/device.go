@@ -95,6 +95,13 @@ func (d *Device) WithClientE(tmpClient *http.Client, clb func() error) error {
 	return clb()
 }
 
+// WithClientFn allow to change the http client until the returned function is called.
+func (d *Device) WithClientFn(tmpClient *http.Client) (restoreClientFn func()) {
+	oldClient := d.client.Client
+	d.client.Client = tmpClient
+	return func() { d.client.Client = oldClient }
+}
+
 // NewBuilder creates a new virtual device.
 // If the device already exists in ~/.ogame/devices/<name> it will be loaded from there,
 // otherwise will be created when calling Build.
