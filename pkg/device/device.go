@@ -80,11 +80,19 @@ func (d *Device) SetClient(client *httpclient.Client) {
 	d.client = client
 }
 
+// WithClient allows to use a temporary http client for a specific call.
 func (d *Device) WithClient(tmpClient *http.Client, clb func()) {
+	_ = d.WithClientE(tmpClient, func() error {
+		clb()
+		return nil
+	})
+}
+
+func (d *Device) WithClientE(tmpClient *http.Client, clb func() error) error {
 	oldClient := d.client.Client
 	defer func() { d.client.Client = oldClient }()
 	d.client.Client = tmpClient
-	clb()
+	return clb()
 }
 
 // NewBuilder creates a new virtual device.
