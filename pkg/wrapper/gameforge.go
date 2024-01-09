@@ -71,10 +71,10 @@ func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, 
 		return err
 	}
 	if challengeID != "" {
-		req.Header.Add(ChallengeIDCookieName, challengeID)
+		req.Header.Set(ChallengeIDCookieName, challengeID)
 	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -148,9 +148,9 @@ func RedeemCode(device *device.Device, ctx context.Context, lobby, email, passwo
 	if err != nil {
 		return err
 	}
-	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("authorization", "Bearer "+postSessionsRes.Token)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := device.GetClient().Do(req)
 	if err != nil {
@@ -230,9 +230,9 @@ func AddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, accou
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("authorization", "Bearer "+sessionToken)
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("authorization", "Bearer "+sessionToken)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -337,7 +337,7 @@ func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby 
 	if err != nil {
 		return "", "", err
 	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -409,12 +409,12 @@ func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpS
 		if err != nil {
 			return nil, err
 		}
-		req.Header.Add("tnt-2fa-code", passcode)
-		req.Header.Add("tnt-installation-id", "")
+		req.Header.Set("tnt-2fa-code", passcode)
+		req.Header.Set("tnt-installation-id", "")
 	}
 
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	return req, nil
 }
 
@@ -431,6 +431,7 @@ func StartCaptchaChallenge(client httpclient.IHttpClient, ctx context.Context, c
 		if err != nil {
 			return nil, err
 		}
+		req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 		req.WithContext(ctx)
 		resp, err := client.Do(req)
 		if err != nil {
@@ -465,6 +466,7 @@ func SolveChallenge(client httpclient.IHttpClient, ctx context.Context, challeng
 	body := strings.NewReader(`{"answer":` + utils.FI64(answer) + `}`)
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -514,7 +516,7 @@ func GetServers(lobby string, client httpclient.IHttpClient, ctx context.Context
 	if err != nil {
 		return servers, err
 	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -579,7 +581,7 @@ func GetServerData(client httpclient.IHttpClient, ctx context.Context, serverNum
 	if err != nil {
 		return serverData, err
 	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -623,8 +625,8 @@ func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	if err != nil {
 		return userAccounts, err
 	}
-	req.Header.Add("authorization", "Bearer "+bearerToken)
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set("authorization", "Bearer "+bearerToken)
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -674,8 +676,9 @@ func GetLoginLink(device *device.Device, ctx context.Context, lobby string, user
 	if err != nil {
 		return "", err
 	}
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("authorization", "Bearer "+bearerToken)
+	req.Header.Set("content-type", "application/json")
+	req.Header.Set("authorization", "Bearer "+bearerToken)
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 	req.WithContext(ctx)
 	resp, err := device.GetClient().Do(req)
 	if err != nil {
