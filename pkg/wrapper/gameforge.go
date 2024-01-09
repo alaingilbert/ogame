@@ -14,7 +14,6 @@ import (
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"regexp"
 	"strings"
@@ -414,55 +413,41 @@ func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpS
 }
 
 func StartCaptchaChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string) (questionRaw, iconsRaw []byte, err error) {
-	req, err := http.NewRequest(http.MethodGet, "https://challenge.gameforge.com/challenge/"+challengeID, nil)
+	doReq := func(u string) ([]byte, error) {
+		req, err := http.NewRequest(http.MethodGet, u, nil)
+		if err != nil {
+			return nil, err
+		}
+		req.WithContext(ctx)
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		raw, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return raw, nil
+	}
+	_, err = doReq("https://challenge.gameforge.com/challenge/" + challengeID)
 	if err != nil {
 		return
 	}
-	req.WithContext(ctx)
-	challengeResp, err := client.Do(req)
+	_, err = doReq("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB")
 	if err != nil {
 		return
 	}
-	defer challengeResp.Body.Close()
-	_, _ = ioutil.ReadAll(challengeResp.Body)
-
-	req, err = http.NewRequest(http.MethodGet, "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", nil)
-	if err != nil {
-		return
-	}
-	req.WithContext(ctx)
-	challengePresentedResp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer challengePresentedResp.Body.Close()
-	_, _ = ioutil.ReadAll(challengePresentedResp.Body)
-
 	// Question request
-	req, err = http.NewRequest(http.MethodGet, "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text", nil)
+	questionRaw, err = doReq("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/text")
 	if err != nil {
 		return
 	}
-	req.WithContext(ctx)
-	questionResp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer questionResp.Body.Close()
-	questionRaw, _ = ioutil.ReadAll(questionResp.Body)
-
 	// Icons request
-	req, err = http.NewRequest(http.MethodGet, "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons", nil)
+	iconsRaw, err = doReq("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/drag-icons")
 	if err != nil {
 		return
 	}
-	req.WithContext(ctx)
-	iconsResp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer iconsResp.Body.Close()
-	iconsRaw, _ = ioutil.ReadAll(iconsResp.Body)
 	return
 }
 
