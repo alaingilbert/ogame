@@ -643,6 +643,9 @@ func GetLoginLink(device *device.Device, ctx context.Context, lobby string, user
 	ogURL := getGameforgeLobbyBaseURL(lobby) + "/api/users/me/loginLink"
 
 	blackbox, err := device.GetBlackbox()
+	if err != nil {
+		return "", err
+	}
 
 	var payload = struct {
 		Blackbox      string `json:"blackbox"`
