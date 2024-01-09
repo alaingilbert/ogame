@@ -6,8 +6,11 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
-	err2 "errors"
+	"errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
+	err2 "github.com/pkg/errors"
 	"image"
 	"image/color"
 	"image/png"
@@ -26,8 +29,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/alaingilbert/ogame/pkg/device"
 
 	"github.com/alaingilbert/clockwork"
 
@@ -52,7 +53,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	version "github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
-	"github.com/pkg/errors"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
@@ -89,8 +89,8 @@ type OGame struct {
 	lobby                 string
 	ogameSession          string
 	sessionChatCounter    int64
-	server                Server
-	serverData            ServerData
+	server                gameforge.Server
+	serverData            gameforge.ServerData
 	serverVersion         *version.Version
 	location              *time.Location
 	serverURL             string
@@ -103,7 +103,7 @@ type OGame struct {
 	ws                    *websocket.Conn
 	taskRunnerInst        *taskRunner.TaskRunner[*Prioritize]
 	loginWrapper          func(func() (bool, error)) error
-	getServerDataWrapper  func(func() (ServerData, error)) (ServerData, error)
+	getServerDataWrapper  func(func() (gameforge.ServerData, error)) (gameforge.ServerData, error)
 	loginProxyTransport   http.RoundTripper
 	extractor             extractor.Extractor
 	apiNewHostname        string
@@ -161,7 +161,7 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 
 func (b *OGame) validateAccount(code string) error {
 	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
-		return ValidateAccount(client, b.ctx, b.lobby, code)
+		return gameforge.ValidateAccount(client, b.ctx, b.lobby, code)
 	})
 }
 
@@ -237,23 +237,14 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang strin
 	return b, nil
 }
 
-func findServer(universe, lang string, servers []Server) (out Server, found bool) {
-	for _, s := range servers {
-		if s.Name == universe && s.Language == lang {
-			return s, true
-		}
-	}
-	return
-}
-
-func findAccount(universe, lang string, playerID int64, accounts []Account, servers []Server) (Account, Server, error) {
+func findAccount(universe, lang string, playerID int64, accounts []gameforge.Account, servers []gameforge.Server) (gameforge.Account, gameforge.Server, error) {
 	if lang == "ba" {
 		lang = "yu"
 	}
-	var acc Account
-	server, found := findServer(universe, lang, servers)
+	var acc gameforge.Account
+	server, found := gameforge.FindServer(universe, lang, servers)
 	if !found {
-		return Account{}, Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
+		return gameforge.Account{}, gameforge.Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
 	}
 	for _, a := range accounts {
 		if a.Server.Language == server.Language && a.Server.Number == server.Number {
@@ -269,7 +260,7 @@ func findAccount(universe, lang string, playerID int64, accounts []Account, serv
 		}
 	}
 	if acc.ID == 0 {
-		return Account{}, Server{}, ogame.ErrAccountNotFound
+		return gameforge.Account{}, gameforge.Server{}, ogame.ErrAccountNotFound
 	}
 	return acc, server, nil
 }
@@ -297,7 +288,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	}
 	b.bearerToken = token
 	server, userAccount, err := b.loginPart1(token)
-	if err2.Is(err, context.Canceled) {
+	if errors.Is(err, context.Canceled) {
 		return false, err
 	}
 	if errors.Is(err, ogame.ErrAccountBlocked) {
@@ -316,7 +307,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if err != nil {
 		if errors.Is(err, ogame.ErrNotLogged) {
 			b.debug("get login link")
-			loginLink, err := GetLoginLink(b.device, b.ctx, b.lobby, userAccount, token)
+			loginLink, err := gameforge.GetLoginLink(b.device, b.ctx, b.lobby, userAccount, token)
 			if err != nil {
 				return true, err
 			}
@@ -360,7 +351,7 @@ func (b *OGame) loginWithExistingCookies() (bool, error) {
 	} else {
 		cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
 		for _, c := range cookies {
-			if c.Name == TokenCookieName {
+			if c.Name == gameforge.TokenCookieName {
 				token = c.Value
 				break
 			}
@@ -508,13 +499,13 @@ func ManualSolver() CaptchaCallback {
 	}
 }
 
-func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
+func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *gameforge.GFLoginRes, err error) {
 	client := b.device.GetClient()
 	if err := client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		var challengeID string
-		tried := false
+		maxTry := uint(3)
 		for {
-			params := &GfLoginParams{
+			params := &gameforge.GfLoginParams{
 				Ctx:         b.ctx,
 				Device:      b.device,
 				Lobby:       lobby,
@@ -523,15 +514,15 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 				OtpSecret:   otpSecret,
 				ChallengeID: challengeID,
 			}
-			out, err = GFLogin(params)
-			var captchaErr *CaptchaRequiredError
+			out, err = gameforge.GFLogin(params)
+			var captchaErr *gameforge.CaptchaRequiredError
 			if errors.As(err, &captchaErr) {
-				if tried || b.captchaCallback == nil {
+				if maxTry == 0 || b.captchaCallback == nil {
 					return err
 				}
-				tried = true
+				maxTry--
 
-				questionRaw, iconsRaw, err := StartCaptchaChallenge(client, b.ctx, captchaErr.ChallengeID)
+				questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(client, b.ctx, captchaErr.ChallengeID)
 				if err != nil {
 					return errors.New("failed to start captcha challenge: " + err.Error())
 				}
@@ -539,7 +530,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 				if err != nil {
 					return errors.New("failed to get answer for captcha challenge: " + err.Error())
 				}
-				if err := SolveChallenge(client, b.ctx, captchaErr.ChallengeID, answer); err != nil {
+				if err := gameforge.SolveChallenge(client, b.ctx, captchaErr.ChallengeID, answer); err != nil {
 					return errors.New("failed to solve captcha challenge: " + err.Error())
 				}
 				challengeID = captchaErr.ChallengeID
@@ -558,7 +549,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 	u, _ := url.Parse("https://gameforge.com")
 	cookies := client.Jar.Cookies(u)
 	cookie := &http.Cookie{
-		Name:   TokenCookieName,
+		Name:   gameforge.TokenCookieName,
 		Value:  out.Token,
 		Path:   "/",
 		Domain: ".gameforge.com",
@@ -582,7 +573,7 @@ func (b *OGame) login() error {
 	}
 
 	b.debug("get login link")
-	loginLink, err := GetLoginLink(b.device, b.ctx, b.lobby, userAccount, postSessionsRes.Token)
+	loginLink, err := gameforge.GetLoginLink(b.device, b.ctx, b.lobby, userAccount, postSessionsRes.Token)
 	if err != nil {
 		return err
 	}
@@ -611,15 +602,15 @@ func (b *OGame) login() error {
 	return nil
 }
 
-func (b *OGame) loginPart1(token string) (server Server, userAccount Account, err error) {
+func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount gameforge.Account, err error) {
 	client := b.device.GetClient()
 	b.debug("get user accounts")
-	accounts, err := GetUserAccounts(client, b.ctx, b.lobby, token)
+	accounts, err := gameforge.GetUserAccounts(client, b.ctx, b.lobby, token)
 	if err != nil {
 		return
 	}
 	b.debug("get servers")
-	servers, err := GetServers(b.lobby, client, b.ctx)
+	servers, err := gameforge.GetServers(b.lobby, client, b.ctx)
 	if err != nil {
 		return
 	}
@@ -635,14 +626,14 @@ func (b *OGame) loginPart1(token string) (server Server, userAccount Account, er
 	return
 }
 
-func (b *OGame) loginPart2(server Server) error {
+func (b *OGame) loginPart2(server gameforge.Server) error {
 	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
 	atomic.StoreInt32(&b.isConnectedAtom, 1)
 	// Get server data
 	start := time.Now()
 	b.server = server
-	serverData, err := b.getServerDataWrapper(func() (ServerData, error) {
-		return GetServerData(b.device.GetClient(), b.ctx, b.server.Number, b.server.Language)
+	serverData, err := b.getServerDataWrapper(func() (gameforge.ServerData, error) {
+		return gameforge.GetServerData(b.device.GetClient(), b.ctx, b.server.Number, b.server.Language)
 	})
 	if err != nil {
 		return err
@@ -670,7 +661,7 @@ func (b *OGame) loginPart2(server Server) error {
 	return nil
 }
 
-func (b *OGame) loginPart3(userAccount Account, page parser.OverviewPage) error {
+func (b *OGame) loginPart3(userAccount gameforge.Account, page parser.OverviewPage) error {
 	var ext extractor.Extractor = v11.NewExtractor()
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
 		b.serverVersion = ogVersion
@@ -843,7 +834,7 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 }
 
 // DefaultGetServerDataWrapper ...
-var DefaultGetServerDataWrapper = func(getServerDataFn func() (ServerData, error)) (ServerData, error) {
+var DefaultGetServerDataWrapper = func(getServerDataFn func() (gameforge.ServerData, error)) (gameforge.ServerData, error) {
 	return getServerDataFn()
 }
 
@@ -894,7 +885,7 @@ func (b *OGame) setOGameLobby(lobby string) {
 }
 
 // SetGetServerDataWrapper ...
-func (b *OGame) SetGetServerDataWrapper(newWrapper func(func() (ServerData, error)) (ServerData, error)) {
+func (b *OGame) SetGetServerDataWrapper(newWrapper func(func() (gameforge.ServerData, error)) (gameforge.ServerData, error)) {
 	b.getServerDataWrapper = newWrapper
 }
 
@@ -1714,21 +1705,24 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 		maxRetry--
 		if maxRetry <= 0 {
-			return errors.Wrap(err, ogame.ErrFailedExecuteCallback.Error())
+			return err2.Wrap(err, ogame.ErrFailedExecuteCallback.Error())
+		}
+		if maxRetry <= 0 {
+			return err2.Wrap(err, ogame.ErrFailedExecuteCallback.Error())
 		}
 
 		if retryErr := retry(err); retryErr != nil {
 			return retryErr
 		}
 
-		if err == ogame.ErrNotLogged {
+		if errors.Is(err, ogame.ErrNotLogged) {
 			if _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
-				if loginErr == ogame.ErrAccountNotFound ||
-					loginErr == ogame.ErrAccountBlocked ||
-					loginErr == ogame.ErrBadCredentials ||
-					loginErr == ogame.ErrOTPRequired ||
-					loginErr == ogame.ErrOTPInvalid {
+				if errors.Is(loginErr, ogame.ErrAccountNotFound) ||
+					errors.Is(loginErr, ogame.ErrAccountBlocked) ||
+					errors.Is(loginErr, ogame.ErrBadCredentials) ||
+					errors.Is(loginErr, ogame.ErrOTPRequired) ||
+					errors.Is(loginErr, ogame.ErrOTPInvalid) {
 					return loginErr
 				}
 			}
@@ -3180,7 +3174,11 @@ func (b *OGame) IsV11() bool {
 
 // IsVGreaterThanOrEqual ...
 func (b *OGame) IsVGreaterThanOrEqual(compareVersion string) bool {
-	return b.serverVersion.GreaterThanOrEqual(version.Must(version.NewVersion(compareVersion)))
+	return isVGreaterThanOrEqual(b.serverVersion, compareVersion)
+}
+
+func isVGreaterThanOrEqual(v *version.Version, compareVersion string) bool {
+	return v.GreaterThanOrEqual(version.Must(version.NewVersion(compareVersion)))
 }
 
 func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
@@ -3507,13 +3505,11 @@ func (b *OGame) sendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int
 		return 0, err
 	}
 
-	duration, max, token := page.ExtractIPM()
-	if max == 0 {
+	duration, maxV, token := page.ExtractIPM()
+	if maxV == 0 {
 		return 0, errors.New("no missile available")
 	}
-	if nbr > max {
-		nbr = max
-	}
+	nbr = utils.MinInt(nbr, maxV)
 	params := url.Values{
 		"page":      {"ajax"},
 		"component": {"missileattacklayer"},
@@ -3822,18 +3818,18 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	originCoords, _ := b.extractor.ExtractPlanetCoordinate(movementHTML)
 	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc)
 	if len(fleets) > 0 {
-		max := ogame.Fleet{}
+		maxV := ogame.Fleet{}
 		for i, fleet := range fleets {
-			if fleet.ID > max.ID &&
+			if fleet.ID > maxV.ID &&
 				fleet.Origin.Equal(originCoords) &&
 				fleet.Destination.Equal(where) &&
 				fleet.Mission == mission &&
 				!fleet.ReturnFlight {
-				max = fleets[i]
+				maxV = fleets[i]
 			}
 		}
-		if max.ID > maxInitialFleetID {
-			return max, nil
+		if maxV.ID > maxInitialFleetID {
+			return maxV, nil
 		}
 	}
 
@@ -4284,9 +4280,9 @@ func (b *OGame) botUnlock(unlockedBy string) {
 	}
 }
 
-func (b *OGame) addAccount(number int, lang string) (*AddAccountRes, error) {
+func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
-	return AddAccount(b.device.GetClient(), b.ctx, b.lobby, accountGroup, b.bearerToken)
+	return gameforge.AddAccount(b.device.GetClient(), b.ctx, b.lobby, accountGroup, b.bearerToken)
 }
 
 func (b *OGame) getCachedCelestial(v any) Celestial {
@@ -4533,7 +4529,7 @@ func (b *OGame) GetSession() string {
 }
 
 // AddAccount add a new account (server) to your list of accounts
-func (b *OGame) AddAccount(number int, lang string) (*AddAccountRes, error) {
+func (b *OGame) AddAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
 	return b.addAccount(number, lang)
 }
 
@@ -4566,12 +4562,12 @@ func (b *OGame) Tx(clb func(tx Prioritizable) error) error {
 }
 
 // GetServer get ogame server information that the bot is connected to
-func (b *OGame) GetServer() Server {
+func (b *OGame) GetServer() gameforge.Server {
 	return b.server
 }
 
 // GetServerData get ogame server data information that the bot is connected to
-func (b *OGame) GetServerData() ServerData {
+func (b *OGame) GetServerData() gameforge.ServerData {
 	return b.serverData
 }
 

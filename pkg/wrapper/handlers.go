@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -1453,7 +1454,7 @@ func TechsHandler(c echo.Context) error {
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	params := &GfLoginParams{
+	params := &gameforge.GfLoginParams{
 		Ctx:       bot.ctx,
 		Device:    bot.device,
 		Lobby:     bot.lobby,
@@ -1461,10 +1462,10 @@ func GetCaptchaHandler(c echo.Context) error {
 		Password:  bot.password,
 		OtpSecret: bot.otpSecret,
 	}
-	_, err := GFLogin(params)
-	var captchaErr *CaptchaRequiredError
+	_, err := gameforge.GFLogin(params)
+	var captchaErr *gameforge.CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
-		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
+		questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
@@ -1492,7 +1493,7 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	challengeID := c.Request().PostFormValue("challenge_id")
 	answer := utils.DoParseI64(c.Request().PostFormValue("answer"))
 
-	if err := SolveChallenge(bot.GetClient(), bot.ctx, challengeID, answer); err != nil {
+	if err := gameforge.SolveChallenge(bot.GetClient(), bot.ctx, challengeID, answer); err != nil {
 		bot.error(err)
 	}
 
@@ -1514,7 +1515,7 @@ type CaptchaChallenge struct {
 // GetCaptchaChallengeHandler ...
 func GetCaptchaChallengeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	params := &GfLoginParams{
+	params := &gameforge.GfLoginParams{
 		Ctx:       bot.ctx,
 		Device:    bot.device,
 		Lobby:     bot.lobby,
@@ -1522,10 +1523,10 @@ func GetCaptchaChallengeHandler(c echo.Context) error {
 		Password:  bot.password,
 		OtpSecret: bot.otpSecret,
 	}
-	_, err := GFLogin(params)
-	var captchaErr *CaptchaRequiredError
+	_, err := gameforge.GFLogin(params)
+	var captchaErr *gameforge.CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
-		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
+		questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 		}

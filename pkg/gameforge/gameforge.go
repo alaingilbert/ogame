@@ -1,4 +1,4 @@
-package wrapper
+package gameforge
 
 import (
 	"bytes"
@@ -220,12 +220,21 @@ func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, beare
 	return nil
 }
 
+func FindServer(universe, lang string, servers []Server) (out Server, found bool) {
+	for _, s := range servers {
+		if s.Name == universe && s.Language == lang {
+			return s, true
+		}
+	}
+	return
+}
+
 func AddAccountByUniverseLang(client httpclient.IHttpClient, ctx context.Context, lobby, bearerToken, universe, lang string) (*AddAccountRes, error) {
 	servers, err := GetServers(lobby, client, ctx)
 	if err != nil {
 		return nil, err
 	}
-	server, found := findServer(universe, lang, servers)
+	server, found := FindServer(universe, lang, servers)
 	if !found {
 		return nil, errors.New("server not found")
 	}
