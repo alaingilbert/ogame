@@ -514,7 +514,16 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 		var challengeID string
 		tried := false
 		for {
-			out, err = GFLogin(b.device, b.ctx, lobby, username, password, otpSecret, challengeID)
+			params := &GfLoginParams{
+				Ctx:         b.ctx,
+				Device:      b.device,
+				Lobby:       lobby,
+				Username:    username,
+				Password:    password,
+				OtpSecret:   otpSecret,
+				ChallengeID: challengeID,
+			}
+			out, err = GFLogin(params)
 			var captchaErr *CaptchaRequiredError
 			if errors.As(err, &captchaErr) {
 				if tried || b.captchaCallback == nil {

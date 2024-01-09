@@ -1453,8 +1453,15 @@ func TechsHandler(c echo.Context) error {
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
-	_, err := GFLogin(bot.device, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
+	params := &GfLoginParams{
+		Ctx:       bot.ctx,
+		Device:    bot.device,
+		Lobby:     bot.lobby,
+		Username:  bot.Username,
+		Password:  bot.password,
+		OtpSecret: bot.otpSecret,
+	}
+	_, err := GFLogin(params)
 	var captchaErr *CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
 		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
@@ -1507,7 +1514,15 @@ type CaptchaChallenge struct {
 // GetCaptchaChallengeHandler ...
 func GetCaptchaChallengeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	_, err := GFLogin(bot.device, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
+	params := &GfLoginParams{
+		Ctx:       bot.ctx,
+		Device:    bot.device,
+		Lobby:     bot.lobby,
+		Username:  bot.Username,
+		Password:  bot.password,
+		OtpSecret: bot.otpSecret,
+	}
+	_, err := GFLogin(params)
 	var captchaErr *CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
 		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
