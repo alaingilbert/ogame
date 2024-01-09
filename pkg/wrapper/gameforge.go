@@ -66,7 +66,7 @@ func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, 
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPut, "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	if len(code) != 36 {
 		return errors.New("invalid validation code")
 	}
-	req, err := http.NewRequest(http.MethodPut, "https://"+lobby+".ogame.gameforge.com/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func RedeemCode(device *device.Device, ctx context.Context, lobby, email, passwo
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPost, "https://"+lobby+".ogame.gameforge.com/api/token", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPost, getGameforgeLobbyBaseURL(lobby)+"/api/token", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return err
 	}
@@ -209,6 +209,10 @@ type AddAccountRes struct {
 
 func (r AddAccountRes) GetBearerToken() string { return r.BearerToken }
 
+func getGameforgeLobbyBaseURL(lobby string) string {
+	return fmt.Sprintf("https://%s.ogame.gameforge.com", lobby)
+}
+
 func AddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
 	var payload struct {
 		AccountGroup string `json:"accountGroup"`
@@ -221,7 +225,7 @@ func AddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, accou
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPut, "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return nil, err
 	}
@@ -326,7 +330,7 @@ func GFLogin(dev *device.Device, ctx context.Context, lobby, username, password,
 }
 
 func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby string) (string, string, error) {
-	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
+	ogURL := getGameforgeLobbyBaseURL(lobby) + "/config/configuration.js"
 	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
 	if err != nil {
 		return "", "", err
@@ -412,6 +416,13 @@ func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpS
 	return req, nil
 }
 
+const challengeBaseURL = "https://challenge.gameforge.com"
+const imgDropChallengeBaseURL = "https://image-drop-challenge.gameforge.com"
+
+func getChallengeURL(base, challengeID string) string {
+	return fmt.Sprintf("%s/challenge/%s", base, challengeID)
+}
+
 func StartCaptchaChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string) (questionRaw, iconsRaw []byte, err error) {
 	doReq := func(u string) ([]byte, error) {
 		req, err := http.NewRequest(http.MethodGet, u, nil)
@@ -430,29 +441,25 @@ func StartCaptchaChallenge(client httpclient.IHttpClient, ctx context.Context, c
 		}
 		return raw, nil
 	}
-	_, err = doReq("https://challenge.gameforge.com/challenge/" + challengeID)
-	if err != nil {
+	challengeURL := getChallengeURL(challengeBaseURL, challengeID)
+	imgDropURL := getChallengeURL(imgDropChallengeBaseURL, challengeID) + "/en-GB"
+	if _, err = doReq(challengeURL); err != nil {
 		return
 	}
-	_, err = doReq("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB")
-	if err != nil {
+	if _, err = doReq(imgDropURL); err != nil {
 		return
 	}
-	// Question request
-	questionRaw, err = doReq("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/text")
-	if err != nil {
+	if questionRaw, err = doReq(imgDropURL + "/text"); err != nil {
 		return
 	}
-	// Icons request
-	iconsRaw, err = doReq("https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB/drag-icons")
-	if err != nil {
+	if iconsRaw, err = doReq(imgDropURL + "/drag-icons"); err != nil {
 		return
 	}
 	return
 }
 
 func SolveChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string, answer int64) error {
-	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
+	challengeURL := getChallengeURL(imgDropChallengeBaseURL, challengeID) + "/en-GB"
 	body := strings.NewReader(`{"answer":` + utils.FI64(answer) + `}`)
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
 	req.Header.Set("Content-Type", "application/json")
@@ -501,7 +508,7 @@ type Server struct {
 
 func GetServers(lobby string, client httpclient.IHttpClient, ctx context.Context) ([]Server, error) {
 	var servers []Server
-	req, err := http.NewRequest(http.MethodGet, "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
+	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby)+"/api/servers", nil)
 	if err != nil {
 		return servers, err
 	}
@@ -610,7 +617,7 @@ type Account struct {
 
 func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, bearerToken string) ([]Account, error) {
 	var userAccounts []Account
-	req, err := http.NewRequest(http.MethodGet, "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
+	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby)+"/api/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
@@ -633,8 +640,7 @@ func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, 
 }
 
 func GetLoginLink(device *device.Device, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
-	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink",
-		lobby)
+	ogURL := getGameforgeLobbyBaseURL(lobby) + "/api/users/me/loginLink"
 
 	blackbox, err := device.GetBlackbox()
 
