@@ -4,13 +4,13 @@ import (
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestCancelResearch(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/overview_cancels.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/overview_cancels.html")
 	token, techID, listID, _ := NewExtractor().ExtractCancelResearchInfos(pageHTMLBytes)
 	assert.Equal(t, "9d44b41d8136dffadab759749508105e", token)
 	assert.Equal(t, int64(124), techID)
@@ -18,7 +18,7 @@ func TestCancelResearch(t *testing.T) {
 }
 
 func TestCancel(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/overview_cancels.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/overview_cancels.html")
 	token, techID, listID, _ := NewExtractor().ExtractCancelBuildingInfos(pageHTMLBytes)
 	assert.Equal(t, "cf00a76b307f5cabf867af0d61ad1991", token)
 	assert.Equal(t, int64(23), techID)
@@ -26,7 +26,7 @@ func TestCancel(t *testing.T) {
 }
 
 func TestExtractOverviewProduction(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.1/en/overview_shipyard_queue.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.1/en/overview_shipyard_queue.html")
 	prods, countdown, _ := NewExtractor().ExtractOverviewProduction(pageHTMLBytes)
 	assert.Equal(t, 4, len(prods))
 	assert.Equal(t, int64(542), countdown)
@@ -41,7 +41,7 @@ func TestExtractOverviewProduction(t *testing.T) {
 }
 
 func TestExtractEspionageReport(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/spy_report.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/spy_report.html")
 	e := NewExtractor()
 	e.SetLocation(time.FixedZone("OGT", 3600))
 	infos, _ := e.ExtractEspionageReport(pageHTMLBytes)
@@ -50,19 +50,19 @@ func TestExtractEspionageReport(t *testing.T) {
 }
 
 func TestExtractCombatReportMessages(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/combat_reports_msgs.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/combat_reports_msgs.html")
 	msgs, _, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
 	assert.Equal(t, 10, len(msgs))
 }
 
 func TestExtractCombatReportMessages_Debris(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/combat_reports_debris.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/combat_reports_debris.html")
 	msgs, _, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
 	assert.Equal(t, int64(2400), msgs[0].DebrisField)
 }
 
 func TestExtractShips_fleetdispatch(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/fleetdispatch.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/fleetdispatch.html")
 	ships := NewExtractor().ExtractFleet1Ships(pageHTMLBytes)
 	assert.Equal(t, int64(6), ships.SmallCargo)
 	assert.Equal(t, int64(1), ships.ColonyShip)
@@ -70,7 +70,7 @@ func TestExtractShips_fleetdispatch(t *testing.T) {
 }
 
 func TestGetResourcesDetails(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/fetchResources.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/fetchResources.html")
 	res, _ := NewExtractor().ExtractResourcesDetails(pageHTMLBytes)
 	assert.Equal(t, int64(415), res.Metal.Available)
 	assert.Equal(t, int64(10000), res.Metal.StorageCapacity)
@@ -94,7 +94,7 @@ func TestGetResourcesDetails(t *testing.T) {
 }
 
 func TestExtractResourcesBuildings(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/supplies.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/supplies.html")
 	res, _ := NewExtractor().ExtractResourcesBuildings(pageHTMLBytes)
 	assert.Equal(t, int64(2), res.MetalMine)
 	assert.Equal(t, int64(1), res.CrystalMine)
@@ -108,13 +108,13 @@ func TestExtractResourcesBuildings(t *testing.T) {
 }
 
 func TestExtractResourceSettings(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/resource_settings.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/resource_settings.html")
 	settings, _, _ := NewExtractor().ExtractResourceSettings(pageHTMLBytes)
 	assert.Equal(t, ogame.ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 0, SolarSatellite: 0, Crawler: 0}, settings)
 }
 
 func TestExtractShips(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/shipyard.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/shipyard.html")
 	ships, _ := NewExtractor().ExtractShips(pageHTMLBytes)
 	assert.Equal(t, int64(6), ships.SmallCargo)
 	assert.Equal(t, int64(1), ships.ColonyShip)
@@ -122,13 +122,13 @@ func TestExtractShips(t *testing.T) {
 }
 
 func TestExtractShips_build(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/shipyard_build.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/shipyard_build.html")
 	ships, _ := NewExtractor().ExtractShips(pageHTMLBytes)
 	assert.Equal(t, int64(33), ships.Cruiser)
 }
 
 func TestExtractResearch(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/researches.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/researches.html")
 	res := NewExtractor().ExtractResearch(pageHTMLBytes)
 	assert.Equal(t, int64(2), res.EnergyTechnology)
 	assert.Equal(t, int64(4), res.LaserTechnology)
@@ -149,7 +149,7 @@ func TestExtractResearch(t *testing.T) {
 }
 
 func TestExtractResearch_2(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/researches2.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/researches2.html")
 	res := NewExtractor().ExtractResearch(pageHTMLBytes)
 	assert.Equal(t, int64(1), res.EnergyTechnology)
 	assert.Equal(t, int64(0), res.LaserTechnology)
@@ -170,7 +170,7 @@ func TestExtractResearch_2(t *testing.T) {
 }
 
 func TestExtractFacilities(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/facilities.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/facilities.html")
 	res, _ := NewExtractor().ExtractFacilities(pageHTMLBytes)
 	assert.Equal(t, int64(3), res.RoboticsFactory)
 	assert.Equal(t, int64(7), res.Shipyard)
@@ -183,7 +183,7 @@ func TestExtractFacilities(t *testing.T) {
 }
 
 func TestExtractDefense(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/defenses.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/defenses.html")
 	defense, _ := NewExtractor().ExtractDefense(pageHTMLBytes)
 	assert.Equal(t, int64(0), defense.RocketLauncher)
 	assert.Equal(t, int64(2), defense.LightLaser)
@@ -198,7 +198,7 @@ func TestExtractDefense(t *testing.T) {
 }
 
 func TestExtractMarketplaceMessages(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.2/en/sales_messages.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.2/en/sales_messages.html")
 	e := NewExtractor()
 	e.SetLocation(time.FixedZone("OGT", 3600))
 	msgs, _, _ := e.ExtractMarketplaceMessages(pageHTMLBytes)
@@ -210,7 +210,7 @@ func TestExtractMarketplaceMessages(t *testing.T) {
 }
 
 func TestExtractExpeditionMessages(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.2/en/expedition_messages.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.2/en/expedition_messages.html")
 	e := NewExtractor()
 	e.SetLocation(time.FixedZone("OGT", 3600))
 	msgs, nbPages, _ := e.ExtractExpeditionMessages(pageHTMLBytes)
@@ -224,7 +224,7 @@ func TestExtractExpeditionMessages(t *testing.T) {
 }
 
 func TestExtractGalaxyExpeditionDebrisDM(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.1/fr/galaxy_darkmatter_df.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.1/fr/galaxy_darkmatter_df.html")
 	infos, err := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(3137), infos.Events.Darkmatter)
@@ -232,14 +232,14 @@ func TestExtractGalaxyExpeditionDebrisDM(t *testing.T) {
 }
 
 func TestExtractGalaxyAsteroid(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.2/en/galaxyContent_asteroid.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.2/en/galaxyContent_asteroid.html")
 	infos, err := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.True(t, infos.Events.HasAsteroid)
 }
 
 func TestExtractGalaxyExpeditionDebris(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/galaxy_debris16.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/galaxy_debris16.html")
 	infos, err := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), infos.ExpeditionDebris.Metal)
@@ -248,7 +248,7 @@ func TestExtractGalaxyExpeditionDebris(t *testing.T) {
 }
 
 func TestExtractGalaxyTWExpeditionDebris(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.5.2/tw/galaxy_debris16.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.5.2/tw/galaxy_debris16.html")
 	infos, err := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(4275000), infos.ExpeditionDebris.Metal)
@@ -257,7 +257,7 @@ func TestExtractGalaxyTWExpeditionDebris(t *testing.T) {
 }
 
 func TestExtractGalaxyExpeditionDebris2(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/galaxy_debris16_2.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/galaxy_debris16_2.html")
 	infos, err := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(7200), infos.ExpeditionDebris.Metal)
@@ -266,13 +266,13 @@ func TestExtractGalaxyExpeditionDebris2(t *testing.T) {
 }
 
 func TestExtractGalaxyExpeditionDebrisMobile(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/galaxy_debris16_mobile.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/galaxy_debris16_mobile.html")
 	_, err := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.EqualError(t, err, "mobile view not supported")
 }
 
 func TestExtractGalaxyIgnoredPlayer(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/galaxy_ignored_player.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/galaxy_ignored_player.html")
 	infos, err := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(33637068), infos.Position(7).ID)
@@ -281,7 +281,7 @@ func TestExtractGalaxyIgnoredPlayer(t *testing.T) {
 }
 
 func TestExtractGalaxyV7NoExpeditionDebris(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/galaxy_no_debris16.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/galaxy_no_debris16.html")
 	infos, err := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(0), infos.ExpeditionDebris.Metal)
@@ -290,7 +290,7 @@ func TestExtractGalaxyV7NoExpeditionDebris(t *testing.T) {
 }
 
 func TestExtractUserInfos_es(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7.6.5/es/overview.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.6.5/es/overview.html")
 	e := NewExtractor()
 	e.SetLanguage("es")
 	infos, _ := e.ExtractUserInfos(pageHTMLBytes)
@@ -302,7 +302,7 @@ func TestExtractUserInfos_es(t *testing.T) {
 }
 
 func TestExtractFleetSlot_FleetDispatch(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/fleetdispatch.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/fleetdispatch.html")
 	s, _ := NewExtractor().ExtractSlots(pageHTMLBytes)
 	assert.Equal(t, int64(0), s.InUse)
 	assert.Equal(t, int64(4), s.Total)
@@ -311,7 +311,7 @@ func TestExtractFleetSlot_FleetDispatch(t *testing.T) {
 }
 
 func TestGetConstructionsV7(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v7/overview_supplies_in_construction.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/overview_supplies_in_construction.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 9, 6, 43, 0, time.UTC))
 	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ := ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalMineID, buildingID)

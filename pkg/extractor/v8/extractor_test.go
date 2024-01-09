@@ -3,13 +3,13 @@ package v8
 import (
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 )
 
 func TestExtractEspionageReport(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v8.5/en/spy_report.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v8.5/en/spy_report.html")
 	e := NewExtractor()
 	e.SetLocation(time.FixedZone("OGT", 3600))
 	infos, _ := e.ExtractEspionageReport(pageHTMLBytes)
@@ -17,7 +17,7 @@ func TestExtractEspionageReport(t *testing.T) {
 }
 
 func TestExtractPlanets(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.0/en/overview.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/overview.html")
 	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(34071290), planets[0].ID)

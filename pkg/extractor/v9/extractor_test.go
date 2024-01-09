@@ -1,7 +1,7 @@
 package v9
 
 import (
-	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
@@ -11,7 +11,7 @@ import (
 )
 
 func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.0/en/overview2.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/overview2.html")
 	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
 	assert.Equal(t, int64(6182), res.Metal.Available)
 	assert.Equal(t, int64(10060), res.Metal.CurrentProduction)
@@ -31,7 +31,7 @@ func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 }
 
 func TestExtractResourcesDetailsFromFullPagePopulation(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/overview.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.4/en/lifeform/overview.html")
 	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
 	assert.Equal(t, int64(1974118), res.Population.Available)
 	assert.Equal(t, 0.233, res.Population.Hungry)
@@ -39,7 +39,7 @@ func TestExtractResourcesDetailsFromFullPagePopulation(t *testing.T) {
 }
 
 func TestExtractResources(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.0/en/overview.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/overview.html")
 	res := NewExtractor().ExtractResources(pageHTMLBytes)
 	assert.Equal(t, int64(10000), res.Metal)
 	assert.Equal(t, int64(10000), res.Crystal)
@@ -49,7 +49,7 @@ func TestExtractResources(t *testing.T) {
 }
 
 func TestExtractEspionageReport(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.0/en/spy_report.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/spy_report.html")
 	e := NewExtractor()
 	e.SetLocation(time.FixedZone("OGT", 3600))
 	infos, err := e.ExtractEspionageReport(pageHTMLBytes)
@@ -58,7 +58,7 @@ func TestExtractEspionageReport(t *testing.T) {
 }
 
 func TestExtractOverviewProduction(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
 	e := NewExtractor()
 	e.SetLifeformEnabled(true)
 	prods, countdown, _ := e.ExtractOverviewProduction(pageHTMLBytes)
@@ -75,7 +75,7 @@ func TestExtractOverviewProduction(t *testing.T) {
 }
 
 func TestCancelResearch(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
 	token, id, listID, _ := NewExtractor().ExtractCancelResearchInfos(pageHTMLBytes)
 	assert.Equal(t, "66f639922a3c76fe6074d12ae36e573e", token)
 	assert.Equal(t, int64(108), id)
@@ -83,7 +83,7 @@ func TestCancelResearch(t *testing.T) {
 }
 
 func TestCancelResearchLF(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
 	e := NewExtractor()
 	e.SetLifeformEnabled(true)
 	token, id, listID, _ := e.ExtractCancelResearchInfos(pageHTMLBytes)
@@ -93,7 +93,7 @@ func TestCancelResearchLF(t *testing.T) {
 }
 
 func TestCancelLfBuildingLF(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues.html")
 	token, id, listID, _ := NewExtractor().ExtractCancelLfBuildingInfos(pageHTMLBytes)
 	assert.Equal(t, "07287218c9661bcc67b05ec1b6171fe8", token)
 	assert.Equal(t, int64(11101), id)
@@ -101,7 +101,7 @@ func TestCancelLfBuildingLF(t *testing.T) {
 }
 
 func TestCancelBuilding(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
 	token, id, listID, _ := NewExtractor().ExtractCancelBuildingInfos(pageHTMLBytes)
 	assert.Equal(t, "66f639922a3c76fe6074d12ae36e573e", token)
 	assert.Equal(t, int64(1), id)
@@ -110,7 +110,7 @@ func TestCancelBuilding(t *testing.T) {
 
 func TestGetConstructions(t *testing.T) {
 	// Without lifeform
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2022, 8, 20, 12, 43, 11, 0, time.UTC))
 	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ := ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalMineID, buildingID)
@@ -119,7 +119,7 @@ func TestGetConstructions(t *testing.T) {
 	assert.Equal(t, int64(7), researchCountdown)
 
 	// With lifeform
-	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues2.html")
+	pageHTMLBytes, _ = os.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues2.html")
 	clock = clockwork.NewFakeClockAt(time.Date(2022, 8, 28, 17, 22, 26, 0, time.UTC))
 	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ = ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalStorageID, buildingID)
@@ -129,7 +129,7 @@ func TestGetConstructions(t *testing.T) {
 }
 
 func TestExtractUserInfos(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/overview.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.4/en/overview.html")
 	info, err := NewExtractor().ExtractUserInfos(pageHTMLBytes)
 	assert.NoError(t, err)
 	assert.Equal(t, int64(30478), info.Points)
@@ -138,7 +138,7 @@ func TestExtractUserInfos(t *testing.T) {
 }
 
 func TestExtractFleetResources(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/movement.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.4/en/lifeform/movement.html")
 	e := NewExtractor()
 	e.SetLocation(time.FixedZone("OGT", 3600))
 	e.SetLifeformEnabled(true)
@@ -149,7 +149,7 @@ func TestExtractFleetResources(t *testing.T) {
 }
 
 func TestExtractLfBuildings(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lfbuildings.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.4/en/lfbuildings.html")
 	res, _ := NewExtractor().ExtractLfBuildings(pageHTMLBytes)
 	assert.Equal(t, int64(2), res.ResidentialSector)
 	assert.Equal(t, int64(1), res.BiosphereFarm)
@@ -166,7 +166,7 @@ func TestExtractLfBuildings(t *testing.T) {
 }
 
 func TestExtractLfBuildingsRocktal(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/lfbuildings_rocktal.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.4/en/lifeform/lfbuildings_rocktal.html")
 	res, _ := NewExtractor().ExtractLfBuildings(pageHTMLBytes)
 	assert.Equal(t, int64(0), res.ResidentialSector)
 	assert.Equal(t, int64(0), res.BiosphereFarm)
@@ -185,7 +185,7 @@ func TestExtractLfBuildingsRocktal(t *testing.T) {
 }
 
 func TestExtractTechnologyDetails(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_1.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_1.html")
 	details, err := NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
 	assert.NoError(t, err)
 	assert.Equal(t, ogame.ID(11105), details.TechnologyID)
@@ -197,7 +197,7 @@ func TestExtractTechnologyDetails(t *testing.T) {
 	assert.Equal(t, int64(100000000), details.Price.Population)
 	assert.False(t, details.TearDownEnabled)
 
-	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_lfbuilding_teardown_enabled.html")
+	pageHTMLBytes, _ = os.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_lfbuilding_teardown_enabled.html")
 	details, err = NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
 	assert.NoError(t, err)
 	assert.Equal(t, ogame.ID(11101), details.TechnologyID)
@@ -209,17 +209,17 @@ func TestExtractTechnologyDetails(t *testing.T) {
 	assert.Equal(t, int64(0), details.Price.Population)
 	assert.True(t, details.TearDownEnabled)
 
-	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_lfbuilding_teardown_disabled.html")
+	pageHTMLBytes, _ = os.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_lfbuilding_teardown_disabled.html")
 	details, _ = NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
 	assert.False(t, details.TearDownEnabled)
 
-	pageHTMLBytes, _ = ioutil.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_supplies.html")
+	pageHTMLBytes, _ = os.ReadFile("../../../samples/v9.0.4/en/lifeform/technologyDetails_supplies.html")
 	details, _ = NewExtractor().ExtractTechnologyDetails(pageHTMLBytes)
 	assert.True(t, details.TearDownEnabled)
 }
 
 func TestExtractOverviewProduction_ships(t *testing.T) {
-	pageHTMLBytes, _ := ioutil.ReadFile("../../../samples/v9.0.5/en/overview_ships.html")
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.5/en/overview_ships.html")
 	prod, _, _ := NewExtractor().ExtractOverviewProduction(pageHTMLBytes)
 	assert.Equal(t, 2, len(prod))
 	assert.Equal(t, ogame.SmallCargoID, prod[0].ID)

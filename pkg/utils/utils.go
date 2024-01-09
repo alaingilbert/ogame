@@ -5,7 +5,6 @@ import (
 	"compress/gzip"
 	"github.com/PuerkitoBio/goquery"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -130,7 +129,7 @@ func ReadBody(resp *http.Response) (respContent []byte, err error) {
 	default:
 		reader = resp.Body
 	}
-	by, err := ioutil.ReadAll(reader)
+	by, err := io.ReadAll(reader)
 	if err != nil {
 		return []byte{}, err
 	}

@@ -12,7 +12,6 @@ import (
 	"image/color"
 	"image/png"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"mime/multipart"
@@ -458,13 +457,13 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 		resp, _ := http.DefaultClient.Do(req)
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
-			by, err := ioutil.ReadAll(resp.Body)
+			by, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return 0, errors.New("failed to auto solve captcha: " + err.Error())
 			}
 			return 0, errors.New("failed to auto solve captcha: " + string(by))
 		}
-		by, _ := ioutil.ReadAll(resp.Body)
+		by, _ := io.ReadAll(resp.Body)
 		var answerJson struct {
 			Answer int64 `json:"answer"`
 		}
@@ -1010,7 +1009,7 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 	}
 	defer resp.Body.Close()
 	chatRetry.Reset()
-	by, _ := ioutil.ReadAll(resp.Body)
+	by, _ := io.ReadAll(resp.Body)
 	m := regexp.MustCompile(`"sid":"([^"]+)"`).FindSubmatch(by)
 	if len(m) != 2 {
 		b.error("failed to get websocket sid:", err)
@@ -1189,7 +1188,7 @@ func (b *OGame) connectChatV7(chatRetry *exponentialBackoff.ExponentialBackoff, 
 	}
 	defer resp.Body.Close()
 	chatRetry.Reset()
-	by, _ := ioutil.ReadAll(resp.Body)
+	by, _ := io.ReadAll(resp.Body)
 	token := strings.Split(string(by), ":")[0]
 
 	origin := "https://" + host + ":" + port + "/"
