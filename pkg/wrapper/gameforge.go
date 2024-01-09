@@ -184,7 +184,8 @@ func LoginAndAddAccount(device *device.Device, ctx context.Context, lobby, usern
 	if err != nil {
 		return nil, err
 	}
-	servers, err := GetServers(lobby, device.GetClient(), ctx)
+	client := device.GetClient()
+	servers, err := GetServers(lobby, client, ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +193,7 @@ func LoginAndAddAccount(device *device.Device, ctx context.Context, lobby, usern
 	if !found {
 		return nil, errors.New("server not found")
 	}
-	return AddAccount(device.GetClient(), ctx, lobby, server.AccountGroup, postSessionsRes.Token)
+	return AddAccount(client, ctx, lobby, server.AccountGroup, postSessionsRes.Token)
 }
 
 // AddAccountRes response from creating a new account
@@ -268,7 +269,8 @@ type GFLoginRes struct {
 func (r GFLoginRes) GetBearerToken() string { return r.Token }
 
 func GFLogin(dev *device.Device, ctx context.Context, lobby, username, password, otpSecret, challengeID string) (out *GFLoginRes, err error) {
-	gameEnvironmentID, platformGameID, err := getConfiguration(dev.GetClient(), ctx, lobby)
+	client := dev.GetClient()
+	gameEnvironmentID, platformGameID, err := getConfiguration(client, ctx, lobby)
 	if err != nil {
 		return out, err
 	}
@@ -285,7 +287,7 @@ func GFLogin(dev *device.Device, ctx context.Context, lobby, username, password,
 
 	req.WithContext(ctx)
 
-	resp, err := dev.GetClient().Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		return out, err
 	}
@@ -685,9 +687,7 @@ func GetLoginLink(device *device.Device, ctx context.Context, lobby string, user
 	if err != nil {
 		return "", err
 	}
-	var loginLink struct {
-		URL string
-	}
+	var loginLink struct{ URL string }
 
 	if err := json.Unmarshal(by2, &loginLink); err != nil {
 		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by2))

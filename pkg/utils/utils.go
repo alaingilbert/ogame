@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"bytes"
 	"compress/gzip"
 	"github.com/PuerkitoBio/goquery"
 	"io"
@@ -118,22 +117,15 @@ func ReadBody(resp *http.Response) (respContent []byte, err error) {
 	var reader io.ReadCloser
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
-		buf := new(bytes.Buffer)
-		_, _ = buf.ReadFrom(resp.Body)
-		var err error
-		reader, err = gzip.NewReader(buf)
+		reader, err = gzip.NewReader(resp.Body)
 		if err != nil {
-			return []byte{}, err
+			return
 		}
 		defer reader.Close()
 	default:
 		reader = resp.Body
 	}
-	by, err := io.ReadAll(reader)
-	if err != nil {
-		return []byte{}, err
-	}
-	return by, nil
+	return io.ReadAll(reader)
 }
 
 type Equalable[T any] interface {

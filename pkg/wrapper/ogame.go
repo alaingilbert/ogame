@@ -300,7 +300,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if err2.Is(err, context.Canceled) {
 		return false, err
 	}
-	if err == ogame.ErrAccountBlocked {
+	if errors.Is(err, ogame.ErrAccountBlocked) {
 		return false, err
 	}
 	if err != nil {
@@ -314,7 +314,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 
 	page, err := getPage[parser.OverviewPage](b, SkipRetry)
 	if err != nil {
-		if err == ogame.ErrNotLogged {
+		if errors.Is(err, ogame.ErrNotLogged) {
 			b.debug("get login link")
 			loginLink, err := GetLoginLink(b.device, b.ctx, b.lobby, userAccount, token)
 			if err != nil {
@@ -326,7 +326,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			}
 			page, err := getPage[parser.OverviewPage](b, SkipRetry)
 			if err != nil {
-				if err == ogame.ErrNotLogged {
+				if errors.Is(err, ogame.ErrNotLogged) {
 					err := b.login()
 					return false, err
 				}
@@ -509,7 +509,8 @@ func ManualSolver() CaptchaCallback {
 }
 
 func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *GFLoginRes, err error) {
-	if err := b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
+	client := b.device.GetClient()
+	if err := client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		var challengeID string
 		tried := false
 		for {
@@ -546,7 +547,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 
 	// put in cookie jar so that we can re-login reusing the cookies
 	u, _ := url.Parse("https://gameforge.com")
-	cookies := b.device.GetClient().Jar.Cookies(u)
+	cookies := client.Jar.Cookies(u)
 	cookie := &http.Cookie{
 		Name:   TokenCookieName,
 		Value:  out.Token,
@@ -554,7 +555,7 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *G
 		Domain: ".gameforge.com",
 	}
 	cookies = append(cookies, cookie)
-	b.device.GetClient().Jar.SetCookies(u, cookies)
+	client.Jar.SetCookies(u, cookies)
 	b.bearerToken = out.Token
 	return out, nil
 }
@@ -602,13 +603,14 @@ func (b *OGame) login() error {
 }
 
 func (b *OGame) loginPart1(token string) (server Server, userAccount Account, err error) {
+	client := b.device.GetClient()
 	b.debug("get user accounts")
-	accounts, err := GetUserAccounts(b.device.GetClient(), b.ctx, b.lobby, token)
+	accounts, err := GetUserAccounts(client, b.ctx, b.lobby, token)
 	if err != nil {
 		return
 	}
 	b.debug("get servers")
-	servers, err := GetServers(b.lobby, b.device.GetClient(), b.ctx)
+	servers, err := GetServers(b.lobby, client, b.ctx)
 	if err != nil {
 		return
 	}
@@ -948,20 +950,21 @@ func getSocks5Transport(proxyAddress, username, password string) (*http.Transpor
 }
 
 func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error {
+	client := b.device.GetClient()
 	if proxyType == "" {
 		proxyType = "socks5"
 	}
 	if proxyAddress == "" {
 		b.loginProxyTransport = nil
-		b.device.GetClient().SetTransport(http.DefaultTransport)
+		client.SetTransport(http.DefaultTransport)
 		return nil
 	}
 	transport, err := getTransport(proxyAddress, username, password, proxyType, config)
 	b.loginProxyTransport = transport
 	if loginOnly {
-		b.device.GetClient().SetTransport(http.DefaultTransport)
+		client.SetTransport(http.DefaultTransport)
 	} else {
-		b.device.GetClient().SetTransport(transport)
+		client.SetTransport(transport)
 	}
 	return err
 }
@@ -1583,8 +1586,9 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 		if method == http.MethodPost {
 			// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
 			// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
-			b.device.GetClient().CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
-			defer func() { b.device.GetClient().CheckRedirect = nil }()
+			client := b.device.GetClient()
+			client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
+			defer func() { client.CheckRedirect = nil }()
 		}
 
 		pageHTMLBytes, err = b.execRequest(method, finalURL, payload, vals)
