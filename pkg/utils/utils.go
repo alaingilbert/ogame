@@ -34,24 +34,24 @@ func I64Ptr(v int64) *int64 {
 
 // MinInt returns the minimum int64 value
 func MinInt(vals ...int64) int64 {
-	min := vals[0]
+	minV := vals[0]
 	for _, num := range vals {
-		if num < min {
-			min = num
+		if num < minV {
+			minV = num
 		}
 	}
-	return min
+	return minV
 }
 
 // MaxInt returns the minimum int64 value
 func MaxInt(vals ...int64) int64 {
-	max := vals[0]
+	maxV := vals[0]
 	for _, num := range vals {
-		if num > max {
-			max = num
+		if num > maxV {
+			maxV = num
 		}
 	}
-	return max
+	return maxV
 }
 
 // Clamp ensure the value is within a range
@@ -192,4 +192,16 @@ func RandFloat(min, max float64) float64 {
 		min, max = max, min
 	}
 	return rand.Float64()*(max-min) + min
+}
+
+func Ternary[T any](predicate bool, a, b T) T {
+	if predicate {
+		return a
+	}
+	return b
+}
+
+func TernaryOrZero[T any](predicate bool, a T) T {
+	var zero T
+	return Ternary(predicate, a, zero)
 }

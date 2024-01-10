@@ -1,6 +1,7 @@
 package wrapper
 
 import (
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"net/http"
 	"net/url"
 	"sync/atomic"
@@ -35,9 +36,7 @@ func (b *Prioritize) Begin() Prioritizable {
 
 // BeginNamed begins a new transaction with a name. "Done" must be called to release the lock.
 func (b *Prioritize) BeginNamed(name string) Prioritizable {
-	if name == "" {
-		name = "Tx"
-	}
+	name = utils.Ternary(name == "", "Tx", name)
 	return b.begin(name)
 }
 
@@ -48,10 +47,7 @@ func (b *Prioritize) Done() {
 
 func (b *Prioritize) begin(name string) *Prioritize {
 	if atomic.AddInt32(&b.isTx, 1) == 1 {
-		if b.initiator != "" {
-			b.name = b.initiator + ":"
-		}
-		b.name += name
+		b.name = utils.Ternary(b.initiator == "", name, b.initiator+":"+name)
 		b.bot.botLock(b.name)
 	}
 	return b
@@ -68,8 +64,7 @@ func (b *Prioritize) done() {
 func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	tx := b.Begin()
 	defer tx.Done()
-	err := clb(tx)
-	return err
+	return clb(tx)
 }
 
 // LoginWithBearerToken to ogame server reusing existing token
@@ -126,10 +121,10 @@ func (b *Prioritize) IsUnderAttack() (bool, error) {
 }
 
 // IsUnderAttackByID returns true if the user is under attack, false otherwise
-func (b *Prioritize) IsUnderAttackByID(CelestialID ogame.CelestialID) (bool, error) {
+func (b *Prioritize) IsUnderAttackByID(celestialID ogame.CelestialID) (bool, error) {
 	b.begin("IsUnderAttackByID")
 	defer b.done()
-	return b.bot.isUnderAttackByID(CelestialID)
+	return b.bot.isUnderAttack(ChangePlanet(celestialID))
 }
 
 // SetVacationMode puts account in vacation mode

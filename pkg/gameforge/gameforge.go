@@ -324,17 +324,10 @@ func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 		return out, err
 	}
 
-	blackbox, err := params.Device.GetBlackbox()
+	req, err := postSessionsReq(params, gameEnvironmentID, platformGameID)
 	if err != nil {
 		return out, err
 	}
-
-	req, err := postSessionsReq(gameEnvironmentID, platformGameID, params.Username, params.Password, params.OtpSecret, params.ChallengeID, blackbox)
-	if err != nil {
-		return out, err
-	}
-
-	req.WithContext(ctx)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -358,13 +351,9 @@ func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 
 	if resp.StatusCode == http.StatusForbidden {
 		return out, errors.New(resp.Status + " : " + string(by))
-	}
-
-	if resp.StatusCode >= http.StatusInternalServerError {
+	} else if resp.StatusCode >= http.StatusInternalServerError {
 		return out, errors.New("OGame server error code : " + resp.Status)
-	}
-
-	if resp.StatusCode != http.StatusCreated {
+	} else if resp.StatusCode != http.StatusCreated {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ogame.ErrOTPRequired
 		}
@@ -415,7 +404,19 @@ func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby 
 	return string(gameEnvironmentID), string(platformGameID), nil
 }
 
-func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID, blackbox string) (*http.Request, error) {
+func postSessionsReq(params *GfLoginParams, gameEnvironmentID, platformGameID string) (*http.Request, error) {
+	dev := params.Device
+	ctx := params.Ctx
+	username := params.Username
+	password := params.Password
+	otpSecret := params.OtpSecret
+	challengeID := params.ChallengeID
+
+	blackbox, err := dev.GetBlackbox()
+	if err != nil {
+		return nil, err
+	}
+
 	var payload = struct {
 		Identity                string `json:"identity"`
 		Password                string `json:"password"`
@@ -464,6 +465,7 @@ func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpS
 
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req.WithContext(ctx)
 	return req, nil
 }
 

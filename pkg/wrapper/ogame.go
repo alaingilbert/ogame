@@ -62,12 +62,12 @@ import (
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabledAtom         int32  // atomic, prevent auto re login if we manually logged out
-	isLoggedInAtom        int32  // atomic, prevent auto re login if we manually logged out
-	isConnectedAtom       int32  // atomic, either or not communication between the bot and OGame is possible
-	lockedAtom            int32  // atomic, bot state locked/unlocked
-	chatConnectedAtom     int32  // atomic, either or not the chat is connected
-	state                 string // keep name of the function that currently lock the bot
+	isEnabledAtom         atomic.Bool // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom        atomic.Bool // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom       atomic.Bool // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom            atomic.Bool // atomic, bot state locked/unlocked
+	chatConnectedAtom     atomic.Bool // atomic, either or not the chat is connected
+	state                 string      // keep name of the function that currently lock the bot
 	ctx                   context.Context
 	cancelCtx             context.CancelFunc
 	stateChangeCallbacks  []func(locked bool, actor string)
@@ -288,13 +288,10 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	}
 	b.bearerToken = token
 	server, userAccount, err := b.loginPart1(token)
-	if errors.Is(err, context.Canceled) {
+	if errors.Is(err, context.Canceled) ||
+		errors.Is(err, ogame.ErrAccountBlocked) {
 		return false, err
-	}
-	if errors.Is(err, ogame.ErrAccountBlocked) {
-		return false, err
-	}
-	if err != nil {
+	} else if err != nil {
 		err := b.login()
 		return false, err
 	}
@@ -306,8 +303,9 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	page, err := getPage[parser.OverviewPage](b, SkipRetry)
 	if err != nil {
 		if errors.Is(err, ogame.ErrNotLogged) {
+			dev := b.device
 			b.debug("get login link")
-			loginLink, err := gameforge.GetLoginLink(b.device, b.ctx, b.lobby, userAccount, token)
+			loginLink, err := gameforge.GetLoginLink(dev, b.ctx, b.lobby, userAccount, token)
 			if err != nil {
 				return true, err
 			}
@@ -326,12 +324,10 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			if err := b.loginPart3(userAccount, page); err != nil {
 				return false, err
 			}
-			if err := b.device.GetClient().Jar.(*cookiejar.Jar).Save(); err != nil {
+			if err := dev.GetClient().Jar.(*cookiejar.Jar).Save(); err != nil {
 				return false, err
 			}
-			for _, fn := range b.interceptorCallbacks {
-				fn(http.MethodGet, loginLink, nil, nil, pageHTML)
-			}
+			b.execInterceptorCallbacks(http.MethodGet, loginLink, nil, nil, pageHTML)
 			return true, nil
 		}
 		return false, err
@@ -341,6 +337,12 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url.Values, pageHTML []byte) {
+	for _, fn := range b.interceptorCallbacks {
+		fn(method, url, params, payload, pageHTML)
+	}
 }
 
 // Return either or not the bot logged in using the existing cookies.
@@ -499,7 +501,7 @@ func ManualSolver() CaptchaCallback {
 	}
 }
 
-func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *gameforge.GFLoginRes, err error) {
+func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
 	client := b.device.GetClient()
 	if err := client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		var challengeID string
@@ -508,32 +510,24 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *g
 			params := &gameforge.GfLoginParams{
 				Ctx:         b.ctx,
 				Device:      b.device,
-				Lobby:       lobby,
-				Username:    username,
-				Password:    password,
-				OtpSecret:   otpSecret,
+				Lobby:       b.lobby,
+				Username:    b.Username,
+				Password:    b.password,
+				OtpSecret:   b.otpSecret,
 				ChallengeID: challengeID,
 			}
 			out, err = gameforge.GFLogin(params)
 			var captchaErr *gameforge.CaptchaRequiredError
 			if errors.As(err, &captchaErr) {
-				if maxTry == 0 || b.captchaCallback == nil {
+				captchaCallback := b.captchaCallback
+				if maxTry == 0 || captchaCallback == nil {
 					return err
 				}
 				maxTry--
-
-				questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(client, b.ctx, captchaErr.ChallengeID)
-				if err != nil {
-					return errors.New("failed to start captcha challenge: " + err.Error())
-				}
-				answer, err := b.captchaCallback(questionRaw, iconsRaw)
-				if err != nil {
-					return errors.New("failed to get answer for captcha challenge: " + err.Error())
-				}
-				if err := gameforge.SolveChallenge(client, b.ctx, captchaErr.ChallengeID, answer); err != nil {
-					return errors.New("failed to solve captcha challenge: " + err.Error())
-				}
 				challengeID = captchaErr.ChallengeID
+				if err := solveCaptcha(client, b.ctx, challengeID, captchaCallback); err != nil {
+					return err
+				}
 				continue
 			} else if err != nil {
 				return err
@@ -545,24 +539,44 @@ func postSessions(b *OGame, lobby, username, password, otpSecret string) (out *g
 		return nil, err
 	}
 
+	bearerToken := out.Token
+
 	// put in cookie jar so that we can re-login reusing the cookies
-	u, _ := url.Parse("https://gameforge.com")
-	cookies := client.Jar.Cookies(u)
-	cookie := &http.Cookie{
+	appendCookie(client, &http.Cookie{
 		Name:   gameforge.TokenCookieName,
-		Value:  out.Token,
+		Value:  bearerToken,
 		Path:   "/",
 		Domain: ".gameforge.com",
-	}
+	})
+	b.bearerToken = bearerToken
+	return out, nil
+}
+
+func appendCookie(client *httpclient.Client, cookie *http.Cookie) {
+	u, _ := url.Parse("https://gameforge.com")
+	cookies := client.Jar.Cookies(u)
 	cookies = append(cookies, cookie)
 	client.Jar.SetCookies(u, cookies)
-	b.bearerToken = out.Token
-	return out, nil
+}
+
+func solveCaptcha(client httpclient.IHttpClient, ctx context.Context, challengeID string, captchaCallback CaptchaCallback) error {
+	questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(client, ctx, challengeID)
+	if err != nil {
+		return errors.New("failed to start captcha challenge: " + err.Error())
+	}
+	answer, err := captchaCallback(questionRaw, iconsRaw)
+	if err != nil {
+		return errors.New("failed to get answer for captcha challenge: " + err.Error())
+	}
+	if err := gameforge.SolveChallenge(client, ctx, challengeID, answer); err != nil {
+		return errors.New("failed to solve captcha challenge: " + err.Error())
+	}
+	return err
 }
 
 func (b *OGame) login() error {
 	b.debug("post sessions")
-	postSessionsRes, err := postSessions(b, b.lobby, b.Username, b.password, b.otpSecret)
+	postSessionsRes, err := postSessions(b)
 	if err != nil {
 		return err
 	}
@@ -596,21 +610,21 @@ func (b *OGame) login() error {
 	if err := b.device.GetClient().Jar.(*cookiejar.Jar).Save(); err != nil {
 		return err
 	}
-	for _, fn := range b.interceptorCallbacks {
-		fn(http.MethodGet, loginLink, nil, nil, pageHTML)
-	}
+	b.execInterceptorCallbacks(http.MethodGet, loginLink, nil, nil, pageHTML)
 	return nil
 }
 
 func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount gameforge.Account, err error) {
 	client := b.device.GetClient()
+	ctx := b.ctx
+	lobby := b.lobby
 	b.debug("get user accounts")
-	accounts, err := gameforge.GetUserAccounts(client, b.ctx, b.lobby, token)
+	accounts, err := gameforge.GetUserAccounts(client, ctx, lobby, token)
 	if err != nil {
 		return
 	}
 	b.debug("get servers")
-	servers, err := gameforge.GetServers(b.lobby, client, b.ctx)
+	servers, err := gameforge.GetServers(lobby, client, ctx)
 	if err != nil {
 		return
 	}
@@ -627,8 +641,8 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 }
 
 func (b *OGame) loginPart2(server gameforge.Server) error {
-	atomic.StoreInt32(&b.isLoggedInAtom, 1) // At this point, we are logged in
-	atomic.StoreInt32(&b.isConnectedAtom, 1)
+	b.isLoggedInAtom.Store(true) // At this point, we are logged in
+	b.isConnectedAtom.Store(true)
 	// Get server data
 	start := time.Now()
 	b.server = server
@@ -712,10 +726,10 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page parser.OverviewPa
 	chatHost := string(m[1])
 	chatPort := string(m[2])
 
-	if atomic.CompareAndSwapInt32(&b.chatConnectedAtom, 0, 1) {
+	if b.chatConnectedAtom.CompareAndSwap(false, true) {
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
-			defer atomic.StoreInt32(&b.chatConnectedAtom, 0)
+			defer b.chatConnectedAtom.Store(false)
 			chatRetry := exponentialBackoff.New(context.Background(), clockwork.NewRealClock(), 60)
 			chatRetry.LoopForever(func() bool {
 				select {
@@ -1357,7 +1371,7 @@ func (b *OGame) ReconnectChat() bool {
 func (b *OGame) logout() {
 	_, _ = b.getPage(LogoutPageName)
 	_ = b.device.GetClient().Jar.(*cookiejar.Jar).Save()
-	if atomic.CompareAndSwapInt32(&b.isLoggedInAtom, 1, 0) {
+	if b.isLoggedInAtom.CompareAndSwap(true, false) {
 		select {
 		case <-b.closeChatCh:
 		default:
@@ -1598,7 +1612,7 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 
 		if detectLoggedOut(method, page, vals, pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
-			atomic.StoreInt32(&b.isConnectedAtom, 0)
+			b.isConnectedAtom.Store(false)
 			return ogame.ErrNotLogged
 		}
 
@@ -1617,9 +1631,7 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 
 	if !cfg.SkipInterceptor {
 		go func() {
-			for _, fn := range b.interceptorCallbacks {
-				fn(method, finalURL, vals, payload, pageHTMLBytes)
-			}
+			b.execInterceptorCallbacks(method, finalURL, vals, payload, pageHTMLBytes)
 		}()
 	}
 
@@ -1752,18 +1764,18 @@ func (b *OGame) constructionTime(id ogame.ID, nbr int64, facilities ogame.Facili
 
 func (b *OGame) enable() {
 	b.ctx, b.cancelCtx = context.WithCancel(context.Background())
-	atomic.StoreInt32(&b.isEnabledAtom, 1)
+	b.isEnabledAtom.Store(true)
 	b.stateChanged(false, "Enable")
 }
 
 func (b *OGame) disable() {
-	atomic.StoreInt32(&b.isEnabledAtom, 0)
+	b.isEnabledAtom.Store(false)
 	b.cancelCtx()
 	b.stateChanged(false, "Disable")
 }
 
 func (b *OGame) isEnabled() bool {
-	return atomic.LoadInt32(&b.isEnabledAtom) == 1
+	return b.isEnabledAtom.Load()
 }
 
 func (b *OGame) isCollector() bool {
@@ -1799,13 +1811,8 @@ func (b *OGame) fetchEventbox() (res eventboxResp, err error) {
 	return
 }
 
-func (b *OGame) isUnderAttack() (bool, error) {
-	attacks, err := b.getAttacks()
-	return len(attacks) > 0, err
-}
-
-func (b *OGame) isUnderAttackByID(celestialID ogame.CelestialID) (bool, error) {
-	attacks, err := b.getAttacksByCelestialID(celestialID)
+func (b *OGame) isUnderAttack(opts ...Option) (bool, error) {
+	attacks, err := b.getAttacks(opts...)
 	return len(attacks) > 0, err
 }
 
@@ -1844,48 +1851,26 @@ func (b *OGame) setPreferences(p ogame.Preferences) error {
 		"token":       {token},
 	}
 
-	if p.ShowOldDropDowns {
-		payload.Set("showOldDropDowns", "on")
+	setValue := func(ok bool, k, v string) {
+		if ok {
+			payload.Set(k, v)
+		}
 	}
-	if p.SpioReportPictures {
-		payload.Set("spioReportPictures", "on")
-	}
-	if p.ActivateAutofocus {
-		payload.Set("activateAutofocus", "on")
-	}
-	if p.ShowDetailOverlay {
-		payload.Set("showDetailOverlay", "on")
-	}
-	if p.AnimatedSliders {
-		payload.Set("animatedSliders", "on")
-	}
-	if p.AnimatedOverview {
-		payload.Set("animatedOverview", "on")
-	}
-	if p.PopupsNotices {
-		payload.Set("popups[notices]", "on")
-	}
-	if p.PopopsCombatreport {
-		payload.Set("popups[combatreport]", "on")
-	}
-	if p.AuctioneerNotifications {
-		payload.Set("auctioneerNotifications", "on")
-	}
-	if p.EconomyNotifications {
-		payload.Set("economyNotifications", "on")
-	}
-	if p.ShowActivityMinutes {
-		payload.Set("showActivityMinutes", "1")
-	}
-	if p.PreserveSystemOnPlanetChange {
-		payload.Set("preserveSystemOnPlanetChange", "1")
-	}
-	if p.DisableOutlawWarning {
-		payload.Set("disableOutlawWarning", "on")
-	}
-	if p.DiscoveryWarningEnabled {
-		payload.Set("discoveryWarningEnabled", "1")
-	}
+
+	setValue(p.ShowOldDropDowns, "showOldDropDowns", "on")
+	setValue(p.SpioReportPictures, "spioReportPictures", "on")
+	setValue(p.ActivateAutofocus, "activateAutofocus", "on")
+	setValue(p.ShowDetailOverlay, "showDetailOverlay", "on")
+	setValue(p.AnimatedSliders, "animatedSliders", "on")
+	setValue(p.AnimatedOverview, "animatedOverview", "on")
+	setValue(p.PopupsNotices, "popups[notices]", "on")
+	setValue(p.PopopsCombatreport, "popups[combatreport]", "on")
+	setValue(p.AuctioneerNotifications, "auctioneerNotifications", "on")
+	setValue(p.EconomyNotifications, "economyNotifications", "on")
+	setValue(p.ShowActivityMinutes, "showActivityMinutes", "1")
+	setValue(p.PreserveSystemOnPlanetChange, "preserveSystemOnPlanetChange", "1")
+	setValue(p.DisableOutlawWarning, "disableOutlawWarning", "on")
+	setValue(p.DiscoveryWarningEnabled, "discoveryWarningEnabled", "1")
 	payload.Set("msgResultsPerPage", utils.FI64(p.MsgResultsPerPage))
 	payload.Set("spySystemAutomaticQuantity", utils.FI64(p.SpySystemAutomaticQuantity))
 	payload.Set("spySystemTargetPlanetTypes", utils.FI64(p.SpySystemTargetPlanetTypes))
@@ -2938,29 +2923,6 @@ func (b *OGame) getAttacks(opts ...Option) (out []ogame.AttackEvent, err error) 
 	return
 }
 
-func (b *OGame) getAttacksByCelestialID(celestialID ogame.CelestialID, opts ...Option) (out []ogame.AttackEvent, err error) {
-	vals := url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}}
-	opts = append(opts, ChangePlanet(celestialID))
-	page, err := getAjaxPage[parser.EventListAjaxPage](b, vals, opts...)
-	if err != nil {
-		return
-	}
-	ownCoords := make([]ogame.Coordinate, 0)
-	planets := b.GetCachedPlanets()
-	for _, planet := range planets {
-		ownCoords = append(ownCoords, planet.Coordinate)
-		if planet.Moon != nil {
-			ownCoords = append(ownCoords, planet.Moon.Coordinate)
-		}
-	}
-	out, err = page.ExtractAttacks(ownCoords)
-	if err != nil {
-		return
-	}
-	fixAttackEvents(out, planets)
-	return
-}
-
 func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemInfos, error) {
 	cfg := getOptions(opts...)
 	var res ogame.SystemInfos
@@ -3745,11 +3707,11 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	cargo := ogame.ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1, b.isCollector(), b.IsPioneers())
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
-		newResources.Deuterium = int64(math.Min(float64(resources.Deuterium), float64(cargo)))
+		newResources.Deuterium = utils.MinInt(resources.Deuterium, cargo)
 		cargo -= newResources.Deuterium
-		newResources.Crystal = int64(math.Min(float64(resources.Crystal), float64(cargo)))
+		newResources.Crystal = utils.MinInt(resources.Crystal, cargo)
 		cargo -= newResources.Crystal
-		newResources.Metal = int64(math.Min(float64(resources.Metal), float64(cargo)))
+		newResources.Metal = utils.MinInt(resources.Metal, cargo)
 	} else {
 		newResources = resources
 	}
@@ -4266,7 +4228,7 @@ func (b *OGame) stateChanged(locked bool, actor string) {
 
 func (b *OGame) botLock(lockedBy string) {
 	b.Lock()
-	if atomic.CompareAndSwapInt32(&b.lockedAtom, 0, 1) {
+	if b.lockedAtom.CompareAndSwap(false, true) {
 		b.state = lockedBy
 		b.stateChanged(true, lockedBy)
 	}
@@ -4274,7 +4236,7 @@ func (b *OGame) botLock(lockedBy string) {
 
 func (b *OGame) botUnlock(unlockedBy string) {
 	b.Unlock()
-	if atomic.CompareAndSwapInt32(&b.lockedAtom, 1, 0) {
+	if b.lockedAtom.CompareAndSwap(true, false) {
 		b.state = unlockedBy
 		b.stateChanged(false, unlockedBy)
 	}
@@ -4470,12 +4432,12 @@ func (b *OGame) IsEnabled() bool {
 
 // IsLoggedIn returns true if the bot is currently logged-in, otherwise false
 func (b *OGame) IsLoggedIn() bool {
-	return atomic.LoadInt32(&b.isLoggedInAtom) == 1
+	return b.isLoggedInAtom.Load()
 }
 
 // IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
 func (b *OGame) IsConnected() bool {
-	return atomic.LoadInt32(&b.isConnectedAtom) == 1
+	return b.isConnectedAtom.Load()
 }
 
 // GetDevice get the device used by the bot
@@ -4515,12 +4477,12 @@ func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
 
 // GetState returns the current bot state
 func (b *OGame) GetState() (bool, string) {
-	return atomic.LoadInt32(&b.lockedAtom) == 1, b.state
+	return b.lockedAtom.Load(), b.state
 }
 
 // IsLocked returns either or not the bot is currently locked
 func (b *OGame) IsLocked() bool {
-	return atomic.LoadInt32(&b.lockedAtom) == 1
+	return b.lockedAtom.Load()
 }
 
 // GetSession get ogame session
