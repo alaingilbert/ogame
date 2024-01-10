@@ -1386,26 +1386,28 @@ func (b *OGame) logout() {
 // IsKnowFullPage ...
 func IsKnowFullPage(vals url.Values) bool {
 	page := getPageName(vals)
-	return page == OverviewPageName ||
-		page == TraderOverviewPageName ||
-		page == ResearchPageName ||
-		page == ShipyardPageName ||
-		page == GalaxyPageName ||
-		page == AlliancePageName ||
-		page == PremiumPageName ||
-		page == ShopPageName ||
-		page == RewardsPageName ||
-		page == ResourceSettingsPageName ||
-		page == MovementPageName ||
-		page == HighscorePageName ||
-		page == BuddiesPageName ||
-		page == PreferencesPageName ||
-		page == MessagesPageName ||
-		page == ChatPageName ||
-		page == DefensesPageName ||
-		page == SuppliesPageName ||
-		page == FacilitiesPageName ||
-		page == FleetdispatchPageName
+	return utils.InArr(page, []string{
+		OverviewPageName,
+		TraderOverviewPageName,
+		ResearchPageName,
+		ShipyardPageName,
+		GalaxyPageName,
+		AlliancePageName,
+		PremiumPageName,
+		ShopPageName,
+		RewardsPageName,
+		ResourceSettingsPageName,
+		MovementPageName,
+		HighscorePageName,
+		BuddiesPageName,
+		PreferencesPageName,
+		MessagesPageName,
+		ChatPageName,
+		DefensesPageName,
+		SuppliesPageName,
+		FacilitiesPageName,
+		FleetdispatchPageName,
+	})
 }
 
 func IsEmpirePage(vals url.Values) bool {
@@ -1417,49 +1419,46 @@ func IsAjaxPage(vals url.Values) bool {
 	page := getPageName(vals)
 	ajax := vals.Get("ajax")
 	asJson := vals.Get("asJson")
-	return page == FetchEventboxAjaxPageName ||
-		page == FetchResourcesAjaxPageName ||
-		page == GalaxyContentAjaxPageName ||
-		page == EventListAjaxPageName ||
-		page == AjaxChatAjaxPageName ||
-		page == NoticesAjaxPageName ||
-		page == RepairlayerAjaxPageName ||
-		page == TechtreeAjaxPageName ||
-		page == PhalanxAjaxPageName ||
-		page == ShareReportOverlayAjaxPageName ||
-		page == JumpgatelayerAjaxPageName ||
-		page == FederationlayerAjaxPageName ||
-		page == UnionchangeAjaxPageName ||
-		page == ChangenickAjaxPageName ||
-		page == PlanetlayerAjaxPageName ||
-		page == TraderlayerAjaxPageName ||
-		page == PlanetRenameAjaxPageName ||
-		page == RightmenuAjaxPageName ||
-		page == AllianceOverviewAjaxPageName ||
-		page == SupportAjaxPageName ||
-		page == BuffActivationAjaxPageName ||
-		page == AuctioneerAjaxPageName ||
-		page == HighscoreContentAjaxPageName ||
-		ajax == "1" ||
-		asJson == "1"
+	return ajax == "1" ||
+		asJson == "1" ||
+		utils.InArr(page, []string{
+			FetchEventboxAjaxPageName,
+			FetchResourcesAjaxPageName,
+			GalaxyContentAjaxPageName,
+			EventListAjaxPageName,
+			AjaxChatAjaxPageName,
+			NoticesAjaxPageName,
+			RepairlayerAjaxPageName,
+			TechtreeAjaxPageName,
+			PhalanxAjaxPageName,
+			ShareReportOverlayAjaxPageName,
+			JumpgatelayerAjaxPageName,
+			FederationlayerAjaxPageName,
+			UnionchangeAjaxPageName,
+			ChangenickAjaxPageName,
+			PlanetlayerAjaxPageName,
+			TraderlayerAjaxPageName,
+			PlanetRenameAjaxPageName,
+			RightmenuAjaxPageName,
+			AllianceOverviewAjaxPageName,
+			SupportAjaxPageName,
+			BuffActivationAjaxPageName,
+			AuctioneerAjaxPageName,
+			HighscoreContentAjaxPageName,
+		})
 }
 
 func canParseEventBox(by []byte) bool {
-	err := json.Unmarshal(by, &eventboxResp{})
-	return err == nil
+	return json.Unmarshal(by, &eventboxResp{}) == nil
 }
 
 func canParseSystemInfos(by []byte) bool {
-	err := json.Unmarshal(by, &ogame.SystemInfos{})
-	return err == nil
+	return json.Unmarshal(by, &ogame.SystemInfos{}) == nil
 }
 
 func canParseNewSystemInfos(by []byte) bool {
-	var success struct {
-		Success bool
-	}
-	err := json.Unmarshal(by, &success)
-	return err == nil
+	var success struct{ Success bool }
+	return json.Unmarshal(by, &success) == nil
 }
 
 func (b *OGame) preRequestChecks() error {
@@ -1565,11 +1564,7 @@ func constructFinalURL(b *OGame, vals url.Values) string {
 }
 
 func retryPolicyFromConfig(b *OGame, cfg Options) func(func() error) error {
-	retryPolicy := b.withRetry
-	if cfg.SkipRetry {
-		retryPolicy = b.withoutRetry
-	}
-	return retryPolicy
+	return utils.Ternary(cfg.SkipRetry, b.withoutRetry, b.withRetry)
 }
 
 func (b *OGame) getPageContent(vals url.Values, opts ...Option) ([]byte, error) {
@@ -1605,12 +1600,8 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 			defer func() { client.CheckRedirect = nil }()
 		}
 
-		if cfg.Delay > 0 {
-			select {
-			case <-time.After(cfg.Delay):
-			case <-b.ctx.Done():
-				return ogame.ErrBotInactive
-			}
+		if err = applyDelay(b, cfg.Delay); err != nil {
+			return err
 		}
 
 		pageHTMLBytes, err = b.execRequest(method, finalURL, payload, vals)
@@ -1644,6 +1635,17 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 	}
 
 	return pageHTMLBytes, nil
+}
+
+func applyDelay(b *OGame, delay time.Duration) error {
+	if delay > 0 {
+		select {
+		case <-time.After(delay):
+		case <-b.ctx.Done():
+			return ogame.ErrBotInactive
+		}
+	}
+	return nil
 }
 
 func alterPayload(method string, b *OGame, vals, payload url.Values) {
@@ -2816,24 +2818,27 @@ func calcResources(price int64, planetResources ogame.PlanetResources, multiplie
 
 	payload := url.Values{}
 	remaining := price
+	multMetal := multiplier.Metal
+	multCrystal := multiplier.Crystal
+	multDeuterium := multiplier.Deuterium
 	for celestialID, res := range planetResources {
 		metalNeeded := res.Input.Metal
-		if remaining < int64(float64(metalNeeded)*multiplier.Metal) {
-			metalNeeded = int64(math.Ceil(float64(remaining) / multiplier.Metal))
+		if remaining < int64(float64(metalNeeded)*multMetal) {
+			metalNeeded = int64(math.Ceil(float64(remaining) / multMetal))
 		}
-		remaining -= int64(float64(metalNeeded) * multiplier.Metal)
+		remaining -= int64(float64(metalNeeded) * multMetal)
 
 		crystalNeeded := res.Input.Crystal
-		if remaining < int64(float64(crystalNeeded)*multiplier.Crystal) {
-			crystalNeeded = int64(math.Ceil(float64(remaining) / multiplier.Crystal))
+		if remaining < int64(float64(crystalNeeded)*multCrystal) {
+			crystalNeeded = int64(math.Ceil(float64(remaining) / multCrystal))
 		}
-		remaining -= int64(float64(crystalNeeded) * multiplier.Crystal)
+		remaining -= int64(float64(crystalNeeded) * multCrystal)
 
 		deuteriumNeeded := res.Input.Deuterium
-		if remaining < int64(float64(deuteriumNeeded)*multiplier.Deuterium) {
-			deuteriumNeeded = int64(math.Ceil(float64(remaining) / multiplier.Deuterium))
+		if remaining < int64(float64(deuteriumNeeded)*multDeuterium) {
+			deuteriumNeeded = int64(math.Ceil(float64(remaining) / multDeuterium))
 		}
-		remaining -= int64(float64(deuteriumNeeded) * multiplier.Deuterium)
+		remaining -= int64(float64(deuteriumNeeded) * multDeuterium)
 
 		payload.Add("bid[planets]["+utils.FI64(celestialID)+"][metal]", utils.FI64(metalNeeded))
 		payload.Add("bid[planets]["+utils.FI64(celestialID)+"][crystal]", utils.FI64(crystalNeeded))
