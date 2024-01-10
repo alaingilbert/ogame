@@ -2,6 +2,7 @@ package wrapper
 
 import (
 	"github.com/alaingilbert/ogame/pkg/ogame"
+	"time"
 )
 
 type Options struct {
@@ -9,6 +10,7 @@ type Options struct {
 	SkipInterceptor bool
 	SkipRetry       bool
 	ChangePlanet    ogame.CelestialID // cp parameter
+	Delay           time.Duration
 }
 
 // Option functions to be passed to public interface to change behaviors
@@ -33,5 +35,12 @@ func SkipRetry(opt *Options) {
 func ChangePlanet(celestialID ogame.CelestialID) Option {
 	return func(opt *Options) {
 		opt.ChangePlanet = celestialID
+	}
+}
+
+// Delay delays a page load; simulating slow request/response from ogame server
+func Delay(dur time.Duration) Option {
+	return func(opt *Options) {
+		opt.Delay = dur
 	}
 }

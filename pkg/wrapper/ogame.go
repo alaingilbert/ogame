@@ -1605,6 +1605,14 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 			defer func() { client.CheckRedirect = nil }()
 		}
 
+		if cfg.Delay > 0 {
+			select {
+			case <-time.After(cfg.Delay):
+			case <-b.ctx.Done():
+				return ogame.ErrBotInactive
+			}
+		}
+
 		pageHTMLBytes, err = b.execRequest(method, finalURL, payload, vals)
 		if err != nil {
 			return err
