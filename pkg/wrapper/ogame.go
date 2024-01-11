@@ -1186,7 +1186,11 @@ LOOP:
 			}
 		} else {
 			b.error("unknown message received:", buf)
-			time.Sleep(time.Second)
+			select {
+			case <-time.After(time.Second):
+			case <-b.ctx.Done():
+				return
+			}
 		}
 	}
 }
@@ -1354,7 +1358,11 @@ LOOP:
 			}
 		} else {
 			b.error("unknown message received:", string(buf))
-			time.Sleep(time.Second)
+			select {
+			case <-time.After(time.Second):
+			case <-b.ctx.Done():
+				return
+			}
 		}
 	}
 }
@@ -3917,7 +3925,11 @@ func getMessages[T any](b *OGame, maxPage int64, tabID ogame.MessagesTabID, extr
 			break
 		}
 		if page > 1 {
-			time.Sleep(utils.RandMs(500, 1500))
+			select {
+			case <-time.After(utils.RandMs(500, 1500)):
+			case <-b.ctx.Done():
+				return msgs, ogame.ErrBotInactive
+			}
 		}
 		pageHTML, _ := b.getPageMessages(page, tabID)
 		newMessages, newNbPage, _ := extractor(pageHTML)
@@ -3999,7 +4011,11 @@ func (b *OGame) getExpeditionMessageAt(t time.Time) (ogame.ExpeditionMessage, er
 LOOP:
 	for page <= nbPage {
 		if page > 1 {
-			time.Sleep(utils.RandMs(500, 1500))
+			select {
+			case <-time.After(utils.RandMs(500, 1500)):
+			case <-b.ctx.Done():
+				return ogame.ExpeditionMessage{}, ogame.ErrBotInactive
+			}
 		}
 		pageHTML, _ := b.getPageMessages(page, ExpeditionsMessagesTabID)
 		newMessages, newNbPage, _ := b.extractor.ExtractExpeditionMessages(pageHTML)
@@ -4022,7 +4038,11 @@ func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSu
 	var nbPage int64 = 1
 	for page <= nbPage {
 		if page > 1 {
-			time.Sleep(utils.RandMs(500, 1500))
+			select {
+			case <-time.After(utils.RandMs(500, 1500)):
+			case <-b.ctx.Done():
+				return ogame.CombatReportSummary{}, ogame.ErrBotInactive
+			}
 		}
 		pageHTML, err := b.getPageMessages(page, CombatReportsMessagesTabID)
 		if err != nil {
@@ -4050,7 +4070,11 @@ func (b *OGame) getEspionageReportFor(coord ogame.Coordinate) (ogame.EspionageRe
 	var nbPage int64 = 1
 	for page <= nbPage {
 		if page > 1 {
-			time.Sleep(utils.RandMs(500, 1500))
+			select {
+			case <-time.After(utils.RandMs(500, 1500)):
+			case <-b.ctx.Done():
+				return ogame.EspionageReport{}, ogame.ErrBotInactive
+			}
 		}
 		pageHTML, err := b.getPageMessages(page, EspionageMessagesTabID)
 		if err != nil {
