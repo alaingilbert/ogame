@@ -1188,8 +1188,6 @@ LOOP:
 			b.error("unknown message received:", buf)
 			select {
 			case <-time.After(time.Second):
-			case <-b.ctx.Done():
-				return
 			}
 		}
 	}
@@ -1360,8 +1358,6 @@ LOOP:
 			b.error("unknown message received:", string(buf))
 			select {
 			case <-time.After(time.Second):
-			case <-b.ctx.Done():
-				return
 			}
 		}
 	}
