@@ -2126,7 +2126,7 @@ func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) (distan
 	if system1 > system2 {
 		system1, system2 = system2, system1
 	}
-	return int64(math.Min(float64(system2-system1), float64((system1+nbSystems)-system2)))
+	return utils.MinInt(system2-system1, (system1+nbSystems)-system2)
 }
 
 // Returns the distance between two systems
@@ -2345,7 +2345,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 	// Add ships to payload
 	for _, s := range ogame.Ships {
 		// Get the min between what is available and what we want
-		nbr := int64(math.Min(float64(ships.ByID(s.GetID())), float64(availShips.ByID(s.GetID()))))
+		nbr := utils.MinInt(ships.ByID(s.GetID()), availShips.ByID(s.GetID()))
 		if nbr > 0 {
 			payload.Add("ship_"+utils.FI64(s.GetID()), utils.FI64(nbr))
 		}
@@ -3248,7 +3248,7 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 		var amount int64 = 1
 		if id.IsShip() || id.IsDefense() {
 			var maximumNbr int64 = 99999
-			amount = int64(math.Min(float64(nbr), float64(maximumNbr)))
+			amount = utils.MinInt(nbr, maximumNbr)
 		}
 
 		payload := url.Values{
@@ -3275,7 +3275,7 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 			var err error
 			var token string
 			for nbr > 0 {
-				tmp := int64(math.Min(float64(nbr), float64(maximumNbr)))
+				tmp := utils.MinInt(nbr, maximumNbr)
 				vals.Set("menge", utils.FI64(tmp))
 				_, err = b.getPageContent(vals)
 				if err != nil {
@@ -3637,7 +3637,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	if !ensure {
 		for i := range ships {
 			avail := availableShips.ByID(ships[i].ID)
-			ships[i].Nbr = int64(math.Min(float64(ships[i].Nbr), float64(avail)))
+			ships[i].Nbr = utils.MinInt(ships[i].Nbr, avail)
 			if ships[i].Nbr > 0 {
 				atLeastOneShipSelected = true
 			}
