@@ -538,11 +538,13 @@ type Server struct {
 	ServerClosed  int64
 	Prefered      int64
 	SignupClosed  int64
+	MultiLanguage int64
+	AvailableOn   []string
 	Settings      struct {
 		AKS                      int64
 		FleetSpeedWar            int64
 		FleetSpeedHolding        int64
-		fleetSpeedPeaceful       int64
+		FleetSpeedPeaceful       int64
 		WreckField               int64
 		ServerLabel              string
 		EconomySpeed             any // can be 8 or "x8"
@@ -552,6 +554,7 @@ type Server struct {
 		EspionageProbeRaids      int64
 		PremiumValidationGift    int64
 		DebrisFieldFactorShips   int64
+		ResearchDurationDivisor  int64
 		DebrisFieldFactorDefence int64
 	}
 }
