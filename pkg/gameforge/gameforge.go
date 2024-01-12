@@ -158,8 +158,15 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 
 func buildBearerHeaderValue(token string) string { return "Bearer " + token }
 
+func setDefaultParams(params *GfLoginParams) {
+	if params.Ctx == nil {
+		params.Ctx = context.Background()
+	}
+}
+
 // LoginAndRedeemCode ...
 func LoginAndRedeemCode(params *GfLoginParams, code string) error {
+	setDefaultParams(params)
 	postSessionsRes, err := GFLogin(params)
 	if err != nil {
 		return err
@@ -169,6 +176,7 @@ func LoginAndRedeemCode(params *GfLoginParams, code string) error {
 
 // LoginAndAddAccount adds an account to a gameforge lobby
 func LoginAndAddAccount(params *GfLoginParams, universe, lang string) (*AddAccountRes, error) {
+	setDefaultParams(params)
 	postSessionsRes, err := GFLogin(params)
 	if err != nil {
 		return nil, err
@@ -314,6 +322,7 @@ type GFLoginRes struct {
 func (r GFLoginRes) GetBearerToken() string { return r.Token }
 
 func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
+	setDefaultParams(params)
 	if params.Device == nil {
 		return out, errors.New("device is nil")
 	}
