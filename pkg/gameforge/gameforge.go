@@ -554,7 +554,7 @@ type Server struct {
 		EspionageProbeRaids      int64
 		PremiumValidationGift    int64
 		DebrisFieldFactorShips   int64
-		ResearchDurationDivisor  int64
+		ResearchDurationDivisor  float64
 		DebrisFieldFactorDefence int64
 	}
 }
