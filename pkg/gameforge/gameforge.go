@@ -540,7 +540,9 @@ type Server struct {
 	SignupClosed  int64
 	Settings      struct {
 		AKS                      int64
-		FleetSpeed               int64
+		FleetSpeedWar            int64
+		FleetSpeedHolding        int64
+		fleetSpeedPeaceful       int64
 		WreckField               int64
 		ServerLabel              string
 		EconomySpeed             any // can be 8 or "x8"
