@@ -166,7 +166,6 @@ func setDefaultParams(params *GfLoginParams) {
 
 // LoginAndRedeemCode ...
 func LoginAndRedeemCode(params *GfLoginParams, code string) error {
-	setDefaultParams(params)
 	postSessionsRes, err := GFLogin(params)
 	if err != nil {
 		return err
@@ -176,7 +175,6 @@ func LoginAndRedeemCode(params *GfLoginParams, code string) error {
 
 // LoginAndAddAccount adds an account to a gameforge lobby
 func LoginAndAddAccount(params *GfLoginParams, universe, lang string) (*AddAccountRes, error) {
-	setDefaultParams(params)
 	postSessionsRes, err := GFLogin(params)
 	if err != nil {
 		return nil, err
