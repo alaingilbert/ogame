@@ -356,7 +356,7 @@ func newResearchCentre() *researchCentre {
 	b.ID = ResearchCentreID
 	b.IncreaseFactor = 1.3
 	b.BaseCost = Resources{Metal: 20000, Crystal: 25000, Deuterium: 10000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 12, BiosphereFarmID: 13}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 21, BiosphereFarmID: 22}
 	return b
 }
 
@@ -371,7 +371,7 @@ func newAcademyOfSciences() *academyOfSciences {
 	b.IncreaseFactor = 1.70
 	b.populationIncreaseFactor = 1.10
 	b.BaseCost = Resources{Metal: 5000, Crystal: 3200, Deuterium: 1500, Population: 20000000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 40}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 41}
 	return b
 }
 
@@ -386,7 +386,7 @@ func newNeuroCalibrationCentre() *neuroCalibrationCentre {
 	b.IncreaseFactor = 1.70
 	b.populationIncreaseFactor = 1.10
 	b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 100000000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 40, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1, SkyscraperID: 5}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1, SkyscraperID: 5}
 	return b
 }
 
@@ -399,8 +399,8 @@ func newHighEnergySmelting() *highEnergySmelting {
 	b.Name = "high energy smelting"
 	b.ID = HighEnergySmeltingID
 	b.IncreaseFactor = 1.50
-	b.BaseCost = Resources{Metal: 7500, Crystal: 5000, Deuterium: 3000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 12, BiosphereFarmID: 13, ResearchCentreID: 5}
+	b.BaseCost = Resources{Metal: 9000, Crystal: 6000, Deuterium: 3000}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 21, BiosphereFarmID: 22, ResearchCentreID: 5}
 	return b
 }
 
@@ -414,7 +414,7 @@ func newFoodSilo() *foodSilo {
 	b.ID = FoodSiloID
 	b.IncreaseFactor = 1.09
 	b.BaseCost = Resources{Metal: 25000, Crystal: 13000, Deuterium: 7000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 12, BiosphereFarmID: 13, ResearchCentreID: 5, HighEnergySmeltingID: 3}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 21, BiosphereFarmID: 22, ResearchCentreID: 5, HighEnergySmeltingID: 3}
 	return b
 }
 
@@ -427,8 +427,8 @@ func newFusionPoweredProduction() *fusionPoweredProduction {
 	b.Name = "fusion powered production"
 	b.ID = FusionPoweredProductionID
 	b.IncreaseFactor = 1.50
-	b.BaseCost = Resources{Metal: 50000, Crystal: 25000, Deuterium: 25000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 40, AcademyOfSciencesID: 1}
+	b.BaseCost = Resources{Metal: 50000, Crystal: 25000, Deuterium: 15000}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1}
 	return b
 }
 
@@ -442,7 +442,7 @@ func newSkyscraper() *skyscraper {
 	b.ID = SkyscraperID
 	b.IncreaseFactor = 1.09
 	b.BaseCost = Resources{Metal: 75000, Crystal: 20000, Deuterium: 25000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 40, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1}
 	return b
 }
 
@@ -456,7 +456,7 @@ func newBiotechLab() *biotechLab {
 	b.ID = BiotechLabID
 	b.IncreaseFactor = 1.12
 	b.BaseCost = Resources{Metal: 150000, Crystal: 30000, Deuterium: 15000}
-	b.Requirements = map[ID]int64{ResidentialSectorID: 40, AcademyOfSciencesID: 1, FusionPoweredProductionID: 2}
+	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 2}
 	return b
 }
 
@@ -485,12 +485,12 @@ func newPlanetaryShield() *planetaryShield {
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
 	b.Requirements = map[ID]int64{
-		ResidentialSectorID:       40,
-		BiosphereFarmID:           13,
+		ResidentialSectorID:       41,
+		BiosphereFarmID:           22,
 		ResearchCentreID:          5,
 		AcademyOfSciencesID:       1,
 		FusionPoweredProductionID: 5,
-		SkyscraperID:              5,
+		SkyscraperID:              6,
 		HighEnergySmeltingID:      3,
 		MetropolisID:              5,
 		FoodSiloID:                4,
