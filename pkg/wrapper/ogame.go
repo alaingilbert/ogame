@@ -1409,6 +1409,8 @@ func IsKnowFullPage(vals url.Values) bool {
 		ChatPageName,
 		DefensesPageName,
 		SuppliesPageName,
+		LfBuildingsPageName,
+		LfResearchPageName,
 		FacilitiesPageName,
 		FleetdispatchPageName,
 	})
