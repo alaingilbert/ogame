@@ -1,12 +1,12 @@
 package v11
 
 import (
-	"errors"
-	"regexp"
 	"bytes"
+	"errors"
 	"github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
+	"regexp"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -49,4 +49,36 @@ func extractResourceSettingsFromPage(pageHTML []byte) (ogame.ResourceSettings, s
 	token, _ := getToken(pageHTML)
 
 	return res, token, nil
+}
+
+func extractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
+	return ExtractCancelInfos(pageHTML, "cancelbuilding", 0)
+}
+
+func extractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error) {
+	return ExtractCancelInfos(pageHTML, "cancelresearch", 2)
+}
+
+func extractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
+	return ExtractCancelInfos(pageHTML, "cancellfbuilding", 1)
+}
+
+func ExtractCancelInfos(pageHTML []byte, fnName string, tableIdx int) (token string, id, listID int64, err error) {
+	r1 := regexp.MustCompile(`window\.token = '([^']+)'`)
+	m1 := r1.FindSubmatch(pageHTML)
+	if len(m1) < 2 {
+		return "", 0, 0, errors.New("unable to find token")
+	}
+	token = string(m1[1])
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	t := doc.Find("table.construction").Eq(tableIdx)
+	a, _ := t.Find("a").First().Attr("onclick")
+	r := regexp.MustCompile(fnName + `\((\d+),\s?(\d+),`)
+	m := r.FindStringSubmatch(a)
+	if len(m) < 3 {
+		return "", 0, 0, errors.New("unable to find id/listid")
+	}
+	id = utils.DoParseI64(m[1])
+	listID = utils.DoParseI64(m[2])
+	return
 }

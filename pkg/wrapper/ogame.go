@@ -3353,8 +3353,8 @@ func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID
 }
 
 func (b *OGame) cancel(token string, techID, listID int64) error {
-	_, _ = b.getPageContent(url.Values{"page": {"ingame"}, "component": {"overview"}, "modus": {"2"}, "token": {token},
-		"type": {utils.FI64(techID)}, "listid": {utils.FI64(listID)}, "action": {"cancel"}})
+	_, _ = b.postPageContent(url.Values{"page": {"componentOnly"}, "component": {"buildlistactions"}, "action": {"cancelEntry"}, "asJson": {"1"}},
+		url.Values{"technologyId": {utils.FI64(techID)}, "listId": {utils.FI64(listID)}, "token": {token}})
 	return nil
 }
 
