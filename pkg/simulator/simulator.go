@@ -607,105 +607,42 @@ type entity struct {
 func (e *entity) init() {
 	e.reset()
 	idx := 0
-	for i := 0; i < e.SmallCargo; i++ {
-		e.Units[idx] = newUnit(e, smallCargoConst)
-		idx++
+	type Unit struct {
+		Nbr int
+		ID  uint64
 	}
-	for i := 0; i < e.LargeCargo; i++ {
-		e.Units[idx] = newUnit(e, largeCargoConst)
-		idx++
+	unitsArr := []Unit{
+		{e.SmallCargo, smallCargoConst},
+		{e.LargeCargo, largeCargoConst},
+		{e.LightFighter, lightFighterConst},
+		{e.HeavyFighter, heavyFighterConst},
+		{e.Cruiser, cruiserConst},
+		{e.Battleship, battleshipConst},
+		{e.ColonyShip, colonyShipConst},
+		{e.Recycler, recyclerConst},
+		{e.EspionageProbe, espionageProbeConst},
+		{e.Bomber, bomberConst},
+		{e.SolarSatellite, solarSatelliteConst},
+		{e.Destroyer, destroyerConst},
+		{e.Deathstar, deathstarConst},
+		{e.Battlecruiser, battlecruiserConst},
+		{e.Reaper, reaperConst},
+		{e.Pathfinder, pathfinderConst},
+		{e.Crawler, crawlerConst},
+		{e.RocketLauncher, rocketLauncherConst},
+		{e.LightLaser, lightLaserConst},
+		{e.HeavyLaser, heavyLaserConst},
+		{e.GaussCannon, gaussCannonConst},
+		{e.IonCannon, ionCannonConst},
+		{e.PlasmaTurret, plasmaTurretConst},
+		{e.SmallShieldDome, smallShieldDomeConst},
+		{e.LargeShieldDome, largeShieldDomeConst},
 	}
-	for i := 0; i < e.LightFighter; i++ {
-		e.Units[idx] = newUnit(e, lightFighterConst)
-		idx++
-	}
-	for i := 0; i < e.HeavyFighter; i++ {
-		e.Units[idx] = newUnit(e, heavyFighterConst)
-		idx++
-	}
-	for i := 0; i < e.Cruiser; i++ {
-		e.Units[idx] = newUnit(e, cruiserConst)
-		idx++
-	}
-	for i := 0; i < e.Battleship; i++ {
-		e.Units[idx] = newUnit(e, battleshipConst)
-		idx++
-	}
-	for i := 0; i < e.ColonyShip; i++ {
-		e.Units[idx] = newUnit(e, colonyShipConst)
-		idx++
-	}
-	for i := 0; i < e.Recycler; i++ {
-		e.Units[idx] = newUnit(e, recyclerConst)
-		idx++
-	}
-	for i := 0; i < e.EspionageProbe; i++ {
-		e.Units[idx] = newUnit(e, espionageProbeConst)
-		idx++
-	}
-	for i := 0; i < e.Bomber; i++ {
-		e.Units[idx] = newUnit(e, bomberConst)
-		idx++
-	}
-	for i := 0; i < e.SolarSatellite; i++ {
-		e.Units[idx] = newUnit(e, solarSatelliteConst)
-		idx++
-	}
-	for i := 0; i < e.Destroyer; i++ {
-		e.Units[idx] = newUnit(e, destroyerConst)
-		idx++
-	}
-	for i := 0; i < e.Deathstar; i++ {
-		e.Units[idx] = newUnit(e, deathstarConst)
-		idx++
-	}
-	for i := 0; i < e.Battlecruiser; i++ {
-		e.Units[idx] = newUnit(e, battlecruiserConst)
-		idx++
-	}
-	for i := 0; i < e.Reaper; i++ {
-		e.Units[idx] = newUnit(e, reaperConst)
-		idx++
-	}
-	for i := 0; i < e.Pathfinder; i++ {
-		e.Units[idx] = newUnit(e, pathfinderConst)
-		idx++
-	}
-	for i := 0; i < e.Crawler; i++ {
-		e.Units[idx] = newUnit(e, crawlerConst)
-		idx++
-	}
-	for i := 0; i < e.RocketLauncher; i++ {
-		e.Units[idx] = newUnit(e, rocketLauncherConst)
-		idx++
-	}
-	for i := 0; i < e.LightLaser; i++ {
-		e.Units[idx] = newUnit(e, lightLaserConst)
-		idx++
-	}
-	for i := 0; i < e.HeavyLaser; i++ {
-		e.Units[idx] = newUnit(e, heavyLaserConst)
-		idx++
-	}
-	for i := 0; i < e.GaussCannon; i++ {
-		e.Units[idx] = newUnit(e, gaussCannonConst)
-		idx++
-	}
-	for i := 0; i < e.IonCannon; i++ {
-		e.Units[idx] = newUnit(e, ionCannonConst)
-		idx++
-	}
-	for i := 0; i < e.PlasmaTurret; i++ {
-		e.Units[idx] = newUnit(e, plasmaTurretConst)
-		idx++
-	}
-	for i := 0; i < e.SmallShieldDome; i++ {
-		e.Units[idx] = newUnit(e, smallShieldDomeConst)
-		idx++
-	}
-	for i := 0; i < e.LargeShieldDome; i++ {
-		e.Units[idx] = newUnit(e, largeShieldDomeConst)
-		idx++
+	for _, el := range unitsArr {
+		for i := 0; i < el.Nbr; i++ {
+			e.Units[idx] = newUnit(e, el.ID)
+			idx++
+		}
 	}
 }
 
