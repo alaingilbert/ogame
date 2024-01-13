@@ -164,6 +164,6 @@ func (p Planet) GetLfResearch(options ...Option) (ogame.LfResearches, error) {
 }
 
 // GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)
-func (p Planet) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
+func (p Planet) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
 	return p.ogame.GetTechs(p.ID.Celestial())
 }

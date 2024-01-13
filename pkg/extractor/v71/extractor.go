@@ -47,7 +47,7 @@ func (e *Extractor) ExtractResourcesDetails(pageHTML []byte) (out ogame.Resource
 }
 
 // ExtractTechs ...
-func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
+func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
 	return extractTechs(pageHTML)
 }
 

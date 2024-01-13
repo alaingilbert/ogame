@@ -3106,11 +3106,11 @@ func (b *OGame) getFacilities(celestialID ogame.CelestialID, options ...Option) 
 	return page.ExtractFacilities()
 }
 
-func (b *OGame) getTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
+func (b *OGame) getTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
 	vals := url.Values{"page": {FetchTechsName}}
 	page, err := getAjaxPage[parser.FetchTechsAjaxPage](b, vals, ChangePlanet(celestialID))
 	if err != nil {
-		return ogame.ResourcesBuildings{}, ogame.Facilities{}, ogame.ShipsInfos{}, ogame.DefensesInfos{}, ogame.Researches{}, ogame.LfBuildings{}, err
+		return ogame.ResourcesBuildings{}, ogame.Facilities{}, ogame.ShipsInfos{}, ogame.DefensesInfos{}, ogame.Researches{}, ogame.LfBuildings{}, ogame.LfResearches{}, err
 	}
 	return page.ExtractTechs()
 }
@@ -4957,7 +4957,7 @@ func (b *OGame) GetResourcesDetails(celestialID ogame.CelestialID) (ogame.Resour
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *OGame) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
+func (b *OGame) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
 	return b.WithPriority(taskRunner.Normal).GetTechs(celestialID)
 }
 

@@ -38,7 +38,7 @@ type Celestial interface {
 	GetResourcesBuildings(...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails() (ogame.ResourcesDetails, error)
 	GetShips(...Option) (ogame.ShipsInfos, error)
-	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
+	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
 	SendFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	TearDown(buildingID ogame.ID) error
 }
@@ -134,7 +134,7 @@ type Prioritizable interface {
 	GetResourcesBuildings(ogame.CelestialID, ...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails(ogame.CelestialID) (ogame.ResourcesDetails, error)
 	GetShips(ogame.CelestialID, ...Option) (ogame.ShipsInfos, error)
-	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
+	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	SendDiscovery(celestialID ogame.CelestialID, where ogame.Coordinate) (bool, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
