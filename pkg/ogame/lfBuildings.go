@@ -85,6 +85,55 @@ type LfBuildings struct {
 	SupraRefractor             int64 // 14112
 }
 
+func (b LfBuildings) GetResidentialSector() int64          { return b.ResidentialSector }
+func (b LfBuildings) GetBiosphereFarm() int64              { return b.BiosphereFarm }
+func (b LfBuildings) GetResearchCentre() int64             { return b.ResearchCentre }
+func (b LfBuildings) GetAcademyOfSciences() int64          { return b.AcademyOfSciences }
+func (b LfBuildings) GetNeuroCalibrationCentre() int64     { return b.NeuroCalibrationCentre }
+func (b LfBuildings) GetHighEnergySmelting() int64         { return b.HighEnergySmelting }
+func (b LfBuildings) GetFoodSilo() int64                   { return b.FoodSilo }
+func (b LfBuildings) GetFusionPoweredProduction() int64    { return b.FusionPoweredProduction }
+func (b LfBuildings) GetSkyscraper() int64                 { return b.Skyscraper }
+func (b LfBuildings) GetBiotechLab() int64                 { return b.BiotechLab }
+func (b LfBuildings) GetMetropolis() int64                 { return b.Metropolis }
+func (b LfBuildings) GetPlanetaryShield() int64            { return b.PlanetaryShield }
+func (b LfBuildings) GetMeditationEnclave() int64          { return b.MeditationEnclave }
+func (b LfBuildings) GetCrystalFarm() int64                { return b.CrystalFarm }
+func (b LfBuildings) GetRuneTechnologium() int64           { return b.RuneTechnologium }
+func (b LfBuildings) GetRuneForge() int64                  { return b.RuneForge }
+func (b LfBuildings) GetOriktorium() int64                 { return b.Oriktorium }
+func (b LfBuildings) GetMagmaForge() int64                 { return b.MagmaForge }
+func (b LfBuildings) GetDisruptionChamber() int64          { return b.DisruptionChamber }
+func (b LfBuildings) GetMegalith() int64                   { return b.Megalith }
+func (b LfBuildings) GetCrystalRefinery() int64            { return b.CrystalRefinery }
+func (b LfBuildings) GetDeuteriumSynthesiser() int64       { return b.DeuteriumSynthesiser }
+func (b LfBuildings) GetMineralResearchCentre() int64      { return b.MineralResearchCentre }
+func (b LfBuildings) GetAdvancedRecyclingPlant() int64     { return b.AdvancedRecyclingPlant }
+func (b LfBuildings) GetAssemblyLine() int64               { return b.AssemblyLine }
+func (b LfBuildings) GetFusionCellFactory() int64          { return b.FusionCellFactory }
+func (b LfBuildings) GetRoboticsResearchCentre() int64     { return b.RoboticsResearchCentre }
+func (b LfBuildings) GetUpdateNetwork() int64              { return b.UpdateNetwork }
+func (b LfBuildings) GetQuantumComputerCentre() int64      { return b.QuantumComputerCentre }
+func (b LfBuildings) GetAutomatisedAssemblyCentre() int64  { return b.AutomatisedAssemblyCentre }
+func (b LfBuildings) GetHighPerformanceTransformer() int64 { return b.HighPerformanceTransformer }
+func (b LfBuildings) GetMicrochipAssemblyLine() int64      { return b.MicrochipAssemblyLine }
+func (b LfBuildings) GetProductionAssemblyHall() int64     { return b.ProductionAssemblyHall }
+func (b LfBuildings) GetHighPerformanceSynthesiser() int64 { return b.HighPerformanceSynthesiser }
+func (b LfBuildings) GetChipMassProduction() int64         { return b.ChipMassProduction }
+func (b LfBuildings) GetNanoRepairBots() int64             { return b.NanoRepairBots }
+func (b LfBuildings) GetSanctuary() int64                  { return b.Sanctuary }
+func (b LfBuildings) GetAntimatterCondenser() int64        { return b.AntimatterCondenser }
+func (b LfBuildings) GetVortexChamber() int64              { return b.VortexChamber }
+func (b LfBuildings) GetHallsOfRealisation() int64         { return b.HallsOfRealisation }
+func (b LfBuildings) GetForumOfTranscendence() int64       { return b.ForumOfTranscendence }
+func (b LfBuildings) GetAntimatterConvector() int64        { return b.AntimatterConvector }
+func (b LfBuildings) GetCloningLaboratory() int64          { return b.CloningLaboratory }
+func (b LfBuildings) GetChrysalisAccelerator() int64       { return b.ChrysalisAccelerator }
+func (b LfBuildings) GetBioModifier() int64                { return b.BioModifier }
+func (b LfBuildings) GetPsionicModulator() int64           { return b.PsionicModulator }
+func (b LfBuildings) GetShipManufacturingHall() int64      { return b.ShipManufacturingHall }
+func (b LfBuildings) GetSupraRefractor() int64             { return b.SupraRefractor }
+
 // Lazy returns a function that return self
 func (b LfBuildings) Lazy() LazyLfBuildings {
 	return func() LfBuildings { return b }
