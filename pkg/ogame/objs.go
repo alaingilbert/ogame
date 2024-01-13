@@ -367,7 +367,7 @@ var MechasBuildings = []Building{
 	NanoRepairBots,
 }
 
-var KaelashBuildings = []Building{
+var KaeleshBuildings = []Building{
 	Sanctuary,
 	AntimatterCondenser,
 	VortexChamber,
