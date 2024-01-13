@@ -24,7 +24,8 @@ func (b Base) GetRequirements() map[ID]int64 {
 
 // IsAvailable returns either or not the object is available to us
 func (b Base) IsAvailable(t CelestialType, resourcesBuildings IResourcesBuildings, lfBuildings ILfBuildings,
-	facilities IFacilities, researches IResearches, energy int64, characterClass CharacterClass) bool {
+	lfResearches ILfResearches, facilities IFacilities, researches IResearches, energy int64,
+	characterClass CharacterClass) bool {
 	if t != PlanetType && t != MoonType {
 		return false
 	}
@@ -93,6 +94,10 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings IResourcesBuilding
 			}
 		} else if id.IsLfBuilding() {
 			if lfBuildings.ByID(id) < levelNeeded {
+				return false
+			}
+		} else if id.IsLfTech() {
+			if lfResearches.ByID(id) < levelNeeded {
 				return false
 			}
 		}
