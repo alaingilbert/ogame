@@ -463,6 +463,13 @@ func (b *Prioritize) SendDiscovery(celestialID ogame.CelestialID, where ogame.Co
 	return b.bot.sendDiscovery(celestialID, where)
 }
 
+// SendDiscoveryFleet ...
+func (b *Prioritize) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error {
+	b.begin("SendDiscoveryFleet")
+	defer b.done()
+	return b.bot.sendDiscoveryFleet(celestialID, coord)
+}
+
 // EnsureFleet either sends all the requested ships or fail
 func (b *Prioritize) EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
@@ -744,13 +751,6 @@ func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Opt
 	b.begin("GetLfResearch")
 	defer b.done()
 	return b.bot.getLfResearch(celestialID, options...)
-}
-
-// SendDiscoveryFleet ...
-func (b *Prioritize) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error {
-	b.begin("SendDiscoveryFleet")
-	defer b.done()
-	return b.bot.sendDiscoveryFleet(celestialID, coord)
 }
 
 // GetAvailableDiscoveries ...
