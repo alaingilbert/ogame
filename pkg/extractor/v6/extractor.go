@@ -728,7 +728,7 @@ func (e *Extractor) ExtractAdmiralFromDoc(doc *goquery.Document) bool {
 
 // ExtractLifeformTypeFromDoc ...
 func (e Extractor) ExtractLifeformTypeFromDoc(doc *goquery.Document) ogame.LifeformType {
-	panic("not implemented")
+	return ogame.NoneLfType
 }
 
 // ExtractEngineerFromDoc ...
