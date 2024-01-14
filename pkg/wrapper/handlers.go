@@ -1078,14 +1078,10 @@ func SendDiscoveryHandler(c echo.Context) error {
 		}
 	}
 
-	res, err := bot.SendDiscovery(ogame.CelestialID(planetID), where)
-	if err != nil {
+	if err := bot.SendDiscoveryFleet(ogame.CelestialID(planetID), where); err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
-	if res == false {
-		return c.JSON(http.StatusBadRequest, ErrorResp(400, "failed to send discovery"))
-	}
-	return c.JSON(http.StatusOK, SuccessResp(res))
+	return c.JSON(http.StatusOK, SuccessResp(true))
 }
 
 // GetAlliancePageContentHandler ...

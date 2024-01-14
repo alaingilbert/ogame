@@ -311,6 +311,7 @@ const (
 	Destroy            MissionID = 9
 	MissileAttack      MissionID = 10
 	Expedition         MissionID = 15
+	SearchForLifeforms MissionID = 18
 
 	// Speeds
 	TenPercent         Speed = 1

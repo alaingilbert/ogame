@@ -2978,7 +2978,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 	return res, err
 }
 
-func (b *OGame) getGalaxyPage(galaxy int64, system int64) (*GalaxyPageContent, error) {
+func (b *OGame) getGalaxyPage(celestialID ogame.CelestialID, galaxy int64, system int64) (*GalaxyPageContent, error) {
 	// Get galaxy page content for the desired system.
 	by, err := b.postPageContent(url.Values{
 		"page":      {"ingame"},
@@ -2989,7 +2989,7 @@ func (b *OGame) getGalaxyPage(galaxy int64, system int64) (*GalaxyPageContent, e
 	}, url.Values{
 		"galaxy": {strconv.Itoa(int(galaxy))},
 		"system": {strconv.Itoa(int(system))},
-	})
+	}, ChangePlanet(celestialID))
 	if err != nil {
 		return nil, err
 	}
@@ -4310,86 +4310,25 @@ func (b *OGame) getTasks() (out taskRunner.TasksOverview) {
 	return b.taskRunnerInst.GetTasks()
 }
 
-func (b *OGame) sendDiscovery(celestialID ogame.CelestialID, where ogame.Coordinate) (bool, error) {
-
-	initialFleets, slots := b.getFleets()
-	if slots.InUse == slots.Total {
-		return false, ogame.ErrAllSlotsInUse
-	}
-	if initialFleets == nil {
-	}
-
-	pageHTML, err := b.getPage(GalaxyPageName, ChangePlanet(celestialID))
-	if err != nil {
-		return false, err
-	}
-
-	galaxyDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	galaxyBodyID := b.extractor.ExtractBodyIDFromDoc(galaxyDoc)
-	if galaxyBodyID != GalaxyPageName {
-		now := time.Now().Unix()
-		b.error(ogame.ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
-		return false, ogame.ErrInvalidPlanetID
-	}
-
-	if b.extractor.ExtractIsInVacationFromDoc(galaxyDoc) {
-		return false, ogame.ErrAccountInVacationMode
-	}
-
-	payload := url.Values{}
-
-	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsVGreaterThanOrEqual("8.0.0") {
-		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
-	}
-	if len(tokenM) != 2 {
-		return false, errors.New("token not found")
-	}
-
-	payload.Set("token", string(tokenM[1]))
-	payload.Set("galaxy", utils.FI64(where.Galaxy))
-	payload.Set("system", utils.FI64(where.System))
-	payload.Set("position", utils.FI64(where.Position))
-
-	res, _ := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"sendDiscoveryFleet"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
-
-	var resStruct struct {
-		Response struct {
-			Success bool   `json:"success"`
-			Message string `json:"message"`
-		} `json:"response"`
-		Components   []any  `json:"components"`
-		NewAjaxToken string `json:"newAjaxToken"`
-	}
-	if err := json.Unmarshal(res, &resStruct); err != nil {
-		return false, errors.New("failed to unmarshal response: " + err.Error())
-	}
-	if resStruct.Response.Success {
-		return true, nil
-	}
-
-	return false, errors.New(resStruct.Response.Message)
-}
-
 func (b *OGame) sendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error {
 	// Check if the sendDiscoveryFleet button is available for the target.
 	// This checks for the envoys technology, if the planet has enough resources, if there's fleet slots available and if there's no cooldown on the position.
-	galaxyPage, err := b.getGalaxyPage(coord.Galaxy, coord.System)
+	galaxyPage, err := b.getGalaxyPage(celestialID, coord.Galaxy, coord.System)
 	if err != nil {
 		return err
 	}
 	for _, position := range galaxyPage.System.GalaxyContent {
 		if position.Position == coord.Position {
 			for _, availableMission := range position.AvailableMissions {
-				if availableMission.MissionType == 18 && availableMission.CanSend != true {
-					return errors.New("can't send discovery mission.")
+				if availableMission.MissionType == ogame.SearchForLifeforms && availableMission.CanSend != true {
+					return errors.New("can't send discovery mission")
 				}
 			}
 		}
 	}
 
 	// Send fleet.
-	_, err = b.postPageContent(url.Values{
+	res, err := b.postPageContent(url.Values{
 		"page":      {"ingame"},
 		"component": {"fleetdispatch"},
 		"action":    {"sendDiscoveryFleet"},
@@ -4400,19 +4339,34 @@ func (b *OGame) sendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Co
 		"system":   {utils.FI64(coord.System)},
 		"position": {utils.FI64(coord.Position)},
 		"token":    {galaxyPage.Token},
-	}, ChangePlanet(celestialID))
+	})
 	if err != nil {
 		return err
+	}
+
+	var resStruct struct {
+		Response struct {
+			Success bool   `json:"success"`
+			Message string `json:"message"`
+		} `json:"response"`
+		Components   []any  `json:"components"`
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
+	if err := json.Unmarshal(res, &resStruct); err != nil {
+		return errors.New("failed to unmarshal response: " + err.Error())
+	}
+	if !resStruct.Response.Success {
+		return errors.New(resStruct.Response.Message)
 	}
 	return nil
 }
 
-func (b *OGame) getAvailableDiscoveries() int64 {
+func (b *OGame) getAvailableDiscoveries(celestialID ogame.CelestialID) int64 {
 	// Return the amount of available discoveries.
 	pageHTML, _ := b.getPageContent(url.Values{
 		"page":      {"ingame"},
 		"component": {"galaxy"},
-	})
+	}, ChangePlanet(celestialID))
 	return b.extractor.ExtractAvailableDiscoveries(pageHTML)
 }
 
@@ -4421,16 +4375,16 @@ type GalaxyPageContent struct {
 		GalaxyContent []struct {
 			Position          int64 `json:"position"`
 			AvailableMissions []struct {
-				CanSend     any   `json:"canSend,omitempty"`
-				MissionType int64 `json:"missionType,omitempty"`
+				CanSend     any             `json:"canSend,omitempty"`
+				MissionType ogame.MissionID `json:"missionType,omitempty"`
 			} `json:"availableMissions"`
 		} `json:"galaxyContent"`
 	} `json:"system"`
 	Token string `json:"token"`
 }
 
-func (b *OGame) getPositionsAvailableForDiscoveryFleet(galaxy int64, system int64) ([]int64, error) {
-	galaxyPage, err := b.getGalaxyPage(galaxy, system)
+func (b *OGame) getPositionsAvailableForDiscoveryFleet(celestialID ogame.CelestialID, galaxy int64, system int64) ([]int64, error) {
+	galaxyPage, err := b.getGalaxyPage(celestialID, galaxy, system)
 	if err != nil {
 		return nil, err
 	}
@@ -4967,11 +4921,6 @@ func (b *OGame) SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	return b.WithPriority(taskRunner.Normal).SendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
-// SendDiscovery sends a discovery fleet
-func (b *OGame) SendDiscovery(celestialID ogame.CelestialID, where ogame.Coordinate) (bool, error) {
-	return b.WithPriority(taskRunner.Normal).SendDiscovery(celestialID, where)
-}
-
 // EnsureFleet either sends all the requested ships or fail
 func (b *OGame) EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
@@ -5223,11 +5172,11 @@ func (b *OGame) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Co
 }
 
 // GetAvailableDiscoveries ...
-func (b *OGame) GetAvailableDiscoveries() int64 {
-	return b.WithPriority(taskRunner.Normal).GetAvailableDiscoveries()
+func (b *OGame) GetAvailableDiscoveries(celestialID ogame.CelestialID) int64 {
+	return b.WithPriority(taskRunner.Normal).GetAvailableDiscoveries(celestialID)
 }
 
 // GetPositionsAvailableForDiscoveryFleet ...
-func (b *OGame) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64) ([]int64, error) {
-	return b.WithPriority(taskRunner.Normal).GetPositionsAvailableForDiscoveryFleet(galaxy, system)
+func (b *OGame) GetPositionsAvailableForDiscoveryFleet(celestialID ogame.CelestialID, galaxy int64, system int64) ([]int64, error) {
+	return b.WithPriority(taskRunner.Normal).GetPositionsAvailableForDiscoveryFleet(celestialID, galaxy, system)
 }

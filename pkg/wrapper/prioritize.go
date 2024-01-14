@@ -456,14 +456,7 @@ func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships []ogame.Quan
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID, false)
 }
 
-// SendDiscovery sends a discovery fleet
-func (b *Prioritize) SendDiscovery(celestialID ogame.CelestialID, where ogame.Coordinate) (bool, error) {
-	b.begin("SendDiscovery")
-	defer b.done()
-	return b.bot.sendDiscovery(celestialID, where)
-}
-
-// SendDiscoveryFleet ...
+// SendDiscoveryFleet sends a discovery fleet
 func (b *Prioritize) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error {
 	b.begin("SendDiscoveryFleet")
 	defer b.done()
@@ -754,14 +747,14 @@ func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Opt
 }
 
 // GetAvailableDiscoveries ...
-func (b *Prioritize) GetAvailableDiscoveries() int64 {
+func (b *Prioritize) GetAvailableDiscoveries(celestialID ogame.CelestialID) int64 {
 	b.begin("GetAvailableDiscoveries")
 	defer b.done()
-	return b.bot.getAvailableDiscoveries()
+	return b.bot.getAvailableDiscoveries(celestialID)
 }
 
-func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64) ([]int64, error) {
+func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(celestialID ogame.CelestialID, galaxy int64, system int64) ([]int64, error) {
 	b.begin("GetPositionsAvailableForDiscoveryFleet")
 	defer b.done()
-	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system)
+	return b.bot.getPositionsAvailableForDiscoveryFleet(celestialID, galaxy, system)
 }

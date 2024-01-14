@@ -66,7 +66,7 @@ type Prioritizable interface {
 	GetAllResources() (map[ogame.CelestialID]ogame.Resources, error)
 	GetAttacks(...Option) ([]ogame.AttackEvent, error)
 	GetAuction() (ogame.Auction, error)
-	GetAvailableDiscoveries() int64
+	GetAvailableDiscoveries(ogame.CelestialID) int64
 	GetCachedResearch() ogame.Researches
 	GetCelestial(any) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
@@ -87,7 +87,7 @@ type Prioritizable interface {
 	GetPageContent(url.Values) ([]byte, error)
 	GetPlanet(any) (Planet, error)
 	GetPlanets() ([]Planet, error)
-	GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64) ([]int64, error)
+	GetPositionsAvailableForDiscoveryFleet(celestialID ogame.CelestialID, galaxy int64, system int64) ([]int64, error)
 	GetResearch() (ogame.Researches, error)
 	GetSlots() (ogame.Slots, error)
 	GetUserInfos() (ogame.UserInfos, error)
@@ -136,7 +136,6 @@ type Prioritizable interface {
 	GetShips(ogame.CelestialID, ...Option) (ogame.ShipsInfos, error)
 	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
-	SendDiscovery(celestialID ogame.CelestialID, where ogame.Coordinate) (bool, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
 	TechnologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error)
 	SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate) error
