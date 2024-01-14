@@ -82,3 +82,30 @@ func ExtractCancelInfos(pageHTML []byte, fnName string, tableIdx int) (token str
 	listID = utils.DoParseI64(m[2])
 	return
 }
+
+func extractCharacterClassFromDoc(doc *goquery.Document) ogame.CharacterClass {
+	characterClassDiv := doc.Find("div#characterclass a div")
+	characterClass := ogame.NoClass
+	if characterClassDiv.HasClass("miner") {
+		characterClass = ogame.Collector
+	} else if characterClassDiv.HasClass("warrior") {
+		characterClass = ogame.General
+	} else if characterClassDiv.HasClass("explorer") {
+		characterClass = ogame.Discoverer
+	}
+	return characterClass
+}
+
+func extractLifeformTypeFromDoc(doc *goquery.Document) ogame.LifeformType {
+	lfDiv := doc.Find("div#lifeform div.lifeform-item-icon")
+	if lfDiv.HasClass("lifeform1") {
+		return ogame.Humans
+	} else if lfDiv.HasClass("lifeform2") {
+		return ogame.Rocktal
+	} else if lfDiv.HasClass("lifeform3") {
+		return ogame.Mechas
+	} else if lfDiv.HasClass("lifeform4") {
+		return ogame.Kaelesh
+	}
+	return ogame.NoneLfType
+}

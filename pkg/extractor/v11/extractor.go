@@ -1,6 +1,7 @@
 package v11
 
 import (
+	"github.com/PuerkitoBio/goquery"
 	v104 "github.com/alaingilbert/ogame/pkg/extractor/v104"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
@@ -33,4 +34,9 @@ func (e Extractor) ExtractCancelResearchInfos(pageHTML []byte) (token string, te
 // ExtractCancelLfBuildingInfos ...
 func (e Extractor) ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error) {
 	return extractCancelLfBuildingInfos(pageHTML)
+}
+
+// ExtractLifeformTypeFromDoc ...
+func (e Extractor) ExtractLifeformTypeFromDoc(doc *goquery.Document) ogame.LifeformType {
+	return extractLifeformTypeFromDoc(doc)
 }

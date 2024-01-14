@@ -39,6 +39,7 @@ type FullPageExtractorBytes interface {
 }
 
 type FullPageExtractorDoc interface {
+	ExtractLifeformTypeFromDoc(doc *goquery.Document) ogame.LifeformType
 	ExtractAdmiralFromDoc(doc *goquery.Document) bool
 	ExtractBodyIDFromDoc(doc *goquery.Document) string
 	ExtractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, error)

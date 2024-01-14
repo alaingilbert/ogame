@@ -83,6 +83,7 @@ type AjaxPagePages interface {
 }
 
 type IFullPage interface {
+	ExtractLifeformTypeFromDoc() ogame.LifeformType
 	ExtractOGameSession() string
 	ExtractIsInVacation() bool
 	ExtractPlanets() []ogame.Planet

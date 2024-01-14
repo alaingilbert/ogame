@@ -30,6 +30,10 @@ func (p FullPage) ExtractAdmiral() bool {
 	return p.e.ExtractAdmiralFromDoc(p.GetDoc())
 }
 
+func (p FullPage) ExtractLifeformTypeFromDoc() ogame.LifeformType {
+	return p.e.ExtractLifeformTypeFromDoc(p.GetDoc())
+}
+
 func (p FullPage) ExtractEngineer() bool {
 	return p.e.ExtractEngineerFromDoc(p.GetDoc())
 }
