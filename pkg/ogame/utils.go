@@ -31,6 +31,12 @@ func ParseCoord(str string) (coord Coordinate, err error) {
 	return coord, errors.New("unable to parse coordinate")
 }
 
+// DoParseCoord parse a coordinate from a string and ignore errors
+func DoParseCoord(str string) (coord Coordinate) {
+	coord, _ = ParseCoord(str)
+	return coord
+}
+
 var namesChars = "ЁАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяёァイウオガキケコサザシスズソタダチッテデトドニノバパビフプヘマミムャヤラルレロンー偵列加反収器回型塔大太子察射導小履巡帶弾彈惡戦戰抗探撃收星機死残殖毀民洋滅漿炮爆發砲磁罩者能船艦衛諜護路車軌軽輕輸農送運道重間闘防陽際離雷電飛骸鬥魔"
 var namesRgx = regexp.MustCompile("[^a-zA-Zα-ωΑ-Ω" + namesChars + "]+")
 
