@@ -3,6 +3,7 @@ package ogame
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestResidentialSectorCost(t *testing.T) {
@@ -25,7 +26,14 @@ func TestResearchCenterCost(t *testing.T) {
 	assert.Equal(t, Resources{Metal: 52000, Crystal: 65000, Deuterium: 26000}, a.GetPrice(2))
 }
 
-//func TestResidentialSectorConstructionTime(t *testing.T) {
-//	rs := newResidentialSector()
-//	assert.Equal(t, (6*60*60+58*60+48)*time.Second, rs.ConstructionTime(35, 4, Facilities{}, false, false))
-//}
+func TestResidentialSectorConstructionTime(t *testing.T) {
+	// https://proxyforgame.com/en/ogame/calc/lfcosts.php
+	rs := newResidentialSector()
+	assert.Equal(t, (25*60+36)*time.Second, rs.BuildingConstructionTime(23, 8, Facilities{RoboticsFactory: 5}))
+	assert.Equal(t, (25*60+36)*time.Second, rs.ConstructionTime(23, 8, Facilities{RoboticsFactory: 5}, false, false))
+}
+
+func TestResearchCentreConstructionTime(t *testing.T) {
+	rc := newResearchCentre()
+	assert.Equal(t, (17*60+21)*time.Second, rc.BuildingConstructionTime(2, 8, Facilities{RoboticsFactory: 5}))
+}

@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"math"
+	"time"
 )
 
 // LazyLfBuildings ...
@@ -297,6 +298,23 @@ type BaseLfBuilding struct {
 	BaseBuilding
 	energyIncreaseFactor     float64
 	populationIncreaseFactor float64
+	durationBase             float64
+	durationFactor           float64
+}
+
+func (b BaseLfBuilding) BuildingConstructionTime(level, universeSpeed int64, acc BuildingAccelerators) time.Duration {
+	roboticLvl := float64(acc.GetRoboticsFactory())
+	naniteLvl := float64(acc.GetNaniteFactory())
+	levelF := float64(level)
+	secs := levelF * b.durationBase * math.Pow(b.durationFactor, levelF) / (1 + roboticLvl) * math.Pow(2, naniteLvl)
+	secs /= float64(universeSpeed)
+	secs = math.Max(1, secs)
+	return time.Duration(int64(math.Floor(secs))) * time.Second
+}
+
+// ConstructionTime returns the duration it takes to build given level. Deconstruction time is the same function.
+func (b BaseLfBuilding) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, _, _ bool) time.Duration {
+	return b.BuildingConstructionTime(level, universeSpeed, facilities)
 }
 
 // GetPrice returns the price to build the given level
@@ -326,6 +344,8 @@ func newResidentialSector() *residentialSector {
 	b.Name = "residential sector"
 	b.ID = ResidentialSectorID
 	b.IncreaseFactor = 1.20
+	b.durationBase = 40
+	b.durationFactor = 1.21
 	b.BaseCost = Resources{Metal: 7, Crystal: 2}
 	b.Requirements = map[ID]int64{}
 	return b
@@ -341,6 +361,8 @@ func newBiosphereFarm() *biosphereFarm {
 	b.ID = BiosphereFarmID
 	b.IncreaseFactor = 1.23
 	b.energyIncreaseFactor = 1.021
+	b.durationBase = 40
+	b.durationFactor = 1.25
 	b.BaseCost = Resources{Metal: 5, Crystal: 2, Energy: 8}
 	b.Requirements = map[ID]int64{}
 	return b
@@ -355,6 +377,8 @@ func newResearchCentre() *researchCentre {
 	b.Name = "research centre"
 	b.ID = ResearchCentreID
 	b.IncreaseFactor = 1.3
+	b.durationBase = 16000
+	b.durationFactor = 1.25
 	b.BaseCost = Resources{Metal: 20000, Crystal: 25000, Deuterium: 10000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 21, BiosphereFarmID: 22}
 	return b
@@ -370,6 +394,8 @@ func newAcademyOfSciences() *academyOfSciences {
 	b.ID = AcademyOfSciencesID
 	b.IncreaseFactor = 1.70
 	b.populationIncreaseFactor = 1.10
+	b.durationBase = 16000
+	b.durationFactor = 1.6
 	b.BaseCost = Resources{Metal: 5000, Crystal: 3200, Deuterium: 1500, Population: 20000000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 41}
 	return b
@@ -385,6 +411,8 @@ func newNeuroCalibrationCentre() *neuroCalibrationCentre {
 	b.ID = NeuroCalibrationCentreID
 	b.IncreaseFactor = 1.70
 	b.populationIncreaseFactor = 1.10
+	b.durationBase = 64000
+	b.durationFactor = 1.7
 	b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 100000000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1, SkyscraperID: 5}
 	return b
@@ -398,6 +426,8 @@ func newHighEnergySmelting() *highEnergySmelting {
 	b := new(highEnergySmelting)
 	b.Name = "high energy smelting"
 	b.ID = HighEnergySmeltingID
+	b.durationBase = 2000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 9000, Crystal: 6000, Deuterium: 3000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 21, BiosphereFarmID: 22, ResearchCentreID: 5}
@@ -412,6 +442,8 @@ func newFoodSilo() *foodSilo {
 	b := new(foodSilo)
 	b.Name = "food silo"
 	b.ID = FoodSiloID
+	b.durationBase = 12000
+	b.durationFactor = 1.17
 	b.IncreaseFactor = 1.09
 	b.BaseCost = Resources{Metal: 25000, Crystal: 13000, Deuterium: 7000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 21, BiosphereFarmID: 22, ResearchCentreID: 5, HighEnergySmeltingID: 3}
@@ -426,6 +458,8 @@ func newFusionPoweredProduction() *fusionPoweredProduction {
 	b := new(fusionPoweredProduction)
 	b.Name = "fusion powered production"
 	b.ID = FusionPoweredProductionID
+	b.durationBase = 28000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 50000, Crystal: 25000, Deuterium: 15000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1}
@@ -440,6 +474,8 @@ func newSkyscraper() *skyscraper {
 	b := new(skyscraper)
 	b.Name = "skyscraper"
 	b.ID = SkyscraperID
+	b.durationBase = 40000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.09
 	b.BaseCost = Resources{Metal: 75000, Crystal: 20000, Deuterium: 25000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1}
@@ -454,6 +490,8 @@ func newBiotechLab() *biotechLab {
 	b := new(biotechLab)
 	b.Name = "biotech lab"
 	b.ID = BiotechLabID
+	b.durationBase = 52000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.12
 	b.BaseCost = Resources{Metal: 150000, Crystal: 30000, Deuterium: 15000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 2}
@@ -468,6 +506,8 @@ func newMetropolis() *metropolis {
 	b := new(metropolis)
 	b.Name = "metropolis"
 	b.ID = MetropolisID
+	b.durationBase = 90000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.5
 	b.BaseCost = Resources{Metal: 80000, Crystal: 35000, Deuterium: 60000}
 	b.Requirements = map[ID]int64{ResidentialSectorID: 41, AcademyOfSciencesID: 1, FusionPoweredProductionID: 1, SkyscraperID: 6, NeuroCalibrationCentreID: 1}
@@ -482,6 +522,8 @@ func newPlanetaryShield() *planetaryShield {
 	b := new(planetaryShield)
 	b.Name = "planetary shield"
 	b.ID = PlanetaryShieldID
+	b.durationBase = 95000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
 	b.Requirements = map[ID]int64{
@@ -507,6 +549,8 @@ func newMeditationEnclave() *meditationEnclave {
 	b := new(meditationEnclave)
 	b.Name = "meditation enclave"
 	b.ID = MeditationEnclaveID
+	b.durationBase = 40
+	b.durationFactor = 1.21
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 9, Crystal: 3}
 	b.Requirements = map[ID]int64{}
@@ -521,6 +565,8 @@ func newCrystalFarm() *crystalFarm {
 	b := new(crystalFarm)
 	b.Name = "crystal farm"
 	b.ID = CrystalFarmID
+	b.durationBase = 40
+	b.durationFactor = 1.21
 	b.IncreaseFactor = 1.20
 	b.energyIncreaseFactor = 1.03
 	b.BaseCost = Resources{Metal: 7, Crystal: 2, Energy: 10}
@@ -536,6 +582,8 @@ func newRuneTechnologium() *runeTechnologium {
 	b := new(runeTechnologium)
 	b.Name = "rune technologium"
 	b.ID = RuneTechnologiumID
+	b.durationBase = 16000
+	b.durationFactor = 1.25
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 40000, Crystal: 10000, Deuterium: 15000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22}
@@ -550,6 +598,8 @@ func newRuneForge() *runeForge {
 	b := new(runeForge)
 	b.Name = "rune forge"
 	b.ID = RuneForgeID
+	b.durationBase = 16000
+	b.durationFactor = 1.6
 	b.IncreaseFactor = 1.70
 	b.populationIncreaseFactor = 1.14
 	b.BaseCost = Resources{Metal: 5000, Crystal: 3800, Deuterium: 1000, Population: 16000000}
@@ -565,6 +615,8 @@ func newOriktorium() *oriktorium {
 	b := new(oriktorium)
 	b.Name = "oriktorium"
 	b.ID = OriktoriumID
+	b.durationBase = 64000
+	b.durationFactor = 1.7
 	b.IncreaseFactor = 1.65
 	b.populationIncreaseFactor = 1.1
 	b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 90000000}
@@ -580,6 +632,8 @@ func newMagmaForge() *magmaForge {
 	b := new(magmaForge)
 	b.Name = "magma forge"
 	b.ID = MagmaForgeID
+	b.durationBase = 2000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.40
 	b.BaseCost = Resources{Metal: 10000, Crystal: 8000, Deuterium: 1000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22, RuneTechnologiumID: 5}
@@ -594,6 +648,8 @@ func newDisruptionChamber() *disruptionChamber {
 	b := new(disruptionChamber)
 	b.Name = "disruption chamber"
 	b.ID = DisruptionChamberID
+	b.durationBase = 16000
+	b.durationFactor = 1.25
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 20000, Crystal: 15000, Deuterium: 10000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 21, CrystalFarmID: 22, RuneTechnologiumID: 5, MagmaForgeID: 3}
@@ -608,6 +664,8 @@ func newMegalith() *megalith {
 	b := new(megalith)
 	b.Name = "megalith"
 	b.ID = MegalithID
+	b.durationBase = 40000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 50000, Crystal: 35000, Deuterium: 15000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1}
@@ -622,6 +680,8 @@ func newCrystalRefinery() *crystalRefinery {
 	b := new(crystalRefinery)
 	b.Name = "crystal refinery"
 	b.ID = CrystalRefineryID
+	b.durationBase = 40000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.40
 	b.BaseCost = Resources{Metal: 85000, Crystal: 44000, Deuterium: 25000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1}
@@ -636,6 +696,8 @@ func newDeuteriumSynthesiser() *deuteriumSynthesiser {
 	b := new(deuteriumSynthesiser)
 	b.Name = "deuterium synthesiser"
 	b.ID = DeuteriumSynthesiserID
+	b.durationBase = 52000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.40
 	b.BaseCost = Resources{Metal: 120000, Crystal: 50000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 2}
@@ -650,6 +712,8 @@ func newMineralResearchCentre() *mineralResearchCentre {
 	b := new(mineralResearchCentre)
 	b.Name = "mineral research centre"
 	b.ID = MineralResearchCentreID
+	b.durationBase = 90000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.80
 	b.BaseCost = Resources{Metal: 250000, Crystal: 150000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, RuneForgeID: 1, MegalithID: 1, CrystalRefineryID: 6, OriktoriumID: 1}
@@ -664,6 +728,8 @@ func newAdvancedRecyclingPlant() *advancedRecyclingPlant {
 	b := new(advancedRecyclingPlant)
 	b.Name = "metal recycling plant"
 	b.ID = AdvancedRecyclingPlantID
+	b.durationBase = 95000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
 	b.Requirements = map[ID]int64{MeditationEnclaveID: 41, CrystalFarmID: 22, RuneForgeID: 1, MegalithID: 5, CrystalRefineryID: 6, OriktoriumID: 5, RuneTechnologiumID: 5, MagmaForgeID: 3, DisruptionChamberID: 4, MineralResearchCentreID: 5}
@@ -679,6 +745,8 @@ func newAssemblyLine() *assemblyLine {
 	b := new(assemblyLine)
 	b.Name = "assembly line"
 	b.ID = AssemblyLineID
+	b.durationBase = 40
+	b.durationFactor = 1.22
 	b.IncreaseFactor = 1.21
 	b.BaseCost = Resources{Metal: 6, Crystal: 2}
 	b.Requirements = map[ID]int64{}
@@ -693,6 +761,8 @@ func newFusionCellFactory() *fusionCellFactory {
 	b := new(fusionCellFactory)
 	b.Name = "fusion cell factory"
 	b.ID = FusionCellFactoryID
+	b.durationBase = 48
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.18
 	b.energyIncreaseFactor = 1.02
 	b.BaseCost = Resources{Metal: 5, Crystal: 2, Energy: 8}
@@ -708,6 +778,8 @@ func newRoboticsResearchCentre() *roboticsResearchCentre {
 	b := new(roboticsResearchCentre)
 	b.Name = "robotics research centre"
 	b.ID = RoboticsResearchCentreID
+	b.durationBase = 16000
+	b.durationFactor = 1.25
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 30000, Crystal: 20000, Deuterium: 10000}
 	b.Requirements = map[ID]int64{AssemblyLineID: 20, FusionCellFactoryID: 17}
@@ -722,6 +794,8 @@ func newUpdateNetwork() *updateNetwork {
 	b := new(updateNetwork)
 	b.Name = "update network"
 	b.ID = UpdateNetworkID
+	b.durationBase = 16000
+	b.durationFactor = 1.6
 	b.IncreaseFactor = 1.80
 	b.populationIncreaseFactor = 1.10
 	b.BaseCost = Resources{Metal: 5000, Crystal: 3800, Deuterium: 1000, Population: 40000000}
@@ -737,6 +811,8 @@ func newQuantumComputerCentre() *quantumComputerCentre {
 	b := new(quantumComputerCentre)
 	b.Name = "quantum computer centre"
 	b.ID = QuantumComputerCentreID
+	b.durationBase = 64000
+	b.durationFactor = 1.7
 	b.IncreaseFactor = 1.80
 	b.populationIncreaseFactor = 1.10
 	b.BaseCost = Resources{Metal: 50000, Crystal: 40000, Deuterium: 50000, Population: 130000000}
@@ -752,6 +828,8 @@ func newAutomatisedAssemblyCentre() *automatisedAssemblyCentre {
 	b := new(automatisedAssemblyCentre)
 	b.Name = "automatised assembly centre"
 	b.ID = AutomatisedAssemblyCentreID
+	b.durationBase = 2000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 7500, Crystal: 7000, Deuterium: 1000}
 	b.Requirements = map[ID]int64{AssemblyLineID: 17, FusionCellFactoryID: 20, RoboticsResearchCentreID: 5}
@@ -766,6 +844,8 @@ func newHighPerformanceTransformer() *highPerformanceTransformer {
 	b := new(highPerformanceTransformer)
 	b.Name = "high performance transformer"
 	b.ID = HighPerformanceTransformerID
+	b.durationBase = 16000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 35000, Crystal: 15000, Deuterium: 10000}
 	b.Requirements = map[ID]int64{AssemblyLineID: 17, FusionCellFactoryID: 20, RoboticsResearchCentreID: 5, AutomatisedAssemblyCentreID: 3}
@@ -780,6 +860,8 @@ func newMicrochipAssemblyLine() *microchipAssemblyLine {
 	b := new(microchipAssemblyLine)
 	b.Name = "microchip assembly line"
 	b.ID = MicrochipAssemblyLineID
+	b.durationBase = 12000
+	b.durationFactor = 1.17
 	b.IncreaseFactor = 1.07
 	b.BaseCost = Resources{Metal: 50000, Crystal: 20000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1}
@@ -794,6 +876,8 @@ func newProductionAssemblyHall() *productionAssemblyHall {
 	b := new(productionAssemblyHall)
 	b.Name = "production assembly hall"
 	b.ID = ProductionAssemblyHallID
+	b.durationBase = 40000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.14
 	b.BaseCost = Resources{Metal: 100000, Crystal: 10000, Deuterium: 3000}
 	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 1}
@@ -808,6 +892,8 @@ func newHighPerformanceSynthesiser() *highPerformanceSynthesiser {
 	b := new(highPerformanceSynthesiser)
 	b.Name = "high performance synthesiser"
 	b.ID = HighPerformanceSynthesiserID
+	b.durationBase = 52000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 100000, Crystal: 40000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 2}
@@ -822,6 +908,8 @@ func newChipMassProduction() *chipMassProduction {
 	b := new(chipMassProduction)
 	b.Name = "chip mass production"
 	b.ID = ChipMassProductionID
+	b.durationBase = 50000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 55000, Crystal: 50000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{AssemblyLineID: 41, UpdateNetworkID: 1, MicrochipAssemblyLineID: 1, ProductionAssemblyHallID: 6, QuantumComputerCentreID: 1}
@@ -836,6 +924,8 @@ func newNanoRepairBots() *nanoRepairBots {
 	b := new(nanoRepairBots)
 	b.Name = "nano repair bots"
 	b.ID = NanoRepairBotsID
+	b.durationBase = 95000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.40
 	b.BaseCost = Resources{Metal: 250000, Crystal: 125000, Deuterium: 125000}
 	b.Requirements = map[ID]int64{AssemblyLineID: 41, FusionCellFactoryID: 20, MicrochipAssemblyLineID: 5, RoboticsResearchCentreID: 5, HighPerformanceTransformerID: 4, ProductionAssemblyHallID: 6, QuantumComputerCentreID: 5, ChipMassProductionID: 11}
@@ -851,6 +941,8 @@ func newSanctuary() *sanctuary {
 	b := new(sanctuary)
 	b.Name = "sanctuary"
 	b.ID = SanctuaryID
+	b.durationBase = 40
+	b.durationFactor = 1.22
 	b.IncreaseFactor = 1.21
 	b.BaseCost = Resources{Metal: 4, Crystal: 3}
 	b.Requirements = map[ID]int64{}
@@ -865,6 +957,8 @@ func newAntimatterCondenser() *antimatterCondenser {
 	b := new(antimatterCondenser)
 	b.Name = "antimatter condenser"
 	b.ID = AntimatterCondenserID
+	b.durationBase = 40
+	b.durationFactor = 1.22
 	b.IncreaseFactor = 1.21
 	b.energyIncreaseFactor = 1.02
 	b.BaseCost = Resources{Metal: 6, Crystal: 3, Energy: 9}
@@ -880,6 +974,8 @@ func newVortexChamber() *vortexChamber {
 	b := new(vortexChamber)
 	b.Name = "vortex chamber"
 	b.ID = VortexChamberID
+	b.durationBase = 16000
+	b.durationFactor = 1.25
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 20000, Crystal: 20000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21}
@@ -894,6 +990,8 @@ func newHallsOfRealisation() *hallsOfRealisation {
 	b := new(hallsOfRealisation)
 	b.Name = "halls of realisation"
 	b.ID = HallsOfRealisationID
+	b.durationBase = 16000
+	b.durationFactor = 1.7
 	b.IncreaseFactor = 1.80
 	b.populationIncreaseFactor = 1.10
 	b.BaseCost = Resources{Metal: 7500, Crystal: 5000, Deuterium: 800, Population: 30000000}
@@ -909,6 +1007,8 @@ func newForumOfTranscendence() *forumOfTranscendence {
 	b := new(forumOfTranscendence)
 	b.Name = "forum of transcendence"
 	b.ID = ForumOfTranscendenceID
+	b.durationBase = 64000
+	b.durationFactor = 1.8
 	b.IncreaseFactor = 1.80
 	b.populationIncreaseFactor = 1.10
 	b.BaseCost = Resources{Metal: 60000, Crystal: 30000, Deuterium: 50000, Population: 100000000}
@@ -924,6 +1024,8 @@ func newAntimatterConvector() *antimatterConvector {
 	b := new(antimatterConvector)
 	b.Name = "antimatter convector"
 	b.ID = AntimatterConvectorID
+	b.durationBase = 2000
+	b.durationFactor = 1.35
 	b.IncreaseFactor = 1.25
 	b.BaseCost = Resources{Metal: 8500, Crystal: 5000, Deuterium: 3000}
 	b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21, VortexChamberID: 5}
@@ -938,6 +1040,8 @@ func newCloningLaboratory() *cloningLaboratory {
 	b := new(cloningLaboratory)
 	b.Name = "cloning laboratory"
 	b.ID = CloningLaboratoryID
+	b.durationBase = 12000
+	b.durationFactor = 1.20
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 15000, Crystal: 15000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21, VortexChamberID: 5, AntimatterConvectorID: 3}
@@ -952,6 +1056,8 @@ func newChrysalisAccelerator() *chrysalisAccelerator {
 	b := new(chrysalisAccelerator)
 	b.Name = "chrysalis accelerator"
 	b.ID = ChrysalisAcceleratorID
+	b.durationBase = 16000
+	b.durationFactor = 1.18
 	b.IncreaseFactor = 1.05
 	b.BaseCost = Resources{Metal: 75000, Crystal: 25000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1}
@@ -966,6 +1072,8 @@ func newBioModifier() *bioModifier {
 	b := new(bioModifier)
 	b.Name = "bio modifier"
 	b.ID = BioModifierID
+	b.durationBase = 40000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 87500, Crystal: 25000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 1}
@@ -980,6 +1088,8 @@ func newPsionicModulator() *psionicModulator {
 	b := new(psionicModulator)
 	b.Name = "psionic modulator"
 	b.ID = PsionicModulatorID
+	b.durationBase = 52000
+	b.durationFactor = 1.8
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 150000, Crystal: 30000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 2}
@@ -994,6 +1104,8 @@ func newShipManufacturingHall() *shipManufacturingHall {
 	b := new(shipManufacturingHall)
 	b.Name = "ship manufacturing hall"
 	b.ID = ShipManufacturingHallID
+	b.durationBase = 90000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 75000, Crystal: 50000, Deuterium: 55000}
 	b.Requirements = map[ID]int64{SanctuaryID: 42, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 1, BioModifierID: 6, ForumOfTranscendenceID: 1}
@@ -1008,6 +1120,8 @@ func newSupraRefractor() *supraRefractor {
 	b := new(supraRefractor)
 	b.Name = "suprarefractor"
 	b.ID = SupraRefractorID
+	b.durationBase = 95000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.40
 	b.BaseCost = Resources{Metal: 500000, Crystal: 250000, Deuterium: 250000}
 	b.Requirements = map[ID]int64{SanctuaryID: 42, AntimatterCondenserID: 21, VortexChamberID: 5, AntimatterConvectorID: 3, CloningLaboratoryID: 4, HallsOfRealisationID: 1, ChrysalisAcceleratorID: 5, BioModifierID: 6, ForumOfTranscendenceID: 5, ShipManufacturingHallID: 5}
