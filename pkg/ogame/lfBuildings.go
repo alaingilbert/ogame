@@ -782,7 +782,7 @@ func newRoboticsResearchCentre() *roboticsResearchCentre {
 	b.durationFactor = 1.25
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 30000, Crystal: 20000, Deuterium: 10000}
-	b.Requirements = map[ID]int64{AssemblyLineID: 20, FusionCellFactoryID: 17}
+	b.Requirements = map[ID]int64{AssemblyLineID: 17, FusionCellFactoryID: 20}
 	return b
 }
 
