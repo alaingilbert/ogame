@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"math"
+	"time"
 )
 
 // LazyLfResearches ...
@@ -435,6 +436,22 @@ func (b LfResearches) ByID(id ID) int64 {
 // BaseLfResearch base struct for Lifeform techs
 type BaseLfResearch struct {
 	BaseTechnology
+	durationBase   float64
+	durationFactor float64
+}
+
+// TechnologyConstructionTime returns the duration it takes to build given technology
+func (b BaseLfResearch) TechnologyConstructionTime(level, universeSpeed int64, acc TechAccelerators, hasTechnocrat, isDiscoverer bool) time.Duration {
+	levelF := float64(level)
+	secs := levelF * b.durationBase * math.Pow(b.durationFactor, levelF)
+	secs /= float64(universeSpeed)
+	secs = math.Max(1, secs)
+	return time.Duration(int64(math.Floor(secs))) * time.Second
+}
+
+// ConstructionTime same as TechnologyConstructionTime, needed for BaseOgameObj implementation
+func (b BaseLfResearch) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, hasTechnocrat, isDiscoverer bool) time.Duration {
+	return b.TechnologyConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
 }
 
 // GetPrice returns the price to build the given level
@@ -458,6 +475,8 @@ func newIntergalacticEnvoys() *intergalacticEnvoys {
 	b := new(intergalacticEnvoys)
 	b.Name = "IntergalacticEnvoys"
 	b.ID = IntergalacticEnvoysID
+	b.durationBase = 1000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 5000, Crystal: 2500, Deuterium: 500}
 	b.Requirements = map[ID]int64{}
@@ -472,6 +491,8 @@ func newHighPerformanceExtractors() *highPerformanceExtractors {
 	b := new(highPerformanceExtractors)
 	b.Name = "HighPerformanceExtractors"
 	b.ID = HighPerformanceExtractorsID
+	b.durationBase = 2000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 7000, Crystal: 10000, Deuterium: 5000}
 	b.Requirements = map[ID]int64{}
@@ -486,6 +507,8 @@ func newFusionDrives() *fusionDrives {
 	b := new(fusionDrives)
 	b.Name = "FusionDrives"
 	b.ID = FusionDrivesID
+	b.durationBase = 2500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 15000, Crystal: 10000, Deuterium: 5000}
 	b.Requirements = map[ID]int64{}
@@ -500,6 +523,8 @@ func newStealthFieldGenerator() *stealthFieldGenerator {
 	b := new(stealthFieldGenerator)
 	b.Name = "StealthFieldGenerator"
 	b.ID = StealthFieldGeneratorID
+	b.durationBase = 3500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 20000, Crystal: 15000, Deuterium: 7500}
 	b.Requirements = map[ID]int64{}
@@ -514,6 +539,8 @@ func newOrbitalDen() *orbitalDen {
 	b := new(orbitalDen)
 	b.Name = "OrbitalDen"
 	b.ID = OrbitalDenID
+	b.durationBase = 4500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.40
 	b.BaseCost = Resources{Metal: 25000, Crystal: 20000, Deuterium: 10000}
 	b.Requirements = map[ID]int64{}
@@ -528,6 +555,8 @@ func newResearchAI() *researchAI {
 	b := new(researchAI)
 	b.Name = "ResearchAI"
 	b.ID = ResearchAIID
+	b.durationBase = 5000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 35000, Crystal: 25000, Deuterium: 15000}
 	b.Requirements = map[ID]int64{}
@@ -542,6 +571,8 @@ func newHighPerformanceTerraformer() *highPerformanceTerraformer {
 	b := new(highPerformanceTerraformer)
 	b.Name = "HighPerformanceTerraformer"
 	b.ID = HighPerformanceTerraformerID
+	b.durationBase = 8000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 70000, Crystal: 40000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -556,6 +587,8 @@ func newEnhancedProductionTechnologies() *enhancedProductionTechnologies {
 	b := new(enhancedProductionTechnologies)
 	b.Name = "EnhancedProductionTechnologies"
 	b.ID = EnhancedProductionTechnologiesID
+	b.durationBase = 6000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 80000, Crystal: 50000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -570,6 +603,8 @@ func newLightFighterMkII() *lightFighterMkII {
 	b := new(lightFighterMkII)
 	b.Name = "LightFighterMkII"
 	b.ID = LightFighterMkIIID
+	b.durationBase = 6500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 320000, Crystal: 240000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -584,6 +619,8 @@ func newCruiserMkII() *cruiserMkII {
 	b := new(cruiserMkII)
 	b.Name = "CruiserMkII"
 	b.ID = CruiserMkIIID
+	b.durationBase = 7000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 320000, Crystal: 240000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -598,6 +635,8 @@ func newImprovedLabTechnology() *improvedLabTechnology {
 	b := new(improvedLabTechnology)
 	b.Name = "ImprovedLabTechnology"
 	b.ID = ImprovedLabTechnologyID
+	b.durationBase = 7500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 120000, Crystal: 30000, Deuterium: 25000}
 	b.Requirements = map[ID]int64{}
@@ -612,6 +651,8 @@ func newPlasmaTerraformer() *plasmaTerraformer {
 	b := new(plasmaTerraformer)
 	b.Name = "PlasmaTerraformer"
 	b.ID = PlasmaTerraformerID
+	b.durationBase = 10000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 100000, Crystal: 40000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{}
@@ -626,6 +667,8 @@ func newLowTemperatureDrives() *lowTemperatureDrives {
 	b := new(lowTemperatureDrives)
 	b.Name = "LowTemperatureDrives"
 	b.ID = LowTemperatureDrivesID
+	b.durationBase = 8500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 200000, Crystal: 100000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -640,6 +683,8 @@ func newBomberMkII() *bomberMkII {
 	b := new(bomberMkII)
 	b.Name = "BomberMkII"
 	b.ID = BomberMkIIID
+	b.durationBase = 9000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -654,6 +699,8 @@ func newDestroyerMkII() *destroyerMkII {
 	b := new(destroyerMkII)
 	b.Name = "DestroyerMkII"
 	b.ID = DestroyerMkIIID
+	b.durationBase = 9500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -668,6 +715,8 @@ func newBattlecruiserMkII() *battlecruiserMkII {
 	b := new(battlecruiserMkII)
 	b.Name = "BattlecruiserMkII"
 	b.ID = BattlecruiserMkIIID
+	b.durationBase = 10000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 320000, Crystal: 240000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -682,6 +731,8 @@ func newRobotAssistants() *robotAssistants {
 	b := new(robotAssistants)
 	b.Name = "robotAssistants"
 	b.ID = RobotAssistantsID
+	b.durationBase = 11000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 300000, Crystal: 180000, Deuterium: 120000}
 	b.Requirements = map[ID]int64{}
@@ -696,6 +747,8 @@ func newSupercomputer() *supercomputer {
 	b := new(supercomputer)
 	b.Name = "Supercomputer"
 	b.ID = SupercomputerID
+	b.durationBase = 13000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 500000, Crystal: 300000, Deuterium: 200000}
 	b.Requirements = map[ID]int64{}
@@ -711,6 +764,8 @@ func newVolcanicBatteries() *volcanicBatteries {
 	b := new(volcanicBatteries)
 	b.Name = "VolcanicBatteries"
 	b.ID = VolcanicBatteriesID
+	b.durationBase = 1000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 10000, Crystal: 6000, Deuterium: 1000}
 	b.Requirements = map[ID]int64{}
@@ -725,6 +780,8 @@ func newAcousticScanning() *acousticScanning {
 	b := new(acousticScanning)
 	b.Name = "AcousticScanning"
 	b.ID = AcousticScanningID
+	b.durationBase = 2000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 7500, Crystal: 12500, Deuterium: 5000}
 	b.Requirements = map[ID]int64{}
@@ -739,6 +796,8 @@ func newHighEnergyPumpSystems() *highEnergyPumpSystems {
 	b := new(highEnergyPumpSystems)
 	b.Name = "HighEnergyPumpSystems"
 	b.ID = HighEnergyPumpSystemsID
+	b.durationBase = 2500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 15000, Crystal: 10000, Deuterium: 5000}
 	b.Requirements = map[ID]int64{}
@@ -753,6 +812,8 @@ func newCargoHoldExpansionCivilianShips() *cargoHoldExpansionCivilianShips {
 	b := new(cargoHoldExpansionCivilianShips)
 	b.Name = "CargoHoldExpansionCivilianShips"
 	b.ID = CargoHoldExpansionCivilianShipsID
+	b.durationBase = 3500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 20000, Crystal: 15000, Deuterium: 7500}
 	b.Requirements = map[ID]int64{}
@@ -767,6 +828,8 @@ func newMagmaPoweredProduction() *magmaPoweredProduction {
 	b := new(magmaPoweredProduction)
 	b.Name = "MagmaPoweredProduction"
 	b.ID = MagmaPoweredProductionID
+	b.durationBase = 4500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 25000, Crystal: 20000, Deuterium: 10000}
 	b.Requirements = map[ID]int64{}
@@ -781,6 +844,8 @@ func newGeothermalPowerPlants() *geothermalPowerPlants {
 	b := new(geothermalPowerPlants)
 	b.Name = "GeothermalPowerPlants"
 	b.ID = GeothermalPowerPlantsID
+	b.durationBase = 5000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 50000, Crystal: 50000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -795,6 +860,8 @@ func newDepthSounding() *depthSounding {
 	b := new(depthSounding)
 	b.Name = "DepthSounding"
 	b.ID = DepthSoundingID
+	b.durationBase = 5000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 70000, Crystal: 40000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -809,6 +876,8 @@ func newIonCrystalEnhancementHeavyFighter() *ionCrystalEnhancementHeavyFighter {
 	b := new(ionCrystalEnhancementHeavyFighter)
 	b.Name = "IonCrystalEnhancementHeavyFighter"
 	b.ID = IonCrystalEnhancementHeavyFighterID
+	b.durationBase = 6000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -823,6 +892,8 @@ func newImprovedStellarator() *improvedStellarator {
 	b := new(improvedStellarator)
 	b.Name = "ImprovedStellarator"
 	b.ID = ImprovedStellaratorID
+	b.durationBase = 6500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 75000, Crystal: 55000, Deuterium: 25000}
 	b.Requirements = map[ID]int64{}
@@ -837,6 +908,8 @@ func newHardenedDiamondDrillHeads() *hardenedDiamondDrillHeads {
 	b := new(hardenedDiamondDrillHeads)
 	b.Name = "HardenedDiamondDrillHeads"
 	b.ID = HardenedDiamondDrillHeadsID
+	b.durationBase = 7000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 85000, Crystal: 40000, Deuterium: 35000}
 	b.Requirements = map[ID]int64{}
@@ -851,6 +924,8 @@ func newSeismicMiningTechnology() *seismicMiningTechnology {
 	b := new(seismicMiningTechnology)
 	b.Name = "SeismicMiningTechnology"
 	b.ID = SeismicMiningTechnologyID
+	b.durationBase = 7500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 120000, Crystal: 30000, Deuterium: 25000}
 	b.Requirements = map[ID]int64{}
@@ -865,6 +940,8 @@ func newMagmaPoweredPumpSystems() *magmaPoweredPumpSystems {
 	b := new(magmaPoweredPumpSystems)
 	b.Name = "MagmaPoweredPumpSystems"
 	b.ID = MagmaPoweredPumpSystemsID
+	b.durationBase = 8000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 100000, Crystal: 40000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{}
@@ -879,6 +956,8 @@ func newIonCrystalModules() *ionCrystalModules {
 	b := new(ionCrystalModules)
 	b.Name = "IonCrystalModules"
 	b.ID = IonCrystalModulesID
+	b.durationBase = 8500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 200000, Crystal: 100000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -893,6 +972,8 @@ func newOptimisedSiloConstructionMethod() *optimisedSiloConstructionMethod {
 	b := new(optimisedSiloConstructionMethod)
 	b.Name = "OptimisedSiloConstructionMethod"
 	b.ID = OptimisedSiloConstructionMethodID
+	b.durationBase = 9000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 220000, Crystal: 110000, Deuterium: 110000}
 	b.Requirements = map[ID]int64{}
@@ -907,6 +988,8 @@ func newDiamondEnergyTransmitter() *diamondEnergyTransmitter {
 	b := new(diamondEnergyTransmitter)
 	b.Name = "DiamondEnergyTransmitter"
 	b.ID = DiamondEnergyTransmitterID
+	b.durationBase = 9500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 240000, Crystal: 120000, Deuterium: 120000}
 	b.Requirements = map[ID]int64{}
@@ -921,6 +1004,8 @@ func newObsidianShieldReinforcement() *obsidianShieldReinforcement {
 	b := new(obsidianShieldReinforcement)
 	b.Name = "ObsidianShieldReinforcement"
 	b.ID = ObsidianShieldReinforcementID
+	b.durationBase = 10000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.40
 	b.BaseCost = Resources{Metal: 250000, Crystal: 250000, Deuterium: 250000}
 	b.Requirements = map[ID]int64{}
@@ -935,6 +1020,8 @@ func newRuneShields() *runeShields {
 	b := new(runeShields)
 	b.Name = "RuneShields"
 	b.ID = RuneShieldsID
+	b.durationBase = 13000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 500000, Crystal: 300000, Deuterium: 200000}
 	b.Requirements = map[ID]int64{}
@@ -949,6 +1036,8 @@ func newRocktalCollectorEnhancement() *rocktalCollectorEnhancement {
 	b := new(rocktalCollectorEnhancement)
 	b.Name = "RocktalCollectorEnhancement"
 	b.ID = RocktalCollectorEnhancementID
+	b.durationBase = 11000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.70
 	b.BaseCost = Resources{Metal: 300000, Crystal: 180000, Deuterium: 120000}
 	b.Requirements = map[ID]int64{}
@@ -965,6 +1054,8 @@ func newCatalyserTechnology() *catalyserTechnology {
 	b := new(catalyserTechnology)
 	b.Name = "CatalyserTechnology"
 	b.ID = CatalyserTechnologyID
+	b.durationBase = 1000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 10000, Crystal: 6000, Deuterium: 1000}
 	b.Requirements = map[ID]int64{}
@@ -979,6 +1070,8 @@ func newPlasmaDrive() *plasmaDrive {
 	b := new(plasmaDrive)
 	b.Name = "PlasmaDrive"
 	b.ID = PlasmaDriveID
+	b.durationBase = 2000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 7500, Crystal: 12500, Deuterium: 5000}
 	b.Requirements = map[ID]int64{}
@@ -993,6 +1086,8 @@ func newEfficiencyModule() *efficiencyModule {
 	b := new(efficiencyModule)
 	b.Name = "EfficiencyModule"
 	b.ID = EfficiencyModuleID
+	b.durationBase = 2500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 15000, Crystal: 10000, Deuterium: 5000}
 	b.Requirements = map[ID]int64{}
@@ -1007,6 +1102,8 @@ func newDepotAI() *depotAI {
 	b := new(depotAI)
 	b.Name = "DepotAI"
 	b.ID = DepotAIID
+	b.durationBase = 3500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 20000, Crystal: 15000, Deuterium: 7500}
 	b.Requirements = map[ID]int64{}
@@ -1021,6 +1118,8 @@ func newGeneralOverhaulLightFighter() *generalOverhaulLightFighter {
 	b := new(generalOverhaulLightFighter)
 	b.Name = "GeneralOverhaulLightFighter"
 	b.ID = GeneralOverhaulLightFighterID
+	b.durationBase = 4500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -1035,6 +1134,8 @@ func newAutomatedTransportLines() *automatedTransportLines {
 	b := new(automatedTransportLines)
 	b.Name = "AutomatedTransportLines"
 	b.ID = AutomatedTransportLinesID
+	b.durationBase = 5000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 50000, Crystal: 50000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -1049,6 +1150,8 @@ func newImprovedDroneAI() *improvedDroneAI {
 	b := new(improvedDroneAI)
 	b.Name = "ImprovedDroneAI"
 	b.ID = ImprovedDroneAIID
+	b.durationBase = 5500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 70000, Crystal: 40000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -1063,6 +1166,8 @@ func newExperimentalRecyclingTechnology() *experimentalRecyclingTechnology {
 	b := new(experimentalRecyclingTechnology)
 	b.Name = "ExperimentalRecyclingTechnology"
 	b.ID = ExperimentalRecyclingTechnologyID
+	b.durationBase = 6000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -1077,6 +1182,8 @@ func newGeneralOverhaulCruiser() *generalOverhaulCruiser {
 	b := new(generalOverhaulCruiser)
 	b.Name = "GeneralOverhaulCruiser"
 	b.ID = GeneralOverhaulCruiserID
+	b.durationBase = 6500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -1091,6 +1198,8 @@ func newSlingshotAutopilot() *slingshotAutopilot {
 	b := new(slingshotAutopilot)
 	b.Name = "SlingshotAutopilot"
 	b.ID = SlingshotAutopilotID
+	b.durationBase = 7000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 85000, Crystal: 40000, Deuterium: 35000}
 	b.Requirements = map[ID]int64{}
@@ -1105,6 +1214,8 @@ func newHighTemperatureSuperconductors() *highTemperatureSuperconductors {
 	b := new(highTemperatureSuperconductors)
 	b.Name = "HighTemperatureSuperconductors"
 	b.ID = HighTemperatureSuperconductorsID
+	b.durationBase = 7500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 120000, Crystal: 30000, Deuterium: 25000}
 	b.Requirements = map[ID]int64{}
@@ -1119,6 +1230,8 @@ func newGeneralOverhaulBattleship() *generalOverhaulBattleship {
 	b := new(generalOverhaulBattleship)
 	b.Name = "GeneralOverhaulBattleship"
 	b.ID = GeneralOverhaulBattleshipID
+	b.durationBase = 8000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -1133,6 +1246,8 @@ func newArtificialSwarmIntelligence() *artificialSwarmIntelligence {
 	b := new(artificialSwarmIntelligence)
 	b.Name = "ArtificialSwarmIntelligence"
 	b.ID = ArtificialSwarmIntelligenceID
+	b.durationBase = 8500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 200000, Crystal: 100000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -1147,6 +1262,8 @@ func newGeneralOverhaulBattlecruiser() *generalOverhaulBattlecruiser {
 	b := new(generalOverhaulBattlecruiser)
 	b.Name = "GeneralOverhaulBattlecruiser"
 	b.ID = GeneralOverhaulBattlecruiserID
+	b.durationBase = 9000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -1161,6 +1278,8 @@ func newGeneralOverhaulBomber() *generalOverhaulBomber {
 	b := new(generalOverhaulBomber)
 	b.Name = "GeneralOverhaulBomber"
 	b.ID = GeneralOverhaulBomberID
+	b.durationBase = 9500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 320000, Crystal: 240000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -1175,6 +1294,8 @@ func newGeneralOverhaulDestroyer() *generalOverhaulDestroyer {
 	b := new(generalOverhaulDestroyer)
 	b.Name = "GeneralOverhaulDestroyer"
 	b.ID = GeneralOverhaulDestroyerID
+	b.durationBase = 10000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 320000, Crystal: 240000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -1189,6 +1310,8 @@ func newExperimentalWeaponsTechnology() *experimentalWeaponsTechnology {
 	b := new(experimentalWeaponsTechnology)
 	b.Name = "ExperimentalWeaponsTechnology"
 	b.ID = ExperimentalWeaponsTechnologyID
+	b.durationBase = 13000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 500000, Crystal: 300000, Deuterium: 200000}
 	b.Requirements = map[ID]int64{}
@@ -1203,6 +1326,8 @@ func newMechanGeneralEnhancement() *mechanGeneralEnhancement {
 	b := new(mechanGeneralEnhancement)
 	b.Name = "MechanGeneralEnhancement"
 	b.ID = MechanGeneralEnhancementID
+	b.durationBase = 11000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.70
 	b.BaseCost = Resources{Metal: 300000, Crystal: 180000, Deuterium: 120000}
 	b.Requirements = map[ID]int64{}
@@ -1218,6 +1343,8 @@ func newHeatRecovery() *heatRecovery {
 	b := new(heatRecovery)
 	b.Name = "HeatRecovery"
 	b.ID = HeatRecoveryID
+	b.durationBase = 1000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 10000, Crystal: 6000, Deuterium: 1000}
 	b.Requirements = map[ID]int64{}
@@ -1232,6 +1359,8 @@ func newSulphideProcess() *sulphideProcess {
 	b := new(sulphideProcess)
 	b.Name = "SulphideProcess"
 	b.ID = SulphideProcessID
+	b.durationBase = 2000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 7500, Crystal: 12500, Deuterium: 5000}
 	b.Requirements = map[ID]int64{}
@@ -1246,6 +1375,8 @@ func newPsionicNetwork() *psionicNetwork {
 	b := new(psionicNetwork)
 	b.Name = "PsionicNetwork"
 	b.ID = PsionicNetworkID
+	b.durationBase = 2500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 15000, Crystal: 10000, Deuterium: 5000}
 	b.Requirements = map[ID]int64{}
@@ -1260,6 +1391,8 @@ func newTelekineticTractorBeam() *telekineticTractorBeam {
 	b := new(telekineticTractorBeam)
 	b.Name = "TelekineticTractorBeam"
 	b.ID = TelekineticTractorBeamID
+	b.durationBase = 3500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 20000, Crystal: 15000, Deuterium: 7500}
 	b.Requirements = map[ID]int64{}
@@ -1274,6 +1407,8 @@ func newEnhancedSensorTechnology() *enhancedSensorTechnology {
 	b := new(enhancedSensorTechnology)
 	b.Name = "EnhancedSensorTechnology"
 	b.ID = EnhancedSensorTechnologyID
+	b.durationBase = 4500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 25000, Crystal: 20000, Deuterium: 10000}
 	b.Requirements = map[ID]int64{}
@@ -1288,6 +1423,8 @@ func newNeuromodalCompressor() *neuromodalCompressor {
 	b := new(neuromodalCompressor)
 	b.Name = "NeuromodalCompressor"
 	b.ID = NeuromodalCompressorID
+	b.durationBase = 5000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.30
 	b.BaseCost = Resources{Metal: 50000, Crystal: 50000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -1302,6 +1439,8 @@ func newNeuroInterface() *neuroInterface {
 	b := new(neuroInterface)
 	b.Name = "NeuroInterface"
 	b.ID = NeuroInterfaceID
+	b.durationBase = 5500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 70000, Crystal: 40000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -1316,6 +1455,8 @@ func newInterplanetaryAnalysisNetwork() *interplanetaryAnalysisNetwork {
 	b := new(interplanetaryAnalysisNetwork)
 	b.Name = "InterplanetaryAnalysisNetwork"
 	b.ID = InterplanetaryAnalysisNetworkID
+	b.durationBase = 6000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 80000, Crystal: 50000, Deuterium: 20000}
 	b.Requirements = map[ID]int64{}
@@ -1330,6 +1471,8 @@ func newOverclockingHeavyFighter() *overclockingHeavyFighter {
 	b := new(overclockingHeavyFighter)
 	b.Name = "OverclockingHeavyFighter"
 	b.ID = OverclockingHeavyFighterID
+	b.durationBase = 6500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 320000, Crystal: 240000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -1344,6 +1487,8 @@ func newTelekineticDrive() *telekineticDrive {
 	b := new(telekineticDrive)
 	b.Name = "TelekineticDrive"
 	b.ID = TelekineticDriveID
+	b.durationBase = 7000
+	b.durationFactor = 1.2
 	b.IncreaseFactor = 1.20
 	b.BaseCost = Resources{Metal: 85000, Crystal: 40000, Deuterium: 35000}
 	b.Requirements = map[ID]int64{}
@@ -1358,6 +1503,8 @@ func newSixthSense() *sixthSense {
 	b := new(sixthSense)
 	b.Name = "SixthSense"
 	b.ID = SixthSenseID
+	b.durationBase = 7500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 120000, Crystal: 30000, Deuterium: 25000}
 	b.Requirements = map[ID]int64{}
@@ -1372,6 +1519,8 @@ func newPsychoharmoniser() *psychoharmoniser {
 	b := new(psychoharmoniser)
 	b.Name = "Psychoharmoniser"
 	b.ID = PsychoharmoniserID
+	b.durationBase = 8000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 100000, Crystal: 40000, Deuterium: 30000}
 	b.Requirements = map[ID]int64{}
@@ -1386,6 +1535,8 @@ func newEfficientSwarmIntelligence() *efficientSwarmIntelligence {
 	b := new(efficientSwarmIntelligence)
 	b.Name = "EfficientSwarmIntelligence"
 	b.ID = EfficientSwarmIntelligenceID
+	b.durationBase = 8500
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 200000, Crystal: 100000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -1400,6 +1551,8 @@ func newOverclockingLargeCargo() *overclockingLargeCargo {
 	b := new(overclockingLargeCargo)
 	b.Name = "OverclockingLargeCargo"
 	b.ID = OverclockingLargeCargoID
+	b.durationBase = 9000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 160000, Crystal: 120000, Deuterium: 50000}
 	b.Requirements = map[ID]int64{}
@@ -1414,6 +1567,8 @@ func newGravitationSensors() *gravitationSensors {
 	b := new(gravitationSensors)
 	b.Name = "GravitationSensors"
 	b.ID = GravitationSensorsID
+	b.durationBase = 9500
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 240000, Crystal: 120000, Deuterium: 120000}
 	b.Requirements = map[ID]int64{}
@@ -1428,6 +1583,8 @@ func newOverclockingBattleship() *overclockingBattleship {
 	b := new(overclockingBattleship)
 	b.Name = "OverclockingBattleship"
 	b.ID = OverclockingBattleshipID
+	b.durationBase = 10000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 320000, Crystal: 240000, Deuterium: 100000}
 	b.Requirements = map[ID]int64{}
@@ -1442,6 +1599,8 @@ func newPsionicShieldMatrix() *psionicShieldMatrix {
 	b := new(psionicShieldMatrix)
 	b.Name = "PsionicShieldMatrix"
 	b.ID = PsionicShieldMatrixID
+	b.durationBase = 13000
+	b.durationFactor = 1.3
 	b.IncreaseFactor = 1.50
 	b.BaseCost = Resources{Metal: 500000, Crystal: 300000, Deuterium: 200000}
 	b.Requirements = map[ID]int64{}
@@ -1456,6 +1615,8 @@ func newKaeleshDiscovererEnhancement() *kaeleshDiscovererEnhancement {
 	b := new(kaeleshDiscovererEnhancement)
 	b.Name = "KaeleshDiscovererEnhancement"
 	b.ID = KaeleshDiscovererEnhancementID
+	b.durationBase = 11000
+	b.durationFactor = 1.4
 	b.IncreaseFactor = 1.70
 	b.BaseCost = Resources{Metal: 300000, Crystal: 180000, Deuterium: 120000}
 	b.Requirements = map[ID]int64{}
