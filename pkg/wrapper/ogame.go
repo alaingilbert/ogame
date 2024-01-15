@@ -4320,8 +4320,15 @@ func (b *OGame) sendDiscoveryFleet(coord ogame.Coordinate, opts ...Option) error
 	for _, position := range galaxyPage.System.GalaxyContent {
 		if position.Position == coord.Position {
 			for _, availableMission := range position.AvailableMissions {
-				if availableMission.MissionType == ogame.SearchForLifeforms && availableMission.CanSend != true {
-					return errors.New("can't send discovery mission")
+				if availableMission.MissionType == ogame.SearchForLifeforms {
+					errMsg := "can't send discovery mission"
+					if canSend, ok := availableMission.CanSend.(bool); ok {
+						if !canSend {
+							return errors.New(errMsg)
+						}
+					} else if canSendStr, ok := availableMission.CanSend.(string); ok {
+						return errors.New(errMsg + ": " + canSendStr)
+					}
 				}
 			}
 		}
