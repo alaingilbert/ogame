@@ -83,7 +83,7 @@ type (
 		RankTitle string `json:"rankTitle"`
 		RankClass string `json:"rankClass"`
 	}
-	
+
 	CInt64 int64
 )
 
@@ -138,13 +138,13 @@ func (r *ResourcesJson) UnmarshalJSON(d []byte) error {
 	if err := json.Unmarshal(d, &tmp); err != nil {
 		return err
 	}
-	
+
 	*r = ResourcesJson{
-		Metal: int64(tmp.Metal.Amount),
-		Crystal: int64(tmp.Crystal.Amount),
+		Metal:     int64(tmp.Metal.Amount),
+		Crystal:   int64(tmp.Crystal.Amount),
 		Deuterium: int64(tmp.Deuterium.Amount),
 	}
-	
+
 	return nil
 }
 
