@@ -114,17 +114,10 @@ func (b *Prioritize) PostPageContent(vals, payload url.Values) ([]byte, error) {
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *Prioritize) IsUnderAttack() (bool, error) {
+func (b *Prioritize) IsUnderAttack(opts ...Option) (bool, error) {
 	b.begin("IsUnderAttack")
 	defer b.done()
-	return b.bot.isUnderAttack()
-}
-
-// IsUnderAttackByID returns true if the user is under attack, false otherwise
-func (b *Prioritize) IsUnderAttackByID(celestialID ogame.CelestialID) (bool, error) {
-	b.begin("IsUnderAttackByID")
-	defer b.done()
-	return b.bot.isUnderAttack(ChangePlanet(celestialID))
+	return b.bot.isUnderAttack(opts...)
 }
 
 // SetVacationMode puts account in vacation mode

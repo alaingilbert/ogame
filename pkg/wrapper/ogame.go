@@ -4635,13 +4635,8 @@ func (b *OGame) PostPageContent(vals, payload url.Values) ([]byte, error) {
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *OGame) IsUnderAttack() (bool, error) {
-	return b.WithPriority(taskRunner.Normal).IsUnderAttack()
-}
-
-// IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *OGame) IsUnderAttackByID(CelestialID ogame.CelestialID) (bool, error) {
-	return b.WithPriority(taskRunner.Normal).IsUnderAttackByID(CelestialID)
+func (b *OGame) IsUnderAttack(opts ...Option) (bool, error) {
+	return b.WithPriority(taskRunner.Normal).IsUnderAttack(opts...)
 }
 
 // GetCachedPlayer returns cached player infos

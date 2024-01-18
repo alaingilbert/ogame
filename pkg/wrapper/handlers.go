@@ -164,7 +164,7 @@ func IsUnderAttackByIDHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-	isUnderAttack, err := bot.IsUnderAttackByID(ogame.CelestialID(planetID))
+	isUnderAttack, err := bot.IsUnderAttack(ChangePlanet(ogame.CelestialID(planetID)))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
