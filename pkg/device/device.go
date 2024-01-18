@@ -1045,14 +1045,13 @@ func DecryptBlackbox(encrypted string) (string, error) {
 		}
 		chars := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="
 		sb := make([]uint8, 0)
-		const mask = 0b1111_1111
 		for i := 0; i < len(v); i += 4 {
 			first := strings.IndexByte(chars, v[i+0])
 			second := strings.IndexByte(chars, v[i+1])
 			third := strings.IndexByte(chars, v[i+2])
 			fourth := strings.IndexByte(chars, v[i+3])
 			packed := first<<18 | second<<12 | third<<6 | fourth<<0
-			sb = append(sb, uint8(packed>>16&mask), uint8(packed>>8&mask), uint8(packed>>0&mask))
+			sb = append(sb, uint8(packed>>16), uint8(packed>>8), uint8(packed>>0))
 		}
 		return sb[0 : len(sb)-extraPadding]
 	}
