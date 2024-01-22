@@ -4295,6 +4295,24 @@ func (b *OGame) getCachedMoons() []Moon {
 	return moons
 }
 
+func (b *OGame) getCachedPlanet(v any) (Planet, error) {
+	if c := b.GetCachedCelestial(v); c != nil {
+		if planet, ok := c.(Planet); ok {
+			return planet, nil
+		}
+	}
+	return Planet{}, errors.New("invalid planet")
+}
+
+func (b *OGame) getCachedMoon(v any) (Moon, error) {
+	if c := b.GetCachedCelestial(v); c != nil {
+		if moon, ok := c.(Moon); ok {
+			return moon, nil
+		}
+	}
+	return Moon{}, errors.New("invalid planet")
+}
+
 func (b *OGame) getCachedCelestials() []Celestial {
 	celestials := make([]Celestial, 0)
 	for _, p := range b.GetCachedPlanets() {
@@ -4667,6 +4685,16 @@ func (b *OGame) IsVacationModeEnabled() bool {
 // GetPlanets returns the user planets
 func (b *OGame) GetPlanets() ([]Planet, error) {
 	return b.WithPriority(taskRunner.Normal).GetPlanets()
+}
+
+// GetCachedPlanet return planet from cached value
+func (b *OGame) GetCachedPlanet(v any) (Planet, error) {
+	return b.getCachedPlanet(v)
+}
+
+// GetCachedMoon return moon from cached value
+func (b *OGame) GetCachedMoon(v any) (Moon, error) {
+	return b.getCachedMoon(v)
 }
 
 // GetCachedPlanets return planets from cached value

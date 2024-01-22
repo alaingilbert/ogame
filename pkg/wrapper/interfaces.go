@@ -171,6 +171,8 @@ type Wrapper interface {
 	Enable()
 	FleetDeutSaveFactor() float64
 	GetCachedCelestial(any) Celestial
+	GetCachedPlanet(any) (Planet, error)
+	GetCachedMoon(any) (Moon, error)
 	GetCachedCelestials() []Celestial
 	GetCachedMoons() []Moon
 	GetCachedPlanets() []Planet
