@@ -1529,6 +1529,9 @@ func getPageName(vals url.Values) string {
 
 func getOptions(opts ...Option) (out Options) {
 	for _, opt := range opts {
+		if opt == nil {
+			continue
+		}
 		opt(&out)
 	}
 	return
