@@ -1,6 +1,7 @@
 package wrapper
 
 import (
+	"errors"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
@@ -15,4 +16,28 @@ func GetFleetSpeedForMission(serverData gameforge.ServerData, missionID ogame.Mi
 		return serverData.SpeedFleetWar
 	}
 	return serverData.SpeedFleetPeaceful
+}
+
+// IntoCoordinate helper that turns any type into a coordinate
+func IntoCoordinate(w Wrapper, v any) (ogame.Coordinate, error) {
+	switch vv := v.(type) {
+	case string:
+		return ogame.ParseCoord(vv)
+	case ogame.Coordinate:
+		return vv, nil
+	case ogame.Celestial:
+		return vv.GetCoordinate(), nil
+	case ogame.Planet:
+		return vv.GetCoordinate(), nil
+	case ogame.Moon:
+		return vv.GetCoordinate(), nil
+	case ogame.CelestialID, ogame.PlanetID, ogame.MoonID:
+		c := w.GetCachedCelestial(vv)
+		if c == nil {
+			return ogame.Coordinate{}, errors.New("celestial not found")
+		}
+		return c.GetCoordinate(), nil
+	default:
+		return ogame.Coordinate{}, errors.New("invalid type")
+	}
 }
