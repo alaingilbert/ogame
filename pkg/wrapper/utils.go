@@ -18,8 +18,8 @@ func GetFleetSpeedForMission(serverData gameforge.ServerData, missionID ogame.Mi
 	return serverData.SpeedFleetPeaceful
 }
 
-// IntoCoordinate helper that turns any type into a coordinate
-func IntoCoordinate(w Wrapper, v any) (ogame.Coordinate, error) {
+// ConvertIntoCoordinate helper that turns any type into a coordinate
+func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error) {
 	switch vv := v.(type) {
 	case string:
 		return ogame.ParseCoord(vv)
