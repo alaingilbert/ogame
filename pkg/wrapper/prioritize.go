@@ -746,7 +746,8 @@ func (b *Prioritize) GetAvailableDiscoveries(opts ...Option) int64 {
 	return b.bot.getAvailableDiscoveries(opts...)
 }
 
-func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]int64, error) {
+// GetPositionsAvailableForDiscoveryFleet ...
+func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]ogame.Coordinate, error) {
 	b.begin("GetPositionsAvailableForDiscoveryFleet")
 	defer b.done()
 	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)

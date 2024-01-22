@@ -87,7 +87,7 @@ type Prioritizable interface {
 	GetPageContent(url.Values) ([]byte, error)
 	GetPlanet(any) (Planet, error)
 	GetPlanets() ([]Planet, error)
-	GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]int64, error)
+	GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]ogame.Coordinate, error)
 	GetResearch() (ogame.Researches, error)
 	GetSlots() (ogame.Slots, error)
 	GetUserInfos() (ogame.UserInfos, error)

@@ -4390,18 +4390,18 @@ type GalaxyPageContent struct {
 	Token string `json:"token"`
 }
 
-func (b *OGame) getPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]int64, error) {
+func (b *OGame) getPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]ogame.Coordinate, error) {
 	galaxyPage, err := b.getGalaxyPage(galaxy, system, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	// Loop through all AvailableMissions in all positions, add those positions that are available.
-	availablePositions := make([]int64, 0)
+	availablePositions := make([]ogame.Coordinate, 0)
 	for _, position := range galaxyPage.System.GalaxyContent {
 		for _, availableMission := range position.AvailableMissions {
 			if availableMission.CanSend == true {
-				availablePositions = append(availablePositions, position.Position)
+				availablePositions = append(availablePositions, ogame.Coordinate{Galaxy: galaxy, System: system, Position: position.Position, Type: ogame.PlanetType})
 			}
 		}
 	}
@@ -5179,6 +5179,6 @@ func (b *OGame) GetAvailableDiscoveries(opts ...Option) int64 {
 }
 
 // GetPositionsAvailableForDiscoveryFleet ...
-func (b *OGame) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]int64, error) {
+func (b *OGame) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]ogame.Coordinate, error) {
 	return b.WithPriority(taskRunner.Normal).GetPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
 }
