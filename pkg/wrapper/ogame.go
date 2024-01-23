@@ -1931,11 +1931,12 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 
 func (b *OGame) getEmpireHtml(celestialType ogame.CelestialType) ([]byte, error) {
 	var planetType int
-	if celestialType == ogame.PlanetType {
+	switch celestialType {
+	case ogame.PlanetType:
 		planetType = 0
-	} else if celestialType == ogame.MoonType {
+	case ogame.MoonType:
 		planetType = 1
-	} else {
+	default:
 		return nil, errors.New("invalid celestial type")
 	}
 	vals := url.Values{"page": {"standalone"}, "component": {"empire"}, "planetType": {strconv.Itoa(planetType)}}
