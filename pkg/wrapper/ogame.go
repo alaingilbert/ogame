@@ -4262,6 +4262,16 @@ func (b *OGame) getCachedCelestial(v IntoCelestial) Celestial {
 	return nil
 }
 
+var ErrIntoCelestial = errors.New("unable to find celestial")
+
+func (b *OGame) getCachedCelestialErr(v IntoCelestial) (Celestial, error) {
+	c := b.getCachedCelestial(v)
+	if c == nil {
+		return nil, ErrIntoCelestial
+	}
+	return c, nil
+}
+
 // GetCachedCelestialByID return celestial from cached value
 func (b *OGame) GetCachedCelestialByID(celestialID ogame.CelestialID) Celestial {
 	for _, p := range b.GetCachedPlanets() {
