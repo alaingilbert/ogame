@@ -4276,7 +4276,7 @@ func (b *OGame) getCachedCelestialErr(v IntoCelestial) (Celestial, error) {
 
 // getCachedCelestialByID return celestial from cached value
 func (b *OGame) getCachedCelestialByID(celestialID ogame.CelestialID) Celestial {
-	for _, c := range b.GetCachedCelestials() {
+	for _, c := range b.getCachedCelestials() {
 		if c.GetID() == celestialID {
 			return c
 		}
@@ -4286,7 +4286,7 @@ func (b *OGame) getCachedCelestialByID(celestialID ogame.CelestialID) Celestial 
 
 // getCachedCelestialByCoord return celestial from cached value
 func (b *OGame) getCachedCelestialByCoord(coord ogame.Coordinate) Celestial {
-	for _, c := range b.GetCachedCelestials() {
+	for _, c := range b.getCachedCelestials() {
 		if c.GetCoordinate().Equal(coord) {
 			return c
 		}
