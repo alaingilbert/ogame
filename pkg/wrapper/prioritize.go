@@ -143,7 +143,7 @@ func (b *Prioritize) GetPlanets() ([]Planet, error) {
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *Prioritize) GetPlanet(v IntoCelestial) (Planet, error) {
+func (b *Prioritize) GetPlanet(v IntoPlanet) (Planet, error) {
 	b.begin("GetPlanet")
 	defer b.done()
 	return b.bot.getPlanet(v)
@@ -157,7 +157,7 @@ func (b *Prioritize) GetMoons() ([]Moon, error) {
 }
 
 // GetMoon gets infos for moonID
-func (b *Prioritize) GetMoon(v IntoCelestial) (Moon, error) {
+func (b *Prioritize) GetMoon(v IntoMoon) (Moon, error) {
 	b.begin("GetMoon")
 	defer b.done()
 	return b.bot.getMoon(v)

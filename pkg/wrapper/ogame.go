@@ -4298,7 +4298,7 @@ func (b *OGame) getCachedMoons() []Moon {
 	return moons
 }
 
-func (b *OGame) getCachedPlanet(v IntoCelestial) (Planet, error) {
+func (b *OGame) getCachedPlanet(v IntoPlanet) (Planet, error) {
 	if c := b.getCachedCelestial(v); c != nil {
 		if planet, ok := c.(Planet); ok {
 			return planet, nil
@@ -4307,7 +4307,7 @@ func (b *OGame) getCachedPlanet(v IntoCelestial) (Planet, error) {
 	return Planet{}, errors.New("invalid planet")
 }
 
-func (b *OGame) getCachedMoon(v IntoCelestial) (Moon, error) {
+func (b *OGame) getCachedMoon(v IntoMoon) (Moon, error) {
 	if c := b.getCachedCelestial(v); c != nil {
 		if moon, ok := c.(Moon); ok {
 			return moon, nil
@@ -4691,12 +4691,12 @@ func (b *OGame) GetPlanets() ([]Planet, error) {
 }
 
 // GetCachedPlanet return planet from cached value
-func (b *OGame) GetCachedPlanet(v IntoCelestial) (Planet, error) {
+func (b *OGame) GetCachedPlanet(v IntoPlanet) (Planet, error) {
 	return b.getCachedPlanet(v)
 }
 
 // GetCachedMoon return moon from cached value
-func (b *OGame) GetCachedMoon(v IntoCelestial) (Moon, error) {
+func (b *OGame) GetCachedMoon(v IntoMoon) (Moon, error) {
 	return b.getCachedMoon(v)
 }
 
@@ -4724,7 +4724,7 @@ func (b *OGame) GetCachedCelestial(v IntoCelestial) Celestial {
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *OGame) GetPlanet(v IntoCelestial) (Planet, error) {
+func (b *OGame) GetPlanet(v IntoPlanet) (Planet, error) {
 	return b.WithPriority(taskRunner.Normal).GetPlanet(v)
 }
 
@@ -4734,7 +4734,7 @@ func (b *OGame) GetMoons() ([]Moon, error) {
 }
 
 // GetMoon gets infos for moonID
-func (b *OGame) GetMoon(v IntoCelestial) (Moon, error) {
+func (b *OGame) GetMoon(v IntoMoon) (Moon, error) {
 	return b.WithPriority(taskRunner.Normal).GetMoon(v)
 }
 

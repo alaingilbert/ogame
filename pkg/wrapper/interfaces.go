@@ -82,10 +82,10 @@ type Prioritizable interface {
 	GetFleets(...Option) ([]ogame.Fleet, ogame.Slots)
 	GetFleetsFromEventList() []ogame.Fleet
 	GetItems(ogame.CelestialID) ([]ogame.Item, error)
-	GetMoon(IntoCelestial) (Moon, error)
+	GetMoon(IntoMoon) (Moon, error)
 	GetMoons() ([]Moon, error)
 	GetPageContent(url.Values) ([]byte, error)
-	GetPlanet(IntoCelestial) (Planet, error)
+	GetPlanet(IntoPlanet) (Planet, error)
 	GetPlanets() ([]Planet, error)
 	GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]ogame.Coordinate, error)
 	GetResearch() (ogame.Researches, error)
@@ -174,8 +174,8 @@ type Wrapper interface {
 	Enable()
 	FleetDeutSaveFactor() float64
 	GetCachedCelestial(IntoCelestial) Celestial
-	GetCachedPlanet(IntoCelestial) (Planet, error)
-	GetCachedMoon(IntoCelestial) (Moon, error)
+	GetCachedPlanet(IntoPlanet) (Planet, error)
+	GetCachedMoon(IntoMoon) (Moon, error)
 	GetCachedCelestials() []Celestial
 	GetCachedMoons() []Moon
 	GetCachedPlanets() []Planet
