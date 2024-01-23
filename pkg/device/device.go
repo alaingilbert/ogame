@@ -1,6 +1,7 @@
 package device
 
 import (
+	cryptoRand "crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -574,7 +575,7 @@ func getGame1Js(client httpclient.IHttpClient) (dateHeader string, elapsed int64
 
 func randFakeHash() string {
 	buf := make([]byte, 32)
-	_, _ = rand.Read(buf)
+	_, _ = cryptoRand.Read(buf)
 	return hex.EncodeToString(buf)
 }
 
