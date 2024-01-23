@@ -509,8 +509,8 @@ func convertPlanet(b *OGame, planet ogame.Planet) Planet {
 func convertMoons(b *OGame, moonsIn []ogame.Moon) []Moon {
 	out := make([]Moon, 0)
 	for _, moon := range moonsIn {
-		tmp := convertMoon(b, moon)
-		out = append(out, tmp)
+		cMoon := convertMoon(b, moon)
+		out = append(out, cMoon)
 	}
 	return out
 }
