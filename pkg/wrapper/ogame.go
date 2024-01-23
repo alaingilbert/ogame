@@ -4308,6 +4308,17 @@ func (b *OGame) getCachedMoons() []Moon {
 	return moons
 }
 
+func (b *OGame) getCachedCelestials() []Celestial {
+	celestials := make([]Celestial, 0)
+	for _, p := range b.GetCachedPlanets() {
+		celestials = append(celestials, p)
+		if p.Moon != nil {
+			celestials = append(celestials, *p.Moon)
+		}
+	}
+	return celestials
+}
+
 func (b *OGame) getCachedPlanet(v IntoPlanet) (Planet, error) {
 	if c := b.getCachedCelestial(v); c != nil {
 		if planet, ok := c.(Planet); ok {
@@ -4324,17 +4335,6 @@ func (b *OGame) getCachedMoon(v IntoMoon) (Moon, error) {
 		}
 	}
 	return Moon{}, errors.New("invalid planet")
-}
-
-func (b *OGame) getCachedCelestials() []Celestial {
-	celestials := make([]Celestial, 0)
-	for _, p := range b.GetCachedPlanets() {
-		celestials = append(celestials, p)
-		if p.Moon != nil {
-			celestials = append(celestials, *p.Moon)
-		}
-	}
-	return celestials
 }
 
 func (b *OGame) getTasks() (out taskRunner.TasksOverview) {
