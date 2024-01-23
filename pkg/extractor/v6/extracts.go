@@ -202,12 +202,16 @@ func extractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, err
 	switch vv := v.(type) {
 	case ogame.Celestial:
 		return extractCelestialByIDFromDoc(doc, vv.GetID())
+	case ogame.Planet:
+		return extractCelestialByIDFromDoc(doc, vv.GetID())
+	case ogame.Moon:
+		return extractCelestialByIDFromDoc(doc, vv.GetID())
+	case ogame.CelestialID:
+		return extractCelestialByIDFromDoc(doc, vv)
 	case ogame.PlanetID:
 		return extractCelestialByIDFromDoc(doc, vv.Celestial())
 	case ogame.MoonID:
 		return extractCelestialByIDFromDoc(doc, vv.Celestial())
-	case ogame.CelestialID:
-		return extractCelestialByIDFromDoc(doc, vv)
 	case int:
 		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
 	case int32:
