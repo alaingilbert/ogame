@@ -290,9 +290,7 @@ func (b *OGame) introBypass(page parser.OverviewPage) error {
 			"username":  {b.Player.PlayerName},
 			"isVeteran": {"1"},
 		}
-		_, err := b.postPageContent(vals, payload)
-
-		if err != nil {
+		if _, err := b.postPageContent(vals, payload); err != nil {
 			return err
 		}
 	}
