@@ -199,15 +199,9 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 	if err != nil {
 		return err
 	}
-	if serverData.SpeedFleetWar == 0 {
-		serverData.SpeedFleetWar = 1
-	}
-	if serverData.SpeedFleetPeaceful == 0 {
-		serverData.SpeedFleetPeaceful = 1
-	}
-	if serverData.SpeedFleetHolding == 0 {
-		serverData.SpeedFleetHolding = 1
-	}
+	serverData.SpeedFleetWar = utils.MaxInt(serverData.SpeedFleetWar, 1)
+	serverData.SpeedFleetPeaceful = utils.MaxInt(serverData.SpeedFleetPeaceful, 1)
+	serverData.SpeedFleetHolding = utils.MaxInt(serverData.SpeedFleetHolding, 1)
 	if serverData.SpeedFleet == 0 {
 		serverData.SpeedFleet = serverData.SpeedFleetPeaceful
 	}
