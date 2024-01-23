@@ -1078,7 +1078,7 @@ func SendDiscoveryHandler(c echo.Context) error {
 		}
 	}
 
-	if err := bot.SendDiscoveryFleet(where, ChangePlanet(ogame.CelestialID(planetID))); err != nil {
+	if err := bot.SendDiscoveryFleet(ogame.CelestialID(planetID), where); err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(true))

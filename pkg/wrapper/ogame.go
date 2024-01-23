@@ -4331,10 +4331,11 @@ func (b *OGame) getTasks() (out taskRunner.TasksOverview) {
 	return b.taskRunnerInst.GetTasks()
 }
 
-func (b *OGame) sendDiscoveryFleet(coord ogame.Coordinate, opts ...Option) error {
+func (b *OGame) sendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate, options ...Option) error {
+	options = append(options, ChangePlanet(celestialID))
 	// Check if the sendDiscoveryFleet button is available for the target.
 	// This checks for the envoys technology, if the planet has enough resources, if there's fleet slots available and if there's no cooldown on the position.
-	galaxyPage, err := b.getGalaxyPage(coord.Galaxy, coord.System, opts...)
+	galaxyPage, err := b.getGalaxyPage(coord.Galaxy, coord.System, options...)
 	if err != nil {
 		return err
 	}
@@ -5200,8 +5201,8 @@ func (b *OGame) GetLfResearch(celestialID ogame.CelestialID, opts ...Option) (og
 }
 
 // SendDiscoveryFleet ...
-func (b *OGame) SendDiscoveryFleet(coord ogame.Coordinate, opts ...Option) error {
-	return b.WithPriority(taskRunner.Normal).SendDiscoveryFleet(coord, opts...)
+func (b *OGame) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate, options ...Option) error {
+	return b.WithPriority(taskRunner.Normal).SendDiscoveryFleet(celestialID, coord, options...)
 }
 
 // GetAvailableDiscoveries ...

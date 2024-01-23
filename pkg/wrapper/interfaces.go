@@ -137,7 +137,7 @@ type Prioritizable interface {
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
 	TechnologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error)
-	SendDiscoveryFleet(ogame.Coordinate, ...Option) error
+	SendDiscoveryFleet(ogame.CelestialID, ogame.Coordinate, ...Option) error
 
 	// Planet specific functions
 	DestroyRockets(ogame.PlanetID, int64, int64) error
