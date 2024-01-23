@@ -158,6 +158,9 @@ type Prioritizable interface {
 var _ Prioritizable = (*OGame)(nil)
 var _ Prioritizable = (*Prioritize)(nil)
 
+// Compile time checks to ensure type satisfies Wrapper interface
+var _ Wrapper = (*OGame)(nil)
+
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	Prioritizable
@@ -170,9 +173,9 @@ type Wrapper interface {
 	Distance(origin, destination ogame.Coordinate) int64
 	Enable()
 	FleetDeutSaveFactor() float64
-	GetCachedCelestial(any) Celestial
-	GetCachedPlanet(any) (Planet, error)
-	GetCachedMoon(any) (Moon, error)
+	GetCachedCelestial(IntoCelestial) Celestial
+	GetCachedPlanet(IntoCelestial) (Planet, error)
+	GetCachedMoon(IntoCelestial) (Moon, error)
 	GetCachedCelestials() []Celestial
 	GetCachedMoons() []Moon
 	GetCachedPlanets() []Planet

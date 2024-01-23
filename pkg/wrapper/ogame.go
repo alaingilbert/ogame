@@ -4224,7 +4224,7 @@ func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, e
 	return gameforge.AddAccount(b.device.GetClient(), b.ctx, b.lobby, accountGroup, b.bearerToken)
 }
 
-func (b *OGame) getCachedCelestial(v any) Celestial {
+func (b *OGame) getCachedCelestial(v IntoCelestial) Celestial {
 	switch vv := v.(type) {
 	case Celestial:
 		return vv
@@ -4298,8 +4298,8 @@ func (b *OGame) getCachedMoons() []Moon {
 	return moons
 }
 
-func (b *OGame) getCachedPlanet(v any) (Planet, error) {
-	if c := b.GetCachedCelestial(v); c != nil {
+func (b *OGame) getCachedPlanet(v IntoCelestial) (Planet, error) {
+	if c := b.getCachedCelestial(v); c != nil {
 		if planet, ok := c.(Planet); ok {
 			return planet, nil
 		}
@@ -4307,8 +4307,8 @@ func (b *OGame) getCachedPlanet(v any) (Planet, error) {
 	return Planet{}, errors.New("invalid planet")
 }
 
-func (b *OGame) getCachedMoon(v any) (Moon, error) {
-	if c := b.GetCachedCelestial(v); c != nil {
+func (b *OGame) getCachedMoon(v IntoCelestial) (Moon, error) {
+	if c := b.getCachedCelestial(v); c != nil {
 		if moon, ok := c.(Moon); ok {
 			return moon, nil
 		}
@@ -4691,12 +4691,12 @@ func (b *OGame) GetPlanets() ([]Planet, error) {
 }
 
 // GetCachedPlanet return planet from cached value
-func (b *OGame) GetCachedPlanet(v any) (Planet, error) {
+func (b *OGame) GetCachedPlanet(v IntoCelestial) (Planet, error) {
 	return b.getCachedPlanet(v)
 }
 
 // GetCachedMoon return moon from cached value
-func (b *OGame) GetCachedMoon(v any) (Moon, error) {
+func (b *OGame) GetCachedMoon(v IntoCelestial) (Moon, error) {
 	return b.getCachedMoon(v)
 }
 
@@ -4718,7 +4718,7 @@ func (b *OGame) GetCachedCelestials() []Celestial {
 }
 
 // GetCachedCelestial return celestial from cached value
-func (b *OGame) GetCachedCelestial(v any) Celestial {
+func (b *OGame) GetCachedCelestial(v IntoCelestial) Celestial {
 	return b.getCachedCelestial(v)
 }
 
