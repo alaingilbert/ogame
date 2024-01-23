@@ -4225,8 +4225,8 @@ func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, e
 }
 
 func (b *OGame) getCachedCelestial(v IntoCelestial) Celestial {
-	getCachedCelestialByID := b.GetCachedCelestialByID
-	getCachedCelestialByCoord := b.GetCachedCelestialByCoord
+	getCachedCelestialByID := b.getCachedCelestialByID
+	getCachedCelestialByCoord := b.getCachedCelestialByCoord
 	switch vv := v.(type) {
 	case Celestial:
 		return vv
@@ -4274,8 +4274,8 @@ func (b *OGame) getCachedCelestialErr(v IntoCelestial) (Celestial, error) {
 	return c, nil
 }
 
-// GetCachedCelestialByID return celestial from cached value
-func (b *OGame) GetCachedCelestialByID(celestialID ogame.CelestialID) Celestial {
+// getCachedCelestialByID return celestial from cached value
+func (b *OGame) getCachedCelestialByID(celestialID ogame.CelestialID) Celestial {
 	for _, c := range b.GetCachedCelestials() {
 		if c.GetID() == celestialID {
 			return c
@@ -4284,8 +4284,8 @@ func (b *OGame) GetCachedCelestialByID(celestialID ogame.CelestialID) Celestial 
 	return nil
 }
 
-// GetCachedCelestialByCoord return celestial from cached value
-func (b *OGame) GetCachedCelestialByCoord(coord ogame.Coordinate) Celestial {
+// getCachedCelestialByCoord return celestial from cached value
+func (b *OGame) getCachedCelestialByCoord(coord ogame.Coordinate) Celestial {
 	for _, c := range b.GetCachedCelestials() {
 		if c.GetCoordinate().Equal(coord) {
 			return c
