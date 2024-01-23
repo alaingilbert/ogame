@@ -72,7 +72,7 @@ func TestWrapper(t *testing.T) {
 
 func TestProductionRatio(t *testing.T) {
 	ratio := productionRatio(
-		ogame.Temperature{-23, 17},
+		ogame.Temperature{Min: -23, Max: 17},
 		ogame.ResourcesBuildings{MetalMine: 29, CrystalMine: 16, DeuteriumSynthesizer: 26, SolarPlant: 29, FusionReactor: 13, SolarSatellite: 51},
 		ogame.ResourceSettings{MetalMine: 100, CrystalMine: 100, DeuteriumSynthesizer: 100, SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100},
 		12,
@@ -90,7 +90,7 @@ func TestEnergyNeeded(t *testing.T) {
 
 func TestEnergyProduced(t *testing.T) {
 	produced := energyProduced(
-		ogame.Temperature{-23, 17},
+		ogame.Temperature{Min: -23, Max: 17},
 		ogame.ResourcesBuildings{SolarPlant: 29, FusionReactor: 13, SolarSatellite: 51},
 		ogame.ResourceSettings{SolarPlant: 100, FusionReactor: 100, SolarSatellite: 100},
 		12,
@@ -148,35 +148,35 @@ func TestPlanetDistance(t *testing.T) {
 }
 
 func TestDistance(t *testing.T) {
-	assert.Equal(t, int64(1015), Distance(ogame.Coordinate{1, 1, 3, ogame.PlanetType}, ogame.Coordinate{1, 1, 6, ogame.PlanetType}, 6, 499, true, true))
-	assert.Equal(t, int64(2890), Distance(ogame.Coordinate{1, 1, 3, ogame.PlanetType}, ogame.Coordinate{1, 498, 6, ogame.PlanetType}, 6, 499, true, true))
-	assert.Equal(t, int64(20000), Distance(ogame.Coordinate{6, 1, 3, ogame.PlanetType}, ogame.Coordinate{1, 498, 6, ogame.PlanetType}, 6, 499, true, true))
-	assert.Equal(t, int64(5), Distance(ogame.Coordinate{6, 1, 3, ogame.PlanetType}, ogame.Coordinate{6, 1, 3, ogame.MoonType}, 6, 499, true, true))
+	assert.Equal(t, int64(1015), Distance(ogame.Coordinate{Galaxy: 1, System: 1, Position: 3, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 1, System: 1, Position: 6, Type: ogame.PlanetType}, 6, 499, true, true))
+	assert.Equal(t, int64(2890), Distance(ogame.Coordinate{Galaxy: 1, System: 1, Position: 3, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 1, System: 498, Position: 6, Type: ogame.PlanetType}, 6, 499, true, true))
+	assert.Equal(t, int64(20000), Distance(ogame.Coordinate{Galaxy: 6, System: 1, Position: 3, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 1, System: 498, Position: 6, Type: ogame.PlanetType}, 6, 499, true, true))
+	assert.Equal(t, int64(5), Distance(ogame.Coordinate{Galaxy: 6, System: 1, Position: 3, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 6, System: 1, Position: 3, Type: ogame.MoonType}, 6, 499, true, true))
 }
 
 func TestCalcFlightTime(t *testing.T) {
 	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
-	secs, fuel := CalcFlightTime(ogame.Coordinate{1, 1, 1, ogame.PlanetType}, ogame.Coordinate{1, 5, 3, ogame.PlanetType},
+	secs, fuel := CalcFlightTime(ogame.Coordinate{Galaxy: 1, System: 1, Position: 1, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 1, System: 5, Position: 3, Type: ogame.PlanetType},
 		1, 499, false, false, 1, 0.8, 1, ogame.ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, ogame.Researches{CombustionDrive: 10, ImpulseDrive: 7}, ogame.NoClass)
 	assert.Equal(t, int64(4966), secs)
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
-	secs, fuel = CalcFlightTime(ogame.Coordinate{4, 116, 12, ogame.PlanetType}, ogame.Coordinate{3, 116, 12, ogame.PlanetType},
+	secs, fuel = CalcFlightTime(ogame.Coordinate{Galaxy: 4, System: 116, Position: 12, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 3, System: 116, Position: 12, Type: ogame.PlanetType},
 		6, 499, true, true, 0.5, 1, 2, ogame.ShipsInfos{LargeCargo: 1931}, ogame.Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, ogame.Discoverer)
 	assert.Equal(t, int64(5406), secs)
 	assert.Equal(t, int64(110336), fuel)
 
 	// Test with solar satellite
-	secs, fuel = CalcFlightTime(ogame.Coordinate{1, 1, 1, ogame.PlanetType}, ogame.Coordinate{1, 1, 15, ogame.PlanetType},
+	secs, fuel = CalcFlightTime(ogame.Coordinate{Galaxy: 1, System: 1, Position: 1, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 1, System: 1, Position: 15, Type: ogame.PlanetType},
 		6, 499, false, false, 1, 1, 4, ogame.ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, ogame.Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, ogame.NoClass)
 	assert.Equal(t, int64(651), secs)
 	assert.Equal(t, int64(612), fuel)
 
 	// General tests
 	secs, fuel = CalcFlightTime(
-		ogame.Coordinate{2, 68, 4, ogame.MoonType},
-		ogame.Coordinate{1, 313, 9, ogame.PlanetType},
+		ogame.Coordinate{Galaxy: 2, System: 68, Position: 4, Type: ogame.MoonType},
+		ogame.Coordinate{Galaxy: 1, System: 313, Position: 9, Type: ogame.PlanetType},
 		5, 499, true, true, 1, 1, 2,
 		ogame.ShipsInfos{LightFighter: 1, HeavyFighter: 1, Cruiser: 1, Battleship: 1, SmallCargo: 1, LargeCargo: 1, Recycler: 1, ColonyShip: 1, EspionageProbe: 1},
 		ogame.Researches{CombustionDrive: 7, ImpulseDrive: 5, HyperspaceDrive: 0}, ogame.Discoverer)
@@ -184,8 +184,8 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(3808), fuel)
 
 	secs, fuel = CalcFlightTime(
-		ogame.Coordinate{1, 230, 7, ogame.MoonType},
-		ogame.Coordinate{1, 318, 4, ogame.MoonType},
+		ogame.Coordinate{Galaxy: 1, System: 230, Position: 7, Type: ogame.MoonType},
+		ogame.Coordinate{Galaxy: 1, System: 318, Position: 4, Type: ogame.MoonType},
 		5, 499, true, true, 0.5, 1, 6,
 		ogame.ShipsInfos{LightFighter: 1, HeavyFighter: 1, Cruiser: 1, Battleship: 1, SmallCargo: 1, LargeCargo: 1, Recycler: 1, EspionageProbe: 1, Pathfinder: 1},
 		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.Discoverer)
@@ -193,8 +193,8 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(584), fuel)
 
 	secs, fuel = CalcFlightTime(
-		ogame.Coordinate{1, 230, 7, ogame.MoonType},
-		ogame.Coordinate{1, 318, 4, ogame.MoonType},
+		ogame.Coordinate{Galaxy: 1, System: 230, Position: 7, Type: ogame.MoonType},
+		ogame.Coordinate{Galaxy: 1, System: 318, Position: 4, Type: ogame.MoonType},
 		5, 499, true, true, 0.5, 1, 6,
 		ogame.ShipsInfos{EspionageProbe: 9000},
 		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.Discoverer)
@@ -202,8 +202,8 @@ func TestCalcFlightTime(t *testing.T) {
 	assert.Equal(t, int64(1), fuel)
 
 	secs, fuel = CalcFlightTime(
-		ogame.Coordinate{1, 230, 7, ogame.MoonType},
-		ogame.Coordinate{1, 318, 4, ogame.MoonType},
+		ogame.Coordinate{Galaxy: 1, System: 230, Position: 7, Type: ogame.MoonType},
+		ogame.Coordinate{Galaxy: 1, System: 318, Position: 4, Type: ogame.MoonType},
 		5, 499, true, true, 1, 1, 6,
 		ogame.ShipsInfos{EspionageProbe: 9000},
 		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.General)
@@ -215,19 +215,19 @@ func TestFixAttackEvents(t *testing.T) {
 	// Test when moon name matches
 	p1 := Planet{}
 	p1.Name = "My Planet"
-	p1.Coordinate = ogame.Coordinate{1, 2, 3, ogame.PlanetType}
+	p1.Coordinate = ogame.Coordinate{Galaxy: 1, System: 2, Position: 3, Type: ogame.PlanetType}
 	p1.Moon = &Moon{Moon: ogame.Moon{Name: "VeryLongName Moon"}}
 	planets := []Planet{p1}
 
 	attacks := []ogame.AttackEvent{
-		{DestinationName: "VeryLongName Moon", Destination: ogame.Coordinate{1, 2, 3, ogame.PlanetType}},
+		{DestinationName: "VeryLongName Moon", Destination: ogame.Coordinate{Galaxy: 1, System: 2, Position: 3, Type: ogame.PlanetType}},
 	}
 	fixAttackEvents(attacks, planets)
 	assert.Equal(t, ogame.MoonType, attacks[0].Destination.Type) // Fixed to moon type
 
 	// Test when the moon name doesn't match
 	attacks = []ogame.AttackEvent{
-		{DestinationName: "My Planet", Destination: ogame.Coordinate{1, 2, 3, ogame.PlanetType}},
+		{DestinationName: "My Planet", Destination: ogame.Coordinate{Galaxy: 1, System: 2, Position: 3, Type: ogame.PlanetType}},
 	}
 	fixAttackEvents(attacks, planets)
 	assert.Equal(t, ogame.PlanetType, attacks[0].Destination.Type) // Did not change

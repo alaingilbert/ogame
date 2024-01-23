@@ -218,7 +218,7 @@ func TestExtractExpeditionMessages(t *testing.T) {
 	assert.Equal(t, 10, len(msgs))
 	assert.Equal(t, time.Date(2020, 04, 21, 23, 12, 6, 0, time.UTC), msgs[0].CreatedAt.UTC())
 	assert.Equal(t, int64(11199359), msgs[0].ID)
-	assert.Equal(t, ogame.Coordinate{1, 8, 16, ogame.PlanetType}, msgs[0].Coordinate)
+	assert.Equal(t, ogame.Coordinate{Galaxy: 1, System: 8, Position: 16, Type: ogame.PlanetType}, msgs[0].Coordinate)
 	assert.Equal(t, `We came across the remains of a previous expedition! Our technicians will try to get some of the ships to work again.<br/><br/>The following ships are now part of the fleet:<br/>Espionage Probe: 1880<br/>Light Fighter: 161<br/>Small Cargo: 156`,
 		msgs[0].Content)
 }

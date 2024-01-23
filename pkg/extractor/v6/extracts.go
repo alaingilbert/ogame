@@ -680,7 +680,7 @@ func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatRe
 				system := utils.DoParseI64(m[2])
 				position := utils.DoParseI64(m[3])
 				planetType := utils.DoParseI64(m[4])
-				report.Origin = &ogame.Coordinate{galaxy, system, position, ogame.CelestialType(planetType)}
+				report.Origin = &ogame.Coordinate{Galaxy: galaxy, System: system, Position: position, Type: ogame.CelestialType(planetType)}
 				if report.Origin.Equal(report.Destination) {
 					report.Origin = nil
 				}
@@ -1456,7 +1456,7 @@ func extractPlanetCoordinate(pageHTML []byte) (ogame.Coordinate, error) {
 	system := utils.DoParseI64(string(m[2]))
 	position := utils.DoParseI64(string(m[3]))
 	planetType, _ := extractPlanetType(pageHTML)
-	return ogame.Coordinate{galaxy, system, position, planetType}, nil
+	return ogame.Coordinate{Galaxy: galaxy, System: system, Position: position, Type: planetType}, nil
 }
 
 func extractTearDownToken(pageHTML []byte) (string, error) {

@@ -19,6 +19,7 @@ type Prioritize struct {
 	isTx         int32
 }
 
+// SetTaskDoneCh ...
 func (b *Prioritize) SetTaskDoneCh(ch chan struct{}) {
 	b.taskIsDoneCh = ch
 }

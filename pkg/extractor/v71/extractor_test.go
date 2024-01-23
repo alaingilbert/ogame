@@ -11,7 +11,7 @@ import (
 
 func TestExtractAttacksACSAttackSelf(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v8.6/en/eventlist_acs_attack_self.html")
-	ownCoords := []ogame.Coordinate{{4, 116, 9, ogame.PlanetType}}
+	ownCoords := []ogame.Coordinate{{Galaxy: 4, System: 116, Position: 9, Type: ogame.PlanetType}}
 	attacks, _ := NewExtractor().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), ownCoords)
 	assert.Equal(t, 1, len(attacks))
 	assert.Equal(t, ogame.GroupedAttack, attacks[0].MissionType)
@@ -154,7 +154,7 @@ func TestExtractHighscore(t *testing.T) {
 	assert.Equal(t, int64(3299957), highscore.Players[0].HonourPoints)
 	assert.Equal(t, int64(320933389), highscore.Players[0].Score)
 	assert.Equal(t, "blondie", highscore.Players[0].Name)
-	assert.Equal(t, ogame.Coordinate{2, 356, 15, ogame.PlanetType}, highscore.Players[0].Homeworld)
+	assert.Equal(t, ogame.Coordinate{Galaxy: 2, System: 356, Position: 15, Type: ogame.PlanetType}, highscore.Players[0].Homeworld)
 
 	pageHTMLBytes, _ = os.ReadFile("../../../samples/v7.1/en/highscore_withSelf.html")
 	highscore, _ = NewExtractor().ExtractHighscore(pageHTMLBytes)
@@ -329,7 +329,7 @@ func TestExtractPlanet_ro(t *testing.T) {
 	assert.Equal(t, int64(0), planet.Fields.Built)
 	assert.Equal(t, int64(193), planet.Fields.Total)
 	assert.Equal(t, ogame.PlanetID(33629199), planet.ID)
-	assert.Equal(t, ogame.Coordinate{1, 185, 4, ogame.PlanetType}, planet.Coordinate)
+	assert.Equal(t, ogame.Coordinate{Galaxy: 1, System: 185, Position: 4, Type: ogame.PlanetType}, planet.Coordinate)
 	assert.Nil(t, planet.Moon)
 }
 
