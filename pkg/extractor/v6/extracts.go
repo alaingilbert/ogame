@@ -199,39 +199,41 @@ func extractMoonFromDoc(doc *goquery.Document, v any) (ogame.Moon, error) {
 }
 
 func extractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, error) {
+	extractCelestialByIDFromDocLocal := extractCelestialByIDFromDoc
+	extractCelestialByCoordFromDocLocal := extractCelestialByCoordFromDoc
 	switch vv := v.(type) {
 	case ogame.Celestial:
-		return extractCelestialByIDFromDoc(doc, vv.GetID())
+		return extractCelestialByIDFromDocLocal(doc, vv.GetID())
 	case ogame.Planet:
-		return extractCelestialByIDFromDoc(doc, vv.GetID())
+		return extractCelestialByIDFromDocLocal(doc, vv.GetID())
 	case ogame.Moon:
-		return extractCelestialByIDFromDoc(doc, vv.GetID())
+		return extractCelestialByIDFromDocLocal(doc, vv.GetID())
 	case ogame.CelestialID:
-		return extractCelestialByIDFromDoc(doc, vv)
+		return extractCelestialByIDFromDocLocal(doc, vv)
 	case ogame.PlanetID:
-		return extractCelestialByIDFromDoc(doc, vv.Celestial())
+		return extractCelestialByIDFromDocLocal(doc, vv.Celestial())
 	case ogame.MoonID:
-		return extractCelestialByIDFromDoc(doc, vv.Celestial())
+		return extractCelestialByIDFromDocLocal(doc, vv.Celestial())
 	case int:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case int32:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case int64:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case float32:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case float64:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case lua.LNumber:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case ogame.Coordinate:
-		return extractCelestialByCoordFromDoc(doc, vv)
+		return extractCelestialByCoordFromDocLocal(doc, vv)
 	case string:
 		coord, err := ogame.ParseCoord(vv)
 		if err != nil {
 			return nil, err
 		}
-		return extractCelestialByCoordFromDoc(doc, coord)
+		return extractCelestialByCoordFromDocLocal(doc, coord)
 	default:
 		return nil, ErrUnsupportedType
 	}
