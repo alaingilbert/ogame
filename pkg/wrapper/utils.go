@@ -41,3 +41,25 @@ func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error
 		return ogame.Coordinate{}, errors.New("invalid type")
 	}
 }
+
+// ConvertIntoPlanet helper that turns any type into a Planet
+func ConvertIntoPlanet(w Wrapper, v IntoPlanet) (Planet, error) {
+	if c := w.GetCachedCelestial(v); c != nil {
+		if p, ok := c.(Planet); ok {
+			return p, nil
+		}
+		return Planet{}, errors.New("not a planet")
+	}
+	return Planet{}, errors.New("planet not found")
+}
+
+// ConvertIntoMoon helper that turns any type into a Moon
+func ConvertIntoMoon(w Wrapper, v IntoMoon) (Moon, error) {
+	if c := w.GetCachedCelestial(v); c != nil {
+		if m, ok := c.(Moon); ok {
+			return m, nil
+		}
+		return Moon{}, errors.New("not a moon")
+	}
+	return Moon{}, errors.New("moon not found")
+}
