@@ -143,7 +143,7 @@ func (b *Prioritize) GetPlanets() ([]Planet, error) {
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *Prioritize) GetPlanet(v any) (Planet, error) {
+func (b *Prioritize) GetPlanet(v IntoCelestial) (Planet, error) {
 	b.begin("GetPlanet")
 	defer b.done()
 	return b.bot.getPlanet(v)
@@ -157,7 +157,7 @@ func (b *Prioritize) GetMoons() ([]Moon, error) {
 }
 
 // GetMoon gets infos for moonID
-func (b *Prioritize) GetMoon(v any) (Moon, error) {
+func (b *Prioritize) GetMoon(v IntoCelestial) (Moon, error) {
 	b.begin("GetMoon")
 	defer b.done()
 	return b.bot.getMoon(v)
@@ -180,14 +180,14 @@ func (b *Prioritize) RecruitOfficer(typ, days int64) error {
 }
 
 // Abandon a planet. Warning: this is irreversible
-func (b *Prioritize) Abandon(v any) error {
+func (b *Prioritize) Abandon(v IntoCelestial) error {
 	b.begin("Abandon")
 	defer b.done()
 	return b.bot.abandon(v)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *Prioritize) GetCelestial(v any) (Celestial, error) {
+func (b *Prioritize) GetCelestial(v IntoCelestial) (Celestial, error) {
 	b.begin("GetCelestial")
 	defer b.done()
 	return b.bot.getCelestial(v)

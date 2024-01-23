@@ -1912,7 +1912,7 @@ func (b *OGame) getPlanets() (out []Planet, err error) {
 	return convertPlanets(b, page.ExtractPlanets()), nil
 }
 
-func (b *OGame) getPlanet(v any) (Planet, error) {
+func (b *OGame) getPlanet(v IntoCelestial) (Planet, error) {
 	page, err := getPage[parser.OverviewPage](b)
 	if err != nil {
 		return Planet{}, err
@@ -1932,7 +1932,7 @@ func (b *OGame) getMoons() (out []Moon, err error) {
 	return convertMoons(b, page.ExtractMoons()), nil
 }
 
-func (b *OGame) getMoon(v any) (Moon, error) {
+func (b *OGame) getMoon(v IntoCelestial) (Moon, error) {
 	page, err := getPage[parser.OverviewPage](b)
 	if err != nil {
 		return Moon{}, err
@@ -1957,7 +1957,7 @@ func (b *OGame) getCelestials() ([]Celestial, error) {
 	return convertCelestials(b, celestials), nil
 }
 
-func (b *OGame) getCelestial(v any) (Celestial, error) {
+func (b *OGame) getCelestial(v IntoCelestial) (Celestial, error) {
 	page, err := getPage[parser.OverviewPage](b)
 	if err != nil {
 		return nil, err
@@ -1992,7 +1992,7 @@ func (b *OGame) recruitOfficer(typ, days int64) error {
 	return nil
 }
 
-func (b *OGame) abandon(v any) error {
+func (b *OGame) abandon(v IntoCelestial) error {
 	page, err := getPage[parser.OverviewPage](b)
 	if err != nil {
 		return err
@@ -4724,7 +4724,7 @@ func (b *OGame) GetCachedCelestial(v IntoCelestial) Celestial {
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *OGame) GetPlanet(v any) (Planet, error) {
+func (b *OGame) GetPlanet(v IntoCelestial) (Planet, error) {
 	return b.WithPriority(taskRunner.Normal).GetPlanet(v)
 }
 
@@ -4734,7 +4734,7 @@ func (b *OGame) GetMoons() ([]Moon, error) {
 }
 
 // GetMoon gets infos for moonID
-func (b *OGame) GetMoon(v any) (Moon, error) {
+func (b *OGame) GetMoon(v IntoCelestial) (Moon, error) {
 	return b.WithPriority(taskRunner.Normal).GetMoon(v)
 }
 
@@ -4751,12 +4751,12 @@ func (b *OGame) RecruitOfficer(typ, days int64) error {
 }
 
 // Abandon a planet
-func (b *OGame) Abandon(v any) error {
+func (b *OGame) Abandon(v IntoCelestial) error {
 	return b.WithPriority(taskRunner.Normal).Abandon(v)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *OGame) GetCelestial(v any) (Celestial, error) {
+func (b *OGame) GetCelestial(v IntoCelestial) (Celestial, error) {
 	return b.WithPriority(taskRunner.Normal).GetCelestial(v)
 }
 

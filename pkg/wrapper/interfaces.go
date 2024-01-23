@@ -46,7 +46,7 @@ type Celestial interface {
 // Prioritizable list of all actions that needs to communicate with ogame server.
 // These actions can also be prioritized.
 type Prioritizable interface {
-	Abandon(any) error
+	Abandon(IntoCelestial) error
 	ActivateItem(string, ogame.CelestialID) error
 	Begin() Prioritizable
 	BeginNamed(name string) Prioritizable
@@ -68,7 +68,7 @@ type Prioritizable interface {
 	GetAuction() (ogame.Auction, error)
 	GetAvailableDiscoveries(...Option) int64
 	GetCachedResearch() ogame.Researches
-	GetCelestial(any) (Celestial, error)
+	GetCelestial(IntoCelestial) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
 	GetCombatReportSummaryFor(ogame.Coordinate) (ogame.CombatReportSummary, error)
 	GetDMCosts(ogame.CelestialID) (ogame.DMCosts, error)
@@ -82,10 +82,10 @@ type Prioritizable interface {
 	GetFleets(...Option) ([]ogame.Fleet, ogame.Slots)
 	GetFleetsFromEventList() []ogame.Fleet
 	GetItems(ogame.CelestialID) ([]ogame.Item, error)
-	GetMoon(any) (Moon, error)
+	GetMoon(IntoCelestial) (Moon, error)
 	GetMoons() ([]Moon, error)
 	GetPageContent(url.Values) ([]byte, error)
-	GetPlanet(any) (Planet, error)
+	GetPlanet(IntoCelestial) (Planet, error)
 	GetPlanets() ([]Planet, error)
 	GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]ogame.Coordinate, error)
 	GetResearch() (ogame.Researches, error)
