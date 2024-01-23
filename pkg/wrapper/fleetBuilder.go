@@ -60,7 +60,7 @@ func (f *FleetBuilder) SetTx(tx Prioritizable) *FleetBuilder {
 
 // SetOrigin ...
 func (f *FleetBuilder) SetOrigin(v IntoCelestial) *FleetBuilder {
-	f.origin = f.b.GetCachedCelestial(v)
+	f.origin, _ = f.b.GetCachedCelestial(v)
 	return f
 }
 

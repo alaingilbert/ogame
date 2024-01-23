@@ -32,9 +32,9 @@ func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error
 	case ogame.Moon:
 		return vv.GetCoordinate(), nil
 	case ogame.CelestialID, ogame.PlanetID, ogame.MoonID:
-		c := w.GetCachedCelestial(vv)
-		if c == nil {
-			return ogame.Coordinate{}, errors.New("celestial not found")
+		c, err := w.GetCachedCelestial(vv)
+		if err != nil {
+			return ogame.Coordinate{}, err
 		}
 		return c.GetCoordinate(), nil
 	default:
@@ -44,7 +44,7 @@ func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error
 
 // ConvertIntoPlanet helper that turns any type into a Planet
 func ConvertIntoPlanet(w Wrapper, v IntoPlanet) (Planet, error) {
-	if c := w.GetCachedCelestial(v); c != nil {
+	if c, err := w.GetCachedCelestial(v); err == nil {
 		if p, ok := c.(Planet); ok {
 			return p, nil
 		}
@@ -55,7 +55,7 @@ func ConvertIntoPlanet(w Wrapper, v IntoPlanet) (Planet, error) {
 
 // ConvertIntoMoon helper that turns any type into a Moon
 func ConvertIntoMoon(w Wrapper, v IntoMoon) (Moon, error) {
-	if c := w.GetCachedCelestial(v); c != nil {
+	if c, err := w.GetCachedCelestial(v); err == nil {
 		if m, ok := c.(Moon); ok {
 			return m, nil
 		}

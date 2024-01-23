@@ -298,7 +298,7 @@ func (b *OGame) GetCachedCelestials() []Celestial {
 }
 
 // GetCachedCelestial return celestial from cached value
-func (b *OGame) GetCachedCelestial(v IntoCelestial) Celestial {
+func (b *OGame) GetCachedCelestial(v IntoCelestial) (Celestial, error) {
 	return b.getCachedCelestial(v)
 }
 

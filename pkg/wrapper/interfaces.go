@@ -173,7 +173,7 @@ type Wrapper interface {
 	Distance(origin, destination ogame.Coordinate) int64
 	Enable()
 	FleetDeutSaveFactor() float64
-	GetCachedCelestial(IntoCelestial) Celestial
+	GetCachedCelestial(IntoCelestial) (Celestial, error)
 	GetCachedPlanet(IntoPlanet) (Planet, error)
 	GetCachedMoon(IntoMoon) (Moon, error)
 	GetCachedCelestials() []Celestial

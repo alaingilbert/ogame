@@ -1101,9 +1101,10 @@ func getOptions(opts ...Option) (out Options) {
 }
 
 func setCPParam(b *OGame, vals url.Values, cfg Options) {
+	celestial, _ := b.getCachedCelestial(cfg.ChangePlanet)
 	if vals.Get("cp") == "" &&
 		cfg.ChangePlanet != 0 &&
-		b.getCachedCelestial(cfg.ChangePlanet) != nil {
+		celestial != nil {
 		vals.Set("cp", utils.FI64(cfg.ChangePlanet))
 	}
 }
@@ -3842,55 +3843,47 @@ func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, e
 	return gameforge.AddAccount(b.device.GetClient(), b.ctx, b.lobby, accountGroup, b.bearerToken)
 }
 
-func (b *OGame) getCachedCelestial(v IntoCelestial) Celestial {
+func (b *OGame) getCachedCelestial(v IntoCelestial) (Celestial, error) {
 	getCachedCelestialByID := b.getCachedCelestialByID
 	getCachedCelestialByCoord := b.getCachedCelestialByCoord
 	switch vv := v.(type) {
 	case Celestial:
-		return vv
+		return vv, nil
 	case Planet:
-		return vv
+		return vv, nil
 	case Moon:
-		return vv
+		return vv, nil
 	case ogame.CelestialID:
-		return getCachedCelestialByID(vv)
+		return getCachedCelestialByID(vv), nil
 	case ogame.PlanetID:
-		return getCachedCelestialByID(vv.Celestial())
+		return getCachedCelestialByID(vv.Celestial()), nil
 	case ogame.MoonID:
-		return getCachedCelestialByID(vv.Celestial())
+		return getCachedCelestialByID(vv.Celestial()), nil
 	case int:
-		return getCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv)), nil
 	case int32:
-		return getCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv)), nil
 	case int64:
-		return getCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv)), nil
 	case float32:
-		return getCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv)), nil
 	case float64:
-		return getCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv)), nil
 	case lua.LNumber:
-		return getCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv)), nil
 	case ogame.Coordinate:
-		return getCachedCelestialByCoord(vv)
+		return getCachedCelestialByCoord(vv), nil
 	case string:
 		coord, err := ogame.ParseCoord(vv)
 		if err != nil {
-			return nil
+			return nil, err
 		}
-		return getCachedCelestialByCoord(coord)
+		return getCachedCelestialByCoord(coord), nil
 	}
-	return nil
+	return nil, ErrIntoCelestial
 }
 
 var ErrIntoCelestial = errors.New("unable to find celestial")
-
-func (b *OGame) getCachedCelestialErr(v IntoCelestial) (Celestial, error) {
-	c := b.getCachedCelestial(v)
-	if c == nil {
-		return nil, ErrIntoCelestial
-	}
-	return c, nil
-}
 
 // getCachedCelestialByID return celestial from cached value
 func (b *OGame) getCachedCelestialByID(celestialID ogame.CelestialID) Celestial {
@@ -3940,7 +3933,7 @@ func (b *OGame) getCachedCelestials() []Celestial {
 }
 
 func (b *OGame) getCachedPlanet(v IntoPlanet) (Planet, error) {
-	if c := b.getCachedCelestial(v); c != nil {
+	if c, err := b.getCachedCelestial(v); err == nil {
 		if planet, ok := c.(Planet); ok {
 			return planet, nil
 		}
@@ -3949,7 +3942,7 @@ func (b *OGame) getCachedPlanet(v IntoPlanet) (Planet, error) {
 }
 
 func (b *OGame) getCachedMoon(v IntoMoon) (Moon, error) {
-	if c := b.getCachedCelestial(v); c != nil {
+	if c, err := b.getCachedCelestial(v); err == nil {
 		if moon, ok := c.(Moon); ok {
 			return moon, nil
 		}
