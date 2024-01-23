@@ -46,7 +46,7 @@ type Celestial interface {
 // Prioritizable list of all actions that needs to communicate with ogame server.
 // These actions can also be prioritized.
 type Prioritizable interface {
-	Abandon(IntoCelestial) error
+	Abandon(IntoPlanet) error
 	ActivateItem(string, ogame.CelestialID) error
 	Begin() Prioritizable
 	BeginNamed(name string) Prioritizable

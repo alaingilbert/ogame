@@ -1992,7 +1992,7 @@ func (b *OGame) recruitOfficer(typ, days int64) error {
 	return nil
 }
 
-func (b *OGame) abandon(v IntoCelestial) error {
+func (b *OGame) abandon(v IntoPlanet) error {
 	page, err := getPage[parser.OverviewPage](b)
 	if err != nil {
 		return err
@@ -4751,7 +4751,7 @@ func (b *OGame) RecruitOfficer(typ, days int64) error {
 }
 
 // Abandon a planet
-func (b *OGame) Abandon(v IntoCelestial) error {
+func (b *OGame) Abandon(v IntoPlanet) error {
 	return b.WithPriority(taskRunner.Normal).Abandon(v)
 }
 

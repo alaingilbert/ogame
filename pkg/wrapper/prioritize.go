@@ -180,7 +180,7 @@ func (b *Prioritize) RecruitOfficer(typ, days int64) error {
 }
 
 // Abandon a planet. Warning: this is irreversible
-func (b *Prioritize) Abandon(v IntoCelestial) error {
+func (b *Prioritize) Abandon(v IntoPlanet) error {
 	b.begin("Abandon")
 	defer b.done()
 	return b.bot.abandon(v)
