@@ -42,6 +42,11 @@ func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error
 	}
 }
 
+// ConvertIntoCelestial helper that turns any type into a Celestial
+func ConvertIntoCelestial(w Wrapper, v IntoCelestial) (Celestial, error) {
+	return w.GetCachedCelestial(v)
+}
+
 // ConvertIntoPlanet helper that turns any type into a Planet
 func ConvertIntoPlanet(w Wrapper, v IntoPlanet) (Planet, error) {
 	if c, err := w.GetCachedCelestial(v); err == nil {
