@@ -2782,19 +2782,62 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		"cp":         {utils.FI64(celestialID)},
 	})
 
-	if !b.extractor.ExtractTearDownButtonEnabled(pageHTML) {
-		return errors.New("tear down button is disabled")
-	}
+	if b.IsVGreaterThanOrEqual("10.4.0") {
 
-	params := url.Values{
-		"page":      {"ingame"},
-		"component": {page},
-		"modus":     {"3"},
-		"token":     {token},
-		"type":      {utils.FI64(id)},
-		"cp":        {utils.FI64(celestialID)},
+		var jsonContent struct {
+			Target  string `json:"target"`
+			Content struct {
+				Technologydetails string `json:"technologydetails"`
+			} `json:"content"`
+			Files struct {
+				Js  []string `json:"js"`
+				CSS []string `json:"css"`
+			} `json:"files"`
+			Page struct {
+				StateObj string `json:"stateObj"`
+				Title    string `json:"title"`
+				URL      string `json:"url"`
+			} `json:"page"`
+			ServerTime   int    `json:"serverTime"`
+			NewAjaxToken string `json:"newAjaxToken"`
+		}
+
+		if err := json.Unmarshal(pageHTML, &jsonContent); err != nil {
+			return err
+		}
+
+		if !b.extractor.ExtractTearDownButtonEnabled([]byte(jsonContent.Content.Technologydetails)) {
+			return errors.New("tear down button is disabled")
+		}
+
+		vals := url.Values{
+			"page":      {"componentOnly"},
+			"component": {"buildlistactions"},
+			"action":    {"scheduleEntry"},
+			"asJson":    {"1"},
+		}
+		payload := url.Values{
+			"technologyId": {utils.FI64(id)},
+			"mode":         {"3"},
+			"token":        {token},
+		}
+		_, err = b.postPageContent(vals, payload)
+	} else {
+
+		if !b.extractor.ExtractTearDownButtonEnabled(pageHTML) {
+			return errors.New("tear down button is disabled")
+		}
+
+		params := url.Values{
+			"page":      {"ingame"},
+			"component": {page},
+			"modus":     {"3"},
+			"token":     {token},
+			"type":      {utils.FI64(id)},
+			"cp":        {utils.FI64(celestialID)},
+		}
+		_, err = b.getPageContent(params)
 	}
-	_, err = b.getPageContent(params)
 	return err
 }
 
