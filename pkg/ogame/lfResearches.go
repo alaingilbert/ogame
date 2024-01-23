@@ -115,78 +115,78 @@ func (b LazyLfResearches) GetKaeleshDiscovererEnhancement() int64 {
 }
 
 type LfResearches struct {
-	IntergalacticEnvoys               int64 // Humans techs
-	HighPerformanceExtractors         int64
-	FusionDrives                      int64
-	StealthFieldGenerator             int64
-	OrbitalDen                        int64
-	ResearchAI                        int64
-	HighPerformanceTerraformer        int64
-	EnhancedProductionTechnologies    int64
-	LightFighterMkII                  int64
-	CruiserMkII                       int64
-	ImprovedLabTechnology             int64
-	PlasmaTerraformer                 int64
-	LowTemperatureDrives              int64
-	BomberMkII                        int64
-	DestroyerMkII                     int64
-	BattlecruiserMkII                 int64
-	RobotAssistants                   int64
-	Supercomputer                     int64
-	VolcanicBatteries                 int64 // Rocktal techs
-	AcousticScanning                  int64
-	HighEnergyPumpSystems             int64
-	CargoHoldExpansionCivilianShips   int64
-	MagmaPoweredProduction            int64
-	GeothermalPowerPlants             int64
-	DepthSounding                     int64
-	IonCrystalEnhancementHeavyFighter int64
-	ImprovedStellarator               int64
-	HardenedDiamondDrillHeads         int64
-	SeismicMiningTechnology           int64
-	MagmaPoweredPumpSystems           int64
-	IonCrystalModules                 int64
-	OptimisedSiloConstructionMethod   int64
-	DiamondEnergyTransmitter          int64
-	ObsidianShieldReinforcement       int64
-	RuneShields                       int64
-	RocktalCollectorEnhancement       int64
-	CatalyserTechnology               int64 // Mechas techs
-	PlasmaDrive                       int64
-	EfficiencyModule                  int64
-	DepotAI                           int64
-	GeneralOverhaulLightFighter       int64
-	AutomatedTransportLines           int64
-	ImprovedDroneAI                   int64
-	ExperimentalRecyclingTechnology   int64
-	GeneralOverhaulCruiser            int64
-	SlingshotAutopilot                int64
-	HighTemperatureSuperconductors    int64
-	GeneralOverhaulBattleship         int64
-	ArtificialSwarmIntelligence       int64
-	GeneralOverhaulBattlecruiser      int64
-	GeneralOverhaulBomber             int64
-	GeneralOverhaulDestroyer          int64
-	ExperimentalWeaponsTechnology     int64
-	MechanGeneralEnhancement          int64
-	HeatRecovery                      int64 // Kaelesh techs
-	SulphideProcess                   int64
-	PsionicNetwork                    int64
-	TelekineticTractorBeam            int64
-	EnhancedSensorTechnology          int64
-	NeuromodalCompressor              int64
-	NeuroInterface                    int64
-	InterplanetaryAnalysisNetwork     int64
-	OverclockingHeavyFighter          int64
-	TelekineticDrive                  int64
-	SixthSense                        int64
-	Psychoharmoniser                  int64
-	EfficientSwarmIntelligence        int64
-	OverclockingLargeCargo            int64
-	GravitationSensors                int64
-	OverclockingBattleship            int64
-	PsionicShieldMatrix               int64
-	KaeleshDiscovererEnhancement      int64
+	IntergalacticEnvoys               int64 // 11201 // Humans techs
+	HighPerformanceExtractors         int64 // 11202
+	FusionDrives                      int64 // 11203
+	StealthFieldGenerator             int64 // 11204
+	OrbitalDen                        int64 // 11205
+	ResearchAI                        int64 // 11206
+	HighPerformanceTerraformer        int64 // 11207
+	EnhancedProductionTechnologies    int64 // 11208
+	LightFighterMkII                  int64 // 11209
+	CruiserMkII                       int64 // 11210
+	ImprovedLabTechnology             int64 // 11211
+	PlasmaTerraformer                 int64 // 11212
+	LowTemperatureDrives              int64 // 11213
+	BomberMkII                        int64 // 11214
+	DestroyerMkII                     int64 // 11215
+	BattlecruiserMkII                 int64 // 11216
+	RobotAssistants                   int64 // 11217
+	Supercomputer                     int64 // 11218
+	VolcanicBatteries                 int64 // 12201 // Rocktal techs
+	AcousticScanning                  int64 // 12202
+	HighEnergyPumpSystems             int64 // 12203
+	CargoHoldExpansionCivilianShips   int64 // 12204
+	MagmaPoweredProduction            int64 // 12205
+	GeothermalPowerPlants             int64 // 12206
+	DepthSounding                     int64 // 12207
+	IonCrystalEnhancementHeavyFighter int64 // 12208
+	ImprovedStellarator               int64 // 12209
+	HardenedDiamondDrillHeads         int64 // 12210
+	SeismicMiningTechnology           int64 // 12211
+	MagmaPoweredPumpSystems           int64 // 12212
+	IonCrystalModules                 int64 // 12213
+	OptimisedSiloConstructionMethod   int64 // 12214
+	DiamondEnergyTransmitter          int64 // 12215
+	ObsidianShieldReinforcement       int64 // 12216
+	RuneShields                       int64 // 12217
+	RocktalCollectorEnhancement       int64 // 12218
+	CatalyserTechnology               int64 // 13201 // Mechas techs
+	PlasmaDrive                       int64 // 13202
+	EfficiencyModule                  int64 // 13203
+	DepotAI                           int64 // 13204
+	GeneralOverhaulLightFighter       int64 // 13205
+	AutomatedTransportLines           int64 // 13206
+	ImprovedDroneAI                   int64 // 13207
+	ExperimentalRecyclingTechnology   int64 // 13208
+	GeneralOverhaulCruiser            int64 // 13209
+	SlingshotAutopilot                int64 // 13210
+	HighTemperatureSuperconductors    int64 // 13211
+	GeneralOverhaulBattleship         int64 // 13212
+	ArtificialSwarmIntelligence       int64 // 13213
+	GeneralOverhaulBattlecruiser      int64 // 13214
+	GeneralOverhaulBomber             int64 // 13215
+	GeneralOverhaulDestroyer          int64 // 13216
+	ExperimentalWeaponsTechnology     int64 // 13217
+	MechanGeneralEnhancement          int64 // 13218
+	HeatRecovery                      int64 // 14201 // Kaelesh techs
+	SulphideProcess                   int64 // 14202
+	PsionicNetwork                    int64 // 14203
+	TelekineticTractorBeam            int64 // 14204
+	EnhancedSensorTechnology          int64 // 14205
+	NeuromodalCompressor              int64 // 14206
+	NeuroInterface                    int64 // 14207
+	InterplanetaryAnalysisNetwork     int64 // 14208
+	OverclockingHeavyFighter          int64 // 14209
+	TelekineticDrive                  int64 // 14210
+	SixthSense                        int64 // 14211
+	Psychoharmoniser                  int64 // 14212
+	EfficientSwarmIntelligence        int64 // 14213
+	OverclockingLargeCargo            int64 // 14214
+	GravitationSensors                int64 // 14215
+	OverclockingBattleship            int64 // 14216
+	PsionicShieldMatrix               int64 // 14217
+	KaeleshDiscovererEnhancement      int64 // 14218
 }
 
 func (b LfResearches) GetIntergalacticEnvoys() int64        { return b.IntergalacticEnvoys }
