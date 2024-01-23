@@ -2,7 +2,7 @@ package httpclient
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"testing"
 
@@ -23,7 +23,7 @@ func TestOgameClient_Do(t *testing.T) {
 		return &http.Response{
 			StatusCode: 200,
 			// Send response to be tested
-			Body: ioutil.NopCloser(bytes.NewBufferString(`OK`)),
+			Body: io.NopCloser(bytes.NewBufferString(`OK`)),
 			// Must be set to non-nil value or it panics
 			Header: make(http.Header),
 		}
@@ -40,7 +40,7 @@ func TestOgameClient_SetUserAgent(t *testing.T) {
 		return &http.Response{
 			StatusCode: 200,
 			// Send response to be tested
-			Body: ioutil.NopCloser(bytes.NewBufferString(`OK`)),
+			Body: io.NopCloser(bytes.NewBufferString(`OK`)),
 			// Must be set to non-nil value or it panics
 			Header: make(http.Header),
 		}
