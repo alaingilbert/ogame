@@ -2929,19 +2929,23 @@ func (b *OGame) getAttacks(opts ...Option) (out []ogame.AttackEvent, err error) 
 	if err != nil {
 		return
 	}
-	ownCoords := make([]ogame.Coordinate, 0)
 	planets := b.GetCachedPlanets()
+	ownCoords := getOwnCoordinates(planets)
+	out, err = page.ExtractAttacks(ownCoords)
+	if err != nil {
+		return
+	}
+	fixAttackEvents(out, planets)
+	return
+}
+
+func getOwnCoordinates(planets []Planet) (ownCoords []ogame.Coordinate) {
 	for _, planet := range planets {
 		ownCoords = append(ownCoords, planet.Coordinate)
 		if planet.Moon != nil {
 			ownCoords = append(ownCoords, planet.Moon.Coordinate)
 		}
 	}
-	out, err = page.ExtractAttacks(ownCoords)
-	if err != nil {
-		return
-	}
-	fixAttackEvents(out, planets)
 	return
 }
 
