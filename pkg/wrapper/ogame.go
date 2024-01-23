@@ -4225,6 +4225,8 @@ func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, e
 }
 
 func (b *OGame) getCachedCelestial(v IntoCelestial) Celestial {
+	getCachedCelestialByID := b.GetCachedCelestialByID
+	getCachedCelestialByCoord := b.GetCachedCelestialByCoord
 	switch vv := v.(type) {
 	case Celestial:
 		return vv
@@ -4233,31 +4235,31 @@ func (b *OGame) getCachedCelestial(v IntoCelestial) Celestial {
 	case Moon:
 		return vv
 	case ogame.CelestialID:
-		return b.GetCachedCelestialByID(vv)
+		return getCachedCelestialByID(vv)
 	case ogame.PlanetID:
-		return b.GetCachedCelestialByID(vv.Celestial())
+		return getCachedCelestialByID(vv.Celestial())
 	case ogame.MoonID:
-		return b.GetCachedCelestialByID(vv.Celestial())
+		return getCachedCelestialByID(vv.Celestial())
 	case int:
-		return b.GetCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case int32:
-		return b.GetCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case int64:
-		return b.GetCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case float32:
-		return b.GetCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case float64:
-		return b.GetCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case lua.LNumber:
-		return b.GetCachedCelestialByID(ogame.CelestialID(vv))
+		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case ogame.Coordinate:
-		return b.GetCachedCelestialByCoord(vv)
+		return getCachedCelestialByCoord(vv)
 	case string:
 		coord, err := ogame.ParseCoord(vv)
 		if err != nil {
 			return nil
 		}
-		return b.GetCachedCelestialByCoord(coord)
+		return getCachedCelestialByCoord(coord)
 	}
 	return nil
 }
