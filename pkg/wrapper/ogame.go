@@ -500,7 +500,8 @@ func convertPlanets(b *OGame, planetsIn []ogame.Planet) []Planet {
 func convertPlanet(b *OGame, planet ogame.Planet) Planet {
 	newPlanet := Planet{ogame: b, Planet: planet}
 	if planet.Moon != nil {
-		newPlanet.Moon = convertMoon(b, *planet.Moon)
+		moon := convertMoon(b, *planet.Moon)
+		newPlanet.Moon = &moon
 	}
 	return newPlanet
 }
@@ -509,13 +510,13 @@ func convertMoons(b *OGame, moonsIn []ogame.Moon) []Moon {
 	out := make([]Moon, 0)
 	for _, moon := range moonsIn {
 		tmp := convertMoon(b, moon)
-		out = append(out, *tmp)
+		out = append(out, tmp)
 	}
 	return out
 }
 
-func convertMoon(b *OGame, moonIn ogame.Moon) *Moon {
-	return &Moon{ogame: b, Moon: moonIn}
+func convertMoon(b *OGame, moonIn ogame.Moon) Moon {
+	return Moon{ogame: b, Moon: moonIn}
 }
 
 func convertCelestials(b *OGame, celestials []ogame.Celestial) []Celestial {
@@ -1630,7 +1631,7 @@ func (b *OGame) getMoon(v IntoCelestial) (Moon, error) {
 		return Moon{}, err
 	}
 	cMoon := convertMoon(b, moon)
-	return *cMoon, nil
+	return cMoon, nil
 }
 
 func (b *OGame) getCelestials() ([]Celestial, error) {
