@@ -243,3 +243,31 @@ func TestVersion(t *testing.T) {
 func TestFindSlowestSpeed(t *testing.T) {
 	assert.Equal(t, int64(8000), findSlowestSpeed(ogame.ShipsInfos{SmallCargo: 1, LargeCargo: 1}, ogame.Researches{CombustionDrive: 6}, false, false))
 }
+
+func TestOGame_GetCachedCelestial(t *testing.T) {
+	bot, _ := NewNoLogin("", "", "", "", "", "", 0, nil)
+	bot.planets = []Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}}
+	celestial := bot.GetCachedCelestial(123)
+	assert.Equal(t, ogame.CelestialID(123), celestial.GetID())
+	_, ok := celestial.(Planet)
+	assert.True(t, ok)
+
+	celestial = bot.GetCachedCelestial(456)
+	assert.Equal(t, ogame.CelestialID(456), celestial.GetID())
+	_, ok = celestial.(Moon)
+	assert.True(t, ok)
+
+	celestials := bot.GetCachedCelestials()
+	_, ok = celestials[1].(Moon)
+	assert.True(t, ok)
+}
+
+func TestOGame_GetCachedCelestials(t *testing.T) {
+	bot, _ := NewNoLogin("", "", "", "", "", "", 0, nil)
+	bot.planets = []Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}}
+
+	celestials := bot.GetCachedCelestials()
+	assert.Equal(t, ogame.CelestialID(456), celestials[1].GetID())
+	_, ok := celestials[1].(Moon)
+	assert.True(t, ok)
+}
