@@ -151,7 +151,7 @@ func (r *ResourcesJson) UnmarshalJSON(d []byte) error {
 func (a *ActivityJson) UnmarshalJSON(d []byte) error {
 
 	var min int64
-	var tmp map[string]interface{}
+	var tmp map[string]any
 	var hour float64 = 60
 
 	if err := json.Unmarshal(d, &tmp); err != nil {
