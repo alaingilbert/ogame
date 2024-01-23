@@ -3985,6 +3985,12 @@ func (b *OGame) getCachedCelestialByCoord(coord ogame.Coordinate) Celestial {
 	return nil
 }
 
+func (b *OGame) getCachedPlanets() []Planet {
+	b.planetsMu.RLock()
+	defer b.planetsMu.RUnlock()
+	return b.planets
+}
+
 func (b *OGame) getCachedMoons() []Moon {
 	var moons []Moon
 	for _, p := range b.GetCachedPlanets() {

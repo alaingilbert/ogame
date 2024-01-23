@@ -284,9 +284,7 @@ func (b *OGame) GetCachedMoon(v IntoMoon) (Moon, error) {
 
 // GetCachedPlanets return planets from cached value
 func (b *OGame) GetCachedPlanets() []Planet {
-	b.planetsMu.RLock()
-	defer b.planetsMu.RUnlock()
-	return b.planets
+	return b.getCachedPlanets()
 }
 
 // GetCachedMoons return moons from cached value
