@@ -1212,7 +1212,14 @@ func GetEmpireHandler(c echo.Context) error {
 	if err != nil || nbr > 1 {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid typeID"))
 	}
-	getEmpire, err := bot.GetEmpireJSON(nbr)
+	var celestialType ogame.CelestialType
+	switch nbr {
+	case 0:
+		celestialType = ogame.PlanetType
+	case 1:
+		celestialType = ogame.MoonType
+	}
+	getEmpire, err := bot.GetEmpireJSON(celestialType)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}

@@ -636,10 +636,10 @@ func (b *Prioritize) GetEmpire(celestialType ogame.CelestialType) ([]ogame.Empir
 }
 
 // GetEmpireJSON retrieves JSON from Empire page (Commander only).
-func (b *Prioritize) GetEmpireJSON(nbr int64) (any, error) {
+func (b *Prioritize) GetEmpireJSON(celestialType ogame.CelestialType) (any, error) {
 	b.begin("GetEmpireJSON")
 	defer b.done()
-	return b.bot.getEmpireJSON(nbr)
+	return b.bot.getEmpireJSON(celestialType)
 }
 
 // GetAuction ...

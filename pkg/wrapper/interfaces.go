@@ -73,7 +73,7 @@ type Prioritizable interface {
 	GetCombatReportSummaryFor(ogame.Coordinate) (ogame.CombatReportSummary, error)
 	GetDMCosts(ogame.CelestialID) (ogame.DMCosts, error)
 	GetEmpire(ogame.CelestialType) ([]ogame.EmpireCelestial, error)
-	GetEmpireJSON(nbr int64) (any, error)
+	GetEmpireJSON(ogame.CelestialType) (any, error)
 	GetEspionageReport(msgID int64) (ogame.EspionageReport, error)
 	GetEspionageReportFor(ogame.Coordinate) (ogame.EspionageReport, error)
 	GetEspionageReportMessages(maxPage int64) ([]ogame.EspionageReportSummary, error)

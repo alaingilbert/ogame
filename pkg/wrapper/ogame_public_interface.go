@@ -695,8 +695,8 @@ func (b *OGame) GetEmpire(celestialType ogame.CelestialType) ([]ogame.EmpireCele
 }
 
 // GetEmpireJSON retrieves JSON from Empire page (Commander only).
-func (b *OGame) GetEmpireJSON(nbr int64) (any, error) {
-	return b.WithPriority(taskRunner.Normal).GetEmpireJSON(nbr)
+func (b *OGame) GetEmpireJSON(celestialType ogame.CelestialType) (any, error) {
+	return b.WithPriority(taskRunner.Normal).GetEmpireJSON(celestialType)
 }
 
 // CharacterClass returns the bot character class

@@ -1929,29 +1929,36 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 	return true, 0, nil
 }
 
-func (b *OGame) getEmpire(celestialType ogame.CelestialType) (out []ogame.EmpireCelestial, err error) {
+func (b *OGame) getEmpireHtml(celestialType ogame.CelestialType) ([]byte, error) {
 	var planetType int
 	if celestialType == ogame.PlanetType {
 		planetType = 0
 	} else if celestialType == ogame.MoonType {
 		planetType = 1
 	} else {
-		return out, errors.New("invalid celestial type")
+		return nil, errors.New("invalid celestial type")
 	}
 	vals := url.Values{"page": {"standalone"}, "component": {"empire"}, "planetType": {strconv.Itoa(planetType)}}
 	pageHTMLBytes, err := b.getPageContent(vals)
+	if err != nil {
+		return nil, err
+	}
+	return pageHTMLBytes, nil
+}
+
+func (b *OGame) getEmpire(celestialType ogame.CelestialType) (out []ogame.EmpireCelestial, err error) {
+	pageHTMLBytes, err := b.getEmpireHtml(celestialType)
 	if err != nil {
 		return out, err
 	}
 	return b.extractor.ExtractEmpire(pageHTMLBytes)
 }
 
-func (b *OGame) getEmpireJSON(nbr int64) (any, error) {
+func (b *OGame) getEmpireJSON(celestialType ogame.CelestialType) (any, error) {
 	// Valid URLs:
 	// /game/index.php?page=standalone&component=empire&planetType=0
 	// /game/index.php?page=standalone&component=empire&planetType=1
-	vals := url.Values{"page": {"standalone"}, "component": {"empire"}, "planetType": {utils.FI64(nbr)}}
-	pageHTMLBytes, err := b.getPageContent(vals)
+	pageHTMLBytes, err := b.getEmpireHtml(celestialType)
 	if err != nil {
 		return nil, err
 	}
