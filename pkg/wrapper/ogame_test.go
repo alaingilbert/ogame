@@ -247,12 +247,12 @@ func TestFindSlowestSpeed(t *testing.T) {
 func TestOGame_GetCachedCelestial(t *testing.T) {
 	bot, _ := NewNoLogin("", "", "", "", "", "", 0, nil)
 	bot.planets = []Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}}
-	celestial := bot.GetCachedCelestial(123)
+	celestial, _ := bot.GetCachedCelestial(123)
 	assert.Equal(t, ogame.CelestialID(123), celestial.GetID())
 	_, ok := celestial.(Planet)
 	assert.True(t, ok)
 
-	celestial = bot.GetCachedCelestial(456)
+	celestial, _ = bot.GetCachedCelestial(456)
 	assert.Equal(t, ogame.CelestialID(456), celestial.GetID())
 	_, ok = celestial.(Moon)
 	assert.True(t, ok)
