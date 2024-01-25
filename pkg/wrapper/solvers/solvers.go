@@ -49,19 +49,21 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 		_, _ = tgBot.Send(tgbotapi.NewPhotoUpload(tgChatID, iconsImg))
 		msg := tgbotapi.NewMessage(tgChatID, "Pick one")
 		msg.ReplyMarkup = keyboard
-		_, _ = tgBot.Send(msg)
+		sentMsg, _ := tgBot.Send(msg)
 		u := tgbotapi.NewUpdate(0)
 		u.Timeout = 60
 		updates, _ := tgBot.GetUpdatesChan(u)
 		for update := range updates {
 			if update.CallbackQuery != nil {
-				_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
-				_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
-				v, err := utils.ParseI64(update.CallbackQuery.Data)
-				if err != nil {
-					return 0, err
+				if update.CallbackQuery.Message.MessageID == sentMsg.MessageID {
+					_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
+					_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
+					v, err := utils.ParseI64(update.CallbackQuery.Data)
+					if err != nil {
+						return 0, err
+					}
+					return v, nil
 				}
-				return v, nil
 			}
 		}
 		return 0, errors.New("failed to get answer")
