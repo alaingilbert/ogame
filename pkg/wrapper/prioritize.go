@@ -457,6 +457,13 @@ func (b *Prioritize) SendDiscoveryFleet(celestialID ogame.CelestialID, coord oga
 	return b.bot.sendDiscoveryFleet(celestialID, coord, options...)
 }
 
+// SendDiscoveryFleet2 sends a discovery fleet and get back the fleet
+func (b *Prioritize) SendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.Coordinate, options ...Option) (ogame.Fleet, error) {
+	b.begin("SendDiscoveryFleet2")
+	defer b.done()
+	return b.bot.sendDiscoveryFleet2(celestialID, coord, options...)
+}
+
 // EnsureFleet either sends all the requested ships or fail
 func (b *Prioritize) EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {

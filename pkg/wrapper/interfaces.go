@@ -135,6 +135,7 @@ type Prioritizable interface {
 	GetShips(ogame.CelestialID, ...Option) (ogame.ShipsInfos, error)
 	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
 	SendDiscoveryFleet(ogame.CelestialID, ogame.Coordinate, ...Option) error
+	SendDiscoveryFleet2(ogame.CelestialID, ogame.Coordinate, ...Option) (ogame.Fleet, error)
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
 	TechnologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error)

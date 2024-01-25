@@ -1672,6 +1672,25 @@ func (b *OGame) cancelFleet(fleetID ogame.FleetID) error {
 	return nil
 }
 
+func (b *OGame) getLastFleetFor(origin, destination ogame.Coordinate, mission ogame.MissionID) (ogame.Fleet, error) {
+	page, _ := getPage[parser.MovementPage](b)
+	fleets := page.ExtractFleets()
+	if len(fleets) > 0 {
+		maxV := ogame.Fleet{}
+		for i, fleet := range fleets {
+			if fleet.ID > maxV.ID &&
+				fleet.Origin.Equal(origin) &&
+				fleet.Destination.Equal(destination) &&
+				fleet.Mission == mission &&
+				!fleet.ReturnFlight {
+				maxV = fleets[i]
+			}
+		}
+		return maxV, nil
+	}
+	return ogame.Fleet{}, errors.New("could not find fleet")
+}
+
 func (b *OGame) getSlots() (out ogame.Slots, err error) {
 	pageHTML, err := b.getPage(FleetdispatchPageName)
 	if err != nil {
@@ -4010,6 +4029,26 @@ func (b *OGame) sendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Co
 		return errors.New(resStruct.Response.Message)
 	}
 	return nil
+}
+
+func (b *OGame) sendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.Coordinate, options ...Option) (ogame.Fleet, error) {
+	if err := b.sendDiscoveryFleet(celestialID, coord, options...); err != nil {
+		return ogame.Fleet{}, err
+	}
+	select {
+	case <-time.After(utils.RandMs(250, 500)):
+	case <-b.ctx.Done():
+		return ogame.Fleet{}, ogame.ErrBotInactive
+	}
+	c, err := b.getCachedCelestial(celestialID)
+	if err != nil {
+		return ogame.Fleet{}, err
+	}
+	fleet, err := b.getLastFleetFor(c.GetCoordinate(), coord, ogame.SearchForLifeforms)
+	if err != nil {
+		return ogame.Fleet{}, err
+	}
+	return fleet, nil
 }
 
 func (b *OGame) getAvailableDiscoveries(opts ...Option) int64 {
