@@ -31,6 +31,8 @@ func (m MissionID) String() string {
 		return "MissileAttack"
 	case Expedition:
 		return "Expedition"
+	case SearchForLifeforms:
+		return "SearchForLifeform"
 	default:
 		return strconv.FormatInt(int64(m), 10)
 	}
