@@ -3416,10 +3416,9 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	}
 
 	// Page 5
-	movementHTML, _ := b.getPage(MovementPageName)
-	movementDoc, _ := goquery.NewDocumentFromReader(bytes.NewReader(movementHTML))
-	originCoords, _ := b.extractor.ExtractPlanetCoordinate(movementHTML)
-	fleets := b.extractor.ExtractFleetsFromDoc(movementDoc)
+	page, _ := getPage[parser.MovementPage](b)
+	originCoords, _ := page.ExtractPlanetCoordinate()
+	fleets := page.ExtractFleets()
 	if len(fleets) > 0 {
 		maxV := ogame.Fleet{}
 		for i, fleet := range fleets {
@@ -3436,7 +3435,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 		}
 	}
 
-	slots, _ = b.extractor.ExtractSlotsFromDoc(movementDoc)
+	slots, _ = page.ExtractSlots()
 	if slots.InUse == slots.Total {
 		return ogame.Fleet{}, ogame.ErrAllSlotsInUse
 	}

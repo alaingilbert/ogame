@@ -87,6 +87,7 @@ type IFullPage interface {
 	ExtractOGameSession() string
 	ExtractIsInVacation() bool
 	ExtractPlanets() []ogame.Planet
+	ExtractPlanetCoordinate() (ogame.Coordinate, error)
 	ExtractAjaxChatToken() (string, error)
 	ExtractCharacterClass() (ogame.CharacterClass, error)
 	ExtractCommander() bool

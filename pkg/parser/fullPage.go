@@ -62,6 +62,10 @@ func (p FullPage) ExtractPlanet(v any) (ogame.Planet, error) {
 	return p.e.ExtractPlanetFromDoc(p.GetDoc(), v)
 }
 
+func (p FullPage) ExtractPlanetCoordinate() (ogame.Coordinate, error) {
+	return p.e.ExtractPlanetCoordinate(p.content)
+}
+
 func (p FullPage) ExtractMoons() []ogame.Moon {
 	return p.e.ExtractMoonsFromDoc(p.GetDoc())
 }
