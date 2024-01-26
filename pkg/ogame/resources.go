@@ -167,16 +167,14 @@ func (r Resources) CanAfford(cost Resources) bool {
 func (r Resources) Gte(val Resources) bool {
 	return r.Metal >= val.Metal &&
 		r.Crystal >= val.Crystal &&
-		r.Deuterium >= val.Deuterium &&
-		r.Population >= val.Population
+		r.Deuterium >= val.Deuterium
 }
 
 // Lte less than or equal
 func (r Resources) Lte(val Resources) bool {
 	return r.Metal <= val.Metal &&
 		r.Crystal <= val.Crystal &&
-		r.Deuterium <= val.Deuterium &&
-		r.Population <= val.Population
+		r.Deuterium <= val.Deuterium
 }
 
 // FitsIn get the number of ships required to transport the resource
