@@ -81,6 +81,9 @@ func Register(device *device.Device, ctx context.Context, lobby, email, password
 	if lang == "" {
 		lang = "en"
 	}
+	if lobby != LobbyPioneers {
+		lobby = Lobby
+	}
 	var payload struct {
 		Blackbox    string `json:"blackbox"`
 		Credentials struct {
