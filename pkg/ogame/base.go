@@ -97,7 +97,8 @@ func (b Base) IsAvailable(t CelestialType, resourcesBuildings IResourcesBuilding
 				return false
 			}
 		} else if id.IsLfTech() {
-			if lfResearches.ByID(id) < levelNeeded {
+			lfResearch := lfResearches.ByID(id)
+			if lfResearch == nil || *lfResearch < levelNeeded {
 				return false
 			}
 		}

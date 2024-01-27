@@ -8,282 +8,282 @@ import (
 // LazyLfResearches ...
 type LazyLfResearches func() LfResearches
 
-func (b LazyLfResearches) ByID(id ID) int64                    { return b().ByID(id) }
-func (b LazyLfResearches) GetIntergalacticEnvoys() int64       { return b().IntergalacticEnvoys }
-func (b LazyLfResearches) GetHighPerformanceExtractors() int64 { return b().HighPerformanceExtractors }
-func (b LazyLfResearches) GetFusionDrives() int64              { return b().FusionDrives }
-func (b LazyLfResearches) GetStealthFieldGenerator() int64     { return b().StealthFieldGenerator }
-func (b LazyLfResearches) GetOrbitalDen() int64                { return b().OrbitalDen }
-func (b LazyLfResearches) GetResearchAI() int64                { return b().ResearchAI }
-func (b LazyLfResearches) GetHighPerformanceTerraformer() int64 {
+func (b LazyLfResearches) ByID(id ID) *int64                    { return b().ByID(id) }
+func (b LazyLfResearches) GetIntergalacticEnvoys() *int64       { return b().IntergalacticEnvoys }
+func (b LazyLfResearches) GetHighPerformanceExtractors() *int64 { return b().HighPerformanceExtractors }
+func (b LazyLfResearches) GetFusionDrives() *int64              { return b().FusionDrives }
+func (b LazyLfResearches) GetStealthFieldGenerator() *int64     { return b().StealthFieldGenerator }
+func (b LazyLfResearches) GetOrbitalDen() *int64                { return b().OrbitalDen }
+func (b LazyLfResearches) GetResearchAI() *int64                { return b().ResearchAI }
+func (b LazyLfResearches) GetHighPerformanceTerraformer() *int64 {
 	return b().HighPerformanceTerraformer
 }
-func (b LazyLfResearches) GetEnhancedProductionTechnologies() int64 {
+func (b LazyLfResearches) GetEnhancedProductionTechnologies() *int64 {
 	return b().EnhancedProductionTechnologies
 }
-func (b LazyLfResearches) GetLightFighterMkII() int64      { return b().LightFighterMkII }
-func (b LazyLfResearches) GetCruiserMkII() int64           { return b().CruiserMkII }
-func (b LazyLfResearches) GetImprovedLabTechnology() int64 { return b().ImprovedLabTechnology }
-func (b LazyLfResearches) GetPlasmaTerraformer() int64     { return b().PlasmaTerraformer }
-func (b LazyLfResearches) GetLowTemperatureDrives() int64  { return b().LowTemperatureDrives }
-func (b LazyLfResearches) GetBomberMkII() int64            { return b().BomberMkII }
-func (b LazyLfResearches) GetDestroyerMkII() int64         { return b().DestroyerMkII }
-func (b LazyLfResearches) GetBattlecruiserMkII() int64     { return b().BattlecruiserMkII }
-func (b LazyLfResearches) GetRobotAssistants() int64       { return b().RobotAssistants }
-func (b LazyLfResearches) GetSupercomputer() int64         { return b().Supercomputer }
-func (b LazyLfResearches) GetVolcanicBatteries() int64     { return b().VolcanicBatteries }
-func (b LazyLfResearches) GetAcousticScanning() int64      { return b().AcousticScanning }
-func (b LazyLfResearches) GetHighEnergyPumpSystems() int64 { return b().HighEnergyPumpSystems }
-func (b LazyLfResearches) GetCargoHoldExpansionCivilianShips() int64 {
+func (b LazyLfResearches) GetLightFighterMkII() *int64      { return b().LightFighterMkII }
+func (b LazyLfResearches) GetCruiserMkII() *int64           { return b().CruiserMkII }
+func (b LazyLfResearches) GetImprovedLabTechnology() *int64 { return b().ImprovedLabTechnology }
+func (b LazyLfResearches) GetPlasmaTerraformer() *int64     { return b().PlasmaTerraformer }
+func (b LazyLfResearches) GetLowTemperatureDrives() *int64  { return b().LowTemperatureDrives }
+func (b LazyLfResearches) GetBomberMkII() *int64            { return b().BomberMkII }
+func (b LazyLfResearches) GetDestroyerMkII() *int64         { return b().DestroyerMkII }
+func (b LazyLfResearches) GetBattlecruiserMkII() *int64     { return b().BattlecruiserMkII }
+func (b LazyLfResearches) GetRobotAssistants() *int64       { return b().RobotAssistants }
+func (b LazyLfResearches) GetSupercomputer() *int64         { return b().Supercomputer }
+func (b LazyLfResearches) GetVolcanicBatteries() *int64     { return b().VolcanicBatteries }
+func (b LazyLfResearches) GetAcousticScanning() *int64      { return b().AcousticScanning }
+func (b LazyLfResearches) GetHighEnergyPumpSystems() *int64 { return b().HighEnergyPumpSystems }
+func (b LazyLfResearches) GetCargoHoldExpansionCivilianShips() *int64 {
 	return b().CargoHoldExpansionCivilianShips
 }
-func (b LazyLfResearches) GetMagmaPoweredProduction() int64 { return b().MagmaPoweredProduction }
-func (b LazyLfResearches) GetGeothermalPowerPlants() int64  { return b().GeothermalPowerPlants }
-func (b LazyLfResearches) GetDepthSounding() int64          { return b().DepthSounding }
-func (b LazyLfResearches) GetIonCrystalEnhancementHeavyFighter() int64 {
+func (b LazyLfResearches) GetMagmaPoweredProduction() *int64 { return b().MagmaPoweredProduction }
+func (b LazyLfResearches) GetGeothermalPowerPlants() *int64  { return b().GeothermalPowerPlants }
+func (b LazyLfResearches) GetDepthSounding() *int64          { return b().DepthSounding }
+func (b LazyLfResearches) GetIonCrystalEnhancementHeavyFighter() *int64 {
 	return b().IonCrystalEnhancementHeavyFighter
 }
-func (b LazyLfResearches) GetImprovedStellarator() int64       { return b().ImprovedStellarator }
-func (b LazyLfResearches) GetHardenedDiamondDrillHeads() int64 { return b().HardenedDiamondDrillHeads }
-func (b LazyLfResearches) GetSeismicMiningTechnology() int64   { return b().SeismicMiningTechnology }
-func (b LazyLfResearches) GetMagmaPoweredPumpSystems() int64   { return b().MagmaPoweredPumpSystems }
-func (b LazyLfResearches) GetIonCrystalModules() int64         { return b().IonCrystalModules }
-func (b LazyLfResearches) GetOptimisedSiloConstructionMethod() int64 {
+func (b LazyLfResearches) GetImprovedStellarator() *int64       { return b().ImprovedStellarator }
+func (b LazyLfResearches) GetHardenedDiamondDrillHeads() *int64 { return b().HardenedDiamondDrillHeads }
+func (b LazyLfResearches) GetSeismicMiningTechnology() *int64   { return b().SeismicMiningTechnology }
+func (b LazyLfResearches) GetMagmaPoweredPumpSystems() *int64   { return b().MagmaPoweredPumpSystems }
+func (b LazyLfResearches) GetIonCrystalModules() *int64         { return b().IonCrystalModules }
+func (b LazyLfResearches) GetOptimisedSiloConstructionMethod() *int64 {
 	return b().OptimisedSiloConstructionMethod
 }
-func (b LazyLfResearches) GetDiamondEnergyTransmitter() int64 { return b().DiamondEnergyTransmitter }
-func (b LazyLfResearches) GetObsidianShieldReinforcement() int64 {
+func (b LazyLfResearches) GetDiamondEnergyTransmitter() *int64 { return b().DiamondEnergyTransmitter }
+func (b LazyLfResearches) GetObsidianShieldReinforcement() *int64 {
 	return b().ObsidianShieldReinforcement
 }
-func (b LazyLfResearches) GetRuneShields() int64 { return b().RuneShields }
-func (b LazyLfResearches) GetRocktalCollectorEnhancement() int64 {
+func (b LazyLfResearches) GetRuneShields() *int64 { return b().RuneShields }
+func (b LazyLfResearches) GetRocktalCollectorEnhancement() *int64 {
 	return b().RocktalCollectorEnhancement
 }
-func (b LazyLfResearches) GetCatalyserTechnology() int64 { return b().CatalyserTechnology }
-func (b LazyLfResearches) GetPlasmaDrive() int64         { return b().PlasmaDrive }
-func (b LazyLfResearches) GetEfficiencyModule() int64    { return b().EfficiencyModule }
-func (b LazyLfResearches) GetDepotAI() int64             { return b().DepotAI }
-func (b LazyLfResearches) GetGeneralOverhaulLightFighter() int64 {
+func (b LazyLfResearches) GetCatalyserTechnology() *int64 { return b().CatalyserTechnology }
+func (b LazyLfResearches) GetPlasmaDrive() *int64         { return b().PlasmaDrive }
+func (b LazyLfResearches) GetEfficiencyModule() *int64    { return b().EfficiencyModule }
+func (b LazyLfResearches) GetDepotAI() *int64             { return b().DepotAI }
+func (b LazyLfResearches) GetGeneralOverhaulLightFighter() *int64 {
 	return b().GeneralOverhaulLightFighter
 }
-func (b LazyLfResearches) GetAutomatedTransportLines() int64 { return b().AutomatedTransportLines }
-func (b LazyLfResearches) GetImprovedDroneAI() int64         { return b().ImprovedDroneAI }
-func (b LazyLfResearches) GetExperimentalRecyclingTechnology() int64 {
+func (b LazyLfResearches) GetAutomatedTransportLines() *int64 { return b().AutomatedTransportLines }
+func (b LazyLfResearches) GetImprovedDroneAI() *int64         { return b().ImprovedDroneAI }
+func (b LazyLfResearches) GetExperimentalRecyclingTechnology() *int64 {
 	return b().ExperimentalRecyclingTechnology
 }
-func (b LazyLfResearches) GetGeneralOverhaulCruiser() int64 { return b().GeneralOverhaulCruiser }
-func (b LazyLfResearches) GetSlingshotAutopilot() int64     { return b().SlingshotAutopilot }
-func (b LazyLfResearches) GetHighTemperatureSuperconductors() int64 {
+func (b LazyLfResearches) GetGeneralOverhaulCruiser() *int64 { return b().GeneralOverhaulCruiser }
+func (b LazyLfResearches) GetSlingshotAutopilot() *int64     { return b().SlingshotAutopilot }
+func (b LazyLfResearches) GetHighTemperatureSuperconductors() *int64 {
 	return b().HighTemperatureSuperconductors
 }
-func (b LazyLfResearches) GetGeneralOverhaulBattleship() int64 { return b().GeneralOverhaulBattleship }
-func (b LazyLfResearches) GetArtificialSwarmIntelligence() int64 {
+func (b LazyLfResearches) GetGeneralOverhaulBattleship() *int64 { return b().GeneralOverhaulBattleship }
+func (b LazyLfResearches) GetArtificialSwarmIntelligence() *int64 {
 	return b().ArtificialSwarmIntelligence
 }
-func (b LazyLfResearches) GetGeneralOverhaulBattlecruiser() int64 {
+func (b LazyLfResearches) GetGeneralOverhaulBattlecruiser() *int64 {
 	return b().GeneralOverhaulBattlecruiser
 }
-func (b LazyLfResearches) GetGeneralOverhaulBomber() int64    { return b().GeneralOverhaulBomber }
-func (b LazyLfResearches) GetGeneralOverhaulDestroyer() int64 { return b().GeneralOverhaulDestroyer }
-func (b LazyLfResearches) GetExperimentalWeaponsTechnology() int64 {
+func (b LazyLfResearches) GetGeneralOverhaulBomber() *int64    { return b().GeneralOverhaulBomber }
+func (b LazyLfResearches) GetGeneralOverhaulDestroyer() *int64 { return b().GeneralOverhaulDestroyer }
+func (b LazyLfResearches) GetExperimentalWeaponsTechnology() *int64 {
 	return b().ExperimentalWeaponsTechnology
 }
-func (b LazyLfResearches) GetMechanGeneralEnhancement() int64 { return b().MechanGeneralEnhancement }
-func (b LazyLfResearches) GetHeatRecovery() int64             { return b().HeatRecovery }
-func (b LazyLfResearches) GetSulphideProcess() int64          { return b().SulphideProcess }
-func (b LazyLfResearches) GetPsionicNetwork() int64           { return b().PsionicNetwork }
-func (b LazyLfResearches) GetTelekineticTractorBeam() int64   { return b().TelekineticTractorBeam }
-func (b LazyLfResearches) GetEnhancedSensorTechnology() int64 { return b().EnhancedSensorTechnology }
-func (b LazyLfResearches) GetNeuromodalCompressor() int64     { return b().NeuromodalCompressor }
-func (b LazyLfResearches) GetNeuroInterface() int64           { return b().NeuroInterface }
-func (b LazyLfResearches) GetInterplanetaryAnalysisNetwork() int64 {
+func (b LazyLfResearches) GetMechanGeneralEnhancement() *int64 { return b().MechanGeneralEnhancement }
+func (b LazyLfResearches) GetHeatRecovery() *int64             { return b().HeatRecovery }
+func (b LazyLfResearches) GetSulphideProcess() *int64          { return b().SulphideProcess }
+func (b LazyLfResearches) GetPsionicNetwork() *int64           { return b().PsionicNetwork }
+func (b LazyLfResearches) GetTelekineticTractorBeam() *int64   { return b().TelekineticTractorBeam }
+func (b LazyLfResearches) GetEnhancedSensorTechnology() *int64 { return b().EnhancedSensorTechnology }
+func (b LazyLfResearches) GetNeuromodalCompressor() *int64     { return b().NeuromodalCompressor }
+func (b LazyLfResearches) GetNeuroInterface() *int64           { return b().NeuroInterface }
+func (b LazyLfResearches) GetInterplanetaryAnalysisNetwork() *int64 {
 	return b().InterplanetaryAnalysisNetwork
 }
-func (b LazyLfResearches) GetOverclockingHeavyFighter() int64 { return b().OverclockingHeavyFighter }
-func (b LazyLfResearches) GetTelekineticDrive() int64         { return b().TelekineticDrive }
-func (b LazyLfResearches) GetSixthSense() int64               { return b().SixthSense }
-func (b LazyLfResearches) GetPsychoharmoniser() int64         { return b().Psychoharmoniser }
-func (b LazyLfResearches) GetEfficientSwarmIntelligence() int64 {
+func (b LazyLfResearches) GetOverclockingHeavyFighter() *int64 { return b().OverclockingHeavyFighter }
+func (b LazyLfResearches) GetTelekineticDrive() *int64         { return b().TelekineticDrive }
+func (b LazyLfResearches) GetSixthSense() *int64               { return b().SixthSense }
+func (b LazyLfResearches) GetPsychoharmoniser() *int64         { return b().Psychoharmoniser }
+func (b LazyLfResearches) GetEfficientSwarmIntelligence() *int64 {
 	return b().EfficientSwarmIntelligence
 }
-func (b LazyLfResearches) GetOverclockingLargeCargo() int64 { return b().OverclockingLargeCargo }
-func (b LazyLfResearches) GetGravitationSensors() int64     { return b().GravitationSensors }
-func (b LazyLfResearches) GetOverclockingBattleship() int64 { return b().OverclockingBattleship }
-func (b LazyLfResearches) GetPsionicShieldMatrix() int64    { return b().PsionicShieldMatrix }
-func (b LazyLfResearches) GetKaeleshDiscovererEnhancement() int64 {
+func (b LazyLfResearches) GetOverclockingLargeCargo() *int64 { return b().OverclockingLargeCargo }
+func (b LazyLfResearches) GetGravitationSensors() *int64     { return b().GravitationSensors }
+func (b LazyLfResearches) GetOverclockingBattleship() *int64 { return b().OverclockingBattleship }
+func (b LazyLfResearches) GetPsionicShieldMatrix() *int64    { return b().PsionicShieldMatrix }
+func (b LazyLfResearches) GetKaeleshDiscovererEnhancement() *int64 {
 	return b().KaeleshDiscovererEnhancement
 }
 
 type LfResearches struct {
-	IntergalacticEnvoys               int64 // 11201 // Humans techs
-	HighPerformanceExtractors         int64 // 11202
-	FusionDrives                      int64 // 11203
-	StealthFieldGenerator             int64 // 11204
-	OrbitalDen                        int64 // 11205
-	ResearchAI                        int64 // 11206
-	HighPerformanceTerraformer        int64 // 11207
-	EnhancedProductionTechnologies    int64 // 11208
-	LightFighterMkII                  int64 // 11209
-	CruiserMkII                       int64 // 11210
-	ImprovedLabTechnology             int64 // 11211
-	PlasmaTerraformer                 int64 // 11212
-	LowTemperatureDrives              int64 // 11213
-	BomberMkII                        int64 // 11214
-	DestroyerMkII                     int64 // 11215
-	BattlecruiserMkII                 int64 // 11216
-	RobotAssistants                   int64 // 11217
-	Supercomputer                     int64 // 11218
-	VolcanicBatteries                 int64 // 12201 // Rocktal techs
-	AcousticScanning                  int64 // 12202
-	HighEnergyPumpSystems             int64 // 12203
-	CargoHoldExpansionCivilianShips   int64 // 12204
-	MagmaPoweredProduction            int64 // 12205
-	GeothermalPowerPlants             int64 // 12206
-	DepthSounding                     int64 // 12207
-	IonCrystalEnhancementHeavyFighter int64 // 12208
-	ImprovedStellarator               int64 // 12209
-	HardenedDiamondDrillHeads         int64 // 12210
-	SeismicMiningTechnology           int64 // 12211
-	MagmaPoweredPumpSystems           int64 // 12212
-	IonCrystalModules                 int64 // 12213
-	OptimisedSiloConstructionMethod   int64 // 12214
-	DiamondEnergyTransmitter          int64 // 12215
-	ObsidianShieldReinforcement       int64 // 12216
-	RuneShields                       int64 // 12217
-	RocktalCollectorEnhancement       int64 // 12218
-	CatalyserTechnology               int64 // 13201 // Mechas techs
-	PlasmaDrive                       int64 // 13202
-	EfficiencyModule                  int64 // 13203
-	DepotAI                           int64 // 13204
-	GeneralOverhaulLightFighter       int64 // 13205
-	AutomatedTransportLines           int64 // 13206
-	ImprovedDroneAI                   int64 // 13207
-	ExperimentalRecyclingTechnology   int64 // 13208
-	GeneralOverhaulCruiser            int64 // 13209
-	SlingshotAutopilot                int64 // 13210
-	HighTemperatureSuperconductors    int64 // 13211
-	GeneralOverhaulBattleship         int64 // 13212
-	ArtificialSwarmIntelligence       int64 // 13213
-	GeneralOverhaulBattlecruiser      int64 // 13214
-	GeneralOverhaulBomber             int64 // 13215
-	GeneralOverhaulDestroyer          int64 // 13216
-	ExperimentalWeaponsTechnology     int64 // 13217
-	MechanGeneralEnhancement          int64 // 13218
-	HeatRecovery                      int64 // 14201 // Kaelesh techs
-	SulphideProcess                   int64 // 14202
-	PsionicNetwork                    int64 // 14203
-	TelekineticTractorBeam            int64 // 14204
-	EnhancedSensorTechnology          int64 // 14205
-	NeuromodalCompressor              int64 // 14206
-	NeuroInterface                    int64 // 14207
-	InterplanetaryAnalysisNetwork     int64 // 14208
-	OverclockingHeavyFighter          int64 // 14209
-	TelekineticDrive                  int64 // 14210
-	SixthSense                        int64 // 14211
-	Psychoharmoniser                  int64 // 14212
-	EfficientSwarmIntelligence        int64 // 14213
-	OverclockingLargeCargo            int64 // 14214
-	GravitationSensors                int64 // 14215
-	OverclockingBattleship            int64 // 14216
-	PsionicShieldMatrix               int64 // 14217
-	KaeleshDiscovererEnhancement      int64 // 14218
+	IntergalacticEnvoys               *int64 // 11201 // Humans techs
+	HighPerformanceExtractors         *int64 // 11202
+	FusionDrives                      *int64 // 11203
+	StealthFieldGenerator             *int64 // 11204
+	OrbitalDen                        *int64 // 11205
+	ResearchAI                        *int64 // 11206
+	HighPerformanceTerraformer        *int64 // 11207
+	EnhancedProductionTechnologies    *int64 // 11208
+	LightFighterMkII                  *int64 // 11209
+	CruiserMkII                       *int64 // 11210
+	ImprovedLabTechnology             *int64 // 11211
+	PlasmaTerraformer                 *int64 // 11212
+	LowTemperatureDrives              *int64 // 11213
+	BomberMkII                        *int64 // 11214
+	DestroyerMkII                     *int64 // 11215
+	BattlecruiserMkII                 *int64 // 11216
+	RobotAssistants                   *int64 // 11217
+	Supercomputer                     *int64 // 11218
+	VolcanicBatteries                 *int64 // 12201 // Rocktal techs
+	AcousticScanning                  *int64 // 12202
+	HighEnergyPumpSystems             *int64 // 12203
+	CargoHoldExpansionCivilianShips   *int64 // 12204
+	MagmaPoweredProduction            *int64 // 12205
+	GeothermalPowerPlants             *int64 // 12206
+	DepthSounding                     *int64 // 12207
+	IonCrystalEnhancementHeavyFighter *int64 // 12208
+	ImprovedStellarator               *int64 // 12209
+	HardenedDiamondDrillHeads         *int64 // 12210
+	SeismicMiningTechnology           *int64 // 12211
+	MagmaPoweredPumpSystems           *int64 // 12212
+	IonCrystalModules                 *int64 // 12213
+	OptimisedSiloConstructionMethod   *int64 // 12214
+	DiamondEnergyTransmitter          *int64 // 12215
+	ObsidianShieldReinforcement       *int64 // 12216
+	RuneShields                       *int64 // 12217
+	RocktalCollectorEnhancement       *int64 // 12218
+	CatalyserTechnology               *int64 // 13201 // Mechas techs
+	PlasmaDrive                       *int64 // 13202
+	EfficiencyModule                  *int64 // 13203
+	DepotAI                           *int64 // 13204
+	GeneralOverhaulLightFighter       *int64 // 13205
+	AutomatedTransportLines           *int64 // 13206
+	ImprovedDroneAI                   *int64 // 13207
+	ExperimentalRecyclingTechnology   *int64 // 13208
+	GeneralOverhaulCruiser            *int64 // 13209
+	SlingshotAutopilot                *int64 // 13210
+	HighTemperatureSuperconductors    *int64 // 13211
+	GeneralOverhaulBattleship         *int64 // 13212
+	ArtificialSwarmIntelligence       *int64 // 13213
+	GeneralOverhaulBattlecruiser      *int64 // 13214
+	GeneralOverhaulBomber             *int64 // 13215
+	GeneralOverhaulDestroyer          *int64 // 13216
+	ExperimentalWeaponsTechnology     *int64 // 13217
+	MechanGeneralEnhancement          *int64 // 13218
+	HeatRecovery                      *int64 // 14201 // Kaelesh techs
+	SulphideProcess                   *int64 // 14202
+	PsionicNetwork                    *int64 // 14203
+	TelekineticTractorBeam            *int64 // 14204
+	EnhancedSensorTechnology          *int64 // 14205
+	NeuromodalCompressor              *int64 // 14206
+	NeuroInterface                    *int64 // 14207
+	InterplanetaryAnalysisNetwork     *int64 // 14208
+	OverclockingHeavyFighter          *int64 // 14209
+	TelekineticDrive                  *int64 // 14210
+	SixthSense                        *int64 // 14211
+	Psychoharmoniser                  *int64 // 14212
+	EfficientSwarmIntelligence        *int64 // 14213
+	OverclockingLargeCargo            *int64 // 14214
+	GravitationSensors                *int64 // 14215
+	OverclockingBattleship            *int64 // 14216
+	PsionicShieldMatrix               *int64 // 14217
+	KaeleshDiscovererEnhancement      *int64 // 14218
 }
 
-func (b LfResearches) GetIntergalacticEnvoys() int64        { return b.IntergalacticEnvoys }
-func (b LfResearches) GetHighPerformanceExtractors() int64  { return b.HighPerformanceExtractors }
-func (b LfResearches) GetFusionDrives() int64               { return b.FusionDrives }
-func (b LfResearches) GetStealthFieldGenerator() int64      { return b.StealthFieldGenerator }
-func (b LfResearches) GetOrbitalDen() int64                 { return b.OrbitalDen }
-func (b LfResearches) GetResearchAI() int64                 { return b.ResearchAI }
-func (b LfResearches) GetHighPerformanceTerraformer() int64 { return b.HighPerformanceTerraformer }
-func (b LfResearches) GetEnhancedProductionTechnologies() int64 {
+func (b LfResearches) GetIntergalacticEnvoys() *int64        { return b.IntergalacticEnvoys }
+func (b LfResearches) GetHighPerformanceExtractors() *int64  { return b.HighPerformanceExtractors }
+func (b LfResearches) GetFusionDrives() *int64               { return b.FusionDrives }
+func (b LfResearches) GetStealthFieldGenerator() *int64      { return b.StealthFieldGenerator }
+func (b LfResearches) GetOrbitalDen() *int64                 { return b.OrbitalDen }
+func (b LfResearches) GetResearchAI() *int64                 { return b.ResearchAI }
+func (b LfResearches) GetHighPerformanceTerraformer() *int64 { return b.HighPerformanceTerraformer }
+func (b LfResearches) GetEnhancedProductionTechnologies() *int64 {
 	return b.EnhancedProductionTechnologies
 }
-func (b LfResearches) GetLightFighterMkII() int64      { return b.LightFighterMkII }
-func (b LfResearches) GetCruiserMkII() int64           { return b.CruiserMkII }
-func (b LfResearches) GetImprovedLabTechnology() int64 { return b.ImprovedLabTechnology }
-func (b LfResearches) GetPlasmaTerraformer() int64     { return b.PlasmaTerraformer }
-func (b LfResearches) GetLowTemperatureDrives() int64  { return b.LowTemperatureDrives }
-func (b LfResearches) GetBomberMkII() int64            { return b.BomberMkII }
-func (b LfResearches) GetDestroyerMkII() int64         { return b.DestroyerMkII }
-func (b LfResearches) GetBattlecruiserMkII() int64     { return b.BattlecruiserMkII }
-func (b LfResearches) GetRobotAssistants() int64       { return b.RobotAssistants }
-func (b LfResearches) GetSupercomputer() int64         { return b.Supercomputer }
-func (b LfResearches) GetVolcanicBatteries() int64     { return b.VolcanicBatteries }
-func (b LfResearches) GetAcousticScanning() int64      { return b.AcousticScanning }
-func (b LfResearches) GetHighEnergyPumpSystems() int64 { return b.HighEnergyPumpSystems }
-func (b LfResearches) GetCargoHoldExpansionCivilianShips() int64 {
+func (b LfResearches) GetLightFighterMkII() *int64      { return b.LightFighterMkII }
+func (b LfResearches) GetCruiserMkII() *int64           { return b.CruiserMkII }
+func (b LfResearches) GetImprovedLabTechnology() *int64 { return b.ImprovedLabTechnology }
+func (b LfResearches) GetPlasmaTerraformer() *int64     { return b.PlasmaTerraformer }
+func (b LfResearches) GetLowTemperatureDrives() *int64  { return b.LowTemperatureDrives }
+func (b LfResearches) GetBomberMkII() *int64            { return b.BomberMkII }
+func (b LfResearches) GetDestroyerMkII() *int64         { return b.DestroyerMkII }
+func (b LfResearches) GetBattlecruiserMkII() *int64     { return b.BattlecruiserMkII }
+func (b LfResearches) GetRobotAssistants() *int64       { return b.RobotAssistants }
+func (b LfResearches) GetSupercomputer() *int64         { return b.Supercomputer }
+func (b LfResearches) GetVolcanicBatteries() *int64     { return b.VolcanicBatteries }
+func (b LfResearches) GetAcousticScanning() *int64      { return b.AcousticScanning }
+func (b LfResearches) GetHighEnergyPumpSystems() *int64 { return b.HighEnergyPumpSystems }
+func (b LfResearches) GetCargoHoldExpansionCivilianShips() *int64 {
 	return b.CargoHoldExpansionCivilianShips
 }
-func (b LfResearches) GetMagmaPoweredProduction() int64 { return b.MagmaPoweredProduction }
-func (b LfResearches) GetGeothermalPowerPlants() int64  { return b.GeothermalPowerPlants }
-func (b LfResearches) GetDepthSounding() int64          { return b.DepthSounding }
-func (b LfResearches) GetIonCrystalEnhancementHeavyFighter() int64 {
+func (b LfResearches) GetMagmaPoweredProduction() *int64 { return b.MagmaPoweredProduction }
+func (b LfResearches) GetGeothermalPowerPlants() *int64  { return b.GeothermalPowerPlants }
+func (b LfResearches) GetDepthSounding() *int64          { return b.DepthSounding }
+func (b LfResearches) GetIonCrystalEnhancementHeavyFighter() *int64 {
 	return b.IonCrystalEnhancementHeavyFighter
 }
-func (b LfResearches) GetImprovedStellarator() int64       { return b.ImprovedStellarator }
-func (b LfResearches) GetHardenedDiamondDrillHeads() int64 { return b.HardenedDiamondDrillHeads }
-func (b LfResearches) GetSeismicMiningTechnology() int64   { return b.SeismicMiningTechnology }
-func (b LfResearches) GetMagmaPoweredPumpSystems() int64   { return b.MagmaPoweredPumpSystems }
-func (b LfResearches) GetIonCrystalModules() int64         { return b.IonCrystalModules }
-func (b LfResearches) GetOptimisedSiloConstructionMethod() int64 {
+func (b LfResearches) GetImprovedStellarator() *int64       { return b.ImprovedStellarator }
+func (b LfResearches) GetHardenedDiamondDrillHeads() *int64 { return b.HardenedDiamondDrillHeads }
+func (b LfResearches) GetSeismicMiningTechnology() *int64   { return b.SeismicMiningTechnology }
+func (b LfResearches) GetMagmaPoweredPumpSystems() *int64   { return b.MagmaPoweredPumpSystems }
+func (b LfResearches) GetIonCrystalModules() *int64         { return b.IonCrystalModules }
+func (b LfResearches) GetOptimisedSiloConstructionMethod() *int64 {
 	return b.OptimisedSiloConstructionMethod
 }
-func (b LfResearches) GetDiamondEnergyTransmitter() int64    { return b.DiamondEnergyTransmitter }
-func (b LfResearches) GetObsidianShieldReinforcement() int64 { return b.ObsidianShieldReinforcement }
-func (b LfResearches) GetRuneShields() int64                 { return b.RuneShields }
-func (b LfResearches) GetRocktalCollectorEnhancement() int64 { return b.RocktalCollectorEnhancement }
-func (b LfResearches) GetCatalyserTechnology() int64         { return b.CatalyserTechnology }
-func (b LfResearches) GetPlasmaDrive() int64                 { return b.PlasmaDrive }
-func (b LfResearches) GetEfficiencyModule() int64            { return b.EfficiencyModule }
-func (b LfResearches) GetDepotAI() int64                     { return b.DepotAI }
-func (b LfResearches) GetGeneralOverhaulLightFighter() int64 { return b.GeneralOverhaulLightFighter }
-func (b LfResearches) GetAutomatedTransportLines() int64     { return b.AutomatedTransportLines }
-func (b LfResearches) GetImprovedDroneAI() int64             { return b.ImprovedDroneAI }
-func (b LfResearches) GetExperimentalRecyclingTechnology() int64 {
+func (b LfResearches) GetDiamondEnergyTransmitter() *int64    { return b.DiamondEnergyTransmitter }
+func (b LfResearches) GetObsidianShieldReinforcement() *int64 { return b.ObsidianShieldReinforcement }
+func (b LfResearches) GetRuneShields() *int64                 { return b.RuneShields }
+func (b LfResearches) GetRocktalCollectorEnhancement() *int64 { return b.RocktalCollectorEnhancement }
+func (b LfResearches) GetCatalyserTechnology() *int64         { return b.CatalyserTechnology }
+func (b LfResearches) GetPlasmaDrive() *int64                 { return b.PlasmaDrive }
+func (b LfResearches) GetEfficiencyModule() *int64            { return b.EfficiencyModule }
+func (b LfResearches) GetDepotAI() *int64                     { return b.DepotAI }
+func (b LfResearches) GetGeneralOverhaulLightFighter() *int64 { return b.GeneralOverhaulLightFighter }
+func (b LfResearches) GetAutomatedTransportLines() *int64     { return b.AutomatedTransportLines }
+func (b LfResearches) GetImprovedDroneAI() *int64             { return b.ImprovedDroneAI }
+func (b LfResearches) GetExperimentalRecyclingTechnology() *int64 {
 	return b.ExperimentalRecyclingTechnology
 }
-func (b LfResearches) GetGeneralOverhaulCruiser() int64 { return b.GeneralOverhaulCruiser }
-func (b LfResearches) GetSlingshotAutopilot() int64     { return b.SlingshotAutopilot }
-func (b LfResearches) GetHighTemperatureSuperconductors() int64 {
+func (b LfResearches) GetGeneralOverhaulCruiser() *int64 { return b.GeneralOverhaulCruiser }
+func (b LfResearches) GetSlingshotAutopilot() *int64     { return b.SlingshotAutopilot }
+func (b LfResearches) GetHighTemperatureSuperconductors() *int64 {
 	return b.HighTemperatureSuperconductors
 }
-func (b LfResearches) GetGeneralOverhaulBattleship() int64    { return b.GeneralOverhaulBattleship }
-func (b LfResearches) GetArtificialSwarmIntelligence() int64  { return b.ArtificialSwarmIntelligence }
-func (b LfResearches) GetGeneralOverhaulBattlecruiser() int64 { return b.GeneralOverhaulBattlecruiser }
-func (b LfResearches) GetGeneralOverhaulBomber() int64        { return b.GeneralOverhaulBomber }
-func (b LfResearches) GetGeneralOverhaulDestroyer() int64     { return b.GeneralOverhaulDestroyer }
-func (b LfResearches) GetExperimentalWeaponsTechnology() int64 {
+func (b LfResearches) GetGeneralOverhaulBattleship() *int64    { return b.GeneralOverhaulBattleship }
+func (b LfResearches) GetArtificialSwarmIntelligence() *int64  { return b.ArtificialSwarmIntelligence }
+func (b LfResearches) GetGeneralOverhaulBattlecruiser() *int64 { return b.GeneralOverhaulBattlecruiser }
+func (b LfResearches) GetGeneralOverhaulBomber() *int64        { return b.GeneralOverhaulBomber }
+func (b LfResearches) GetGeneralOverhaulDestroyer() *int64     { return b.GeneralOverhaulDestroyer }
+func (b LfResearches) GetExperimentalWeaponsTechnology() *int64 {
 	return b.ExperimentalWeaponsTechnology
 }
-func (b LfResearches) GetMechanGeneralEnhancement() int64 { return b.MechanGeneralEnhancement }
-func (b LfResearches) GetHeatRecovery() int64             { return b.HeatRecovery }
-func (b LfResearches) GetSulphideProcess() int64          { return b.SulphideProcess }
-func (b LfResearches) GetPsionicNetwork() int64           { return b.PsionicNetwork }
-func (b LfResearches) GetTelekineticTractorBeam() int64   { return b.TelekineticTractorBeam }
-func (b LfResearches) GetEnhancedSensorTechnology() int64 { return b.EnhancedSensorTechnology }
-func (b LfResearches) GetNeuromodalCompressor() int64     { return b.NeuromodalCompressor }
-func (b LfResearches) GetNeuroInterface() int64           { return b.NeuroInterface }
-func (b LfResearches) GetInterplanetaryAnalysisNetwork() int64 {
+func (b LfResearches) GetMechanGeneralEnhancement() *int64 { return b.MechanGeneralEnhancement }
+func (b LfResearches) GetHeatRecovery() *int64             { return b.HeatRecovery }
+func (b LfResearches) GetSulphideProcess() *int64          { return b.SulphideProcess }
+func (b LfResearches) GetPsionicNetwork() *int64           { return b.PsionicNetwork }
+func (b LfResearches) GetTelekineticTractorBeam() *int64   { return b.TelekineticTractorBeam }
+func (b LfResearches) GetEnhancedSensorTechnology() *int64 { return b.EnhancedSensorTechnology }
+func (b LfResearches) GetNeuromodalCompressor() *int64     { return b.NeuromodalCompressor }
+func (b LfResearches) GetNeuroInterface() *int64           { return b.NeuroInterface }
+func (b LfResearches) GetInterplanetaryAnalysisNetwork() *int64 {
 	return b.InterplanetaryAnalysisNetwork
 }
-func (b LfResearches) GetOverclockingHeavyFighter() int64     { return b.OverclockingHeavyFighter }
-func (b LfResearches) GetTelekineticDrive() int64             { return b.TelekineticDrive }
-func (b LfResearches) GetSixthSense() int64                   { return b.SixthSense }
-func (b LfResearches) GetPsychoharmoniser() int64             { return b.Psychoharmoniser }
-func (b LfResearches) GetEfficientSwarmIntelligence() int64   { return b.EfficientSwarmIntelligence }
-func (b LfResearches) GetOverclockingLargeCargo() int64       { return b.OverclockingLargeCargo }
-func (b LfResearches) GetGravitationSensors() int64           { return b.GravitationSensors }
-func (b LfResearches) GetOverclockingBattleship() int64       { return b.OverclockingBattleship }
-func (b LfResearches) GetPsionicShieldMatrix() int64          { return b.PsionicShieldMatrix }
-func (b LfResearches) GetKaeleshDiscovererEnhancement() int64 { return b.KaeleshDiscovererEnhancement }
+func (b LfResearches) GetOverclockingHeavyFighter() *int64     { return b.OverclockingHeavyFighter }
+func (b LfResearches) GetTelekineticDrive() *int64             { return b.TelekineticDrive }
+func (b LfResearches) GetSixthSense() *int64                   { return b.SixthSense }
+func (b LfResearches) GetPsychoharmoniser() *int64             { return b.Psychoharmoniser }
+func (b LfResearches) GetEfficientSwarmIntelligence() *int64   { return b.EfficientSwarmIntelligence }
+func (b LfResearches) GetOverclockingLargeCargo() *int64       { return b.OverclockingLargeCargo }
+func (b LfResearches) GetGravitationSensors() *int64           { return b.GravitationSensors }
+func (b LfResearches) GetOverclockingBattleship() *int64       { return b.OverclockingBattleship }
+func (b LfResearches) GetPsionicShieldMatrix() *int64          { return b.PsionicShieldMatrix }
+func (b LfResearches) GetKaeleshDiscovererEnhancement() *int64 { return b.KaeleshDiscovererEnhancement }
 
 func (b LfResearches) Lazy() LazyLfResearches {
 	return func() LfResearches { return b }
 }
 
 // ByID gets the research level by lfResearch id
-func (b LfResearches) ByID(id ID) int64 {
+func (b LfResearches) ByID(id ID) *int64 {
 	switch id {
 	case IntergalacticEnvoysID:
 		return b.IntergalacticEnvoys
@@ -430,7 +430,7 @@ func (b LfResearches) ByID(id ID) int64 {
 	case KaeleshDiscovererEnhancementID:
 		return b.KaeleshDiscovererEnhancement
 	}
-	return 0
+	return nil
 }
 
 // BaseLfResearch base struct for Lifeform techs
