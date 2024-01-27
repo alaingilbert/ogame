@@ -73,11 +73,16 @@ func getChallengeURL(base, challengeID string) string {
 }
 
 // Register a new gameforge lobby account
-func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, password, challengeID, lang string) error {
+func Register(device *device.Device, ctx context.Context, lobby, email, password, challengeID, lang string) error {
+	blackbox, err := device.GetBlackbox()
+	if err != nil {
+		return err
+	}
 	if lang == "" {
 		lang = "en"
 	}
 	var payload struct {
+		Blackbox    string `json:"blackbox"`
 		Credentials struct {
 			Email    string `json:"email"`
 			Password string `json:"password"`
@@ -85,6 +90,7 @@ func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, 
 		Language string `json:"language"`
 		Kid      string `json:"kid"`
 	}
+	payload.Blackbox = "tra:" + blackbox
 	payload.Credentials.Email = email
 	payload.Credentials.Password = password
 	payload.Language = lang
@@ -102,7 +108,7 @@ func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, 
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
-	resp, err := client.Do(req)
+	resp, err := device.GetClient().Do(req)
 	if err != nil {
 		return err
 	}
