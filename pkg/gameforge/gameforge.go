@@ -179,7 +179,7 @@ func LoginAndAddAccount(params *GfLoginParams, universe, lang string) (*AddAccou
 	if err != nil {
 		return nil, err
 	}
-	return AddAccountByUniverseLang(params.Device.GetClient(), params.Ctx, params.Lobby, postSessionsRes.Token, universe, lang)
+	return AddAccountByUniverseLang(params.Device, params.Ctx, params.Lobby, postSessionsRes.Token, universe, lang)
 }
 
 // RedeemCode ...
@@ -235,8 +235,8 @@ func FindServer(universe, lang string, servers []Server) (out Server, found bool
 	return
 }
 
-func AddAccountByUniverseLang(client httpclient.IHttpClient, ctx context.Context, lobby, bearerToken, universe, lang string) (*AddAccountRes, error) {
-	servers, err := GetServers(lobby, client, ctx)
+func AddAccountByUniverseLang(device *device.Device, ctx context.Context, lobby, bearerToken, universe, lang string) (*AddAccountRes, error) {
+	servers, err := GetServers(lobby, device.GetClient(), ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -244,7 +244,7 @@ func AddAccountByUniverseLang(client httpclient.IHttpClient, ctx context.Context
 	if !found {
 		return nil, errors.New("server not found")
 	}
-	return AddAccount(client, ctx, lobby, server.AccountGroup, bearerToken)
+	return AddAccount(device, ctx, lobby, server.AccountGroup, bearerToken)
 }
 
 // AddAccountRes response from creating a new account
@@ -265,13 +265,19 @@ func getGameforgeLobbyBaseURL(lobby string) string {
 	return fmt.Sprintf("https://%s.ogame.gameforge.com", lobby)
 }
 
-func AddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
+func AddAccount(device *device.Device, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
+	blackbox, err := device.GetBlackbox()
+	if err != nil {
+		return nil, err
+	}
 	var payload struct {
 		AccountGroup string `json:"accountGroup"`
+		Blackbox     string `json:"blackbox"`
 		Locale       string `json:"locale"`
 		Kid          string `json:"kid"`
 	}
 	payload.AccountGroup = accountGroup // en_181
+	payload.Blackbox = "tra:" + blackbox
 	payload.Locale = "en_GB"
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
@@ -285,7 +291,7 @@ func AddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, accou
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
-	resp, err := client.Do(req)
+	resp, err := device.GetClient().Do(req)
 	if err != nil {
 		return nil, err
 	}

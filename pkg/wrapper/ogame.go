@@ -3858,7 +3858,7 @@ func (b *OGame) botUnlock(unlockedBy string) {
 
 func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
-	return gameforge.AddAccount(b.device.GetClient(), b.ctx, b.lobby, accountGroup, b.bearerToken)
+	return gameforge.AddAccount(b.device, b.ctx, b.lobby, accountGroup, b.bearerToken)
 }
 
 func (b *OGame) getCachedCelestial(v IntoCelestial) (Celestial, error) {
