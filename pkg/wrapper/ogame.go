@@ -126,12 +126,6 @@ type Params struct {
 	CaptchaCallback solvers.CaptchaCallback
 }
 
-// Lobby constants
-const (
-	Lobby         = "lobby"
-	LobbyPioneers = "lobby-pioneers"
-)
-
 // GetClientWithProxy ...
 func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) (*http.Client, error) {
 	var err error
@@ -204,7 +198,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang strin
 
 	b.Universe = universe
 	b.SetOGameCredentials(username, password, otpSecret, bearerToken)
-	b.setOGameLobby(Lobby)
+	b.setOGameLobby(gameforge.Lobby)
 	b.language = lang
 	b.playerID = playerID
 
@@ -462,8 +456,8 @@ func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken s
 }
 
 func (b *OGame) setOGameLobby(lobby string) {
-	if lobby != LobbyPioneers {
-		lobby = Lobby
+	if lobby != gameforge.LobbyPioneers {
+		lobby = gameforge.Lobby
 	}
 	b.lobby = lobby
 }

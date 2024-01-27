@@ -158,9 +158,18 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 
 func buildBearerHeaderValue(token string) string { return "Bearer " + token }
 
+// Lobby constants
+const (
+	Lobby         = "lobby"
+	LobbyPioneers = "lobby-pioneers"
+)
+
 func setDefaultParams(params *GfLoginParams) {
 	if params.Ctx == nil {
 		params.Ctx = context.Background()
+	}
+	if params.Lobby == "" {
+		params.Lobby = Lobby
 	}
 }
 

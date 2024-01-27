@@ -203,7 +203,7 @@ func (b *OGame) GetUniverseSpeedFleet() int64 {
 
 // IsPioneers either or not the bot use lobby-pioneers
 func (b *OGame) IsPioneers() bool {
-	return b.lobby == LobbyPioneers
+	return b.lobby == gameforge.LobbyPioneers
 }
 
 // IsDonutGalaxy shortcut to get ogame galaxy donut config
