@@ -72,6 +72,8 @@ func getChallengeURL(base, challengeID string) string {
 	return fmt.Sprintf("%s/challenge/%s", base, challengeID)
 }
 
+const blackboxPrefix = "tra:"
+
 // Register a new gameforge lobby account
 func Register(device *device.Device, ctx context.Context, lobby, email, password, challengeID, lang string) error {
 	blackbox, err := device.GetBlackbox()
@@ -93,7 +95,7 @@ func Register(device *device.Device, ctx context.Context, lobby, email, password
 		Language string `json:"language"`
 		Kid      string `json:"kid"`
 	}
-	payload.Blackbox = "tra:" + blackbox
+	payload.Blackbox = blackboxPrefix + blackbox
 	payload.Credentials.Email = email
 	payload.Credentials.Password = password
 	payload.Language = lang
@@ -295,7 +297,7 @@ func AddAccount(device *device.Device, ctx context.Context, lobby, accountGroup,
 		Kid          string `json:"kid"`
 	}
 	payload.AccountGroup = accountGroup // en_181
-	payload.Blackbox = "tra:" + blackbox
+	payload.Blackbox = blackboxPrefix + blackbox
 	payload.Locale = "en_GB"
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
@@ -463,7 +465,7 @@ func postSessionsReq(params *GfLoginParams, gameEnvironmentID, platformGameID st
 		Locale:                  "en_GB",
 		GfLang:                  "en",
 		PlatformGameID:          platformGameID,
-		Blackbox:                "tra:" + blackbox,
+		Blackbox:                blackboxPrefix + blackbox,
 		GameEnvironmentID:       gameEnvironmentID,
 		AutoGameAccountCreation: false,
 	}
@@ -740,7 +742,7 @@ func GetLoginLink(device *device.Device, ctx context.Context, lobby string, user
 			Number   int64  `json:"number"`
 		} `json:"server"`
 	}{
-		Blackbox:      "tra:" + blackbox,
+		Blackbox:      blackboxPrefix + blackbox,
 		Id:            userAccount.ID,
 		ClickedButton: "account_list",
 	}
