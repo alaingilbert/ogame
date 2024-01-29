@@ -23,6 +23,9 @@ var ErrAccountNotFound = errors.New("account not found")
 // ErrAccountBlocked returned when account is banned
 var ErrAccountBlocked = errors.New("account is blocked")
 
+// ErrLoginLink returned when account is somewhat banned, cannot login for no apparent reason
+var ErrLoginLink = errors.New("failed to get login link")
+
 // ErrInvalidPlanetID returned when a planet id is invalid
 var ErrInvalidPlanetID = errors.New("invalid planet id")
 

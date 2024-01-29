@@ -772,8 +772,12 @@ func GetLoginLink(device *device.Device, ctx context.Context, lobby string, user
 	if err != nil {
 		return "", err
 	}
-	var loginLink struct{ URL string }
 
+	if resp.StatusCode == http.StatusBadRequest && string(by2) == `[]` {
+		return "", ogame.ErrLoginLink
+	}
+
+	var loginLink struct{ URL string }
 	if err := json.Unmarshal(by2, &loginLink); err != nil {
 		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by2))
 	}
