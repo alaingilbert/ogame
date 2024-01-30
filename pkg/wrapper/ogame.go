@@ -1905,9 +1905,17 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 	return resp.Header, err
 }
 
+func (b *OGame) getJumpGatePage(originMoonID ogame.MoonID) (parser.JumpGateAjaxPage, error) {
+	vals := url.Values{"page": {"ajax"}, "component": {"jumpgate"}, "overlay": {"1"}, "ajax": {"1"}}
+	return getAjaxPage[parser.JumpGateAjaxPage](b, vals, ChangePlanet(originMoonID.Celestial()))
+}
+
 func (b *OGame) jumpGateDestinations(originMoonID ogame.MoonID) ([]ogame.MoonID, int64, error) {
-	pageHTML, _ := b.getPage(JumpgatelayerPageName, ChangePlanet(originMoonID.Celestial()))
-	_, _, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
+	page, err := b.getJumpGatePage(originMoonID)
+	if err != nil {
+		return nil, 0, err
+	}
+	_, _, dests, wait := page.ExtractJumpGate()
 	if wait > 0 {
 		return dests, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
 	}
@@ -1915,8 +1923,11 @@ func (b *OGame) jumpGateDestinations(originMoonID ogame.MoonID) ([]ogame.MoonID,
 }
 
 func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships ogame.ShipsInfos) (bool, int64, error) {
-	pageHTML, _ := b.getPage(JumpgatelayerPageName, ChangePlanet(originMoonID.Celestial()))
-	availShips, token, dests, wait := b.extractor.ExtractJumpGate(pageHTML)
+	page, err := b.getJumpGatePage(originMoonID)
+	if err != nil {
+		return false, 0, err
+	}
+	availShips, token, dests, wait := page.ExtractJumpGate()
 	if wait > 0 {
 		return false, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
 	}
@@ -1926,7 +1937,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 		return false, 0, errors.New("destination moon id invalid")
 	}
 
-	payload := url.Values{"token": {token}, "zm": {utils.FI64(destMoonID)}}
+	payload := url.Values{"token": {token}, "targetSpaceObjectId": {utils.FI64(destMoonID)}}
 
 	// Add ships to payload
 	for _, s := range ogame.Ships {
@@ -1937,7 +1948,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 		}
 	}
 
-	if _, err := b.postPageContent(url.Values{"page": {"jumpgate_execute"}}, payload); err != nil {
+	if _, err := b.postPageContent(url.Values{"page": {"componentOnly"}, "component": {"jumpgate"}, "action": {"executeJump"}, "asJson": {"1"}}, payload); err != nil {
 		return false, 0, err
 	}
 	return true, 0, nil

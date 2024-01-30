@@ -40,3 +40,9 @@ func (e Extractor) ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, 
 func (e Extractor) ExtractLifeformTypeFromDoc(doc *goquery.Document) ogame.LifeformType {
 	return extractLifeformTypeFromDoc(doc)
 }
+
+// ExtractJumpGate return the available ships to send, form token, possible moon IDs and wait time (if any)
+// given a jump gate popup html.
+func (e *Extractor) ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64) {
+	return extractJumpGate(pageHTML)
+}
