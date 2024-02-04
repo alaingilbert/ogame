@@ -80,6 +80,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 					err := botLoginFn()
 					return false, err
 				}
+				return false, err
 			}
 			b.debug("login using existing cookies")
 			if err := b.loginPart3Tmp(userAccount, page, loginLink, pageHTML); err != nil {
