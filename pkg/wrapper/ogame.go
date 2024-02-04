@@ -3401,6 +3401,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	payload.Set("prioCrystal", "2")
 	payload.Set("prioDeuterium", "3")
 	payload.Set("retreatAfterDefenderRetreat", "0")
+	payload.Set("lootFoodOnAttack", "0")
 	if mission == ogame.ParkInThatAlly || mission == ogame.Expedition {
 		if mission == ogame.Expedition { // Expedition 1 to 18
 			holdingTime = utils.Clamp(holdingTime, 1, 18)
