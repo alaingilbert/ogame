@@ -65,7 +65,8 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		return false, err
 	}
 
-	page, err := getPage[parser.OverviewPage](b, SkipRetry, SkipCacheFullPage)
+	loginOpts := []Option{SkipRetry, SkipCacheFullPage}
+	page, err := getPage[parser.OverviewPage](b, loginOpts...)
 	if err != nil {
 		if errors.Is(err, ogame.ErrNotLogged) {
 			dev := b.device
@@ -78,7 +79,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			if err != nil {
 				return true, err
 			}
-			page, err := getPage[parser.OverviewPage](b, SkipRetry, SkipCacheFullPage)
+			page, err := getPage[parser.OverviewPage](b, loginOpts...)
 			if err != nil {
 				if errors.Is(err, ogame.ErrNotLogged) {
 					err := b.login()
