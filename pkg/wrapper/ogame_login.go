@@ -261,7 +261,11 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	ext.SetLocation(b.location)
 	b.extractor = ext
 
-	_, _ = b.getPage(PreferencesPageName) // Will update preferences cached values
+	preferencesPage, err := getPage[parser.PreferencesPage](b, SkipCacheFullPage)
+	if err != nil {
+		b.error(err)
+	}
+	b.CachedPreferences = preferencesPage.ExtractPreferences()
 
 	ext.SetLanguage(b.CachedPreferences.Language)
 	b.extractor = ext
