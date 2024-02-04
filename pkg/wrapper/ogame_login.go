@@ -129,14 +129,15 @@ func (b *OGame) login() error {
 	if err != nil {
 		return err
 	}
+	token := postSessionsRes.Token
 
-	server, userAccount, err := b.loginPart1(postSessionsRes.Token)
+	server, userAccount, err := b.loginPart1(token)
 	if err != nil {
 		return err
 	}
 
 	b.debug("get login link")
-	loginLink, err := gameforge.GetLoginLink(b.device, b.ctx, b.lobby, userAccount, postSessionsRes.Token)
+	loginLink, err := gameforge.GetLoginLink(b.device, b.ctx, b.lobby, userAccount, token)
 	if err != nil {
 		return err
 	}
