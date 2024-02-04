@@ -1457,6 +1457,7 @@ func (b *OGame) setPreferences(p ogame.Preferences) error {
 	payload.Set("settings_order", utils.FI64(p.SortOrder))
 	payload.Set("spio_anz", utils.FI64(p.SpioAnz))
 	payload.Set("eventsShow", utils.FI64(p.EventsShow))
+	payload.Set("language", p.Language)
 
 	_, err = b.postPageContent(vals, payload)
 	return err

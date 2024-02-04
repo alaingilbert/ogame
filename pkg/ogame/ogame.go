@@ -225,6 +225,7 @@ type Preferences struct {
 	MobileVersion                      bool
 	ShowOldDropDowns                   bool
 	ActivateAutofocus                  bool
+	Language                           string
 	EventsShow                         int64 // Hide: 1, Above the content: 2, Below the content: 3
 	SortSetting                        int64 // Order of emergence: 0, Coordinates: 1, Alphabet: 2, Size: 3, Used fields: 4
 	SortOrder                          int64 // Up: 0, Down: 1

@@ -46,3 +46,8 @@ func (e Extractor) ExtractLifeformTypeFromDoc(doc *goquery.Document) ogame.Lifef
 func (e *Extractor) ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64) {
 	return extractJumpGate(pageHTML)
 }
+
+// ExtractPreferencesFromDoc ...
+func (e *Extractor) ExtractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
+	return extractPreferencesFromDoc(doc)
+}
