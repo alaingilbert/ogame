@@ -533,7 +533,7 @@ func (e *Extractor) ExtractResourcesProductionsFromDoc(doc *goquery.Document) (o
 
 // ExtractPreferencesFromDoc ...
 func (e *Extractor) ExtractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
-	return extractPreferencesFromDoc(doc)
+	return ExtractPreferencesFromDoc(doc)
 }
 
 // ExtractResourceSettingsFromDoc ...

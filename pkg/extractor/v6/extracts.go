@@ -977,7 +977,7 @@ func extractResourcesProductionsFromDoc(doc *goquery.Document) (ogame.Resources,
 	return res, nil
 }
 
-func extractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
+func ExtractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
 	prefs := ogame.Preferences{
 		SpioAnz:                            extractSpioAnzFromDoc(doc),
 		SpySystemAutomaticQuantity:         extractSpySystemAutomaticQuantityFromDoc(doc),
