@@ -72,7 +72,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		if errors.Is(err, ogame.ErrNotLogged) {
 			loginLink, pageHTML, err := b.getAndExecLoginLink(userAccount, token)
 			if err != nil {
-				return true, err
+				return false, err
 			}
 			page, err := getPage[parser.OverviewPage](b, loginOpts...)
 			if err != nil {
