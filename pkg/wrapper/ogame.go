@@ -265,7 +265,7 @@ func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url
 }
 
 // V11 IntroBypass
-func (b *OGame) introBypass(page parser.OverviewPage) error {
+func (b *OGame) introBypass(page *parser.OverviewPage) error {
 	if bytes.Contains(page.GetContent(), []byte(`currentPage = "intro";`)) {
 		b.debug("bypassing intro page")
 		vals := url.Values{
@@ -421,11 +421,11 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 	b.hasTechnocrat = page.ExtractTechnocrat()
 
 	switch castedPage := page.(type) {
-	case parser.OverviewPage:
+	case *parser.OverviewPage:
 		b.Player, _ = castedPage.ExtractUserInfos()
-	case parser.PreferencesPage:
+	case *parser.PreferencesPage:
 		b.CachedPreferences = castedPage.ExtractPreferences()
-	case parser.ResearchPage:
+	case *parser.ResearchPage:
 		researches := castedPage.ExtractResearch()
 		b.researches = &researches
 	}

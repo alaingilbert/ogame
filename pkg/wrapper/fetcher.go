@@ -72,7 +72,7 @@ func (b *OGame) getPage(page string, opts ...Option) ([]byte, error) {
 	return b.getPageContent(vals, opts...)
 }
 
-func getPage[T parser.FullPagePages](b *OGame, opts ...Option) (T, error) {
+func getPage[T parser.FullPagePages](b *OGame, opts ...Option) (*T, error) {
 	var zero T
 	var pageName string
 	switch any(zero).(type) {
@@ -103,7 +103,7 @@ func getPage[T parser.FullPagePages](b *OGame, opts ...Option) (T, error) {
 	}
 	pageHTML, err := b.getPage(pageName, opts...)
 	if err != nil {
-		return zero, err
+		return &zero, err
 	}
 	return parser.ParsePage[T](b.extractor, pageHTML)
 }

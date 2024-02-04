@@ -216,7 +216,7 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 	return nil
 }
 
-func (b *OGame) loginPart3(userAccount gameforge.Account, page parser.OverviewPage) error {
+func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
 	var ext extractor.Extractor = v11.NewExtractor()
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
 		b.serverVersion = ogVersion
