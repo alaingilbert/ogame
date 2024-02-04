@@ -19,6 +19,8 @@ type Page struct {
 	content []byte
 }
 
+func (p *Page) SetExtractor(ext extractor.Extractor) { p.e = ext }
+
 func (p *Page) GetContent() []byte { return p.content }
 
 func (p *Page) GetDoc() *goquery.Document {
