@@ -422,7 +422,11 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 
 	switch castedPage := page.(type) {
 	case *parser.OverviewPage:
-		b.Player, _ = castedPage.ExtractUserInfos()
+		var err error
+		b.Player, err = castedPage.ExtractUserInfos()
+		if err != nil {
+			b.error(err)
+		}
 	case *parser.PreferencesPage:
 		b.CachedPreferences = castedPage.ExtractPreferences()
 	case *parser.ResearchPage:
