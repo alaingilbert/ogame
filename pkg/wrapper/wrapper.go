@@ -19,11 +19,12 @@ type IntoMoon any
 
 // Options ...
 type Options struct {
-	DebugGalaxy     bool
-	SkipInterceptor bool
-	SkipRetry       bool
-	ChangePlanet    ogame.CelestialID // cp parameter
-	Delay           time.Duration
+	DebugGalaxy       bool
+	SkipInterceptor   bool
+	SkipRetry         bool
+	SkipCacheFullPage bool
+	ChangePlanet      ogame.CelestialID // cp parameter
+	Delay             time.Duration
 }
 
 // Option functions to be passed to public interface to change behaviors
@@ -42,6 +43,11 @@ func SkipInterceptor(opt *Options) {
 // SkipRetry option to skip retry
 func SkipRetry(opt *Options) {
 	opt.SkipRetry = true
+}
+
+// SkipCacheFullPage option to skip caching full page information
+func SkipCacheFullPage(opt *Options) {
+	opt.SkipCacheFullPage = true
 }
 
 // ChangePlanet set the cp parameter

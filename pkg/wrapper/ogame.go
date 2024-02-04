@@ -1191,7 +1191,7 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 		return []byte{}, err
 	}
 
-	if err := processResponseHTML(method, b, pageHTMLBytes, page, payload, vals); err != nil {
+	if err := processResponseHTML(method, b, pageHTMLBytes, page, payload, vals, cfg.SkipCacheFullPage); err != nil {
 		return []byte{}, err
 	}
 
@@ -1224,12 +1224,14 @@ func alterPayload(method string, b *OGame, vals, payload url.Values) {
 	}
 }
 
-func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, payload, vals url.Values) error {
+func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, payload, vals url.Values, SkipCacheFullPage bool) error {
 	switch method {
 	case http.MethodGet:
 		if !IsAjaxPage(vals) && !IsEmpirePage(vals) && v6.IsLogged(pageHTML) {
-			parsedFullPage := parser.AutoParseFullPage(b.extractor, pageHTML)
-			b.cacheFullPageInfo(parsedFullPage)
+			if !SkipCacheFullPage {
+				parsedFullPage := parser.AutoParseFullPage(b.extractor, pageHTML)
+				b.cacheFullPageInfo(parsedFullPage)
+			}
 		}
 
 	case http.MethodPost:
