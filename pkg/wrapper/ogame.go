@@ -3250,7 +3250,10 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 		return ogame.Fleet{}, err
 	}
 
-	fleet1Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	fleet1Doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.Fleet{}, err
+	}
 	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
 	if fleet1BodyID != FleetdispatchPageName {
 		now := time.Now().Unix()
