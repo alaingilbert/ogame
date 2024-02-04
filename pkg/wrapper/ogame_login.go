@@ -47,8 +47,9 @@ func (b *OGame) wrapLogin() error {
 
 // Return either or not the bot logged in using the provided bearer token.
 func (b *OGame) loginWithBearerToken(token string) (bool, error) {
+	botLoginFn := b.login
 	if token == "" {
-		err := b.login()
+		err := botLoginFn()
 		return false, err
 	}
 	b.bearerToken = token
@@ -57,7 +58,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 		errors.Is(err, ogame.ErrAccountBlocked) {
 		return false, err
 	} else if err != nil {
-		err := b.login()
+		err := botLoginFn()
 		return false, err
 	}
 
@@ -82,7 +83,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 			page, err := getPage[parser.OverviewPage](b, loginOpts...)
 			if err != nil {
 				if errors.Is(err, ogame.ErrNotLogged) {
-					err := b.login()
+					err := botLoginFn()
 					return false, err
 				}
 			}
