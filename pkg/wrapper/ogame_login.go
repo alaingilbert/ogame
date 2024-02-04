@@ -255,12 +255,18 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 
 	serverTime, _ := page.ExtractServerTime()
 	b.location = serverTime.Location()
+
 	ext.SetLocation(b.location)
 	b.extractor = ext
 
-	b.cacheFullPageInfo(page)
-
 	_, _ = b.getPage(PreferencesPageName) // Will update preferences cached values
+
+	ext.SetLanguage(b.CachedPreferences.Language)
+	b.extractor = ext
+
+	page.SetExtractor(ext)
+
+	b.cacheFullPageInfo(page)
 
 	// Extract chat host and port
 	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(page.GetContent())
