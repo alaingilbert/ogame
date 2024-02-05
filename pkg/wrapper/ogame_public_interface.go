@@ -704,6 +704,11 @@ func (b *OGame) CharacterClass() ogame.CharacterClass {
 	return b.characterClass
 }
 
+// CountColonies returns colonies count/possible
+func (b *OGame) CountColonies() (int64, int64) {
+	return b.coloniesCount, b.coloniesPossible
+}
+
 // GetAuction ...
 func (b *OGame) GetAuction() (ogame.Auction, error) {
 	return b.WithPriority(taskRunner.Normal).GetAuction()
