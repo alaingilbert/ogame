@@ -170,15 +170,16 @@ type Wrapper interface {
 	BytesUploaded() int64
 	CharacterClass() ogame.CharacterClass
 	ConstructionTime(id ogame.ID, nbr int64, facilities ogame.Facilities) time.Duration
+	CountColonies() (int64, int64)
 	Disable()
 	Distance(origin, destination ogame.Coordinate) int64
 	Enable()
 	FleetDeutSaveFactor() float64
 	GetCachedCelestial(IntoCelestial) (Celestial, error)
-	GetCachedPlanet(IntoPlanet) (Planet, error)
-	GetCachedMoon(IntoMoon) (Moon, error)
 	GetCachedCelestials() []Celestial
+	GetCachedMoon(IntoMoon) (Moon, error)
 	GetCachedMoons() []Moon
+	GetCachedPlanet(IntoPlanet) (Planet, error)
 	GetCachedPlanets() []Planet
 	GetCachedPlayer() ogame.UserInfos
 	GetCachedPreferences() ogame.Preferences
