@@ -62,6 +62,7 @@ type FullPageExtractorDoc interface {
 	ExtractResourcesFromDoc(doc *goquery.Document) ogame.Resources
 	ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error)
 	ExtractTechnocratFromDoc(doc *goquery.Document) bool
+	ExtractColoniesFromDoc(doc *goquery.Document) (int64, int64)
 }
 
 type FullPageExtractorBytesDoc interface {

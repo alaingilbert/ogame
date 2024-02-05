@@ -99,6 +99,7 @@ type IFullPage interface {
 	ExtractEngineer() bool
 	ExtractGeologist() bool
 	ExtractTechnocrat() bool
+	ExtractColonies() (int64, int64)
 	ExtractServerTime() (time.Time, error)
 }
 

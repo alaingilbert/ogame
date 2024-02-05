@@ -1439,6 +1439,18 @@ func extractGeologistFromDoc(doc *goquery.Document) bool {
 	return doc.Find("div#officers a.geologist").HasClass("on")
 }
 
+func extractColoniesFromDoc(doc *goquery.Document) (int64, int64) {
+	r := regexp.MustCompile(`(\d+)/(\d+)`)
+	txt := doc.Find("div#countColonies span").Text()
+	m := r.FindStringSubmatch(txt)
+	if len(m) == 3 {
+		coloniesCount := utils.DoParseI64(m[1])
+		coloniesPossible := utils.DoParseI64(m[2])
+		return coloniesCount, coloniesPossible
+	}
+	return 0, 0
+}
+
 func extractTechnocratFromDoc(doc *goquery.Document) bool {
 	return doc.Find("div#officers a.technocrat").HasClass("on")
 }

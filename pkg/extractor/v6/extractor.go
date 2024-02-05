@@ -746,6 +746,11 @@ func (e *Extractor) ExtractTechnocratFromDoc(doc *goquery.Document) bool {
 	return extractTechnocratFromDoc(doc)
 }
 
+// ExtractColoniesFromDoc ...
+func (e *Extractor) ExtractColoniesFromDoc(doc *goquery.Document) (int64, int64) {
+	return extractColoniesFromDoc(doc)
+}
+
 // ExtractAbandonInformation ...
 func (e *Extractor) ExtractAbandonInformation(doc *goquery.Document) (string, string) {
 	return extractAbandonInformation(doc)

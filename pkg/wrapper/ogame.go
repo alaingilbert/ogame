@@ -102,6 +102,8 @@ type OGame struct {
 	hasTechnocrat         bool
 	captchaCallback       solvers.CaptchaCallback
 	device                *device.Device
+	coloniesCount         int64
+	coloniesPossible      int64
 }
 
 // Params parameters for more fine-grained initialization
@@ -419,6 +421,7 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 	b.hasEngineer = page.ExtractEngineer()
 	b.hasGeologist = page.ExtractGeologist()
 	b.hasTechnocrat = page.ExtractTechnocrat()
+	b.coloniesCount, b.coloniesPossible = page.ExtractColonies()
 
 	switch castedPage := page.(type) {
 	case *parser.OverviewPage:

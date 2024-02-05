@@ -46,6 +46,10 @@ func (p *FullPage) ExtractTechnocrat() bool {
 	return p.e.ExtractTechnocratFromDoc(p.GetDoc())
 }
 
+func (p *FullPage) ExtractColonies() (int64, int64) {
+	return p.e.ExtractColoniesFromDoc(p.GetDoc())
+}
+
 func (p *FullPage) ExtractLifeformEnabled() bool {
 	return p.e.ExtractLifeformEnabled(p.GetContent())
 }
