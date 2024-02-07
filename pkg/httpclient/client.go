@@ -117,8 +117,11 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, _ := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 	atomic.AddInt64(&c.bytesDownloaded, int64(len(body)))
 	atomic.AddInt64(&c.bytesUploaded, req.ContentLength)
 	// Reset resp.Body so it can be use again
