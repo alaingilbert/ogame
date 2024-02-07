@@ -30,20 +30,16 @@ type Client struct {
 	rps             int32 // atomic
 	maxRPS          int32 // atomic
 	rpsStartTime    int64 // atomic
-	bytesDownloaded int64
-	bytesUploaded   int64
+	bytesDownloaded int64 // atomic
+	bytesUploaded   int64 // atomic
 }
 
 func (c *Client) BytesDownloaded() int64 {
-	c.Lock()
-	defer c.Unlock()
-	return c.bytesDownloaded
+	return atomic.LoadInt64(&c.bytesDownloaded)
 }
 
 func (c *Client) BytesUploaded() int64 {
-	c.Lock()
-	defer c.Unlock()
-	return c.bytesUploaded
+	return atomic.LoadInt64(&c.bytesUploaded)
 }
 
 // NewClient ...
@@ -124,8 +120,8 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 	}
 	body, _ := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	c.bytesDownloaded += int64(len(body))
-	c.bytesUploaded += req.ContentLength
+	atomic.AddInt64(&c.bytesDownloaded, int64(len(body)))
+	atomic.AddInt64(&c.bytesUploaded, req.ContentLength)
 	// Reset resp.Body so it can be use again
 	resp.Body = io.NopCloser(bytes.NewBuffer(body))
 	return resp, err
