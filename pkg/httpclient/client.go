@@ -145,8 +145,6 @@ func (c *Client) SetTransport(tr http.RoundTripper) {
 }
 
 func (c *Client) UserAgent() string {
-	c.Lock()
-	defer c.Unlock()
 	return c.userAgent
 }
 
