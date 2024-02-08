@@ -262,6 +262,11 @@ func (b *OGame) SetPreferences(p ogame.Preferences) error {
 	return b.WithPriority(taskRunner.Normal).SetPreferences(p)
 }
 
+// SetPreferencesLang ...
+func (b *OGame) SetPreferencesLang(lang string) error {
+	return b.WithPriority(taskRunner.Normal).SetPreferencesLang(lang)
+}
+
 // IsVacationModeEnabled returns either or not the bot is in vacation mode
 func (b *OGame) IsVacationModeEnabled() bool {
 	return b.isVacationModeEnabled

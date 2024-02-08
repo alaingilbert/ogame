@@ -107,6 +107,7 @@ type Prioritizable interface {
 	ServerTime() (time.Time, error)
 	SetInitiator(initiator string) Prioritizable
 	SetPreferences(ogame.Preferences) error
+	SetPreferencesLang(lang string) error
 	SetVacationMode() error
 	Tx(clb func(tx Prioritizable) error) error
 	UseDM(string, ogame.CelestialID) error

@@ -1419,6 +1419,28 @@ func (b *OGame) setVacationMode() error {
 	return err
 }
 
+func (b *OGame) setPreferencesLang(lang string) error {
+	vals := url.Values{"page": {"ingame"}, "component": {"preferences"}}
+	pageHTML, err := b.getPageContent(vals)
+	if err != nil {
+		return err
+	}
+	rgx := regexp.MustCompile(`type='hidden' name='token' value='(\w+)'`)
+	m := rgx.FindSubmatch(pageHTML)
+	if len(m) < 2 {
+		return errors.New("unable to find token")
+	}
+	token := string(m[1])
+	payload := url.Values{
+		"mode":        {"save"},
+		"selectedTab": {"0"},
+		"token":       {token},
+	}
+	payload.Set("language", lang)
+	_, err = b.postPageContent(vals, payload)
+	return err
+}
+
 func (b *OGame) setPreferences(p ogame.Preferences) error {
 	vals := url.Values{"page": {"ingame"}, "component": {"preferences"}}
 	pageHTML, err := b.getPageContent(vals)

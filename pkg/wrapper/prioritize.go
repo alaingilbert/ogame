@@ -135,6 +135,13 @@ func (b *Prioritize) SetPreferences(p ogame.Preferences) error {
 	return b.bot.setPreferences(p)
 }
 
+// SetPreferencesLang ...
+func (b *Prioritize) SetPreferencesLang(lang string) error {
+	b.begin("SetPreferencesLang")
+	defer b.done()
+	return b.bot.setPreferencesLang(lang)
+}
+
 // GetPlanets returns the user planets
 func (b *Prioritize) GetPlanets() ([]Planet, error) {
 	b.begin("GetPlanets")
