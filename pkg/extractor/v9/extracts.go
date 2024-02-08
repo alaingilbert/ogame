@@ -903,7 +903,7 @@ func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) (out bool) {
 
 func extractAvailableDiscoveriesFromDoc(doc *goquery.Document) int64 {
 	discoveryCount := doc.Find("div#galaxyHeaderDiscoveryCount").Text()
-	rgx := regexp.MustCompile(`([0-9]*)/([0-9]*)`)
+	rgx := regexp.MustCompile(`(\d+)/(\d+)`)
 	m := rgx.FindStringSubmatch(discoveryCount)
 	usedString, totalString := m[1], m[2]
 	used := utils.DoParseI64(usedString)
