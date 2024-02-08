@@ -141,5 +141,5 @@ func extractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
 }
 
 func extractLanguageFromDoc(doc *goquery.Document) string {
-	return doc.Find("select[name=language] option[selected]").AttrOr("value", "en")
+	return doc.Find("select[name=language] option[selected]").AttrOr("value", "")
 }
