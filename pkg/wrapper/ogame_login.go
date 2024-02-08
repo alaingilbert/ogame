@@ -273,8 +273,11 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 		b.error(err)
 	}
 	b.CachedPreferences = preferencesPage.ExtractPreferences()
-
-	ext.SetLanguage(b.CachedPreferences.Language)
+	language := b.serverData.Language
+	if b.CachedPreferences.Language != "" {
+		language = b.CachedPreferences.Language
+	}
+	ext.SetLanguage(language)
 	b.extractor = ext
 
 	page.SetExtractor(ext)
