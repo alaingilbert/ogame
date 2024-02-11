@@ -473,7 +473,7 @@ type intergalacticEnvoys struct {
 
 func newIntergalacticEnvoys() *intergalacticEnvoys {
 	b := new(intergalacticEnvoys)
-	b.Name = "IntergalacticEnvoys"
+	b.Name = "Intergalactic Envoys"
 	b.ID = IntergalacticEnvoysID
 	b.durationBase = 1000
 	b.durationFactor = 1.2
@@ -489,7 +489,7 @@ type highPerformanceExtractors struct {
 
 func newHighPerformanceExtractors() *highPerformanceExtractors {
 	b := new(highPerformanceExtractors)
-	b.Name = "HighPerformanceExtractors"
+	b.Name = "High Performance Extractors"
 	b.ID = HighPerformanceExtractorsID
 	b.durationBase = 2000
 	b.durationFactor = 1.3
@@ -505,7 +505,7 @@ type fusionDrives struct {
 
 func newFusionDrives() *fusionDrives {
 	b := new(fusionDrives)
-	b.Name = "FusionDrives"
+	b.Name = "Fusion Drives"
 	b.ID = FusionDrivesID
 	b.durationBase = 2500
 	b.durationFactor = 1.3
@@ -521,7 +521,7 @@ type stealthFieldGenerator struct {
 
 func newStealthFieldGenerator() *stealthFieldGenerator {
 	b := new(stealthFieldGenerator)
-	b.Name = "StealthFieldGenerator"
+	b.Name = "Stealth Field Generator"
 	b.ID = StealthFieldGeneratorID
 	b.durationBase = 3500
 	b.durationFactor = 1.3
@@ -537,7 +537,7 @@ type orbitalDen struct {
 
 func newOrbitalDen() *orbitalDen {
 	b := new(orbitalDen)
-	b.Name = "OrbitalDen"
+	b.Name = "Orbital Den"
 	b.ID = OrbitalDenID
 	b.durationBase = 4500
 	b.durationFactor = 1.3
@@ -553,7 +553,7 @@ type researchAI struct {
 
 func newResearchAI() *researchAI {
 	b := new(researchAI)
-	b.Name = "ResearchAI"
+	b.Name = "Research AI"
 	b.ID = ResearchAIID
 	b.durationBase = 5000
 	b.durationFactor = 1.3
@@ -569,7 +569,7 @@ type highPerformanceTerraformer struct {
 
 func newHighPerformanceTerraformer() *highPerformanceTerraformer {
 	b := new(highPerformanceTerraformer)
-	b.Name = "HighPerformanceTerraformer"
+	b.Name = "High Performance Terraformer"
 	b.ID = HighPerformanceTerraformerID
 	b.durationBase = 8000
 	b.durationFactor = 1.3
@@ -585,7 +585,7 @@ type enhancedProductionTechnologies struct {
 
 func newEnhancedProductionTechnologies() *enhancedProductionTechnologies {
 	b := new(enhancedProductionTechnologies)
-	b.Name = "EnhancedProductionTechnologies"
+	b.Name = "Enhanced Production Technologies"
 	b.ID = EnhancedProductionTechnologiesID
 	b.durationBase = 6000
 	b.durationFactor = 1.3
@@ -601,7 +601,7 @@ type lightFighterMkII struct {
 
 func newLightFighterMkII() *lightFighterMkII {
 	b := new(lightFighterMkII)
-	b.Name = "LightFighterMkII"
+	b.Name = "Light Fighter MkII"
 	b.ID = LightFighterMkIIID
 	b.durationBase = 6500
 	b.durationFactor = 1.4
@@ -617,7 +617,7 @@ type cruiserMkII struct {
 
 func newCruiserMkII() *cruiserMkII {
 	b := new(cruiserMkII)
-	b.Name = "CruiserMkII"
+	b.Name = "Cruiser MkII"
 	b.ID = CruiserMkIIID
 	b.durationBase = 7000
 	b.durationFactor = 1.4
@@ -633,7 +633,7 @@ type improvedLabTechnology struct {
 
 func newImprovedLabTechnology() *improvedLabTechnology {
 	b := new(improvedLabTechnology)
-	b.Name = "ImprovedLabTechnology"
+	b.Name = "Improved Lab Technology"
 	b.ID = ImprovedLabTechnologyID
 	b.durationBase = 7500
 	b.durationFactor = 1.3
@@ -649,7 +649,7 @@ type plasmaTerraformer struct {
 
 func newPlasmaTerraformer() *plasmaTerraformer {
 	b := new(plasmaTerraformer)
-	b.Name = "PlasmaTerraformer"
+	b.Name = "Plasma Terraformer"
 	b.ID = PlasmaTerraformerID
 	b.durationBase = 10000
 	b.durationFactor = 1.3
@@ -665,7 +665,7 @@ type lowTemperatureDrives struct {
 
 func newLowTemperatureDrives() *lowTemperatureDrives {
 	b := new(lowTemperatureDrives)
-	b.Name = "LowTemperatureDrives"
+	b.Name = "Low Temperature Drives"
 	b.ID = LowTemperatureDrivesID
 	b.durationBase = 8500
 	b.durationFactor = 1.3
@@ -681,7 +681,7 @@ type bomberMkII struct {
 
 func newBomberMkII() *bomberMkII {
 	b := new(bomberMkII)
-	b.Name = "BomberMkII"
+	b.Name = "Bomber MkII"
 	b.ID = BomberMkIIID
 	b.durationBase = 9000
 	b.durationFactor = 1.4
@@ -697,7 +697,7 @@ type destroyerMkII struct {
 
 func newDestroyerMkII() *destroyerMkII {
 	b := new(destroyerMkII)
-	b.Name = "DestroyerMkII"
+	b.Name = "Destroyer MkII"
 	b.ID = DestroyerMkIIID
 	b.durationBase = 9500
 	b.durationFactor = 1.4
@@ -713,7 +713,7 @@ type battlecruiserMkII struct {
 
 func newBattlecruiserMkII() *battlecruiserMkII {
 	b := new(battlecruiserMkII)
-	b.Name = "BattlecruiserMkII"
+	b.Name = "Battlecruiser MkII"
 	b.ID = BattlecruiserMkIIID
 	b.durationBase = 10000
 	b.durationFactor = 1.4
@@ -729,7 +729,7 @@ type robotAssistants struct {
 
 func newRobotAssistants() *robotAssistants {
 	b := new(robotAssistants)
-	b.Name = "robotAssistants"
+	b.Name = "Robot Assistants"
 	b.ID = RobotAssistantsID
 	b.durationBase = 11000
 	b.durationFactor = 1.3
@@ -762,7 +762,7 @@ type volcanicBatteries struct {
 
 func newVolcanicBatteries() *volcanicBatteries {
 	b := new(volcanicBatteries)
-	b.Name = "VolcanicBatteries"
+	b.Name = "Volcanic Batteries"
 	b.ID = VolcanicBatteriesID
 	b.durationBase = 1000
 	b.durationFactor = 1.3
@@ -778,7 +778,7 @@ type acousticScanning struct {
 
 func newAcousticScanning() *acousticScanning {
 	b := new(acousticScanning)
-	b.Name = "AcousticScanning"
+	b.Name = "Acoustic Scanning"
 	b.ID = AcousticScanningID
 	b.durationBase = 2000
 	b.durationFactor = 1.3
@@ -794,7 +794,7 @@ type highEnergyPumpSystems struct {
 
 func newHighEnergyPumpSystems() *highEnergyPumpSystems {
 	b := new(highEnergyPumpSystems)
-	b.Name = "HighEnergyPumpSystems"
+	b.Name = "High Energy Pump Systems"
 	b.ID = HighEnergyPumpSystemsID
 	b.durationBase = 2500
 	b.durationFactor = 1.3
@@ -810,7 +810,7 @@ type cargoHoldExpansionCivilianShips struct {
 
 func newCargoHoldExpansionCivilianShips() *cargoHoldExpansionCivilianShips {
 	b := new(cargoHoldExpansionCivilianShips)
-	b.Name = "CargoHoldExpansionCivilianShips"
+	b.Name = "Cargo Hold Expansion Civilian Ships"
 	b.ID = CargoHoldExpansionCivilianShipsID
 	b.durationBase = 3500
 	b.durationFactor = 1.4
@@ -826,7 +826,7 @@ type magmaPoweredProduction struct {
 
 func newMagmaPoweredProduction() *magmaPoweredProduction {
 	b := new(magmaPoweredProduction)
-	b.Name = "MagmaPoweredProduction"
+	b.Name = "Magma Powered Production"
 	b.ID = MagmaPoweredProductionID
 	b.durationBase = 4500
 	b.durationFactor = 1.3
@@ -842,7 +842,7 @@ type geothermalPowerPlants struct {
 
 func newGeothermalPowerPlants() *geothermalPowerPlants {
 	b := new(geothermalPowerPlants)
-	b.Name = "GeothermalPowerPlants"
+	b.Name = "Geothermal Power Plants"
 	b.ID = GeothermalPowerPlantsID
 	b.durationBase = 5000
 	b.durationFactor = 1.3
@@ -858,7 +858,7 @@ type depthSounding struct {
 
 func newDepthSounding() *depthSounding {
 	b := new(depthSounding)
-	b.Name = "DepthSounding"
+	b.Name = "Depth Sounding"
 	b.ID = DepthSoundingID
 	b.durationBase = 5000
 	b.durationFactor = 1.3
@@ -874,7 +874,7 @@ type ionCrystalEnhancementHeavyFighter struct {
 
 func newIonCrystalEnhancementHeavyFighter() *ionCrystalEnhancementHeavyFighter {
 	b := new(ionCrystalEnhancementHeavyFighter)
-	b.Name = "IonCrystalEnhancementHeavyFighter"
+	b.Name = "Ion Crystal Enhancement Heavy Fighter"
 	b.ID = IonCrystalEnhancementHeavyFighterID
 	b.durationBase = 6000
 	b.durationFactor = 1.4
@@ -890,7 +890,7 @@ type improvedStellarator struct {
 
 func newImprovedStellarator() *improvedStellarator {
 	b := new(improvedStellarator)
-	b.Name = "ImprovedStellarator"
+	b.Name = "Improved Stellarator"
 	b.ID = ImprovedStellaratorID
 	b.durationBase = 6500
 	b.durationFactor = 1.3
@@ -906,7 +906,7 @@ type hardenedDiamondDrillHeads struct {
 
 func newHardenedDiamondDrillHeads() *hardenedDiamondDrillHeads {
 	b := new(hardenedDiamondDrillHeads)
-	b.Name = "HardenedDiamondDrillHeads"
+	b.Name = "Hardened Diamond Drill Heads"
 	b.ID = HardenedDiamondDrillHeadsID
 	b.durationBase = 7000
 	b.durationFactor = 1.3
@@ -922,7 +922,7 @@ type seismicMiningTechnology struct {
 
 func newSeismicMiningTechnology() *seismicMiningTechnology {
 	b := new(seismicMiningTechnology)
-	b.Name = "SeismicMiningTechnology"
+	b.Name = "Seismic Mining Technology"
 	b.ID = SeismicMiningTechnologyID
 	b.durationBase = 7500
 	b.durationFactor = 1.3
@@ -938,7 +938,7 @@ type magmaPoweredPumpSystems struct {
 
 func newMagmaPoweredPumpSystems() *magmaPoweredPumpSystems {
 	b := new(magmaPoweredPumpSystems)
-	b.Name = "MagmaPoweredPumpSystems"
+	b.Name = "Magma Powered Pump Systems"
 	b.ID = MagmaPoweredPumpSystemsID
 	b.durationBase = 8000
 	b.durationFactor = 1.3
@@ -954,7 +954,7 @@ type ionCrystalModules struct {
 
 func newIonCrystalModules() *ionCrystalModules {
 	b := new(ionCrystalModules)
-	b.Name = "IonCrystalModules"
+	b.Name = "Ion Crystal Modules"
 	b.ID = IonCrystalModulesID
 	b.durationBase = 8500
 	b.durationFactor = 1.3
@@ -970,7 +970,7 @@ type optimisedSiloConstructionMethod struct {
 
 func newOptimisedSiloConstructionMethod() *optimisedSiloConstructionMethod {
 	b := new(optimisedSiloConstructionMethod)
-	b.Name = "OptimisedSiloConstructionMethod"
+	b.Name = "Optimised Silo Construction Method"
 	b.ID = OptimisedSiloConstructionMethodID
 	b.durationBase = 9000
 	b.durationFactor = 1.3
@@ -986,7 +986,7 @@ type diamondEnergyTransmitter struct {
 
 func newDiamondEnergyTransmitter() *diamondEnergyTransmitter {
 	b := new(diamondEnergyTransmitter)
-	b.Name = "DiamondEnergyTransmitter"
+	b.Name = "Diamond Energy Transmitter"
 	b.ID = DiamondEnergyTransmitterID
 	b.durationBase = 9500
 	b.durationFactor = 1.3
@@ -1002,7 +1002,7 @@ type obsidianShieldReinforcement struct {
 
 func newObsidianShieldReinforcement() *obsidianShieldReinforcement {
 	b := new(obsidianShieldReinforcement)
-	b.Name = "ObsidianShieldReinforcement"
+	b.Name = "Obsidian Shield Reinforcement"
 	b.ID = ObsidianShieldReinforcementID
 	b.durationBase = 10000
 	b.durationFactor = 1.4
@@ -1018,7 +1018,7 @@ type runeShields struct {
 
 func newRuneShields() *runeShields {
 	b := new(runeShields)
-	b.Name = "RuneShields"
+	b.Name = "Rune Shields"
 	b.ID = RuneShieldsID
 	b.durationBase = 13000
 	b.durationFactor = 1.3
@@ -1034,7 +1034,7 @@ type rocktalCollectorEnhancement struct {
 
 func newRocktalCollectorEnhancement() *rocktalCollectorEnhancement {
 	b := new(rocktalCollectorEnhancement)
-	b.Name = "RocktalCollectorEnhancement"
+	b.Name = "Rocktal Collector Enhancement"
 	b.ID = RocktalCollectorEnhancementID
 	b.durationBase = 11000
 	b.durationFactor = 1.4
@@ -1052,7 +1052,7 @@ type catalyserTechnology struct {
 
 func newCatalyserTechnology() *catalyserTechnology {
 	b := new(catalyserTechnology)
-	b.Name = "CatalyserTechnology"
+	b.Name = "Catalyser Technology"
 	b.ID = CatalyserTechnologyID
 	b.durationBase = 1000
 	b.durationFactor = 1.3
@@ -1068,7 +1068,7 @@ type plasmaDrive struct {
 
 func newPlasmaDrive() *plasmaDrive {
 	b := new(plasmaDrive)
-	b.Name = "PlasmaDrive"
+	b.Name = "Plasma Drive"
 	b.ID = PlasmaDriveID
 	b.durationBase = 2000
 	b.durationFactor = 1.3
@@ -1084,7 +1084,7 @@ type efficiencyModule struct {
 
 func newEfficiencyModule() *efficiencyModule {
 	b := new(efficiencyModule)
-	b.Name = "EfficiencyModule"
+	b.Name = "Efficiency Module"
 	b.ID = EfficiencyModuleID
 	b.durationBase = 2500
 	b.durationFactor = 1.4
@@ -1100,7 +1100,7 @@ type depotAI struct {
 
 func newDepotAI() *depotAI {
 	b := new(depotAI)
-	b.Name = "DepotAI"
+	b.Name = "Depot AI"
 	b.ID = DepotAIID
 	b.durationBase = 3500
 	b.durationFactor = 1.3
@@ -1116,7 +1116,7 @@ type generalOverhaulLightFighter struct {
 
 func newGeneralOverhaulLightFighter() *generalOverhaulLightFighter {
 	b := new(generalOverhaulLightFighter)
-	b.Name = "GeneralOverhaulLightFighter"
+	b.Name = "General Overhaul Light Fighter"
 	b.ID = GeneralOverhaulLightFighterID
 	b.durationBase = 4500
 	b.durationFactor = 1.4
@@ -1132,7 +1132,7 @@ type automatedTransportLines struct {
 
 func newAutomatedTransportLines() *automatedTransportLines {
 	b := new(automatedTransportLines)
-	b.Name = "AutomatedTransportLines"
+	b.Name = "Automated Transport Lines"
 	b.ID = AutomatedTransportLinesID
 	b.durationBase = 5000
 	b.durationFactor = 1.3
@@ -1148,7 +1148,7 @@ type improvedDroneAI struct {
 
 func newImprovedDroneAI() *improvedDroneAI {
 	b := new(improvedDroneAI)
-	b.Name = "ImprovedDroneAI"
+	b.Name = "Improved Drone AI"
 	b.ID = ImprovedDroneAIID
 	b.durationBase = 5500
 	b.durationFactor = 1.3
@@ -1164,7 +1164,7 @@ type experimentalRecyclingTechnology struct {
 
 func newExperimentalRecyclingTechnology() *experimentalRecyclingTechnology {
 	b := new(experimentalRecyclingTechnology)
-	b.Name = "ExperimentalRecyclingTechnology"
+	b.Name = "Experimental Recycling Technology"
 	b.ID = ExperimentalRecyclingTechnologyID
 	b.durationBase = 6000
 	b.durationFactor = 1.4
@@ -1180,7 +1180,7 @@ type generalOverhaulCruiser struct {
 
 func newGeneralOverhaulCruiser() *generalOverhaulCruiser {
 	b := new(generalOverhaulCruiser)
-	b.Name = "GeneralOverhaulCruiser"
+	b.Name = "General Overhaul Cruiser"
 	b.ID = GeneralOverhaulCruiserID
 	b.durationBase = 6500
 	b.durationFactor = 1.4
@@ -1196,7 +1196,7 @@ type slingshotAutopilot struct {
 
 func newSlingshotAutopilot() *slingshotAutopilot {
 	b := new(slingshotAutopilot)
-	b.Name = "SlingshotAutopilot"
+	b.Name = "Slingshot Autopilot"
 	b.ID = SlingshotAutopilotID
 	b.durationBase = 7000
 	b.durationFactor = 1.3
@@ -1212,7 +1212,7 @@ type highTemperatureSuperconductors struct {
 
 func newHighTemperatureSuperconductors() *highTemperatureSuperconductors {
 	b := new(highTemperatureSuperconductors)
-	b.Name = "HighTemperatureSuperconductors"
+	b.Name = "High Temperature Superconductors"
 	b.ID = HighTemperatureSuperconductorsID
 	b.durationBase = 7500
 	b.durationFactor = 1.3
@@ -1228,7 +1228,7 @@ type generalOverhaulBattleship struct {
 
 func newGeneralOverhaulBattleship() *generalOverhaulBattleship {
 	b := new(generalOverhaulBattleship)
-	b.Name = "GeneralOverhaulBattleship"
+	b.Name = "General Overhaul Battleship"
 	b.ID = GeneralOverhaulBattleshipID
 	b.durationBase = 8000
 	b.durationFactor = 1.4
@@ -1244,7 +1244,7 @@ type artificialSwarmIntelligence struct {
 
 func newArtificialSwarmIntelligence() *artificialSwarmIntelligence {
 	b := new(artificialSwarmIntelligence)
-	b.Name = "ArtificialSwarmIntelligence"
+	b.Name = "Artificial Swarm Intelligence"
 	b.ID = ArtificialSwarmIntelligenceID
 	b.durationBase = 8500
 	b.durationFactor = 1.3
@@ -1260,7 +1260,7 @@ type generalOverhaulBattlecruiser struct {
 
 func newGeneralOverhaulBattlecruiser() *generalOverhaulBattlecruiser {
 	b := new(generalOverhaulBattlecruiser)
-	b.Name = "GeneralOverhaulBattlecruiser"
+	b.Name = "General Overhaul Battlecruiser"
 	b.ID = GeneralOverhaulBattlecruiserID
 	b.durationBase = 9000
 	b.durationFactor = 1.4
@@ -1276,7 +1276,7 @@ type generalOverhaulBomber struct {
 
 func newGeneralOverhaulBomber() *generalOverhaulBomber {
 	b := new(generalOverhaulBomber)
-	b.Name = "GeneralOverhaulBomber"
+	b.Name = "General Overhaul Bomber"
 	b.ID = GeneralOverhaulBomberID
 	b.durationBase = 9500
 	b.durationFactor = 1.4
@@ -1292,7 +1292,7 @@ type generalOverhaulDestroyer struct {
 
 func newGeneralOverhaulDestroyer() *generalOverhaulDestroyer {
 	b := new(generalOverhaulDestroyer)
-	b.Name = "GeneralOverhaulDestroyer"
+	b.Name = "General Overhaul Destroyer"
 	b.ID = GeneralOverhaulDestroyerID
 	b.durationBase = 10000
 	b.durationFactor = 1.4
@@ -1308,7 +1308,7 @@ type experimentalWeaponsTechnology struct {
 
 func newExperimentalWeaponsTechnology() *experimentalWeaponsTechnology {
 	b := new(experimentalWeaponsTechnology)
-	b.Name = "ExperimentalWeaponsTechnology"
+	b.Name = "Experimental Weapons Technology"
 	b.ID = ExperimentalWeaponsTechnologyID
 	b.durationBase = 13000
 	b.durationFactor = 1.3
@@ -1324,7 +1324,7 @@ type mechanGeneralEnhancement struct {
 
 func newMechanGeneralEnhancement() *mechanGeneralEnhancement {
 	b := new(mechanGeneralEnhancement)
-	b.Name = "MechanGeneralEnhancement"
+	b.Name = "Mechan General Enhancement"
 	b.ID = MechanGeneralEnhancementID
 	b.durationBase = 11000
 	b.durationFactor = 1.4
@@ -1341,7 +1341,7 @@ type heatRecovery struct {
 
 func newHeatRecovery() *heatRecovery {
 	b := new(heatRecovery)
-	b.Name = "HeatRecovery"
+	b.Name = "Heat Recovery"
 	b.ID = HeatRecoveryID
 	b.durationBase = 1000
 	b.durationFactor = 1.4
@@ -1357,7 +1357,7 @@ type sulphideProcess struct {
 
 func newSulphideProcess() *sulphideProcess {
 	b := new(sulphideProcess)
-	b.Name = "SulphideProcess"
+	b.Name = "Sulphide Process"
 	b.ID = SulphideProcessID
 	b.durationBase = 2000
 	b.durationFactor = 1.3
@@ -1373,7 +1373,7 @@ type psionicNetwork struct {
 
 func newPsionicNetwork() *psionicNetwork {
 	b := new(psionicNetwork)
-	b.Name = "PsionicNetwork"
+	b.Name = "Psionic Network"
 	b.ID = PsionicNetworkID
 	b.durationBase = 2500
 	b.durationFactor = 1.4
@@ -1389,7 +1389,7 @@ type telekineticTractorBeam struct {
 
 func newTelekineticTractorBeam() *telekineticTractorBeam {
 	b := new(telekineticTractorBeam)
-	b.Name = "TelekineticTractorBeam"
+	b.Name = "Telekinetic Tractor Beam"
 	b.ID = TelekineticTractorBeamID
 	b.durationBase = 3500
 	b.durationFactor = 1.4
@@ -1405,7 +1405,7 @@ type enhancedSensorTechnology struct {
 
 func newEnhancedSensorTechnology() *enhancedSensorTechnology {
 	b := new(enhancedSensorTechnology)
-	b.Name = "EnhancedSensorTechnology"
+	b.Name = "Enhanced Sensor Technology"
 	b.ID = EnhancedSensorTechnologyID
 	b.durationBase = 4500
 	b.durationFactor = 1.4
@@ -1421,7 +1421,7 @@ type neuromodalCompressor struct {
 
 func newNeuromodalCompressor() *neuromodalCompressor {
 	b := new(neuromodalCompressor)
-	b.Name = "NeuromodalCompressor"
+	b.Name = "Neuromodal Compressor"
 	b.ID = NeuromodalCompressorID
 	b.durationBase = 5000
 	b.durationFactor = 1.4
@@ -1437,7 +1437,7 @@ type neuroInterface struct {
 
 func newNeuroInterface() *neuroInterface {
 	b := new(neuroInterface)
-	b.Name = "NeuroInterface"
+	b.Name = "Neuro Interface"
 	b.ID = NeuroInterfaceID
 	b.durationBase = 5500
 	b.durationFactor = 1.3
@@ -1453,7 +1453,7 @@ type interplanetaryAnalysisNetwork struct {
 
 func newInterplanetaryAnalysisNetwork() *interplanetaryAnalysisNetwork {
 	b := new(interplanetaryAnalysisNetwork)
-	b.Name = "InterplanetaryAnalysisNetwork"
+	b.Name = "Interplanetary Analysis Network"
 	b.ID = InterplanetaryAnalysisNetworkID
 	b.durationBase = 6000
 	b.durationFactor = 1.2
@@ -1469,7 +1469,7 @@ type overclockingHeavyFighter struct {
 
 func newOverclockingHeavyFighter() *overclockingHeavyFighter {
 	b := new(overclockingHeavyFighter)
-	b.Name = "OverclockingHeavyFighter"
+	b.Name = "Overclocking Heavy Fighter"
 	b.ID = OverclockingHeavyFighterID
 	b.durationBase = 6500
 	b.durationFactor = 1.4
@@ -1485,7 +1485,7 @@ type telekineticDrive struct {
 
 func newTelekineticDrive() *telekineticDrive {
 	b := new(telekineticDrive)
-	b.Name = "TelekineticDrive"
+	b.Name = "Telekinetic Drive"
 	b.ID = TelekineticDriveID
 	b.durationBase = 7000
 	b.durationFactor = 1.2
@@ -1501,7 +1501,7 @@ type sixthSense struct {
 
 func newSixthSense() *sixthSense {
 	b := new(sixthSense)
-	b.Name = "SixthSense"
+	b.Name = "Sixth Sense"
 	b.ID = SixthSenseID
 	b.durationBase = 7500
 	b.durationFactor = 1.4
@@ -1533,7 +1533,7 @@ type efficientSwarmIntelligence struct {
 
 func newEfficientSwarmIntelligence() *efficientSwarmIntelligence {
 	b := new(efficientSwarmIntelligence)
-	b.Name = "EfficientSwarmIntelligence"
+	b.Name = "Efficient Swarm Intelligence"
 	b.ID = EfficientSwarmIntelligenceID
 	b.durationBase = 8500
 	b.durationFactor = 1.3
@@ -1549,7 +1549,7 @@ type overclockingLargeCargo struct {
 
 func newOverclockingLargeCargo() *overclockingLargeCargo {
 	b := new(overclockingLargeCargo)
-	b.Name = "OverclockingLargeCargo"
+	b.Name = "Overclocking Large Cargo"
 	b.ID = OverclockingLargeCargoID
 	b.durationBase = 9000
 	b.durationFactor = 1.4
@@ -1565,7 +1565,7 @@ type gravitationSensors struct {
 
 func newGravitationSensors() *gravitationSensors {
 	b := new(gravitationSensors)
-	b.Name = "GravitationSensors"
+	b.Name = "Gravitation Sensors"
 	b.ID = GravitationSensorsID
 	b.durationBase = 9500
 	b.durationFactor = 1.4
@@ -1581,7 +1581,7 @@ type overclockingBattleship struct {
 
 func newOverclockingBattleship() *overclockingBattleship {
 	b := new(overclockingBattleship)
-	b.Name = "OverclockingBattleship"
+	b.Name = "Overclocking Battleship"
 	b.ID = OverclockingBattleshipID
 	b.durationBase = 10000
 	b.durationFactor = 1.4
@@ -1597,7 +1597,7 @@ type psionicShieldMatrix struct {
 
 func newPsionicShieldMatrix() *psionicShieldMatrix {
 	b := new(psionicShieldMatrix)
-	b.Name = "PsionicShieldMatrix"
+	b.Name = "Psionic Shield Matrix"
 	b.ID = PsionicShieldMatrixID
 	b.durationBase = 13000
 	b.durationFactor = 1.3
@@ -1613,7 +1613,7 @@ type kaeleshDiscovererEnhancement struct {
 
 func newKaeleshDiscovererEnhancement() *kaeleshDiscovererEnhancement {
 	b := new(kaeleshDiscovererEnhancement)
-	b.Name = "KaeleshDiscovererEnhancement"
+	b.Name = "Kaelesh Discoverer Enhancement"
 	b.ID = KaeleshDiscovererEnhancementID
 	b.durationBase = 11000
 	b.durationFactor = 1.4
