@@ -29,3 +29,14 @@ func (e *Extractor) ExtractProduction(pageHTML []byte) ([]ogame.Quantifiable, in
 func (e *Extractor) ExtractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	return extractProductionFromDoc(doc)
 }
+
+// ExtractCombatReportMessagesSummary ...
+func (e *Extractor) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractCombatReportMessagesFromDoc(doc)
+}
+
+// ExtractCombatReportMessagesFromDoc ...
+func (e *Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error) {
+	return extractCombatReportMessagesFromDoc(doc)
+}

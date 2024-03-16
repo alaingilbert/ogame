@@ -21,3 +21,9 @@ func TestExtractProduction1(t *testing.T) {
 	assert.Equal(t, ogame.RocketLauncherID, prods[3].ID)
 	assert.Equal(t, int64(1), prods[3].Nbr)
 }
+
+func TestExtractCombatReportMessages(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.11.5/en/combat_reports.html")
+	msgs, _, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
+	assert.Equal(t, 16, len(msgs))
+}
