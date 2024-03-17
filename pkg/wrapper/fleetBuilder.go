@@ -59,34 +59,14 @@ func (f *FleetBuilder) SetTx(tx Prioritizable) *FleetBuilder {
 }
 
 // SetOrigin ...
-func (f *FleetBuilder) SetOrigin(v any) *FleetBuilder {
-	f.origin = f.b.GetCachedCelestial(v)
+func (f *FleetBuilder) SetOrigin(v IntoCelestial) *FleetBuilder {
+	f.origin, _ = f.b.GetCachedCelestial(v)
 	return f
 }
 
 // SetDestination ...
-func (f *FleetBuilder) SetDestination(v any) *FleetBuilder {
-	var c Celestial
-	if celestial, ok := v.(Celestial); ok {
-		f.destination = celestial.GetCoordinate()
-	} else if planet, ok := v.(Planet); ok {
-		f.destination = planet.GetCoordinate()
-	} else if moon, ok := v.(Moon); ok {
-		f.destination = moon.GetCoordinate()
-	} else if coord, ok := v.(ogame.Coordinate); ok {
-		f.destination = coord
-	} else if coordStr, ok := v.(string); ok {
-		coord, err := ogame.ParseCoord(coordStr)
-		if err != nil {
-			return f
-		}
-		f.destination = coord
-	} else {
-		c = f.b.GetCachedCelestial(v)
-		if c != nil {
-			f.destination = c.GetCoordinate()
-		}
-	}
+func (f *FleetBuilder) SetDestination(v IntoCoordinate) *FleetBuilder {
+	f.destination, _ = ConvertIntoCoordinate(f.b, v)
 	return f
 }
 
@@ -237,7 +217,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	// Send all resources
 	if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
 		// Calculate cargo
-		techs := tx.GetResearch()
+		techs, _ := tx.GetResearch()
 		cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == ogame.Collector, f.b.IsPioneers())
 		if f.minimumDeuterium <= 0 {
 			planetResources, _ = tx.GetResources(f.origin.GetID())

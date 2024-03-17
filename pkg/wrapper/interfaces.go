@@ -2,6 +2,8 @@ package wrapper
 
 import (
 	"crypto/tls"
+	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"net/http"
 	"net/url"
 	"time"
@@ -36,7 +38,7 @@ type Celestial interface {
 	GetResourcesBuildings(...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails() (ogame.ResourcesDetails, error)
 	GetShips(...Option) (ogame.ShipsInfos, error)
-	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
+	GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
 	SendFleet([]ogame.Quantifiable, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	TearDown(buildingID ogame.ID) error
 }
@@ -44,7 +46,7 @@ type Celestial interface {
 // Prioritizable list of all actions that needs to communicate with ogame server.
 // These actions can also be prioritized.
 type Prioritizable interface {
-	Abandon(any) error
+	Abandon(IntoPlanet) error
 	ActivateItem(string, ogame.CelestialID) error
 	Begin() Prioritizable
 	BeginNamed(name string) Prioritizable
@@ -64,32 +66,34 @@ type Prioritizable interface {
 	GetAllResources() (map[ogame.CelestialID]ogame.Resources, error)
 	GetAttacks(...Option) ([]ogame.AttackEvent, error)
 	GetAuction() (ogame.Auction, error)
+	GetAvailableDiscoveries(...Option) int64
 	GetCachedResearch() ogame.Researches
-	GetCelestial(any) (Celestial, error)
+	GetCelestial(IntoCelestial) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
 	GetCombatReportSummaryFor(ogame.Coordinate) (ogame.CombatReportSummary, error)
 	GetDMCosts(ogame.CelestialID) (ogame.DMCosts, error)
 	GetEmpire(ogame.CelestialType) ([]ogame.EmpireCelestial, error)
-	GetEmpireJSON(nbr int64) (any, error)
+	GetEmpireJSON(ogame.CelestialType) (any, error)
 	GetEspionageReport(msgID int64) (ogame.EspionageReport, error)
 	GetEspionageReportFor(ogame.Coordinate) (ogame.EspionageReport, error)
-	GetEspionageReportMessages() ([]ogame.EspionageReportSummary, error)
+	GetEspionageReportMessages(maxPage int64) ([]ogame.EspionageReportSummary, error)
 	GetExpeditionMessageAt(time.Time) (ogame.ExpeditionMessage, error)
-	GetExpeditionMessages() ([]ogame.ExpeditionMessage, error)
+	GetExpeditionMessages(maxPage int64) ([]ogame.ExpeditionMessage, error)
 	GetFleets(...Option) ([]ogame.Fleet, ogame.Slots)
 	GetFleetsFromEventList() []ogame.Fleet
 	GetItems(ogame.CelestialID) ([]ogame.Item, error)
-	GetMoon(any) (Moon, error)
-	GetMoons() []Moon
+	GetMoon(IntoMoon) (Moon, error)
+	GetMoons() ([]Moon, error)
 	GetPageContent(url.Values) ([]byte, error)
-	GetPlanet(any) (Planet, error)
-	GetPlanets() []Planet
-	GetResearch() ogame.Researches
-	GetSlots() ogame.Slots
-	GetUserInfos() ogame.UserInfos
+	GetPlanet(IntoPlanet) (Planet, error)
+	GetPlanets() ([]Planet, error)
+	GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]ogame.Coordinate, error)
+	GetResearch() (ogame.Researches, error)
+	GetSlots() (ogame.Slots, error)
+	GetUserInfos() (ogame.UserInfos, error)
 	HeadersForPage(url string) (http.Header, error)
 	Highscore(category, typ, page int64) (ogame.Highscore, error)
-	IsUnderAttack() (bool, error)
+	IsUnderAttack(opts ...Option) (bool, error)
 	Login() error
 	LoginWithBearerToken(token string) (bool, error)
 	LoginWithExistingCookies() (bool, error)
@@ -100,8 +104,10 @@ type Prioritizable interface {
 	RecruitOfficer(typ, days int64) error
 	SendMessage(playerID int64, message string) error
 	SendMessageAlliance(associationID int64, message string) error
-	ServerTime() time.Time
+	ServerTime() (time.Time, error)
 	SetInitiator(initiator string) Prioritizable
+	SetPreferences(ogame.Preferences) error
+	SetPreferencesLang(lang string) error
 	SetVacationMode() error
 	Tx(clb func(tx Prioritizable) error) error
 	UseDM(string, ogame.CelestialID) error
@@ -128,7 +134,9 @@ type Prioritizable interface {
 	GetResourcesBuildings(ogame.CelestialID, ...Option) (ogame.ResourcesBuildings, error)
 	GetResourcesDetails(ogame.CelestialID) (ogame.ResourcesDetails, error)
 	GetShips(ogame.CelestialID, ...Option) (ogame.ShipsInfos, error)
-	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
+	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
+	SendDiscoveryFleet(ogame.CelestialID, ogame.Coordinate, ...Option) error
+	SendDiscoveryFleet2(ogame.CelestialID, ogame.Coordinate, ...Option) (ogame.Fleet, error)
 	SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	TearDown(celestialID ogame.CelestialID, id ogame.ID) error
 	TechnologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error)
@@ -148,32 +156,43 @@ type Prioritizable interface {
 	UnsafePhalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.Fleet, error)
 }
 
+// Compile time checks to ensure type satisfies Prioritizable interface
+var _ Prioritizable = (*OGame)(nil)
+var _ Prioritizable = (*Prioritize)(nil)
+
+// Compile time checks to ensure type satisfies Wrapper interface
+var _ Wrapper = (*OGame)(nil)
+
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	Prioritizable
-	AddAccount(number int, lang string) (*AddAccountRes, error)
+	AddAccount(number int, lang string) (*gameforge.AddAccountRes, error)
 	BytesDownloaded() int64
 	BytesUploaded() int64
 	CharacterClass() ogame.CharacterClass
 	ConstructionTime(id ogame.ID, nbr int64, facilities ogame.Facilities) time.Duration
+	CountColonies() (int64, int64)
 	Disable()
 	Distance(origin, destination ogame.Coordinate) int64
 	Enable()
 	FleetDeutSaveFactor() float64
-	GetCachedCelestial(any) Celestial
+	GetCachedCelestial(IntoCelestial) (Celestial, error)
 	GetCachedCelestials() []Celestial
+	GetCachedMoon(IntoMoon) (Moon, error)
 	GetCachedMoons() []Moon
+	GetCachedPlanet(IntoPlanet) (Planet, error)
 	GetCachedPlanets() []Planet
 	GetCachedPlayer() ogame.UserInfos
 	GetCachedPreferences() ogame.Preferences
 	GetClient() *httpclient.Client
+	GetDevice() *device.Device
 	GetExtractor() extractor.Extractor
 	GetLanguage() string
 	GetNbSystems() int64
 	GetPublicIP() (string, error)
 	GetResearchSpeed() int64
-	GetServer() Server
-	GetServerData() ServerData
+	GetServer() gameforge.Server
+	GetServerData() gameforge.ServerData
 	GetSession() string
 	GetState() (bool, string)
 	GetTasks() taskRunner.TasksOverview
@@ -203,11 +222,10 @@ type Wrapper interface {
 	ServerURL() string
 	ServerVersion() string
 	SetClient(*httpclient.Client)
-	SetGetServerDataWrapper(func(func() (ServerData, error)) (ServerData, error))
+	SetGetServerDataWrapper(func(func() (gameforge.ServerData, error)) (gameforge.ServerData, error))
 	SetLoginWrapper(func(func() (bool, error)) error)
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
-	SetUserAgent(newUserAgent string)
 	ValidateAccount(code string) error
 	WithPriority(priority taskRunner.Priority) Prioritizable
 }

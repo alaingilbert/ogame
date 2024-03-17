@@ -7,12 +7,13 @@ import (
 
 // SystemInfos planets information for a specific system
 type SystemInfos struct {
-	Tmpgalaxy        int64
-	Tmpsystem        int64
-	Tmpplanets       [15]*PlanetInfos
+	galaxy           int64
+	system           int64
+	planets          [15]*PlanetInfos
 	ExpeditionDebris struct {
 		Metal             int64
 		Crystal           int64
+		Deuterium         int64
 		PathfindersNeeded int64
 	}
 	Events struct {
@@ -24,12 +25,27 @@ type SystemInfos struct {
 
 // Galaxy returns galaxy info
 func (s SystemInfos) Galaxy() int64 {
-	return s.Tmpgalaxy
+	return s.galaxy
+}
+
+// SetGalaxy ...
+func (s *SystemInfos) SetGalaxy(galaxy int64) {
+	s.galaxy = galaxy
 }
 
 // System returns system info
 func (s SystemInfos) System() int64 {
-	return s.Tmpsystem
+	return s.system
+}
+
+// SetSystem ...
+func (s *SystemInfos) SetSystem(system int64) {
+	s.system = system
+}
+
+// SetPlanet ...
+func (s *SystemInfos) SetPlanet(i int, planet *PlanetInfos) {
+	s.planets[i] = planet
 }
 
 // Position returns planet at position idx in the SystemInfos
@@ -37,7 +53,7 @@ func (s SystemInfos) Position(idx int64) *PlanetInfos {
 	if idx < 1 || idx > 15 {
 		return nil
 	}
-	return s.Tmpplanets[idx-1]
+	return s.planets[idx-1]
 }
 
 // Each will execute provided callback for every positions in the system
@@ -57,14 +73,16 @@ func (s SystemInfos) MarshalJSON() ([]byte, error) {
 		ExpeditionDebris struct {
 			Metal             int64
 			Crystal           int64
+			Deuterium         int64
 			PathfindersNeeded int64
 		}
 	}
-	tmp.Galaxy = s.Tmpgalaxy
-	tmp.System = s.Tmpsystem
-	tmp.Planets = s.Tmpplanets
+	tmp.Galaxy = s.galaxy
+	tmp.System = s.system
+	tmp.Planets = s.planets
 	tmp.ExpeditionDebris.Metal = s.ExpeditionDebris.Metal
 	tmp.ExpeditionDebris.Crystal = s.ExpeditionDebris.Crystal
+	tmp.ExpeditionDebris.Deuterium = s.ExpeditionDebris.Deuterium
 	tmp.ExpeditionDebris.PathfindersNeeded = s.ExpeditionDebris.PathfindersNeeded
 	return json.Marshal(tmp)
 }
@@ -72,6 +90,7 @@ func (s SystemInfos) MarshalJSON() ([]byte, error) {
 // MoonInfos public information of a moon in the galaxy page
 type MoonInfos struct {
 	ID       int64
+	Name     string
 	Diameter int64
 	Activity int64
 }
@@ -80,6 +99,7 @@ type MoonInfos struct {
 type AllianceInfos struct {
 	ID     int64
 	Name   string
+	Tag    string
 	Rank   int64
 	Member int64
 }
@@ -102,6 +122,7 @@ type PlanetInfos struct {
 	Debris          struct {
 		Metal           int64
 		Crystal         int64
+		Deuterium       int64
 		RecyclersNeeded int64
 	}
 	Moon   *MoonInfos

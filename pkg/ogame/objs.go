@@ -90,7 +90,7 @@ var (
 	CrystalRefinery                   = register[*crystalRefinery](newCrystalRefinery)
 	DeuteriumSynthesiser              = register[*deuteriumSynthesiser](newDeuteriumSynthesiser)
 	MineralResearchCentre             = register[*mineralResearchCentre](newMineralResearchCentre)
-	MetalRecyclingPlant               = register[*metalRecyclingPlant](newMetalRecyclingPlant)
+	AdvancedRecyclingPlant            = register[*advancedRecyclingPlant](newAdvancedRecyclingPlant)
 	AssemblyLine                      = register[*assemblyLine](newAssemblyLine) //Mechas
 	FusionCellFactory                 = register[*fusionCellFactory](newFusionCellFactory)
 	RoboticsResearchCentre            = register[*roboticsResearchCentre](newRoboticsResearchCentre)
@@ -320,4 +320,148 @@ var Technologies = []Technology{
 	WeaponsTechnology,
 	ShieldingTechnology,
 	ArmourTechnology,
+}
+
+var HumansBuildings = []Building{
+	ResidentialSector,
+	BiosphereFarm,
+	ResearchCentre,
+	AcademyOfSciences,
+	NeuroCalibrationCentre,
+	HighEnergySmelting,
+	FoodSilo,
+	FusionPoweredProduction,
+	Skyscraper,
+	BiotechLab,
+	Metropolis,
+	PlanetaryShield,
+}
+
+var RocktalBuildings = []Building{
+	MeditationEnclave,
+	CrystalFarm,
+	RuneTechnologium,
+	RuneForge,
+	Oriktorium,
+	MagmaForge,
+	DisruptionChamber,
+	Megalith,
+	CrystalRefinery,
+	DeuteriumSynthesiser,
+	MineralResearchCentre,
+	AdvancedRecyclingPlant,
+}
+
+var MechasBuildings = []Building{
+	AssemblyLine,
+	FusionCellFactory,
+	RoboticsResearchCentre,
+	UpdateNetwork,
+	QuantumComputerCentre,
+	AutomatisedAssemblyCentre,
+	HighPerformanceTransformer,
+	MicrochipAssemblyLine,
+	ProductionAssemblyHall,
+	HighPerformanceSynthesiser,
+	ChipMassProduction,
+	NanoRepairBots,
+}
+
+var KaeleshBuildings = []Building{
+	Sanctuary,
+	AntimatterCondenser,
+	VortexChamber,
+	HallsOfRealisation,
+	ForumOfTranscendence,
+	AntimatterConvector,
+	CloningLaboratory,
+	ChrysalisAccelerator,
+	BioModifier,
+	PsionicModulator,
+	ShipManufacturingHall,
+	SupraRefractor,
+}
+
+var HumansTechnologies = []Technology{
+	IntergalacticEnvoys,
+	HighPerformanceExtractors,
+	FusionDrives,
+	StealthFieldGenerator,
+	OrbitalDen,
+	ResearchAI,
+	HighPerformanceTerraformer,
+	EnhancedProductionTechnologies,
+	LightFighterMkII,
+	CruiserMkII,
+	ImprovedLabTechnology,
+	PlasmaTerraformer,
+	LowTemperatureDrives,
+	BomberMkII,
+	DestroyerMkII,
+	BattlecruiserMkII,
+	RobotAssistants,
+	Supercomputer,
+}
+
+var RocktalTechnologies = []Technology{
+	VolcanicBatteries,
+	AcousticScanning,
+	HighEnergyPumpSystems,
+	CargoHoldExpansionCivilianShips,
+	MagmaPoweredProduction,
+	GeothermalPowerPlants,
+	DepthSounding,
+	IonCrystalEnhancementHeavyFighter,
+	ImprovedStellarator,
+	HardenedDiamondDrillHeads,
+	SeismicMiningTechnology,
+	MagmaPoweredPumpSystems,
+	IonCrystalModules,
+	OptimisedSiloConstructionMethod,
+	DiamondEnergyTransmitter,
+	ObsidianShieldReinforcement,
+	RuneShields,
+	RocktalCollectorEnhancement,
+}
+
+var MechasTechnologies = []Technology{
+	CatalyserTechnology,
+	PlasmaDrive,
+	EfficiencyModule,
+	DepotAI,
+	GeneralOverhaulLightFighter,
+	AutomatedTransportLines,
+	ImprovedDroneAI,
+	ExperimentalRecyclingTechnology,
+	GeneralOverhaulCruiser,
+	SlingshotAutopilot,
+	HighTemperatureSuperconductors,
+	GeneralOverhaulBattleship,
+	ArtificialSwarmIntelligence,
+	GeneralOverhaulBattlecruiser,
+	GeneralOverhaulBomber,
+	GeneralOverhaulDestroyer,
+	ExperimentalWeaponsTechnology,
+	MechanGeneralEnhancement,
+}
+
+var KaeleshTechnologies = []Technology{
+	HeatRecovery,
+	SulphideProcess,
+	PsionicNetwork,
+	TelekineticTractorBeam,
+	EnhancedSensorTechnology,
+	NeuromodalCompressor,
+	NeuroInterface,
+	InterplanetaryAnalysisNetwork,
+	OverclockingHeavyFighter,
+	TelekineticDrive,
+	SixthSense,
+	Psychoharmoniser,
+	EfficientSwarmIntelligence,
+	OverclockingLargeCargo,
+	GravitationSensors,
+	OverclockingBattleship,
+	PsionicShieldMatrix,
+	KaeleshDiscovererEnhancement,
 }

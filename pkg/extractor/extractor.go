@@ -39,6 +39,7 @@ type FullPageExtractorBytes interface {
 }
 
 type FullPageExtractorDoc interface {
+	ExtractLifeformTypeFromDoc(doc *goquery.Document) ogame.LifeformType
 	ExtractAdmiralFromDoc(doc *goquery.Document) bool
 	ExtractBodyIDFromDoc(doc *goquery.Document) string
 	ExtractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, error)
@@ -61,6 +62,7 @@ type FullPageExtractorDoc interface {
 	ExtractResourcesFromDoc(doc *goquery.Document) ogame.Resources
 	ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error)
 	ExtractTechnocratFromDoc(doc *goquery.Document) bool
+	ExtractColoniesFromDoc(doc *goquery.Document) (int64, int64)
 }
 
 type FullPageExtractorBytesDoc interface {
@@ -94,11 +96,11 @@ type OverviewExtractorBytesDoc interface {
 }
 
 type FleetsExtractorBytes interface {
-	ExtractSlots(pageHTML []byte) ogame.Slots
+	ExtractSlots(pageHTML []byte) (ogame.Slots, error)
 }
 
 type FleetsExtractorDoc interface {
-	ExtractSlotsFromDoc(doc *goquery.Document) ogame.Slots
+	ExtractSlotsFromDoc(doc *goquery.Document) (ogame.Slots, error)
 }
 
 type MovementExtractorBytes interface {
@@ -266,11 +268,11 @@ type BuffActivationExtractorBytes interface {
 }
 
 type MessagesCombatReportExtractorBytes interface {
-	ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64)
+	ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64, error)
 }
 
 type MessagesCombatReportExtractorDoc interface {
-	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64)
+	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error)
 }
 
 type MessagesCombatReportExtractorBytesDoc interface {
@@ -304,11 +306,11 @@ type EspionageReportExtractorBytesDoc interface {
 
 // MessagesEspionageReportExtractorBytes ajax page that display all espionage reports summaries
 type MessagesEspionageReportExtractorBytes interface {
-	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]ogame.EspionageReportSummary, int64)
+	ExtractEspionageReportMessageIDs(pageHTML []byte) ([]ogame.EspionageReportSummary, int64, error)
 }
 
 type MessagesEspionageReportExtractorDoc interface {
-	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64)
+	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64, error)
 }
 
 type MessagesEspionageReportExtractorBytesDoc interface {
@@ -335,6 +337,11 @@ type FederationExtractorBytes interface {
 	ExtractFederation(pageHTML []byte) url.Values
 }
 
+// GalaxyPageExtractorBytes galaxy page
+type GalaxyPageExtractorBytes interface {
+	ExtractAvailableDiscoveries(pageHTML []byte) int64
+}
+
 // GalaxyExtractorBytes ajax page containing galaxy information in galaxy page
 type GalaxyExtractorBytes interface {
 	ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botPlayerRank int64) (ogame.SystemInfos, error)
@@ -356,7 +363,7 @@ type TraderImportExportExtractorDoc interface {
 
 // FetchTechsExtractorBytes ajax page fetchTechs
 type FetchTechsExtractorBytes interface {
-	ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error)
+	ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
 }
 
 type ResourcesSettingsExtractorBytes interface {
@@ -515,6 +522,7 @@ type Extractor interface {
 	FetchResourcesExtractorBytes
 	FetchTechsExtractorBytes
 	GalaxyExtractorBytes
+	GalaxyPageExtractorBytes
 	JumpGateLayerExtractorBytes
 	MessagesMarketplaceExtractorBytes
 	PhalanxExtractorBytes

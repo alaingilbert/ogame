@@ -74,6 +74,12 @@ func TestCanAford(t *testing.T) {
 	assert.False(t, Resources{Metal: 1, Crystal: 2, Deuterium: 4}.CanAfford(Resources{Metal: 1, Crystal: 2, Deuterium: 5}))
 	assert.False(t, Resources{Metal: 1, Crystal: 2, Deuterium: 4}.CanAfford(Resources{Metal: 1, Crystal: 3, Deuterium: 4}))
 	assert.False(t, Resources{Metal: 1, Crystal: 2, Deuterium: 4}.CanAfford(Resources{Metal: 2, Crystal: 2, Deuterium: 4}))
+	assert.True(t, Resources{Metal: 1, Crystal: 2, Deuterium: 4}.CanAfford(Resources{Metal: 1, Crystal: 2, Deuterium: 4, Population: 5}))
+}
+
+func TestCanAford2(t *testing.T) {
+	assert.False(t, Resources{Metal: 1, Crystal: 2, Deuterium: 4}.CanAfford2(Resources{Metal: 1, Crystal: 2, Deuterium: 4, Population: 5}, true))
+	assert.True(t, Resources{Metal: 1, Crystal: 2, Deuterium: 4, Population: 5}.CanAfford2(Resources{Metal: 1, Crystal: 2, Deuterium: 4, Population: 5}, true))
 }
 
 func TestString(t *testing.T) {

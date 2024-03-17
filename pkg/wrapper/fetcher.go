@@ -22,7 +22,6 @@ const (
 	ResearchPageName         = "research"
 	PlanetlayerPageName      = "planetlayer"
 	LogoutPageName           = "logout"
-	JumpgatelayerPageName    = "jumpgatelayer"
 	TraderOverviewPageName   = "traderOverview"
 	GalaxyPageName           = "galaxy"
 	AlliancePageName         = "alliance"
@@ -42,6 +41,7 @@ const (
 	FetchEventboxAjaxPageName      = "fetchEventbox"
 	FetchResourcesAjaxPageName     = "fetchResources"
 	GalaxyContentAjaxPageName      = "galaxyContent"
+	GalaxyAjaxPageName             = "galaxy"
 	EventListAjaxPageName          = "eventList"
 	AjaxChatAjaxPageName           = "ajaxChat"
 	NoticesAjaxPageName            = "notices"
@@ -66,13 +66,13 @@ const (
 
 func (b *OGame) getPage(page string, opts ...Option) ([]byte, error) {
 	vals := url.Values{"page": {"ingame"}, "component": {page}}
-	if page == FetchResourcesPageName || page == FetchTechsName {
+	if page == FetchResourcesPageName || page == FetchTechsName || page == LogoutPageName {
 		vals = url.Values{"page": {page}}
 	}
 	return b.getPageContent(vals, opts...)
 }
 
-func getPage[T parser.FullPagePages](b *OGame, opts ...Option) (T, error) {
+func getPage[T parser.FullPagePages](b *OGame, opts ...Option) (*T, error) {
 	var zero T
 	var pageName string
 	switch any(zero).(type) {
@@ -103,7 +103,7 @@ func getPage[T parser.FullPagePages](b *OGame, opts ...Option) (T, error) {
 	}
 	pageHTML, err := b.getPage(pageName, opts...)
 	if err != nil {
-		return zero, err
+		return &zero, err
 	}
 	return parser.ParsePage[T](b.extractor, pageHTML)
 }
@@ -116,6 +116,7 @@ func getAjaxPage[T parser.AjaxPagePages](b *OGame, vals url.Values, opts ...Opti
 	case parser.FetchTechsAjaxPage:
 	case parser.RocketlayerAjaxPage:
 	case parser.PhalanxAjaxPage:
+	case parser.JumpGateAjaxPage:
 	default:
 		panic("not implemented")
 	}

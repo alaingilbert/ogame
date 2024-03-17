@@ -2,7 +2,9 @@ package main
 
 import (
 	"crypto/subtle"
+	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
+	"github.com/alaingilbert/ogame/pkg/wrapper/solvers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"gopkg.in/urfave/cli.v2"
@@ -139,12 +141,6 @@ func main() {
 			Value:   "~/.ogame/cert.pem",
 			EnvVars: []string{"OGAMED_TLS_KEYFILE"},
 		},
-		&cli.StringFlag{
-			Name:    "cookies-filename",
-			Usage:   "Path cookies file",
-			Value:   "",
-			EnvVars: []string{"OGAMED_COOKIES_FILENAME"},
-		},
 		&cli.BoolFlag{
 			Name:    "cors-enabled",
 			Usage:   "Enable CORS",
@@ -156,6 +152,11 @@ func main() {
 			Usage:   "Ninja API key",
 			Value:   "",
 			EnvVars: []string{"NJA_API_KEY"},
+		}, &cli.StringFlag{
+			Name:    "device-name",
+			Usage:   "Set the Device Name",
+			Value:   "device_name",
+			EnvVars: []string{"OGAMED_DEVICENAME"},
 		},
 	}
 	app.Action = start
@@ -184,27 +185,42 @@ func start(c *cli.Context) error {
 	tlsCertFile := c.String("tls-cert-file")
 	basicAuthUsername := c.String("basic-auth-username")
 	basicAuthPassword := c.String("basic-auth-password")
-	cookiesFilename := c.String("cookies-filename")
 	corsEnabled := c.Bool("cors-enabled")
 	njaApiKey := c.String("nja-api-key")
+	deviceName := c.String("device-name")
+	// TODO: put device config in flags & env variables
+	deviceInst, err := device.NewBuilder(deviceName).
+		SetOsName(device.Windows).
+		SetBrowserName(device.Chrome).
+		SetMemory(8).
+		SetHardwareConcurrency(16).
+		ScreenColorDepth(24).
+		SetScreenWidth(1900).
+		SetScreenHeight(900).
+		SetTimezone("America/Los_Angeles").
+		SetLanguages("en-US,en").
+		Build()
+	if err != nil {
+		panic(err)
+	}
 
 	params := wrapper.Params{
-		Universe:        universe,
-		Username:        username,
-		Password:        password,
-		Lang:            language,
-		AutoLogin:       autoLogin,
-		Proxy:           proxyAddr,
-		ProxyUsername:   proxyUsername,
-		ProxyPassword:   proxyPassword,
-		ProxyType:       proxyType,
-		ProxyLoginOnly:  proxyLoginOnly,
-		Lobby:           lobby,
-		APINewHostname:  apiNewHostname,
-		CookiesFilename: cookiesFilename,
+		Device:         deviceInst,
+		Universe:       universe,
+		Username:       username,
+		Password:       password,
+		Lang:           language,
+		AutoLogin:      autoLogin,
+		Proxy:          proxyAddr,
+		ProxyUsername:  proxyUsername,
+		ProxyPassword:  proxyPassword,
+		ProxyType:      proxyType,
+		ProxyLoginOnly: proxyLoginOnly,
+		Lobby:          lobby,
+		APINewHostname: apiNewHostname,
 	}
 	if njaApiKey != "" {
-		params.CaptchaCallback = wrapper.NinjaSolver(njaApiKey)
+		params.CaptchaCallback = solvers.NinjaSolver(njaApiKey)
 	}
 
 	bot, err := wrapper.NewWithParams(params)
@@ -296,8 +312,10 @@ func start(c *cli.Context) error {
 	e.GET("/bot/celestials/:celestialID/items", wrapper.GetCelestialItemsHandler)
 	e.GET("/bot/celestials/:celestialID/items/:itemRef/activate", wrapper.ActivateCelestialItemHandler)
 	e.GET("/bot/celestials/:celestialID/techs", wrapper.TechsHandler)
+	e.GET("/bot/celestials/:celestialID/abandon", wrapper.CelestialAbandonHandler)
 	e.GET("/bot/planets", wrapper.GetPlanetsHandler)
 	e.GET("/bot/planets/:planetID", wrapper.GetPlanetHandler)
+	e.GET("/bot/planets/:planetID/is-under-attack", wrapper.IsUnderAttackByIDHandler)
 	e.GET("/bot/planets/:galaxy/:system/:position", wrapper.GetPlanetByCoordHandler)
 	e.GET("/bot/planets/:planetID/resources-details", wrapper.GetResourcesDetailsHandler)
 	e.GET("/bot/planets/:planetID/resource-settings", wrapper.GetResourceSettingsHandler)
@@ -322,6 +340,7 @@ func start(c *cli.Context) error {
 	e.POST("/bot/planets/:planetID/cancel-research", wrapper.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", wrapper.GetResourcesHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", wrapper.SendFleetHandler)
+	e.POST("/bot/planets/:planetID/send-discovery", wrapper.SendDiscoveryHandler)
 	e.POST("/bot/planets/:planetID/send-ipm", wrapper.SendIPMHandler)
 	e.GET("/bot/moons/:moonID/phalanx/:galaxy/:system/:position", wrapper.PhalanxHandler)
 	e.POST("/bot/moons/:moonID/jump-gate", wrapper.JumpGateHandler)

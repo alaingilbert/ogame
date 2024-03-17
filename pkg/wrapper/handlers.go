@@ -5,8 +5,10 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/alaingilbert/ogame/pkg/ogame"
@@ -62,13 +64,9 @@ func GetServerDataHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(bot.serverData))
 }
 
-// SetUserAgentHandler ...
-// curl 127.0.0.1:1234/bot/set-user-agent -d 'userAgent="New user agent"'
+// SetUserAgentHandler deprecated
 func SetUserAgentHandler(c echo.Context) error {
-	bot := c.Get("bot").(*OGame)
-	userAgent := c.Request().PostFormValue("userAgent")
-	bot.SetUserAgent(userAgent)
-	return c.JSON(http.StatusOK, SuccessResp(nil))
+	return c.JSON(http.StatusOK, ErrorResp(http.StatusBadRequest, "deprecated"))
 }
 
 // ServerURLHandler ...
@@ -146,13 +144,27 @@ func ServerVersionHandler(c echo.Context) error {
 // ServerTimeHandler ...
 func ServerTimeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.ServerTime()))
+	serverTime, _ := bot.ServerTime()
+	return c.JSON(http.StatusOK, SuccessResp(serverTime))
 }
 
 // IsUnderAttackHandler ...
 func IsUnderAttackHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	isUnderAttack, err := bot.IsUnderAttack()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(isUnderAttack))
+}
+
+func IsUnderAttackByIDHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	planetID, err := utils.ParseI64(c.Param("planetID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+	isUnderAttack, err := bot.IsUnderAttack(ChangePlanet(ogame.CelestialID(planetID)))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -169,7 +181,8 @@ func IsVacationModeHandler(c echo.Context) error {
 // GetUserInfosHandler ...
 func GetUserInfosHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetUserInfos()))
+	userInfo, _ := bot.GetUserInfos()
+	return c.JSON(http.StatusOK, SuccessResp(userInfo))
 }
 
 // GetCharacterClassHandler ...
@@ -216,7 +229,7 @@ func HasTechnocratHandler(c echo.Context) error {
 // GetEspionageReportMessagesHandler ...
 func GetEspionageReportMessagesHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	report, err := bot.GetEspionageReportMessages()
+	report, err := bot.GetEspionageReportMessages(-1)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -287,7 +300,7 @@ func GetFleetsHandler(c echo.Context) error {
 // GetSlotsHandler ...
 func GetSlotsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	slots := bot.GetSlots()
+	slots, _ := bot.GetSlots()
 	return c.JSON(http.StatusOK, SuccessResp(slots))
 }
 
@@ -332,7 +345,8 @@ func GalaxyInfosHandler(c echo.Context) error {
 // GetResearchHandler ...
 func GetResearchHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetResearch()))
+	researches, _ := bot.GetResearch()
+	return c.JSON(http.StatusOK, SuccessResp(researches))
 }
 
 // BuyOfferOfTheDayHandler ...
@@ -347,7 +361,8 @@ func BuyOfferOfTheDayHandler(c echo.Context) error {
 // GetMoonsHandler ...
 func GetMoonsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetMoons()))
+	moons, _ := bot.GetMoons()
+	return c.JSON(http.StatusOK, SuccessResp(moons))
 }
 
 // GetMoonHandler ...
@@ -389,7 +404,34 @@ func GetMoonByCoordHandler(c echo.Context) error {
 // GetPlanetsHandler ...
 func GetPlanetsHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.GetPlanets()))
+	planets, _ := bot.GetPlanets()
+	return c.JSON(http.StatusOK, SuccessResp(planets))
+}
+
+// CelestialAbandonHandler ...
+func CelestialAbandonHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	celestialID, err := utils.ParseI64(c.Param("celestialID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
+	}
+	err = bot.Abandon(celestialID)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	_, err = bot.GetCelestial(celestialID)
+	if err != nil {
+		return c.JSON(http.StatusOK, SuccessResp(struct {
+			CelestialID int64
+			Result      string
+		}{
+			CelestialID: celestialID,
+			Result:      "succeed",
+		}))
+	} else {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "Celestial could not be deleted"))
+	}
+
 }
 
 // GetCelestialItemsHandler ...
@@ -999,12 +1041,56 @@ func SendFleetHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, SuccessResp(fleet))
 }
 
+// SendDiscoveryHandler ...
+// curl 127.0.0.1:1234/bot/planets/123/send-discovery -d 'galaxy=1&system=1&type=1&position=1'
+func SendDiscoveryHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
+	planetID, err := utils.ParseI64(c.Param("planetID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
+	}
+
+	if err := c.Request().ParseForm(); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid form"))
+	}
+
+	where := ogame.Coordinate{Type: ogame.PlanetType}
+	for key, values := range c.Request().PostForm {
+		switch key {
+		case "galaxy":
+			galaxy, err := utils.ParseI64(values[0])
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
+			}
+			where.Galaxy = galaxy
+		case "system":
+			system, err := utils.ParseI64(values[0])
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
+			}
+			where.System = system
+		case "position":
+			position, err := utils.ParseI64(values[0])
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid position"))
+			}
+			where.Position = position
+		}
+	}
+
+	if err := bot.SendDiscoveryFleet(ogame.CelestialID(planetID), where); err != nil {
+		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
+	}
+	return c.JSON(http.StatusOK, SuccessResp(true))
+}
+
 // GetAlliancePageContentHandler ...
 func GetAlliancePageContentHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	allianceID := c.QueryParam("allianceId")
 	vals := url.Values{"allianceId": {allianceID}}
 	pageHTML, _ := bot.GetPageContent(vals)
+	pageHTML = removeCookiesBanner(pageHTML)
 	return c.HTML(http.StatusOK, string(pageHTML))
 }
 
@@ -1031,7 +1117,7 @@ func GetStaticHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	resp, err := bot.client.Do(req)
+	resp, err := bot.device.GetClient().Do(req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -1077,6 +1163,7 @@ func GetFromGameHandler(c echo.Context) error {
 	}
 	pageHTML, _ := bot.GetPageContent(vals)
 	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = removeCookiesBanner(pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1090,6 +1177,7 @@ func PostToGameHandler(c echo.Context) error {
 	payload, _ := c.FormParams()
 	pageHTML, _ := bot.PostPageContent(vals, payload)
 	pageHTML = replaceHostname(bot, pageHTML)
+	pageHTML = removeCookiesBanner(pageHTML)
 	return c.HTMLBlob(http.StatusOK, pageHTML)
 }
 
@@ -1124,7 +1212,14 @@ func GetEmpireHandler(c echo.Context) error {
 	if err != nil || nbr > 1 {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid typeID"))
 	}
-	getEmpire, err := bot.GetEmpireJSON(nbr)
+	var celestialType ogame.CelestialType
+	switch nbr {
+	case 0:
+		celestialType = ogame.PlanetType
+	case 1:
+		celestialType = ogame.MoonType
+	}
+	getEmpire, err := bot.GetEmpireJSON(celestialType)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
@@ -1345,28 +1440,36 @@ func TechsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
 	}
-	supplies, facilities, ships, defenses, researches, lfbuildings, err := bot.GetTechs(ogame.CelestialID(celestialID))
+	supplies, facilities, ships, defenses, researches, lfbuildings, lfResearches, err := bot.GetTechs(ogame.CelestialID(celestialID))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(map[string]any{
-		"supplies":    supplies,
-		"facilities":  facilities,
-		"ships":       ships,
-		"defenses":    defenses,
-		"researches":  researches,
-		"lfbuildings": lfbuildings,
+		"supplies":     supplies,
+		"facilities":   facilities,
+		"ships":        ships,
+		"defenses":     defenses,
+		"researches":   researches,
+		"lfbuildings":  lfbuildings,
+		"lfResearches": lfResearches,
 	}))
 }
 
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-
-	_, err := GFLogin(bot.client, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
-	var captchaErr *CaptchaRequiredError
+	params := &gameforge.GfLoginParams{
+		Ctx:       bot.ctx,
+		Device:    bot.device,
+		Lobby:     bot.lobby,
+		Username:  bot.Username,
+		Password:  bot.password,
+		OtpSecret: bot.otpSecret,
+	}
+	_, err := gameforge.GFLogin(params)
+	var captchaErr *gameforge.CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
-		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
+		questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
@@ -1394,7 +1497,7 @@ func GetCaptchaSolverHandler(c echo.Context) error {
 	challengeID := c.Request().PostFormValue("challenge_id")
 	answer := utils.DoParseI64(c.Request().PostFormValue("answer"))
 
-	if err := SolveChallenge(bot.GetClient(), bot.ctx, challengeID, answer); err != nil {
+	if err := gameforge.SolveChallenge(bot.GetClient(), bot.ctx, challengeID, answer); err != nil {
 		bot.error(err)
 	}
 
@@ -1416,10 +1519,18 @@ type CaptchaChallenge struct {
 // GetCaptchaChallengeHandler ...
 func GetCaptchaChallengeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	_, err := GFLogin(bot.client, bot.ctx, bot.lobby, bot.Username, bot.password, bot.otpSecret, "")
-	var captchaErr *CaptchaRequiredError
+	params := &gameforge.GfLoginParams{
+		Ctx:       bot.ctx,
+		Device:    bot.device,
+		Lobby:     bot.lobby,
+		Username:  bot.Username,
+		Password:  bot.password,
+		OtpSecret: bot.otpSecret,
+	}
+	_, err := gameforge.GFLogin(params)
+	var captchaErr *gameforge.CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
-		questionRaw, iconsRaw, err := StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
+		questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(bot.GetClient(), bot.ctx, captchaErr.ChallengeID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 		}
@@ -1444,4 +1555,11 @@ func GetPublicIPHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(ip))
+}
+
+func removeCookiesBanner(pageHTML []byte) []byte {
+	regex := `<script[^>]*id="cookiebanner"[^>]*>[\s\S]*?</script>`
+	re := regexp.MustCompile(regex)
+	pageHTML = []byte(re.ReplaceAllString(string(pageHTML), ""))
+	return pageHTML
 }

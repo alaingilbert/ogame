@@ -19,6 +19,8 @@ type Page struct {
 	content []byte
 }
 
+func (p *Page) SetExtractor(ext extractor.Extractor) { p.e = ext }
+
 func (p *Page) GetContent() []byte { return p.content }
 
 func (p *Page) GetDoc() *goquery.Document {
@@ -34,6 +36,7 @@ type MissileAttackLayerAjaxPage struct{ Page }
 type FetchTechsAjaxPage struct{ Page }
 type RocketlayerAjaxPage struct{ Page }
 type PhalanxAjaxPage struct{ Page }
+type JumpGateAjaxPage struct{ Page }
 
 type FullPage struct{ Page }
 type OverviewPage struct{ FullPage }
@@ -79,13 +82,16 @@ type AjaxPagePages interface {
 		MissileAttackLayerAjaxPage |
 		FetchTechsAjaxPage |
 		RocketlayerAjaxPage |
-		PhalanxAjaxPage
+		PhalanxAjaxPage |
+		JumpGateAjaxPage
 }
 
 type IFullPage interface {
+	ExtractLifeformTypeFromDoc() ogame.LifeformType
 	ExtractOGameSession() string
 	ExtractIsInVacation() bool
 	ExtractPlanets() []ogame.Planet
+	ExtractPlanetCoordinate() (ogame.Coordinate, error)
 	ExtractAjaxChatToken() (string, error)
 	ExtractCharacterClass() (ogame.CharacterClass, error)
 	ExtractCommander() bool
@@ -93,61 +99,74 @@ type IFullPage interface {
 	ExtractEngineer() bool
 	ExtractGeologist() bool
 	ExtractTechnocrat() bool
+	ExtractColonies() (int64, int64)
 	ExtractServerTime() (time.Time, error)
 }
 
 func AutoParseFullPage(e extractor.Extractor, pageHTML []byte) (out IFullPage) {
 	fullPage := FullPage{Page{e: e, content: pageHTML}}
-	if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) {
-		out = OverviewPage{fullPage}
+	if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) || bytes.Contains(pageHTML, []byte(`currentPage = "intro";`)) {
+		out = &OverviewPage{fullPage}
 	} else if bytes.Contains(pageHTML, []byte(`currentPage = "preferences";`)) {
-		out = PreferencesPage{fullPage}
+		out = &PreferencesPage{fullPage}
 	} else if bytes.Contains(pageHTML, []byte(`currentPage = "research";`)) {
-		out = ResearchPage{fullPage}
+		out = &ResearchPage{fullPage}
 	} else {
-		out = fullPage
+		out = &fullPage
 	}
 	return out
 }
 
 // ParsePage given a pageHTML and an extractor for the game version this html represent,
 // returns a page of type T
-func ParsePage[T FullPagePages](e extractor.Extractor, pageHTML []byte) (T, error) {
+func ParsePage[T FullPagePages](e extractor.Extractor, pageHTML []byte) (*T, error) {
 	var zero T
 	fullPage := FullPage{Page{e: e, content: pageHTML}}
 	switch any(zero).(type) {
 	case OverviewPage:
-		if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) {
-			return T(OverviewPage{fullPage}), nil
+		if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) ||
+			bytes.Contains(pageHTML, []byte(`currentPage = "intro";`)) {
+			tt := T(OverviewPage{fullPage})
+			return &tt, nil
 		}
 	case DefensesPage:
 		if isDefensesPage(e, pageHTML) {
-			return T(DefensesPage{fullPage}), nil
+			tt := T(DefensesPage{fullPage})
+			return &tt, nil
 		}
 	case ShipyardPage:
 		if bytes.Contains(pageHTML, []byte(`currentPage = "shipyard";`)) {
-			return T(ShipyardPage{fullPage}), nil
+			tt := T(ShipyardPage{fullPage})
+			return &tt, nil
 		}
 	case ResearchPage:
-		return T(ResearchPage{fullPage}), nil
+		tt := T(ResearchPage{fullPage})
+		return &tt, nil
 	case FacilitiesPage:
-		return T(FacilitiesPage{fullPage}), nil
+		tt := T(FacilitiesPage{fullPage})
+		return &tt, nil
 	case LfBuildingsPage:
-		return T(LfBuildingsPage{fullPage}), nil
+		tt := T(LfBuildingsPage{fullPage})
+		return &tt, nil
 	case LfResearchPage:
-		return T(LfResearchPage{fullPage}), nil
+		tt := T(LfResearchPage{fullPage})
+		return &tt, nil
 	case SuppliesPage:
-		return T(SuppliesPage{fullPage}), nil
+		tt := T(SuppliesPage{fullPage})
+		return &tt, nil
 	case ResourcesSettingsPage:
-		return T(ResourcesSettingsPage{fullPage}), nil
+		tt := T(ResourcesSettingsPage{fullPage})
+		return &tt, nil
 	case PreferencesPage:
-		return T(PreferencesPage{fullPage}), nil
+		tt := T(PreferencesPage{fullPage})
+		return &tt, nil
 	case MovementPage:
-		return T(MovementPage{fullPage}), nil
+		tt := T(MovementPage{fullPage})
+		return &tt, nil
 	default:
-		return zero, errors.New("page type not implemented")
+		return &zero, errors.New("page type not implemented")
 	}
-	return zero, ErrParsePageType
+	return &zero, ErrParsePageType
 }
 
 func ParseAjaxPage[T AjaxPagePages](e extractor.Extractor, pageHTML []byte) (T, error) {
@@ -162,6 +181,8 @@ func ParseAjaxPage[T AjaxPagePages](e extractor.Extractor, pageHTML []byte) (T, 
 		return T(RocketlayerAjaxPage{page}), nil
 	case PhalanxAjaxPage:
 		return T(PhalanxAjaxPage{page}), nil
+	case JumpGateAjaxPage:
+		return T(JumpGateAjaxPage{page}), nil
 	case FetchTechsAjaxPage:
 		return T(FetchTechsAjaxPage{page}), nil
 	}

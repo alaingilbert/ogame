@@ -328,13 +328,87 @@ type planetTechsResp struct {
 	Num14110 int64 `json:"14110"`
 	Num14111 int64 `json:"14111"`
 	Num14112 int64 `json:"14112"`
+
+	// LfResearches
+	Num11201 int64 `json:"11201"`
+	Num11202 int64 `json:"11202"`
+	Num11203 int64 `json:"11203"`
+	Num11204 int64 `json:"11204"`
+	Num11205 int64 `json:"11205"`
+	Num11206 int64 `json:"11206"`
+	Num11207 int64 `json:"11207"`
+	Num11208 int64 `json:"11208"`
+	Num11209 int64 `json:"11209"`
+	Num11210 int64 `json:"11210"`
+	Num11211 int64 `json:"11211"`
+	//Num11112 int64 `json:"11112"`
+	Num11213 int64 `json:"11213"`
+	Num11214 int64 `json:"11214"`
+	Num11215 int64 `json:"11215"`
+	Num11216 int64 `json:"11216"`
+	Num11217 int64 `json:"11217"`
+	Num11218 int64 `json:"11218"`
+	Num12201 int64 `json:"12201"`
+	Num12202 int64 `json:"12202"`
+	Num12203 int64 `json:"12203"`
+	Num12204 int64 `json:"12204"`
+	Num12205 int64 `json:"12205"`
+	Num12206 int64 `json:"12206"`
+	Num12207 int64 `json:"12207"`
+	Num12208 int64 `json:"12208"`
+	Num12209 int64 `json:"12209"`
+	Num12210 int64 `json:"12210"`
+	Num12211 int64 `json:"12211"`
+	Num12212 int64 `json:"12212"`
+	Num12213 int64 `json:"12213"`
+	Num12214 int64 `json:"12214"`
+	Num12215 int64 `json:"12215"`
+	Num12216 int64 `json:"12216"`
+	Num12217 int64 `json:"12217"`
+	Num12218 int64 `json:"12218"`
+	Num13201 int64 `json:"13201"`
+	Num13202 int64 `json:"13202"`
+	Num13203 int64 `json:"13203"`
+	Num13204 int64 `json:"13204"`
+	Num13205 int64 `json:"13205"`
+	Num13206 int64 `json:"13206"`
+	Num13207 int64 `json:"13207"`
+	Num13208 int64 `json:"13208"`
+	Num13209 int64 `json:"13209"`
+	Num13210 int64 `json:"13210"`
+	Num13211 int64 `json:"13211"`
+	Num13212 int64 `json:"13212"`
+	Num13213 int64 `json:"13213"`
+	Num13214 int64 `json:"13214"`
+	Num13215 int64 `json:"13215"`
+	Num13216 int64 `json:"13216"`
+	Num13217 int64 `json:"13217"`
+	Num13218 int64 `json:"13218"`
+	Num14201 int64 `json:"14201"`
+	Num14202 int64 `json:"14202"`
+	Num14203 int64 `json:"14203"`
+	Num14204 int64 `json:"14204"`
+	Num14205 int64 `json:"14205"`
+	Num14206 int64 `json:"14206"`
+	Num14207 int64 `json:"14207"`
+	Num14208 int64 `json:"14208"`
+	Num14209 int64 `json:"14209"`
+	Num14210 int64 `json:"14210"`
+	Num14211 int64 `json:"14211"`
+	Num14212 int64 `json:"14212"`
+	Num14213 int64 `json:"14213"`
+	Num14214 int64 `json:"14214"`
+	Num14215 int64 `json:"14215"`
+	Num14216 int64 `json:"14216"`
+	Num14217 int64 `json:"14217"`
+	Num14218 int64 `json:"14218"`
 }
 
-func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, lfBuildings ogame.LfBuildings, err error) {
+func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, lfBuildings ogame.LfBuildings, lfResearches ogame.LfResearches, err error) {
 	var res planetTechsResp
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if v6.IsLogged(pageHTML) {
-			return supplies, facilities, shipsInfos, defenses, researches, lfBuildings, ogame.ErrInvalidPlanetID
+			return supplies, facilities, shipsInfos, defenses, researches, lfBuildings, lfResearches, ogame.ErrInvalidPlanetID
 		}
 		return
 	}
@@ -435,7 +509,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		CrystalRefinery:            res.Num12109,
 		DeuteriumSynthesiser:       res.Num12110,
 		MineralResearchCentre:      res.Num12111,
-		MetalRecyclingPlant:        res.Num12112,
+		AdvancedRecyclingPlant:     res.Num12112,
 		AssemblyLine:               res.Num13101,
 		FusionCellFactory:          res.Num13102,
 		RoboticsResearchCentre:     res.Num13103,
@@ -460,6 +534,81 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		PsionicModulator:           res.Num14110,
 		ShipManufacturingHall:      res.Num14111,
 		SupraRefractor:             res.Num14112,
+	}
+
+	lfResearches = ogame.LfResearches{
+		IntergalacticEnvoys:               &res.Num11201,
+		HighPerformanceExtractors:         &res.Num11202,
+		FusionDrives:                      &res.Num11203,
+		StealthFieldGenerator:             &res.Num11204,
+		OrbitalDen:                        &res.Num11205,
+		ResearchAI:                        &res.Num11206,
+		HighPerformanceTerraformer:        &res.Num11207,
+		EnhancedProductionTechnologies:    &res.Num11208,
+		LightFighterMkII:                  &res.Num11209,
+		CruiserMkII:                       &res.Num11210,
+		ImprovedLabTechnology:             &res.Num11211,
+		PlasmaTerraformer:                 &res.Num11112,
+		LowTemperatureDrives:              &res.Num11213,
+		BomberMkII:                        &res.Num11214,
+		DestroyerMkII:                     &res.Num11215,
+		BattlecruiserMkII:                 &res.Num11216,
+		RobotAssistants:                   &res.Num11217,
+		Supercomputer:                     &res.Num11218,
+		VolcanicBatteries:                 &res.Num12201,
+		AcousticScanning:                  &res.Num12202,
+		HighEnergyPumpSystems:             &res.Num12203,
+		CargoHoldExpansionCivilianShips:   &res.Num12204,
+		MagmaPoweredProduction:            &res.Num12205,
+		GeothermalPowerPlants:             &res.Num12206,
+		DepthSounding:                     &res.Num12207,
+		IonCrystalEnhancementHeavyFighter: &res.Num12208,
+		ImprovedStellarator:               &res.Num12209,
+		HardenedDiamondDrillHeads:         &res.Num12210,
+		SeismicMiningTechnology:           &res.Num12211,
+		MagmaPoweredPumpSystems:           &res.Num12212,
+		IonCrystalModules:                 &res.Num12213,
+		OptimisedSiloConstructionMethod:   &res.Num12214,
+		DiamondEnergyTransmitter:          &res.Num12215,
+		ObsidianShieldReinforcement:       &res.Num12216,
+		RuneShields:                       &res.Num12217,
+		RocktalCollectorEnhancement:       &res.Num12218,
+		CatalyserTechnology:               &res.Num13201,
+		PlasmaDrive:                       &res.Num13202,
+		EfficiencyModule:                  &res.Num13203,
+		DepotAI:                           &res.Num13204,
+		GeneralOverhaulLightFighter:       &res.Num13205,
+		AutomatedTransportLines:           &res.Num13206,
+		ImprovedDroneAI:                   &res.Num13207,
+		ExperimentalRecyclingTechnology:   &res.Num13208,
+		GeneralOverhaulCruiser:            &res.Num13209,
+		SlingshotAutopilot:                &res.Num13210,
+		HighTemperatureSuperconductors:    &res.Num13211,
+		GeneralOverhaulBattleship:         &res.Num13212,
+		ArtificialSwarmIntelligence:       &res.Num13213,
+		GeneralOverhaulBattlecruiser:      &res.Num13214,
+		GeneralOverhaulBomber:             &res.Num13215,
+		GeneralOverhaulDestroyer:          &res.Num13216,
+		ExperimentalWeaponsTechnology:     &res.Num13217,
+		MechanGeneralEnhancement:          &res.Num13218,
+		HeatRecovery:                      &res.Num14201,
+		SulphideProcess:                   &res.Num14202,
+		PsionicNetwork:                    &res.Num14203,
+		TelekineticTractorBeam:            &res.Num14204,
+		EnhancedSensorTechnology:          &res.Num14205,
+		NeuromodalCompressor:              &res.Num14206,
+		NeuroInterface:                    &res.Num14207,
+		InterplanetaryAnalysisNetwork:     &res.Num14208,
+		OverclockingHeavyFighter:          &res.Num14209,
+		TelekineticDrive:                  &res.Num14210,
+		SixthSense:                        &res.Num14211,
+		Psychoharmoniser:                  &res.Num14212,
+		EfficientSwarmIntelligence:        &res.Num14213,
+		OverclockingLargeCargo:            &res.Num14214,
+		GravitationSensors:                &res.Num14215,
+		OverclockingBattleship:            &res.Num14216,
+		PsionicShieldMatrix:               &res.Num14217,
+		KaeleshDiscovererEnhancement:      &res.Num14218,
 	}
 	return
 }
@@ -1090,14 +1239,7 @@ func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoor
 
 				// People invite you to attack your own self, and ogame sees it as friendly.
 				if isFriendly && attack.MissionType == ogame.GroupedAttack {
-					found := false
-					for _, ownCoord := range ownCoords {
-						if attack.Destination.Equal(ownCoord) {
-							found = true
-							break
-						}
-					}
-					if found {
+					if utils.InArray(attack.Destination, ownCoords) {
 						isHostile = true
 					}
 				}

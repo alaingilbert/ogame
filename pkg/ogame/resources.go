@@ -163,11 +163,25 @@ func (r Resources) CanAfford(cost Resources) bool {
 	return r.Gte(cost)
 }
 
+// CanAfford2 alias to Gte
+func (r Resources) CanAfford2(cost Resources, population bool) bool {
+	return r.Gte2(cost, population)
+}
+
 // Gte greater than or equal
 func (r Resources) Gte(val Resources) bool {
-	return r.Metal >= val.Metal &&
+	return r.Gte2(val, false)
+}
+
+// Gte2 greater than or equal
+func (r Resources) Gte2(val Resources, population bool) bool {
+	base := r.Metal >= val.Metal &&
 		r.Crystal >= val.Crystal &&
 		r.Deuterium >= val.Deuterium
+	if population {
+		base = base && r.Population >= val.Population
+	}
+	return base
 }
 
 // Lte less than or equal

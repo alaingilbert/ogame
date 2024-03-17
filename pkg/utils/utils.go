@@ -1,15 +1,15 @@
 package utils
 
 import (
-	"bytes"
 	"compress/gzip"
 	"github.com/PuerkitoBio/goquery"
 	"io"
-	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // ParseInt ...
@@ -34,24 +34,24 @@ func I64Ptr(v int64) *int64 {
 
 // MinInt returns the minimum int64 value
 func MinInt(vals ...int64) int64 {
-	min := vals[0]
+	minV := vals[0]
 	for _, num := range vals {
-		if num < min {
-			min = num
+		if num < minV {
+			minV = num
 		}
 	}
-	return min
+	return minV
 }
 
 // MaxInt returns the minimum int64 value
 func MaxInt(vals ...int64) int64 {
-	max := vals[0]
+	maxV := vals[0]
 	for _, num := range vals {
-		if num > max {
-			max = num
+		if num > maxV {
+			maxV = num
 		}
 	}
-	return max
+	return maxV
 }
 
 // Clamp ensure the value is within a range
@@ -117,20 +117,91 @@ func ReadBody(resp *http.Response) (respContent []byte, err error) {
 	var reader io.ReadCloser
 	switch resp.Header.Get("Content-Encoding") {
 	case "gzip":
-		buf := new(bytes.Buffer)
-		_, _ = buf.ReadFrom(resp.Body)
-		var err error
-		reader, err = gzip.NewReader(buf)
+		reader, err = gzip.NewReader(resp.Body)
 		if err != nil {
-			return []byte{}, err
+			return
 		}
 		defer reader.Close()
 	default:
 		reader = resp.Body
 	}
-	by, err := ioutil.ReadAll(reader)
-	if err != nil {
-		return []byte{}, err
+	return io.ReadAll(reader)
+}
+
+type Equalable[T any] interface {
+	Equal(other T) bool
+}
+
+func InArray[T Equalable[T]](needle T, haystack []T) bool {
+	for _, el := range haystack {
+		if needle.Equal(el) {
+			return true
+		}
 	}
-	return by, nil
+	return false
+}
+
+func InArr[T comparable](needle T, haystack []T) bool {
+	for _, el := range haystack {
+		if needle == el {
+			return true
+		}
+	}
+	return false
+}
+
+// RandChoice returns a random element from an array
+func RandChoice[T any](arr []T) T {
+	if len(arr) == 0 {
+		panic("empty array")
+	}
+	return arr[rand.Intn(len(arr))]
+}
+
+// Random generates a number between min and max inclusively
+func Random(min, max int64) int64 {
+	if min == max {
+		return min
+	}
+	if max < min {
+		min, max = max, min
+	}
+	return rand.Int63n(max-min+1) + min
+}
+
+// RandDuration generates random duration
+func RandDuration(min, max time.Duration) time.Duration {
+	n := Random(min.Nanoseconds(), max.Nanoseconds())
+	return time.Duration(n) * time.Nanosecond
+}
+
+func randDur(min, max int64, dur time.Duration) time.Duration {
+	return RandDuration(time.Duration(min)*dur, time.Duration(max)*dur)
+}
+
+// RandMs generates random duration in milliseconds
+func RandMs(min, max int64) time.Duration {
+	return randDur(min, max, time.Millisecond)
+}
+
+func RandFloat(min, max float64) float64 {
+	if min == max {
+		return min
+	}
+	if max < min {
+		min, max = max, min
+	}
+	return rand.Float64()*(max-min) + min
+}
+
+func Ternary[T any](predicate bool, a, b T) T {
+	if predicate {
+		return a
+	}
+	return b
+}
+
+func TernaryOrZero[T any](predicate bool, a T) T {
+	var zero T
+	return Ternary(predicate, a, zero)
 }

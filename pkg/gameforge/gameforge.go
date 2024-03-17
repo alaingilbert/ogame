@@ -1,28 +1,40 @@
-package wrapper
+package gameforge
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"io"
-	"io/ioutil"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
 )
 
 // TokenCookieName ogame cookie name for token id
-const TokenCookieName = "gf-token-production"
-const ChallengeIDCookieName = "gf-challenge-id"
+const (
+	TokenCookieName         = "gf-token-production"
+	ChallengeIDCookieName   = "gf-challenge-id"
+	acceptEncodingHeaderKey = "Accept-Encoding"
+	contentTypeHeaderKey    = "Content-Type"
+	authorizationHeaderKey  = "Authorization"
+	twoFactorHeaderKey      = "tnt-2fa-code"
+	installationIDHeaderKey = "tnt-installation-id"
+	applicationJson         = "application/json"
+	gzipEncoding            = "gzip, deflate, br"
+	challengeBaseURL        = "https://challenge.gameforge.com"
+	imgDropChallengeBaseURL = "https://image-drop-challenge.gameforge.com"
+	endpointLoc             = "en-GB"
+)
 
 type CaptchaRequiredError struct {
 	ChallengeID string
@@ -46,12 +58,36 @@ var (
 	ErrPasswordInvalid = &RegisterError{"Must contain at least 10 characters including at least one upper and lowercase letter and a number."}
 )
 
+type GfLoginParams struct {
+	Ctx         context.Context
+	Device      *device.Device
+	Lobby       string
+	Username    string
+	Password    string
+	OtpSecret   string
+	ChallengeID string
+}
+
+func getChallengeURL(base, challengeID string) string {
+	return fmt.Sprintf("%s/challenge/%s", base, challengeID)
+}
+
+const blackboxPrefix = "tra:"
+
 // Register a new gameforge lobby account
-func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, password, challengeID, lang string) error {
+func Register(device *device.Device, ctx context.Context, lobby, email, password, challengeID, lang string) error {
+	blackbox, err := device.GetBlackbox()
+	if err != nil {
+		return err
+	}
 	if lang == "" {
 		lang = "en"
 	}
+	if lobby != LobbyPioneers {
+		lobby = Lobby
+	}
 	var payload struct {
+		Blackbox    string `json:"blackbox"`
 		Credentials struct {
 			Email    string `json:"email"`
 			Password string `json:"password"`
@@ -59,6 +95,7 @@ func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, 
 		Language string `json:"language"`
 		Kid      string `json:"kid"`
 	}
+	payload.Blackbox = blackboxPrefix + blackbox
 	payload.Credentials.Email = email
 	payload.Credentials.Password = password
 	payload.Language = lang
@@ -66,17 +103,17 @@ func Register(client httpclient.IHttpClient, ctx context.Context, lobby, email, 
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPut, "https://"+lobby+".ogame.gameforge.com/api/users", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return err
 	}
 	if challengeID != "" {
-		req.Header.Add(ChallengeIDCookieName, challengeID)
+		req.Header.Set(ChallengeIDCookieName, challengeID)
 	}
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
-	resp, err := client.Do(req)
+	resp, err := device.GetClient().Do(req)
 	if err != nil {
 		return err
 	}
@@ -117,7 +154,7 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	if len(code) != 36 {
 		return errors.New("invalid validation code")
 	}
-	req, err := http.NewRequest(http.MethodPut, "https://"+lobby+".ogame.gameforge.com/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
 	if err != nil {
 		return err
 	}
@@ -130,27 +167,58 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	return nil
 }
 
-// RedeemCode ...
-func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, email, password, otpSecret, token string) error {
-	postSessionsRes, err := GFLogin(client, ctx, lobby, email, password, otpSecret, "")
+func buildBearerHeaderValue(token string) string { return "Bearer " + token }
+
+// Lobby constants
+const (
+	Lobby         = "lobby"
+	LobbyPioneers = "lobby-pioneers"
+)
+
+func setDefaultParams(params *GfLoginParams) {
+	if params.Ctx == nil {
+		params.Ctx = context.Background()
+	}
+	if params.Lobby == "" {
+		params.Lobby = Lobby
+	}
+}
+
+// LoginAndRedeemCode ...
+func LoginAndRedeemCode(params *GfLoginParams, code string) error {
+	postSessionsRes, err := GFLogin(params)
 	if err != nil {
 		return err
 	}
+	return RedeemCode(params.Device.GetClient(), params.Ctx, params.Lobby, postSessionsRes.Token, code)
+}
+
+// LoginAndAddAccount adds an account to a gameforge lobby
+func LoginAndAddAccount(params *GfLoginParams, universe, lang string) (*AddAccountRes, error) {
+	postSessionsRes, err := GFLogin(params)
+	if err != nil {
+		return nil, err
+	}
+	return AddAccountByUniverseLang(params.Device, params.Ctx, params.Lobby, postSessionsRes.Token, universe, lang)
+}
+
+// RedeemCode ...
+func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, bearerToken, code string) error {
 	var payload struct {
 		Token string `json:"token"`
 	}
-	payload.Token = token
+	payload.Token = code
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPost, "https://"+lobby+".ogame.gameforge.com/api/token", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPost, getGameforgeLobbyBaseURL(lobby)+"/api/token", bytes.NewReader(jsonPayloadBytes))
 	if err != nil {
 		return err
 	}
-	req.Header.Add("authorization", "Bearer "+postSessionsRes.Token)
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -178,21 +246,25 @@ func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, email
 	return nil
 }
 
-// LoginAndAddAccount adds an account to a gameforge lobby
-func LoginAndAddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, username, password, otpSecret, universe, lang string) (*AddAccountRes, error) {
-	postSessionsRes, err := GFLogin(client, ctx, lobby, username, password, otpSecret, "")
+func FindServer(universe, lang string, servers []Server) (out Server, found bool) {
+	for _, s := range servers {
+		if s.Name == universe && s.Language == lang {
+			return s, true
+		}
+	}
+	return
+}
+
+func AddAccountByUniverseLang(device *device.Device, ctx context.Context, lobby, bearerToken, universe, lang string) (*AddAccountRes, error) {
+	servers, err := GetServers(lobby, device.GetClient(), ctx)
 	if err != nil {
 		return nil, err
 	}
-	servers, err := GetServers(lobby, client, ctx)
-	if err != nil {
-		return nil, err
-	}
-	server, found := findServer(universe, lang, servers)
+	server, found := FindServer(universe, lang, servers)
 	if !found {
 		return nil, errors.New("server not found")
 	}
-	return AddAccount(client, ctx, lobby, server.AccountGroup, postSessionsRes.Token)
+	return AddAccount(device, ctx, lobby, server.AccountGroup, bearerToken)
 }
 
 // AddAccountRes response from creating a new account
@@ -209,27 +281,37 @@ type AddAccountRes struct {
 
 func (r AddAccountRes) GetBearerToken() string { return r.BearerToken }
 
-func AddAccount(client httpclient.IHttpClient, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
+func getGameforgeLobbyBaseURL(lobby string) string {
+	return fmt.Sprintf("https://%s.ogame.gameforge.com", lobby)
+}
+
+func AddAccount(device *device.Device, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
+	blackbox, err := device.GetBlackbox()
+	if err != nil {
+		return nil, err
+	}
 	var payload struct {
 		AccountGroup string `json:"accountGroup"`
+		Blackbox     string `json:"blackbox"`
 		Locale       string `json:"locale"`
 		Kid          string `json:"kid"`
 	}
 	payload.AccountGroup = accountGroup // en_181
+	payload.Blackbox = blackboxPrefix + blackbox
 	payload.Locale = "en_GB"
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPut, "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Add("authorization", "Bearer "+sessionToken)
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(sessionToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
-	resp, err := client.Do(req)
+	resp, err := device.GetClient().Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -263,18 +345,22 @@ type GFLoginRes struct {
 
 func (r GFLoginRes) GetBearerToken() string { return r.Token }
 
-func GFLogin(client httpclient.IHttpClient, ctx context.Context, lobby, username, password, otpSecret, challengeID string) (out *GFLoginRes, err error) {
-	gameEnvironmentID, platformGameID, err := getConfiguration(client, ctx, lobby)
+func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
+	setDefaultParams(params)
+	if params.Device == nil {
+		return out, errors.New("device is nil")
+	}
+	client := params.Device.GetClient()
+	ctx := params.Ctx
+	gameEnvironmentID, platformGameID, err := getConfiguration(client, ctx, params.Lobby)
 	if err != nil {
 		return out, err
 	}
 
-	req, err := postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID)
+	req, err := postSessionsReq(params, gameEnvironmentID, platformGameID)
 	if err != nil {
 		return out, err
 	}
-
-	req.WithContext(ctx)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -298,13 +384,9 @@ func GFLogin(client httpclient.IHttpClient, ctx context.Context, lobby, username
 
 	if resp.StatusCode == http.StatusForbidden {
 		return out, errors.New(resp.Status + " : " + string(by))
-	}
-
-	if resp.StatusCode >= http.StatusInternalServerError {
+	} else if resp.StatusCode >= http.StatusInternalServerError {
 		return out, errors.New("OGame server error code : " + resp.Status)
-	}
-
-	if resp.StatusCode != http.StatusCreated {
+	} else if resp.StatusCode != http.StatusCreated {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
 			return out, ogame.ErrOTPRequired
 		}
@@ -321,12 +403,12 @@ func GFLogin(client httpclient.IHttpClient, ctx context.Context, lobby, username
 }
 
 func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby string) (string, string, error) {
-	ogURL := "https://" + lobby + ".ogame.gameforge.com/config/configuration.js"
+	ogURL := getGameforgeLobbyBaseURL(lobby) + "/config/configuration.js"
 	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
 	if err != nil {
 		return "", "", err
 	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -355,23 +437,49 @@ func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby 
 	return string(gameEnvironmentID), string(platformGameID), nil
 }
 
-func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpSecret, challengeID string) (*http.Request, error) {
-	payload := url.Values{
-		"autoGameAccountCreation": {"false"},
-		"gameEnvironmentId":       {gameEnvironmentID},
-		"platformGameId":          {platformGameID},
-		"gfLang":                  {"en"},
-		"locale":                  {"en_GB"},
-		"identity":                {username},
-		"password":                {password},
+func postSessionsReq(params *GfLoginParams, gameEnvironmentID, platformGameID string) (*http.Request, error) {
+	dev := params.Device
+	ctx := params.Ctx
+	username := params.Username
+	password := params.Password
+	otpSecret := params.OtpSecret
+	challengeID := params.ChallengeID
+
+	blackbox, err := dev.GetBlackbox()
+	if err != nil {
+		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPost, "https://gameforge.com/api/v1/auth/thin/sessions", strings.NewReader(payload.Encode()))
+
+	var payload = struct {
+		Identity                string `json:"identity"`
+		Password                string `json:"password"`
+		Locale                  string `json:"locale"`
+		GfLang                  string `json:"gfLang"`
+		PlatformGameID          string `json:"platformGameId"`
+		Blackbox                string `json:"blackbox"`
+		GameEnvironmentID       string `json:"gameEnvironmentId"`
+		AutoGameAccountCreation bool   `json:"autoGameAccountCreation"`
+	}{
+		Identity:                username,
+		Password:                password,
+		Locale:                  "en_GB",
+		GfLang:                  "en",
+		PlatformGameID:          platformGameID,
+		Blackbox:                blackboxPrefix + blackbox,
+		GameEnvironmentID:       gameEnvironmentID,
+		AutoGameAccountCreation: false,
+	}
+	by, err := json.Marshal(&payload)
+	if err != nil {
+		return nil, err
+	}
+	req, err := http.NewRequest(http.MethodPost, "https://gameforge.com/api/v1/auth/thin/sessions", bytes.NewReader(by))
 	if err != nil {
 		return nil, err
 	}
 
 	if challengeID != "" {
-		req.Header.Set("gf-challenge-id", challengeID)
+		req.Header.Set(ChallengeIDCookieName, challengeID)
 	}
 
 	if otpSecret != "" {
@@ -384,73 +492,58 @@ func postSessionsReq(gameEnvironmentID, platformGameID, username, password, otpS
 		if err != nil {
 			return nil, err
 		}
-		req.Header.Add("tnt-2fa-code", passcode)
-		req.Header.Add("tnt-installation-id", "")
+		req.Header.Set(twoFactorHeaderKey, passcode)
+		req.Header.Set(installationIDHeaderKey, "")
 	}
 
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req.WithContext(ctx)
 	return req, nil
 }
 
 func StartCaptchaChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string) (questionRaw, iconsRaw []byte, err error) {
-	req, err := http.NewRequest(http.MethodGet, "https://challenge.gameforge.com/challenge/"+challengeID, nil)
-	if err != nil {
+	doReq := func(u string) ([]byte, error) {
+		req, err := http.NewRequest(http.MethodGet, u, nil)
+		if err != nil {
+			return nil, err
+		}
+		req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+		req.WithContext(ctx)
+		resp, err := client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		raw, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		return raw, nil
+	}
+	challengeURL := getChallengeURL(challengeBaseURL, challengeID)
+	imgDropURL := getChallengeURL(imgDropChallengeBaseURL, challengeID) + "/" + endpointLoc
+	if _, err = doReq(challengeURL); err != nil {
 		return
 	}
-	req.WithContext(ctx)
-	challengeResp, err := client.Do(req)
-	if err != nil {
+	if _, err = doReq(imgDropURL); err != nil {
 		return
 	}
-	defer challengeResp.Body.Close()
-	_, _ = ioutil.ReadAll(challengeResp.Body)
-
-	req, err = http.NewRequest(http.MethodGet, "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB", nil)
-	if err != nil {
+	if questionRaw, err = doReq(imgDropURL + "/text"); err != nil {
 		return
 	}
-	req.WithContext(ctx)
-	challengePresentedResp, err := client.Do(req)
-	if err != nil {
+	if iconsRaw, err = doReq(imgDropURL + "/drag-icons"); err != nil {
 		return
 	}
-	defer challengePresentedResp.Body.Close()
-	_, _ = ioutil.ReadAll(challengePresentedResp.Body)
-
-	// Question request
-	req, err = http.NewRequest(http.MethodGet, "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/text", nil)
-	if err != nil {
-		return
-	}
-	req.WithContext(ctx)
-	questionResp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer questionResp.Body.Close()
-	questionRaw, _ = ioutil.ReadAll(questionResp.Body)
-
-	// Icons request
-	req, err = http.NewRequest(http.MethodGet, "https://image-drop-challenge.gameforge.com/challenge/"+challengeID+"/en-GB/drag-icons", nil)
-	if err != nil {
-		return
-	}
-	req.WithContext(ctx)
-	iconsResp, err := client.Do(req)
-	if err != nil {
-		return
-	}
-	defer iconsResp.Body.Close()
-	iconsRaw, _ = ioutil.ReadAll(iconsResp.Body)
 	return
 }
 
 func SolveChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string, answer int64) error {
-	challengeURL := "https://image-drop-challenge.gameforge.com/challenge/" + challengeID + "/en-GB"
+	challengeURL := getChallengeURL(imgDropChallengeBaseURL, challengeID) + "/" + endpointLoc
 	body := strings.NewReader(`{"answer":` + utils.FI64(answer) + `}`)
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -478,9 +571,13 @@ type Server struct {
 	ServerClosed  int64
 	Prefered      int64
 	SignupClosed  int64
+	MultiLanguage int64
+	AvailableOn   []string
 	Settings      struct {
 		AKS                      int64
-		FleetSpeed               int64
+		FleetSpeedWar            int64
+		FleetSpeedHolding        int64
+		FleetSpeedPeaceful       int64
 		WreckField               int64
 		ServerLabel              string
 		EconomySpeed             any // can be 8 or "x8"
@@ -490,17 +587,18 @@ type Server struct {
 		EspionageProbeRaids      int64
 		PremiumValidationGift    int64
 		DebrisFieldFactorShips   int64
+		ResearchDurationDivisor  float64
 		DebrisFieldFactorDefence int64
 	}
 }
 
 func GetServers(lobby string, client httpclient.IHttpClient, ctx context.Context) ([]Server, error) {
 	var servers []Server
-	req, err := http.NewRequest(http.MethodGet, "https://"+lobby+".ogame.gameforge.com/api/servers", nil)
+	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby)+"/api/servers", nil)
 	if err != nil {
 		return servers, err
 	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -565,7 +663,7 @@ func GetServerData(client httpclient.IHttpClient, ctx context.Context, serverNum
 	if err != nil {
 		return serverData, err
 	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -605,12 +703,12 @@ type Account struct {
 
 func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, bearerToken string) ([]Account, error) {
 	var userAccounts []Account
-	req, err := http.NewRequest(http.MethodGet, "https://"+lobby+".ogame.gameforge.com/api/users/me/accounts", nil)
+	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby)+"/api/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
-	req.Header.Add("authorization", "Bearer "+bearerToken)
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -627,30 +725,61 @@ func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	return userAccounts, nil
 }
 
-func GetLoginLink(client httpclient.IHttpClient, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
-	ogURL := fmt.Sprintf("https://%s.ogame.gameforge.com/api/users/me/loginLink?id=%d&server[language]=%s&server[number]=%d&clickedButton=account_list",
-		lobby, userAccount.ID, userAccount.Server.Language, userAccount.Server.Number)
-	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
+func GetLoginLink(device *device.Device, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
+	ogURL := getGameforgeLobbyBaseURL(lobby) + "/api/users/me/loginLink"
+
+	blackbox, err := device.GetBlackbox()
 	if err != nil {
 		return "", err
 	}
-	req.Header.Add("authorization", "Bearer "+bearerToken)
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
+
+	var payload = struct {
+		Blackbox      string `json:"blackbox"`
+		Id            int64  `json:"id"`
+		ClickedButton string `json:"clickedButton"`
+		Server        struct {
+			Language string `json:"language"`
+			Number   int64  `json:"number"`
+		} `json:"server"`
+	}{
+		Blackbox:      blackboxPrefix + blackbox,
+		Id:            userAccount.ID,
+		ClickedButton: "account_list",
+	}
+
+	payload.Server.Language = userAccount.Server.Language
+	payload.Server.Number = userAccount.Server.Number
+
+	by, err := json.Marshal(&payload)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest(http.MethodPost, ogURL, bytes.NewReader(by))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
-	resp, err := client.Do(req)
+	resp, err := device.GetClient().Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+
+	by2, err := utils.ReadBody(resp)
 	if err != nil {
 		return "", err
 	}
-	var loginLink struct {
-		URL string
+
+	if resp.StatusCode == http.StatusBadRequest && string(by2) == `[]` {
+		return "", ogame.ErrLoginLink
 	}
-	if err := json.Unmarshal(by, &loginLink); err != nil {
-		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by))
+
+	var loginLink struct{ URL string }
+	if err := json.Unmarshal(by2, &loginLink); err != nil {
+		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by2))
 	}
 	return loginLink.URL, nil
 }

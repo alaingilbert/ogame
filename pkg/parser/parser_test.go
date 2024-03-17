@@ -4,12 +4,12 @@ import (
 	"github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/extractor/v7"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
 func MustReadFile(p string) []byte {
-	pageHTMLBytes, err := ioutil.ReadFile(p)
+	pageHTMLBytes, err := os.ReadFile(p)
 	if err != nil {
 		panic(err)
 	}

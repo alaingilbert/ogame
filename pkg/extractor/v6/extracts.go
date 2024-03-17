@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"net/url"
 	"regexp"
@@ -34,16 +35,20 @@ func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool {
 }
 
 func extractIsInVacationFromDoc(doc *goquery.Document) bool {
-	href := doc.Find("div#advice-bar a").AttrOr("href", "")
-	if href == "" {
-		return false
-	}
-	u, _ := url.Parse(href)
-	q := u.Query()
-	if q.Get("page") == "preferences" && q.Get("selectedTab") == "3" && q.Get("openGroup") == "0" {
-		return true
-	}
-	return false
+	var isVacation bool
+	doc.Find("div#advice-bar a").Each(func(i int, s *goquery.Selection) {
+		href := s.AttrOr("href", "")
+		if href == "" {
+			return
+		}
+		u, _ := url.Parse(href)
+		q := u.Query()
+		if q.Get("page") == "preferences" && q.Get("selectedTab") == "3" && q.Get("openGroup") == "0" {
+			isVacation = true
+			return
+		}
+	})
+	return isVacation
 }
 
 func extractResourcesFromDoc(doc *goquery.Document) ogame.Resources {
@@ -194,35 +199,41 @@ func extractMoonFromDoc(doc *goquery.Document, v any) (ogame.Moon, error) {
 }
 
 func extractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, error) {
+	extractCelestialByIDFromDocLocal := extractCelestialByIDFromDoc
+	extractCelestialByCoordFromDocLocal := extractCelestialByCoordFromDoc
 	switch vv := v.(type) {
 	case ogame.Celestial:
-		return extractCelestialByIDFromDoc(doc, vv.GetID())
-	case ogame.PlanetID:
-		return extractCelestialByIDFromDoc(doc, vv.Celestial())
-	case ogame.MoonID:
-		return extractCelestialByIDFromDoc(doc, vv.Celestial())
+		return extractCelestialByIDFromDocLocal(doc, vv.GetID())
+	case ogame.Planet:
+		return extractCelestialByIDFromDocLocal(doc, vv.GetID())
+	case ogame.Moon:
+		return extractCelestialByIDFromDocLocal(doc, vv.GetID())
 	case ogame.CelestialID:
-		return extractCelestialByIDFromDoc(doc, vv)
+		return extractCelestialByIDFromDocLocal(doc, vv)
+	case ogame.PlanetID:
+		return extractCelestialByIDFromDocLocal(doc, vv.Celestial())
+	case ogame.MoonID:
+		return extractCelestialByIDFromDocLocal(doc, vv.Celestial())
 	case int:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case int32:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case int64:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case float32:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case float64:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case lua.LNumber:
-		return extractCelestialByIDFromDoc(doc, ogame.CelestialID(vv))
+		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case ogame.Coordinate:
-		return extractCelestialByCoordFromDoc(doc, vv)
+		return extractCelestialByCoordFromDocLocal(doc, vv)
 	case string:
 		coord, err := ogame.ParseCoord(vv)
 		if err != nil {
 			return nil, err
 		}
-		return extractCelestialByCoordFromDoc(doc, coord)
+		return extractCelestialByCoordFromDocLocal(doc, coord)
 	default:
 		return nil, ErrUnsupportedType
 	}
@@ -595,7 +606,7 @@ func extractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues {
 	return out
 }
 
-func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64) {
+func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64, error) {
 	msgs := make([]ogame.EspionageReportSummary, 0)
 	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
@@ -627,10 +638,10 @@ func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.Esp
 			}
 		}
 	})
-	return msgs, nbPage
+	return msgs, nbPage, nil
 }
 
-func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64) {
+func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error) {
 	msgs := make([]ogame.CombatReportSummary, 0)
 	nbPage := utils.DoParseI64(doc.Find("ul.pagination li").Last().AttrOr("data-page", "1"))
 	doc.Find("li.msg").Each(func(i int, s *goquery.Selection) {
@@ -671,7 +682,7 @@ func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatRe
 				system := utils.DoParseI64(m[2])
 				position := utils.DoParseI64(m[3])
 				planetType := utils.DoParseI64(m[4])
-				report.Origin = &ogame.Coordinate{galaxy, system, position, ogame.CelestialType(planetType)}
+				report.Origin = &ogame.Coordinate{Galaxy: galaxy, System: system, Position: position, Type: ogame.CelestialType(planetType)}
 				if report.Origin.Equal(report.Destination) {
 					report.Origin = nil
 				}
@@ -680,7 +691,7 @@ func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatRe
 			}
 		}
 	})
-	return msgs, nbPage
+	return msgs, nbPage, nil
 }
 
 func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
@@ -966,29 +977,34 @@ func extractResourcesProductionsFromDoc(doc *goquery.Document) (ogame.Resources,
 	return res, nil
 }
 
-func extractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
+func ExtractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {
 	prefs := ogame.Preferences{
-		SpioAnz:                      extractSpioAnzFromDoc(doc),
-		DisableChatBar:               extractDisableChatBarFromDoc(doc),
-		DisableOutlawWarning:         extractDisableOutlawWarningFromDoc(doc),
-		MobileVersion:                extractMobileVersionFromDoc(doc),
-		ShowOldDropDowns:             extractShowOldDropDownsFromDoc(doc),
-		ActivateAutofocus:            extractActivateAutofocusFromDoc(doc),
-		EventsShow:                   extractEventsShowFromDoc(doc),
-		SortSetting:                  extractSortSettingFromDoc(doc),
-		SortOrder:                    extractSortOrderFromDoc(doc),
-		ShowDetailOverlay:            extractShowDetailOverlayFromDoc(doc),
-		AnimatedSliders:              extractAnimatedSlidersFromDoc(doc),
-		AnimatedOverview:             extractAnimatedOverviewFromDoc(doc),
-		PopupsNotices:                extractPopupsNoticesFromDoc(doc),
-		PopopsCombatreport:           extractPopopsCombatreportFromDoc(doc),
-		SpioReportPictures:           extractSpioReportPicturesFromDoc(doc),
-		MsgResultsPerPage:            extractMsgResultsPerPageFromDoc(doc),
-		AuctioneerNotifications:      extractAuctioneerNotificationsFromDoc(doc),
-		EconomyNotifications:         extractEconomyNotificationsFromDoc(doc),
-		ShowActivityMinutes:          extractShowActivityMinutesFromDoc(doc),
-		PreserveSystemOnPlanetChange: extractPreserveSystemOnPlanetChangeFromDoc(doc),
-		UrlaubsModus:                 extractUrlaubsModus(doc),
+		SpioAnz:                            extractSpioAnzFromDoc(doc),
+		SpySystemAutomaticQuantity:         extractSpySystemAutomaticQuantityFromDoc(doc),
+		SpySystemTargetPlanetTypes:         extractSpySystemTargetPlanetTypesFromDoc(doc),
+		SpySystemTargetPlayerTypes:         extractSpySystemTargetPlayerTypesFromDoc(doc),
+		SpySystemIgnoreSpiedInLastXMinutes: extractSpySystemIgnoreSpiedInLastXMinutesFromDoc(doc),
+		DisableChatBar:                     extractDisableChatBarFromDoc(doc),
+		DisableOutlawWarning:               extractDisableOutlawWarningFromDoc(doc),
+		MobileVersion:                      extractMobileVersionFromDoc(doc),
+		ShowOldDropDowns:                   extractShowOldDropDownsFromDoc(doc),
+		ActivateAutofocus:                  extractActivateAutofocusFromDoc(doc),
+		EventsShow:                         extractEventsShowFromDoc(doc),
+		SortSetting:                        extractSortSettingFromDoc(doc),
+		SortOrder:                          extractSortOrderFromDoc(doc),
+		ShowDetailOverlay:                  extractShowDetailOverlayFromDoc(doc),
+		AnimatedSliders:                    extractAnimatedSlidersFromDoc(doc),
+		AnimatedOverview:                   extractAnimatedOverviewFromDoc(doc),
+		PopupsNotices:                      extractPopupsNoticesFromDoc(doc),
+		PopopsCombatreport:                 extractPopopsCombatreportFromDoc(doc),
+		SpioReportPictures:                 extractSpioReportPicturesFromDoc(doc),
+		MsgResultsPerPage:                  extractMsgResultsPerPageFromDoc(doc),
+		AuctioneerNotifications:            extractAuctioneerNotificationsFromDoc(doc),
+		EconomyNotifications:               extractEconomyNotificationsFromDoc(doc),
+		ShowActivityMinutes:                extractShowActivityMinutesFromDoc(doc),
+		PreserveSystemOnPlanetChange:       extractPreserveSystemOnPlanetChangeFromDoc(doc),
+		DiscoveryWarningEnabled:            extractDiscoveryWarningEnabledFromDoc(doc),
+		UrlaubsModus:                       extractUrlaubsModus(doc),
 	}
 	if prefs.MobileVersion {
 		prefs.Notifications.BuildList = extractNotifBuildListFromDoc(doc)
@@ -1199,7 +1215,7 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 	return
 }
 
-func extractSlotsFromDoc(doc *goquery.Document) ogame.Slots {
+func extractSlotsFromDoc(doc *goquery.Document) (ogame.Slots, error) {
 	slots := ogame.Slots{}
 	page := ExtractBodyIDFromDoc(doc)
 	if page == "movement" {
@@ -1221,8 +1237,10 @@ func extractSlotsFromDoc(doc *goquery.Document) ogame.Slots {
 			slots.ExpInUse = utils.DoParseI64(m[1])
 			slots.ExpTotal = utils.DoParseI64(m[2])
 		}
+	} else {
+		return slots, fmt.Errorf("invalid page %s for slots", page)
 	}
-	return slots
+	return slots, nil
 }
 
 func extractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
@@ -1243,6 +1261,16 @@ func extractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
 
 func extractSpioAnzFromDoc(doc *goquery.Document) int64 {
 	out := utils.DoParseI64(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
+	return out
+}
+
+func extractSpySystemAutomaticQuantityFromDoc(doc *goquery.Document) int64 {
+	out := utils.DoParseI64(doc.Find("input[name=spySystemAutomaticQuantity]").AttrOr("value", "0"))
+	return out
+}
+
+func extractSpySystemIgnoreSpiedInLastXMinutesFromDoc(doc *goquery.Document) int64 {
+	out := utils.DoParseI64(doc.Find("input[name=spySystemIgnoreSpiedInLastXMinutes]").AttrOr("value", "0"))
 	return out
 }
 
@@ -1278,6 +1306,14 @@ func extractActivateAutofocusFromDoc(doc *goquery.Document) bool {
 
 func extractEventsShowFromDoc(doc *goquery.Document) int64 {
 	return utils.DoParseI64(doc.Find("select[name=eventsShow] option[selected]").AttrOr("value", "1"))
+}
+
+func extractSpySystemTargetPlanetTypesFromDoc(doc *goquery.Document) int64 {
+	return utils.DoParseI64(doc.Find("select[name=spySystemTargetPlanetTypes] option[selected]").AttrOr("value", "0"))
+}
+
+func extractSpySystemTargetPlayerTypesFromDoc(doc *goquery.Document) int64 {
+	return utils.DoParseI64(doc.Find("select[name=spySystemTargetPlayerTypes] option[selected]").AttrOr("value", "0"))
 }
 
 func extractSortSettingFromDoc(doc *goquery.Document) int64 {
@@ -1342,6 +1378,11 @@ func extractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool {
 	return exists
 }
 
+func extractDiscoveryWarningEnabledFromDoc(doc *goquery.Document) bool {
+	_, exists := doc.Find("input[name=discoveryWarningEnabled]").Attr("checked")
+	return exists
+}
+
 func extractNotifBuildListFromDoc(doc *goquery.Document) bool {
 	_, exists := doc.Find(`input[name="notifications[buildList]"]`).Attr("checked")
 	return exists
@@ -1398,6 +1439,18 @@ func extractGeologistFromDoc(doc *goquery.Document) bool {
 	return doc.Find("div#officers a.geologist").HasClass("on")
 }
 
+func extractColoniesFromDoc(doc *goquery.Document) (int64, int64) {
+	r := regexp.MustCompile(`(\d+)/(\d+)`)
+	txt := doc.Find("div#countColonies span").Text()
+	m := r.FindStringSubmatch(txt)
+	if len(m) == 3 {
+		coloniesCount := utils.DoParseI64(m[1])
+		coloniesPossible := utils.DoParseI64(m[2])
+		return coloniesCount, coloniesPossible
+	}
+	return 0, 0
+}
+
 func extractTechnocratFromDoc(doc *goquery.Document) bool {
 	return doc.Find("div#officers a.technocrat").HasClass("on")
 }
@@ -1417,7 +1470,7 @@ func extractPlanetCoordinate(pageHTML []byte) (ogame.Coordinate, error) {
 	system := utils.DoParseI64(string(m[2]))
 	position := utils.DoParseI64(string(m[3]))
 	planetType, _ := extractPlanetType(pageHTML)
-	return ogame.Coordinate{galaxy, system, position, planetType}, nil
+	return ogame.Coordinate{Galaxy: galaxy, System: system, Position: position, Type: planetType}, nil
 }
 
 func extractTearDownToken(pageHTML []byte) (string, error) {
@@ -1676,8 +1729,8 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 	}
 
 	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
-	res.Tmpgalaxy = utils.ParseInt(doc.Find("table").AttrOr("data-galaxy", "0"))
-	res.Tmpsystem = utils.ParseInt(doc.Find("table").AttrOr("data-system", "0"))
+	res.SetGalaxy(utils.ParseInt(doc.Find("table").AttrOr("data-galaxy", "0")))
+	res.SetSystem(utils.ParseInt(doc.Find("table").AttrOr("data-system", "0")))
 	isVacationMode := doc.Find("div#warning").Length() == 1
 	if isVacationMode {
 		return res, ogame.ErrAccountInVacationMode
@@ -1776,7 +1829,7 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 			planetInfos.Player.Name = playerName
 			planetInfos.Player.Rank = playerRank
 
-			res.Tmpplanets[i] = planetInfos
+			res.SetPlanet(i, planetInfos)
 		}
 	})
 
@@ -2091,6 +2144,11 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 	if !ok {
 		return nil, errors.New("failed to parse json")
 	}
+
+	doCastF64ToI64Ptr := func(v any) *int64 {
+		tmp := int64(utils.DoCastF64(v))
+		return &tmp
+	}
 	for _, planetRaw := range planetsRaw {
 		planet, ok := planetRaw.(map[string]any)
 		if !ok {
@@ -2207,6 +2265,130 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 				Crawler:        int64(utils.DoCastF64(planet["217"])),
 				Reaper:         int64(utils.DoCastF64(planet["218"])),
 				Pathfinder:     int64(utils.DoCastF64(planet["219"])),
+			},
+			LfBuildings: ogame.LfBuildings{
+				ResidentialSector:          int64(utils.DoCastF64(planet["11101"])),
+				BiosphereFarm:              int64(utils.DoCastF64(planet["11102"])),
+				ResearchCentre:             int64(utils.DoCastF64(planet["11103"])),
+				AcademyOfSciences:          int64(utils.DoCastF64(planet["11104"])),
+				NeuroCalibrationCentre:     int64(utils.DoCastF64(planet["11105"])),
+				HighEnergySmelting:         int64(utils.DoCastF64(planet["11106"])),
+				FoodSilo:                   int64(utils.DoCastF64(planet["11107"])),
+				FusionPoweredProduction:    int64(utils.DoCastF64(planet["11108"])),
+				Skyscraper:                 int64(utils.DoCastF64(planet["11109"])),
+				BiotechLab:                 int64(utils.DoCastF64(planet["11110"])),
+				Metropolis:                 int64(utils.DoCastF64(planet["11111"])),
+				PlanetaryShield:            int64(utils.DoCastF64(planet["11112"])),
+				MeditationEnclave:          int64(utils.DoCastF64(planet["12101"])),
+				CrystalFarm:                int64(utils.DoCastF64(planet["12102"])),
+				RuneTechnologium:           int64(utils.DoCastF64(planet["12103"])),
+				RuneForge:                  int64(utils.DoCastF64(planet["12104"])),
+				Oriktorium:                 int64(utils.DoCastF64(planet["12105"])),
+				MagmaForge:                 int64(utils.DoCastF64(planet["12106"])),
+				DisruptionChamber:          int64(utils.DoCastF64(planet["12107"])),
+				Megalith:                   int64(utils.DoCastF64(planet["12108"])),
+				CrystalRefinery:            int64(utils.DoCastF64(planet["12109"])),
+				DeuteriumSynthesiser:       int64(utils.DoCastF64(planet["12110"])),
+				MineralResearchCentre:      int64(utils.DoCastF64(planet["12111"])),
+				AdvancedRecyclingPlant:     int64(utils.DoCastF64(planet["12112"])),
+				AssemblyLine:               int64(utils.DoCastF64(planet["13101"])),
+				FusionCellFactory:          int64(utils.DoCastF64(planet["13102"])),
+				RoboticsResearchCentre:     int64(utils.DoCastF64(planet["13103"])),
+				UpdateNetwork:              int64(utils.DoCastF64(planet["13104"])),
+				QuantumComputerCentre:      int64(utils.DoCastF64(planet["13105"])),
+				AutomatisedAssemblyCentre:  int64(utils.DoCastF64(planet["13106"])),
+				HighPerformanceTransformer: int64(utils.DoCastF64(planet["13107"])),
+				MicrochipAssemblyLine:      int64(utils.DoCastF64(planet["13108"])),
+				ProductionAssemblyHall:     int64(utils.DoCastF64(planet["13109"])),
+				HighPerformanceSynthesiser: int64(utils.DoCastF64(planet["13110"])),
+				ChipMassProduction:         int64(utils.DoCastF64(planet["13111"])),
+				NanoRepairBots:             int64(utils.DoCastF64(planet["13112"])),
+				Sanctuary:                  int64(utils.DoCastF64(planet["14101"])),
+				AntimatterCondenser:        int64(utils.DoCastF64(planet["14102"])),
+				VortexChamber:              int64(utils.DoCastF64(planet["14103"])),
+				HallsOfRealisation:         int64(utils.DoCastF64(planet["14104"])),
+				ForumOfTranscendence:       int64(utils.DoCastF64(planet["14105"])),
+				AntimatterConvector:        int64(utils.DoCastF64(planet["14106"])),
+				CloningLaboratory:          int64(utils.DoCastF64(planet["14107"])),
+				ChrysalisAccelerator:       int64(utils.DoCastF64(planet["14108"])),
+				BioModifier:                int64(utils.DoCastF64(planet["14109"])),
+				PsionicModulator:           int64(utils.DoCastF64(planet["14110"])),
+				ShipManufacturingHall:      int64(utils.DoCastF64(planet["14111"])),
+				SupraRefractor:             int64(utils.DoCastF64(planet["14112"])),
+			},
+			LfResearches: ogame.LfResearches{
+				IntergalacticEnvoys:               doCastF64ToI64Ptr(planet["11201"]),
+				HighPerformanceExtractors:         doCastF64ToI64Ptr(planet["11202"]),
+				FusionDrives:                      doCastF64ToI64Ptr(planet["11203"]),
+				StealthFieldGenerator:             doCastF64ToI64Ptr(planet["11204"]),
+				OrbitalDen:                        doCastF64ToI64Ptr(planet["11205"]),
+				ResearchAI:                        doCastF64ToI64Ptr(planet["11206"]),
+				HighPerformanceTerraformer:        doCastF64ToI64Ptr(planet["11207"]),
+				EnhancedProductionTechnologies:    doCastF64ToI64Ptr(planet["11208"]),
+				LightFighterMkII:                  doCastF64ToI64Ptr(planet["11209"]),
+				CruiserMkII:                       doCastF64ToI64Ptr(planet["11210"]),
+				ImprovedLabTechnology:             doCastF64ToI64Ptr(planet["11211"]),
+				PlasmaTerraformer:                 doCastF64ToI64Ptr(planet["11212"]),
+				LowTemperatureDrives:              doCastF64ToI64Ptr(planet["11213"]),
+				BomberMkII:                        doCastF64ToI64Ptr(planet["11214"]),
+				DestroyerMkII:                     doCastF64ToI64Ptr(planet["11215"]),
+				BattlecruiserMkII:                 doCastF64ToI64Ptr(planet["11216"]),
+				RobotAssistants:                   doCastF64ToI64Ptr(planet["11217"]),
+				Supercomputer:                     doCastF64ToI64Ptr(planet["11218"]),
+				VolcanicBatteries:                 doCastF64ToI64Ptr(planet["12201"]),
+				AcousticScanning:                  doCastF64ToI64Ptr(planet["12202"]),
+				HighEnergyPumpSystems:             doCastF64ToI64Ptr(planet["12203"]),
+				CargoHoldExpansionCivilianShips:   doCastF64ToI64Ptr(planet["12204"]),
+				MagmaPoweredProduction:            doCastF64ToI64Ptr(planet["12205"]),
+				GeothermalPowerPlants:             doCastF64ToI64Ptr(planet["12206"]),
+				DepthSounding:                     doCastF64ToI64Ptr(planet["12207"]),
+				IonCrystalEnhancementHeavyFighter: doCastF64ToI64Ptr(planet["12208"]),
+				ImprovedStellarator:               doCastF64ToI64Ptr(planet["12209"]),
+				HardenedDiamondDrillHeads:         doCastF64ToI64Ptr(planet["12210"]),
+				SeismicMiningTechnology:           doCastF64ToI64Ptr(planet["12211"]),
+				MagmaPoweredPumpSystems:           doCastF64ToI64Ptr(planet["12212"]),
+				IonCrystalModules:                 doCastF64ToI64Ptr(planet["12213"]),
+				OptimisedSiloConstructionMethod:   doCastF64ToI64Ptr(planet["12214"]),
+				DiamondEnergyTransmitter:          doCastF64ToI64Ptr(planet["12215"]),
+				ObsidianShieldReinforcement:       doCastF64ToI64Ptr(planet["12216"]),
+				RuneShields:                       doCastF64ToI64Ptr(planet["12217"]),
+				RocktalCollectorEnhancement:       doCastF64ToI64Ptr(planet["12218"]),
+				CatalyserTechnology:               doCastF64ToI64Ptr(planet["13201"]),
+				PlasmaDrive:                       doCastF64ToI64Ptr(planet["13202"]),
+				EfficiencyModule:                  doCastF64ToI64Ptr(planet["13203"]),
+				DepotAI:                           doCastF64ToI64Ptr(planet["13204"]),
+				GeneralOverhaulLightFighter:       doCastF64ToI64Ptr(planet["13205"]),
+				AutomatedTransportLines:           doCastF64ToI64Ptr(planet["13206"]),
+				ImprovedDroneAI:                   doCastF64ToI64Ptr(planet["13207"]),
+				ExperimentalRecyclingTechnology:   doCastF64ToI64Ptr(planet["13208"]),
+				GeneralOverhaulCruiser:            doCastF64ToI64Ptr(planet["13209"]),
+				SlingshotAutopilot:                doCastF64ToI64Ptr(planet["13210"]),
+				HighTemperatureSuperconductors:    doCastF64ToI64Ptr(planet["13211"]),
+				GeneralOverhaulBattleship:         doCastF64ToI64Ptr(planet["13212"]),
+				ArtificialSwarmIntelligence:       doCastF64ToI64Ptr(planet["13213"]),
+				GeneralOverhaulBattlecruiser:      doCastF64ToI64Ptr(planet["13214"]),
+				GeneralOverhaulBomber:             doCastF64ToI64Ptr(planet["13215"]),
+				GeneralOverhaulDestroyer:          doCastF64ToI64Ptr(planet["13216"]),
+				ExperimentalWeaponsTechnology:     doCastF64ToI64Ptr(planet["13217"]),
+				MechanGeneralEnhancement:          doCastF64ToI64Ptr(planet["13218"]),
+				HeatRecovery:                      doCastF64ToI64Ptr(planet["14201"]),
+				SulphideProcess:                   doCastF64ToI64Ptr(planet["14202"]),
+				PsionicNetwork:                    doCastF64ToI64Ptr(planet["14203"]),
+				TelekineticTractorBeam:            doCastF64ToI64Ptr(planet["14204"]),
+				EnhancedSensorTechnology:          doCastF64ToI64Ptr(planet["14205"]),
+				NeuromodalCompressor:              doCastF64ToI64Ptr(planet["14206"]),
+				NeuroInterface:                    doCastF64ToI64Ptr(planet["14207"]),
+				InterplanetaryAnalysisNetwork:     doCastF64ToI64Ptr(planet["14208"]),
+				OverclockingHeavyFighter:          doCastF64ToI64Ptr(planet["14209"]),
+				TelekineticDrive:                  doCastF64ToI64Ptr(planet["14210"]),
+				SixthSense:                        doCastF64ToI64Ptr(planet["14211"]),
+				Psychoharmoniser:                  doCastF64ToI64Ptr(planet["14212"]),
+				EfficientSwarmIntelligence:        doCastF64ToI64Ptr(planet["14213"]),
+				OverclockingLargeCargo:            doCastF64ToI64Ptr(planet["14214"]),
+				GravitationSensors:                doCastF64ToI64Ptr(planet["14215"]),
+				OverclockingBattleship:            doCastF64ToI64Ptr(planet["14216"]),
+				PsionicShieldMatrix:               doCastF64ToI64Ptr(planet["14217"]),
+				KaeleshDiscovererEnhancement:      doCastF64ToI64Ptr(planet["14218"]),
 			},
 		})
 	}

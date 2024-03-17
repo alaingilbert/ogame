@@ -1,6 +1,7 @@
 package wrapper
 
 import (
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"net/http"
 	"net/url"
 	"sync/atomic"
@@ -18,6 +19,7 @@ type Prioritize struct {
 	isTx         int32
 }
 
+// SetTaskDoneCh ...
 func (b *Prioritize) SetTaskDoneCh(ch chan struct{}) {
 	b.taskIsDoneCh = ch
 }
@@ -35,9 +37,7 @@ func (b *Prioritize) Begin() Prioritizable {
 
 // BeginNamed begins a new transaction with a name. "Done" must be called to release the lock.
 func (b *Prioritize) BeginNamed(name string) Prioritizable {
-	if name == "" {
-		name = "Tx"
-	}
+	name = utils.Ternary(name == "", "Tx", name)
 	return b.begin(name)
 }
 
@@ -48,10 +48,7 @@ func (b *Prioritize) Done() {
 
 func (b *Prioritize) begin(name string) *Prioritize {
 	if atomic.AddInt32(&b.isTx, 1) == 1 {
-		if b.initiator != "" {
-			b.name = b.initiator + ":"
-		}
-		b.name += name
+		b.name = utils.Ternary(b.initiator == "", name, b.initiator+":"+name)
 		b.bot.botLock(b.name)
 	}
 	return b
@@ -68,8 +65,7 @@ func (b *Prioritize) done() {
 func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	tx := b.Begin()
 	defer tx.Done()
-	err := clb(tx)
-	return err
+	return clb(tx)
 }
 
 // LoginWithBearerToken to ogame server reusing existing token
@@ -119,10 +115,10 @@ func (b *Prioritize) PostPageContent(vals, payload url.Values) ([]byte, error) {
 }
 
 // IsUnderAttack returns true if the user is under attack, false otherwise
-func (b *Prioritize) IsUnderAttack() (bool, error) {
+func (b *Prioritize) IsUnderAttack(opts ...Option) (bool, error) {
 	b.begin("IsUnderAttack")
 	defer b.done()
-	return b.bot.isUnderAttack()
+	return b.bot.isUnderAttack(opts...)
 }
 
 // SetVacationMode puts account in vacation mode
@@ -132,8 +128,22 @@ func (b *Prioritize) SetVacationMode() error {
 	return b.bot.setVacationMode()
 }
 
+// SetPreferences ...
+func (b *Prioritize) SetPreferences(p ogame.Preferences) error {
+	b.begin("SetPreferences")
+	defer b.done()
+	return b.bot.setPreferences(p)
+}
+
+// SetPreferencesLang ...
+func (b *Prioritize) SetPreferencesLang(lang string) error {
+	b.begin("SetPreferencesLang")
+	defer b.done()
+	return b.bot.setPreferencesLang(lang)
+}
+
 // GetPlanets returns the user planets
-func (b *Prioritize) GetPlanets() []Planet {
+func (b *Prioritize) GetPlanets() ([]Planet, error) {
 	b.begin("GetPlanets")
 	defer b.done()
 	return b.bot.getPlanets()
@@ -141,21 +151,21 @@ func (b *Prioritize) GetPlanets() []Planet {
 
 // GetPlanet gets infos for planetID
 // Fails if planetID is invalid
-func (b *Prioritize) GetPlanet(v any) (Planet, error) {
+func (b *Prioritize) GetPlanet(v IntoPlanet) (Planet, error) {
 	b.begin("GetPlanet")
 	defer b.done()
 	return b.bot.getPlanet(v)
 }
 
 // GetMoons returns the user moons
-func (b *Prioritize) GetMoons() []Moon {
+func (b *Prioritize) GetMoons() ([]Moon, error) {
 	b.begin("GetMoons")
 	defer b.done()
 	return b.bot.getMoons()
 }
 
 // GetMoon gets infos for moonID
-func (b *Prioritize) GetMoon(v any) (Moon, error) {
+func (b *Prioritize) GetMoon(v IntoMoon) (Moon, error) {
 	b.begin("GetMoon")
 	defer b.done()
 	return b.bot.getMoon(v)
@@ -178,14 +188,14 @@ func (b *Prioritize) RecruitOfficer(typ, days int64) error {
 }
 
 // Abandon a planet. Warning: this is irreversible
-func (b *Prioritize) Abandon(v any) error {
+func (b *Prioritize) Abandon(v IntoPlanet) error {
 	b.begin("Abandon")
 	defer b.done()
 	return b.bot.abandon(v)
 }
 
 // GetCelestial get the player's planet/moon using the coordinate
-func (b *Prioritize) GetCelestial(v any) (Celestial, error) {
+func (b *Prioritize) GetCelestial(v IntoCelestial) (Celestial, error) {
 	b.begin("GetCelestial")
 	defer b.done()
 	return b.bot.getCelestial(v)
@@ -193,14 +203,14 @@ func (b *Prioritize) GetCelestial(v any) (Celestial, error) {
 
 // ServerTime returns server time
 // Timezone is OGT (OGame Time zone)
-func (b *Prioritize) ServerTime() time.Time {
+func (b *Prioritize) ServerTime() (time.Time, error) {
 	b.begin("ServerTime")
 	defer b.done()
 	return b.bot.serverTime()
 }
 
 // GetUserInfos gets the user information
-func (b *Prioritize) GetUserInfos() ogame.UserInfos {
+func (b *Prioritize) GetUserInfos() (ogame.UserInfos, error) {
 	b.begin("GetUserInfos")
 	defer b.done()
 	return b.bot.getUserInfos()
@@ -314,14 +324,14 @@ func (b *Prioritize) GetCachedResearch() ogame.Researches {
 }
 
 // GetResearch gets the player researches information
-func (b *Prioritize) GetResearch() ogame.Researches {
+func (b *Prioritize) GetResearch() (ogame.Researches, error) {
 	b.begin("GetResearch")
 	defer b.done()
 	return b.bot.getResearch()
 }
 
 // GetSlots gets the player current and total slots information
-func (b *Prioritize) GetSlots() ogame.Slots {
+func (b *Prioritize) GetSlots() (ogame.Slots, error) {
 	b.begin("GetSlots")
 	defer b.done()
 	return b.bot.getSlots()
@@ -433,7 +443,7 @@ func (b *Prioritize) GetResourcesDetails(celestialID ogame.CelestialID) (ogame.R
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, error) {
+func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
 	b.begin("GetTechs")
 	defer b.done()
 	return b.bot.getTechs(celestialID)
@@ -445,6 +455,20 @@ func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships []ogame.Quan
 	b.begin("SendFleet")
 	defer b.done()
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID, false)
+}
+
+// SendDiscoveryFleet sends a discovery fleet
+func (b *Prioritize) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate, options ...Option) error {
+	b.begin("SendDiscoveryFleet")
+	defer b.done()
+	return b.bot.sendDiscoveryFleet(celestialID, coord, options...)
+}
+
+// SendDiscoveryFleet2 sends a discovery fleet and get back the fleet
+func (b *Prioritize) SendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.Coordinate, options ...Option) (ogame.Fleet, error) {
+	b.begin("SendDiscoveryFleet2")
+	defer b.done()
+	return b.bot.sendDiscoveryFleet2(celestialID, coord, options...)
 }
 
 // EnsureFleet either sends all the requested ships or fail
@@ -484,10 +508,10 @@ func (b *Prioritize) GetEspionageReportFor(coord ogame.Coordinate) (ogame.Espion
 }
 
 // GetEspionageReportMessages gets the summary of each espionage reports
-func (b *Prioritize) GetEspionageReportMessages() ([]ogame.EspionageReportSummary, error) {
+func (b *Prioritize) GetEspionageReportMessages(maxPage int64) ([]ogame.EspionageReportSummary, error) {
 	b.begin("GetEspionageReportMessages")
 	defer b.done()
-	return b.bot.getEspionageReportMessages()
+	return b.bot.getEspionageReportMessages(maxPage)
 }
 
 // CollectAllMarketplaceMessages collect all marketplace messages
@@ -506,10 +530,10 @@ func (b *Prioritize) CollectMarketplaceMessage(msg ogame.MarketplaceMessage) err
 }
 
 // GetExpeditionMessages gets the expedition messages
-func (b *Prioritize) GetExpeditionMessages() ([]ogame.ExpeditionMessage, error) {
+func (b *Prioritize) GetExpeditionMessages(maxPage int64) ([]ogame.ExpeditionMessage, error) {
 	b.begin("GetExpeditionMessages")
 	defer b.done()
-	return b.bot.getExpeditionMessages()
+	return b.bot.getExpeditionMessages(maxPage)
 }
 
 // GetExpeditionMessageAt gets the expedition message for time t
@@ -568,7 +592,8 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 // Phalanx scan a coordinate from a moon to get fleets information
 // IMPORTANT: My account was instantly banned when I scanned an invalid coordinate.
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
-// 			  and that you have enough deuterium.
+//
+//	and that you have enough deuterium.
 func (b *Prioritize) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
 	b.begin("Phalanx")
 	defer b.done()
@@ -625,10 +650,10 @@ func (b *Prioritize) GetEmpire(celestialType ogame.CelestialType) ([]ogame.Empir
 }
 
 // GetEmpireJSON retrieves JSON from Empire page (Commander only).
-func (b *Prioritize) GetEmpireJSON(nbr int64) (any, error) {
+func (b *Prioritize) GetEmpireJSON(celestialType ogame.CelestialType) (any, error) {
 	b.begin("GetEmpireJSON")
 	defer b.done()
-	return b.bot.getEmpireJSON(nbr)
+	return b.bot.getEmpireJSON(celestialType)
 }
 
 // GetAuction ...
@@ -727,4 +752,18 @@ func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Opt
 	b.begin("GetLfResearch")
 	defer b.done()
 	return b.bot.getLfResearch(celestialID, options...)
+}
+
+// GetAvailableDiscoveries ...
+func (b *Prioritize) GetAvailableDiscoveries(opts ...Option) int64 {
+	b.begin("GetAvailableDiscoveries")
+	defer b.done()
+	return b.bot.getAvailableDiscoveries(opts...)
+}
+
+// GetPositionsAvailableForDiscoveryFleet ...
+func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int64, opts ...Option) ([]ogame.Coordinate, error) {
+	b.begin("GetPositionsAvailableForDiscoveryFleet")
+	defer b.done()
+	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
 }

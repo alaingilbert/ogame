@@ -74,6 +74,10 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 	if !ok {
 		return nil, errors.New("failed to parse json")
 	}
+	doCastF64ToI64Ptr := func(v any) *int64 {
+		tmp := int64(utils.DoCastF64(v))
+		return &tmp
+	}
 	for _, planetRaw := range planetsRaw {
 		planet, ok := planetRaw.(map[string]any)
 		if !ok {
@@ -190,6 +194,130 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 				Crawler:        int64(utils.DoCastF64(planet["217"])),
 				Reaper:         int64(utils.DoCastF64(planet["218"])),
 				Pathfinder:     int64(utils.DoCastF64(planet["219"])),
+			},
+			LfBuildings: ogame.LfBuildings{
+				ResidentialSector:          int64(utils.DoCastF64(planet["11101"])),
+				BiosphereFarm:              int64(utils.DoCastF64(planet["11102"])),
+				ResearchCentre:             int64(utils.DoCastF64(planet["11103"])),
+				AcademyOfSciences:          int64(utils.DoCastF64(planet["11104"])),
+				NeuroCalibrationCentre:     int64(utils.DoCastF64(planet["11105"])),
+				HighEnergySmelting:         int64(utils.DoCastF64(planet["11106"])),
+				FoodSilo:                   int64(utils.DoCastF64(planet["11107"])),
+				FusionPoweredProduction:    int64(utils.DoCastF64(planet["11108"])),
+				Skyscraper:                 int64(utils.DoCastF64(planet["11109"])),
+				BiotechLab:                 int64(utils.DoCastF64(planet["11110"])),
+				Metropolis:                 int64(utils.DoCastF64(planet["11111"])),
+				PlanetaryShield:            int64(utils.DoCastF64(planet["11112"])),
+				MeditationEnclave:          int64(utils.DoCastF64(planet["12101"])),
+				CrystalFarm:                int64(utils.DoCastF64(planet["12102"])),
+				RuneTechnologium:           int64(utils.DoCastF64(planet["12103"])),
+				RuneForge:                  int64(utils.DoCastF64(planet["12104"])),
+				Oriktorium:                 int64(utils.DoCastF64(planet["12105"])),
+				MagmaForge:                 int64(utils.DoCastF64(planet["12106"])),
+				DisruptionChamber:          int64(utils.DoCastF64(planet["12107"])),
+				Megalith:                   int64(utils.DoCastF64(planet["12108"])),
+				CrystalRefinery:            int64(utils.DoCastF64(planet["12109"])),
+				DeuteriumSynthesiser:       int64(utils.DoCastF64(planet["12110"])),
+				MineralResearchCentre:      int64(utils.DoCastF64(planet["12111"])),
+				AdvancedRecyclingPlant:     int64(utils.DoCastF64(planet["12112"])),
+				AssemblyLine:               int64(utils.DoCastF64(planet["13101"])),
+				FusionCellFactory:          int64(utils.DoCastF64(planet["13102"])),
+				RoboticsResearchCentre:     int64(utils.DoCastF64(planet["13103"])),
+				UpdateNetwork:              int64(utils.DoCastF64(planet["13104"])),
+				QuantumComputerCentre:      int64(utils.DoCastF64(planet["13105"])),
+				AutomatisedAssemblyCentre:  int64(utils.DoCastF64(planet["13106"])),
+				HighPerformanceTransformer: int64(utils.DoCastF64(planet["13107"])),
+				MicrochipAssemblyLine:      int64(utils.DoCastF64(planet["13108"])),
+				ProductionAssemblyHall:     int64(utils.DoCastF64(planet["13109"])),
+				HighPerformanceSynthesiser: int64(utils.DoCastF64(planet["13110"])),
+				ChipMassProduction:         int64(utils.DoCastF64(planet["13111"])),
+				NanoRepairBots:             int64(utils.DoCastF64(planet["13112"])),
+				Sanctuary:                  int64(utils.DoCastF64(planet["14101"])),
+				AntimatterCondenser:        int64(utils.DoCastF64(planet["14102"])),
+				VortexChamber:              int64(utils.DoCastF64(planet["14103"])),
+				HallsOfRealisation:         int64(utils.DoCastF64(planet["14104"])),
+				ForumOfTranscendence:       int64(utils.DoCastF64(planet["14105"])),
+				AntimatterConvector:        int64(utils.DoCastF64(planet["14106"])),
+				CloningLaboratory:          int64(utils.DoCastF64(planet["14107"])),
+				ChrysalisAccelerator:       int64(utils.DoCastF64(planet["14108"])),
+				BioModifier:                int64(utils.DoCastF64(planet["14109"])),
+				PsionicModulator:           int64(utils.DoCastF64(planet["14110"])),
+				ShipManufacturingHall:      int64(utils.DoCastF64(planet["14111"])),
+				SupraRefractor:             int64(utils.DoCastF64(planet["14112"])),
+			},
+			LfResearches: ogame.LfResearches{
+				IntergalacticEnvoys:               doCastF64ToI64Ptr(planet["11201"]),
+				HighPerformanceExtractors:         doCastF64ToI64Ptr(planet["11202"]),
+				FusionDrives:                      doCastF64ToI64Ptr(planet["11203"]),
+				StealthFieldGenerator:             doCastF64ToI64Ptr(planet["11204"]),
+				OrbitalDen:                        doCastF64ToI64Ptr(planet["11205"]),
+				ResearchAI:                        doCastF64ToI64Ptr(planet["11206"]),
+				HighPerformanceTerraformer:        doCastF64ToI64Ptr(planet["11207"]),
+				EnhancedProductionTechnologies:    doCastF64ToI64Ptr(planet["11208"]),
+				LightFighterMkII:                  doCastF64ToI64Ptr(planet["11209"]),
+				CruiserMkII:                       doCastF64ToI64Ptr(planet["11210"]),
+				ImprovedLabTechnology:             doCastF64ToI64Ptr(planet["11211"]),
+				PlasmaTerraformer:                 doCastF64ToI64Ptr(planet["11212"]),
+				LowTemperatureDrives:              doCastF64ToI64Ptr(planet["11213"]),
+				BomberMkII:                        doCastF64ToI64Ptr(planet["11214"]),
+				DestroyerMkII:                     doCastF64ToI64Ptr(planet["11215"]),
+				BattlecruiserMkII:                 doCastF64ToI64Ptr(planet["11216"]),
+				RobotAssistants:                   doCastF64ToI64Ptr(planet["11217"]),
+				Supercomputer:                     doCastF64ToI64Ptr(planet["11218"]),
+				VolcanicBatteries:                 doCastF64ToI64Ptr(planet["12201"]),
+				AcousticScanning:                  doCastF64ToI64Ptr(planet["12202"]),
+				HighEnergyPumpSystems:             doCastF64ToI64Ptr(planet["12203"]),
+				CargoHoldExpansionCivilianShips:   doCastF64ToI64Ptr(planet["12204"]),
+				MagmaPoweredProduction:            doCastF64ToI64Ptr(planet["12205"]),
+				GeothermalPowerPlants:             doCastF64ToI64Ptr(planet["12206"]),
+				DepthSounding:                     doCastF64ToI64Ptr(planet["12207"]),
+				IonCrystalEnhancementHeavyFighter: doCastF64ToI64Ptr(planet["12208"]),
+				ImprovedStellarator:               doCastF64ToI64Ptr(planet["12209"]),
+				HardenedDiamondDrillHeads:         doCastF64ToI64Ptr(planet["12210"]),
+				SeismicMiningTechnology:           doCastF64ToI64Ptr(planet["12211"]),
+				MagmaPoweredPumpSystems:           doCastF64ToI64Ptr(planet["12212"]),
+				IonCrystalModules:                 doCastF64ToI64Ptr(planet["12213"]),
+				OptimisedSiloConstructionMethod:   doCastF64ToI64Ptr(planet["12214"]),
+				DiamondEnergyTransmitter:          doCastF64ToI64Ptr(planet["12215"]),
+				ObsidianShieldReinforcement:       doCastF64ToI64Ptr(planet["12216"]),
+				RuneShields:                       doCastF64ToI64Ptr(planet["12217"]),
+				RocktalCollectorEnhancement:       doCastF64ToI64Ptr(planet["12218"]),
+				CatalyserTechnology:               doCastF64ToI64Ptr(planet["13201"]),
+				PlasmaDrive:                       doCastF64ToI64Ptr(planet["13202"]),
+				EfficiencyModule:                  doCastF64ToI64Ptr(planet["13203"]),
+				DepotAI:                           doCastF64ToI64Ptr(planet["13204"]),
+				GeneralOverhaulLightFighter:       doCastF64ToI64Ptr(planet["13205"]),
+				AutomatedTransportLines:           doCastF64ToI64Ptr(planet["13206"]),
+				ImprovedDroneAI:                   doCastF64ToI64Ptr(planet["13207"]),
+				ExperimentalRecyclingTechnology:   doCastF64ToI64Ptr(planet["13208"]),
+				GeneralOverhaulCruiser:            doCastF64ToI64Ptr(planet["13209"]),
+				SlingshotAutopilot:                doCastF64ToI64Ptr(planet["13210"]),
+				HighTemperatureSuperconductors:    doCastF64ToI64Ptr(planet["13211"]),
+				GeneralOverhaulBattleship:         doCastF64ToI64Ptr(planet["13212"]),
+				ArtificialSwarmIntelligence:       doCastF64ToI64Ptr(planet["13213"]),
+				GeneralOverhaulBattlecruiser:      doCastF64ToI64Ptr(planet["13214"]),
+				GeneralOverhaulBomber:             doCastF64ToI64Ptr(planet["13215"]),
+				GeneralOverhaulDestroyer:          doCastF64ToI64Ptr(planet["13216"]),
+				ExperimentalWeaponsTechnology:     doCastF64ToI64Ptr(planet["13217"]),
+				MechanGeneralEnhancement:          doCastF64ToI64Ptr(planet["13218"]),
+				HeatRecovery:                      doCastF64ToI64Ptr(planet["14201"]),
+				SulphideProcess:                   doCastF64ToI64Ptr(planet["14202"]),
+				PsionicNetwork:                    doCastF64ToI64Ptr(planet["14203"]),
+				TelekineticTractorBeam:            doCastF64ToI64Ptr(planet["14204"]),
+				EnhancedSensorTechnology:          doCastF64ToI64Ptr(planet["14205"]),
+				NeuromodalCompressor:              doCastF64ToI64Ptr(planet["14206"]),
+				NeuroInterface:                    doCastF64ToI64Ptr(planet["14207"]),
+				InterplanetaryAnalysisNetwork:     doCastF64ToI64Ptr(planet["14208"]),
+				OverclockingHeavyFighter:          doCastF64ToI64Ptr(planet["14209"]),
+				TelekineticDrive:                  doCastF64ToI64Ptr(planet["14210"]),
+				SixthSense:                        doCastF64ToI64Ptr(planet["14211"]),
+				Psychoharmoniser:                  doCastF64ToI64Ptr(planet["14212"]),
+				EfficientSwarmIntelligence:        doCastF64ToI64Ptr(planet["14213"]),
+				OverclockingLargeCargo:            doCastF64ToI64Ptr(planet["14214"]),
+				GravitationSensors:                doCastF64ToI64Ptr(planet["14215"]),
+				OverclockingBattleship:            doCastF64ToI64Ptr(planet["14216"]),
+				PsionicShieldMatrix:               doCastF64ToI64Ptr(planet["14217"]),
+				KaeleshDiscovererEnhancement:      doCastF64ToI64Ptr(planet["14218"]),
 			},
 		})
 	}
@@ -570,71 +698,80 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 }
 
 func GetNbr(doc *goquery.Document, name string) int64 {
-	val := utils.DoParseI64(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"))
-	return val
+	v, exists := GetNbrExists(doc, name)
+	return utils.TernaryOrZero(exists, v)
+}
+
+func GetNbrExists(doc *goquery.Document, name string) (int64, bool) {
+	v, exists := doc.Find("span." + name + " span.level").First().Attr("data-value")
+	if !exists {
+		return 0, false
+	}
+	return utils.DoParseI64(v), true
 }
 
 func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error) {
+	getNbr := GetNbr
 	res := ogame.LfBuildings{}
 	if doc.Find("#lifeform a div").HasClass("lifeform1") {
 		res.LifeformType = ogame.Humans
-		res.ResidentialSector = GetNbr(doc, "lifeformTech11101")
-		res.BiosphereFarm = GetNbr(doc, "lifeformTech11102")
-		res.ResearchCentre = GetNbr(doc, "lifeformTech11103")
-		res.AcademyOfSciences = GetNbr(doc, "lifeformTech11104")
-		res.NeuroCalibrationCentre = GetNbr(doc, "lifeformTech11105")
-		res.HighEnergySmelting = GetNbr(doc, "lifeformTech11106")
-		res.FoodSilo = GetNbr(doc, "lifeformTech11107")
-		res.FusionPoweredProduction = GetNbr(doc, "lifeformTech11108")
-		res.Skyscraper = GetNbr(doc, "lifeformTech11109")
-		res.BiotechLab = GetNbr(doc, "lifeformTech11110")
-		res.Metropolis = GetNbr(doc, "lifeformTech11111")
-		res.PlanetaryShield = GetNbr(doc, "lifeformTech11112")
+		res.ResidentialSector = getNbr(doc, "lifeformTech11101")
+		res.BiosphereFarm = getNbr(doc, "lifeformTech11102")
+		res.ResearchCentre = getNbr(doc, "lifeformTech11103")
+		res.AcademyOfSciences = getNbr(doc, "lifeformTech11104")
+		res.NeuroCalibrationCentre = getNbr(doc, "lifeformTech11105")
+		res.HighEnergySmelting = getNbr(doc, "lifeformTech11106")
+		res.FoodSilo = getNbr(doc, "lifeformTech11107")
+		res.FusionPoweredProduction = getNbr(doc, "lifeformTech11108")
+		res.Skyscraper = getNbr(doc, "lifeformTech11109")
+		res.BiotechLab = getNbr(doc, "lifeformTech11110")
+		res.Metropolis = getNbr(doc, "lifeformTech11111")
+		res.PlanetaryShield = getNbr(doc, "lifeformTech11112")
 
 	} else if doc.Find("#lifeform a div").HasClass("lifeform2") {
 		res.LifeformType = ogame.Rocktal
-		res.MeditationEnclave = GetNbr(doc, "lifeformTech12101")
-		res.CrystalFarm = GetNbr(doc, "lifeformTech12102")
-		res.RuneTechnologium = GetNbr(doc, "lifeformTech12103")
-		res.RuneForge = GetNbr(doc, "lifeformTech12104")
-		res.Oriktorium = GetNbr(doc, "lifeformTech12105")
-		res.MagmaForge = GetNbr(doc, "lifeformTech12106")
-		res.DisruptionChamber = GetNbr(doc, "lifeformTech12107")
-		res.Megalith = GetNbr(doc, "lifeformTech12108")
-		res.CrystalRefinery = GetNbr(doc, "lifeformTech12109")
-		res.DeuteriumSynthesiser = GetNbr(doc, "lifeformTech12110")
-		res.MineralResearchCentre = GetNbr(doc, "lifeformTech12111")
-		res.MetalRecyclingPlant = GetNbr(doc, "lifeformTech12112")
+		res.MeditationEnclave = getNbr(doc, "lifeformTech12101")
+		res.CrystalFarm = getNbr(doc, "lifeformTech12102")
+		res.RuneTechnologium = getNbr(doc, "lifeformTech12103")
+		res.RuneForge = getNbr(doc, "lifeformTech12104")
+		res.Oriktorium = getNbr(doc, "lifeformTech12105")
+		res.MagmaForge = getNbr(doc, "lifeformTech12106")
+		res.DisruptionChamber = getNbr(doc, "lifeformTech12107")
+		res.Megalith = getNbr(doc, "lifeformTech12108")
+		res.CrystalRefinery = getNbr(doc, "lifeformTech12109")
+		res.DeuteriumSynthesiser = getNbr(doc, "lifeformTech12110")
+		res.MineralResearchCentre = getNbr(doc, "lifeformTech12111")
+		res.AdvancedRecyclingPlant = getNbr(doc, "lifeformTech12112")
 
 	} else if doc.Find("#lifeform a div").HasClass("lifeform3") {
 		res.LifeformType = ogame.Mechas
-		res.AssemblyLine = GetNbr(doc, "lifeformTech13101")
-		res.FusionCellFactory = GetNbr(doc, "lifeformTech13102")
-		res.RoboticsResearchCentre = GetNbr(doc, "lifeformTech13103")
-		res.UpdateNetwork = GetNbr(doc, "lifeformTech13104")
-		res.QuantumComputerCentre = GetNbr(doc, "lifeformTech13105")
-		res.AutomatisedAssemblyCentre = GetNbr(doc, "lifeformTech13106")
-		res.HighPerformanceTransformer = GetNbr(doc, "lifeformTech13107")
-		res.MicrochipAssemblyLine = GetNbr(doc, "lifeformTech13108")
-		res.ProductionAssemblyHall = GetNbr(doc, "lifeformTech13109")
-		res.HighPerformanceSynthesiser = GetNbr(doc, "lifeformTech13110")
-		res.ChipMassProduction = GetNbr(doc, "lifeformTech13111")
-		res.NanoRepairBots = GetNbr(doc, "lifeformTech13112")
+		res.AssemblyLine = getNbr(doc, "lifeformTech13101")
+		res.FusionCellFactory = getNbr(doc, "lifeformTech13102")
+		res.RoboticsResearchCentre = getNbr(doc, "lifeformTech13103")
+		res.UpdateNetwork = getNbr(doc, "lifeformTech13104")
+		res.QuantumComputerCentre = getNbr(doc, "lifeformTech13105")
+		res.AutomatisedAssemblyCentre = getNbr(doc, "lifeformTech13106")
+		res.HighPerformanceTransformer = getNbr(doc, "lifeformTech13107")
+		res.MicrochipAssemblyLine = getNbr(doc, "lifeformTech13108")
+		res.ProductionAssemblyHall = getNbr(doc, "lifeformTech13109")
+		res.HighPerformanceSynthesiser = getNbr(doc, "lifeformTech13110")
+		res.ChipMassProduction = getNbr(doc, "lifeformTech13111")
+		res.NanoRepairBots = getNbr(doc, "lifeformTech13112")
 
 	} else if doc.Find("#lifeform a div").HasClass("lifeform4") {
 		res.LifeformType = ogame.Kaelesh
-		res.Sanctuary = GetNbr(doc, "lifeformTech14101")
-		res.AntimatterCondenser = GetNbr(doc, "lifeformTech14102")
-		res.VortexChamber = GetNbr(doc, "lifeformTech14103")
-		res.HallsOfRealisation = GetNbr(doc, "lifeformTech14104")
-		res.ForumOfTranscendence = GetNbr(doc, "lifeformTech14105")
-		res.AntimatterConvector = GetNbr(doc, "lifeformTech14106")
-		res.CloningLaboratory = GetNbr(doc, "lifeformTech14107")
-		res.ChrysalisAccelerator = GetNbr(doc, "lifeformTech14108")
-		res.BioModifier = GetNbr(doc, "lifeformTech14109")
-		res.PsionicModulator = GetNbr(doc, "lifeformTech14110")
-		res.ShipManufacturingHall = GetNbr(doc, "lifeformTech14111")
-		res.SupraRefractor = GetNbr(doc, "lifeformTech14112")
+		res.Sanctuary = getNbr(doc, "lifeformTech14101")
+		res.AntimatterCondenser = getNbr(doc, "lifeformTech14102")
+		res.VortexChamber = getNbr(doc, "lifeformTech14103")
+		res.HallsOfRealisation = getNbr(doc, "lifeformTech14104")
+		res.ForumOfTranscendence = getNbr(doc, "lifeformTech14105")
+		res.AntimatterConvector = getNbr(doc, "lifeformTech14106")
+		res.CloningLaboratory = getNbr(doc, "lifeformTech14107")
+		res.ChrysalisAccelerator = getNbr(doc, "lifeformTech14108")
+		res.BioModifier = getNbr(doc, "lifeformTech14109")
+		res.PsionicModulator = getNbr(doc, "lifeformTech14110")
+		res.ShipManufacturingHall = getNbr(doc, "lifeformTech14111")
+		res.SupraRefractor = getNbr(doc, "lifeformTech14112")
 
 	} else {
 		res.LifeformType = ogame.NoneLfType
@@ -644,79 +781,87 @@ func extractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
 
 func extractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error) {
 	res := ogame.LfResearches{}
+	getNbrExists := GetNbrExists
+	getNbr := func(doc *goquery.Document, name string) *int64 {
+		v, exists := getNbrExists(doc, name)
+		if !exists {
+			return nil
+		}
+		return &v
+	}
 	// Can have any lifeform techs whatever current planet lifeform is, so take everything
-	res.IntergalacticEnvoys = GetNbr(doc, "lifeformTech11201")
-	res.HighPerformanceExtractors = GetNbr(doc, "lifeformTech11202")
-	res.FusionDrives = GetNbr(doc, "lifeformTech11203")
-	res.StealthFieldGenerator = GetNbr(doc, "lifeformTech11204")
-	res.OrbitalDen = GetNbr(doc, "lifeformTech11205")
-	res.ResearchAI = GetNbr(doc, "lifeformTech11206")
-	res.HighPerformanceTerraformer = GetNbr(doc, "lifeformTech11207")
-	res.EnhancedProductionTechnologies = GetNbr(doc, "lifeformTech11208")
-	res.LightFighterMkII = GetNbr(doc, "lifeformTech11209")
-	res.CruiserMkII = GetNbr(doc, "lifeformTech11210")
-	res.ImprovedLabTechnology = GetNbr(doc, "lifeformTech11211")
-	res.PlasmaTerraformer = GetNbr(doc, "lifeformTech11112")
-	res.LowTemperatureDrives = GetNbr(doc, "lifeformTech11213")
-	res.BomberMkII = GetNbr(doc, "lifeformTech11214")
-	res.DestroyerMkII = GetNbr(doc, "lifeformTech11215")
-	res.BattlecruiserMkII = GetNbr(doc, "lifeformTech11216")
-	res.RobotAssistants = GetNbr(doc, "lifeformTech11217")
-	res.Supercomputer = GetNbr(doc, "lifeformTech11218")
-	res.VolcanicBatteries = GetNbr(doc, "lifeformTech12201")
-	res.AcousticScanning = GetNbr(doc, "lifeformTech12202")
-	res.HighEnergyPumpSystems = GetNbr(doc, "lifeformTech12203")
-	res.CargoHoldExpansionCivilianShips = GetNbr(doc, "lifeformTech12204")
-	res.MagmaPoweredProduction = GetNbr(doc, "lifeformTech12205")
-	res.GeothermalPowerPlants = GetNbr(doc, "lifeformTech12206")
-	res.DepthSounding = GetNbr(doc, "lifeformTech12207")
-	res.IonCrystalEnhancementHeavyFighter = GetNbr(doc, "lifeformTech12208")
-	res.ImprovedStellarator = GetNbr(doc, "lifeformTech12209")
-	res.HardenedDiamondDrillHeads = GetNbr(doc, "lifeformTech12210")
-	res.SeismicMiningTechnology = GetNbr(doc, "lifeformTech12211")
-	res.MagmaPoweredPumpSystems = GetNbr(doc, "lifeformTech12212")
-	res.IonCrystalModules = GetNbr(doc, "lifeformTech12213")
-	res.OptimisedSiloConstructionMethod = GetNbr(doc, "lifeformTech12214")
-	res.DiamondEnergyTransmitter = GetNbr(doc, "lifeformTech12215")
-	res.ObsidianShieldReinforcement = GetNbr(doc, "lifeformTech12216")
-	res.RuneShields = GetNbr(doc, "lifeformTech12217")
-	res.RocktalCollectorEnhancement = GetNbr(doc, "lifeformTech12218")
-	res.CatalyserTechnology = GetNbr(doc, "lifeformTech13201")
-	res.PlasmaDrive = GetNbr(doc, "lifeformTech13202")
-	res.EfficiencyModule = GetNbr(doc, "lifeformTech13203")
-	res.DepotAI = GetNbr(doc, "lifeformTech13204")
-	res.GeneralOverhaulLightFighter = GetNbr(doc, "lifeformTech13205")
-	res.AutomatedTransportLines = GetNbr(doc, "lifeformTech13206")
-	res.ImprovedDroneAI = GetNbr(doc, "lifeformTech13207")
-	res.ExperimentalRecyclingTechnology = GetNbr(doc, "lifeformTech13208")
-	res.GeneralOverhaulCruiser = GetNbr(doc, "lifeformTech13209")
-	res.SlingshotAutopilot = GetNbr(doc, "lifeformTech13210")
-	res.HighTemperatureSuperconductors = GetNbr(doc, "lifeformTech13211")
-	res.GeneralOverhaulBattleship = GetNbr(doc, "lifeformTech13212")
-	res.ArtificialSwarmIntelligence = GetNbr(doc, "lifeformTech13213")
-	res.GeneralOverhaulBattlecruiser = GetNbr(doc, "lifeformTech13214")
-	res.GeneralOverhaulBomber = GetNbr(doc, "lifeformTech13215")
-	res.GeneralOverhaulDestroyer = GetNbr(doc, "lifeformTech13216")
-	res.ExperimentalWeaponsTechnology = GetNbr(doc, "lifeformTech13217")
-	res.MechanGeneralEnhancement = GetNbr(doc, "lifeformTech13218")
-	res.HeatRecovery = GetNbr(doc, "lifeformTech14201")
-	res.SulphideProcess = GetNbr(doc, "lifeformTech14202")
-	res.PsionicNetwork = GetNbr(doc, "lifeformTech14203")
-	res.TelekineticTractorBeam = GetNbr(doc, "lifeformTech14204")
-	res.EnhancedSensorTechnology = GetNbr(doc, "lifeformTech14205")
-	res.NeuromodalCompressor = GetNbr(doc, "lifeformTech14206")
-	res.NeuroInterface = GetNbr(doc, "lifeformTech14207")
-	res.InterplanetaryAnalysisNetwork = GetNbr(doc, "lifeformTech14208")
-	res.OverclockingHeavyFighter = GetNbr(doc, "lifeformTech14209")
-	res.TelekineticDrive = GetNbr(doc, "lifeformTech14210")
-	res.SixthSense = GetNbr(doc, "lifeformTech14211")
-	res.Psychoharmoniser = GetNbr(doc, "lifeformTech14212")
-	res.EfficientSwarmIntelligence = GetNbr(doc, "lifeformTech14213")
-	res.OverclockingLargeCargo = GetNbr(doc, "lifeformTech14214")
-	res.GravitationSensors = GetNbr(doc, "lifeformTech14215")
-	res.OverclockingBattleship = GetNbr(doc, "lifeformTech14216")
-	res.PsionicShieldMatrix = GetNbr(doc, "lifeformTech14217")
-	res.KaeleshDiscovererEnhancement = GetNbr(doc, "lifeformTech14218")
+	res.IntergalacticEnvoys = getNbr(doc, "lifeformTech11201")
+	res.HighPerformanceExtractors = getNbr(doc, "lifeformTech11202")
+	res.FusionDrives = getNbr(doc, "lifeformTech11203")
+	res.StealthFieldGenerator = getNbr(doc, "lifeformTech11204")
+	res.OrbitalDen = getNbr(doc, "lifeformTech11205")
+	res.ResearchAI = getNbr(doc, "lifeformTech11206")
+	res.HighPerformanceTerraformer = getNbr(doc, "lifeformTech11207")
+	res.EnhancedProductionTechnologies = getNbr(doc, "lifeformTech11208")
+	res.LightFighterMkII = getNbr(doc, "lifeformTech11209")
+	res.CruiserMkII = getNbr(doc, "lifeformTech11210")
+	res.ImprovedLabTechnology = getNbr(doc, "lifeformTech11211")
+	res.PlasmaTerraformer = getNbr(doc, "lifeformTech11112")
+	res.LowTemperatureDrives = getNbr(doc, "lifeformTech11213")
+	res.BomberMkII = getNbr(doc, "lifeformTech11214")
+	res.DestroyerMkII = getNbr(doc, "lifeformTech11215")
+	res.BattlecruiserMkII = getNbr(doc, "lifeformTech11216")
+	res.RobotAssistants = getNbr(doc, "lifeformTech11217")
+	res.Supercomputer = getNbr(doc, "lifeformTech11218")
+	res.VolcanicBatteries = getNbr(doc, "lifeformTech12201")
+	res.AcousticScanning = getNbr(doc, "lifeformTech12202")
+	res.HighEnergyPumpSystems = getNbr(doc, "lifeformTech12203")
+	res.CargoHoldExpansionCivilianShips = getNbr(doc, "lifeformTech12204")
+	res.MagmaPoweredProduction = getNbr(doc, "lifeformTech12205")
+	res.GeothermalPowerPlants = getNbr(doc, "lifeformTech12206")
+	res.DepthSounding = getNbr(doc, "lifeformTech12207")
+	res.IonCrystalEnhancementHeavyFighter = getNbr(doc, "lifeformTech12208")
+	res.ImprovedStellarator = getNbr(doc, "lifeformTech12209")
+	res.HardenedDiamondDrillHeads = getNbr(doc, "lifeformTech12210")
+	res.SeismicMiningTechnology = getNbr(doc, "lifeformTech12211")
+	res.MagmaPoweredPumpSystems = getNbr(doc, "lifeformTech12212")
+	res.IonCrystalModules = getNbr(doc, "lifeformTech12213")
+	res.OptimisedSiloConstructionMethod = getNbr(doc, "lifeformTech12214")
+	res.DiamondEnergyTransmitter = getNbr(doc, "lifeformTech12215")
+	res.ObsidianShieldReinforcement = getNbr(doc, "lifeformTech12216")
+	res.RuneShields = getNbr(doc, "lifeformTech12217")
+	res.RocktalCollectorEnhancement = getNbr(doc, "lifeformTech12218")
+	res.CatalyserTechnology = getNbr(doc, "lifeformTech13201")
+	res.PlasmaDrive = getNbr(doc, "lifeformTech13202")
+	res.EfficiencyModule = getNbr(doc, "lifeformTech13203")
+	res.DepotAI = getNbr(doc, "lifeformTech13204")
+	res.GeneralOverhaulLightFighter = getNbr(doc, "lifeformTech13205")
+	res.AutomatedTransportLines = getNbr(doc, "lifeformTech13206")
+	res.ImprovedDroneAI = getNbr(doc, "lifeformTech13207")
+	res.ExperimentalRecyclingTechnology = getNbr(doc, "lifeformTech13208")
+	res.GeneralOverhaulCruiser = getNbr(doc, "lifeformTech13209")
+	res.SlingshotAutopilot = getNbr(doc, "lifeformTech13210")
+	res.HighTemperatureSuperconductors = getNbr(doc, "lifeformTech13211")
+	res.GeneralOverhaulBattleship = getNbr(doc, "lifeformTech13212")
+	res.ArtificialSwarmIntelligence = getNbr(doc, "lifeformTech13213")
+	res.GeneralOverhaulBattlecruiser = getNbr(doc, "lifeformTech13214")
+	res.GeneralOverhaulBomber = getNbr(doc, "lifeformTech13215")
+	res.GeneralOverhaulDestroyer = getNbr(doc, "lifeformTech13216")
+	res.ExperimentalWeaponsTechnology = getNbr(doc, "lifeformTech13217")
+	res.MechanGeneralEnhancement = getNbr(doc, "lifeformTech13218")
+	res.HeatRecovery = getNbr(doc, "lifeformTech14201")
+	res.SulphideProcess = getNbr(doc, "lifeformTech14202")
+	res.PsionicNetwork = getNbr(doc, "lifeformTech14203")
+	res.TelekineticTractorBeam = getNbr(doc, "lifeformTech14204")
+	res.EnhancedSensorTechnology = getNbr(doc, "lifeformTech14205")
+	res.NeuromodalCompressor = getNbr(doc, "lifeformTech14206")
+	res.NeuroInterface = getNbr(doc, "lifeformTech14207")
+	res.InterplanetaryAnalysisNetwork = getNbr(doc, "lifeformTech14208")
+	res.OverclockingHeavyFighter = getNbr(doc, "lifeformTech14209")
+	res.TelekineticDrive = getNbr(doc, "lifeformTech14210")
+	res.SixthSense = getNbr(doc, "lifeformTech14211")
+	res.Psychoharmoniser = getNbr(doc, "lifeformTech14212")
+	res.EfficientSwarmIntelligence = getNbr(doc, "lifeformTech14213")
+	res.OverclockingLargeCargo = getNbr(doc, "lifeformTech14214")
+	res.GravitationSensors = getNbr(doc, "lifeformTech14215")
+	res.OverclockingBattleship = getNbr(doc, "lifeformTech14216")
+	res.PsionicShieldMatrix = getNbr(doc, "lifeformTech14217")
+	res.KaeleshDiscovererEnhancement = getNbr(doc, "lifeformTech14218")
 
 	return res, nil
 }
@@ -754,4 +899,14 @@ func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) (out bool) {
 		}
 	}
 	return
+}
+
+func extractAvailableDiscoveriesFromDoc(doc *goquery.Document) int64 {
+	discoveryCount := doc.Find("div#galaxyHeaderDiscoveryCount").Text()
+	rgx := regexp.MustCompile(`(\d+)/(\d+)`)
+	m := rgx.FindStringSubmatch(discoveryCount)
+	usedString, totalString := m[1], m[2]
+	used := utils.DoParseI64(usedString)
+	total := utils.DoParseI64(totalString)
+	return total - used
 }

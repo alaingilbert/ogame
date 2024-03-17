@@ -11,16 +11,11 @@ var bot *wrapper.OGame
 //export OGame
 func OGame(universe, username, password, language *C.char) (errorMsg *C.char) {
 	var err error
-	bot, err = wrapper.New(C.GoString(universe), C.GoString(username), C.GoString(password), C.GoString(language))
+	bot, err = wrapper.New(nil, C.GoString(universe), C.GoString(username), C.GoString(password), C.GoString(language))
 	if err != nil {
 		errorMsg = C.CString(err.Error())
 	}
 	return
-}
-
-//export SetUserAgent
-func SetUserAgent(newUserAgent string) {
-	bot.SetUserAgent(newUserAgent)
 }
 
 //export ServerURL
@@ -62,7 +57,7 @@ func IsUnderAttack() (isUnderAttack C.int, errorMsg *C.char) {
 
 //export GetUserInfos
 func GetUserInfos() (playerID C.int, playerName *C.char, points, rank, total, honourPoints C.int) {
-	i := bot.GetUserInfos()
+	i, _ := bot.GetUserInfos()
 	return C.int(i.PlayerID), C.CString(i.PlayerName), C.int(i.Points), C.int(i.Rank), C.int(i.Total), C.int(i.HonourPoints)
 }
 
@@ -100,7 +95,7 @@ func GalaxyInfos() {
 func GetResearch() (energyTechnology, laserTechnology, ionTechnology, hyperspaceTechnology, plasmaTechnology,
 	combustionDrive, impulseDrive, hyperspaceDrive, espionageTechnology, computerTechnology, astrophysics,
 	intergalacticResearchNetwork, gravitonTechnology, weaponsTechnology, shieldingTechnology, armourTechnology C.int) {
-	r := bot.GetResearch()
+	r, _ := bot.GetResearch()
 	return C.int(r.EnergyTechnology), C.int(r.LaserTechnology), C.int(r.IonTechnology), C.int(r.HyperspaceTechnology),
 		C.int(r.PlasmaTechnology), C.int(r.CombustionDrive), C.int(r.ImpulseDrive), C.int(r.HyperspaceDrive),
 		C.int(r.EspionageTechnology), C.int(r.ComputerTechnology), C.int(r.Astrophysics), C.int(r.IntergalacticResearchNetwork),

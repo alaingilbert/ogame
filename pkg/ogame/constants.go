@@ -31,6 +31,8 @@ func (m MissionID) String() string {
 		return "MissileAttack"
 	case Expedition:
 		return "Expedition"
+	case SearchForLifeforms:
+		return "SearchForLifeform"
 	default:
 		return strconv.FormatInt(int64(m), 10)
 	}
@@ -201,7 +203,7 @@ const (
 	CrystalRefineryID                   ID = 12109
 	DeuteriumSynthesiserID              ID = 12110
 	MineralResearchCentreID             ID = 12111
-	MetalRecyclingPlantID               ID = 12112
+	AdvancedRecyclingPlantID            ID = 12112
 	AssemblyLineID                      ID = 13101 // Lifeform (mechas)
 	FusionCellFactoryID                 ID = 13102
 	RoboticsResearchCentreID            ID = 13103
@@ -311,6 +313,7 @@ const (
 	Destroy            MissionID = 9
 	MissileAttack      MissionID = 10
 	Expedition         MissionID = 15
+	SearchForLifeforms MissionID = 18
 
 	// Speeds
 	TenPercent         Speed = 1

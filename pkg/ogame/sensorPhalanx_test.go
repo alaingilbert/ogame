@@ -15,8 +15,8 @@ func TestSensorPhalanxPrice(t *testing.T) {
 
 func TestSensorPhalanx_IsAvailable(t *testing.T) {
 	sp := newSensorPhalanx()
-	assert.False(t, sp.IsAvailable(MoonType, ResourcesBuildings{}, Facilities{}, Researches{}, 0, NoClass))
-	assert.True(t, sp.IsAvailable(MoonType, ResourcesBuildings{}, Facilities{LunarBase: 1}, Researches{}, 0, NoClass))
+	assert.False(t, sp.IsAvailable(MoonType, ResourcesBuildings{}, LfBuildings{}, LfResearches{}, Facilities{}, Researches{}, 0, NoClass))
+	assert.True(t, sp.IsAvailable(MoonType, ResourcesBuildings{}, LfBuildings{}, LfResearches{}, Facilities{LunarBase: 1}, Researches{}, 0, NoClass))
 }
 
 func TestSensorPhalanx_GetRange(t *testing.T) {
