@@ -2,6 +2,7 @@ package v11_9_0
 
 import (
 	"bytes"
+
 	"github.com/PuerkitoBio/goquery"
 	v11 "github.com/alaingilbert/ogame/pkg/extractor/v11"
 	"github.com/alaingilbert/ogame/pkg/ogame"
@@ -39,4 +40,10 @@ func (e *Extractor) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame
 // ExtractCombatReportMessagesFromDoc ...
 func (e *Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error) {
 	return extractCombatReportMessagesFromDoc(doc)
+}
+
+// ExtractAuction ...
+func (e *Extractor) ExtractAuction(pageHTML []byte) (ogame.Auction, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return extractAuctionFromDoc(doc)
 }
