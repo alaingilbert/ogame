@@ -6,6 +6,7 @@ import (
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/extractor/v11_9_0"
 	"github.com/alaingilbert/ogame/pkg/ogame"
+	"time"
 )
 
 // Extractor ...
@@ -34,4 +35,23 @@ func (e *Extractor) ExtractProduction(pageHTML []byte) ([]ogame.Quantifiable, in
 // ExtractOverviewShipSumCountdownFromBytes ...
 func (e Extractor) ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
 	return extractOverviewShipSumCountdownFromBytes(pageHTML)
+}
+
+// ExtractFleets ...
+func (e *Extractor) ExtractFleets(pageHTML []byte) (res []ogame.Fleet) {
+	return e.extractFleets(pageHTML, e.GetLocation())
+}
+
+func (e *Extractor) extractFleets(pageHTML []byte, location *time.Location) (res []ogame.Fleet) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.extractFleetsFromDoc(doc, location)
+}
+
+// ExtractFleetsFromDoc ...
+func (e *Extractor) ExtractFleetsFromDoc(doc *goquery.Document) (res []ogame.Fleet) {
+	return e.extractFleetsFromDoc(doc, e.GetLocation())
+}
+
+func (e *Extractor) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []ogame.Fleet) {
+	return extractFleetsFromDoc(doc, location, e.GetLifeformEnabled())
 }
