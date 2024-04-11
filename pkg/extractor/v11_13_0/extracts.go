@@ -40,3 +40,12 @@ func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID og
 	}
 	return
 }
+
+func extractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
+	var shipSumCountdown int64
+	shipSumCountdownMatch := regexp.MustCompile(`CountdownTimer\('shipyardCountdown', (\d+),`).FindSubmatch(pageHTML)
+	if len(shipSumCountdownMatch) > 0 {
+		shipSumCountdown = int64(utils.ToInt(shipSumCountdownMatch[1]))
+	}
+	return shipSumCountdown
+}

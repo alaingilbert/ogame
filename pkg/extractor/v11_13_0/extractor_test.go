@@ -22,3 +22,16 @@ func TestGetConstructions(t *testing.T) {
 	assert.Equal(t, ogame.IntergalacticEnvoysID, lfResearchID)
 	assert.Equal(t, int64(25972), lfResearchCountdown)
 }
+
+func TestExtractProduction(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.13.0/en/shipyard.html")
+	prods, secs, _ := NewExtractor().ExtractProduction(pageHTMLBytes)
+	assert.Equal(t, 3, len(prods))
+	assert.Equal(t, int64(632), secs)
+	assert.Equal(t, ogame.DestroyerID, prods[0].ID)
+	assert.Equal(t, int64(28), prods[0].Nbr)
+	assert.Equal(t, ogame.DestroyerID, prods[1].ID)
+	assert.Equal(t, int64(30), prods[1].Nbr)
+	assert.Equal(t, ogame.LightFighterID, prods[2].ID)
+	assert.Equal(t, int64(1), prods[2].Nbr)
+}
