@@ -9,6 +9,7 @@ import (
 	v10 "github.com/alaingilbert/ogame/pkg/extractor/v10"
 	v104 "github.com/alaingilbert/ogame/pkg/extractor/v104"
 	v11 "github.com/alaingilbert/ogame/pkg/extractor/v11"
+	"github.com/alaingilbert/ogame/pkg/extractor/v11_13_0"
 	"github.com/alaingilbert/ogame/pkg/extractor/v11_9_0"
 	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
 	v71 "github.com/alaingilbert/ogame/pkg/extractor/v71"
@@ -227,10 +228,12 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 }
 
 func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
-	var ext extractor.Extractor = v11_9_0.NewExtractor()
+	var ext extractor.Extractor = v11_13_0.NewExtractor()
 	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
 		b.serverVersion = ogVersion
-		if b.IsVGreaterThanOrEqual("11.9.0") {
+		if b.IsVGreaterThanOrEqual("11.13.0") {
+			ext = v11_13_0.NewExtractor()
+		} else if b.IsVGreaterThanOrEqual("11.9.0") {
 			ext = v11_9_0.NewExtractor()
 		} else if b.IsVGreaterThanOrEqual("11.0.0-beta25") {
 			ext = v11.NewExtractor()
