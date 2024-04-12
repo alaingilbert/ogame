@@ -52,3 +52,20 @@ func TestExtractFleet(t *testing.T) {
 	assert.Equal(t, int64(60), fleets[0].Ships.Destroyer)
 	assert.Equal(t, ogame.Resources{}, fleets[0].Resources)
 }
+
+func TestExtractFleet2(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.13.0/en/movement2.html")
+	e := NewExtractor()
+	e.SetLocation(time.FixedZone("OGT", 3600))
+	fleets := e.ExtractFleets(pageHTMLBytes)
+	assert.Equal(t, 1, len(fleets))
+	assert.Equal(t, int64(3416), fleets[0].ArriveIn)
+	assert.Equal(t, int64(3908), fleets[0].BackIn)
+	assert.Equal(t, ogame.Coordinate{Galaxy: 1, System: 103, Position: 11, Type: ogame.PlanetType}, fleets[0].Origin)
+	assert.Equal(t, ogame.Coordinate{Galaxy: 1, System: 103, Position: 16, Type: ogame.PlanetType}, fleets[0].Destination)
+	assert.Equal(t, ogame.Expedition, fleets[0].Mission)
+	assert.Equal(t, false, fleets[0].ReturnFlight)
+	assert.Equal(t, ogame.FleetID(8573942), fleets[0].ID)
+	assert.Equal(t, int64(1), fleets[0].Ships.LightFighter)
+	assert.Equal(t, ogame.Resources{}, fleets[0].Resources)
+}

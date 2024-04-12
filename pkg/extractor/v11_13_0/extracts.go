@@ -78,7 +78,7 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 		id := utils.DoParseI64(s.Find("a.openCloseDetails").AttrOr("data-mission-id", "0"))
 
 		timerID := strings.TrimPrefix(s.Find("span.timer").AttrOr("id", ""), "timer_")
-		m := regexp.MustCompile(`getElementByIdWithCache\("route_` + timerID + `"\),\s*(\d+),`).FindStringSubmatch(script)
+		m := regexp.MustCompile(`SimpleCountdownTimer\(\s*"#timer_` + timerID + `",\s*(\d+),`).FindStringSubmatch(script)
 		var arriveIn int64
 		if len(m) == 2 {
 			arriveIn = utils.DoParseI64(m[1])
