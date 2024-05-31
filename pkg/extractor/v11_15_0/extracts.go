@@ -365,3 +365,69 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 
 	return report, nil
 }
+
+func extractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ogame.ExpeditionMessage, int64, error) {
+	msgs := make([]ogame.ExpeditionMessage, 0)
+	doc.Find(".msg").Each(func(i int, s *goquery.Selection) {
+		if idStr, exists := s.Attr("data-msg-id"); exists {
+			if id, err := utils.ParseI64(idStr); err == nil {
+				msg := ogame.ExpeditionMessage{ID: id}
+				msg.CreatedAt, _ = time.ParseInLocation("02.01.2006 15:04:05", s.Find(".msgDate").Text(), location)
+				msg.Coordinate = v6.ExtractCoord(s.Find(".msgTitle a").Text())
+				msg.Coordinate.Type = ogame.PlanetType
+				msg.Content, _ = s.Find("div.msgContent").Html()
+				msg.Content = strings.TrimSpace(msg.Content)
+
+				var resStruct struct {
+					Metal      int64 `json:"metal"`
+					Crystal    int64 `json:"crystal"`
+					Deuterium  int64 `json:"deuterium"`
+					Darkmatter int64 `json:"darkmatter"`
+				}
+				resGained := s.Find("div.rawMessageData").AttrOr("data-raw-resourcesgained", "{}")
+				_ = json.Unmarshal([]byte(resGained), &resStruct)
+
+				msg.Resources.Metal = resStruct.Metal
+				msg.Resources.Crystal = resStruct.Crystal
+				msg.Resources.Deuterium = resStruct.Deuterium
+				msg.Resources.Darkmatter = resStruct.Darkmatter
+
+				type ShipInfo struct {
+					Amount int64  `json:"amount"`
+					Name   string `json:"name"`
+				}
+				var msgDataStruct struct {
+					SmallCargo     ShipInfo `json:"202"`
+					LargeCargo     ShipInfo `json:"203"`
+					LightFighter   ShipInfo `json:"204"`
+					HeavyFighter   ShipInfo `json:"205"`
+					Cruiser        ShipInfo `json:"206"`
+					Battleship     ShipInfo `json:"207"`
+					EspionageProbe ShipInfo `json:"210"`
+					Bomber         ShipInfo `json:"211"`
+					Destroyer      ShipInfo `json:"213"`
+					Battlecruiser  ShipInfo `json:"215"`
+					Reaper         ShipInfo `json:"218"`
+					Pathfinder     ShipInfo `json:"219"`
+				}
+				techGained := s.Find("div.rawMessageData").AttrOr("data-raw-technologiesgained", "{}")
+				_ = json.Unmarshal([]byte(techGained), &msgDataStruct)
+				msg.Ships.SmallCargo = msgDataStruct.SmallCargo.Amount
+				msg.Ships.LargeCargo = msgDataStruct.LargeCargo.Amount
+				msg.Ships.LightFighter = msgDataStruct.LightFighter.Amount
+				msg.Ships.HeavyFighter = msgDataStruct.HeavyFighter.Amount
+				msg.Ships.Cruiser = msgDataStruct.Cruiser.Amount
+				msg.Ships.Battleship = msgDataStruct.Battleship.Amount
+				msg.Ships.EspionageProbe = msgDataStruct.EspionageProbe.Amount
+				msg.Ships.Bomber = msgDataStruct.Bomber.Amount
+				msg.Ships.Destroyer = msgDataStruct.Destroyer.Amount
+				msg.Ships.Battlecruiser = msgDataStruct.Battlecruiser.Amount
+				msg.Ships.Reaper = msgDataStruct.Reaper.Amount
+				msg.Ships.Pathfinder = msgDataStruct.Pathfinder.Amount
+
+				msgs = append(msgs, msg)
+			}
+		}
+	})
+	return msgs, 1, nil
+}

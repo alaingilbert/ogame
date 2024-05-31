@@ -201,6 +201,8 @@ type ExpeditionMessage struct {
 	ID         int64
 	Coordinate Coordinate
 	Content    string
+	Resources  Resources
+	Ships      ShipsInfos
 	CreatedAt  time.Time
 }
 
