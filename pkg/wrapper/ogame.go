@@ -3706,12 +3706,17 @@ func (b *OGame) getEspionageReportFor(coord ogame.Coordinate) (ogame.EspionageRe
 }
 
 func (b *OGame) getDeleteMessagesToken() (string, error) {
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"messages"}, "tab": {"20"}, "ajax": {"1"}})
-	tokenM := regexp.MustCompile(`name='token' value='([^']+)'`).FindSubmatch(pageHTML)
-	if len(tokenM) != 2 {
-		return "", errors.New("token not found")
+	var tmp struct {
+		NewAjaxToken string
 	}
-	return string(tokenM[1]), nil
+	pageJson, err := b.getPageMessages(1, EspionageMessagesTabID)
+	if err != nil {
+		return "", err
+	}
+	if err := json.Unmarshal(pageJson, &tmp); err != nil {
+		return "", err
+	}
+	return tmp.NewAjaxToken, nil
 }
 
 func (b *OGame) deleteMessage(msgID int64) error {
@@ -3719,13 +3724,17 @@ func (b *OGame) deleteMessage(msgID int64) error {
 	if err != nil {
 		return err
 	}
-	payload := url.Values{
-		"messageId": {utils.FI64(msgID)},
-		"action":    {"103"},
-		"ajax":      {"1"},
-		"token":     {token},
+	vals := url.Values{
+		"page":      {"componentOnly"},
+		"component": {"messages"},
+		"asJson":    {"1"},
+		"action":    {"flagDeleted"},
 	}
-	by, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
+	payload := url.Values{
+		"token":     {token},
+		"messageId": {utils.FI64(msgID)},
+	}
+	by, err := b.postPageContent(vals, payload)
 	if err != nil {
 		return err
 	}
@@ -3734,9 +3743,10 @@ func (b *OGame) deleteMessage(msgID int64) error {
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New("unable to find message id " + utils.FI64(msgID))
 	}
-	if val, ok := res[utils.FI64(msgID)]; ok {
-		if valB, ok := val.(bool); !ok || !valB {
-			return errors.New("unable to find message id " + utils.FI64(msgID))
+	fmt.Println(res)
+	if val, ok := res["status"]; ok {
+		if valB, ok := val.(string); !ok || valB != "success" {
+			return errors.New("unable to find message id " + utils.FI64(msgID) + " : " + res["message"].(string))
 		}
 	} else {
 		return errors.New("unable to find message id " + utils.FI64(msgID))
