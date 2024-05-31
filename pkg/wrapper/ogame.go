@@ -2406,7 +2406,7 @@ func (b *OGame) doAuction(celestialID ogame.CelestialID, bid map[ogame.Celestial
 		payload.Set("cp", utils.FI64(celestialID))
 	}
 
-	auctionHTML, err := b.postPageContent(url.Values{"page": {"auctioneer"}}, payload)
+	auctionHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderauctioneer"}, "ajax": {"1"}, "action": {"submitBid"}, "asJson": {"1"}}, payload)
 	if err != nil {
 		return err
 	}
