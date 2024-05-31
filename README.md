@@ -27,7 +27,7 @@ package main
 
 import "fmt"
 import "os"
-import "github.com/alaingilbert/ogame/pkg/ogame"
+import "github.com/alaingilbert/ogame/pkg/device"
 import "github.com/alaingilbert/ogame/pkg/wrapper"
 
 func main() {
@@ -35,7 +35,21 @@ func main() {
 	username := os.Getenv("USERNAME") // eg: email@gmail.com
 	password := os.Getenv("PASSWORD") // eg: *****
 	language := os.Getenv("LANGUAGE") // eg: en
-	bot, err := wrapper.New(universe, username, password, language)
+	
+	deviceName := os.Getenv("DEVICE-NAME")
+	deviceInst, err := device.NewBuilder(deviceName).
+		SetOsName(device.Windows).
+		SetBrowserName(device.Chrome).
+		SetMemory(8).
+		SetHardwareConcurrency(16).
+		ScreenColorDepth(24).
+		SetScreenWidth(1900).
+		SetScreenHeight(900).
+		SetTimezone("America/Los_Angeles").
+		SetLanguages("en-US,en").
+		Build()
+
+	bot, err := wrapper.New(deviceInst, universe, username, password, language)
 	if err != nil {
 		panic(err)
 	}
