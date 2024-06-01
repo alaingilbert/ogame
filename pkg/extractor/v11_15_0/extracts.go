@@ -382,7 +382,7 @@ func extractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Loca
 					Metal      int64 `json:"metal"`
 					Crystal    int64 `json:"crystal"`
 					Deuterium  int64 `json:"deuterium"`
-					Darkmatter int64 `json:"darkmatter"`
+					Darkmatter int64 `json:"darkMatter"`
 				}
 				resGained := s.Find("div.rawMessageData").AttrOr("data-raw-resourcesgained", "{}")
 				_ = json.Unmarshal([]byte(resGained), &resStruct)
