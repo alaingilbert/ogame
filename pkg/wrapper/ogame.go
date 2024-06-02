@@ -2921,63 +2921,55 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 		return err
 	}
 
-	if b.IsVGreaterThanOrEqual("10.4.0") {
-		vals := url.Values{
-			"page":      {"componentOnly"},
-			"component": {"buildlistactions"},
-			"action":    {"scheduleEntry"},
-			"asJson":    {"1"},
-		}
+	vals := url.Values{
+		"page":      {"componentOnly"},
+		"component": {"buildlistactions"},
+		"action":    {"scheduleEntry"},
+		"asJson":    {"1"},
+	}
 
-		var amount int64 = 1
-		if id.IsShip() || id.IsDefense() {
-			var maximumNbr int64 = 99999
-			amount = utils.MinInt(nbr, maximumNbr)
-		}
+	var amount int64 = 1
+	if id.IsShip() || id.IsDefense() {
+		var maximumNbr int64 = 99999
+		amount = utils.MinInt(nbr, maximumNbr)
+	}
 
-		payload := url.Values{
-			"technologyId": {utils.FI64(id)},
-			"amount":       {utils.FI64(amount)},
-			"mode":         {"1"},
-			"token":        {token},
-			"planetId":     {utils.FI64(celestialID)},
-		}
+	payload := url.Values{
+		"technologyId": {utils.FI64(id)},
+		"amount":       {utils.FI64(amount)},
+		"mode":         {"1"},
+		"token":        {token},
+		"planetId":     {utils.FI64(celestialID)},
+	}
 
-		_, err = b.postPageContent(vals, payload)
-		return err
-	} else {
-		vals := url.Values{
-			"page":      {"ingame"},
-			"component": {page},
-			"modus":     {"1"},
-			"type":      {utils.FI64(id)},
-			"cp":        {utils.FI64(celestialID)},
-			"token":     {token},
-		}
-		if id.IsDefense() || id.IsShip() {
-			var maximumNbr int64 = 99999
-			var err error
-			var token string
-			for nbr > 0 {
-				tmp := utils.MinInt(nbr, maximumNbr)
-				vals.Set("menge", utils.FI64(tmp))
-				_, err = b.getPageContent(vals)
-				if err != nil {
-					break
-				}
-				token, err = getToken(b, page, celestialID)
-				if err != nil {
-					break
-				}
-				vals.Set("token", token)
-				nbr -= maximumNbr
-			}
-			return err
-		}
+	var responseStruct struct {
+		JsServerlang string `json:"js_serverlang"`
+		JsServerid   string `json:"js_serverid"`
+		Status       string `json:"status"`
+		Errors       []struct {
+			Message string `json:"message"`
+			Error   int    `json:"error"`
+		} `json:"errors"`
+		Components   []interface{} `json:"components"`
+		NewAjaxToken string        `json:"newAjaxToken"`
+	}
 
-		_, err = b.getPageContent(vals)
+	by, err := b.postPageContent(vals, payload)
+	if err != nil {
 		return err
 	}
+	if err := json.Unmarshal(by, &responseStruct); err != nil {
+		return err
+	}
+	if responseStruct.Status == "failure" {
+		errMsg := "failed to build"
+		if len(responseStruct.Errors) > 0 {
+			errStruct := responseStruct.Errors[0]
+			errMsg += fmt.Sprintf(": %s (%d)", errStruct.Message, errStruct.Error)
+		}
+		return errors.New(errMsg)
+	}
+	return nil
 }
 
 func (b *OGame) buildCancelable(celestialID ogame.CelestialID, id ogame.ID) error {
