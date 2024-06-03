@@ -2898,6 +2898,8 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 	return err
 }
 
+var ErrBuild = errors.New("failed to build")
+
 func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) error {
 	var page string
 	if id.IsDefense() {
@@ -2962,12 +2964,12 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 		return err
 	}
 	if responseStruct.Status == "failure" {
-		errMsg := "failed to build"
+		errInst := ErrBuild
 		if len(responseStruct.Errors) > 0 {
 			errStruct := responseStruct.Errors[0]
-			errMsg += fmt.Sprintf(": %s (%d)", errStruct.Message, errStruct.Error)
+			errInst = fmt.Errorf("%w : %s (%d)", errInst, errStruct.Message, errStruct.Error)
 		}
-		return errors.New(errMsg)
+		return errInst
 	}
 	return nil
 }
