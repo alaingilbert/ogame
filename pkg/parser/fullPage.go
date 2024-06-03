@@ -70,6 +70,10 @@ func (p *FullPage) ExtractPlanetCoordinate() (ogame.Coordinate, error) {
 	return p.e.ExtractPlanetCoordinate(p.content)
 }
 
+func (p *FullPage) ExtractPlanetID() (ogame.CelestialID, error) {
+	return p.e.ExtractPlanetID(p.content)
+}
+
 func (p *FullPage) ExtractMoons() []ogame.Moon {
 	return p.e.ExtractMoonsFromDoc(p.GetDoc())
 }
