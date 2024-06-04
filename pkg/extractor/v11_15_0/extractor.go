@@ -51,12 +51,23 @@ func (e *Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([
 }
 
 // ExtractExpeditionMessages ...
-func (e Extractor) ExtractExpeditionMessages(pageHTML []byte) ([]ogame.ExpeditionMessage, int64, error) {
+func (e *Extractor) ExtractExpeditionMessages(pageHTML []byte) ([]ogame.ExpeditionMessage, int64, error) {
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	return e.ExtractExpeditionMessagesFromDoc(doc)
 }
 
 // ExtractExpeditionMessagesFromDoc ...
-func (e Extractor) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ogame.ExpeditionMessage, int64, error) {
+func (e *Extractor) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ogame.ExpeditionMessage, int64, error) {
 	return extractExpeditionMessagesFromDoc(doc, e.GetLocation())
+}
+
+// ExtractLfBonuses ...
+func (e *Extractor) ExtractLfBonuses(pageHTML []byte) (ogame.LfBonuses, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractLfBonusesFromDoc(doc)
+}
+
+// ExtractLfBonusesFromDoc ...
+func (e *Extractor) ExtractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
+	return extractLfBonusesFromDoc(doc)
 }

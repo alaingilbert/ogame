@@ -8,9 +8,9 @@ import (
 
 func TestLunarBasePrice(t *testing.T) {
 	lb := newLunarBase()
-	assert.Equal(t, Resources{Metal: 20000, Crystal: 40000, Deuterium: 20000}, lb.GetPrice(1))
-	assert.Equal(t, Resources{Metal: 40000, Crystal: 80000, Deuterium: 40000}, lb.GetPrice(2))
-	assert.Equal(t, Resources{Metal: 80000, Crystal: 160000, Deuterium: 80000}, lb.GetPrice(3))
+	assert.Equal(t, Resources{Metal: 20000, Crystal: 40000, Deuterium: 20000}, lb.GetPrice(1, LfBonuses{}))
+	assert.Equal(t, Resources{Metal: 40000, Crystal: 80000, Deuterium: 40000}, lb.GetPrice(2, LfBonuses{}))
+	assert.Equal(t, Resources{Metal: 80000, Crystal: 160000, Deuterium: 80000}, lb.GetPrice(3, LfBonuses{}))
 }
 
 func TestLunarBase_IsAvailable(t *testing.T) {

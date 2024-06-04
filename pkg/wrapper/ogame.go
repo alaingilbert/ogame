@@ -63,6 +63,7 @@ type OGame struct {
 	CachedPreferences     ogame.Preferences
 	isVacationModeEnabled bool
 	researches            *ogame.Researches
+	lfBonuses             *ogame.LfBonuses
 	planets               []Planet
 	planetsMu             sync.RWMutex
 	ajaxChatToken         string
@@ -435,6 +436,10 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 	case *parser.ResearchPage:
 		researches := castedPage.ExtractResearch()
 		b.researches = &researches
+	case *parser.LfBonusesPage:
+		if bonuses, err := castedPage.ExtractLfBonuses(); err == nil {
+			b.lfBonuses = &bonuses
+		}
 	}
 }
 
@@ -1305,9 +1310,6 @@ func (b *OGame) withRetry(fn func() error) error {
 		if maxRetry <= 0 {
 			return err2.Wrap(err, ogame.ErrFailedExecuteCallback.Error())
 		}
-		if maxRetry <= 0 {
-			return err2.Wrap(err, ogame.ErrFailedExecuteCallback.Error())
-		}
 
 		if retryErr := retry(err); retryErr != nil {
 			return retryErr
@@ -1345,7 +1347,8 @@ func (b *OGame) constructionTime(id ogame.ID, nbr int64, facilities ogame.Facili
 	if obj == nil {
 		return 0
 	}
-	return obj.ConstructionTime(nbr, b.getUniverseSpeed(), facilities, b.hasTechnocrat, b.isDiscoverer())
+	lfBonuses, _ := b.getCachedLfBonuses()
+	return obj.ConstructionTime(nbr, b.getUniverseSpeed(), facilities, lfBonuses, b.characterClass, b.hasTechnocrat)
 }
 
 func (b *OGame) enable() {
@@ -1771,33 +1774,37 @@ func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems int64, donutGalax
 	return 5
 }
 
-func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, isCollector, isGeneral bool) int64 {
+func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass) int64 {
 	var minSpeed int64 = math.MaxInt64
 	for _, ship := range ogame.Ships {
-		if ship.GetID() == ogame.SolarSatelliteID || ship.GetID() == ogame.CrawlerID {
+		shipID := ship.GetID()
+		if shipID == ogame.SolarSatelliteID || shipID == ogame.CrawlerID {
 			continue
 		}
-		shipSpeed := ship.GetSpeed(techs, isCollector, isGeneral)
-		if ships.ByID(ship.GetID()) > 0 && shipSpeed < minSpeed {
+		shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass)
+		if ships.ByID(shipID) > 0 && shipSpeed < minSpeed {
 			minSpeed = shipSpeed
 		}
 	}
 	return minSpeed
 }
 
-func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches, isCollector, isGeneral bool) (fuel int64) {
+func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass) (fuel int64) {
 	tmpFn := func(baseFuel, nbr, shipSpeed int64) float64 {
 		tmpSpeed := (35000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
 		return float64(baseFuel*nbr*dist) / 35000 * math.Pow(tmpSpeed/10+1, 2)
 	}
 	tmpFuel := 0.0
 	for _, ship := range ogame.Ships {
-		if ship.GetID() == ogame.SolarSatelliteID || ship.GetID() == ogame.CrawlerID {
+		shipID := ship.GetID()
+		if shipID == ogame.SolarSatelliteID || shipID == ogame.CrawlerID {
 			continue
 		}
-		nbr := ships.ByID(ship.GetID())
+		nbr := ships.ByID(shipID)
 		if nbr > 0 {
-			tmpFuel += tmpFn(ship.GetFuelConsumption(techs, fleetDeutSaveFactor, isGeneral), nbr, ship.GetSpeed(techs, isCollector, isGeneral))
+			getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
+			speed := ship.GetSpeed(techs, lfBonuses, characterClass)
+			tmpFuel += tmpFn(getFuelConsumption, nbr, speed)
 		}
 	}
 	fuel = int64(1 + math.Round(tmpFuel))
@@ -1806,26 +1813,25 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 
 // CalcFlightTime ...
 func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
-	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ogame.ShipsInfos, techs ogame.Researches, characterClass ogame.CharacterClass) (secs, fuel int64) {
+	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass) (secs, fuel int64) {
 	if !ships.HasShips() {
 		return
 	}
-	isCollector := characterClass == ogame.Collector
-	isGeneral := characterClass == ogame.General
 	s := speed
-	v := float64(findSlowestSpeed(ships, techs, isCollector, isGeneral))
+	v := float64(findSlowestSpeed(ships, techs, lfBonuses, characterClass))
 	a := float64(universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	secs = int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
-	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, isCollector, isGeneral)
+	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass)
 	return
 }
 
 // CalcFlightTime calculates the flight time and the fuel consumption
 func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float64, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
+	lfBonuses, _ := b.GetCachedLfBonuses()
 	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
 		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(b.serverData, missionID), ships,
-		b.GetCachedResearch(), b.characterClass)
+		b.GetCachedResearch(), lfBonuses, b.characterClass)
 }
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
@@ -2105,8 +2111,8 @@ func (b *OGame) getDMCosts(celestialID ogame.CelestialID) (ogame.DMCosts, error)
 	return page.ExtractDMCosts()
 }
 
-func (b *OGame) useDM(typ string, celestialID ogame.CelestialID) error {
-	if typ != "buildings" && typ != "research" && typ != "shipyard" {
+func (b *OGame) useDM(typ ogame.DMType, celestialID ogame.CelestialID) error {
+	if !typ.IsValid() {
 		return fmt.Errorf("invalid type %s", typ)
 	}
 	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
@@ -2119,11 +2125,11 @@ func (b *OGame) useDM(typ string, celestialID ogame.CelestialID) error {
 	}
 	var buyAndActivate, token string
 	switch typ {
-	case "buildings":
+	case ogame.BuildingsDmType:
 		buyAndActivate, token = costs.Buildings.BuyAndActivateToken, costs.Buildings.Token
-	case "research":
+	case ogame.ResearchDmType:
 		buyAndActivate, token = costs.Research.BuyAndActivateToken, costs.Research.Token
-	case "shipyard":
+	case ogame.ShipyardDmType:
 		buyAndActivate, token = costs.Shipyard.BuyAndActivateToken, costs.Shipyard.Token
 	}
 	params := url.Values{
@@ -2687,6 +2693,26 @@ func (b *OGame) getResearch() (out ogame.Researches, err error) {
 	return researches, nil
 }
 
+func (b *OGame) getCachedLfBonuses() (out ogame.LfBonuses, err error) {
+	if b.lfBonuses == nil {
+		return b.getLfBonuses()
+	}
+	return *b.lfBonuses, nil
+}
+
+func (b *OGame) getLfBonuses() (out ogame.LfBonuses, err error) {
+	page, err := getPage[parser.LfBonusesPage](b)
+	if err != nil {
+		return
+	}
+	bonuses, err := page.ExtractLfBonuses()
+	if err != nil {
+		return
+	}
+	b.lfBonuses = &bonuses
+	return bonuses, nil
+}
+
 func (b *OGame) getResourcesBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.ResourcesBuildings, error) {
 	options = append(options, ChangePlanet(celestialID))
 	page, err := getPage[parser.SuppliesPage](b, options...)
@@ -3177,10 +3203,7 @@ func (b *OGame) sendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int
 		"type":                 {utils.FI64(coord.Type)},
 		"token":                {token},
 		"missileCount":         {utils.FI64(nbr)},
-		"missilePrimaryTarget": {},
-	}
-	if priority != 0 {
-		payload.Add("missilePrimaryTarget", utils.FI64(priority))
+		"missilePrimaryTarget": {utils.FI64(priority)},
 	}
 	by, err := b.postPageContent(params, payload)
 	if err != nil {
@@ -3398,7 +3421,12 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 		return ogame.Fleet{}, errors.New("target is not ok")
 	}
 
-	cargo := ogame.ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), b.server.Settings.EspionageProbeRaids == 1, b.isCollector(), b.IsPioneers())
+	lfBonuses, err := b.GetCachedLfBonuses()
+	if err != nil {
+		return ogame.Fleet{}, err
+	}
+	multiplier := float64(b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
+	cargo := ogame.ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.Settings.EspionageProbeRaids == 1)
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
 		newResources.Deuterium = utils.MinInt(resources.Deuterium, cargo)

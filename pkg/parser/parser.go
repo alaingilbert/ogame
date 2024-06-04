@@ -50,12 +50,14 @@ type DefensesPage struct{ FullPage }
 type MovementPage struct{ FullPage }
 type LfBuildingsPage struct{ FullPage }
 type LfResearchPage struct{ FullPage }
+type LfBonusesPage struct{ FullPage }
 
 type FullPagePages interface {
 	OverviewPage |
 		PreferencesPage |
 		SuppliesPage |
 		ResourcesSettingsPage |
+		LfBonusesPage |
 		FacilitiesPage |
 		LfBuildingsPage |
 		LfResearchPage |
@@ -112,6 +114,8 @@ func AutoParseFullPage(e extractor.Extractor, pageHTML []byte) (out IFullPage) {
 		out = &PreferencesPage{fullPage}
 	} else if bytes.Contains(pageHTML, []byte(`currentPage = "research";`)) {
 		out = &ResearchPage{fullPage}
+	} else if bytes.Contains(pageHTML, []byte(`currentPage = "lfbonuses";`)) {
+		out = &LfBonusesPage{fullPage}
 	} else {
 		out = &fullPage
 	}

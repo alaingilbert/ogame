@@ -4,6 +4,7 @@ import (
 	"compress/gzip"
 	"github.com/PuerkitoBio/goquery"
 	"io"
+	"math"
 	"math/rand"
 	"net/http"
 	"regexp"
@@ -204,4 +205,9 @@ func Ternary[T any](predicate bool, a, b T) T {
 func TernaryOrZero[T any](predicate bool, a T) T {
 	var zero T
 	return Ternary(predicate, a, zero)
+}
+
+// RoundThousandth round value to the nearest thousandth
+func RoundThousandth(n float64) float64 {
+	return math.Floor(n*1000) / 1000
 }

@@ -302,23 +302,25 @@ type BaseLfBuilding struct {
 	durationFactor           float64
 }
 
-func (b BaseLfBuilding) BuildingConstructionTime(level, universeSpeed int64, acc BuildingAccelerators) time.Duration {
+func (b BaseLfBuilding) BuildingConstructionTime(level, universeSpeed int64, acc BuildingAccelerators, lfBonuses LfBonuses) time.Duration {
 	roboticLvl := float64(acc.GetRoboticsFactory())
 	naniteLvl := float64(acc.GetNaniteFactory())
 	levelF := float64(level)
 	secs := levelF * b.durationBase * math.Pow(b.durationFactor, levelF) / (1 + roboticLvl) * math.Pow(2, naniteLvl)
 	secs /= float64(universeSpeed)
 	secs = math.Max(1, secs)
-	return time.Duration(int64(math.Floor(secs))) * time.Second
+	dur := time.Duration(int64(math.Floor(secs))) * time.Second
+	bonus := lfBonuses.CostTimeBonuses[b.ID].Duration
+	return time.Duration(float64(dur) - float64(dur)*bonus)
 }
 
 // ConstructionTime returns the duration it takes to build given level. Deconstruction time is the same function.
-func (b BaseLfBuilding) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, _, _ bool) time.Duration {
-	return b.BuildingConstructionTime(level, universeSpeed, facilities)
+func (b BaseLfBuilding) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, lfBonuses LfBonuses, _ CharacterClass, _ bool) time.Duration {
+	return b.BuildingConstructionTime(level, universeSpeed, facilities, lfBonuses)
 }
 
 // GetPrice returns the price to build the given level
-func (b BaseLfBuilding) GetPrice(level int64) Resources {
+func (b BaseLfBuilding) GetPrice(level int64, _ LfBonuses) Resources {
 	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)) * float64(level))
 	}

@@ -98,11 +98,11 @@ func TestResourcesDetails_Available(t *testing.T) {
 }
 
 func TestResources_FitsIn(t *testing.T) {
-	assert.Equal(t, int64(1), Resources{Metal: 100, Crystal: 200, Deuterium: 300}.FitsIn(SmallCargo, Researches{}, false, false, false))
-	assert.Equal(t, int64(2), Resources{Metal: 1001, Crystal: 2000, Deuterium: 2000}.FitsIn(SmallCargo, Researches{}, false, false, false))
-	assert.Equal(t, int64(2), Resources{Metal: 1000, Crystal: 2000, Deuterium: 3000}.FitsIn(SmallCargo, Researches{}, false, false, false))
-	assert.Equal(t, int64(2), Resources{Metal: 999, Crystal: 4000, Deuterium: 5000}.FitsIn(SmallCargo, Researches{}, false, false, false))
-	assert.Equal(t, int64(0), Resources{Metal: 0, Crystal: 0, Deuterium: 0}.FitsIn(SmallCargo, Researches{}, false, false, false))
-	assert.Equal(t, int64(0), Resources{Metal: 100, Crystal: 200, Deuterium: 300}.FitsIn(EspionageProbe, Researches{}, false, false, false))
-	assert.Equal(t, int64(120), Resources{Metal: 100, Crystal: 200, Deuterium: 300}.FitsIn(EspionageProbe, Researches{}, true, false, false))
+	assert.Equal(t, int64(1), Resources{Metal: 100, Crystal: 200, Deuterium: 300}.FitsIn(SmallCargo, Researches{}, LfBonuses{}, NoClass, 0.05, false))
+	assert.Equal(t, int64(2), Resources{Metal: 1001, Crystal: 2000, Deuterium: 2000}.FitsIn(SmallCargo, Researches{}, LfBonuses{}, NoClass, 0.05, false))
+	assert.Equal(t, int64(2), Resources{Metal: 1000, Crystal: 2000, Deuterium: 3000}.FitsIn(SmallCargo, Researches{}, LfBonuses{}, NoClass, 0.05, false))
+	assert.Equal(t, int64(2), Resources{Metal: 999, Crystal: 4000, Deuterium: 5000}.FitsIn(SmallCargo, Researches{}, LfBonuses{}, NoClass, 0.05, false))
+	assert.Equal(t, int64(0), Resources{Metal: 0, Crystal: 0, Deuterium: 0}.FitsIn(SmallCargo, Researches{}, LfBonuses{}, NoClass, 0.05, false))
+	assert.Equal(t, int64(0), Resources{Metal: 100, Crystal: 200, Deuterium: 300}.FitsIn(EspionageProbe, Researches{}, LfBonuses{}, NoClass, 0.05, false))
+	assert.Equal(t, int64(120), Resources{Metal: 100, Crystal: 200, Deuterium: 300}.FitsIn(EspionageProbe, Researches{}, LfBonuses{}, NoClass, 0.05, true))
 }

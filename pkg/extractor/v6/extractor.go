@@ -43,6 +43,16 @@ func (e *Extractor) GetLanguage() string {
 	return e.lang
 }
 
+// ExtractLfBonuses ...
+func (e *Extractor) ExtractLfBonuses(pageHTML []byte) (ogame.LfBonuses, error) {
+	panic("implement me")
+}
+
+// ExtractLfBonusesFromDoc ...
+func (e *Extractor) ExtractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
+	panic("implement me")
+}
+
 // ExtractTechnologyDetails ...
 func (e *Extractor) ExtractTechnologyDetails(pageHTML []byte) (out ogame.TechnologyDetails, err error) {
 	panic("implement me")

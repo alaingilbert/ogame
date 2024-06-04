@@ -8,12 +8,12 @@ import (
 
 func TestMetalStorageCost(t *testing.T) {
 	ms := newMetalStorage()
-	assert.Equal(t, Resources{Metal: 1000}, ms.GetPrice(1))
-	assert.Equal(t, Resources{Metal: 2000}, ms.GetPrice(2))
-	assert.Equal(t, Resources{Metal: 4000}, ms.GetPrice(3))
-	assert.Equal(t, Resources{Metal: 8000}, ms.GetPrice(4))
-	assert.Equal(t, Resources{Metal: 16000}, ms.GetPrice(5))
-	assert.Equal(t, Resources{Metal: 32000}, ms.GetPrice(6))
+	assert.Equal(t, Resources{Metal: 1000}, ms.GetPrice(1, LfBonuses{}))
+	assert.Equal(t, Resources{Metal: 2000}, ms.GetPrice(2, LfBonuses{}))
+	assert.Equal(t, Resources{Metal: 4000}, ms.GetPrice(3, LfBonuses{}))
+	assert.Equal(t, Resources{Metal: 8000}, ms.GetPrice(4, LfBonuses{}))
+	assert.Equal(t, Resources{Metal: 16000}, ms.GetPrice(5, LfBonuses{}))
+	assert.Equal(t, Resources{Metal: 32000}, ms.GetPrice(6, LfBonuses{}))
 }
 
 func TestMetalStorageCapacity(t *testing.T) {

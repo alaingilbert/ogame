@@ -67,6 +67,7 @@ type Prioritizable interface {
 	GetAttacks(...Option) ([]ogame.AttackEvent, error)
 	GetAuction() (ogame.Auction, error)
 	GetAvailableDiscoveries(...Option) int64
+	GetCachedLfBonuses() (ogame.LfBonuses, error)
 	GetCachedResearch() ogame.Researches
 	GetCelestial(IntoCelestial) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
@@ -82,6 +83,7 @@ type Prioritizable interface {
 	GetFleets(...Option) ([]ogame.Fleet, ogame.Slots)
 	GetFleetsFromEventList() []ogame.Fleet
 	GetItems(ogame.CelestialID) ([]ogame.Item, error)
+	GetLfBonuses() (ogame.LfBonuses, error)
 	GetMoon(IntoMoon) (Moon, error)
 	GetMoons() ([]Moon, error)
 	GetPageContent(url.Values) ([]byte, error)
@@ -110,7 +112,7 @@ type Prioritizable interface {
 	SetPreferencesLang(lang string) error
 	SetVacationMode() error
 	Tx(clb func(tx Prioritizable) error) error
-	UseDM(string, ogame.CelestialID) error
+	UseDM(ogame.DMType, ogame.CelestialID) error
 
 	// Planet or Moon functions
 	Build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) error

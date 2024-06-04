@@ -900,6 +900,7 @@ func GetRequirementsHandler(c echo.Context) error {
 
 // GetPriceHandler ...
 func GetPriceHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
 	ogameID, err := utils.ParseI64(c.Param("ogameID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
@@ -910,7 +911,8 @@ func GetPriceHandler(c echo.Context) error {
 	}
 	ogameObj := ogame.Objs.ByID(ogame.ID(ogameID))
 	if ogameObj != nil {
-		price := ogameObj.GetPrice(nbr)
+		lfBonuses, _ := bot.GetCachedLfBonuses()
+		price := ogameObj.GetPrice(nbr, lfBonuses)
 		return c.JSON(http.StatusOK, SuccessResp(price))
 	}
 	return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))

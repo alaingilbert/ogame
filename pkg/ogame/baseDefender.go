@@ -42,20 +42,25 @@ func (b BaseDefender) GetRapidfireAgainst() map[ID]int64 {
 }
 
 // DefenderConstructionTime returns the duration it takes to build nbr defender units
-func (b BaseDefender) DefenderConstructionTime(nbr, universeSpeed int64, acc DefenseAccelerators) time.Duration {
+func (b BaseDefender) DefenderConstructionTime(nbr, universeSpeed int64, acc DefenseAccelerators, lfBonuses LfBonuses) time.Duration {
 	shipyardLvl := float64(acc.GetShipyard())
 	naniteLvl := float64(acc.GetNaniteFactory())
 	hours := float64(b.StructuralIntegrity) / (2500 * (1 + shipyardLvl) * float64(universeSpeed) * math.Pow(2, naniteLvl))
 	secs := math.Max(1, hours*3600)
-	return time.Duration(int64(math.Floor(secs))*nbr) * time.Second
+	dur := time.Duration(int64(math.Floor(secs))*nbr) * time.Second
+	bonus := lfBonuses.CostTimeBonuses[b.ID].Duration
+	return time.Duration(float64(dur) - float64(dur)*bonus)
 }
 
 // ConstructionTime same as DefenderConstructionTime, needed for BaseOgameObj implementation
-func (b BaseDefender) ConstructionTime(nbr, universeSpeed int64, acc BuildAccelerators, _, _ bool) time.Duration {
-	return b.DefenderConstructionTime(nbr, universeSpeed, acc)
+// func (b BaseDefender) ConstructionTime(nbr, universeSpeed int64, acc BuildAccelerators, _, _ bool) time.Duration {
+func (b BaseDefender) ConstructionTime(nbr, universeSpeed int64, acc BuildAccelerators, lfBonuses LfBonuses, _ CharacterClass, _ bool) time.Duration {
+	return b.DefenderConstructionTime(nbr, universeSpeed, acc, lfBonuses)
 }
 
 // GetPrice returns the price of nbr defender units
-func (b BaseDefender) GetPrice(nbr int64) Resources {
-	return b.Price.Mul(nbr)
+func (b BaseDefender) GetPrice(nbr int64, lfBonuses LfBonuses) Resources {
+	price := b.Price.Mul(nbr)
+	bonus := lfBonuses.CostTimeBonuses[b.ID].Cost
+	return price.SubPercent(bonus)
 }

@@ -83,6 +83,14 @@ func (c AllianceClass) IsResearcher() bool {
 	return c == Researcher
 }
 
+// DMType ...
+type DMType string
+
+// IsValid ...
+func (t DMType) IsValid() bool {
+	return t == BuildingsDmType || t == ResearchDmType || t == ShipyardDmType
+}
+
 // CharacterClass ...
 type CharacterClass int64
 
@@ -100,6 +108,10 @@ func (c CharacterClass) IsDiscoverer() bool {
 
 // OGame constants
 const (
+	BuildingsDmType DMType = "buildings"
+	ResearchDmType  DMType = "research"
+	ShipyardDmType  DMType = "shipyard"
+
 	NoClass    CharacterClass = 0
 	Collector  CharacterClass = 1
 	General    CharacterClass = 2

@@ -8,12 +8,12 @@ import (
 
 func TestEspionageProbeFuelConsumption(t *testing.T) {
 	ep := newEspionageProbe()
-	assert.Equal(t, int64(1), ep.GetFuelConsumption(Researches{}, 1, false))
-	assert.Equal(t, int64(0), ep.GetFuelConsumption(Researches{}, 1, true))
-	assert.Equal(t, int64(0), ep.GetFuelConsumption(Researches{}, 0.5, false))
+	assert.Equal(t, int64(1), ep.GetFuelConsumption(Researches{}, LfBonuses{}, NoClass, 1))
+	assert.Equal(t, int64(0), ep.GetFuelConsumption(Researches{}, LfBonuses{}, General, 1))
+	assert.Equal(t, int64(0), ep.GetFuelConsumption(Researches{}, LfBonuses{}, NoClass, 0.5))
 }
 
 func TestEspionageProbe_GetCargoCapacity(t *testing.T) {
 	ep := newEspionageProbe()
-	assert.Equal(t, int64(8), ep.GetCargoCapacity(Researches{HyperspaceTechnology: 14}, true, false, false))
+	assert.Equal(t, int64(8), ep.GetCargoCapacity(Researches{HyperspaceTechnology: 14}, LfBonuses{}, NoClass, 0.05, true))
 }

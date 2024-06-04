@@ -192,10 +192,20 @@ func (r Resources) Lte(val Resources) bool {
 }
 
 // FitsIn get the number of ships required to transport the resource
-func (r Resources) FitsIn(ship Ship, techs Researches, probeRaids, isCollector, isPioneers bool) int64 {
-	cargo := ship.GetCargoCapacity(techs, probeRaids, isCollector, isPioneers)
+func (r Resources) FitsIn(ship Ship, techs Researches, bonus LfBonuses, characterClass CharacterClass, multiplier float64, probeRaids bool) int64 {
+	cargo := ship.GetCargoCapacity(techs, bonus, characterClass, multiplier, probeRaids)
 	if cargo == 0 {
 		return 0
 	}
 	return int64(stdmath.Ceil(float64(r.Total()) / float64(cargo)))
+}
+
+// SubPercent subtract the percentage from the initial values
+func (r Resources) SubPercent(pct float64) Resources {
+	return Resources{
+		Metal:     r.Metal - int64(float64(r.Metal)*pct),
+		Crystal:   r.Crystal - int64(float64(r.Crystal)*pct),
+		Deuterium: r.Deuterium - int64(float64(r.Deuterium)*pct),
+		Energy:    r.Energy - int64(float64(r.Energy)*pct),
+	}
 }

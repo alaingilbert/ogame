@@ -443,6 +443,16 @@ func (b *OGame) GetCachedResearch() ogame.Researches {
 	return b.WithPriority(taskRunner.Normal).GetCachedResearch()
 }
 
+// GetLfBonuses returns cached lifeform bonuses
+func (b *OGame) GetLfBonuses() (ogame.LfBonuses, error) {
+	return b.WithPriority(taskRunner.Normal).GetLfBonuses()
+}
+
+// GetCachedLfBonuses returns cached lifeform bonuses
+func (b *OGame) GetCachedLfBonuses() (ogame.LfBonuses, error) {
+	return b.WithPriority(taskRunner.Normal).GetCachedLfBonuses()
+}
+
 // GetResearch gets the player researches information
 func (b *OGame) GetResearch() (ogame.Researches, error) {
 	return b.WithPriority(taskRunner.Normal).GetResearch()
@@ -745,7 +755,7 @@ func (b *OGame) GetDMCosts(celestialID ogame.CelestialID) (ogame.DMCosts, error)
 }
 
 // UseDM use dark matter to fast build
-func (b *OGame) UseDM(typ string, celestialID ogame.CelestialID) error {
+func (b *OGame) UseDM(typ ogame.DMType, celestialID ogame.CelestialID) error {
 	return b.WithPriority(taskRunner.Normal).UseDM(typ, celestialID)
 }
 

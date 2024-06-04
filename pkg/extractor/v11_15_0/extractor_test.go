@@ -26,3 +26,12 @@ func TestExtractEspionageReport(t *testing.T) {
 	assert.Equal(t, utils.I64Ptr(10), infos.LaserTechnology)
 	assert.Equal(t, int64(0), infos.LastActivity)
 }
+
+func TestExtractLfBonuses(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.15.4/en/lfbonuses.html")
+	e := NewExtractor()
+	bonuses, _ := e.ExtractLfBonuses(pageHTMLBytes)
+	assert.Equal(t, 0.012, bonuses.LfShipBonuses[ogame.LightFighterID].CargoCapacity)
+	assert.Equal(t, 0.006, bonuses.CostTimeBonuses[ogame.AllianceDepotID].Cost)
+	assert.Equal(t, 0.012, bonuses.CostTimeBonuses[ogame.AllianceDepotID].Duration)
+}

@@ -323,6 +323,20 @@ func (b *Prioritize) GetCachedResearch() ogame.Researches {
 	return b.bot.getCachedResearch()
 }
 
+// GetLfBonuses gets the lifeform bonuses
+func (b *Prioritize) GetLfBonuses() (ogame.LfBonuses, error) {
+	b.begin("GetLfBonuses")
+	defer b.done()
+	return b.bot.getLfBonuses()
+}
+
+// GetCachedLfBonuses gets the cached lifeform bonuses
+func (b *Prioritize) GetCachedLfBonuses() (ogame.LfBonuses, error) {
+	b.begin("GetCachedLfBonuses")
+	defer b.done()
+	return b.bot.getCachedLfBonuses()
+}
+
 // GetResearch gets the player researches information
 func (b *Prioritize) GetResearch() (ogame.Researches, error) {
 	b.begin("GetResearch")
@@ -584,9 +598,10 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 	b.begin("FlightTime")
 	defer b.done()
 	researches := b.bot.getCachedResearch()
+	lfbonuses, _ := b.bot.getCachedLfBonuses()
 	return CalcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
 		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, b.bot.characterClass)
+		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, lfbonuses, b.bot.characterClass)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
@@ -692,7 +707,7 @@ func (b *Prioritize) GetDMCosts(celestialID ogame.CelestialID) (ogame.DMCosts, e
 }
 
 // UseDM use dark matter to fast build
-func (b *Prioritize) UseDM(typ string, celestialID ogame.CelestialID) error {
+func (b *Prioritize) UseDM(typ ogame.DMType, celestialID ogame.CelestialID) error {
 	b.begin("UseDM")
 	defer b.done()
 	return b.bot.useDM(typ, celestialID)

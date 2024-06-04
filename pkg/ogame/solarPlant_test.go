@@ -14,6 +14,6 @@ func TestSolarPlant_Production(t *testing.T) {
 
 func TestSolarPlant_ConstructionTime(t *testing.T) {
 	sp := newSolarPlant()
-	ct := sp.ConstructionTime(1, 6, Facilities{RoboticsFactory: 10, NaniteFactory: 7}, false, false)
+	ct := sp.ConstructionTime(1, 6, Facilities{RoboticsFactory: 10, NaniteFactory: 7}, LfBonuses{}, NoClass, false)
 	assert.Equal(t, time.Second, ct)
 }
