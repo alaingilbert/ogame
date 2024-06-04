@@ -76,9 +76,7 @@ func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass
 		nbr := s.ByID(shipID)
 		if nbr > 0 {
 			shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass)
-			if shipSpeed < minSpeed {
-				minSpeed = shipSpeed
-			}
+			minSpeed = utils.MinInt(shipSpeed, minSpeed)
 		}
 	}
 	return minSpeed
