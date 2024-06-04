@@ -45,11 +45,11 @@ func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatRe
 
 				for _, resource := range result.Loot.Resources {
 					res := resource.Resource
-					if utils.InArr(res, []string{"deuter", "deuterij", "deutérium", "deuterium", "deuterio", "дейтерий", "deutério", "deuteriu", "デューテリウム", "重氫", "δευτέριο"}) {
+					if ogame.IsStrDeuterium(res) {
 						report.Deuterium = resource.Amount
-					} else if utils.InArr(res, []string{"kristalli", "kristal", "cristal", "crystal", "krystal", "kryštály", "kryształ", "kristall", "krystall", "cristallo", "кристалл", "krystaly", "クリスタル", "晶體", "κρύσταλλο"}) {
+					} else if ogame.IsStrCrystal(res) {
 						report.Crystal = resource.Amount
-					} else if utils.InArr(res, []string{"metalli", "métal", "metal", "metall", "kov", "kovy", "металл", "metallo", "metaal", "メタル", "金屬", "μέταλλο"}) {
+					} else if ogame.IsStrMetal(res) {
 						report.Metal = resource.Amount
 					}
 				}
