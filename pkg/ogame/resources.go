@@ -2,6 +2,7 @@ package ogame
 
 import (
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	stdmath "math"
 
 	humanize "github.com/dustin/go-humanize"
@@ -99,9 +100,9 @@ func (r Resources) Value() int64 {
 // Sub subtract v from r
 func (r Resources) Sub(v Resources) Resources {
 	return Resources{
-		Metal:     max64(r.Metal-v.Metal, 0),
-		Crystal:   max64(r.Crystal-v.Crystal, 0),
-		Deuterium: max64(r.Deuterium-v.Deuterium, 0),
+		Metal:     utils.MaxInt(r.Metal-v.Metal, 0),
+		Crystal:   utils.MaxInt(r.Crystal-v.Crystal, 0),
+		Deuterium: utils.MaxInt(r.Deuterium-v.Deuterium, 0),
 	}
 }
 
@@ -123,26 +124,6 @@ func (r Resources) Mul(scalar int64) Resources {
 	}
 }
 
-func min64(values ...int64) int64 {
-	m := int64(math.MaxInt)
-	for _, v := range values {
-		if v < m {
-			m = v
-		}
-	}
-	return m
-}
-
-func max64(values ...int64) int64 {
-	m := int64(math.MinInt)
-	for _, v := range values {
-		if v > m {
-			m = v
-		}
-	}
-	return m
-}
-
 // Div finds how many price a res can afford
 func (r Resources) Div(price Resources) int64 {
 	nb := int64(math.MaxInt)
@@ -150,10 +131,10 @@ func (r Resources) Div(price Resources) int64 {
 		nb = r.Metal / price.Metal
 	}
 	if price.Crystal > 0 {
-		nb = min64(r.Crystal/price.Crystal, nb)
+		nb = utils.MinInt(r.Crystal/price.Crystal, nb)
 	}
 	if price.Deuterium > 0 {
-		nb = min64(r.Deuterium/price.Deuterium, nb)
+		nb = utils.MinInt(r.Deuterium/price.Deuterium, nb)
 	}
 	return nb
 }
