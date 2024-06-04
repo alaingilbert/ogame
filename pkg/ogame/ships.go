@@ -66,7 +66,7 @@ func (s ShipsInfos) HasFlyableShips() bool {
 }
 
 // Speed returns the speed of the slowest ship
-func (s ShipsInfos) Speed(techs Researches, lfBonuses LfBonuses, characterClass CharacterClass) int64 {
+func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass) int64 {
 	var minSpeed int64 = math.MaxInt64
 	for _, ship := range Ships {
 		shipID := ship.GetID()
@@ -109,7 +109,7 @@ func (s ShipsInfos) FromQuantifiables(in []Quantifiable) (out ShipsInfos) {
 }
 
 // Cargo returns the total cargo of the ships
-func (s ShipsInfos) Cargo(techs Researches, lfBonuses LfBonuses, characterClass CharacterClass, multiplier float64, probeRaids bool) (out int64) {
+func (s ShipsInfos) Cargo(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, multiplier float64, probeRaids bool) (out int64) {
 	for _, ship := range Ships {
 		out += ship.GetCargoCapacity(techs, lfBonuses, characterClass, multiplier, probeRaids) * s.ByID(ship.GetID())
 	}
