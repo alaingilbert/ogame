@@ -3426,7 +3426,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 		return ogame.Fleet{}, err
 	}
 	multiplier := float64(b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
-	cargo := ogame.ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.Settings.EspionageProbeRaids == 1)
+	cargo := ogame.ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.ProbeRaidsEnabled())
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
 		newResources.Deuterium = utils.MinInt(resources.Deuterium, cargo)

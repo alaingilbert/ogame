@@ -220,7 +220,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 		techs, _ := tx.GetResearch()
 		lfBonuses, _ := tx.GetCachedLfBonuses()
 		multiplier := float64(f.b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
-		cargoCapacity := f.ships.Cargo(techs, lfBonuses, f.b.CharacterClass(), multiplier, f.b.GetServer().Settings.EspionageProbeRaids == 1)
+		cargoCapacity := f.ships.Cargo(techs, lfBonuses, f.b.CharacterClass(), multiplier, f.b.GetServer().ProbeRaidsEnabled())
 		if f.minimumDeuterium <= 0 {
 			planetResources, _ = tx.GetResources(f.origin.GetID())
 		}

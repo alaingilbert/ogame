@@ -592,6 +592,10 @@ type Server struct {
 	}
 }
 
+func (s Server) ProbeRaidsEnabled() bool {
+	return s.Settings.EspionageProbeRaids == 1
+}
+
 func GetServers(lobby string, client httpclient.IHttpClient, ctx context.Context) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby)+"/api/servers", nil)
