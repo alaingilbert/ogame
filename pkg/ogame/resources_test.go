@@ -1,10 +1,9 @@
 package ogame
 
 import (
-	"testing"
-
-	"github.com/google/gxui/math"
 	"github.com/stretchr/testify/assert"
+	"math"
+	"testing"
 )
 
 func TestValue(t *testing.T) {

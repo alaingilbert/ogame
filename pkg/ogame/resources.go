@@ -3,10 +3,8 @@ package ogame
 import (
 	"fmt"
 	"github.com/alaingilbert/ogame/pkg/utils"
-	stdmath "math"
-
 	humanize "github.com/dustin/go-humanize"
-	"github.com/google/gxui/math"
+	"math"
 )
 
 // ResourcesDetails ...
@@ -178,7 +176,7 @@ func (r Resources) FitsIn(ship Ship, techs Researches, bonus LfBonuses, characte
 	if cargo == 0 {
 		return 0
 	}
-	return int64(stdmath.Ceil(float64(r.Total()) / float64(cargo)))
+	return int64(math.Ceil(float64(r.Total()) / float64(cargo)))
 }
 
 // SubPercent subtract the percentage from the initial values
