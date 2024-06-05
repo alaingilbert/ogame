@@ -33,6 +33,7 @@ type Auction struct {
 // String ...
 func (a Auction) String() string {
 	return "" +
+		"           Ref: " + a.Ref + "\n" +
 		"  Has finished: " + strconv.FormatBool(a.HasFinished) + "\n" +
 		"      End time: " + utils.FI64(a.Endtime) + "\n" +
 		"      Num bids: " + utils.FI64(a.NumBids) + "\n" +
