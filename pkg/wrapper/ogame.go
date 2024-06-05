@@ -560,11 +560,7 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 }
 
 func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	if b.IsVGreaterThanOrEqual("8.0.0") {
-		b.connectChatV8(chatRetry, host, port)
-	} else {
-		b.connectChatV7(chatRetry, host, port)
-	}
+	b.connectChatV8(chatRetry, host, port)
 }
 
 // Socket IO v3 timestamp encoding
@@ -755,176 +751,6 @@ LOOP:
 			}
 		} else {
 			b.error("unknown message received:", buf)
-			select {
-			case <-time.After(time.Second):
-			}
-		}
-	}
-}
-
-func (b *OGame) connectChatV7(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/1/?t="+utils.FI64(time.Now().UnixNano()/int64(time.Millisecond)), nil)
-	if err != nil {
-		b.error("failed to create request:", err)
-		return
-	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		b.error("failed to get socket.io token:", err)
-		return
-	}
-	defer resp.Body.Close()
-	chatRetry.Reset()
-	by, _ := io.ReadAll(resp.Body)
-	token := strings.Split(string(by), ":")[0]
-
-	origin := "https://" + host + ":" + port + "/"
-	wssURL := "wss://" + host + ":" + port + "/socket.io/1/websocket/" + token
-	b.ws, err = websocket.Dial(wssURL, "", origin)
-	if err != nil {
-		b.error("failed to dial websocket:", err)
-		return
-	}
-
-	// Recv msgs
-LOOP:
-	for {
-		select {
-		case <-b.closeChatCh:
-			break LOOP
-		default:
-		}
-
-		var buf = make([]byte, 1024*1024)
-		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
-			b.error("failed to set read deadline:", err)
-		}
-		n, err := b.ws.Read(buf)
-		if err != nil {
-			if err == io.EOF {
-				b.error("chat eof:", err)
-				break
-			} else if strings.HasSuffix(err.Error(), "use of closed network connection") {
-				break
-			} else if strings.HasSuffix(err.Error(), "i/o timeout") {
-				continue
-			} else {
-				b.error("chat unexpected error", err)
-				// connection reset by peer
-				break
-			}
-		}
-		b.Lock()
-		for _, clb := range b.wsCallbacks {
-			go clb(buf[0:n])
-		}
-		b.Unlock()
-		msg := bytes.Trim(buf, "\x00")
-		if bytes.Equal(msg, []byte("1::")) {
-			_, _ = b.ws.Write([]byte("1::/chat"))       // subscribe to chat events
-			_, _ = b.ws.Write([]byte("1::/auctioneer")) // subscribe to auctioneer events
-		} else if bytes.Equal(msg, []byte("1::/chat")) {
-			authMsg := `5:` + utils.FI64(b.sessionChatCounter) + `+:/chat:{"name":"authorize","args":["` + b.ogameSession + `"]}`
-			_, _ = b.ws.Write([]byte(authMsg))
-			b.sessionChatCounter++
-		} else if bytes.Equal(msg, []byte("2::")) {
-			_, _ = b.ws.Write([]byte("2::"))
-		} else if regexp.MustCompile(`\d+::/auctioneer`).Match(msg) {
-			// 5::/auctioneer:{"name":"timeLeft","args":["Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">598</span>"]}
-			// 5::/auctioneer:{"name":"timeLeft","args":["<span style=\"color:#FFA500;\"><b>approx. 10m</b></span> remaining until the auction ends"]} // every minute
-			// 5::/auctioneer:{"name":"new auction","args":[{"info":"<span style=\"color:#99CC00;\"><b>approx. 45m</b></span> remaining until the auction ends","item":{"uuid":"118d34e685b5d1472267696d1010a393a59aed03","image":"bdb4508609de1df58bf4a6108fff73078c89f777","rarity":"rare"},"oldAuction":{"item":{"uuid":"8a4f9e8309e1078f7f5ced47d558d30ae15b4a1b","imageSmall":"014827f6d1d5b78b1edd0d4476db05639e7d9367","rarity":"rare"},"time":"06.01.2021 17:35:05","bids":1,"sum":1000,"player":{"id":111106,"name":"Governor Skat","link":"http://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=1&system=218"}},"auctionId":18550}]}
-			// 5::/auctioneer:{"name":"new bid","args":[{"player":{"id":106734,"name":"Someone","link":"https://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"sum":2000,"price":3000,"bids":2,"auctionId":"13355"}]}
-			// 5::/auctioneer:{"name":"auction finished","args":[{"sum":2000,"player":{"id":106734,"name":"Someone","link":"http://s152-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=4&system=116"},"bids":2,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1390</span>","time":"06:36"}]}
-			msg = bytes.TrimPrefix(msg, []byte("5::/auctioneer:"))
-			var pck any = string(msg)
-			var out map[string]any
-			_ = json.Unmarshal(msg, &out)
-			if args, ok := out["args"].([]any); ok {
-				if len(args) > 0 {
-					if name, ok := out["name"].(string); ok && name == "new bid" {
-						if firstArg, ok := args[0].(map[string]any); ok {
-							auctionID := utils.DoParseI64(utils.DoCastStr(firstArg["auctionId"]))
-							pck1 := ogame.AuctioneerNewBid{
-								Sum:       int64(utils.DoCastF64(firstArg["sum"])),
-								Price:     int64(utils.DoCastF64(firstArg["price"])),
-								Bids:      int64(utils.DoCastF64(firstArg["bids"])),
-								AuctionID: auctionID,
-							}
-							if player, ok := firstArg["player"].(map[string]any); ok {
-								pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
-								pck1.Player.Name = utils.DoCastStr(player["name"])
-								pck1.Player.Link = utils.DoCastStr(player["link"])
-							}
-							pck = pck1
-						}
-					} else if name, ok := out["name"].(string); ok && name == "timeLeft" {
-						if timeLeftMsg, ok := args[0].(string); ok {
-							if strings.Contains(timeLeftMsg, "color:") {
-								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
-								rgx := regexp.MustCompile(`\d+`)
-								txt := rgx.FindString(doc.Find("b").Text())
-								approx := utils.DoParseI64(txt)
-								pck = ogame.AuctioneerTimeRemaining{Approx: approx * 60}
-							} else if strings.Contains(timeLeftMsg, "nextAuction") {
-								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
-								rgx := regexp.MustCompile(`\d+`)
-								txt := rgx.FindString(doc.Find("span").Text())
-								secs := utils.DoParseI64(txt)
-								pck = ogame.AuctioneerNextAuction{Secs: secs}
-							}
-						}
-					} else if name, ok := out["name"].(string); ok && name == "new auction" {
-						if firstArg, ok := args[0].(map[string]any); ok {
-							pck1 := ogame.AuctioneerNewAuction{
-								AuctionID: int64(utils.DoCastF64(firstArg["auctionId"])),
-							}
-							if infoMsg, ok := firstArg["info"].(string); ok {
-								doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
-								rgx := regexp.MustCompile(`\d+`)
-								txt := rgx.FindString(doc.Find("b").Text())
-								approx := utils.DoParseI64(txt)
-								pck1.Approx = approx * 60
-							}
-							pck = pck1
-						}
-					} else if name, ok := out["name"].(string); ok && name == "auction finished" {
-						if firstArg, ok := args[0].(map[string]any); ok {
-							pck1 := ogame.AuctioneerAuctionFinished{
-								Sum:  int64(utils.DoCastF64(firstArg["sum"])),
-								Bids: int64(utils.DoCastF64(firstArg["bids"])),
-							}
-							if player, ok := firstArg["player"].(map[string]any); ok {
-								pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
-								pck1.Player.Name = utils.DoCastStr(player["name"])
-								pck1.Player.Link = utils.DoCastStr(player["link"])
-							}
-							pck = pck1
-						}
-					}
-				}
-			}
-			for _, clb := range b.auctioneerCallbacks {
-				clb(pck)
-			}
-		} else if regexp.MustCompile(`6::/chat:\d+\+\[true]`).Match(msg) {
-			b.debug("chat connected")
-		} else if regexp.MustCompile(`6::/chat:\d+\+\[false]`).Match(msg) {
-			b.error("Failed to connect to chat")
-		} else if bytes.HasPrefix(msg, []byte("5::/chat:")) {
-			payload := bytes.TrimPrefix(msg, []byte("5::/chat:"))
-			var chatPayload ogame.ChatPayload
-			if err := json.Unmarshal(payload, &chatPayload); err != nil {
-				b.error("Unable to unmarshal chat payload", err, payload)
-				continue
-			}
-			for _, chatMsg := range chatPayload.Args {
-				for _, clb := range b.chatCallbacks {
-					clb(chatMsg)
-				}
-			}
-		} else {
-			b.error("unknown message received:", string(buf))
 			select {
 			case <-time.After(time.Second):
 			}
@@ -2596,12 +2422,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 		"galaxy": {utils.FI64(galaxy)},
 		"system": {utils.FI64(system)},
 	}
-	var vals url.Values
-	if b.IsVGreaterThanOrEqual("10.0.0") {
-		vals = url.Values{"page": {"ingame"}, "component": {"galaxy"}, "action": {"fetchGalaxyContent"}, "ajax": {"1"}, "asJson": {"1"}}
-	} else {
-		vals = url.Values{"page": {"ingame"}, "component": {"galaxyContent"}, "ajax": {"1"}}
-	}
+	vals := url.Values{"page": {"ingame"}, "component": {"galaxy"}, "action": {"fetchGalaxyContent"}, "ajax": {"1"}, "asJson": {"1"}}
 	pageHTML, err := b.postPageContent(vals, payload, opts...)
 	if err != nil {
 		return res, err
@@ -2865,62 +2686,44 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		"cp":         {utils.FI64(celestialID)},
 	})
 
-	if b.IsVGreaterThanOrEqual("10.4.0") {
-
-		var jsonContent struct {
-			Target  string `json:"target"`
-			Content struct {
-				Technologydetails string `json:"technologydetails"`
-			} `json:"content"`
-			Files struct {
-				Js  []string `json:"js"`
-				CSS []string `json:"css"`
-			} `json:"files"`
-			Page struct {
-				StateObj string `json:"stateObj"`
-				Title    string `json:"title"`
-				URL      string `json:"url"`
-			} `json:"page"`
-			ServerTime   int    `json:"serverTime"`
-			NewAjaxToken string `json:"newAjaxToken"`
-		}
-
-		if err := json.Unmarshal(pageHTML, &jsonContent); err != nil {
-			return err
-		}
-
-		if !b.extractor.ExtractTearDownButtonEnabled([]byte(jsonContent.Content.Technologydetails)) {
-			return errors.New("tear down button is disabled")
-		}
-
-		vals := url.Values{
-			"page":      {"componentOnly"},
-			"component": {"buildlistactions"},
-			"action":    {"scheduleEntry"},
-			"asJson":    {"1"},
-		}
-		payload := url.Values{
-			"technologyId": {utils.FI64(id)},
-			"mode":         {"3"},
-			"token":        {token},
-		}
-		_, err = b.postPageContent(vals, payload)
-	} else {
-
-		if !b.extractor.ExtractTearDownButtonEnabled(pageHTML) {
-			return errors.New("tear down button is disabled")
-		}
-
-		params := url.Values{
-			"page":      {"ingame"},
-			"component": {page},
-			"modus":     {"3"},
-			"token":     {token},
-			"type":      {utils.FI64(id)},
-			"cp":        {utils.FI64(celestialID)},
-		}
-		_, err = b.getPageContent(params)
+	var jsonContent struct {
+		Target  string `json:"target"`
+		Content struct {
+			Technologydetails string `json:"technologydetails"`
+		} `json:"content"`
+		Files struct {
+			Js  []string `json:"js"`
+			CSS []string `json:"css"`
+		} `json:"files"`
+		Page struct {
+			StateObj string `json:"stateObj"`
+			Title    string `json:"title"`
+			URL      string `json:"url"`
+		} `json:"page"`
+		ServerTime   int    `json:"serverTime"`
+		NewAjaxToken string `json:"newAjaxToken"`
 	}
+
+	if err := json.Unmarshal(pageHTML, &jsonContent); err != nil {
+		return err
+	}
+
+	if !b.extractor.ExtractTearDownButtonEnabled([]byte(jsonContent.Content.Technologydetails)) {
+		return errors.New("tear down button is disabled")
+	}
+
+	vals := url.Values{
+		"page":      {"componentOnly"},
+		"component": {"buildlistactions"},
+		"action":    {"scheduleEntry"},
+		"asJson":    {"1"},
+	}
+	payload := url.Values{
+		"technologyId": {utils.FI64(id)},
+		"mode":         {"3"},
+		"token":        {token},
+	}
+	_, err = b.postPageContent(vals, payload)
 	return err
 }
 
@@ -3437,9 +3240,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	newResources.Deuterium = utils.MaxInt(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
-	if b.IsVGreaterThanOrEqual("8.0.0") {
-		payload.Set("token", checkRes.NewAjaxToken)
-	}
+	payload.Set("token", checkRes.NewAjaxToken)
 	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
 	payload.Set("crystal", utils.FI64(newResources.Crystal))
 	payload.Set("deuterium", utils.FI64(newResources.Deuterium))
