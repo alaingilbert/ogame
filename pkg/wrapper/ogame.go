@@ -3218,7 +3218,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		return ogame.Fleet{}, errors.New("target is not ok")
 	}
 
-	lfBonuses, err := b.GetCachedLfBonuses()
+	lfBonuses, err := b.getCachedLfBonuses()
 	if err != nil {
 		return ogame.Fleet{}, err
 	}
