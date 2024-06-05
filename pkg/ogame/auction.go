@@ -7,6 +7,7 @@ import (
 
 // Auction ...
 type Auction struct {
+	Ref                 string
 	HasFinished         bool
 	Endtime             int64
 	NumBids             int64

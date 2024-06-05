@@ -27,3 +27,11 @@ func TestExtractCombatReportMessages(t *testing.T) {
 	msgs, _, _ := NewExtractor().ExtractCombatReportMessagesSummary(pageHTMLBytes)
 	assert.Equal(t, 16, len(msgs))
 }
+
+func TestTraderAuctioneer(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.15.5/en/traderauctioneer.html")
+	auction, _ := NewExtractor().ExtractAuction(pageHTMLBytes)
+	assert.Equal(t, "c2bad58fcec374d709099d11d0549e59ea7e233e", auction.Ref)
+	assert.Equal(t, "energy booster silver", auction.CurrentItem)
+	assert.Equal(t, int64(7), auction.NumBids)
+}
