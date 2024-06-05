@@ -3362,10 +3362,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
 	})
 
-	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
-	if b.IsVGreaterThanOrEqual("8.0.0") {
-		tokenM = regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
-	}
+	tokenM := regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
 	if len(tokenM) != 2 {
 		return ogame.Fleet{}, errors.New("token not found")
 	}
