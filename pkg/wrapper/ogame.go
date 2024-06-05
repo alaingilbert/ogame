@@ -3283,14 +3283,9 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		}
 	}
 
-	if slots.InUse == slots.Total {
+	if (slots.InUse == slots.Total) ||
+		(mission == ogame.Expedition && slots.ExpInUse == slots.ExpTotal) {
 		return ogame.Fleet{}, ogame.ErrAllSlotsInUse
-	}
-
-	if mission == ogame.Expedition {
-		if slots.ExpInUse == slots.ExpTotal {
-			return ogame.Fleet{}, ogame.ErrAllSlotsInUse
-		}
 	}
 
 	// Page 1 : get to fleet page
