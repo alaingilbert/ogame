@@ -3351,7 +3351,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		ships.EachFlyable(func(shipID ogame.ID, nb int64) {
 			avail := availableShips.ByID(shipID)
 			if nb > avail {
-				err1 = fmt.Errorf("not enough ships to send, %s", ogame.Objs.ByID(shipID).GetName())
+				err1 = fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
 			}
 			atLeastOneShipSelected = true
 		})
