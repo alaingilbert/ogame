@@ -147,6 +147,9 @@ func ParsePage[T FullPagePages](e extractor.Extractor, pageHTML []byte) (*T, err
 	case ResearchPage:
 		tt := T(ResearchPage{fullPage})
 		return &tt, nil
+	case LfBonusesPage:
+		tt := T(LfBonusesPage{fullPage})
+		return &tt, nil
 	case FacilitiesPage:
 		tt := T(FacilitiesPage{fullPage})
 		return &tt, nil
