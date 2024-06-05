@@ -306,7 +306,7 @@ func (b BaseLfBuilding) BuildingConstructionTime(level, universeSpeed int64, acc
 	roboticLvl := float64(acc.GetRoboticsFactory())
 	naniteLvl := float64(acc.GetNaniteFactory())
 	levelF := float64(level)
-	secs := levelF * b.durationBase * math.Pow(b.durationFactor, levelF) / (1 + roboticLvl) * math.Pow(2, naniteLvl)
+	secs := levelF * b.durationBase * math.Pow(b.durationFactor, levelF) / ((1 + roboticLvl) * math.Pow(2, naniteLvl))
 	secs /= float64(universeSpeed)
 	secs = math.Max(1, secs)
 	dur := time.Duration(int64(math.Floor(secs))) * time.Second

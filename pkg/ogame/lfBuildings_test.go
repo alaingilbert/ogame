@@ -37,3 +37,8 @@ func TestResearchCentreConstructionTime(t *testing.T) {
 	rc := newResearchCentre()
 	assert.Equal(t, (17*60+21)*time.Second, rc.BuildingConstructionTime(2, 8, Facilities{RoboticsFactory: 5}, LfBonuses{}))
 }
+
+func TestAssemblyLineConstructionTime(t *testing.T) {
+	al := newAssemblyLine()
+	assert.Equal(t, (10*60+32)*time.Second, al.BuildingConstructionTime(42, 8, Facilities{RoboticsFactory: 10, NaniteFactory: 7}, LfBonuses{}))
+}
