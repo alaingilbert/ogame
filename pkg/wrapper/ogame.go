@@ -3271,7 +3271,7 @@ type CheckTargetResponse struct {
 	NewAjaxToken string `json:"newAjaxToken"`
 }
 
-func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64, ensure bool) (ogame.Fleet, error) {
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
@@ -3339,19 +3339,24 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 
 	atLeastOneShipSelected := false
 	if !ensure {
-		for i := range ships {
-			avail := availableShips.ByID(ships[i].ID)
-			ships[i].Nbr = utils.MinInt(ships[i].Nbr, avail)
-			if ships[i].Nbr > 0 {
+		ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+			avail := availableShips.ByID(shipID)
+			nb = utils.MinInt(nb, avail)
+			if nb > 0 {
 				atLeastOneShipSelected = true
 			}
-		}
+		})
 	} else {
-		for _, ship := range ships {
-			if ship.Nbr > availableShips.ByID(ship.ID) {
-				return ogame.Fleet{}, fmt.Errorf("not enough ships to send, %s", ogame.Objs.ByID(ship.ID).GetName())
+		var err1 error
+		ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+			avail := availableShips.ByID(shipID)
+			if nb > avail {
+				err1 = fmt.Errorf("not enough ships to send, %s", ogame.Objs.ByID(shipID).GetName())
 			}
 			atLeastOneShipSelected = true
+		})
+		if err1 != nil {
+			return ogame.Fleet{}, err1
 		}
 	}
 	if !atLeastOneShipSelected {
@@ -3359,11 +3364,9 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 	}
 
 	payload := b.extractor.ExtractHiddenFieldsFromDoc(fleet1Doc)
-	for _, s := range ships {
-		if s.ID.IsFlyableShip() && s.Nbr > 0 {
-			payload.Set("am"+utils.FI64(s.ID), utils.FI64(s.Nbr))
-		}
-	}
+	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
+	})
 
 	tokenM := regexp.MustCompile(`var fleetSendingToken = "([^"]+)";`).FindSubmatch(pageHTML)
 	if b.IsVGreaterThanOrEqual("8.0.0") {
@@ -3426,7 +3429,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifia
 		return ogame.Fleet{}, err
 	}
 	multiplier := float64(b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
-	cargo := ogame.ShipsInfos{}.FromQuantifiables(ships).Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.ProbeRaidsEnabled())
+	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.ProbeRaidsEnabled())
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
 		newResources.Deuterium = utils.MinInt(resources.Deuterium, cargo)

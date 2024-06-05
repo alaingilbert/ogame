@@ -78,13 +78,13 @@ func (m Moon) CancelResearch() error {
 }
 
 // SendFleet sends a fleet
-func (m Moon) SendFleet(ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (m Moon) SendFleet(ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	return m.ogame.SendFleet(ogame.CelestialID(m.ID), ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
-func (m Moon) EnsureFleet(ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (m Moon) EnsureFleet(ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	return m.ogame.EnsureFleet(ogame.CelestialID(m.ID), ships, speed, where, mission, resources, holdingTime, unionID)
 }

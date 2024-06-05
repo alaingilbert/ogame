@@ -97,13 +97,13 @@ func (p Planet) GetResourcesDetails() (ogame.ResourcesDetails, error) {
 }
 
 // SendFleet sends a fleet
-func (p Planet) SendFleet(ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (p Planet) SendFleet(ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	return p.ogame.SendFleet(ogame.CelestialID(p.ID), ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
-func (p Planet) EnsureFleet(ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (p Planet) EnsureFleet(ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	return p.ogame.EnsureFleet(ogame.CelestialID(p.ID), ships, speed, where, mission, resources, holdingTime, unionID)
 }

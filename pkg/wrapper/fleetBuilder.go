@@ -240,7 +240,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 		}
 	}
 
-	f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.holdingTime, f.unionID)
+	f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships, f.speed, f.destination, f.mission, payload, f.holdingTime, f.unionID)
 	return f.err
 }
 

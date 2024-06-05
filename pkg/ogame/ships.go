@@ -168,6 +168,26 @@ func (s *ShipsInfos) SubShips(shipID ID, nb int64) {
 	s.AddShips(shipID, -1*nb)
 }
 
+// Each calls clb callback for every ships that has a value higher than zero
+func (s ShipsInfos) Each(clb func(shipID ID, nb int64)) {
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		nb := s.ByID(shipID)
+		if nb > 0 {
+			clb(shipID, nb)
+		}
+	}
+}
+
+// EachFlyable calls clb callback for every ships that has a value higher than zero and is flyable
+func (s ShipsInfos) EachFlyable(clb func(shipID ID, nb int64)) {
+	s.Each(func(shipID ID, nb int64) {
+		if shipID.IsFlyableShip() {
+			clb(shipID, nb)
+		}
+	})
+}
+
 // ByID get number of ships by ship id
 func (s ShipsInfos) ByID(id ID) int64 {
 	switch id {

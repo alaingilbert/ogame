@@ -363,45 +363,45 @@ func GetResources(planetID C.int) (metal, crystal, deuterium, energy, darkmatter
 func SendFleet(planetID, lightFighter, heavyFighter, cruiser, battleship, battlecruiser, bomber, destroyer, deathstar,
 	smallCargo, largeCargo, colonyShip, recycler, espionageProbe, speed, planetType, galaxy, system, position, mission,
 	metal, crystal, deuterium C.int, holdingTime, unionID int64) (fleetID C.int, errorMsg *C.char) {
-	ships := make([]ogame2.Quantifiable, 0)
+	ships := ogame2.ShipsInfos{}
 	if int(lightFighter) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(lightFighter)})
+		ships.Set(ogame2.LightFighterID, int64(lightFighter))
 	}
 	if int(heavyFighter) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(heavyFighter)})
+		ships.Set(ogame2.HeavyFighterID, int64(heavyFighter))
 	}
 	if int(cruiser) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(cruiser)})
+		ships.Set(ogame2.CruiserID, int64(cruiser))
 	}
 	if int(battleship) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(battleship)})
+		ships.Set(ogame2.BattleshipID, int64(battleship))
 	}
 	if int(battlecruiser) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(battlecruiser)})
+		ships.Set(ogame2.BattlecruiserID, int64(battlecruiser))
 	}
 	if int(bomber) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(bomber)})
+		ships.Set(ogame2.BomberID, int64(bomber))
 	}
 	if int(destroyer) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(destroyer)})
+		ships.Set(ogame2.DestroyerID, int64(destroyer))
 	}
 	if int(deathstar) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(deathstar)})
+		ships.Set(ogame2.DeathstarID, int64(deathstar))
 	}
 	if int(smallCargo) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(smallCargo)})
+		ships.Set(ogame2.SmallCargoID, int64(smallCargo))
 	}
 	if int(largeCargo) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(largeCargo)})
+		ships.Set(ogame2.LargeCargoID, int64(largeCargo))
 	}
 	if int(colonyShip) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(colonyShip)})
+		ships.Set(ogame2.ColonyShipID, int64(colonyShip))
 	}
 	if int(recycler) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(recycler)})
+		ships.Set(ogame2.RecyclerID, int64(recycler))
 	}
 	if int(espionageProbe) > 0 {
-		ships = append(ships, ogame2.Quantifiable{ID: ogame2.LightFighterID, Nbr: int64(espionageProbe)})
+		ships.Set(ogame2.EspionageProbeID, int64(espionageProbe))
 	}
 	fleet, err := bot.SendFleet(
 		ogame2.CelestialID(planetID),

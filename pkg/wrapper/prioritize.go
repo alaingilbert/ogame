@@ -464,7 +464,7 @@ func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBui
 }
 
 // SendFleet sends a fleet
-func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	b.begin("SendFleet")
 	defer b.done()
@@ -486,7 +486,7 @@ func (b *Prioritize) SendDiscoveryFleet2(celestialID ogame.CelestialID, coord og
 }
 
 // EnsureFleet either sends all the requested ships or fail
-func (b *Prioritize) EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (b *Prioritize) EnsureFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	b.begin("EnsureFleet")
 	defer b.done()

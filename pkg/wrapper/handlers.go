@@ -931,7 +931,7 @@ func SendFleetHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid form"))
 	}
 
-	var ships []ogame.Quantifiable
+	var ships ogame.ShipsInfos
 	where := ogame.Coordinate{Type: ogame.PlanetType}
 	mission := ogame.Transport
 	var duration int64
@@ -951,7 +951,7 @@ func SendFleetHandler(c echo.Context) error {
 				if err != nil || nbr < 0 {
 					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid nbr "+a[1]))
 				}
-				ships = append(ships, ogame.Quantifiable{ID: ogame.ID(shipID), Nbr: nbr})
+				ships.Set(ogame.ID(shipID), nbr)
 			}
 		case "speed":
 			speedInt, err := utils.ParseI64(values[0])
