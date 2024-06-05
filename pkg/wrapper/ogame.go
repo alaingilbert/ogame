@@ -3283,8 +3283,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		}
 	}
 
-	if (slots.InUse == slots.Total) ||
-		(mission == ogame.Expedition && slots.ExpInUse == slots.ExpTotal) {
+	if slots.IsAllSlotsInUse(mission) {
 		return ogame.Fleet{}, ogame.ErrAllSlotsInUse
 	}
 
