@@ -321,18 +321,18 @@ func (b BaseLfBuilding) ConstructionTime(level, universeSpeed int64, facilities 
 
 // GetPrice returns the price to build the given level
 func (b BaseLfBuilding) GetPrice(level int64, _ LfBonuses) Resources {
-	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
+	resourcesFormula := func(baseCost int64, increaseFactor float64, level int64) int64 {
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)) * float64(level))
 	}
-	tmp2 := func(baseCost int64, increaseFactor float64, level int64) int64 {
+	populationFormula := func(baseCost int64, increaseFactor float64, level int64) int64 {
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)))
 	}
 	return Resources{
-		Metal:      tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
-		Crystal:    tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
-		Deuterium:  tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
-		Energy:     tmp(b.BaseCost.Energy, b.energyIncreaseFactor, level),
-		Population: tmp2(b.BaseCost.Population, b.populationIncreaseFactor, level),
+		Metal:      resourcesFormula(b.BaseCost.Metal, b.IncreaseFactor, level),
+		Crystal:    resourcesFormula(b.BaseCost.Crystal, b.IncreaseFactor, level),
+		Deuterium:  resourcesFormula(b.BaseCost.Deuterium, b.IncreaseFactor, level),
+		Energy:     resourcesFormula(b.BaseCost.Energy, b.energyIncreaseFactor, level),
+		Population: populationFormula(b.BaseCost.Population, b.populationIncreaseFactor, level),
 	}
 }
 
