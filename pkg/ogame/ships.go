@@ -150,6 +150,11 @@ func (s ShipsInfos) CountShips() (out int64) {
 	return
 }
 
+// IsEmpty returns true if no ships are set
+func (s ShipsInfos) IsEmpty() bool {
+	return s.CountShips() == 0
+}
+
 // Add adds two ShipsInfos together
 func (s *ShipsInfos) Add(v ShipsInfos) {
 	for _, ship := range Ships {
