@@ -35,3 +35,10 @@ func TestExtractLfBonuses(t *testing.T) {
 	assert.Equal(t, 0.006, bonuses.CostTimeBonuses[ogame.AllianceDepotID].Cost)
 	assert.Equal(t, 0.012, bonuses.CostTimeBonuses[ogame.AllianceDepotID].Duration)
 }
+
+func TestExtractAllianceClass(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.15.5/en/allianceOverviewTab.html")
+	e := NewExtractor()
+	c, _ := e.ExtractAllianceClass(pageHTMLBytes)
+	assert.Equal(t, ogame.Researcher, c)
+}
