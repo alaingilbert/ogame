@@ -2,6 +2,7 @@ package v11_15_0
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/PuerkitoBio/goquery"
 	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/ogame"
@@ -531,4 +532,16 @@ func extractBonusFromString(s string) float64 {
 	v = strings.Replace(v, ",", ".", 1)
 	b, _ := strconv.ParseFloat(v, 64)
 	return utils.RoundThousandth(b)
+}
+
+func extractAllianceClassFromDoc(doc *goquery.Document) (ogame.AllianceClass, error) {
+	allianceClassTd := doc.Find("td.alliance_class").First()
+	if allianceClassTd.HasClass("warrior") { // TODO: untested
+		return ogame.Warrior, nil
+	} else if allianceClassTd.HasClass("trader") {
+		return ogame.Trader, nil
+	} else if allianceClassTd.HasClass("explorer") {
+		return ogame.Researcher, nil
+	}
+	return ogame.NoAllianceClass, errors.New("alliance class not found")
 }

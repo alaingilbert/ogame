@@ -726,6 +726,11 @@ func (e *Extractor) ExtractCharacterClassFromDoc(doc *goquery.Document) (ogame.C
 	return 0, errors.New("character class not supported in ")
 }
 
+// ExtractAllianceClassFromDoc ...
+func (e *Extractor) ExtractAllianceClassFromDoc(doc *goquery.Document) (ogame.AllianceClass, error) {
+	return 0, errors.New("alliance class not supported in ")
+}
+
 // ExtractCommanderFromDoc ...
 func (e *Extractor) ExtractCommanderFromDoc(doc *goquery.Document) bool {
 	return extractCommanderFromDoc(doc)

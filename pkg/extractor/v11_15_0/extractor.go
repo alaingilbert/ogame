@@ -71,3 +71,14 @@ func (e *Extractor) ExtractLfBonuses(pageHTML []byte) (ogame.LfBonuses, error) {
 func (e *Extractor) ExtractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
 	return extractLfBonusesFromDoc(doc)
 }
+
+// ExtractAllianceClass ...
+func (e Extractor) ExtractAllianceClass(pageHTML []byte) (ogame.AllianceClass, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractAllianceClassFromDoc(doc)
+}
+
+// ExtractAllianceClassFromDoc ...
+func (e Extractor) ExtractAllianceClassFromDoc(doc *goquery.Document) (ogame.AllianceClass, error) {
+	return extractAllianceClassFromDoc(doc)
+}

@@ -261,6 +261,10 @@ type TraderAuctioneerExtractorBytes interface {
 	ExtractAuction(pageHTML []byte) (ogame.Auction, error)
 }
 
+type AllianceOverviewExtractorBytes interface {
+	ExtractAllianceClass(pageHTML []byte) (ogame.AllianceClass, error)
+}
+
 // BuffActivationExtractorBytes BuffActivation is the popups that shows up when clicking the icon
 // to activate an item on the overview page.
 type BuffActivationExtractorBytes interface {
@@ -543,6 +547,7 @@ type Extractor interface {
 	PremiumExtractorBytes
 	TraderAuctioneerExtractorBytes
 	TraderImportExportExtractorBytes
+	AllianceOverviewExtractorBytes
 
 	PlanetLayerExtractorDoc
 	TraderImportExportExtractorDoc

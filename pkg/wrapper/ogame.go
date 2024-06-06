@@ -96,6 +96,7 @@ type OGame struct {
 	extractor             extractor.Extractor
 	apiNewHostname        string
 	characterClass        ogame.CharacterClass
+	allianceClass         ogame.AllianceClass
 	hasCommander          bool
 	hasAdmiral            bool
 	hasEngineer           bool
@@ -1070,6 +1071,8 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 				parsedFullPage := parser.AutoParseFullPage(b.extractor, pageHTML)
 				b.cacheFullPageInfo(parsedFullPage)
 			}
+		} else if IsAjaxPage(vals) && vals.Get("component") == "alliance" && vals.Get("tab") == "overview" && vals.Get("action") == "fetchOverview" {
+			b.allianceClass, _ = b.extractor.ExtractAllianceClass(pageHTML)
 		}
 
 	case http.MethodPost:
