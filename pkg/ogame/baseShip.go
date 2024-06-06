@@ -1,5 +1,9 @@
 package ogame
 
+import (
+	"math"
+)
+
 // BaseShip base struct for ships
 type BaseShip struct {
 	BaseDefender
@@ -84,5 +88,5 @@ func (b BaseShip) GetSpeed(techs IResearches, lfBonuses LfBonuses, characterClas
 	} else if characterClass.IsGeneral() && (b.ID == RecyclerID || b.ID.IsCombatShip()) && b.ID != DeathstarID {
 		speed += baseSpeed
 	}
-	return int64(speed) * multiplier
+	return int64(math.Round(speed * float64(multiplier)))
 }
