@@ -3524,7 +3524,10 @@ func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSu
 	}
 	_ = json.Unmarshal(pageHTML, &res)
 	newMessages := make([]ogame.CombatReportSummary, 0)
-	for _, m := range res.Messages {
+	for i, m := range res.Messages {
+		if i > 40 {
+			break
+		}
 		doc := ([]byte)(m.(string))
 		newMessage, _, _ := b.extractor.ExtractCombatReportMessagesSummary(doc)
 		newMessages = append(newMessages, newMessage...)
@@ -3557,7 +3560,10 @@ func (b *OGame) getEspionageReportFor(coord ogame.Coordinate) (ogame.EspionageRe
 	}
 	_ = json.Unmarshal(pageHTML, &res)
 	newMessages := make([]ogame.EspionageReportSummary, 0)
-	for _, m := range res.Messages {
+	for i, m := range res.Messages {
+		if i > 40 {
+			break
+		}
 		doc := ([]byte)(m.(string))
 		newMessage, _, _ := b.extractor.ExtractEspionageReportMessageIDs(doc)
 		newMessages = append(newMessages, newMessage...)
