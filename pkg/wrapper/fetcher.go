@@ -120,6 +120,7 @@ func getAjaxPage[T parser.AjaxPagePages](b *OGame, vals url.Values, opts ...Opti
 	case parser.RocketlayerAjaxPage:
 	case parser.PhalanxAjaxPage:
 	case parser.JumpGateAjaxPage:
+	case parser.AllianceOverviewTabAjaxPage:
 	default:
 		panic("not implemented")
 	}

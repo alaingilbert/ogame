@@ -67,6 +67,7 @@ type Prioritizable interface {
 	GetAttacks(...Option) ([]ogame.AttackEvent, error)
 	GetAuction() (ogame.Auction, error)
 	GetAvailableDiscoveries(...Option) int64
+	GetCachedAllianceClass() (ogame.AllianceClass, error)
 	GetCachedLfBonuses() (ogame.LfBonuses, error)
 	GetCachedResearch() ogame.Researches
 	GetCelestial(IntoCelestial) (Celestial, error)
@@ -172,6 +173,7 @@ type Wrapper interface {
 	BytesDownloaded() int64
 	BytesUploaded() int64
 	CharacterClass() ogame.CharacterClass
+	GetCachedAllianceClass() (ogame.AllianceClass, error)
 	ConstructionTime(id ogame.ID, nbr int64, facilities ogame.Facilities) time.Duration
 	CountColonies() (int64, int64)
 	Disable()

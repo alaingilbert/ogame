@@ -96,7 +96,7 @@ type OGame struct {
 	extractor             extractor.Extractor
 	apiNewHostname        string
 	characterClass        ogame.CharacterClass
-	allianceClass         ogame.AllianceClass
+	allianceClass         *ogame.AllianceClass
 	hasCommander          bool
 	hasAdmiral            bool
 	hasEngineer           bool
@@ -1072,7 +1072,13 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 				b.cacheFullPageInfo(parsedFullPage)
 			}
 		} else if IsAjaxPage(vals) && vals.Get("component") == "alliance" && vals.Get("tab") == "overview" && vals.Get("action") == "fetchOverview" {
-			b.allianceClass, _ = b.extractor.ExtractAllianceClass(pageHTML)
+			if !SkipCacheFullPage {
+				var res parser.AllianceOverviewTabRes
+				if err := json.Unmarshal(pageHTML, &res); err == nil {
+					allianceClass, _ := b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
+					b.allianceClass = &allianceClass
+				}
+			}
 		}
 
 	case http.MethodPost:
@@ -2535,6 +2541,41 @@ func (b *OGame) getLfBonuses() (out ogame.LfBonuses, err error) {
 	}
 	b.lfBonuses = &bonuses
 	return bonuses, nil
+}
+
+func (b *OGame) getCachedAllianceClass() (out ogame.AllianceClass, err error) {
+	if b.allianceClass == nil {
+		return b.getAllianceClass()
+	}
+	return *b.allianceClass, nil
+}
+
+func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
+	pageHTML, err := b.getPage("alliance")
+	if err != nil {
+		return
+	}
+	token, err := b.extractor.ExtractUpgradeToken(pageHTML)
+	if err != nil {
+		return
+	}
+	vals := url.Values{"page": {"ingame"}, "component": {"alliance"}, "tab": {"overview"}, "action": {"fetchOverview"}, "ajax": {"1"}, "token": {token}}
+	pageHTML, err = b.getPageContent(vals, SkipCacheFullPage)
+	if err != nil {
+		return
+	}
+	if len(pageHTML) == 0 {
+		tmp := ogame.NoAllianceClass
+		b.allianceClass = &tmp
+		return *b.allianceClass, nil
+	}
+	var res parser.AllianceOverviewTabRes
+	if err = json.Unmarshal(pageHTML, &res); err != nil {
+		return
+	}
+	allianceClass, _ := b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
+	b.allianceClass = &allianceClass
+	return *b.allianceClass, nil
 }
 
 func (b *OGame) getResourcesBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.ResourcesBuildings, error) {

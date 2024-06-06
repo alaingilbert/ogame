@@ -37,6 +37,7 @@ type FetchTechsAjaxPage struct{ Page }
 type RocketlayerAjaxPage struct{ Page }
 type PhalanxAjaxPage struct{ Page }
 type JumpGateAjaxPage struct{ Page }
+type AllianceOverviewTabAjaxPage struct{ Page }
 
 type FullPage struct{ Page }
 type OverviewPage struct{ FullPage }
@@ -85,7 +86,8 @@ type AjaxPagePages interface {
 		FetchTechsAjaxPage |
 		RocketlayerAjaxPage |
 		PhalanxAjaxPage |
-		JumpGateAjaxPage
+		JumpGateAjaxPage |
+		AllianceOverviewTabAjaxPage
 }
 
 type IFullPage interface {
@@ -193,6 +195,8 @@ func ParseAjaxPage[T AjaxPagePages](e extractor.Extractor, pageHTML []byte) (T, 
 		return T(JumpGateAjaxPage{page}), nil
 	case FetchTechsAjaxPage:
 		return T(FetchTechsAjaxPage{page}), nil
+	case AllianceOverviewTabAjaxPage:
+		return T(AllianceOverviewTabAjaxPage{page}), nil
 	}
 	return zero, ErrParsePageType
 }

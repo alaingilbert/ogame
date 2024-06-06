@@ -719,6 +719,11 @@ func (b *OGame) CharacterClass() ogame.CharacterClass {
 	return b.characterClass
 }
 
+// GetCachedAllianceClass returns the bot alliance class
+func (b *OGame) GetCachedAllianceClass() (ogame.AllianceClass, error) {
+	return b.WithPriority(taskRunner.Normal).GetCachedAllianceClass()
+}
+
 // CountColonies returns colonies count/possible
 func (b *OGame) CountColonies() (int64, int64) {
 	return b.coloniesCount, b.coloniesPossible

@@ -337,6 +337,13 @@ func (b *Prioritize) GetCachedLfBonuses() (ogame.LfBonuses, error) {
 	return b.bot.getCachedLfBonuses()
 }
 
+// GetCachedAllianceClass ...
+func (b *Prioritize) GetCachedAllianceClass() (ogame.AllianceClass, error) {
+	b.begin("GetCachedAllianceClass")
+	defer b.done()
+	return b.bot.getCachedAllianceClass()
+}
+
 // GetResearch gets the player researches information
 func (b *Prioritize) GetResearch() (ogame.Researches, error) {
 	b.begin("GetResearch")
