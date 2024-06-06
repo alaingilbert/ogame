@@ -52,6 +52,11 @@ func (s ShipsInfos) HasShips() bool {
 	return false
 }
 
+// IsEmpty returns true if no ships are set
+func (s ShipsInfos) IsEmpty() bool {
+	return !s.HasShips()
+}
+
 // HasFlyableShips returns either or not at least one flyable ship is present
 func (s ShipsInfos) HasFlyableShips() bool {
 	for _, ship := range Ships {
@@ -148,11 +153,6 @@ func (s ShipsInfos) CountShips() (out int64) {
 		out += s.ByID(ship.GetID())
 	}
 	return
-}
-
-// IsEmpty returns true if no ships are set
-func (s ShipsInfos) IsEmpty() bool {
-	return s.CountShips() == 0
 }
 
 // Add adds two ShipsInfos together
