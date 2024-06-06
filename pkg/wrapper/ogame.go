@@ -1647,6 +1647,9 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 }
 
 // CalcFlightTime ...
+// Systems that are empty/inactive can be skipped for distance calculation
+// (server settings: fleetIgnoreEmptySystems, fleetIgnoreInactiveSystems)
+// https://board.en.ogame.gameforge.com/index.php?thread/838751-flight-time-consumption-ignores-empty-inactive-systems
 func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass) (secs, fuel int64) {
 	if !ships.HasShips() {
