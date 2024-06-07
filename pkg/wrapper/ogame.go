@@ -1681,7 +1681,7 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 	// Get moon facilities html page (first call to ogame server)
 	moonFacilitiesHTML, _ := b.getPage(FacilitiesPageName, ChangePlanet(moonID.Celestial()))
 
-	// Extract bunch of infos from the html
+	// Extract a bunch of infos from the html
 	moon, err := b.extractor.ExtractMoon(moonFacilitiesHTML, moonID)
 	if err != nil {
 		return res, errors.New("moon not found")
