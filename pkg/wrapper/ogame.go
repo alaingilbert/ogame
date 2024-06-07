@@ -1690,6 +1690,10 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 	moonFacilities, _ := b.extractor.ExtractFacilities(moonFacilitiesHTML)
 	phalanxLvl := moonFacilities.SensorPhalanx
 
+	if phalanxLvl == 0 {
+		return res, errors.New("no sensor phalanx on this moon")
+	}
+
 	// Ensure we have the resources to scan the planet
 	if resources.Deuterium < ogame.SensorPhalanx.ScanConsumption() {
 		return res, errors.New("not enough deuterium")
