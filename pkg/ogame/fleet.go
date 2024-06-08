@@ -22,3 +22,8 @@ type Fleet struct {
 	UnionID        int64
 	TargetPlanetID int64
 }
+
+type PhalanxFleet struct {
+	Fleet
+	BaseSpeed int64
+}

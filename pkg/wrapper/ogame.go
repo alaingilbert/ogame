@@ -1675,8 +1675,8 @@ func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float
 }
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
-func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
-	res := make([]ogame.Fleet, 0)
+func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
+	res := make([]ogame.PhalanxFleet, 0)
 
 	// Get moon facilities html page (first call to ogame server)
 	moonFacilitiesHTML, _ := b.getPage(FacilitiesPageName, ChangePlanet(moonID.Celestial()))
@@ -1711,7 +1711,7 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 }
 
 // getUnsafePhalanx ...
-func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
+func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
 	// Get galaxy planets information, verify coordinate is valid planet (call to ogame server)
 	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
 	target := planetInfos.Position(coord.Position)
@@ -1733,7 +1733,7 @@ func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([
 	}
 	page, err := getAjaxPage[parser.PhalanxAjaxPage](b, vals, ChangePlanet(moonID.Celestial()))
 	if err != nil {
-		return []ogame.Fleet{}, err
+		return []ogame.PhalanxFleet{}, err
 	}
 	return page.ExtractPhalanx()
 }

@@ -1862,8 +1862,8 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 	return res, nil
 }
 
-func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
-	res := make([]ogame.Fleet, 0)
+func extractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
+	res := make([]ogame.PhalanxFleet, 0)
 	var ogameTimestamp int64
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
@@ -1895,6 +1895,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 		originFleetFigure := s.Find("li.originFleet figure")
 		originTxt := s.Find("li.coordsOrigin a").Text()
 		destTxt := s.Find("li.destCoords a").Text()
+		baseSpeed := utils.DoParseI64(s.Find("li.baseSpeed a").Text())
 
 		if isACS {
 			unionIDStr := s.Find("a.toggleInfos").AttrOr("rel", "")
@@ -1903,7 +1904,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 				originFleetFigure := selection.Find("li.originFleet figure")
 				originTxt := selection.Find("li.coordsOrigin a").Text()
 				destTxt := selection.Find("li.destCoords a").Text()
-				fleet := ogame.Fleet{}
+				fleet := ogame.PhalanxFleet{}
 				if movement, exists := selection.Find("li.detailsFleet span").Attr("title"); exists {
 					root, err := html.Parse(strings.NewReader(movement))
 					if err != nil {
@@ -1925,6 +1926,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 				}
 				fleet.UnionID = unionID
 				fleet.Mission = ogame.MissionID(mission)
+				fleet.BaseSpeed = baseSpeed
 				fleet.ReturnFlight = returning
 				fleet.ArriveIn = arriveIn
 				fleet.ArrivalTime = time.Unix(arrivalTime, 0)
@@ -1938,7 +1940,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 				res = append(res, fleet)
 			})
 		} else {
-			fleet := ogame.Fleet{}
+			fleet := ogame.PhalanxFleet{}
 			if movement, exists := s.Find("li.detailsFleet span").Attr("title"); exists {
 				root, err := html.Parse(strings.NewReader(movement))
 				if err != nil {
@@ -1958,6 +1960,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 				})
 			}
 			fleet.Mission = ogame.MissionID(mission)
+			fleet.BaseSpeed = baseSpeed
 			fleet.ReturnFlight = returning
 			fleet.ArriveIn = arriveIn
 			fleet.ArrivalTime = time.Unix(arrivalTime, 0)

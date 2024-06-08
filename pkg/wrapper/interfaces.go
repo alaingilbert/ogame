@@ -155,8 +155,8 @@ type Prioritizable interface {
 	// Moon specific functions
 	JumpGate(origin, dest ogame.MoonID, ships ogame.ShipsInfos) (bool, int64, error)
 	JumpGateDestinations(origin ogame.MoonID) ([]ogame.MoonID, int64, error)
-	Phalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.Fleet, error)
-	UnsafePhalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.Fleet, error)
+	Phalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.PhalanxFleet, error)
+	UnsafePhalanx(ogame.MoonID, ogame.Coordinate) ([]ogame.PhalanxFleet, error)
 }
 
 // Compile time checks to ensure type satisfies Prioritizable interface

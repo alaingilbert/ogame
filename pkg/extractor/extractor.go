@@ -181,7 +181,7 @@ type FacilitiesExtractorBytesDoc interface {
 }
 
 type PhalanxExtractorBytes interface {
-	ExtractPhalanx(pageHTML []byte) ([]ogame.Fleet, error)
+	ExtractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error)
 }
 
 type PreferencesExtractorBytes interface {

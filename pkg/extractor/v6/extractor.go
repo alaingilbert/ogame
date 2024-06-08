@@ -833,7 +833,7 @@ func (e *Extractor) ExtractGalaxyInfos(pageHTML []byte, botPlayerName string, bo
 }
 
 // ExtractPhalanx ...
-func (e *Extractor) ExtractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
+func (e *Extractor) ExtractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
 	return extractPhalanx(pageHTML)
 }
 

@@ -670,12 +670,12 @@ func (b *OGame) RegisterHTMLInterceptor(fn func(method, url string, params, payl
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
 //
 //	and that you have enough deuterium.
-func (b *OGame) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
+func (b *OGame) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
 	return b.WithPriority(taskRunner.Normal).Phalanx(moonID, coord)
 }
 
 // UnsafePhalanx same as Phalanx but does not perform any input validation.
-func (b *OGame) UnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
+func (b *OGame) UnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
 	return b.WithPriority(taskRunner.Normal).UnsafePhalanx(moonID, coord)
 }
 
