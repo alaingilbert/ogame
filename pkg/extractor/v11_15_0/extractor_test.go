@@ -42,3 +42,17 @@ func TestExtractAllianceClass(t *testing.T) {
 	c, _ := e.ExtractAllianceClass(pageHTMLBytes)
 	assert.Equal(t, ogame.Researcher, c)
 }
+
+func TestExtractPhalanx(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.15.5/pl/phalanx_acs.html")
+	res, err := NewExtractor().ExtractPhalanx(pageHTMLBytes)
+	assert.Nil(t, err)
+	assert.Equal(t, 20, len(res))
+	assert.Equal(t, ogame.DoParseCoord("M:6:228:7"), res[0].Origin)
+	assert.Equal(t, int64(1), res[0].Ships.Deathstar)
+	assert.Equal(t, ogame.DoParseCoord("6:228:9"), res[13].Origin)
+	assert.Equal(t, ogame.DoParseCoord("6:229:9"), res[13].Destination)
+	assert.Equal(t, int64(1_111_111), res[13].Ships.Bomber)
+	assert.Equal(t, ogame.DoParseCoord("M:6:228:7"), res[18].Origin)
+	assert.Equal(t, int64(997), res[18].Ships.Battleship)
+}

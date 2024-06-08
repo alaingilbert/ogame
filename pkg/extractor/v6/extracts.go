@@ -1884,6 +1884,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 	}
 
 	eventFleet.Each(func(i int, s *goquery.Selection) {
+		isACS := s.Find("ul").First().HasClass("allianceAttack")
 		mission := utils.DoParseI64(s.AttrOr("data-mission-type", "0"))
 		returning, _ := strconv.ParseBool(s.AttrOr("data-return-flight", "false"))
 		arrivalTime := utils.DoParseI64(s.AttrOr("data-arrival-time", "0"))
@@ -1895,38 +1896,80 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 		originTxt := s.Find("li.coordsOrigin a").Text()
 		destTxt := s.Find("li.destCoords a").Text()
 
-		fleet := ogame.Fleet{}
-
-		if movement, exists := s.Find("li.detailsFleet span").Attr("title"); exists {
-			root, err := html.Parse(strings.NewReader(movement))
-			if err != nil {
-				return
-			}
-			doc2 := goquery.NewDocumentFromNode(root)
-			doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
-				if i == 0 {
+		if isACS {
+			unionIDStr := s.Find("a.toggleInfos").AttrOr("rel", "")
+			unionID := utils.DoParseI64(strings.TrimPrefix(unionIDStr, "phalanx-union"))
+			doc.Find("div." + unionIDStr).Each(func(i int, selection *goquery.Selection) {
+				originFleetFigure := selection.Find("li.originFleet figure")
+				originTxt := selection.Find("li.coordsOrigin a").Text()
+				destTxt := selection.Find("li.destCoords a").Text()
+				fleet := ogame.Fleet{}
+				if movement, exists := selection.Find("li.detailsFleet span").Attr("title"); exists {
+					root, err := html.Parse(strings.NewReader(movement))
+					if err != nil {
+						return
+					}
+					doc2 := goquery.NewDocumentFromNode(root)
+					doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
+						if i == 0 {
+							return
+						}
+						name := s.Find("td").Eq(0).Text()
+						nbr := utils.ParseInt(s.Find("td").Eq(1).Text())
+						if name != "" && nbr > 0 {
+							shipID := ogame.ShipName2ID(name)
+							curr := fleet.Ships.ByID(shipID)
+							fleet.Ships.Set(shipID, curr+nbr)
+						}
+					})
+				}
+				fleet.UnionID = unionID
+				fleet.Mission = ogame.MissionID(mission)
+				fleet.ReturnFlight = returning
+				fleet.ArriveIn = arriveIn
+				fleet.ArrivalTime = time.Unix(arrivalTime, 0)
+				fleet.Origin = ExtractCoord(originTxt)
+				fleet.Origin.Type = ogame.PlanetType
+				if originFleetFigure.HasClass("moon") {
+					fleet.Origin.Type = ogame.MoonType
+				}
+				fleet.Destination = ExtractCoord(destTxt)
+				fleet.Destination.Type = ogame.PlanetType
+				res = append(res, fleet)
+			})
+		} else {
+			fleet := ogame.Fleet{}
+			if movement, exists := s.Find("li.detailsFleet span").Attr("title"); exists {
+				root, err := html.Parse(strings.NewReader(movement))
+				if err != nil {
 					return
 				}
-				name := s.Find("td").Eq(0).Text()
-				nbr := utils.ParseInt(s.Find("td").Eq(1).Text())
-				if name != "" && nbr > 0 {
-					fleet.Ships.Set(ogame.ShipName2ID(name), nbr)
-				}
-			})
+				doc2 := goquery.NewDocumentFromNode(root)
+				doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
+					if i == 0 {
+						return
+					}
+					name := s.Find("td").Eq(0).Text()
+					nbr := utils.ParseInt(s.Find("td").Eq(1).Text())
+					if name != "" && nbr > 0 {
+						shipID := ogame.ShipName2ID(name)
+						fleet.Ships.Set(shipID, nbr)
+					}
+				})
+			}
+			fleet.Mission = ogame.MissionID(mission)
+			fleet.ReturnFlight = returning
+			fleet.ArriveIn = arriveIn
+			fleet.ArrivalTime = time.Unix(arrivalTime, 0)
+			fleet.Origin = ExtractCoord(originTxt)
+			fleet.Origin.Type = ogame.PlanetType
+			if originFleetFigure.HasClass("moon") {
+				fleet.Origin.Type = ogame.MoonType
+			}
+			fleet.Destination = ExtractCoord(destTxt)
+			fleet.Destination.Type = ogame.PlanetType
+			res = append(res, fleet)
 		}
-
-		fleet.Mission = ogame.MissionID(mission)
-		fleet.ReturnFlight = returning
-		fleet.ArriveIn = arriveIn
-		fleet.ArrivalTime = time.Unix(arrivalTime, 0)
-		fleet.Origin = ExtractCoord(originTxt)
-		fleet.Origin.Type = ogame.PlanetType
-		if originFleetFigure.HasClass("moon") {
-			fleet.Origin.Type = ogame.MoonType
-		}
-		fleet.Destination = ExtractCoord(destTxt)
-		fleet.Destination.Type = ogame.PlanetType
-		res = append(res, fleet)
 	})
 	return res, nil
 }
