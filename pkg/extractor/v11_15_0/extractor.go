@@ -82,3 +82,8 @@ func (e Extractor) ExtractAllianceClass(pageHTML []byte) (ogame.AllianceClass, e
 func (e Extractor) ExtractAllianceClassFromDoc(doc *goquery.Document) (ogame.AllianceClass, error) {
 	return extractAllianceClassFromDoc(doc)
 }
+
+// ExtractPhalanxNewToken ...
+func (e *Extractor) ExtractPhalanxNewToken(pageHTML []byte) (string, error) {
+	return extractPhalanxNewToken(pageHTML)
+}

@@ -1,6 +1,7 @@
 package v11_15_0
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"github.com/PuerkitoBio/goquery"
@@ -544,4 +545,10 @@ func extractAllianceClassFromDoc(doc *goquery.Document) (ogame.AllianceClass, er
 		return ogame.Researcher, nil
 	}
 	return ogame.NoAllianceClass, errors.New("alliance class not found")
+}
+
+func extractPhalanxNewToken(pageHTML []byte) (string, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	token := doc.Find("a.refreshPhalanxLink").AttrOr("data-overlay-token", "")
+	return token, nil
 }

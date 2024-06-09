@@ -183,6 +183,7 @@ type FacilitiesExtractorBytesDoc interface {
 
 type PhalanxExtractorBytes interface {
 	ExtractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error)
+	ExtractPhalanxNewToken(pageHTML []byte) (string, error)
 }
 
 type PreferencesExtractorBytes interface {

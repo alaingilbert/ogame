@@ -842,6 +842,11 @@ func (e *Extractor) ExtractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error
 	return extractPhalanx(pageHTML)
 }
 
+// ExtractPhalanxNewToken ...
+func (e *Extractor) ExtractPhalanxNewToken(pageHTML []byte) (string, error) {
+	panic("not implemented")
+}
+
 // ExtractJumpGate return the available ships to send, form token, possible moon IDs and wait time (if any)
 // given a jump gate popup html.
 func (e *Extractor) ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64) {
