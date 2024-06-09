@@ -3634,7 +3634,6 @@ func (b *OGame) deleteMessage(msgID int64) error {
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New("unable to find message id " + utils.FI64(msgID))
 	}
-	fmt.Println(res)
 	if val, ok := res["status"]; ok {
 		if valB, ok := val.(string); !ok || valB != "success" {
 			return errors.New("unable to find message id " + utils.FI64(msgID) + " : " + res["message"].(string))
