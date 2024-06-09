@@ -98,6 +98,7 @@ type IFullPage interface {
 	ExtractPlanetID() (ogame.CelestialID, error)
 	ExtractPlanetCoordinate() (ogame.Coordinate, error)
 	ExtractAjaxChatToken() (string, error)
+	ExtractToken() (string, error)
 	ExtractCharacterClass() (ogame.CharacterClass, error)
 	ExtractCommander() bool
 	ExtractAdmiral() bool
