@@ -66,6 +66,7 @@ type OGame struct {
 	lfBonuses             *ogame.LfBonuses
 	planets               []Planet
 	planetsMu             sync.RWMutex
+	token                 string
 	ajaxChatToken         string
 	Universe              string
 	Username              string
@@ -416,6 +417,7 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 	b.planets = convertPlanets(b, page.ExtractPlanets())
 	b.planetsMu.Unlock()
 	b.isVacationModeEnabled = page.ExtractIsInVacation()
+	b.token, _ = page.ExtractToken()
 	b.ajaxChatToken, _ = page.ExtractAjaxChatToken()
 	b.characterClass, _ = page.ExtractCharacterClass()
 	b.hasCommander = page.ExtractCommander()
@@ -1078,16 +1080,36 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 				if err := json.Unmarshal(pageHTML, &res); err == nil {
 					allianceClass, _ := b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
 					b.allianceClass = &allianceClass
+					b.token = res.NewAjaxToken
+				}
+			}
+		} else if IsAjaxPage(vals) {
+			var res struct {
+				NewAjaxToken string `json:"newAjaxToken"`
+			}
+			if err := json.Unmarshal(pageHTML, &res); err == nil {
+				if res.NewAjaxToken != "" {
+					b.token = res.NewAjaxToken
 				}
 			}
 		}
 
 	case http.MethodPost:
 		if page == PreferencesPageName {
+			b.token, _ = b.extractor.ExtractToken(pageHTML)
 			b.CachedPreferences = b.extractor.ExtractPreferences(pageHTML)
 		} else if page == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
 			if err := extractNewChatToken(b, pageHTML); err != nil {
 				return err
+			}
+		} else if IsAjaxPage(vals) {
+			var res struct {
+				NewAjaxToken string `json:"newAjaxToken"`
+			}
+			if err := json.Unmarshal(pageHTML, &res); err == nil {
+				if res.NewAjaxToken != "" {
+					b.token = res.NewAjaxToken
+				}
 			}
 		}
 	}
@@ -1719,12 +1741,6 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 		return res, errors.New("coordinate not in phalanx range")
 	}
 
-	// Run the phalanx scan (second & third calls to ogame server)
-	return b.getUnsafePhalanx(moonID, coord)
-}
-
-// getUnsafePhalanx ...
-func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
 	// Get galaxy planets information, verify coordinate is valid planet (call to ogame server)
 	planetInfos, _ := b.galaxyInfos(coord.Galaxy, coord.System)
 	target := planetInfos.Position(coord.Position)
@@ -1736,18 +1752,25 @@ func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([
 		return nil, errors.New("cannot scan own planet")
 	}
 
+	// Run the phalanx scan (second & third calls to ogame server)
+	return b.getUnsafePhalanx(moonID, coord)
+}
+
+// getUnsafePhalanx ...
+func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
 	vals := url.Values{
 		"page":     {PhalanxAjaxPageName},
 		"galaxy":   {utils.FI64(coord.Galaxy)},
 		"system":   {utils.FI64(coord.System)},
 		"position": {utils.FI64(coord.Position)},
 		"ajax":     {"1"},
-		"token":    {planetInfos.OverlayToken},
+		"token":    {b.token},
 	}
 	page, err := getAjaxPage[parser.PhalanxAjaxPage](b, vals, ChangePlanet(moonID.Celestial()))
 	if err != nil {
 		return []ogame.PhalanxFleet{}, err
 	}
+	b.token, _ = page.ExtractPhalanxNewToken()
 	return page.ExtractPhalanx()
 }
 
@@ -2599,6 +2622,7 @@ func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
 	}
 	allianceClass, _ := b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
 	b.allianceClass = &allianceClass
+	b.token = res.NewAjaxToken
 	return *b.allianceClass, nil
 }
 
