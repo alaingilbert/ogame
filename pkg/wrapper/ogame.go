@@ -3396,6 +3396,55 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	return ogame.Fleet{}, errors.New("could not find new fleet ID")
 }
 
+func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) error {
+	token := ""
+	vals := url.Values{
+		"page":      {"ingame"},
+		"component": {"fleetdispatch"},
+		"action":    {"miniFleet"},
+		"ajax":      {"1"},
+		"asJson":    {"1"},
+	}
+	payload := url.Values{
+		"mission":   {utils.FI64(ogame.Spy)},
+		"galaxy":    {utils.FI64(coord.Galaxy)},
+		"system":    {utils.FI64(coord.System)},
+		"position":  {utils.FI64(coord.Position)},
+		"type":      {"1"}, // ?
+		"shipCount": {utils.FI64(shipCount)},
+		"token":     {token},
+	}
+	pageHTML, err := b.postPageContent(vals, payload)
+	if err != nil {
+		return err
+	}
+	var res struct {
+		Response struct {
+			Message     string `json:"message"`
+			Type        int    `json:"type"`
+			Slots       int    `json:"slots"`
+			Probes      int    `json:"probes"`
+			Recyclers   int    `json:"recyclers"`
+			Explorers   int    `json:"explorers"`
+			Missiles    int    `json:"missiles"`
+			ShipsSent   int    `json:"shipsSent"`
+			Coordinates struct {
+				Galaxy   int `json:"galaxy"`
+				System   int `json:"system"`
+				Position int `json:"position"`
+			} `json:"coordinates"`
+			PlanetType int  `json:"planetType"`
+			Success    bool `json:"success"`
+		} `json:"response"`
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
+	_ = json.Unmarshal(pageHTML, &res)
+	if !res.Response.Success {
+		return errors.New(res.Response.Message)
+	}
+	return nil
+}
+
 func (b *OGame) getPageMessages(page int64, tabid ogame.MessagesTabID) ([]byte, error) {
 	payload := url.Values{
 		"activeSubTab": {utils.FI64(tabid)},
