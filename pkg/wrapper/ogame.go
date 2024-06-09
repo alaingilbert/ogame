@@ -3438,7 +3438,9 @@ func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) error {
 		} `json:"response"`
 		NewAjaxToken string `json:"newAjaxToken"`
 	}
-	_ = json.Unmarshal(pageHTML, &res)
+	if err := json.Unmarshal(pageHTML, &res); err != nil {
+		return err
+	}
 	if !res.Response.Success {
 		return errors.New(res.Response.Message)
 	}
