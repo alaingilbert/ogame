@@ -1657,8 +1657,8 @@ func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystem
 	if !ships.HasShips() {
 		return
 	}
-	v := float64(findSlowestSpeed(ships, techs, lfBonuses, characterClass))
-	secs = CalcFlightTimeWithBaseSpeed(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem, v, speed, universeSpeedFleet)
+	v := findSlowestSpeed(ships, techs, lfBonuses, characterClass)
+	secs = CalcFlightTimeWithBaseSpeed(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem, speed, v, universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass)
 	return
@@ -1667,9 +1667,9 @@ func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystem
 // CalcFlightTimeWithBaseSpeed ...
 // baseSpeed is the speed of the slowest ship in a fleet
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
-func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool, baseSpeed, speed float64, universeSpeedFleet int64) (secs int64) {
+func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool, speed float64, baseSpeed, universeSpeedFleet int64) (secs int64) {
 	s := speed
-	v := baseSpeed
+	v := float64(baseSpeed)
 	a := float64(universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
 	return int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
