@@ -50,6 +50,7 @@ func TestExtractPhalanx(t *testing.T) {
 	assert.Equal(t, 20, len(res))
 	assert.Equal(t, ogame.DoParseCoord("M:6:228:7"), res[0].Origin)
 	assert.Equal(t, int64(1), res[0].Ships.Deathstar)
+	assert.Equal(t, int64(730), res[0].BaseSpeed)
 	assert.Equal(t, ogame.DoParseCoord("6:228:9"), res[13].Origin)
 	assert.Equal(t, ogame.DoParseCoord("6:229:9"), res[13].Destination)
 	assert.Equal(t, int64(1_111_111), res[13].Ships.Bomber)

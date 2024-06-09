@@ -1895,12 +1895,13 @@ func extractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
 		originFleetFigure := s.Find("li.originFleet figure")
 		originTxt := s.Find("li.coordsOrigin a").Text()
 		destTxt := s.Find("li.destCoords a").Text()
-		baseSpeed := utils.DoParseI64(s.Find("li.baseSpeed a").Text())
+		baseSpeed := utils.DoParseI64(strings.TrimSpace(s.Find("li.baseSpeed").Text()))
 
 		if isACS {
 			unionIDStr := s.Find("a.toggleInfos").AttrOr("rel", "")
 			unionID := utils.DoParseI64(strings.TrimPrefix(unionIDStr, "phalanx-union"))
 			doc.Find("div." + unionIDStr).Each(func(i int, selection *goquery.Selection) {
+				baseSpeed := utils.DoParseI64(strings.TrimSpace(selection.Find("li.baseSpeed").Text()))
 				originFleetFigure := selection.Find("li.originFleet figure")
 				originTxt := selection.Find("li.coordsOrigin a").Text()
 				destTxt := selection.Find("li.destCoords a").Text()
