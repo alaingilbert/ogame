@@ -14,6 +14,7 @@ import (
 type FullPageExtractorBytes interface {
 	ExtractAdmiral(pageHTML []byte) bool
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
+	ExtractToken(pageHTML []byte) (string, error)
 	ExtractCelestial(pageHTML []byte, v any) (ogame.Celestial, error)
 	ExtractCelestials(pageHTML []byte) ([]ogame.Celestial, error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)

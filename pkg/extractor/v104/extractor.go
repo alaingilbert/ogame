@@ -23,3 +23,8 @@ func (e *Extractor) ExtractUpgradeToken(pageHTML []byte) (string, error) {
 func (e *Extractor) ExtractTearDownToken(pageHTML []byte) (string, error) {
 	return extractTearDownToken(pageHTML)
 }
+
+// ExtractToken ...
+func (e *Extractor) ExtractToken(pageHTML []byte) (string, error) {
+	return ExtractToken(pageHTML)
+}

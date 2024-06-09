@@ -2063,14 +2063,7 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, pri
 	if err != nil {
 		return err
 	}
-	getToken := func(pageHTML []byte) (string, error) {
-		m := regexp.MustCompile(`var token = "([^"]+)"`).FindSubmatch(pageHTML)
-		if len(m) != 2 {
-			return "", errors.New("unable to find token")
-		}
-		return string(m[1]), nil
-	}
-	token, _ := getToken(pageHTML)
+	token, _ := b.extractor.ExtractToken(pageHTML)
 
 	payload := url.Values{
 		"marketItemType": {utils.FI64(marketItemType)},
@@ -2573,7 +2566,7 @@ func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
 	if err != nil {
 		return
 	}
-	token, err := b.extractor.ExtractUpgradeToken(pageHTML)
+	token, err := b.extractor.ExtractToken(pageHTML)
 	if err != nil {
 		return
 	}
@@ -2720,7 +2713,7 @@ func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (o
 
 func getToken(b *OGame, page string, celestialID ogame.CelestialID) (string, error) {
 	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
-	return b.extractor.ExtractUpgradeToken(pageHTML)
+	return b.extractor.ExtractToken(pageHTML)
 }
 
 func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
@@ -2734,7 +2727,7 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 	}
 
 	pageHTML, _ := b.getPage(page, ChangePlanet(celestialID))
-	token, err := b.extractor.ExtractTearDownToken(pageHTML)
+	token, err := b.extractor.ExtractToken(pageHTML)
 	if err != nil {
 		return err
 	}
@@ -3227,9 +3220,9 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
 	})
 
-	tokenM := regexp.MustCompile(`var token = "([^"]+)";`).FindSubmatch(pageHTML)
-	if len(tokenM) != 2 {
-		return ogame.Fleet{}, errors.New("token not found")
+	tokenM, err := b.extractor.ExtractToken(pageHTML)
+	if err != nil {
+		return ogame.Fleet{}, err
 	}
 
 	payload.Set("token", string(tokenM[1]))

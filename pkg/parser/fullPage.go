@@ -18,6 +18,10 @@ func (p *FullPage) ExtractAjaxChatToken() (string, error) {
 	return p.e.ExtractAjaxChatToken(p.content)
 }
 
+func (p *FullPage) ExtractToken() (string, error) {
+	return p.e.ExtractToken(p.content)
+}
+
 func (p *FullPage) ExtractCharacterClass() (ogame.CharacterClass, error) {
 	return p.e.ExtractCharacterClassFromDoc(p.GetDoc())
 }
