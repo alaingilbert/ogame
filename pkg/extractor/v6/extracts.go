@@ -1875,7 +1875,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
 		} else if strings.Contains(txt, "deuterium") {
 			return res, errors.New(strings.TrimSpace(txt))
 		}
-		return res, errors.New(txt)
+		return res, errors.New("phalanx failed: " + txt)
 	}
 
 	m := regexp.MustCompile(`var mytime = ([0-9]+)`).FindSubmatch(pageHTML)
