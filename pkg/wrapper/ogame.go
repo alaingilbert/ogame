@@ -1438,13 +1438,17 @@ func (b *OGame) abandon(v IntoPlanet) error {
 		"token":    {token},
 		"password": {b.password},
 	}
-	_, err = b.postPageContent(url.Values{
+	pageHTML, err = b.postPageContent(url.Values{
 		"page":      {"ingame"},
 		"component": {"overview"},
 		"action":    {"planetGiveup"},
 		"ajax":      {"1"},
 		"asJson":    {"1"},
 	}, payload)
+	var res struct {
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
+	_ = json.Unmarshal(pageHTML, &res)
 	return err
 }
 
