@@ -3256,12 +3256,12 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
 	})
 
-	tokenM, err := b.extractor.ExtractToken(pageHTML)
+	token, err := b.extractor.ExtractToken(pageHTML)
 	if err != nil {
 		return ogame.Fleet{}, err
 	}
 
-	payload.Set("token", string(tokenM[1]))
+	payload.Set("token", token)
 	payload.Set("galaxy", utils.FI64(where.Galaxy))
 	payload.Set("system", utils.FI64(where.System))
 	payload.Set("position", utils.FI64(where.Position))
