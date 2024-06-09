@@ -18,7 +18,7 @@ func BenchmarkUserInfoRegex(b *testing.B) {
 		playerName := string(regexp.MustCompile(`playerName="([^"]+)"`).FindSubmatch(pageHTML)[1])
 		return playerID, playerName
 	}
-	pageHTMLBytes, _ := os.ReadFile("../../samples/overview_inactive.html")
+	pageHTMLBytes, _ := os.ReadFile("../../samples/unversioned/overview_inactive.html")
 	for n := 0; n < b.N; n++ {
 		extractUserRegex(pageHTMLBytes)
 	}
@@ -31,7 +31,7 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 		playerName := doc.Find("meta[name=ogame-player-name]").AttrOr("content", "")
 		return playerID, playerName
 	}
-	pageHTMLBytes, _ := os.ReadFile("../../samples/overview_inactive.html")
+	pageHTMLBytes, _ := os.ReadFile("../../samples/unversioned/overview_inactive.html")
 	for n := 0; n < b.N; n++ {
 		extractUserGoquery(pageHTMLBytes)
 	}
