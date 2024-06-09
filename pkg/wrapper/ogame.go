@@ -3026,7 +3026,6 @@ func (b *OGame) destroyRockets(planetID ogame.PlanetID, abm, ipm int64) error {
 		Status       string `json:"status"`
 		Message      string `json:"message"`
 		NewAjaxToken string `json:"newAjaxToken"`
-		// components??
 	}
 	if err := json.Unmarshal(by, &resp); err != nil {
 		return err
