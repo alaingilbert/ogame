@@ -3685,7 +3685,13 @@ func (b *OGame) deleteAllMessagesFromTab(tabID ogame.MessagesTabID) error {
 		"ajax":      {"1"},
 		"token":     {token},
 	}
-	_, err = b.postPageContent(url.Values{"page": {"messages"}}, payload)
+	pageHTML, err := b.postPageContent(url.Values{"page": {"messages"}}, payload)
+	var res struct {
+		Status       string `json:"status"`
+		Message      string `json:"message"`
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
+	_ = json.Unmarshal(pageHTML, &res)
 	return err
 }
 
