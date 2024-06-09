@@ -3630,16 +3630,16 @@ func (b *OGame) deleteMessage(msgID int64) error {
 		return err
 	}
 
-	var res map[string]any
+	var res struct {
+		Status       string `json:"status"`
+		Message      string `json:"message"`
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
 	if err := json.Unmarshal(by, &res); err != nil {
 		return errors.New("unable to find message id " + utils.FI64(msgID))
 	}
-	if val, ok := res["status"]; ok {
-		if valB, ok := val.(string); !ok || valB != "success" {
-			return errors.New("unable to find message id " + utils.FI64(msgID) + " : " + res["message"].(string))
-		}
-	} else {
-		return errors.New("unable to find message id " + utils.FI64(msgID))
+	if res.Status != "success" {
+		return errors.New("unable to find message id " + utils.FI64(msgID) + " : " + res.Message)
 	}
 	return nil
 }
