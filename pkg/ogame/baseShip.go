@@ -42,12 +42,12 @@ func (b BaseShip) GetFuelConsumption(techs IResearches, lfBonuses LfBonuses, cha
 	} else if b.ID == RecyclerID && techs.GetImpulseDrive() >= 17 {
 		fuelConsumption *= 2
 	}
-	fuelConsumption = int64(fleetDeutSaveFactor * float64(fuelConsumption))
-	lfBonus := float64(fuelConsumption) * lfBonuses.LfShipBonuses[b.ID].FuelConsumption
+	fuelConsumption1 := fleetDeutSaveFactor * float64(fuelConsumption)
+	lfBonus := fuelConsumption1 * lfBonuses.LfShipBonuses[b.ID].FuelConsumption
 	if characterClass.IsGeneral() {
-		fuelConsumption = int64(float64(fuelConsumption) / 2)
+		fuelConsumption1 /= 2
 	}
-	return fuelConsumption - int64(lfBonus)
+	return int64(fuelConsumption1 - lfBonus)
 }
 
 // GetSpeed returns speed of the ship
