@@ -505,7 +505,10 @@ func extractShipStatBonus(s *goquery.Selection, b *ogame.LfBonuses, subcategory 
 	}
 	s.Find("bonus-items").Each(func(_ int, s *goquery.Selection) {
 		extractFn := func(idx int) float64 {
-			return extractBonusFromStringPercentage(s.Children().Eq(idx).Text())
+			txt := s.Children().Eq(idx).Contents().FilterFunction(func(i int, s *goquery.Selection) bool {
+				return s.Nodes[0].Type == html.TextNode
+			}).Text()
+			return extractBonusFromStringPercentage(txt)
 		}
 		shipBonus := ogame.LfShipBonus{
 			ID:                  id,

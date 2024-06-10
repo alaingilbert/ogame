@@ -32,6 +32,7 @@ func TestExtractLfBonuses(t *testing.T) {
 	e := NewExtractor()
 	bonuses, _ := e.ExtractLfBonuses(pageHTMLBytes)
 	assert.Equal(t, 0.012, bonuses.LfShipBonuses[ogame.LightFighterID].CargoCapacity)
+	assert.Equal(t, -0.0019, bonuses.LfShipBonuses[ogame.LightFighterID].FuelConsumption)
 	assert.Equal(t, 0.006, bonuses.CostTimeBonuses[ogame.AllianceDepotID].Cost)
 	assert.Equal(t, 0.012, bonuses.CostTimeBonuses[ogame.AllianceDepotID].Duration)
 }
