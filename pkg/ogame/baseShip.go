@@ -47,7 +47,7 @@ func (b BaseShip) GetFuelConsumption(techs IResearches, lfBonuses LfBonuses, cha
 	if characterClass.IsGeneral() {
 		fuelConsumption1 /= 2
 	}
-	return int64(fuelConsumption1 - lfBonus)
+	return int64(fuelConsumption1 + lfBonus)
 }
 
 // GetSpeed returns speed of the ship

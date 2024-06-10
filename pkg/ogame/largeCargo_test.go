@@ -22,6 +22,6 @@ func TestLargeCargo_GetCargoCapacity(t *testing.T) {
 func TestLargeCargo_GetFuelConsumption(t *testing.T) {
 	lc := newLargeCargo()
 	lfBonuses := LfBonuses{LfShipBonuses: make(LfShipBonuses)}
-	lfBonuses.LfShipBonuses[LargeCargoID] = LfShipBonus{Speed: 0.16, FuelConsumption: 0.019}
+	lfBonuses.LfShipBonuses[LargeCargoID] = LfShipBonus{Speed: 0.016, FuelConsumption: -0.0019}
 	assert.Equal(t, int64(24), lc.GetFuelConsumption(Researches{}, lfBonuses, NoClass, 0.5))
 }
