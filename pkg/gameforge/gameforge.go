@@ -118,6 +118,9 @@ func Register(device *device.Device, ctx context.Context, lobby, email, password
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusInternalServerError {
+		return fmt.Errorf("gameforme internal server error : %s", resp.Status)
+	}
 	if resp.StatusCode == http.StatusConflict {
 		gfChallengeID := resp.Header.Get(ChallengeIDCookieName) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
 		if gfChallengeID != "" {
