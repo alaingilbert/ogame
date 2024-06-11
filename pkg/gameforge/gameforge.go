@@ -323,7 +323,7 @@ func AddAccount(device *device.Device, ctx context.Context, lobby, accountGroup,
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode == http.StatusBadRequest {
+	if resp.StatusCode == http.StatusBadRequest { // Same status is returned when IP is temporarily blocked
 		return nil, errors.New("invalid request, account already in lobby ?")
 	}
 	var newAccount AddAccountRes
