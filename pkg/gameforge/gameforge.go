@@ -122,11 +122,8 @@ func Register(device *device.Device, ctx context.Context, lobby, email, password
 		return fmt.Errorf("gameforme internal server error : %s", resp.Status)
 	}
 	if resp.StatusCode == http.StatusConflict {
-		gfChallengeID := resp.Header.Get(ChallengeIDCookieName) // c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
-		if gfChallengeID != "" {
-			parts := strings.Split(gfChallengeID, ";")
-			challengeID := parts[0]
-			return NewCaptchaRequiredError(challengeID)
+		if newChallengeID := extractChallengeID(resp); newChallengeID != "" {
+			return NewCaptchaRequiredError(newChallengeID)
 		}
 	}
 	by, err := utils.ReadBody(resp)
@@ -347,6 +344,16 @@ type GFLoginRes struct {
 
 func (r GFLoginRes) GetBearerToken() string { return r.Token }
 
+func extractChallengeID(resp *http.Response) (challengeID string) {
+	gfChallengeID := resp.Header.Get(ChallengeIDCookieName)
+	if gfChallengeID != "" {
+		// c434aa65-a064-498f-9ca4-98054bab0db8;https://challenge.gameforge.com
+		parts := strings.Split(gfChallengeID, ";")
+		challengeID = parts[0]
+	}
+	return
+}
+
 func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 	setDefaultParams(params)
 	if params.Device == nil {
@@ -376,10 +383,7 @@ func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 	}
 
 	if resp.StatusCode == http.StatusConflict {
-		gfChallengeID := resp.Header.Get(ChallengeIDCookieName)
-		if gfChallengeID != "" {
-			parts := strings.Split(gfChallengeID, ";")
-			challengeID := parts[0]
+		if challengeID := extractChallengeID(resp); challengeID != "" {
 			return out, NewCaptchaRequiredError(challengeID)
 		}
 	}
