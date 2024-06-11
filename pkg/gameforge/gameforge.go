@@ -229,16 +229,15 @@ func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, beare
 	}
 	defer resp.Body.Close()
 	// {"tokenType":"accountTrading"}
-	type respStruct struct {
-		TokenType string `json:"tokenType"`
-	}
-	var respParsed respStruct
 	by, err := utils.ReadBody(resp)
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode == http.StatusBadRequest {
 		return errors.New("invalid request, token invalid ?")
+	}
+	var respParsed struct {
+		TokenType string `json:"tokenType"`
 	}
 	if err := json.Unmarshal(by, &respParsed); err != nil {
 		return errors.New(err.Error() + " : " + string(by))
