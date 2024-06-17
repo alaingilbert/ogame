@@ -127,7 +127,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	rawMessageData := doc.Find("div.rawMessageData").First()
 	txt := rawMessageData.AttrOr("data-raw-coordinates", "")
 	report.Coordinate = ogame.DoParseCoord(txt)
-	if rawMessageData.AttrOr("data-raw-targetPlanetType", "1") == "1" {
+	if rawMessageData.AttrOr("data-raw-targetplanettype", "1") == "1" {
 		report.Coordinate.Type = ogame.PlanetType
 	} else {
 		report.Coordinate.Type = ogame.MoonType
