@@ -636,6 +636,11 @@ func (b *OGame) Distance(origin, destination ogame.Coordinate) int64 {
 	return Distance(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy, b.serverData.DonutSystem)
 }
 
+// SystemDistance return the distance between two systems
+func (b *OGame) SystemDistance(system1, system2 int64) int64 {
+	return systemDistance(b.serverData.Systems, system1, system2, b.serverData.DonutSystem)
+}
+
 // RegisterWSCallback ...
 func (b *OGame) RegisterWSCallback(id string, fn func(msg []byte)) {
 	b.Lock()
