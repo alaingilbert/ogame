@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// https://board.en.ogame.gameforge.com/index.php?thread/835512-lifeforms-master-file/
+// https://ogame.comastuff.com/LFMaster903.xlsx
+
 // LazyLfResearches ...
 type LazyLfResearches func() LfResearches
 
