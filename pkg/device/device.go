@@ -23,6 +23,11 @@ import (
 
 type Os string
 
+// NowFunc allow user to override it
+var NowFunc = func() time.Time {
+	return time.Now()
+}
+
 const (
 	Android Os = "Android"
 	Windows Os = "Windows"
@@ -339,7 +344,7 @@ func (d *Builder) newFingerprint() (*JsFingerprint, error) {
 		ScreenColorDepth:      d.screenColorDepth,
 		OfflineAudioCtx:       d.offlineAudioCtx,
 		Canvas2DInfo:          d.canvas2DInfo,
-		DateIso:               time.Now().UTC().Format(javascriptISOString),
+		DateIso:               NowFunc().UTC().Format(javascriptISOString),
 		NavigatorDoNotTrack:   false,
 		LocalStorageEnabled:   true,
 		SessionStorageEnabled: true,
@@ -540,12 +545,12 @@ func GenNewXVec() string {
 	for i := 0; i < 100; i++ {
 		part1 += string(randChar())
 	}
-	ts := time.Now().UnixMilli()
+	ts := NowFunc().UnixMilli()
 	return fmt.Sprintf("%s %d", part1, ts)
 }
 
 func rotateXVec(xvec string) string {
-	nowTs := time.Now().UnixMilli()
+	nowTs := NowFunc().UnixMilli()
 	part1 := xvec[:100]
 	prevTs := utils.DoParseI64(xvec[101:])
 	if prevTs+1000 < nowTs {
@@ -555,7 +560,7 @@ func rotateXVec(xvec string) string {
 }
 
 func getGame1Js(client httpclient.IHttpClient) (dateHeader string, elapsed int64, err error) {
-	before := time.Now()
+	before := NowFunc()
 	resp, err := client.Get("https://gameforge.com/tra/game1.js")
 	if err != nil {
 		return "", 0, err
