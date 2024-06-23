@@ -81,6 +81,7 @@ type Prioritizable interface {
 	GetEspionageReportMessages(maxPage int64) ([]ogame.EspionageReportSummary, error)
 	GetExpeditionMessageAt(time.Time) (ogame.ExpeditionMessage, error)
 	GetExpeditionMessages(maxPage int64) ([]ogame.ExpeditionMessage, error)
+	GetFleetDispatch(ogame.CelestialID, ...Option) (ogame.FleetDispatchInfos, error)
 	GetFleets(...Option) ([]ogame.Fleet, ogame.Slots)
 	GetFleetsFromEventList() []ogame.Fleet
 	GetItems(ogame.CelestialID) ([]ogame.Item, error)

@@ -358,6 +358,13 @@ func (b *Prioritize) GetSlots() (ogame.Slots, error) {
 	return b.bot.getSlots()
 }
 
+// GetFleetDispatch extract information available on the fleetdispatch page
+func (b *Prioritize) GetFleetDispatch(celestialID ogame.CelestialID, options ...Option) (ogame.FleetDispatchInfos, error) {
+	b.begin("GetFleetDispatch")
+	defer b.done()
+	return b.bot.getFleetDispatch(celestialID, options...)
+}
+
 // Build builds any ogame objects (building, technology, ship, defence)
 func (b *Prioritize) Build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) error {
 	b.begin("Build")

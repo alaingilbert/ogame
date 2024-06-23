@@ -463,6 +463,11 @@ func (b *OGame) GetSlots() (ogame.Slots, error) {
 	return b.WithPriority(taskRunner.Normal).GetSlots()
 }
 
+// GetFleetDispatch extract information available on the fleetdispatch page
+func (b *OGame) GetFleetDispatch(celestialID ogame.CelestialID, options ...Option) (ogame.FleetDispatchInfos, error) {
+	return b.WithPriority(taskRunner.Normal).GetFleetDispatch(celestialID, options...)
+}
+
 // Build builds any ogame objects (building, technology, ship, defence)
 func (b *OGame) Build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) error {
 	return b.WithPriority(taskRunner.Normal).Build(celestialID, id, nbr)

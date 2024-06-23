@@ -1582,6 +1582,28 @@ func (b *OGame) getLastFleetFor(origin, destination ogame.Coordinate, mission og
 	return ogame.Fleet{}, errors.New("could not find fleet")
 }
 
+func (b *OGame) getFleetDispatch(celestialID ogame.CelestialID, options ...Option) (out ogame.FleetDispatchInfos, err error) {
+	options = append(options, ChangePlanet(celestialID))
+	page, err := getPage[parser.FleetDispatchPage](b, options...)
+	if err != nil {
+		return
+	}
+	ships, err := page.ExtractShips()
+	if err != nil {
+		return
+	}
+	slots, err := page.ExtractSlots()
+	if err != nil {
+		return
+	}
+	acsValues := page.ExtractAcsValues()
+	out.Resources = page.ExtractResources()
+	out.Ships = ships
+	out.Slots = slots
+	out.ACSValues = acsValues
+	return
+}
+
 func (b *OGame) getSlots() (out ogame.Slots, err error) {
 	pageHTML, err := b.getPage(FleetdispatchPageName)
 	if err != nil {

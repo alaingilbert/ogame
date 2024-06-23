@@ -93,3 +93,7 @@ func (p *FullPage) ExtractCelestials() ([]ogame.Celestial, error) {
 func (p *FullPage) ExtractCelestial(v any) (ogame.Celestial, error) {
 	return p.e.ExtractCelestialFromDoc(p.GetDoc(), v)
 }
+
+func (p *FullPage) ExtractResources() ogame.Resources {
+	return p.e.ExtractResourcesFromDoc(p.GetDoc())
+}
