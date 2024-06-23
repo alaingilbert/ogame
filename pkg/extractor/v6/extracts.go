@@ -1797,7 +1797,6 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 			planetInfos.Player.IsStarlord = tdPlayername.HasClass("rank_starlord1") || tdPlayername.HasClass("rank_starlord2") || tdPlayername.HasClass("rank_starlord3")
 			planetInfos.Coordinate = ExtractCoord(coordsRaw)
 			planetInfos.Coordinate.Type = ogame.PlanetType
-			planetInfos.Date = time.Now()
 
 			var playerID int64
 			var playerName string

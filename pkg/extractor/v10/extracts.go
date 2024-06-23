@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-	"time"
-
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
+	"strings"
 )
 
 type (
@@ -239,8 +237,6 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 				planetInfos.Coordinate.System = pos.System.Int64()
 				planetInfos.Coordinate.Position = pos.Position.Int64()
 				planetInfos.Coordinate.Type = ogame.PlanetType
-
-				planetInfos.Date = time.Now()
 
 				// Player
 				planetInfos.Player.ID = player.PlayerID.Int64()
