@@ -596,11 +596,19 @@ func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
 func extractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues {
 	out := make([]ogame.ACSValues, 0)
 	doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
-		acsValues := s.AttrOr("value", "")
-		m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
-		if len(m) == 2 {
-			optUnionID := utils.DoParseI64(m[1])
-			out = append(out, ogame.ACSValues{ACSValues: acsValues, Union: optUnionID})
+		acsValuesStr := s.AttrOr("value", "")
+		m := regexp.MustCompile(`(\d+)#(\d+)#(\d+)#(\d+)#(.*)#(\d+)`).FindStringSubmatch(acsValuesStr)
+		if len(m) == 7 {
+			acsValues := ogame.ACSValues{
+				ACSValues:     acsValuesStr,
+				Galaxy:        utils.DoParseI64(m[1]),
+				System:        utils.DoParseI64(m[2]),
+				Position:      utils.DoParseI64(m[3]),
+				CelestialType: ogame.CelestialType(utils.DoParseI64(m[4])),
+				Name:          m[5],
+				Union:         utils.DoParseI64(m[6]),
+			}
+			out = append(out, acsValues)
 		}
 	})
 	return out
