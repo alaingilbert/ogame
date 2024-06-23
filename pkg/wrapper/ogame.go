@@ -3193,8 +3193,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	}
 	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
 	if fleet1BodyID != FleetdispatchPageName {
-		now := time.Now().Unix()
-		b.error(ogame.ErrInvalidPlanetID.Error()+", planetID:", celestialID, ", ts: ", now)
+		b.error(ogame.ErrInvalidPlanetID.Error()+", planetID:", celestialID)
 		return ogame.Fleet{}, ogame.ErrInvalidPlanetID
 	}
 
@@ -3414,8 +3413,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		}
 	}
 
-	now := time.Now().Unix()
-	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID, ", ts: ", now)
+	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID)
 	return ogame.Fleet{}, errors.New("could not find new fleet ID")
 }
 
