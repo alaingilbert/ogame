@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var ErrInvalidOrigin = errors.New("invalid origin")
+
 // FleetBuilderFactory ...
 type FleetBuilderFactory struct {
 	b Wrapper
@@ -175,6 +177,10 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 // FlightTime ...
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 	origin := f.origin
+	if origin == nil {
+		f.err = ErrInvalidOrigin
+		return 0, 0
+	}
 	ships := f.ships
 	if f.allShips {
 		if f.tx != nil {
@@ -191,7 +197,7 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	if f.origin == nil {
-		f.err = errors.New("invalid origin")
+		f.err = ErrInvalidOrigin
 		return f.err
 	}
 
