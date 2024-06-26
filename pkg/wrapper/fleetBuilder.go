@@ -174,18 +174,19 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 
 // FlightTime ...
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
+	origin := f.origin
 	ships := f.ships
 	if f.allShips {
 		if f.tx != nil {
-			ships, _ = f.tx.GetShips(f.origin.GetID())
+			ships, _ = f.tx.GetShips(origin.GetID())
 		} else {
-			ships, _ = f.b.GetShips(f.origin.GetID())
+			ships, _ = f.b.GetShips(origin.GetID())
 		}
 	}
 	if f.tx != nil {
-		return f.tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
+		return f.tx.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
 	}
-	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
+	return f.b.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
 }
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {
