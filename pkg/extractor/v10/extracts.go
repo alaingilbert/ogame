@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
+	"strconv"
 	"strings"
 )
 
@@ -95,8 +96,8 @@ func (c *CInt64) UnmarshalJSON(d []byte) error {
 	if err := json.Unmarshal(d, &str); err != nil {
 		return err
 	}
-	tmp = utils.ParseInt(str)
-	*c = CInt64(tmp)
+	f, _ := strconv.ParseFloat(str, 64)
+	*c = CInt64(f)
 	return nil
 }
 

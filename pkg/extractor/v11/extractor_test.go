@@ -13,6 +13,13 @@ func TestExtractGalaxyInfos(t *testing.T) {
 	assert.Equal(t, "Commodore Gemini", infos.Position(10).Player.Name)
 }
 
+func TestExtractGalaxyInfos_debrisFloat(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.15.8/pl/galaxy.html")
+	infos, _ := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "", 0, 0)
+	assert.Equal(t, int64(0), infos.Position(9).Debris.Metal)
+	assert.Equal(t, int64(234_500), infos.Position(9).Debris.Crystal)
+}
+
 func TestCancel(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.6.2/overview_cancels.html")
 	token, techID, listID, err := NewExtractor().ExtractCancelBuildingInfos(pageHTMLBytes)
