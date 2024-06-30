@@ -157,19 +157,19 @@ func TestDistance(t *testing.T) {
 func TestCalcFlightTime(t *testing.T) {
 	// Test from https://ogame.fandom.com/wiki/Talk:Fuel_Consumption
 	secs, fuel := CalcFlightTime(ogame.Coordinate{Galaxy: 1, System: 1, Position: 1, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 1, System: 5, Position: 3, Type: ogame.PlanetType},
-		1, 499, false, false, 1, 0.8, 1, ogame.ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, ogame.Researches{CombustionDrive: 10, ImpulseDrive: 7}, ogame.LfBonuses{}, ogame.NoClass)
+		1, 499, false, false, 1, 0.8, 1, ogame.ShipsInfos{LightFighter: 16, HeavyFighter: 8, Cruiser: 4}, ogame.Researches{CombustionDrive: 10, ImpulseDrive: 7}, ogame.LfBonuses{}, ogame.NoClass, ogame.NoAllianceClass)
 	assert.Equal(t, int64(4966), secs)
 	assert.Equal(t, int64(550), fuel)
 
 	// Different fleetDeutSaveFactor
 	secs, fuel = CalcFlightTime(ogame.Coordinate{Galaxy: 4, System: 116, Position: 12, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 3, System: 116, Position: 12, Type: ogame.PlanetType},
-		6, 499, true, true, 0.5, 1, 2, ogame.ShipsInfos{LargeCargo: 1931}, ogame.Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, ogame.LfBonuses{}, ogame.Discoverer)
+		6, 499, true, true, 0.5, 1, 2, ogame.ShipsInfos{LargeCargo: 1931}, ogame.Researches{CombustionDrive: 18, ImpulseDrive: 15, HyperspaceDrive: 13}, ogame.LfBonuses{}, ogame.Discoverer, ogame.NoAllianceClass)
 	assert.Equal(t, int64(5406), secs)
 	assert.Equal(t, int64(110336), fuel)
 
 	// Test with solar satellite
 	secs, fuel = CalcFlightTime(ogame.Coordinate{Galaxy: 1, System: 1, Position: 1, Type: ogame.PlanetType}, ogame.Coordinate{Galaxy: 1, System: 1, Position: 15, Type: ogame.PlanetType},
-		6, 499, false, false, 1, 1, 4, ogame.ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, ogame.Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, ogame.LfBonuses{}, ogame.NoClass)
+		6, 499, false, false, 1, 1, 4, ogame.ShipsInfos{LargeCargo: 100, SolarSatellite: 50}, ogame.Researches{CombustionDrive: 16, ImpulseDrive: 13, HyperspaceDrive: 15}, ogame.LfBonuses{}, ogame.NoClass, ogame.NoAllianceClass)
 	assert.Equal(t, int64(651), secs)
 	assert.Equal(t, int64(612), fuel)
 
@@ -179,7 +179,7 @@ func TestCalcFlightTime(t *testing.T) {
 		ogame.Coordinate{Galaxy: 1, System: 313, Position: 9, Type: ogame.PlanetType},
 		5, 499, true, true, 1, 1, 2,
 		ogame.ShipsInfos{LightFighter: 1, HeavyFighter: 1, Cruiser: 1, Battleship: 1, SmallCargo: 1, LargeCargo: 1, Recycler: 1, ColonyShip: 1, EspionageProbe: 1},
-		ogame.Researches{CombustionDrive: 7, ImpulseDrive: 5, HyperspaceDrive: 0}, ogame.LfBonuses{}, ogame.Discoverer)
+		ogame.Researches{CombustionDrive: 7, ImpulseDrive: 5, HyperspaceDrive: 0}, ogame.LfBonuses{}, ogame.Discoverer, ogame.NoAllianceClass)
 	assert.Equal(t, int64(13427), secs)
 	assert.Equal(t, int64(3808), fuel)
 
@@ -188,7 +188,7 @@ func TestCalcFlightTime(t *testing.T) {
 		ogame.Coordinate{Galaxy: 1, System: 318, Position: 4, Type: ogame.MoonType},
 		5, 499, true, true, 0.5, 1, 6,
 		ogame.ShipsInfos{LightFighter: 1, HeavyFighter: 1, Cruiser: 1, Battleship: 1, SmallCargo: 1, LargeCargo: 1, Recycler: 1, EspionageProbe: 1, Pathfinder: 1},
-		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.LfBonuses{}, ogame.Discoverer)
+		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.LfBonuses{}, ogame.Discoverer, ogame.NoAllianceClass)
 	assert.Equal(t, int64(3069), secs)
 	assert.Equal(t, int64(584), fuel)
 
@@ -197,7 +197,7 @@ func TestCalcFlightTime(t *testing.T) {
 		ogame.Coordinate{Galaxy: 1, System: 318, Position: 4, Type: ogame.MoonType},
 		5, 499, true, true, 0.5, 1, 6,
 		ogame.ShipsInfos{EspionageProbe: 9000},
-		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.LfBonuses{}, ogame.Discoverer)
+		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.LfBonuses{}, ogame.Discoverer, ogame.NoAllianceClass)
 	assert.Equal(t, int64(15), secs)
 	assert.Equal(t, int64(1), fuel)
 
@@ -206,7 +206,7 @@ func TestCalcFlightTime(t *testing.T) {
 		ogame.Coordinate{Galaxy: 1, System: 318, Position: 4, Type: ogame.MoonType},
 		5, 499, true, true, 1, 1, 6,
 		ogame.ShipsInfos{EspionageProbe: 9000},
-		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.LfBonuses{}, ogame.General)
+		ogame.Researches{CombustionDrive: 10, ImpulseDrive: 6, HyperspaceDrive: 4}, ogame.LfBonuses{}, ogame.General, ogame.NoAllianceClass)
 	assert.Equal(t, int64(15), secs)
 	assert.Equal(t, int64(1), fuel)
 }
@@ -241,7 +241,7 @@ func TestVersion(t *testing.T) {
 }
 
 func TestFindSlowestSpeed(t *testing.T) {
-	assert.Equal(t, int64(8000), findSlowestSpeed(ogame.ShipsInfos{SmallCargo: 1, LargeCargo: 1}, ogame.Researches{CombustionDrive: 6}, ogame.LfBonuses{}, ogame.NoClass))
+	assert.Equal(t, int64(8000), findSlowestSpeed(ogame.ShipsInfos{SmallCargo: 1, LargeCargo: 1}, ogame.Researches{CombustionDrive: 6}, ogame.LfBonuses{}, ogame.NoClass, ogame.NoAllianceClass))
 }
 
 func TestOGame_GetCachedCelestial(t *testing.T) {

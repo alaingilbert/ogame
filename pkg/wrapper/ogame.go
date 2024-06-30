@@ -1658,14 +1658,14 @@ func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems int64, donutGalax
 	return 5
 }
 
-func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass) int64 {
+func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) int64 {
 	var minSpeed int64 = math.MaxInt64
 	for _, ship := range ogame.Ships {
 		shipID := ship.GetID()
 		if shipID == ogame.SolarSatelliteID || shipID == ogame.CrawlerID {
 			continue
 		}
-		shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass)
+		shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
 		if ships.ByID(shipID) > 0 && shipSpeed < minSpeed {
 			minSpeed = shipSpeed
 		}
@@ -1673,7 +1673,8 @@ func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses 
 	return minSpeed
 }
 
-func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass) (fuel int64) {
+func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
+	lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (fuel int64) {
 	tmpFn := func(baseFuel, nbr, shipSpeed int64) float64 {
 		tmpSpeed := (35000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
 		return float64(baseFuel*nbr*dist) / 35000 * math.Pow(tmpSpeed/10+1, 2)
@@ -1687,7 +1688,7 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 		nbr := ships.ByID(shipID)
 		if nbr > 0 {
 			getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
-			speed := ship.GetSpeed(techs, lfBonuses, characterClass)
+			speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
 			tmpFuel += tmpFn(getFuelConsumption, nbr, speed)
 		}
 	}
@@ -1701,14 +1702,15 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 // https://board.en.ogame.gameforge.com/index.php?thread/838751-flight-time-consumption-ignores-empty-inactive-systems
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
 func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
-	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass) (secs, fuel int64) {
+	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses,
+	characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (secs, fuel int64) {
 	if !ships.HasShips() {
 		return
 	}
-	v := findSlowestSpeed(ships, techs, lfBonuses, characterClass)
+	v := findSlowestSpeed(ships, techs, lfBonuses, characterClass, allianceClass)
 	secs = CalcFlightTimeWithBaseSpeed(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem, speed, v, universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
-	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass)
+	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass, allianceClass)
 	return
 }
 
@@ -1726,9 +1728,10 @@ func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeS
 // CalcFlightTime calculates the flight time and the fuel consumption
 func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float64, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
 	lfBonuses, _ := b.GetCachedLfBonuses()
+	allianceClass, _ := b.GetCachedAllianceClass()
 	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
 		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(b.serverData, missionID), ships,
-		b.GetCachedResearch(), lfBonuses, b.characterClass)
+		b.GetCachedResearch(), lfBonuses, b.characterClass, allianceClass)
 }
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)

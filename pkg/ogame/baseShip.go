@@ -51,11 +51,15 @@ func (b BaseShip) GetFuelConsumption(techs IResearches, lfBonuses LfBonuses, cha
 }
 
 // GetSpeed returns speed of the ship
-func (b BaseShip) GetSpeed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass) int64 {
+func (b BaseShip) GetSpeed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, allianceClass AllianceClass) int64 {
 	var techDriveLvl int64
 	driveFactor := 0.2
 	baseSpeed := float64(b.BaseSpeed)
 	multiplier := int64(1)
+	allianceBonusPct := 0.0
+	if (b.ID == SmallCargoID || b.ID == LargeCargoID) && allianceClass.IsTrader() {
+		allianceBonusPct = 0.1
+	}
 	if b.ID == SmallCargoID && techs.GetImpulseDrive() >= 5 {
 		baseSpeed = 10000
 		techDriveLvl = techs.GetImpulseDrive()
@@ -81,8 +85,9 @@ func (b BaseShip) GetSpeed(techs IResearches, lfBonuses LfBonuses, characterClas
 	}
 	techDriveLvlF := float64(techDriveLvl)
 	lfBonus := baseSpeed * lfBonuses.LfShipBonuses[b.ID].Speed
+	allianceBonus := baseSpeed * allianceBonusPct
 	driveBonus := baseSpeed * driveFactor * techDriveLvlF
-	speed := baseSpeed + driveBonus + lfBonus
+	speed := baseSpeed + driveBonus + lfBonus + allianceBonus
 	if characterClass.IsCollector() && (b.ID == SmallCargoID || b.ID == LargeCargoID) {
 		speed += baseSpeed
 	} else if characterClass.IsGeneral() && (b.ID == RecyclerID || b.ID.IsCombatShip()) && b.ID != DeathstarID {

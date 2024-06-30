@@ -613,9 +613,10 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 	defer b.done()
 	researches := b.bot.getCachedResearch()
 	lfbonuses, _ := b.bot.getCachedLfBonuses()
+	allianceClass, _ := b.bot.getCachedAllianceClass()
 	return CalcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
 		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, lfbonuses, b.bot.characterClass)
+		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, lfbonuses, b.bot.characterClass, allianceClass)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information

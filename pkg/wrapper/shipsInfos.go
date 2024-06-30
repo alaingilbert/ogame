@@ -48,6 +48,7 @@ func (s *ShipsInfos) Speed() (out int64) {
 	defer tx.Done()
 	techs := tx.GetCachedResearch()
 	bonuses, _ := tx.GetCachedLfBonuses()
+	allianceClass, _ := tx.GetCachedAllianceClass()
 	characterClass := s.wrapper.CharacterClass()
-	return s.ShipsInfos.Speed(techs, bonuses, characterClass)
+	return s.ShipsInfos.Speed(techs, bonuses, characterClass, allianceClass)
 }

@@ -15,14 +15,14 @@ func TestSmallCargoConstructionTime(t *testing.T) {
 
 func TestSmallCargoSpeed(t *testing.T) {
 	sc := newSmallCargo()
-	assert.Equal(t, int64(6000), sc.GetSpeed(Researches{CombustionDrive: 2}, LfBonuses{}, NoClass))
-	assert.Equal(t, int64(8000), sc.GetSpeed(Researches{CombustionDrive: 6}, LfBonuses{}, NoClass))
-	assert.Equal(t, int64(8000), sc.GetSpeed(Researches{CombustionDrive: 6, ImpulseDrive: 4}, LfBonuses{}, NoClass))
-	assert.Equal(t, int64(20000), sc.GetSpeed(Researches{CombustionDrive: 6, ImpulseDrive: 5}, LfBonuses{}, NoClass))
-	assert.Equal(t, int64(22000), sc.GetSpeed(Researches{CombustionDrive: 10, ImpulseDrive: 6}, LfBonuses{}, NoClass))
+	assert.Equal(t, int64(6000), sc.GetSpeed(Researches{CombustionDrive: 2}, LfBonuses{}, NoClass, NoAllianceClass))
+	assert.Equal(t, int64(8000), sc.GetSpeed(Researches{CombustionDrive: 6}, LfBonuses{}, NoClass, NoAllianceClass))
+	assert.Equal(t, int64(8000), sc.GetSpeed(Researches{CombustionDrive: 6, ImpulseDrive: 4}, LfBonuses{}, NoClass, NoAllianceClass))
+	assert.Equal(t, int64(20000), sc.GetSpeed(Researches{CombustionDrive: 6, ImpulseDrive: 5}, LfBonuses{}, NoClass, NoAllianceClass))
+	assert.Equal(t, int64(22000), sc.GetSpeed(Researches{CombustionDrive: 10, ImpulseDrive: 6}, LfBonuses{}, NoClass, NoAllianceClass))
 	lfBonuses := LfBonuses{LfShipBonuses: make(LfShipBonuses)}
 	lfBonuses.LfShipBonuses[SmallCargoID] = LfShipBonus{Speed: 0.836775}
-	assert.Equal(t, int64(48368), sc.GetSpeed(Researches{CombustionDrive: 15, ImpulseDrive: 15}, lfBonuses, Discoverer))
+	assert.Equal(t, int64(48368), sc.GetSpeed(Researches{CombustionDrive: 15, ImpulseDrive: 15}, lfBonuses, Discoverer, NoAllianceClass))
 }
 
 func TestSmallCargoFuelConsumption(t *testing.T) {

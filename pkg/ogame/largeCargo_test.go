@@ -8,8 +8,10 @@ import (
 
 func TestLargeCargo_GetSpeed(t *testing.T) {
 	lc := newLargeCargo()
-	assert.Equal(t, int64(12000), lc.GetSpeed(Researches{CombustionDrive: 6}, LfBonuses{}, NoClass))
-	assert.Equal(t, int64(19500), lc.GetSpeed(Researches{CombustionDrive: 6}, LfBonuses{}, Collector))
+	assert.Equal(t, int64(12000), lc.GetSpeed(Researches{CombustionDrive: 6}, LfBonuses{}, NoClass, NoAllianceClass))
+	assert.Equal(t, int64(19500), lc.GetSpeed(Researches{CombustionDrive: 6}, LfBonuses{}, Collector, NoAllianceClass))
+	assert.Equal(t, int64(19500), lc.GetSpeed(Researches{CombustionDrive: 6}, LfBonuses{}, Collector, NoAllianceClass))
+	assert.Equal(t, int64(12750), lc.GetSpeed(Researches{CombustionDrive: 6}, LfBonuses{}, NoClass, Trader))
 }
 
 func TestLargeCargo_GetCargoCapacity(t *testing.T) {

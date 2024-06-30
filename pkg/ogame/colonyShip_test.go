@@ -8,7 +8,7 @@ import (
 
 func TestColonyShip_GetSpeed(t *testing.T) {
 	cs := newColonyShip()
-	speed := cs.GetSpeed(Researches{ImpulseDrive: 6}, LfBonuses{}, NoClass)
+	speed := cs.GetSpeed(Researches{ImpulseDrive: 6}, LfBonuses{}, NoClass, NoAllianceClass)
 	assert.Equal(t, int64(5500), speed)
 
 }

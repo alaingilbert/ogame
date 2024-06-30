@@ -71,7 +71,7 @@ func (s ShipsInfos) HasFlyableShips() bool {
 }
 
 // Speed returns the speed of the slowest ship
-func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass) int64 {
+func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, allianceClass AllianceClass) int64 {
 	var minSpeed int64 = math.MaxInt64
 	for _, ship := range Ships {
 		shipID := ship.GetID()
@@ -80,7 +80,7 @@ func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass
 		}
 		nbr := s.ByID(shipID)
 		if nbr > 0 {
-			shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass)
+			shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
 			minSpeed = utils.MinInt(shipSpeed, minSpeed)
 		}
 	}
