@@ -1069,7 +1069,7 @@ func extractFleetsFromEventListFromDoc(doc *goquery.Document) []ogame.Fleet {
 	tmp := make([]Tmp, 0)
 	res := make([]ogame.Fleet, 0)
 	doc.Find("tr.eventFleet").Each(func(i int, s *goquery.Selection) {
-		fleet := ogame.Fleet{}
+		fleet := ogame.MakeFleet()
 
 		movement := s.Find("td span.tooltip").AttrOr("title", "")
 		if movement == "" {
@@ -1176,7 +1176,7 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 		targetPlanetID := utils.DoParseI64(fedAttackQuery.Get("target"))
 		unionID := utils.DoParseI64(fedAttackQuery.Get("union"))
 
-		fleet := ogame.Fleet{}
+		fleet := ogame.MakeFleet()
 		fleet.ID = ogame.FleetID(id)
 		fleet.Origin = origin
 		fleet.Destination = dest

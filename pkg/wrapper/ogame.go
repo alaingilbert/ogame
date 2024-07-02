@@ -1566,8 +1566,12 @@ func (b *OGame) cancelFleet(fleetID ogame.FleetID) error {
 func (b *OGame) getLastFleetFor(origin, destination ogame.Coordinate, mission ogame.MissionID) (ogame.Fleet, error) {
 	page, _ := getPage[parser.MovementPage](b)
 	fleets := page.ExtractFleets()
+	return getLastFleetFor(fleets, origin, destination, mission)
+}
+
+func getLastFleetFor(fleets []ogame.Fleet, origin, destination ogame.Coordinate, mission ogame.MissionID) (ogame.Fleet, error) {
 	if len(fleets) > 0 {
-		maxV := ogame.Fleet{}
+		maxV := ogame.MakeFleet()
 		for i, fleet := range fleets {
 			if fleet.ID > maxV.ID &&
 				fleet.Origin.Equal(origin) &&
@@ -1577,7 +1581,9 @@ func (b *OGame) getLastFleetFor(origin, destination ogame.Coordinate, mission og
 				maxV = fleets[i]
 			}
 		}
-		return maxV, nil
+		if maxV.ID > 0 {
+			return maxV, nil
+		}
 	}
 	return ogame.Fleet{}, errors.New("could not find fleet")
 }
@@ -3411,20 +3417,8 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	page, _ := getPage[parser.MovementPage](b)
 	originCoords, _ := page.ExtractPlanetCoordinate()
 	fleets := page.ExtractFleets()
-	if len(fleets) > 0 {
-		maxV := ogame.Fleet{}
-		for i, fleet := range fleets {
-			if fleet.ID > maxV.ID &&
-				fleet.Origin.Equal(originCoords) &&
-				fleet.Destination.Equal(where) &&
-				fleet.Mission == mission &&
-				!fleet.ReturnFlight {
-				maxV = fleets[i]
-			}
-		}
-		if maxV.ID > maxInitialFleetID {
-			return maxV, nil
-		}
+	if maxV, err := getLastFleetFor(fleets, originCoords, where, mission); err == nil && maxV.ID > maxInitialFleetID {
+		return maxV, nil
 	}
 
 	slots, _ = page.ExtractSlots()
