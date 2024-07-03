@@ -8,6 +8,9 @@ import (
 // ID represent an ogame id
 type ID int64
 
+// NoID constant to represent an unset ID
+const NoID ID = 0
+
 // IsSet returns either or not the id is set to a value different than 0
 func (o ID) IsSet() bool {
 	return o.Int64() != 0
