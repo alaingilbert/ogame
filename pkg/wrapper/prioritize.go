@@ -798,9 +798,23 @@ func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system
 	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
 }
 
-// SelectLfResearchWithArtifacts ...
-func (b *Prioritize) SelectLfResearchWithArtifacts(slotNumber int64, techID ogame.ID, planetID ogame.PlanetID) error {
-	b.begin("SelectLfResearchWithArtifacts")
+// SelectLfResearchSelect ...
+func (b *Prioritize) SelectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error {
+	b.begin("SelectLfResearchSelect")
 	defer b.done()
-	return b.bot.selectLfResearchWithArtifacts(slotNumber, techID, planetID)
+	return b.bot.selectLfResearchSelect(planetID, slotNumber)
+}
+
+// SelectLfResearchRandom ...
+func (b *Prioritize) SelectLfResearchRandom(planetID ogame.PlanetID, slotNumber int64) error {
+	b.begin("SelectLfResearchRandom")
+	defer b.done()
+	return b.bot.selectLfResearchRandom(planetID, slotNumber)
+}
+
+// SelectLfResearchArtifacts ...
+func (b *Prioritize) SelectLfResearchArtifacts(planetID ogame.PlanetID, slotNumber int64, techID ogame.ID) error {
+	b.begin("SelectLfResearchArtifacts")
+	defer b.done()
+	return b.bot.selectLfResearchArtifacts(planetID, slotNumber, techID)
 }

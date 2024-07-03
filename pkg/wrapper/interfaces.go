@@ -106,7 +106,9 @@ type Prioritizable interface {
 	OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error
 	PostPageContent(url.Values, url.Values) ([]byte, error)
 	RecruitOfficer(typ, days int64) error
-	SelectLfResearchWithArtifacts(slotNumber int64, techID ogame.ID, planetID ogame.PlanetID) error
+	SelectLfResearchArtifacts(planetID ogame.PlanetID, slotNumber int64, techID ogame.ID) error
+	SelectLfResearchRandom(planetID ogame.PlanetID, slotNumber int64) error
+	SelectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error
 	SendMessage(playerID int64, message string) error
 	SendMessageAlliance(associationID int64, message string) error
 	ServerTime() (time.Time, error)

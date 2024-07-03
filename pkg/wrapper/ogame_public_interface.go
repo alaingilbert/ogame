@@ -366,9 +366,19 @@ func (b *OGame) GetUserInfos() (ogame.UserInfos, error) {
 	return b.WithPriority(taskRunner.Normal).GetUserInfos()
 }
 
-// SelectLfResearchWithArtifacts ...
-func (b *OGame) SelectLfResearchWithArtifacts(slotNumber int64, techID ogame.ID, planetID ogame.PlanetID) error {
-	return b.WithPriority(taskRunner.Normal).SelectLfResearchWithArtifacts(slotNumber, techID, planetID)
+// SelectLfResearchSelect ...
+func (b *OGame) SelectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error {
+	return b.WithPriority(taskRunner.Normal).SelectLfResearchSelect(planetID, slotNumber)
+}
+
+// SelectLfResearchRandom ...
+func (b *OGame) SelectLfResearchRandom(planetID ogame.PlanetID, slotNumber int64) error {
+	return b.WithPriority(taskRunner.Normal).SelectLfResearchRandom(planetID, slotNumber)
+}
+
+// SelectLfResearchArtifacts ...
+func (b *OGame) SelectLfResearchArtifacts(planetID ogame.PlanetID, slotNumber int64, techID ogame.ID) error {
+	return b.WithPriority(taskRunner.Normal).SelectLfResearchArtifacts(planetID, slotNumber, techID)
 }
 
 // SendMessage sends a message to playerID
