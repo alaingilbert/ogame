@@ -2137,12 +2137,9 @@ func (b *OGame) offerMarketplace(marketItemType int64, itemID any, quantity, pri
 		"token":          {token},
 	}
 	var res struct {
-		Status  string `json:"status"`
-		Message string `json:"message"`
-		Errors  []struct {
-			Message string `json:"message"`
-			Error   int64  `json:"error"`
-		} `json:"errors"`
+		Status  string       `json:"status"`
+		Message string       `json:"message"`
+		Errors  []OGameError `json:"errors"`
 	}
 	by, err := b.postPageContent(params, payload, ChangePlanet(celestialID))
 	if err != nil {
@@ -2163,12 +2160,9 @@ func (b *OGame) buyMarketplace(itemID int64, celestialID ogame.CelestialID) (err
 		"marketItemId": {utils.FI64(itemID)},
 	}
 	var res struct {
-		Status  string `json:"status"`
-		Message string `json:"message"`
-		Errors  []struct {
-			Message string `json:"message"`
-			Error   int64  `json:"error"`
-		} `json:"errors"`
+		Status  string       `json:"status"`
+		Message string       `json:"message"`
+		Errors  []OGameError `json:"errors"`
 	}
 	by, err := b.postPageContent(params, payload, ChangePlanet(celestialID))
 	if err != nil {
@@ -2921,13 +2915,10 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 	}
 
 	var responseStruct struct {
-		JsServerlang string `json:"js_serverlang"`
-		JsServerid   string `json:"js_serverid"`
-		Status       string `json:"status"`
-		Errors       []struct {
-			Message string `json:"message"`
-			Error   int    `json:"error"`
-		} `json:"errors"`
+		JsServerlang string        `json:"js_serverlang"`
+		JsServerid   string        `json:"js_serverid"`
+		Status       string        `json:"status"`
+		Errors       []OGameError  `json:"errors"`
 		Components   []interface{} `json:"components"`
 		NewAjaxToken string        `json:"newAjaxToken"`
 	}
@@ -3211,13 +3202,10 @@ type CheckTargetResponse struct {
 		Type     int    `json:"type"`
 		Name     string `json:"name"`
 	} `json:"targetPlanet"`
-	Errors []struct {
-		Message string `json:"message"`
-		Error   int    `json:"error"`
-	} `json:"errors"`
-	TargetOk     bool   `json:"targetOk"`
-	Components   []any  `json:"components"`
-	NewAjaxToken string `json:"newAjaxToken"`
+	Errors       []OGameError `json:"errors"`
+	TargetOk     bool         `json:"targetOk"`
+	Components   []any        `json:"components"`
+	NewAjaxToken string       `json:"newAjaxToken"`
 }
 
 func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
@@ -4223,13 +4211,13 @@ func (b *OGame) resetTree(planetID ogame.PlanetID, tier int64, action string) er
 	}
 	var res struct {
 		Status string       `json:"status"`
-		Errors []OgameError `json:"errors"`
+		Errors []OGameError `json:"errors"`
 	}
 	if err := json.Unmarshal(by, &res); err != nil {
 		return err
 	}
 	if res.Status == "failure" {
-		var ogameErr OgameError
+		var ogameErr OGameError
 		if len(res.Errors) > 0 {
 			ogameErr = res.Errors[0]
 		}
@@ -4238,8 +4226,8 @@ func (b *OGame) resetTree(planetID ogame.PlanetID, tier int64, action string) er
 	return nil
 }
 
-// OgameError ogame struct for errors
-type OgameError struct {
+// OGameError ogame struct for errors
+type OGameError struct {
 	Message string `json:"message"`
 	Error   int    `json:"error"`
 }
