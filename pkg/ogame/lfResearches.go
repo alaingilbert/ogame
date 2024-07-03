@@ -452,6 +452,16 @@ type LfResearchDetails struct {
 	ArtefactsLimit     int64
 }
 
+// AvailableSlot return the slotNumber (1-18) available for research. 0 if none is available.
+func (d *LfResearchDetails) AvailableSlot() int64 {
+	for idx, slot := range d.Slots {
+		if slot.Allowed {
+			return int64(idx) + 1
+		}
+	}
+	return 0
+}
+
 // BaseLfResearch base struct for Lifeform techs
 type BaseLfResearch struct {
 	BaseTechnology
