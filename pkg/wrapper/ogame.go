@@ -4217,8 +4217,29 @@ func (b *OGame) resetTree(planetID ogame.PlanetID, tier int64, action string) er
 		"token": {b.token},
 		"tier":  {utils.FI64(tier)},
 	}
-	if _, err := b.postPageContent(vals, payload); err != nil {
+	by, err := b.postPageContent(vals, payload)
+	if err != nil {
 		return err
 	}
+	var res struct {
+		Status string       `json:"status"`
+		Errors []OgameError `json:"errors"`
+	}
+	if err := json.Unmarshal(by, &res); err != nil {
+		return err
+	}
+	if res.Status == "failure" {
+		var ogameErr OgameError
+		if len(res.Errors) > 0 {
+			ogameErr = res.Errors[0]
+		}
+		return fmt.Errorf("failed to reset tree for tier%d: %s (#%d)", tier, ogameErr.Message, ogameErr.Error)
+	}
 	return nil
+}
+
+// OgameError ogame struct for errors
+type OgameError struct {
+	Message string `json:"message"`
+	Error   int    `json:"error"`
 }
