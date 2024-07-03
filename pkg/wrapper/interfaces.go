@@ -52,6 +52,7 @@ type Prioritizable interface {
 	BeginNamed(name string) Prioritizable
 	BuyMarketplace(itemID int64, celestialID ogame.CelestialID) error
 	BuyOfferOfTheDay() error
+	BuyResetTree(planetID ogame.PlanetID, tier int64) error
 	CancelFleet(ogame.FleetID) error
 	CollectAllMarketplaceMessages() error
 	CollectMarketplaceMessage(ogame.MarketplaceMessage) error
@@ -61,6 +62,7 @@ type Prioritizable interface {
 	DoAuction(bid map[ogame.CelestialID]ogame.Resources) error
 	Done()
 	FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, mission ogame.MissionID) (secs, fuel int64)
+	FreeResetTree(planetID ogame.PlanetID, tier int64) error
 	GalaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemInfos, error)
 	GetActiveItems(ogame.CelestialID) ([]ogame.ActiveItem, error)
 	GetAllResources() (map[ogame.CelestialID]ogame.Resources, error)

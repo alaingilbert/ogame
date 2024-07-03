@@ -381,6 +381,16 @@ func (b *OGame) SelectLfResearchArtifacts(planetID ogame.PlanetID, slotNumber in
 	return b.WithPriority(taskRunner.Normal).SelectLfResearchArtifacts(planetID, slotNumber, techID)
 }
 
+// FreeResetTree reset a lifeform research tier tree
+func (b *OGame) FreeResetTree(planetID ogame.PlanetID, tier int64) error {
+	return b.WithPriority(taskRunner.Normal).FreeResetTree(planetID, tier)
+}
+
+// BuyResetTree reset a lifeform research tier tree using darkmatter
+func (b *OGame) BuyResetTree(planetID ogame.PlanetID, tier int64) error {
+	return b.WithPriority(taskRunner.Normal).BuyResetTree(planetID, tier)
+}
+
 // SendMessage sends a message to playerID
 func (b *OGame) SendMessage(playerID int64, message string) error {
 	return b.WithPriority(taskRunner.Normal).SendMessage(playerID, message)

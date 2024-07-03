@@ -4170,3 +4170,32 @@ func (b *OGame) selectLfResearch(planetID ogame.PlanetID, slotNumber int64, acti
 	}
 	return nil
 }
+
+func (b *OGame) freeResetTree(planetID ogame.PlanetID, tier int64) error {
+	return b.resetTree(planetID, tier, "freeResetTree")
+}
+
+func (b *OGame) buyResetTree(planetID ogame.PlanetID, tier int64) error {
+	return b.resetTree(planetID, tier, "buyResetTree")
+}
+
+func (b *OGame) resetTree(planetID ogame.PlanetID, tier int64, action string) error {
+	if tier < 1 || tier > 3 {
+		return errors.New("invalid tier")
+	}
+	vals := url.Values{
+		"page":      {"ingame"},
+		"component": {"lfresearch"},
+		"action":    {action},
+		"asJson":    {"1"},
+		"planetId":  {planetID.String()},
+	}
+	payload := url.Values{
+		"token": {b.token},
+		"tier":  {utils.FI64(tier)},
+	}
+	if _, err := b.postPageContent(vals, payload); err != nil {
+		return err
+	}
+	return nil
+}

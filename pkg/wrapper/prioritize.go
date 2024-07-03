@@ -818,3 +818,17 @@ func (b *Prioritize) SelectLfResearchArtifacts(planetID ogame.PlanetID, slotNumb
 	defer b.done()
 	return b.bot.selectLfResearchArtifacts(planetID, slotNumber, techID)
 }
+
+// FreeResetTree reset a lifeform research tier tree
+func (b *Prioritize) FreeResetTree(planetID ogame.PlanetID, tier int64) error {
+	b.begin("FreeResetTree")
+	defer b.done()
+	return b.bot.freeResetTree(planetID, tier)
+}
+
+// BuyResetTree reset a lifeform research tier tree using darkmatter
+func (b *Prioritize) BuyResetTree(planetID ogame.PlanetID, tier int64) error {
+	b.begin("BuyResetTree")
+	defer b.done()
+	return b.bot.buyResetTree(planetID, tier)
+}
