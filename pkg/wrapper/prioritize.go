@@ -798,21 +798,21 @@ func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system
 	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
 }
 
-// SelectLfResearchSelect ...
+// SelectLfResearchSelect select a lifeform research
 func (b *Prioritize) SelectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error {
 	b.begin("SelectLfResearchSelect")
 	defer b.done()
 	return b.bot.selectLfResearchSelect(planetID, slotNumber)
 }
 
-// SelectLfResearchRandom ...
+// SelectLfResearchRandom select a random lifeform research
 func (b *Prioritize) SelectLfResearchRandom(planetID ogame.PlanetID, slotNumber int64) error {
 	b.begin("SelectLfResearchRandom")
 	defer b.done()
 	return b.bot.selectLfResearchRandom(planetID, slotNumber)
 }
 
-// SelectLfResearchArtifacts ...
+// SelectLfResearchArtifacts select a lifeform research using artifacts
 func (b *Prioritize) SelectLfResearchArtifacts(planetID ogame.PlanetID, slotNumber int64, techID ogame.ID) error {
 	b.begin("SelectLfResearchArtifacts")
 	defer b.done()

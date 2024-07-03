@@ -366,17 +366,17 @@ func (b *OGame) GetUserInfos() (ogame.UserInfos, error) {
 	return b.WithPriority(taskRunner.Normal).GetUserInfos()
 }
 
-// SelectLfResearchSelect ...
+// SelectLfResearchSelect select a lifeform research
 func (b *OGame) SelectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error {
 	return b.WithPriority(taskRunner.Normal).SelectLfResearchSelect(planetID, slotNumber)
 }
 
-// SelectLfResearchRandom ...
+// SelectLfResearchRandom select a random lifeform research
 func (b *OGame) SelectLfResearchRandom(planetID ogame.PlanetID, slotNumber int64) error {
 	return b.WithPriority(taskRunner.Normal).SelectLfResearchRandom(planetID, slotNumber)
 }
 
-// SelectLfResearchArtifacts ...
+// SelectLfResearchArtifacts select a lifeform research using artifacts
 func (b *OGame) SelectLfResearchArtifacts(planetID ogame.PlanetID, slotNumber int64, techID ogame.ID) error {
 	return b.WithPriority(taskRunner.Normal).SelectLfResearchArtifacts(planetID, slotNumber, techID)
 }
