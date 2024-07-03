@@ -64,6 +64,7 @@ const (
 	AuctioneerAjaxPageName         = "auctioneer"
 	HighscoreContentAjaxPageName   = "highscoreContent"
 	LfResearchLayerPageName        = "lfresearchlayer"
+	LfResearchResetLayerPageName   = "lfresearchresetlayer"
 )
 
 func (b *OGame) getPage(page string, opts ...Option) ([]byte, error) {

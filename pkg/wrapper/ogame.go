@@ -851,6 +851,7 @@ func IsAjaxPage(vals url.Values) bool {
 			AuctioneerAjaxPageName,
 			HighscoreContentAjaxPageName,
 			LfResearchLayerPageName,
+			LfResearchResetLayerPageName,
 		})
 }
 
