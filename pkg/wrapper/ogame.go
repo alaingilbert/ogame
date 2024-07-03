@@ -4125,3 +4125,35 @@ func (b *OGame) getPositionsAvailableForDiscoveryFleet(galaxy int64, system int6
 
 	return availablePositions, nil
 }
+
+func (b *OGame) selectLfResearchWithArtifacts(slotNumber int64, techID ogame.ID, planetID ogame.PlanetID) error {
+	// Validate slotNumber
+	if slotNumber < 1 || slotNumber > 18 {
+		return errors.New("invalid slot number")
+	}
+	// Ensure techID is valid for the selected slotNumber
+	techIdx := slotNumber - 1
+	humanTech := ogame.HumansTechnologiesIDs[techIdx]
+	rocktalTech := ogame.RocktalTechnologiesIDs[techIdx]
+	mechasTech := ogame.MechasTechnologiesIDs[techIdx]
+	kaeleshTech := ogame.KaeleshTechnologiesIDs[techIdx]
+	if !utils.InArr(techID, []ogame.ID{humanTech, rocktalTech, mechasTech, kaeleshTech}) {
+		return errors.New("invalid tech id for slot")
+	}
+	vals := url.Values{
+		"page":      {"ingame"},
+		"component": {"lfresearch"},
+		"action":    {"selectArtifacts"},
+		"asJson":    {"1"},
+		"planetId":  {planetID.String()},
+	}
+	payload := url.Values{
+		"token":        {b.token},
+		"slotNumber":   {utils.FI64(slotNumber)},     // 2
+		"technologyId": {utils.FI64(techID.Int64())}, // 12202
+	}
+	if _, err := b.postPageContent(vals, payload); err != nil {
+		return err
+	}
+	return nil
+}

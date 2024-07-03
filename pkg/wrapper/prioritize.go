@@ -797,3 +797,10 @@ func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system
 	defer b.done()
 	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
 }
+
+// SelectLfResearchWithArtifacts ...
+func (b *Prioritize) SelectLfResearchWithArtifacts(slotNumber int64, techID ogame.ID, planetID ogame.PlanetID) error {
+	b.begin("SelectLfResearchWithArtifacts")
+	defer b.done()
+	return b.bot.selectLfResearchWithArtifacts(slotNumber, techID, planetID)
+}

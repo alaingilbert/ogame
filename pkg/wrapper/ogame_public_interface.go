@@ -366,6 +366,11 @@ func (b *OGame) GetUserInfos() (ogame.UserInfos, error) {
 	return b.WithPriority(taskRunner.Normal).GetUserInfos()
 }
 
+// SelectLfResearchWithArtifacts ...
+func (b *OGame) SelectLfResearchWithArtifacts(slotNumber int64, techID ogame.ID, planetID ogame.PlanetID) error {
+	return b.WithPriority(taskRunner.Normal).SelectLfResearchWithArtifacts(slotNumber, techID, planetID)
+}
+
 // SendMessage sends a message to playerID
 func (b *OGame) SendMessage(playerID int64, message string) error {
 	return b.WithPriority(taskRunner.Normal).SendMessage(playerID, message)
