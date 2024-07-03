@@ -839,6 +839,11 @@ func (b *OGame) GetLfResearch(celestialID ogame.CelestialID, opts ...Option) (og
 	return b.WithPriority(taskRunner.Normal).GetLfResearch(celestialID, opts...)
 }
 
+// GetLfResearchDetails ...
+func (b *OGame) GetLfResearchDetails(celestialID ogame.CelestialID, opts ...Option) (ogame.LfResearchDetails, error) {
+	return b.WithPriority(taskRunner.Normal).GetLfResearchDetails(celestialID, opts...)
+}
+
 // SendDiscoveryFleet ...
 func (b *OGame) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate, options ...Option) error {
 	return b.WithPriority(taskRunner.Normal).SendDiscoveryFleet(celestialID, coord, options...)

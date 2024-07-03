@@ -2686,6 +2686,27 @@ func (b *OGame) getLfResearch(celestialID ogame.CelestialID, options ...Option) 
 	return page.ExtractLfResearch()
 }
 
+func (b *OGame) getLfResearchDetails(celestialID ogame.CelestialID, options ...Option) (ogame.LfResearchDetails, error) {
+	options = append(options, ChangePlanet(celestialID))
+	page, err := getPage[parser.LfResearchPage](b, options...)
+	if err != nil {
+		return ogame.LfResearchDetails{}, err
+	}
+	lfResearch, err := page.ExtractLfResearch()
+	if err != nil {
+		return ogame.LfResearchDetails{}, err
+	}
+	slots := page.ExtractLfSlots()
+	collected, limit := page.ExtractArtefacts()
+	out := ogame.LfResearchDetails{
+		LfResearches:       lfResearch,
+		Slots:              slots,
+		ArtefactsCollected: collected,
+		ArtefactsLimit:     limit,
+	}
+	return out, nil
+}
+
 func (b *OGame) getDefense(celestialID ogame.CelestialID, options ...Option) (ogame.DefensesInfos, error) {
 	options = append(options, ChangePlanet(celestialID))
 	page, err := getPage[parser.DefensesPage](b, options...)

@@ -443,6 +443,8 @@ type LfResearchExtractorBytes interface {
 
 type LfResearchExtractorDoc interface {
 	ExtractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error)
+	ExtractLfSlotsFromDoc(doc *goquery.Document) [18]ogame.LfSlot
+	ExtractArtefactsFromDoc(doc *goquery.Document) (int64, int64)
 }
 
 type LfResearchExtractorBytesDoc interface {

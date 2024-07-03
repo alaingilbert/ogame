@@ -436,6 +436,22 @@ func (b LfResearches) ByID(id ID) *int64 {
 	return nil
 }
 
+// LfSlot ...
+type LfSlot struct {
+	TechID  ID
+	Level   int64
+	Allowed bool
+	Locked  bool
+}
+
+// LfResearchDetails ...
+type LfResearchDetails struct {
+	LfResearches
+	Slots              [18]LfSlot
+	ArtefactsCollected int64
+	ArtefactsLimit     int64
+}
+
 // BaseLfResearch base struct for Lifeform techs
 type BaseLfResearch struct {
 	BaseTechnology

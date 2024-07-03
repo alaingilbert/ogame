@@ -138,6 +138,7 @@ type Prioritizable interface {
 	GetFacilities(ogame.CelestialID, ...Option) (ogame.Facilities, error)
 	GetLfBuildings(ogame.CelestialID, ...Option) (ogame.LfBuildings, error)
 	GetLfResearch(ogame.CelestialID, ...Option) (ogame.LfResearches, error)
+	GetLfResearchDetails(ogame.CelestialID, ...Option) (ogame.LfResearchDetails, error)
 	GetProduction(ogame.CelestialID) ([]ogame.Quantifiable, int64, error)
 	GetResources(ogame.CelestialID) (ogame.Resources, error)
 	GetResourcesBuildings(ogame.CelestialID, ...Option) (ogame.ResourcesBuildings, error)

@@ -866,6 +866,35 @@ func extractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error)
 	return res, nil
 }
 
+func extractLfSlotsFromDoc(doc *goquery.Document) (out [18]ogame.LfSlot) {
+	processLiFn := func(tier int) func(int, *goquery.Selection) {
+		idxOffset := (tier - 1) * 6
+		return func(i int, s *goquery.Selection) {
+			idx := i + idxOffset
+			out[idx].TechID = ogame.ID(utils.DoParseI64(s.AttrOr("data-technology", "0")))
+			out[idx].Level = utils.DoParseI64(s.Find("span.level").First().AttrOr("data-value", "0"))
+			out[idx].Allowed = s.Find("span.research-allowed").First().HasClass("research-allowed")
+			out[idx].Locked = s.Find("span.research-locked").First().HasClass("research-locked")
+		}
+	}
+	doc.Find("div.tier1Container li").Each(processLiFn(1))
+	doc.Find("div.tier2Container li").Each(processLiFn(2))
+	doc.Find("div.tier3Container li").Each(processLiFn(3))
+	return
+}
+
+func extractArtefactsFromDoc(doc *goquery.Document) (int64, int64) {
+	txt := doc.Find("div#slot01").Text()
+	rgx := regexp.MustCompile(`(\d+)\s?/\s?(\d+)`)
+	m := rgx.FindStringSubmatch(txt)
+	if len(m) != 3 {
+		return 0, 0
+	}
+	collected := utils.DoParseI64(m[1])
+	limit := utils.DoParseI64(m[2])
+	return collected, limit
+}
+
 func extractTechnologyDetailsFromDoc(doc *goquery.Document) (out ogame.TechnologyDetails, err error) {
 	out.TechnologyID = ogame.ID(utils.DoParseI64(doc.Find("div#technologydetails").AttrOr("data-technology-id", "")))
 

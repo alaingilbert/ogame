@@ -954,7 +954,17 @@ func (e *Extractor) ExtractLfResearchFromDoc(doc *goquery.Document) (ogame.LfRes
 	panic("not implemented")
 }
 
-// ExtractAvailableDiscoveries
+// ExtractAvailableDiscoveries ...
 func (e *Extractor) ExtractAvailableDiscoveries(pageHTML []byte) int64 {
+	panic("not implemented")
+}
+
+// ExtractLfSlotsFromDoc ...
+func (e *Extractor) ExtractLfSlotsFromDoc(doc *goquery.Document) [18]ogame.LfSlot {
+	panic("not implemented")
+}
+
+// ExtractArtefactsFromDoc ...
+func (e *Extractor) ExtractArtefactsFromDoc(doc *goquery.Document) (int64, int64) {
 	panic("not implemented")
 }

@@ -784,6 +784,13 @@ func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Opt
 	return b.bot.getLfResearch(celestialID, options...)
 }
 
+// GetLfResearchDetails ...
+func (b *Prioritize) GetLfResearchDetails(celestialID ogame.CelestialID, options ...Option) (ogame.LfResearchDetails, error) {
+	b.begin("GetLfResearch")
+	defer b.done()
+	return b.bot.getLfResearchDetails(celestialID, options...)
+}
+
 // GetAvailableDiscoveries ...
 func (b *Prioritize) GetAvailableDiscoveries(opts ...Option) int64 {
 	b.begin("GetAvailableDiscoveries")
