@@ -850,6 +850,7 @@ func IsAjaxPage(vals url.Values) bool {
 			BuffActivationAjaxPageName,
 			AuctioneerAjaxPageName,
 			HighscoreContentAjaxPageName,
+			LfResearchLayerPageName,
 		})
 }
 

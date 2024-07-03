@@ -63,6 +63,7 @@ const (
 	BuffActivationAjaxPageName     = "buffActivation"
 	AuctioneerAjaxPageName         = "auctioneer"
 	HighscoreContentAjaxPageName   = "highscoreContent"
+	LfResearchLayerPageName        = "lfresearchlayer"
 )
 
 func (b *OGame) getPage(page string, opts ...Option) ([]byte, error) {
