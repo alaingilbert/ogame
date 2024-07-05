@@ -908,7 +908,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		return []byte{}, err
+		return []byte{}, err // err is nil
 	}
 	by, err := utils.ReadBody(resp)
 	if err != nil {
