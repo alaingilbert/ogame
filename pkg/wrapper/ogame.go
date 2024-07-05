@@ -2634,6 +2634,10 @@ func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
 	if err != nil {
 		return
 	}
+	if bytes.Contains(pageHTML, []byte("createNewAlliance")) {
+		b.allianceClass = utils.Ptr(ogame.NoAllianceClass)
+		return *b.allianceClass, nil
+	}
 	vals := url.Values{"page": {"ingame"}, "component": {"alliance"}, "tab": {"overview"}, "action": {"fetchOverview"}, "ajax": {"1"}, "token": {token}}
 	pageHTML, err = b.getPageContent(vals, SkipCacheFullPage)
 	if err != nil {
