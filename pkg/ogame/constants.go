@@ -86,6 +86,8 @@ func (c AllianceClass) IsResearcher() bool {
 // String ...
 func (c AllianceClass) String() string {
 	switch c {
+	case NoAllianceClass:
+		return "NoAllianceClass"
 	case Warrior:
 		return "Warrior"
 	case Trader:
