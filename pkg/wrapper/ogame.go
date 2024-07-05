@@ -2644,8 +2644,7 @@ func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
 		return
 	}
 	if len(pageHTML) == 0 {
-		tmp := ogame.NoAllianceClass
-		b.allianceClass = &tmp
+		b.allianceClass = utils.Ptr(ogame.NoAllianceClass)
 		return *b.allianceClass, nil
 	}
 	var res parser.AllianceOverviewTabRes
