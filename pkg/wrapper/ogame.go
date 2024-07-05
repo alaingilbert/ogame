@@ -908,13 +908,9 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	defer resp.Body.Close()
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		return []byte{}, err // err is nil
+		return []byte{}, nil
 	}
-	by, err := utils.ReadBody(resp)
-	if err != nil {
-		return []byte{}, err
-	}
-	return by, nil
+	return utils.ReadBody(resp)
 }
 
 func getPageName(vals url.Values) string {
