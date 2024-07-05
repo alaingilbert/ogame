@@ -164,6 +164,9 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to validate account: %s", resp.Status)
+	}
 	return nil
 }
 
