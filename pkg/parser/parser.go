@@ -3,6 +3,7 @@ package parser
 import (
 	"bytes"
 	"errors"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -137,51 +138,38 @@ func ParsePage[T FullPagePages](e extractor.Extractor, pageHTML []byte) (*T, err
 	case OverviewPage:
 		if bytes.Contains(pageHTML, []byte(`currentPage = "overview";`)) ||
 			bytes.Contains(pageHTML, []byte(`currentPage = "intro";`)) {
-			tt := T(OverviewPage{fullPage})
-			return &tt, nil
+			return utils.Ptr(T(OverviewPage{fullPage})), nil
 		}
 	case DefensesPage:
 		if isDefensesPage(e, pageHTML) {
-			tt := T(DefensesPage{fullPage})
-			return &tt, nil
+			return utils.Ptr(T(DefensesPage{fullPage})), nil
 		}
 	case ShipyardPage:
 		if bytes.Contains(pageHTML, []byte(`currentPage = "shipyard";`)) {
-			tt := T(ShipyardPage{fullPage})
-			return &tt, nil
+			return utils.Ptr(T(ShipyardPage{fullPage})), nil
 		}
 	case FleetDispatchPage:
 		if bytes.Contains(pageHTML, []byte(`currentPage = "fleetdispatch";`)) {
-			tt := T(FleetDispatchPage{fullPage})
-			return &tt, nil
+			return utils.Ptr(T(FleetDispatchPage{fullPage})), nil
 		}
 	case ResearchPage:
-		tt := T(ResearchPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(ResearchPage{fullPage})), nil
 	case LfBonusesPage:
-		tt := T(LfBonusesPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(LfBonusesPage{fullPage})), nil
 	case FacilitiesPage:
-		tt := T(FacilitiesPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(FacilitiesPage{fullPage})), nil
 	case LfBuildingsPage:
-		tt := T(LfBuildingsPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(LfBuildingsPage{fullPage})), nil
 	case LfResearchPage:
-		tt := T(LfResearchPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(LfResearchPage{fullPage})), nil
 	case SuppliesPage:
-		tt := T(SuppliesPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(SuppliesPage{fullPage})), nil
 	case ResourcesSettingsPage:
-		tt := T(ResourcesSettingsPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(ResourcesSettingsPage{fullPage})), nil
 	case PreferencesPage:
-		tt := T(PreferencesPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(PreferencesPage{fullPage})), nil
 	case MovementPage:
-		tt := T(MovementPage{fullPage})
-		return &tt, nil
+		return utils.Ptr(T(MovementPage{fullPage})), nil
 	default:
 		return &zero, errors.New("page type not implemented")
 	}
