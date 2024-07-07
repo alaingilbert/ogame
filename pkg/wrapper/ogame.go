@@ -13,12 +13,14 @@ import (
 	"github.com/alaingilbert/ogame/pkg/wrapper/solvers"
 	err2 "github.com/pkg/errors"
 	"io"
+	"io/ioutil"
 	"log"
 	"math"
 	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
@@ -1019,6 +1021,37 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 
 		if detectLoggedOut(method, page, vals, pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
+
+			if home, err := os.UserHomeDir(); err == nil {
+				type FileInfo struct {
+					Name    string
+					ModTime time.Time
+				}
+				notLoggedPath := filepath.Join(home, ".ogame", "not_logged")
+				if err := os.MkdirAll(notLoggedPath, 0755); err == nil {
+					if files, err := ioutil.ReadDir(notLoggedPath); err == nil {
+						// Create a slice to hold file info
+						fileInfos := make([]FileInfo, 0, len(files))
+						for _, file := range files {
+							if !file.IsDir() {
+								fileInfos = append(fileInfos, FileInfo{
+									Name:    file.Name(),
+									ModTime: file.ModTime(),
+								})
+							}
+						}
+						sort.Slice(fileInfos, func(i, j int) bool { return fileInfos[i].ModTime.After(fileInfos[j].ModTime) })
+						if len(fileInfos) > 20 {
+							for _, file := range fileInfos[20:] {
+								_ = os.Remove(filepath.Join(notLoggedPath, file.Name))
+							}
+						}
+						filename := fmt.Sprintf("not_logged_%s_%s_.html", page, time.Now().Format("2006-01-02_15:04:05"))
+						_ = os.WriteFile(filepath.Join(notLoggedPath, filename), pageHTMLBytes, 0644)
+					}
+				}
+			}
+
 			b.isConnectedAtom.Store(false)
 			return ogame.ErrNotLogged
 		}
