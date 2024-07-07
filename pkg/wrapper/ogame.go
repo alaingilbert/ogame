@@ -1099,9 +1099,10 @@ func alterPayload(method string, b *OGame, vals, payload url.Values) {
 }
 
 func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, payload, vals url.Values, SkipCacheFullPage bool) error {
+	isAjax := IsAjaxPage(vals)
 	switch method {
 	case http.MethodGet:
-		if !IsAjaxPage(vals) && !IsEmpirePage(vals) && v6.IsLogged(pageHTML) {
+		if !isAjax && !IsEmpirePage(vals) && v6.IsLogged(pageHTML) {
 			if !SkipCacheFullPage {
 				parsedFullPage := parser.AutoParseFullPage(b.extractor, pageHTML)
 				b.cacheFullPageInfo(parsedFullPage)
@@ -1110,7 +1111,7 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 			if bonuses, err := b.extractor.ExtractLfBonuses(pageHTML); err == nil {
 				b.lfBonuses = &bonuses
 			}
-		} else if IsAjaxPage(vals) && vals.Get("component") == "alliance" && vals.Get("tab") == "overview" && vals.Get("action") == "fetchOverview" {
+		} else if isAjax && vals.Get("component") == "alliance" && vals.Get("tab") == "overview" && vals.Get("action") == "fetchOverview" {
 			if !SkipCacheFullPage {
 				var res parser.AllianceOverviewTabRes
 				if err := json.Unmarshal(pageHTML, &res); err == nil {
@@ -1119,7 +1120,7 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 					b.token = res.NewAjaxToken
 				}
 			}
-		} else if IsAjaxPage(vals) {
+		} else if isAjax {
 			var res struct {
 				NewAjaxToken string `json:"newAjaxToken"`
 			}
@@ -1138,7 +1139,7 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 			if err := extractNewChatToken(b, pageHTML); err != nil {
 				return err
 			}
-		} else if IsAjaxPage(vals) {
+		} else if isAjax {
 			var res struct {
 				NewAjaxToken string `json:"newAjaxToken"`
 			}
