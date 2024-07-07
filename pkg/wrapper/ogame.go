@@ -826,7 +826,8 @@ func IsAjaxPage(vals url.Values) bool {
 	page := getPageName(vals)
 	ajax := vals.Get("ajax")
 	asJson := vals.Get("asJson")
-	return ajax == "1" ||
+	return vals.Get("page") == "ajax" ||
+		ajax == "1" ||
 		asJson == "1" ||
 		utils.InArr(page, []string{
 			FetchEventboxAjaxPageName,
@@ -919,7 +920,6 @@ func getPageName(vals url.Values) string {
 	page := vals.Get("page")
 	component := vals.Get("component")
 	if page == "ingame" ||
-		page == "ajax" ||
 		(page == "componentOnly" && component == FetchEventboxAjaxPageName) ||
 		(page == "componentOnly" && component == EventListAjaxPageName && vals.Get("action") != "fetchEventBox") {
 		page = component
@@ -952,7 +952,7 @@ func detectLoggedOut(method, page string, vals url.Values, pageHTML []byte) bool
 	}
 	switch method {
 	case http.MethodGet:
-		return ((page != LogoutPageName && page != LfBonusesPageName) && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !v6.IsLogged(pageHTML)) ||
+		return (page != LogoutPageName && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !v6.IsLogged(pageHTML)) ||
 			(page == EventListAjaxPageName && !bytes.Contains(pageHTML, []byte("eventListWrap"))) ||
 			(page == FetchEventboxAjaxPageName && !canParseEventBox(pageHTML))
 
@@ -1105,6 +1105,10 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 			if !SkipCacheFullPage {
 				parsedFullPage := parser.AutoParseFullPage(b.extractor, pageHTML)
 				b.cacheFullPageInfo(parsedFullPage)
+			}
+		} else if vals.Get("page") == "ajax" && vals.Get("component") == "lfbonuses" {
+			if bonuses, err := b.extractor.ExtractLfBonuses(pageHTML); err == nil {
+				b.lfBonuses = &bonuses
 			}
 		} else if IsAjaxPage(vals) && vals.Get("component") == "alliance" && vals.Get("tab") == "overview" && vals.Get("action") == "fetchOverview" {
 			if !SkipCacheFullPage {
