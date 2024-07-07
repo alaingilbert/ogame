@@ -952,7 +952,7 @@ func detectLoggedOut(method, page string, vals url.Values, pageHTML []byte) bool
 	}
 	switch method {
 	case http.MethodGet:
-		return (page != LogoutPageName && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !v6.IsLogged(pageHTML)) ||
+		return ((page != LogoutPageName && page != LfBonusesPageName) && (IsKnowFullPage(vals) || page == "") && !IsAjaxPage(vals) && !v6.IsLogged(pageHTML)) ||
 			(page == EventListAjaxPageName && !bytes.Contains(pageHTML, []byte("eventListWrap"))) ||
 			(page == FetchEventboxAjaxPageName && !canParseEventBox(pageHTML))
 
