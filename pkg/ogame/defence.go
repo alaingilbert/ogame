@@ -31,8 +31,14 @@ func (d DefensesInfos) HasMissilesDefense() bool {
 
 // CountShipDefenses returns the count of defenses which can attack ships i.e., excluding AntiBallisticMissiles
 func (d DefensesInfos) CountShipDefenses() (out int64) {
+	excluded := []ID{
+		InterplanetaryMissilesID,
+		AntiBallisticMissilesID,
+		SmallShieldDomeID,
+		LargeShieldDomeID,
+	}
 	for _, defense := range Defenses {
-		if defense != InterplanetaryMissiles && defense != AntiBallisticMissiles {
+		if !utils.InArr(defense.GetID(), excluded) {
 			out += d.ByID(defense.GetID())
 		}
 	}
