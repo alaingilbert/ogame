@@ -68,6 +68,13 @@ func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	return clb(tx)
 }
 
+// TxNamed locks the bot during the transaction and ensure the lock is released afterward
+func (b *Prioritize) TxNamed(name string, clb func(Prioritizable) error) error {
+	tx := b.BeginNamed(name)
+	defer tx.Done()
+	return clb(tx)
+}
+
 // LoginWithBearerToken to ogame server reusing existing token
 // Returns either or not the bot logged in using the existing cookies
 func (b *Prioritize) LoginWithBearerToken(token string) (bool, error) {

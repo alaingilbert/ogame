@@ -122,6 +122,11 @@ func (b *OGame) Tx(clb func(tx Prioritizable) error) error {
 	return b.WithPriority(taskRunner.Normal).Tx(clb)
 }
 
+// TxNamed locks the bot during the transaction and ensure the lock is released afterward
+func (b *OGame) TxNamed(name string, clb func(tx Prioritizable) error) error {
+	return b.WithPriority(taskRunner.Normal).TxNamed(name, clb)
+}
+
 // GetServer get ogame server information that the bot is connected to
 func (b *OGame) GetServer() gameforge.Server {
 	return b.server

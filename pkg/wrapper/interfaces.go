@@ -119,6 +119,7 @@ type Prioritizable interface {
 	SetPreferencesLang(lang string) error
 	SetVacationMode() error
 	Tx(clb func(tx Prioritizable) error) error
+	TxNamed(name string, clb func(Prioritizable) error) error
 	UseDM(ogame.DMType, ogame.CelestialID) error
 
 	// Planet or Moon functions
