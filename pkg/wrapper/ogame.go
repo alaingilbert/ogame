@@ -910,6 +910,10 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		b.error("bad status | vals:" + vals.Encode() + " | " + resp.Status)
+	}
+
 	if resp.StatusCode >= http.StatusInternalServerError {
 		return []byte{}, nil
 	}
