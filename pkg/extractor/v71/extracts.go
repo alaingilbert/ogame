@@ -1048,7 +1048,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 
 	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
 		p := ogame.HighscorePlayer{}
-		p.Position = utils.DoParseI64(s.Find("td.position").Text())
+		p.Position = utils.DoParseI64(strings.TrimSpace(s.Find("td.position").Text()))
 		p.ID = utils.DoParseI64(s.Find("td.sendmsg a").AttrOr("data-playerid", "0"))
 		p.Name = strings.TrimSpace(s.Find("span.playername").Text())
 		tdName := s.Find("td.name")
