@@ -94,7 +94,7 @@ func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.Esp
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := utils.ParseI64(idStr); err == nil {
 				messageType := ogame.Report
-				if s.Find("span.espionageDefText").Size() > 0 {
+				if s.Find("div.espionageInfo").Size() == 0 {
 					messageType = ogame.Action
 				}
 				report := ogame.EspionageReportSummary{ID: id, Type: messageType}
