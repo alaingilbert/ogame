@@ -173,7 +173,7 @@ func (s *ShipsInfos) Sub(v ShipsInfos) {
 
 // AddShips adds some ships
 func (s *ShipsInfos) AddShips(shipID ID, nb int64) {
-	s.Set(shipID, s.ByID(shipID)+nb)
+	s.Set(shipID, utils.MaxInt(s.ByID(shipID)+nb, 0))
 }
 
 // SubShips subtracts some ships
