@@ -159,7 +159,7 @@ func (s ShipsInfos) CountShips() (out int64) {
 func (s *ShipsInfos) Add(v ShipsInfos) {
 	for _, ship := range Ships {
 		shipID := ship.GetID()
-		s.Set(shipID, s.ByID(shipID)+v.ByID(shipID))
+		s.Set(shipID, utils.MaxInt(s.ByID(shipID)+v.ByID(shipID), 0))
 	}
 }
 
