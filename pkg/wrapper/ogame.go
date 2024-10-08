@@ -1683,7 +1683,7 @@ func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) (distan
 
 // Returns the distance between two systems
 func flightSystemDistance(nbSystems, system1, system2, systemsSkip int64, donutSystem bool) (distance int64) {
-	dist := systemDistance(nbSystems, system1, system2, donutSystem) - systemsSkip
+	dist := utils.MaxInt(systemDistance(nbSystems, system1, system2, donutSystem)-systemsSkip, 0)
 	return 2700 + 95*dist
 }
 
