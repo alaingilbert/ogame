@@ -54,6 +54,7 @@ type Prioritizable interface {
 	BuyOfferOfTheDay() error
 	BuyResetTree(planetID ogame.PlanetID, tier int64) error
 	CancelFleet(ogame.FleetID) error
+	CheckTarget(ogame.ShipsInfos, ogame.Coordinate) (CheckTargetResponse, error)
 	CollectAllMarketplaceMessages() error
 	CollectMarketplaceMessage(ogame.MarketplaceMessage) error
 	CreateUnion(fleet ogame.Fleet, unionUsers []string) (int64, error)

@@ -1682,8 +1682,9 @@ func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) (distan
 }
 
 // Returns the distance between two systems
-func flightSystemDistance(nbSystems, system1, system2 int64, donutSystem bool) (distance int64) {
-	return 2700 + 95*systemDistance(nbSystems, system1, system2, donutSystem)
+func flightSystemDistance(nbSystems, system1, system2, systemsSkip int64, donutSystem bool) (distance int64) {
+	dist := systemDistance(nbSystems, system1, system2, donutSystem) - systemsSkip
+	return 2700 + 95*dist
 }
 
 // Returns the distance between two planets
@@ -1692,12 +1693,12 @@ func planetDistance(planet1, planet2 int64) (distance int64) {
 }
 
 // Distance returns the distance between two coordinates
-func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool) (distance int64) {
+func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems, systemsSkip int64, donutGalaxy, donutSystem bool) (distance int64) {
 	if c1.Galaxy != c2.Galaxy {
 		return galaxyDistance(c1.Galaxy, c2.Galaxy, universeSize, donutGalaxy)
 	}
 	if c1.System != c2.System {
-		return flightSystemDistance(nbSystems, c1.System, c2.System, donutSystem)
+		return flightSystemDistance(nbSystems, c1.System, c2.System, systemsSkip, donutSystem)
 	}
 	if c1.Position != c2.Position {
 		return planetDistance(c1.Position, c2.Position)
@@ -1750,13 +1751,13 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
 func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses,
-	characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (secs, fuel int64) {
+	characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass, systemsSkip int64) (secs, fuel int64) {
 	if !ships.HasShips() {
 		return
 	}
 	v := findSlowestSpeed(ships, techs, lfBonuses, characterClass, allianceClass)
-	secs = CalcFlightTimeWithBaseSpeed(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem, speed, v, universeSpeedFleet)
-	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
+	secs = CalcFlightTimeWithBaseSpeed(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem, speed, v, universeSpeedFleet, systemsSkip)
+	d := float64(Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem))
 	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass, allianceClass)
 	return
 }
@@ -1764,11 +1765,11 @@ func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystem
 // CalcFlightTimeWithBaseSpeed ...
 // baseSpeed is the speed of the slowest ship in a fleet
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
-func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool, speed float64, baseSpeed, universeSpeedFleet int64) (secs int64) {
+func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool, speed float64, baseSpeed, universeSpeedFleet, systemsSkip int64) (secs int64) {
 	s := speed
 	v := float64(baseSpeed)
 	a := float64(universeSpeedFleet)
-	d := float64(Distance(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem))
+	d := float64(Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem))
 	return int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
 }
 
@@ -1776,9 +1777,21 @@ func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeS
 func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float64, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
 	lfBonuses, _ := b.GetCachedLfBonuses()
 	allianceClass, _ := b.GetCachedAllianceClass()
+	fleetIgnoreEmptySystems := b.serverData.FleetIgnoreEmptySystems
+	fleetIgnoreInactiveSystems := b.serverData.FleetIgnoreInactiveSystems
+	var systemsSkip int64
+	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
+		res, _ := b.CheckTarget(ships, destination)
+		if fleetIgnoreEmptySystems {
+			systemsSkip += res.EmptySystems
+		}
+		if fleetIgnoreInactiveSystems {
+			systemsSkip += res.InactiveSystems
+		}
+	}
 	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
 		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(b.serverData, missionID), ships,
-		b.GetCachedResearch(), lfBonuses, b.characterClass, allianceClass)
+		b.GetCachedResearch(), lfBonuses, b.characterClass, allianceClass, systemsSkip)
 }
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
@@ -3246,10 +3259,33 @@ type CheckTargetResponse struct {
 		Type     int    `json:"type"`
 		Name     string `json:"name"`
 	} `json:"targetPlanet"`
-	Errors       []OGameError `json:"errors"`
-	TargetOk     bool         `json:"targetOk"`
-	Components   []any        `json:"components"`
-	NewAjaxToken string       `json:"newAjaxToken"`
+	Errors          []OGameError `json:"errors"`
+	TargetOk        bool         `json:"targetOk"`
+	Components      []any        `json:"components"`
+	EmptySystems    int64        `json:"emptySystems"`
+	InactiveSystems int64        `json:"inactiveSystems"`
+	NewAjaxToken    string       `json:"newAjaxToken"`
+}
+
+func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate) (out CheckTargetResponse, err error) {
+	payload := url.Values{}
+	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
+	})
+	payload.Set("token", b.token)
+	payload.Set("galaxy", utils.FI64(where.Galaxy))
+	payload.Set("system", utils.FI64(where.System))
+	payload.Set("position", utils.FI64(where.Position))
+	payload.Set("type", utils.FI64(where.Type))
+	payload.Set("union", "0")
+	by, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+	if err != nil {
+		return out, err
+	}
+	if err := json.Unmarshal(by, &out); err != nil {
+		return out, err
+	}
+	return
 }
 
 func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,

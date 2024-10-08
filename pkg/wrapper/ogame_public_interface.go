@@ -668,7 +668,7 @@ func (b *OGame) FlightTime(origin, destination ogame.Coordinate, speed ogame.Spe
 
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination ogame.Coordinate) int64 {
-	return Distance(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy, b.serverData.DonutSystem)
+	return Distance(origin, destination, b.serverData.Galaxies, b.serverData.Systems, 0, b.serverData.DonutGalaxy, b.serverData.DonutSystem)
 }
 
 // SystemDistance return the distance between two systems
@@ -762,6 +762,11 @@ func (b *OGame) CharacterClass() ogame.CharacterClass {
 // GetCachedAllianceClass returns the bot alliance class
 func (b *OGame) GetCachedAllianceClass() (ogame.AllianceClass, error) {
 	return b.WithPriority(taskRunner.Normal).GetCachedAllianceClass()
+}
+
+// CheckTarget ...
+func (b *OGame) CheckTarget(ships ogame.ShipsInfos, coordinate ogame.Coordinate) (CheckTargetResponse, error) {
+	return b.WithPriority(taskRunner.Normal).CheckTarget(ships, coordinate)
 }
 
 // CountColonies returns colonies count/possible

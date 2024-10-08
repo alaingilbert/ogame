@@ -351,6 +351,13 @@ func (b *Prioritize) GetCachedAllianceClass() (ogame.AllianceClass, error) {
 	return b.bot.getCachedAllianceClass()
 }
 
+// CheckTarget ...
+func (b *Prioritize) CheckTarget(ships ogame.ShipsInfos, coord ogame.Coordinate) (CheckTargetResponse, error) {
+	b.begin("CheckTarget")
+	defer b.done()
+	return b.bot.checkTarget(ships, coord)
+}
+
 // GetResearch gets the player researches information
 func (b *Prioritize) GetResearch() (ogame.Researches, error) {
 	b.begin("GetResearch")
@@ -621,9 +628,21 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 	researches := b.bot.getCachedResearch()
 	lfbonuses, _ := b.bot.getCachedLfBonuses()
 	allianceClass, _ := b.bot.getCachedAllianceClass()
+	fleetIgnoreEmptySystems := b.bot.serverData.FleetIgnoreEmptySystems
+	fleetIgnoreInactiveSystems := b.bot.serverData.FleetIgnoreInactiveSystems
+	var systemsSkip int64
+	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
+		res, _ := b.bot.checkTarget(ships, destination)
+		if fleetIgnoreEmptySystems {
+			systemsSkip += res.EmptySystems
+		}
+		if fleetIgnoreInactiveSystems {
+			systemsSkip += res.InactiveSystems
+		}
+	}
 	return CalcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
 		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, lfbonuses, b.bot.characterClass, allianceClass)
+		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, lfbonuses, b.bot.characterClass, allianceClass, systemsSkip)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
