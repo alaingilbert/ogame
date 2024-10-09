@@ -765,8 +765,8 @@ func (b *OGame) GetCachedAllianceClass() (ogame.AllianceClass, error) {
 }
 
 // CheckTarget ...
-func (b *OGame) CheckTarget(ships ogame.ShipsInfos, coordinate ogame.Coordinate) (CheckTargetResponse, error) {
-	return b.WithPriority(taskRunner.Normal).CheckTarget(ships, coordinate)
+func (b *OGame) CheckTarget(ships ogame.ShipsInfos, coordinate ogame.Coordinate, options ...Option) (CheckTargetResponse, error) {
+	return b.WithPriority(taskRunner.Normal).CheckTarget(ships, coordinate, options...)
 }
 
 // CountColonies returns colonies count/possible

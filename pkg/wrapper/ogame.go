@@ -1781,7 +1781,11 @@ func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float
 	fleetIgnoreInactiveSystems := b.serverData.FleetIgnoreInactiveSystems
 	var systemsSkip int64
 	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
-		res, _ := b.CheckTarget(ships, destination)
+		opts := make([]Option, 0)
+		if originCelestial, err := b.GetCachedCelestial(origin); err == nil {
+			opts = append(opts, ChangePlanet(originCelestial.GetID()))
+		}
+		res, _ := b.CheckTarget(ships, destination, opts...)
 		if fleetIgnoreEmptySystems {
 			systemsSkip += res.EmptySystems
 		}
@@ -3267,7 +3271,7 @@ type CheckTargetResponse struct {
 	NewAjaxToken    string       `json:"newAjaxToken"`
 }
 
-func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate) (out CheckTargetResponse, err error) {
+func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate, opts ...Option) (out CheckTargetResponse, err error) {
 	payload := url.Values{}
 	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
 		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
@@ -3278,7 +3282,7 @@ func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate) (out
 	payload.Set("position", utils.FI64(where.Position))
 	payload.Set("type", utils.FI64(where.Type))
 	payload.Set("union", "0")
-	by, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+	by, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload, opts...)
 	if err != nil {
 		return out, err
 	}

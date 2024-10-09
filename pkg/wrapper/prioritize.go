@@ -352,10 +352,10 @@ func (b *Prioritize) GetCachedAllianceClass() (ogame.AllianceClass, error) {
 }
 
 // CheckTarget ...
-func (b *Prioritize) CheckTarget(ships ogame.ShipsInfos, coord ogame.Coordinate) (CheckTargetResponse, error) {
+func (b *Prioritize) CheckTarget(ships ogame.ShipsInfos, coord ogame.Coordinate, options ...Option) (CheckTargetResponse, error) {
 	b.begin("CheckTarget")
 	defer b.done()
-	return b.bot.checkTarget(ships, coord)
+	return b.bot.checkTarget(ships, coord, options...)
 }
 
 // GetResearch gets the player researches information
@@ -632,7 +632,11 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 	fleetIgnoreInactiveSystems := b.bot.serverData.FleetIgnoreInactiveSystems
 	var systemsSkip int64
 	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
-		res, _ := b.bot.checkTarget(ships, destination)
+		opts := make([]Option, 0)
+		if originCelestial, err := b.bot.GetCachedCelestial(origin); err == nil {
+			opts = append(opts, ChangePlanet(originCelestial.GetID()))
+		}
+		res, _ := b.bot.checkTarget(ships, destination, opts...)
 		if fleetIgnoreEmptySystems {
 			systemsSkip += res.EmptySystems
 		}
