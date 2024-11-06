@@ -3809,8 +3809,8 @@ func (b *OGame) deleteMessage(msgID int64) error {
 		"action":    {"flagDeleted"},
 	}
 	payload := url.Values{
-		"token":     {token},
-		"messageId": {utils.FI64(msgID)},
+		"token":        {token},
+		"messageIds[]": {utils.FI64(msgID)},
 	}
 	by, err := b.postPageContent(vals, payload)
 	if err != nil {
