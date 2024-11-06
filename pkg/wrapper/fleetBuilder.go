@@ -257,7 +257,7 @@ func (f *FleetBuilder) SendNow() (ogame.Fleet, error) {
 	if f.tx != nil {
 		err = f.sendNow(f.tx)
 	} else {
-		err = f.b.Tx(func(tx Prioritizable) error {
+		err = f.b.TxNamed("FleetBuilder SendNow", func(tx Prioritizable) error {
 			return f.sendNow(tx)
 		})
 	}
