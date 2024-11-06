@@ -1274,9 +1274,17 @@ func ParseBlackboxV9(decrypted string) (*JsFingerprint, error) {
 	if !ok {
 		return nil, errors.New("failed to parse Timezone")
 	}
-	fingerprint.NavigatorDoNotTrack, ok = arr[2].(bool)
-	if !ok {
-		return nil, errors.New("failed to parse NavigatorDoNotTrack")
+	if arr2Str, ok := arr[2].(string); ok { // arr[2] can be: '1'
+		var err error
+		fingerprint.NavigatorDoNotTrack, err = strconv.ParseBool(arr2Str)
+		if err != nil {
+			return nil, errors.New("failed to parse NavigatorDoNotTrack")
+		}
+	} else {
+		fingerprint.NavigatorDoNotTrack, ok = arr[2].(bool)
+		if !ok {
+			return nil, errors.New("failed to parse NavigatorDoNotTrack")
+		}
 	}
 	fingerprint.BrowserEngineName, ok = arr[3].(string)
 	if !ok {
