@@ -961,7 +961,7 @@ func newAntimatterCondenser() *antimatterCondenser {
 	b.ID = AntimatterCondenserID
 	b.durationBase = 40
 	b.durationFactor = 1.22
-	b.IncreaseFactor = 1.21
+	b.IncreaseFactor = 1.20
 	b.energyIncreaseFactor = 1.02
 	b.BaseCost = Resources{Metal: 6, Crystal: 3, Energy: 9}
 	b.Requirements = map[ID]int64{}
