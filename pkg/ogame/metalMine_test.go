@@ -18,8 +18,8 @@ func TestMetalMineProduction(t *testing.T) {
 
 func TestMetalMineConstructionTime(t *testing.T) {
 	mm := newMetalMine()
-	assert.Equal(t, 8550*time.Second, mm.ConstructionTime(20, 7, Facilities{RoboticsFactory: 3}, false, false))
-	assert.Equal(t, 30*time.Second, mm.ConstructionTime(4, 6, Facilities{}, false, false))
+	assert.Equal(t, 8550*time.Second, mm.ConstructionTime(20, 7, Facilities{RoboticsFactory: 3}, LfBonuses{}, NoClass, false))
+	assert.Equal(t, 30*time.Second, mm.ConstructionTime(4, 6, Facilities{}, LfBonuses{}, NoClass, false))
 }
 
 func TestMetalMine_GetLevel(t *testing.T) {

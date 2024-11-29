@@ -3,6 +3,7 @@ package v11
 import (
 	"bytes"
 	"errors"
+	v104 "github.com/alaingilbert/ogame/pkg/extractor/v104"
 	"github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
@@ -39,14 +40,7 @@ func extractResourceSettingsFromPage(pageHTML []byte) (ogame.ResourceSettings, s
 	res.SolarSatellite = vals[5]
 	res.Crawler = vals[6]
 
-	getToken := func(pageHTML []byte) (string, error) {
-		m := regexp.MustCompile(`var token = "([^"]+)"`).FindSubmatch(pageHTML)
-		if len(m) != 2 {
-			return "", errors.New("unable to find token")
-		}
-		return string(m[1]), nil
-	}
-	token, _ := getToken(pageHTML)
+	token, _ := v104.ExtractToken(pageHTML)
 
 	return res, token, nil
 }

@@ -765,8 +765,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(buildingID) {
 				case ogame.MetalMine.ID:
 					report.MetalMine = level
@@ -820,8 +819,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(researchID) {
 				case ogame.EspionageTechnology.ID:
 					report.EspionageTechnology = level
@@ -869,8 +867,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(shipID) {
 				case ogame.SmallCargo.ID:
 					report.SmallCargo = level
@@ -920,8 +917,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(defenceID) {
 				case ogame.RocketLauncher.ID:
 					report.RocketLauncher = level
@@ -1052,7 +1048,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 
 	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
 		p := ogame.HighscorePlayer{}
-		p.Position = utils.DoParseI64(s.Find("td.position").Text())
+		p.Position = utils.DoParseI64(strings.TrimSpace(s.Find("td.position").Text()))
 		p.ID = utils.DoParseI64(s.Find("td.sendmsg a").AttrOr("data-playerid", "0"))
 		p.Name = strings.TrimSpace(s.Find("span.playername").Text())
 		tdName := s.Find("td.name")

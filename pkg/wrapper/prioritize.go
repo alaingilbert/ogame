@@ -68,6 +68,13 @@ func (b *Prioritize) Tx(clb func(Prioritizable) error) error {
 	return clb(tx)
 }
 
+// TxNamed locks the bot during the transaction and ensure the lock is released afterward
+func (b *Prioritize) TxNamed(name string, clb func(Prioritizable) error) error {
+	tx := b.BeginNamed(name)
+	defer tx.Done()
+	return clb(tx)
+}
+
 // LoginWithBearerToken to ogame server reusing existing token
 // Returns either or not the bot logged in using the existing cookies
 func (b *Prioritize) LoginWithBearerToken(token string) (bool, error) {
@@ -323,6 +330,34 @@ func (b *Prioritize) GetCachedResearch() ogame.Researches {
 	return b.bot.getCachedResearch()
 }
 
+// GetLfBonuses gets the lifeform bonuses
+func (b *Prioritize) GetLfBonuses() (ogame.LfBonuses, error) {
+	b.begin("GetLfBonuses")
+	defer b.done()
+	return b.bot.getLfBonuses()
+}
+
+// GetCachedLfBonuses gets the cached lifeform bonuses
+func (b *Prioritize) GetCachedLfBonuses() (ogame.LfBonuses, error) {
+	b.begin("GetCachedLfBonuses")
+	defer b.done()
+	return b.bot.getCachedLfBonuses()
+}
+
+// GetCachedAllianceClass ...
+func (b *Prioritize) GetCachedAllianceClass() (ogame.AllianceClass, error) {
+	b.begin("GetCachedAllianceClass")
+	defer b.done()
+	return b.bot.getCachedAllianceClass()
+}
+
+// CheckTarget ...
+func (b *Prioritize) CheckTarget(ships ogame.ShipsInfos, coord ogame.Coordinate, options ...Option) (CheckTargetResponse, error) {
+	b.begin("CheckTarget")
+	defer b.done()
+	return b.bot.checkTarget(ships, coord, options...)
+}
+
 // GetResearch gets the player researches information
 func (b *Prioritize) GetResearch() (ogame.Researches, error) {
 	b.begin("GetResearch")
@@ -335,6 +370,13 @@ func (b *Prioritize) GetSlots() (ogame.Slots, error) {
 	b.begin("GetSlots")
 	defer b.done()
 	return b.bot.getSlots()
+}
+
+// GetFleetDispatch extract information available on the fleetdispatch page
+func (b *Prioritize) GetFleetDispatch(celestialID ogame.CelestialID, options ...Option) (ogame.FleetDispatchInfos, error) {
+	b.begin("GetFleetDispatch")
+	defer b.done()
+	return b.bot.getFleetDispatch(celestialID, options...)
 }
 
 // Build builds any ogame objects (building, technology, ship, defence)
@@ -450,7 +492,7 @@ func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBui
 }
 
 // SendFleet sends a fleet
-func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	b.begin("SendFleet")
 	defer b.done()
@@ -472,7 +514,7 @@ func (b *Prioritize) SendDiscoveryFleet2(celestialID ogame.CelestialID, coord og
 }
 
 // EnsureFleet either sends all the requested ships or fail
-func (b *Prioritize) EnsureFleet(celestialID ogame.CelestialID, ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (b *Prioritize) EnsureFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	b.begin("EnsureFleet")
 	defer b.done()
@@ -584,9 +626,27 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 	b.begin("FlightTime")
 	defer b.done()
 	researches := b.bot.getCachedResearch()
+	lfbonuses, _ := b.bot.getCachedLfBonuses()
+	allianceClass, _ := b.bot.getCachedAllianceClass()
+	fleetIgnoreEmptySystems := b.bot.serverData.FleetIgnoreEmptySystems
+	fleetIgnoreInactiveSystems := b.bot.serverData.FleetIgnoreInactiveSystems
+	var systemsSkip int64
+	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
+		opts := make([]Option, 0)
+		if originCelestial, err := b.bot.GetCachedCelestial(origin); err == nil {
+			opts = append(opts, ChangePlanet(originCelestial.GetID()))
+		}
+		res, _ := b.bot.checkTarget(ships, destination, opts...)
+		if fleetIgnoreEmptySystems {
+			systemsSkip += res.EmptySystems
+		}
+		if fleetIgnoreInactiveSystems {
+			systemsSkip += res.InactiveSystems
+		}
+	}
 	return CalcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
 		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, b.bot.characterClass)
+		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, lfbonuses, b.bot.characterClass, allianceClass, systemsSkip)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
@@ -594,14 +654,14 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 // IMPORTANT: This function DOES validate that the coordinate is a valid planet in range of phalanx
 //
 //	and that you have enough deuterium.
-func (b *Prioritize) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
+func (b *Prioritize) Phalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
 	b.begin("Phalanx")
 	defer b.done()
 	return b.bot.getPhalanx(moonID, coord)
 }
 
 // UnsafePhalanx same as Phalanx but does not perform any input validation.
-func (b *Prioritize) UnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.Fleet, error) {
+func (b *Prioritize) UnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
 	b.begin("Phalanx")
 	defer b.done()
 	return b.bot.getUnsafePhalanx(moonID, coord)
@@ -692,7 +752,7 @@ func (b *Prioritize) GetDMCosts(celestialID ogame.CelestialID) (ogame.DMCosts, e
 }
 
 // UseDM use dark matter to fast build
-func (b *Prioritize) UseDM(typ string, celestialID ogame.CelestialID) error {
+func (b *Prioritize) UseDM(typ ogame.DMType, celestialID ogame.CelestialID) error {
 	b.begin("UseDM")
 	defer b.done()
 	return b.bot.useDM(typ, celestialID)
@@ -754,6 +814,13 @@ func (b *Prioritize) GetLfResearch(celestialID ogame.CelestialID, options ...Opt
 	return b.bot.getLfResearch(celestialID, options...)
 }
 
+// GetLfResearchDetails ...
+func (b *Prioritize) GetLfResearchDetails(celestialID ogame.CelestialID, options ...Option) (ogame.LfResearchDetails, error) {
+	b.begin("GetLfResearch")
+	defer b.done()
+	return b.bot.getLfResearchDetails(celestialID, options...)
+}
+
 // GetAvailableDiscoveries ...
 func (b *Prioritize) GetAvailableDiscoveries(opts ...Option) int64 {
 	b.begin("GetAvailableDiscoveries")
@@ -766,4 +833,39 @@ func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system
 	b.begin("GetPositionsAvailableForDiscoveryFleet")
 	defer b.done()
 	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
+}
+
+// SelectLfResearchSelect select a lifeform research
+func (b *Prioritize) SelectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error {
+	b.begin("SelectLfResearchSelect")
+	defer b.done()
+	return b.bot.selectLfResearchSelect(planetID, slotNumber)
+}
+
+// SelectLfResearchRandom select a random lifeform research
+func (b *Prioritize) SelectLfResearchRandom(planetID ogame.PlanetID, slotNumber int64) error {
+	b.begin("SelectLfResearchRandom")
+	defer b.done()
+	return b.bot.selectLfResearchRandom(planetID, slotNumber)
+}
+
+// SelectLfResearchArtifacts select a lifeform research using artifacts
+func (b *Prioritize) SelectLfResearchArtifacts(planetID ogame.PlanetID, slotNumber int64, techID ogame.ID) error {
+	b.begin("SelectLfResearchArtifacts")
+	defer b.done()
+	return b.bot.selectLfResearchArtifacts(planetID, slotNumber, techID)
+}
+
+// FreeResetTree reset a lifeform research tier tree
+func (b *Prioritize) FreeResetTree(planetID ogame.PlanetID, tier int64) error {
+	b.begin("FreeResetTree")
+	defer b.done()
+	return b.bot.freeResetTree(planetID, tier)
+}
+
+// BuyResetTree reset a lifeform research tier tree using darkmatter
+func (b *Prioritize) BuyResetTree(planetID ogame.PlanetID, tier int64) error {
+	b.begin("BuyResetTree")
+	defer b.done()
+	return b.bot.buyResetTree(planetID, tier)
 }

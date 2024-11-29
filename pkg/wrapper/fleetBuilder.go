@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+var ErrInvalidOrigin = errors.New("invalid origin")
+
 // FleetBuilderFactory ...
 type FleetBuilderFactory struct {
 	b Wrapper
@@ -174,23 +176,28 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 
 // FlightTime ...
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
+	origin := f.origin
+	if origin == nil {
+		f.err = ErrInvalidOrigin
+		return 0, 0
+	}
 	ships := f.ships
 	if f.allShips {
 		if f.tx != nil {
-			ships, _ = f.tx.GetShips(f.origin.GetID())
+			ships, _ = f.tx.GetShips(origin.GetID())
 		} else {
-			ships, _ = f.b.GetShips(f.origin.GetID())
+			ships, _ = f.b.GetShips(origin.GetID())
 		}
 	}
 	if f.tx != nil {
-		return f.tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
+		return f.tx.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
 	}
-	return f.b.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
+	return f.b.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
 }
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	if f.origin == nil {
-		f.err = errors.New("invalid origin")
+		f.err = ErrInvalidOrigin
 		return f.err
 	}
 
@@ -218,7 +225,9 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
 		// Calculate cargo
 		techs, _ := tx.GetResearch()
-		cargoCapacity := f.ships.Cargo(techs, f.b.GetServer().Settings.EspionageProbeRaids == 1, f.b.CharacterClass() == ogame.Collector, f.b.IsPioneers())
+		lfBonuses, _ := tx.GetCachedLfBonuses()
+		multiplier := float64(f.b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
+		cargoCapacity := f.ships.Cargo(techs, lfBonuses, f.b.CharacterClass(), multiplier, f.b.GetServer().ProbeRaidsEnabled())
 		if f.minimumDeuterium <= 0 {
 			planetResources, _ = tx.GetResources(f.origin.GetID())
 		}
@@ -238,7 +247,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 		}
 	}
 
-	f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships.ToQuantifiables(), f.speed, f.destination, f.mission, payload, f.holdingTime, f.unionID)
+	f.fleet, f.err = tx.EnsureFleet(f.origin.GetID(), f.ships, f.speed, f.destination, f.mission, payload, f.holdingTime, f.unionID)
 	return f.err
 }
 
@@ -248,7 +257,7 @@ func (f *FleetBuilder) SendNow() (ogame.Fleet, error) {
 	if f.tx != nil {
 		err = f.sendNow(f.tx)
 	} else {
-		err = f.b.Tx(func(tx Prioritizable) error {
+		err = f.b.TxNamed("FleetBuilder SendNow", func(tx Prioritizable) error {
 			return f.sendNow(tx)
 		})
 	}

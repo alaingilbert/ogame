@@ -508,8 +508,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(buildingID) {
 				case ogame.MetalMine.ID:
 					report.MetalMine = level
@@ -563,8 +562,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(researchID) {
 				case ogame.EspionageTechnology.ID:
 					report.EspionageTechnology = level
@@ -612,8 +610,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(shipID) {
 				case ogame.SmallCargo.ID:
 					report.SmallCargo = level
@@ -663,8 +660,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(defenceID) {
 				case ogame.RocketLauncher.ID:
 					report.RocketLauncher = level
@@ -866,6 +862,35 @@ func extractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error)
 	return res, nil
 }
 
+func extractLfSlotsFromDoc(doc *goquery.Document) (out [18]ogame.LfSlot) {
+	processLiFn := func(tier int) func(int, *goquery.Selection) {
+		idxOffset := (tier - 1) * 6
+		return func(i int, s *goquery.Selection) {
+			idx := i + idxOffset
+			out[idx].TechID = ogame.ID(utils.DoParseI64(s.AttrOr("data-technology", "0")))
+			out[idx].Level = utils.DoParseI64(s.Find("span.level").First().AttrOr("data-value", "0"))
+			out[idx].Allowed = s.Find("span.research-allowed").First().HasClass("research-allowed")
+			out[idx].Locked = s.Find("span.research-locked").First().HasClass("research-locked")
+		}
+	}
+	doc.Find("div.tier1Container li").Each(processLiFn(1))
+	doc.Find("div.tier2Container li").Each(processLiFn(2))
+	doc.Find("div.tier3Container li").Each(processLiFn(3))
+	return
+}
+
+func extractArtefactsFromDoc(doc *goquery.Document) (int64, int64) {
+	txt := doc.Find("div#slot01").Text()
+	rgx := regexp.MustCompile(`(\d+)\s?/\s?(\d+)`)
+	m := rgx.FindStringSubmatch(txt)
+	if len(m) != 3 {
+		return 0, 0
+	}
+	collected := utils.DoParseI64(m[1])
+	limit := utils.DoParseI64(m[2])
+	return collected, limit
+}
+
 func extractTechnologyDetailsFromDoc(doc *goquery.Document) (out ogame.TechnologyDetails, err error) {
 	out.TechnologyID = ogame.ID(utils.DoParseI64(doc.Find("div#technologydetails").AttrOr("data-technology-id", "")))
 
@@ -903,8 +928,11 @@ func extractTearDownButtonEnabledFromDoc(doc *goquery.Document) (out bool) {
 
 func extractAvailableDiscoveriesFromDoc(doc *goquery.Document) int64 {
 	discoveryCount := doc.Find("div#galaxyHeaderDiscoveryCount").Text()
-	rgx := regexp.MustCompile(`(\d+)/(\d+)`)
+	rgx := regexp.MustCompile(`(\d+)\s*/\s*(\d+)`)
 	m := rgx.FindStringSubmatch(discoveryCount)
+	if len(m) != 3 {
+		return 0
+	}
 	usedString, totalString := m[1], m[2]
 	used := utils.DoParseI64(usedString)
 	total := utils.DoParseI64(totalString)

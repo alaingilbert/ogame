@@ -117,7 +117,7 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 		targetPlanetID := utils.DoParseI64(fedAttackQuery.Get("target"))
 		unionID := utils.DoParseI64(fedAttackQuery.Get("union"))
 
-		fleet := ogame.Fleet{}
+		fleet := ogame.MakeFleet()
 		fleet.ID = ogame.FleetID(id)
 		fleet.Origin = origin
 		fleet.Destination = dest

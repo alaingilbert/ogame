@@ -22,3 +22,13 @@ type Fleet struct {
 	UnionID        int64
 	TargetPlanetID int64
 }
+
+// MakeFleet make a new Fleet object
+func MakeFleet() Fleet {
+	return Fleet{}
+}
+
+type PhalanxFleet struct {
+	Fleet
+	BaseSpeed int64
+}

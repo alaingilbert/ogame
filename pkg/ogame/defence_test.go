@@ -94,4 +94,5 @@ func TestDefence_HasShipDefenses(t *testing.T) {
 
 func TestDefence_CountShipDefenses(t *testing.T) {
 	assert.Equal(t, int64(5), DefensesInfos{RocketLauncher: 2, PlasmaTurret: 3, AntiBallisticMissiles: 4, InterplanetaryMissiles: 5}.CountShipDefenses())
+	assert.Equal(t, int64(5), DefensesInfos{RocketLauncher: 2, PlasmaTurret: 3, AntiBallisticMissiles: 4, InterplanetaryMissiles: 5, SmallShieldDome: 1, LargeShieldDome: 1}.CountShipDefenses())
 }

@@ -63,6 +63,24 @@ func unique(s string) string {
 	return strings.Join(arr, "")
 }
 
+// IsStrMetal ...
+func IsStrMetal(name string) bool {
+	arr := []string{"metalli", "métal", "metal", "metall", "kov", "kovy", "металл", "metallo", "metaal", "メタル", "金屬", "μέταλλο"}
+	return utils.InArr(name, arr)
+}
+
+// IsStrCrystal ...
+func IsStrCrystal(name string) bool {
+	arr := []string{"kristalli", "kristal", "cristal", "crystal", "krystal", "kryštály", "kryształ", "kristall", "krystall", "cristallo", "кристалл", "krystaly", "クリスタル", "晶體", "κρύσταλλο"}
+	return utils.InArr(name, arr)
+}
+
+// IsStrDeuterium ...
+func IsStrDeuterium(name string) bool {
+	arr := []string{"deuter", "deuterij", "deutérium", "deuterium", "deuterio", "дейтерий", "deutério", "deuteriu", "デューテリウム", "重氫", "δευτέριο"}
+	return utils.InArr(name, arr)
+}
+
 // DefenceName2ID ...
 func DefenceName2ID(name string) ID {
 	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)

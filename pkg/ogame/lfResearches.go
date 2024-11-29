@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// https://board.en.ogame.gameforge.com/index.php?thread/835512-lifeforms-master-file/
+// https://ogame.comastuff.com/LFMaster903.xlsx
+
 // LazyLfResearches ...
 type LazyLfResearches func() LfResearches
 
@@ -433,6 +436,32 @@ func (b LfResearches) ByID(id ID) *int64 {
 	return nil
 }
 
+// LfSlot ...
+type LfSlot struct {
+	TechID  ID
+	Level   int64
+	Allowed bool
+	Locked  bool
+}
+
+// LfResearchDetails ...
+type LfResearchDetails struct {
+	LfResearches
+	Slots              [18]LfSlot
+	ArtefactsCollected int64
+	ArtefactsLimit     int64
+}
+
+// AvailableSlot return the slotNumber (1-18) available for research. 0 if none is available.
+func (d *LfResearchDetails) AvailableSlot() int64 {
+	for idx, slot := range d.Slots {
+		if slot.Allowed {
+			return int64(idx) + 1
+		}
+	}
+	return 0
+}
+
 // BaseLfResearch base struct for Lifeform techs
 type BaseLfResearch struct {
 	BaseTechnology
@@ -441,23 +470,27 @@ type BaseLfResearch struct {
 }
 
 // TechnologyConstructionTime returns the duration it takes to build given technology
-func (b BaseLfResearch) TechnologyConstructionTime(level, universeSpeed int64, acc TechAccelerators, hasTechnocrat, isDiscoverer bool) time.Duration {
+func (b BaseLfResearch) TechnologyConstructionTime(level, universeSpeed int64, _ TechAccelerators, lfBonuses LfBonuses, _ CharacterClass, _ bool) time.Duration {
 	levelF := float64(level)
 	secs := levelF * b.durationBase * math.Pow(b.durationFactor, levelF)
 	secs /= float64(universeSpeed)
 	secs = math.Max(1, secs)
-	return time.Duration(int64(math.Floor(secs))) * time.Second
+	dur := time.Duration(int64(math.Floor(secs))) * time.Second
+	bonus := lfBonuses.CostTimeBonuses[b.ID].Duration
+	return time.Duration(float64(dur) - float64(dur)*bonus)
 }
 
 // ConstructionTime same as TechnologyConstructionTime, needed for BaseOgameObj implementation
-func (b BaseLfResearch) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, hasTechnocrat, isDiscoverer bool) time.Duration {
-	return b.TechnologyConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
+func (b BaseLfResearch) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, lfBonuses LfBonuses, class CharacterClass, hasTechnocrat bool) time.Duration {
+	return b.TechnologyConstructionTime(level, universeSpeed, facilities, lfBonuses, class, hasTechnocrat)
 }
 
 // GetPrice returns the price to build the given level
-func (b BaseLfResearch) GetPrice(level int64) Resources {
+func (b BaseLfResearch) GetPrice(level int64, lfb LfBonuses) Resources {
 	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
-		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)) * float64(level))
+		cost := float64(baseCost) * math.Pow(increaseFactor, float64(level-1)) * float64(level)
+		cost -= cost * lfb.PlanetLfResearchCostTimeBonus.Cost
+		return int64(cost)
 	}
 	return Resources{
 		Metal:     tmp(b.BaseCost.Metal, b.IncreaseFactor, level),

@@ -52,6 +52,11 @@ func (s ShipsInfos) HasShips() bool {
 	return false
 }
 
+// IsEmpty returns true if no ships are set
+func (s ShipsInfos) IsEmpty() bool {
+	return !s.HasShips()
+}
+
 // HasFlyableShips returns either or not at least one flyable ship is present
 func (s ShipsInfos) HasFlyableShips() bool {
 	for _, ship := range Ships {
@@ -66,18 +71,17 @@ func (s ShipsInfos) HasFlyableShips() bool {
 }
 
 // Speed returns the speed of the slowest ship
-func (s ShipsInfos) Speed(techs Researches, isCollector, isGeneral bool) int64 {
+func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, allianceClass AllianceClass) int64 {
 	var minSpeed int64 = math.MaxInt64
 	for _, ship := range Ships {
-		if ship.GetID() == SolarSatelliteID {
+		shipID := ship.GetID()
+		if shipID == SolarSatelliteID {
 			continue
 		}
-		nbr := s.ByID(ship.GetID())
+		nbr := s.ByID(shipID)
 		if nbr > 0 {
-			shipSpeed := ship.GetSpeed(techs, isCollector, isGeneral)
-			if shipSpeed < minSpeed {
-				minSpeed = shipSpeed
-			}
+			shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
+			minSpeed = utils.MinInt(shipSpeed, minSpeed)
 		}
 	}
 	return minSpeed
@@ -108,9 +112,9 @@ func (s ShipsInfos) FromQuantifiables(in []Quantifiable) (out ShipsInfos) {
 }
 
 // Cargo returns the total cargo of the ships
-func (s ShipsInfos) Cargo(techs Researches, probeRaids, isCollector, isPioneers bool) (out int64) {
+func (s ShipsInfos) Cargo(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, multiplier float64, probeRaids bool) (out int64) {
 	for _, ship := range Ships {
-		out += ship.GetCargoCapacity(techs, probeRaids, isCollector, isPioneers) * s.ByID(ship.GetID())
+		out += ship.GetCargoCapacity(techs, lfBonuses, characterClass, multiplier, probeRaids) * s.ByID(ship.GetID())
 	}
 	return
 }
@@ -128,17 +132,17 @@ func (s ShipsInfos) Has(v ShipsInfos) bool {
 }
 
 // FleetValue returns the value of the fleet
-func (s ShipsInfos) FleetValue() (out int64) {
+func (s ShipsInfos) FleetValue(lfBonuses LfBonuses) (out int64) {
 	for _, ship := range Ships {
-		out += ship.GetPrice(s.ByID(ship.GetID())).Total()
+		out += ship.GetPrice(s.ByID(ship.GetID()), lfBonuses).Total()
 	}
 	return
 }
 
 // FleetCost returns the cost of the fleet
-func (s ShipsInfos) FleetCost() (out Resources) {
+func (s ShipsInfos) FleetCost(lfBonuses LfBonuses) (out Resources) {
 	for _, ship := range Ships {
-		out = out.Add(ship.GetPrice(s.ByID(ship.GetID())))
+		out = out.Add(ship.GetPrice(s.ByID(ship.GetID()), lfBonuses))
 	}
 	return
 }
@@ -155,18 +159,51 @@ func (s ShipsInfos) CountShips() (out int64) {
 func (s *ShipsInfos) Add(v ShipsInfos) {
 	for _, ship := range Ships {
 		shipID := ship.GetID()
-		s.Set(shipID, s.ByID(shipID)+v.ByID(shipID))
+		nb := v.ByID(shipID)
+		if nb == -1 {
+			s.Set(shipID, -1)
+		} else {
+			s.Set(shipID, utils.MaxInt(s.ByID(shipID)+nb, 0))
+		}
+	}
+}
+
+// Sub subtracts v from s
+func (s *ShipsInfos) Sub(v ShipsInfos) {
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		s.Set(shipID, utils.MaxInt(s.ByID(shipID)-v.ByID(shipID), 0))
 	}
 }
 
 // AddShips adds some ships
 func (s *ShipsInfos) AddShips(shipID ID, nb int64) {
-	s.Set(shipID, s.ByID(shipID)+nb)
+	s.Set(shipID, utils.MaxInt(s.ByID(shipID)+nb, 0))
 }
 
 // SubShips subtracts some ships
 func (s *ShipsInfos) SubShips(shipID ID, nb int64) {
 	s.AddShips(shipID, -1*nb)
+}
+
+// Each calls clb callback for every ships that has a value higher than zero
+func (s ShipsInfos) Each(clb func(shipID ID, nb int64)) {
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		nb := s.ByID(shipID)
+		if nb > 0 {
+			clb(shipID, nb)
+		}
+	}
+}
+
+// EachFlyable calls clb callback for every ships that has a value higher than zero and is flyable
+func (s ShipsInfos) EachFlyable(clb func(shipID ID, nb int64)) {
+	s.Each(func(shipID ID, nb int64) {
+		if shipID.IsFlyableShip() {
+			clb(shipID, nb)
+		}
+	})
 }
 
 // ByID get number of ships by ship id

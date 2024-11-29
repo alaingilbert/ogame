@@ -129,6 +129,7 @@ func extractAuctionFromDoc(doc *goquery.Document) (ogame.Auction, error) {
 	auction.NumBids = utils.DoParseI64(doc.Find("div.numberOfBids").Text())
 	auction.CurrentBid = utils.ParseInt(doc.Find("div.currentSum").Text())
 	auction.Inventory = utils.DoParseI64(doc.Find("span.level.amount").Text())
+	auction.Ref = doc.Find("a.detail_button").First().AttrOr("ref", "")
 	auction.CurrentItem = strings.ToLower(doc.Find("img").First().AttrOr("alt", ""))
 	auction.CurrentItemLong = strings.ToLower(doc.Find("div.image_140px").First().Find("a").First().AttrOr("title", ""))
 	multiplierRegex := regexp.MustCompile(`multiplier\s?=\s?([^;]+);`).FindStringSubmatch(doc.Text())

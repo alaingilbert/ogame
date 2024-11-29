@@ -46,6 +46,6 @@ func (s *solarSatellite) DeconstructionPrice(level int64, techs IResearches) Res
 	return Resources{}
 }
 
-func (s *solarSatellite) BuildingConstructionTime(_, _ int64, _ BuildingAccelerators) time.Duration {
+func (s *solarSatellite) BuildingConstructionTime(_, _ int64, _ BuildingAccelerators, _ LfBonuses) time.Duration {
 	panic("Solar satellite should not be a building")
 }

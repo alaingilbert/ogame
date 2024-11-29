@@ -16,7 +16,7 @@ func TestShipsInfos_Cargo(t *testing.T) {
 		LargeCargo: 2,
 	}
 	techs := Researches{}
-	assert.Equal(t, int64(60000), ships.Cargo(techs, false, false, false))
+	assert.Equal(t, int64(60000), ships.Cargo(techs, LfBonuses{}, NoClass, 0.05, false))
 }
 
 func TestShipsInfos_FleetValue(t *testing.T) {
@@ -24,7 +24,7 @@ func TestShipsInfos_FleetValue(t *testing.T) {
 		SmallCargo: 2,
 		LargeCargo: 2,
 	}
-	assert.Equal(t, int64(32000), ships.FleetValue())
+	assert.Equal(t, int64(32000), ships.FleetValue(LfBonuses{}))
 }
 
 func TestShipsInfos_Add(t *testing.T) {
@@ -122,7 +122,7 @@ func TestShipsInfos_Equal(t *testing.T) {
 }
 
 func TestShipsInfos_FleetCost(t *testing.T) {
-	assert.Equal(t, Resources{Metal: 22000, Crystal: 22000}, ShipsInfos{SmallCargo: 2, LargeCargo: 3}.FleetCost())
+	assert.Equal(t, Resources{Metal: 22000, Crystal: 22000}, ShipsInfos{SmallCargo: 2, LargeCargo: 3}.FleetCost(LfBonuses{}))
 }
 
 func TestShipsInfos_CountShips(t *testing.T) {
@@ -152,8 +152,8 @@ func TestShipsInfos_FromQuantifiables(t *testing.T) {
 }
 
 func TestShipsInfos_Speed(t *testing.T) {
-	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}, false, false))
-	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}, false, false))
+	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}, LfBonuses{}, NoClass, NoAllianceClass))
+	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}, LfBonuses{}, NoClass, NoAllianceClass))
 }
 
 func TestShipsInfos_ToPtr(t *testing.T) {

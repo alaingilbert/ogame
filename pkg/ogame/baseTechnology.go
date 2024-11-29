@@ -11,8 +11,8 @@ type BaseTechnology struct {
 }
 
 // TechnologyConstructionTime returns the duration it takes to build given technology
-func (b BaseTechnology) TechnologyConstructionTime(level, universeSpeed int64, acc TechAccelerators, hasTechnocrat, isDiscoverer bool) time.Duration {
-	price := b.GetPrice(level)
+func (b BaseTechnology) TechnologyConstructionTime(level, universeSpeed int64, acc TechAccelerators, lfBonuses LfBonuses, class CharacterClass, hasTechnocrat bool) time.Duration {
+	price := b.GetPrice(level, lfBonuses)
 	metalCost := float64(price.Metal)
 	crystalCost := float64(price.Crystal)
 	researchLabLvl := float64(acc.GetResearchLab())
@@ -20,16 +20,18 @@ func (b BaseTechnology) TechnologyConstructionTime(level, universeSpeed int64, a
 	if hasTechnocrat {
 		hours -= 0.25 * hours
 	}
-	if isDiscoverer {
+	if class.IsDiscoverer() {
 		hours -= 0.25 * hours
 	}
 	secs := math.Max(1, hours*3600)
-	return time.Duration(int64(math.Floor(secs))) * time.Second
+	dur := time.Duration(int64(math.Floor(secs))) * time.Second
+	bonus := lfBonuses.CostTimeBonuses[b.ID].Duration
+	return time.Duration(float64(dur) - float64(dur)*bonus)
 }
 
 // ConstructionTime same as TechnologyConstructionTime, needed for BaseOgameObj implementation
-func (b BaseTechnology) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, hasTechnocrat, isDiscoverer bool) time.Duration {
-	return b.TechnologyConstructionTime(level, universeSpeed, facilities, hasTechnocrat, isDiscoverer)
+func (b BaseTechnology) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, lfBonuses LfBonuses, class CharacterClass, hasTechnocrat bool) time.Duration {
+	return b.TechnologyConstructionTime(level, universeSpeed, facilities, lfBonuses, class, hasTechnocrat)
 }
 
 // GetLevel returns current level of a technology

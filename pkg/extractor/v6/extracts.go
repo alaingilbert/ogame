@@ -596,11 +596,19 @@ func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
 func extractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues {
 	out := make([]ogame.ACSValues, 0)
 	doc.Find("select[name=acsValues] option").Each(func(i int, s *goquery.Selection) {
-		acsValues := s.AttrOr("value", "")
-		m := regexp.MustCompile(`\d+#\d+#\d+#\d+#.*#(\d+)`).FindStringSubmatch(acsValues)
-		if len(m) == 2 {
-			optUnionID := utils.DoParseI64(m[1])
-			out = append(out, ogame.ACSValues{ACSValues: acsValues, Union: optUnionID})
+		acsValuesStr := s.AttrOr("value", "")
+		m := regexp.MustCompile(`(\d+)#(\d+)#(\d+)#(\d+)#(.*)#(\d+)`).FindStringSubmatch(acsValuesStr)
+		if len(m) == 7 {
+			acsValues := ogame.ACSValues{
+				ACSValues:     acsValuesStr,
+				Galaxy:        utils.DoParseI64(m[1]),
+				System:        utils.DoParseI64(m[2]),
+				Position:      utils.DoParseI64(m[3]),
+				CelestialType: ogame.CelestialType(utils.DoParseI64(m[4])),
+				Name:          m[5],
+				Union:         utils.DoParseI64(m[6]),
+			}
+			out = append(out, acsValues)
 		}
 	})
 	return out
@@ -783,8 +791,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
 				buildingID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(buildingID) {
 				case ogame.MetalMine.ID:
 					report.MetalMine = level
@@ -838,8 +845,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
 				researchID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(researchID) {
 				case ogame.EspionageTechnology.ID:
 					report.EspionageTechnology = level
@@ -887,8 +893,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
 				shipID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(shipID) {
 				case ogame.SmallCargo.ID:
 					report.SmallCargo = level
@@ -932,8 +937,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
 				defenceID := utils.DoParseI64(r.FindStringSubmatch(imgClass)[1])
-				l := utils.ParseInt(s2.Find("span.fright").Text())
-				level := &l
+				level := utils.Ptr(utils.ParseInt(s2.Find("span.fright").Text()))
 				switch ogame.ID(defenceID) {
 				case ogame.RocketLauncher.ID:
 					report.RocketLauncher = level
@@ -1061,7 +1065,7 @@ func extractFleetsFromEventListFromDoc(doc *goquery.Document) []ogame.Fleet {
 	tmp := make([]Tmp, 0)
 	res := make([]ogame.Fleet, 0)
 	doc.Find("tr.eventFleet").Each(func(i int, s *goquery.Selection) {
-		fleet := ogame.Fleet{}
+		fleet := ogame.MakeFleet()
 
 		movement := s.Find("td span.tooltip").AttrOr("title", "")
 		if movement == "" {
@@ -1168,7 +1172,7 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 		targetPlanetID := utils.DoParseI64(fedAttackQuery.Get("target"))
 		unionID := utils.DoParseI64(fedAttackQuery.Get("union"))
 
-		fleet := ogame.Fleet{}
+		fleet := ogame.MakeFleet()
 		fleet.ID = ogame.FleetID(id)
 		fleet.Origin = origin
 		fleet.Destination = dest
@@ -1797,7 +1801,6 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 			planetInfos.Player.IsStarlord = tdPlayername.HasClass("rank_starlord1") || tdPlayername.HasClass("rank_starlord2") || tdPlayername.HasClass("rank_starlord3")
 			planetInfos.Coordinate = ExtractCoord(coordsRaw)
 			planetInfos.Coordinate.Type = ogame.PlanetType
-			planetInfos.Date = time.Now()
 
 			var playerID int64
 			var playerName string
@@ -1862,8 +1865,8 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 	return res, nil
 }
 
-func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
-	res := make([]ogame.Fleet, 0)
+func extractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
+	res := make([]ogame.PhalanxFleet, 0)
 	var ogameTimestamp int64
 	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	eventFleet := doc.Find("div.eventFleet")
@@ -1875,7 +1878,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 		} else if strings.Contains(txt, "deuterium") {
 			return res, errors.New(strings.TrimSpace(txt))
 		}
-		return res, errors.New(txt)
+		return res, errors.New("phalanx failed: " + txt)
 	}
 
 	m := regexp.MustCompile(`var mytime = ([0-9]+)`).FindSubmatch(pageHTML)
@@ -1884,6 +1887,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 	}
 
 	eventFleet.Each(func(i int, s *goquery.Selection) {
+		isACS := s.Find("ul").First().HasClass("allianceAttack")
 		mission := utils.DoParseI64(s.AttrOr("data-mission-type", "0"))
 		returning, _ := strconv.ParseBool(s.AttrOr("data-return-flight", "false"))
 		arrivalTime := utils.DoParseI64(s.AttrOr("data-arrival-time", "0"))
@@ -1894,39 +1898,85 @@ func extractPhalanx(pageHTML []byte) ([]ogame.Fleet, error) {
 		originFleetFigure := s.Find("li.originFleet figure")
 		originTxt := s.Find("li.coordsOrigin a").Text()
 		destTxt := s.Find("li.destCoords a").Text()
+		baseSpeed := utils.DoParseI64(strings.TrimSpace(s.Find("li.baseSpeed").Text()))
 
-		fleet := ogame.Fleet{}
-
-		if movement, exists := s.Find("li.detailsFleet span").Attr("title"); exists {
-			root, err := html.Parse(strings.NewReader(movement))
-			if err != nil {
-				return
-			}
-			doc2 := goquery.NewDocumentFromNode(root)
-			doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
-				if i == 0 {
+		if isACS {
+			unionIDStr := s.Find("a.toggleInfos").AttrOr("rel", "")
+			unionID := utils.DoParseI64(strings.TrimPrefix(unionIDStr, "phalanx-union"))
+			doc.Find("div." + unionIDStr).Each(func(i int, selection *goquery.Selection) {
+				baseSpeed := utils.DoParseI64(strings.TrimSpace(selection.Find("li.baseSpeed").Text()))
+				originFleetFigure := selection.Find("li.originFleet figure")
+				originTxt := selection.Find("li.coordsOrigin a").Text()
+				destTxt := selection.Find("li.destCoords a").Text()
+				fleet := ogame.PhalanxFleet{}
+				if movement, exists := selection.Find("li.detailsFleet span").Attr("title"); exists {
+					root, err := html.Parse(strings.NewReader(movement))
+					if err != nil {
+						return
+					}
+					doc2 := goquery.NewDocumentFromNode(root)
+					doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
+						if i == 0 {
+							return
+						}
+						name := s.Find("td").Eq(0).Text()
+						nbr := utils.ParseInt(s.Find("td").Eq(1).Text())
+						if name != "" && nbr > 0 {
+							shipID := ogame.ShipName2ID(name)
+							curr := fleet.Ships.ByID(shipID)
+							fleet.Ships.Set(shipID, curr+nbr)
+						}
+					})
+				}
+				fleet.UnionID = unionID
+				fleet.Mission = ogame.MissionID(mission)
+				fleet.BaseSpeed = baseSpeed
+				fleet.ReturnFlight = returning
+				fleet.ArriveIn = arriveIn
+				fleet.ArrivalTime = time.Unix(arrivalTime, 0)
+				fleet.Origin = ExtractCoord(originTxt)
+				fleet.Origin.Type = ogame.PlanetType
+				if originFleetFigure.HasClass("moon") {
+					fleet.Origin.Type = ogame.MoonType
+				}
+				fleet.Destination = ExtractCoord(destTxt)
+				fleet.Destination.Type = ogame.PlanetType
+				res = append(res, fleet)
+			})
+		} else {
+			fleet := ogame.PhalanxFleet{}
+			if movement, exists := s.Find("li.detailsFleet span").Attr("title"); exists {
+				root, err := html.Parse(strings.NewReader(movement))
+				if err != nil {
 					return
 				}
-				name := s.Find("td").Eq(0).Text()
-				nbr := utils.ParseInt(s.Find("td").Eq(1).Text())
-				if name != "" && nbr > 0 {
-					fleet.Ships.Set(ogame.ShipName2ID(name), nbr)
-				}
-			})
+				doc2 := goquery.NewDocumentFromNode(root)
+				doc2.Find("tr").Each(func(i int, s *goquery.Selection) {
+					if i == 0 {
+						return
+					}
+					name := s.Find("td").Eq(0).Text()
+					nbr := utils.ParseInt(s.Find("td").Eq(1).Text())
+					if name != "" && nbr > 0 {
+						shipID := ogame.ShipName2ID(name)
+						fleet.Ships.Set(shipID, nbr)
+					}
+				})
+			}
+			fleet.Mission = ogame.MissionID(mission)
+			fleet.BaseSpeed = baseSpeed
+			fleet.ReturnFlight = returning
+			fleet.ArriveIn = arriveIn
+			fleet.ArrivalTime = time.Unix(arrivalTime, 0)
+			fleet.Origin = ExtractCoord(originTxt)
+			fleet.Origin.Type = ogame.PlanetType
+			if originFleetFigure.HasClass("moon") {
+				fleet.Origin.Type = ogame.MoonType
+			}
+			fleet.Destination = ExtractCoord(destTxt)
+			fleet.Destination.Type = ogame.PlanetType
+			res = append(res, fleet)
 		}
-
-		fleet.Mission = ogame.MissionID(mission)
-		fleet.ReturnFlight = returning
-		fleet.ArriveIn = arriveIn
-		fleet.ArrivalTime = time.Unix(arrivalTime, 0)
-		fleet.Origin = ExtractCoord(originTxt)
-		fleet.Origin.Type = ogame.PlanetType
-		if originFleetFigure.HasClass("moon") {
-			fleet.Origin.Type = ogame.MoonType
-		}
-		fleet.Destination = ExtractCoord(destTxt)
-		fleet.Destination.Type = ogame.PlanetType
-		res = append(res, fleet)
 	})
 	return res, nil
 }

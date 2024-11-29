@@ -259,6 +259,11 @@ type Preferences struct {
 }
 
 type ACSValues struct {
-	ACSValues string
-	Union     int64
+	Galaxy        int64
+	System        int64
+	Position      int64
+	CelestialType CelestialType
+	Name          string
+	ACSValues     string // Raw string is used to send fleet. eg: `1#2#3#3#name#123456`
+	Union         int64
 }

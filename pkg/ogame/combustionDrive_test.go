@@ -8,7 +8,7 @@ import (
 
 func TestCombustionDriveCost(t *testing.T) {
 	cd := newCombustionDrive()
-	assert.Equal(t, Resources{Metal: 12800, Deuterium: 19200}, cd.GetPrice(6))
+	assert.Equal(t, Resources{Metal: 12800, Deuterium: 19200}, cd.GetPrice(6, LfBonuses{}))
 }
 
 func TestCombustionDrive_IsAvailable(t *testing.T) {

@@ -12,6 +12,7 @@ import (
 	"github.com/alaingilbert/ogame/pkg/extractor/v11_13_0"
 	"github.com/alaingilbert/ogame/pkg/extractor/v11_15_0"
 	"github.com/alaingilbert/ogame/pkg/extractor/v11_9_0"
+	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
 	v7 "github.com/alaingilbert/ogame/pkg/extractor/v7"
 	v71 "github.com/alaingilbert/ogame/pkg/extractor/v71"
 	v8 "github.com/alaingilbert/ogame/pkg/extractor/v8"
@@ -229,10 +230,18 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 }
 
 func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
-	var ext extractor.Extractor = v11_15_0.NewExtractor()
-	if ogVersion, err := version.NewVersion(b.serverData.Version); err == nil {
+	var ext extractor.Extractor = v12_0_0.NewExtractor()
+	r := regexp.MustCompile(`(\d+\.\d+\.\d+)`)
+	versionMatches := r.FindStringSubmatch(b.serverData.Version)
+	versionMatch := b.serverData.Version
+	if len(versionMatches) == 2 {
+		versionMatch = versionMatches[1]
+	}
+	if ogVersion, err := version.NewVersion(versionMatch); err == nil {
 		b.serverVersion = ogVersion
-		if b.IsVGreaterThanOrEqual("11.15.0") {
+		if b.IsVGreaterThanOrEqual("12.0.0") {
+			ext = v12_0_0.NewExtractor()
+		} else if b.IsVGreaterThanOrEqual("11.15.0") {
 			ext = v11_15_0.NewExtractor()
 		} else if b.IsVGreaterThanOrEqual("11.13.0") {
 			ext = v11_13_0.NewExtractor()
@@ -271,7 +280,7 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 		return ogame.ErrBadCredentials
 	}
 
-	serverTime, _ := page.ExtractServerTime()
+	serverTime, err := page.ExtractServerTime()
 	b.location = serverTime.Location()
 
 	ext.SetLocation(b.location)

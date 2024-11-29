@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+func TestExtractAttacksACSAttackUnknownShips(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.16.18/en/eventlist_acs_attack_unknown_ships.html")
+	ownCoords := make([]ogame.Coordinate, 0)
+	attacks, _ := NewExtractor().extractAttacks(pageHTMLBytes, clockwork.NewFakeClock(), ownCoords)
+	assert.Equal(t, 1, len(attacks))
+	assert.Equal(t, ogame.GroupedAttack, attacks[0].MissionType)
+	assert.Equal(t, int64(-1), attacks[0].Ships.SmallCargo)
+}
+
 func TestExtractAttacksACSAttackSelf(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v8.6/en/eventlist_acs_attack_self.html")
 	ownCoords := []ogame.Coordinate{{Galaxy: 4, System: 116, Position: 9, Type: ogame.PlanetType}}

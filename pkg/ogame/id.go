@@ -1,11 +1,15 @@
 package ogame
 
 import (
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"strconv"
 )
 
 // ID represent an ogame id
 type ID int64
+
+// NoID constant to represent an unset ID
+const NoID ID = 0
 
 // IsSet returns either or not the id is set to a value different than 0
 func (o ID) IsSet() bool {
@@ -513,80 +517,100 @@ func (o ID) IsTech() bool {
 		o == GravitonTechnologyID
 }
 
+// HumansTechnologiesIDs ...
+var HumansTechnologiesIDs = []ID{
+	IntergalacticEnvoysID,
+	HighPerformanceExtractorsID,
+	FusionDrivesID,
+	StealthFieldGeneratorID,
+	OrbitalDenID,
+	ResearchAIID,
+	HighPerformanceTerraformerID,
+	EnhancedProductionTechnologiesID,
+	LightFighterMkIIID,
+	CruiserMkIIID,
+	ImprovedLabTechnologyID,
+	PlasmaTerraformerID,
+	LowTemperatureDrivesID,
+	BomberMkIIID,
+	DestroyerMkIIID,
+	BattlecruiserMkIIID,
+	RobotAssistantsID,
+	SupercomputerID,
+}
+
+// RocktalTechnologiesIDs ...
+var RocktalTechnologiesIDs = []ID{
+	VolcanicBatteriesID,
+	AcousticScanningID,
+	HighEnergyPumpSystemsID,
+	CargoHoldExpansionCivilianShipsID,
+	MagmaPoweredProductionID,
+	GeothermalPowerPlantsID,
+	DepthSoundingID,
+	IonCrystalEnhancementHeavyFighterID,
+	ImprovedStellaratorID,
+	HardenedDiamondDrillHeadsID,
+	SeismicMiningTechnologyID,
+	MagmaPoweredPumpSystemsID,
+	IonCrystalModulesID,
+	OptimisedSiloConstructionMethodID,
+	DiamondEnergyTransmitterID,
+	ObsidianShieldReinforcementID,
+	RuneShieldsID,
+	RocktalCollectorEnhancementID,
+}
+
+// MechasTechnologiesIDs ...
+var MechasTechnologiesIDs = []ID{
+	CatalyserTechnologyID,
+	PlasmaDriveID,
+	EfficiencyModuleID,
+	DepotAIID,
+	GeneralOverhaulLightFighterID,
+	AutomatedTransportLinesID,
+	ImprovedDroneAIID,
+	ExperimentalRecyclingTechnologyID,
+	GeneralOverhaulCruiserID,
+	SlingshotAutopilotID,
+	HighTemperatureSuperconductorsID,
+	GeneralOverhaulBattleshipID,
+	ArtificialSwarmIntelligenceID,
+	GeneralOverhaulBattlecruiserID,
+	GeneralOverhaulBomberID,
+	GeneralOverhaulDestroyerID,
+	ExperimentalWeaponsTechnologyID,
+	MechanGeneralEnhancementID,
+}
+
+// KaeleshTechnologiesIDs ...
+var KaeleshTechnologiesIDs = []ID{
+	HeatRecoveryID,
+	SulphideProcessID,
+	PsionicNetworkID,
+	TelekineticTractorBeamID,
+	EnhancedSensorTechnologyID,
+	NeuromodalCompressorID,
+	NeuroInterfaceID,
+	InterplanetaryAnalysisNetworkID,
+	OverclockingHeavyFighterID,
+	TelekineticDriveID,
+	SixthSenseID,
+	PsychoharmoniserID,
+	EfficientSwarmIntelligenceID,
+	OverclockingLargeCargoID,
+	GravitationSensorsID,
+	OverclockingBattleshipID,
+	PsionicShieldMatrixID,
+	KaeleshDiscovererEnhancementID,
+}
+
 // IsLfTech returns either or not the id is a lifeform technology
 func (o ID) IsLfTech() bool {
-	return o == IntergalacticEnvoysID || //Humans
-		o == HighPerformanceExtractorsID ||
-		o == FusionDrivesID ||
-		o == StealthFieldGeneratorID ||
-		o == OrbitalDenID ||
-		o == ResearchAIID ||
-		o == HighPerformanceTerraformerID ||
-		o == EnhancedProductionTechnologiesID ||
-		o == LightFighterMkIIID ||
-		o == CruiserMkIIID ||
-		o == ImprovedLabTechnologyID ||
-		o == PlasmaTerraformerID ||
-		o == LowTemperatureDrivesID ||
-		o == BomberMkIIID ||
-		o == DestroyerMkIIID ||
-		o == BattlecruiserMkIIID ||
-		o == RobotAssistantsID ||
-		o == SupercomputerID ||
-		o == VolcanicBatteriesID || //Rocktal
-		o == AcousticScanningID ||
-		o == HighEnergyPumpSystemsID ||
-		o == CargoHoldExpansionCivilianShipsID ||
-		o == MagmaPoweredProductionID ||
-		o == GeothermalPowerPlantsID ||
-		o == DepthSoundingID ||
-		o == IonCrystalEnhancementHeavyFighterID ||
-		o == ImprovedStellaratorID ||
-		o == HardenedDiamondDrillHeadsID ||
-		o == SeismicMiningTechnologyID ||
-		o == MagmaPoweredPumpSystemsID ||
-		o == IonCrystalModulesID ||
-		o == OptimisedSiloConstructionMethodID ||
-		o == DiamondEnergyTransmitterID ||
-		o == ObsidianShieldReinforcementID ||
-		o == RuneShieldsID ||
-		o == RocktalCollectorEnhancementID ||
-		o == CatalyserTechnologyID || //Mechas
-		o == PlasmaDriveID ||
-		o == EfficiencyModuleID ||
-		o == DepotAIID ||
-		o == GeneralOverhaulLightFighterID ||
-		o == AutomatedTransportLinesID ||
-		o == ImprovedDroneAIID ||
-		o == ExperimentalRecyclingTechnologyID ||
-		o == GeneralOverhaulCruiserID ||
-		o == SlingshotAutopilotID ||
-		o == HighTemperatureSuperconductorsID ||
-		o == GeneralOverhaulBattleshipID ||
-		o == ArtificialSwarmIntelligenceID ||
-		o == GeneralOverhaulBattlecruiserID ||
-		o == GeneralOverhaulBomberID ||
-		o == GeneralOverhaulDestroyerID ||
-		o == ExperimentalWeaponsTechnologyID ||
-		o == MechanGeneralEnhancementID ||
-		o == HeatRecoveryID || //Kaelesh
-		o == SulphideProcessID ||
-		o == PsionicNetworkID ||
-		o == TelekineticTractorBeamID ||
-		o == EnhancedSensorTechnologyID ||
-		o == NeuromodalCompressorID ||
-		o == NeuroInterfaceID ||
-		o == InterplanetaryAnalysisNetworkID ||
-		o == OverclockingHeavyFighterID ||
-		o == TelekineticDriveID ||
-		o == SixthSenseID ||
-		o == PsychoharmoniserID ||
-		o == EfficientSwarmIntelligenceID ||
-		o == OverclockingLargeCargoID ||
-		o == GravitationSensorsID ||
-		o == OverclockingBattleshipID ||
-		o == PsionicShieldMatrixID ||
-		o == KaeleshDiscovererEnhancementID
+	return utils.InArr(o, HumansTechnologiesIDs) ||
+		utils.InArr(o, RocktalTechnologiesIDs) ||
+		utils.InArr(o, MechasTechnologiesIDs) ||
+		utils.InArr(o, KaeleshTechnologiesIDs)
 }
 
 // IsDefense returns either or not the id is a defense

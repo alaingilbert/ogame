@@ -900,6 +900,7 @@ func GetRequirementsHandler(c echo.Context) error {
 
 // GetPriceHandler ...
 func GetPriceHandler(c echo.Context) error {
+	bot := c.Get("bot").(*OGame)
 	ogameID, err := utils.ParseI64(c.Param("ogameID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
@@ -910,7 +911,8 @@ func GetPriceHandler(c echo.Context) error {
 	}
 	ogameObj := ogame.Objs.ByID(ogame.ID(ogameID))
 	if ogameObj != nil {
-		price := ogameObj.GetPrice(nbr)
+		lfBonuses, _ := bot.GetCachedLfBonuses()
+		price := ogameObj.GetPrice(nbr, lfBonuses)
 		return c.JSON(http.StatusOK, SuccessResp(price))
 	}
 	return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid ogameID"))
@@ -929,7 +931,7 @@ func SendFleetHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid form"))
 	}
 
-	var ships []ogame.Quantifiable
+	var ships ogame.ShipsInfos
 	where := ogame.Coordinate{Type: ogame.PlanetType}
 	mission := ogame.Transport
 	var duration int64
@@ -949,7 +951,7 @@ func SendFleetHandler(c echo.Context) error {
 				if err != nil || nbr < 0 {
 					return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid nbr "+a[1]))
 				}
-				ships = append(ships, ogame.Quantifiable{ID: ogame.ID(shipID), Nbr: nbr})
+				ships.Set(ogame.ID(shipID), nbr)
 			}
 		case "speed":
 			speedInt, err := utils.ParseI64(values[0])

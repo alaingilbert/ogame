@@ -9,8 +9,8 @@ import (
 
 func TestRocketLauncherConstructionTime(t *testing.T) {
 	rl := newRocketLauncher()
-	assert.Equal(t, 82*time.Second, rl.ConstructionTime(1, 7, Facilities{Shipyard: 4}, false, false))
-	assert.Equal(t, 164*time.Second, rl.ConstructionTime(2, 7, Facilities{Shipyard: 4}, false, false))
+	assert.Equal(t, 82*time.Second, rl.ConstructionTime(1, 7, Facilities{Shipyard: 4}, LfBonuses{}, NoClass, false))
+	assert.Equal(t, 164*time.Second, rl.ConstructionTime(2, 7, Facilities{Shipyard: 4}, LfBonuses{}, NoClass, false))
 }
 
 func TestRocketLauncher_GetName(t *testing.T) {
@@ -25,8 +25,8 @@ func TestRocketLauncher_GetRequirements(t *testing.T) {
 
 func TestRocketLauncher_GetPrice(t *testing.T) {
 	rl := newRocketLauncher()
-	assert.Equal(t, Resources{Metal: 2000}, rl.GetPrice(1))
-	assert.Equal(t, Resources{Metal: 6000}, rl.GetPrice(3))
+	assert.Equal(t, Resources{Metal: 2000}, rl.GetPrice(1, LfBonuses{}))
+	assert.Equal(t, Resources{Metal: 6000}, rl.GetPrice(3, LfBonuses{}))
 }
 
 func TestRocketLauncher_GetRapidfireFrom(t *testing.T) {

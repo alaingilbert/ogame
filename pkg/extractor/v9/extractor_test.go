@@ -1,6 +1,8 @@
 package v9
 
 import (
+	"bytes"
+	"github.com/PuerkitoBio/goquery"
 	"os"
 	"testing"
 	"time"
@@ -226,4 +228,54 @@ func TestExtractOverviewProduction_ships(t *testing.T) {
 	assert.Equal(t, int64(1), prod[0].Nbr)
 	assert.Equal(t, ogame.SmallCargoID, prod[1].ID)
 	assert.Equal(t, int64(1), prod[1].Nbr)
+}
+
+func TestExtractArtefactsFromDoc(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.16.0/en/lfresearch_1.html")
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	collected, limit := NewExtractor().ExtractArtefactsFromDoc(doc)
+	assert.Equal(t, int64(3607), collected)
+	assert.Equal(t, int64(3600), limit)
+}
+
+func TestExtractLfSlotsFromDoc(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.16.0/en/lfresearch_1.html")
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	slots := NewExtractor().ExtractLfSlotsFromDoc(doc)
+	assert.Equal(t, ogame.IntergalacticEnvoysID, slots[0].TechID)
+	assert.Equal(t, int64(0), slots[0].Level)
+	assert.False(t, slots[0].Allowed)
+	assert.False(t, slots[1].Allowed)
+	assert.False(t, slots[2].Allowed)
+	assert.False(t, slots[3].Allowed)
+	assert.False(t, slots[4].Allowed)
+	assert.False(t, slots[5].Allowed)
+	assert.False(t, slots[6].Allowed)
+	assert.False(t, slots[7].Allowed)
+	assert.False(t, slots[8].Allowed)
+
+	pageHTMLBytes, _ = os.ReadFile("../../../samples/v11.16.0/en/lfresearch_2.html")
+	doc, _ = goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	slots = NewExtractor().ExtractLfSlotsFromDoc(doc)
+	assert.Equal(t, ogame.IntergalacticEnvoysID, slots[0].TechID)
+	assert.Equal(t, int64(14), slots[0].Level)
+	assert.False(t, slots[0].Allowed)
+	assert.False(t, slots[1].Allowed)
+	assert.False(t, slots[2].Allowed)
+	assert.False(t, slots[3].Allowed)
+	assert.False(t, slots[4].Allowed)
+	assert.True(t, slots[5].Allowed)
+	assert.False(t, slots[6].Allowed)
+	assert.False(t, slots[7].Allowed)
+	assert.False(t, slots[8].Allowed)
+
+	assert.False(t, slots[0].Locked)
+	assert.False(t, slots[1].Locked)
+	assert.False(t, slots[2].Locked)
+	assert.False(t, slots[3].Locked)
+	assert.False(t, slots[4].Locked)
+	assert.False(t, slots[5].Locked)
+	assert.True(t, slots[6].Locked)
+	assert.True(t, slots[7].Locked)
+	assert.True(t, slots[8].Locked)
 }

@@ -12,7 +12,8 @@ func GetFleetSpeedForMission(serverData gameforge.ServerData, missionID ogame.Mi
 		missionID == ogame.GroupedAttack ||
 		missionID == ogame.Destroy ||
 		missionID == ogame.MissileAttack ||
-		missionID == ogame.RecycleDebrisField {
+		missionID == ogame.RecycleDebrisField ||
+		missionID == ogame.Spy {
 		return serverData.SpeedFleetWar
 	}
 	return serverData.SpeedFleetPeaceful

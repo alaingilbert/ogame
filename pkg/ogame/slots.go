@@ -7,3 +7,8 @@ type Slots struct {
 	ExpInUse int64
 	ExpTotal int64
 }
+
+func (s Slots) IsAllSlotsInUse(mission MissionID) bool {
+	return (s.InUse == s.Total) ||
+		(mission == Expedition && s.ExpInUse == s.ExpTotal)
+}

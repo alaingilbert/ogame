@@ -2,10 +2,9 @@ package ogame
 
 import (
 	"fmt"
-	stdmath "math"
-
+	"github.com/alaingilbert/ogame/pkg/utils"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/google/gxui/math"
+	"math"
 )
 
 // ResourcesDetails ...
@@ -99,9 +98,9 @@ func (r Resources) Value() int64 {
 // Sub subtract v from r
 func (r Resources) Sub(v Resources) Resources {
 	return Resources{
-		Metal:     max64(r.Metal-v.Metal, 0),
-		Crystal:   max64(r.Crystal-v.Crystal, 0),
-		Deuterium: max64(r.Deuterium-v.Deuterium, 0),
+		Metal:     utils.MaxInt(r.Metal-v.Metal, 0),
+		Crystal:   utils.MaxInt(r.Crystal-v.Crystal, 0),
+		Deuterium: utils.MaxInt(r.Deuterium-v.Deuterium, 0),
 	}
 }
 
@@ -123,26 +122,6 @@ func (r Resources) Mul(scalar int64) Resources {
 	}
 }
 
-func min64(values ...int64) int64 {
-	m := int64(math.MaxInt)
-	for _, v := range values {
-		if v < m {
-			m = v
-		}
-	}
-	return m
-}
-
-func max64(values ...int64) int64 {
-	m := int64(math.MinInt)
-	for _, v := range values {
-		if v > m {
-			m = v
-		}
-	}
-	return m
-}
-
 // Div finds how many price a res can afford
 func (r Resources) Div(price Resources) int64 {
 	nb := int64(math.MaxInt)
@@ -150,10 +129,10 @@ func (r Resources) Div(price Resources) int64 {
 		nb = r.Metal / price.Metal
 	}
 	if price.Crystal > 0 {
-		nb = min64(r.Crystal/price.Crystal, nb)
+		nb = utils.MinInt(r.Crystal/price.Crystal, nb)
 	}
 	if price.Deuterium > 0 {
-		nb = min64(r.Deuterium/price.Deuterium, nb)
+		nb = utils.MinInt(r.Deuterium/price.Deuterium, nb)
 	}
 	return nb
 }
@@ -192,10 +171,20 @@ func (r Resources) Lte(val Resources) bool {
 }
 
 // FitsIn get the number of ships required to transport the resource
-func (r Resources) FitsIn(ship Ship, techs Researches, probeRaids, isCollector, isPioneers bool) int64 {
-	cargo := ship.GetCargoCapacity(techs, probeRaids, isCollector, isPioneers)
+func (r Resources) FitsIn(ship Ship, techs Researches, bonus LfBonuses, characterClass CharacterClass, multiplier float64, probeRaids bool) int64 {
+	cargo := ship.GetCargoCapacity(techs, bonus, characterClass, multiplier, probeRaids)
 	if cargo == 0 {
 		return 0
 	}
-	return int64(stdmath.Ceil(float64(r.Total()) / float64(cargo)))
+	return int64(math.Ceil(float64(r.Total()) / float64(cargo)))
+}
+
+// SubPercent subtract the percentage from the initial values
+func (r Resources) SubPercent(pct float64) Resources {
+	return Resources{
+		Metal:     r.Metal - int64(float64(r.Metal)*pct),
+		Crystal:   r.Crystal - int64(float64(r.Crystal)*pct),
+		Deuterium: r.Deuterium - int64(float64(r.Deuterium)*pct),
+		Energy:    r.Energy - int64(float64(r.Energy)*pct),
+	}
 }

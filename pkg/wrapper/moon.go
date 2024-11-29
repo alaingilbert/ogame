@@ -68,8 +68,8 @@ func (m Moon) CancelBuilding() error {
 }
 
 // CancelLfBuilding cancel the construction of a lifeform building
-func (p Moon) CancelLfBuilding() error {
-	return p.ogame.CancelLfBuilding(ogame.CelestialID(p.ID))
+func (m Moon) CancelLfBuilding() error {
+	return m.ogame.CancelLfBuilding(ogame.CelestialID(m.ID))
 }
 
 // CancelResearch cancel the research
@@ -78,13 +78,13 @@ func (m Moon) CancelResearch() error {
 }
 
 // SendFleet sends a fleet
-func (m Moon) SendFleet(ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (m Moon) SendFleet(ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	return m.ogame.SendFleet(ogame.CelestialID(m.ID), ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
 // EnsureFleet either sends all the requested ships or fail
-func (m Moon) EnsureFleet(ships []ogame.Quantifiable, speed ogame.Speed, where ogame.Coordinate,
+func (m Moon) EnsureFleet(ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {
 	return m.ogame.EnsureFleet(ogame.CelestialID(m.ID), ships, speed, where, mission, resources, holdingTime, unionID)
 }
@@ -125,7 +125,7 @@ func (m Moon) ActivateItem(ref string) error {
 //
 
 // Phalanx uses 5000 deuterium to scan a coordinate
-func (m Moon) Phalanx(coord ogame.Coordinate) ([]ogame.Fleet, error) {
+func (m Moon) Phalanx(coord ogame.Coordinate) ([]ogame.PhalanxFleet, error) {
 	return m.ogame.Phalanx(m.ID, coord)
 }
 

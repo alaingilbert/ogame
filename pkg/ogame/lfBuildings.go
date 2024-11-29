@@ -302,35 +302,37 @@ type BaseLfBuilding struct {
 	durationFactor           float64
 }
 
-func (b BaseLfBuilding) BuildingConstructionTime(level, universeSpeed int64, acc BuildingAccelerators) time.Duration {
+func (b BaseLfBuilding) BuildingConstructionTime(level, universeSpeed int64, acc BuildingAccelerators, lfBonuses LfBonuses) time.Duration {
 	roboticLvl := float64(acc.GetRoboticsFactory())
 	naniteLvl := float64(acc.GetNaniteFactory())
 	levelF := float64(level)
-	secs := levelF * b.durationBase * math.Pow(b.durationFactor, levelF) / (1 + roboticLvl) * math.Pow(2, naniteLvl)
+	secs := levelF * b.durationBase * math.Pow(b.durationFactor, levelF) / ((1 + roboticLvl) * math.Pow(2, naniteLvl))
 	secs /= float64(universeSpeed)
 	secs = math.Max(1, secs)
-	return time.Duration(int64(math.Floor(secs))) * time.Second
+	dur := time.Duration(int64(math.Floor(secs))) * time.Second
+	bonus := lfBonuses.CostTimeBonuses[b.ID].Duration
+	return time.Duration(float64(dur) - float64(dur)*bonus)
 }
 
 // ConstructionTime returns the duration it takes to build given level. Deconstruction time is the same function.
-func (b BaseLfBuilding) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, _, _ bool) time.Duration {
-	return b.BuildingConstructionTime(level, universeSpeed, facilities)
+func (b BaseLfBuilding) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, lfBonuses LfBonuses, _ CharacterClass, _ bool) time.Duration {
+	return b.BuildingConstructionTime(level, universeSpeed, facilities, lfBonuses)
 }
 
 // GetPrice returns the price to build the given level
-func (b BaseLfBuilding) GetPrice(level int64) Resources {
-	tmp := func(baseCost int64, increaseFactor float64, level int64) int64 {
+func (b BaseLfBuilding) GetPrice(level int64, _ LfBonuses) Resources {
+	resourcesFormula := func(baseCost int64, increaseFactor float64, level int64) int64 {
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)) * float64(level))
 	}
-	tmp2 := func(baseCost int64, increaseFactor float64, level int64) int64 {
+	populationFormula := func(baseCost int64, increaseFactor float64, level int64) int64 {
 		return int64(float64(baseCost) * math.Pow(increaseFactor, float64(level-1)))
 	}
 	return Resources{
-		Metal:      tmp(b.BaseCost.Metal, b.IncreaseFactor, level),
-		Crystal:    tmp(b.BaseCost.Crystal, b.IncreaseFactor, level),
-		Deuterium:  tmp(b.BaseCost.Deuterium, b.IncreaseFactor, level),
-		Energy:     tmp(b.BaseCost.Energy, b.energyIncreaseFactor, level),
-		Population: tmp2(b.BaseCost.Population, b.populationIncreaseFactor, level),
+		Metal:      resourcesFormula(b.BaseCost.Metal, b.IncreaseFactor, level),
+		Crystal:    resourcesFormula(b.BaseCost.Crystal, b.IncreaseFactor, level),
+		Deuterium:  resourcesFormula(b.BaseCost.Deuterium, b.IncreaseFactor, level),
+		Energy:     resourcesFormula(b.BaseCost.Energy, b.energyIncreaseFactor, level),
+		Population: populationFormula(b.BaseCost.Population, b.populationIncreaseFactor, level),
 	}
 }
 
@@ -959,7 +961,7 @@ func newAntimatterCondenser() *antimatterCondenser {
 	b.ID = AntimatterCondenserID
 	b.durationBase = 40
 	b.durationFactor = 1.22
-	b.IncreaseFactor = 1.21
+	b.IncreaseFactor = 1.20
 	b.energyIncreaseFactor = 1.02
 	b.BaseCost = Resources{Metal: 6, Crystal: 3, Energy: 9}
 	b.Requirements = map[ID]int64{}

@@ -24,8 +24,8 @@ func (b BaseBuilding) DeconstructionPrice(level int64, techs IResearches) Resour
 	}
 }
 
-func (b BaseBuilding) BuildingConstructionTime(level, universeSpeed int64, acc BuildingAccelerators) time.Duration {
-	price := b.GetPrice(level)
+func (b BaseBuilding) BuildingConstructionTime(level, universeSpeed int64, acc BuildingAccelerators, lfBonuses LfBonuses) time.Duration {
+	price := b.GetPrice(level, lfBonuses)
 	metalCost := float64(price.Metal)
 	crystalCost := float64(price.Crystal)
 	roboticLvl := float64(acc.GetRoboticsFactory())
@@ -36,12 +36,14 @@ func (b BaseBuilding) BuildingConstructionTime(level, universeSpeed int64, acc B
 		secs = secs * (2 / (7 - (float64(level) - 1)))
 	}
 	secs = math.Max(1, secs)
-	return time.Duration(int64(math.Floor(secs))) * time.Second
+	dur := time.Duration(int64(math.Floor(secs))) * time.Second
+	bonus := lfBonuses.CostTimeBonuses[b.ID].Duration
+	return time.Duration(float64(dur) - float64(dur)*bonus)
 }
 
 // ConstructionTime returns the duration it takes to build given level. Deconstruction time is the same function.
-func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, _, _ bool) time.Duration {
-	return b.BuildingConstructionTime(level, universeSpeed, facilities)
+func (b BaseBuilding) ConstructionTime(level, universeSpeed int64, facilities BuildAccelerators, lfBonuses LfBonuses, _ CharacterClass, _ bool) time.Duration {
+	return b.BuildingConstructionTime(level, universeSpeed, facilities, lfBonuses)
 }
 
 // GetLevel returns current level of a building

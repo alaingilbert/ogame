@@ -1,6 +1,8 @@
 package v6
 
 import (
+	"bytes"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/stretchr/testify/assert"
@@ -140,6 +142,21 @@ func TestExtractAttacksACSMany(t *testing.T) {
 	assert.Equal(t, ogame.Attack, attacks[2].MissionType)
 	assert.Equal(t, int64(1), attacks[2].Ships.LightFighter)
 	assert.Equal(t, int64(7), attacks[2].Ships.Battlecruiser)
+}
+
+func TestExtractFleetDispatchACS(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.15.8/en/fleetdispatch_acs.html")
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	e := NewExtractor()
+	acsValues := e.ExtractFleetDispatchACSFromDoc(doc)
+	acsValue := acsValues[0]
+	assert.Equal(t, "3#181#7#1#Colony#6157", acsValue.ACSValues)
+	assert.Equal(t, int64(3), acsValue.Galaxy)
+	assert.Equal(t, int64(181), acsValue.System)
+	assert.Equal(t, int64(7), acsValue.Position)
+	assert.Equal(t, "Colony", acsValue.Name)
+	assert.Equal(t, ogame.PlanetType, acsValue.CelestialType)
+	assert.Equal(t, int64(6157), acsValue.Union)
 }
 
 func TestExtractAttacksACS2(t *testing.T) {

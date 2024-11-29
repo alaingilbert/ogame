@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
-	"time"
-
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
+	"strconv"
+	"strings"
 )
 
 type (
@@ -97,8 +96,8 @@ func (c *CInt64) UnmarshalJSON(d []byte) error {
 	if err := json.Unmarshal(d, &str); err != nil {
 		return err
 	}
-	tmp = utils.ParseInt(str)
-	*c = CInt64(tmp)
+	f, _ := strconv.ParseFloat(str, 64)
+	*c = CInt64(f)
 	return nil
 }
 
@@ -239,8 +238,6 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 				planetInfos.Coordinate.System = pos.System.Int64()
 				planetInfos.Coordinate.Position = pos.Position.Int64()
 				planetInfos.Coordinate.Type = ogame.PlanetType
-
-				planetInfos.Date = time.Now()
 
 				// Player
 				planetInfos.Player.ID = player.PlayerID.Int64()
