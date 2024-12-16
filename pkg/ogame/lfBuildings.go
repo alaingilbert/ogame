@@ -1045,7 +1045,7 @@ func newCloningLaboratory() *cloningLaboratory {
 	b.durationBase = 12000
 	b.durationFactor = 1.20
 	b.IncreaseFactor = 1.20
-	b.BaseCost = Resources{Metal: 15000, Crystal: 15000, Deuterium: 20000}
+	b.BaseCost = Resources{Metal: 15000, Crystal: 15000, Deuterium: 5000}
 	b.Requirements = map[ID]int64{SanctuaryID: 20, AntimatterCondenserID: 21, VortexChamberID: 5, AntimatterConvectorID: 3}
 	return b
 }
