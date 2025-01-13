@@ -9,6 +9,7 @@ type SystemInfos struct {
 	galaxy           int64
 	system           int64
 	planets          [15]*PlanetInfos
+	Relocations      [15]Relocation
 	ExpeditionDebris struct {
 		Metal             int64
 		Crystal           int64

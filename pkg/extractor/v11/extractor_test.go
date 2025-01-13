@@ -11,6 +11,7 @@ func TestExtractGalaxyInfos(t *testing.T) {
 	infos, _ := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Gemini", 123, 456)
 	assert.Equal(t, "Admiral Dorado", infos.Position(4).Player.Name)
 	assert.Equal(t, "Commodore Gemini", infos.Position(10).Player.Name)
+	assert.Equal(t, int64(240000), infos.Relocations[0].DarkMatterCost)
 }
 
 func TestExtractGalaxyInfos_debrisFloat(t *testing.T) {

@@ -25,12 +25,13 @@ type (
 	}
 
 	ContentJson struct {
-		Galaxy   CInt64      `json:"galaxy"`
-		System   CInt64      `json:"system"`
-		Position CInt64      `json:"position"`
-		Planets  PlanetsList `json:"planets"`
-		Player   PlayerJson  `json:"player"`
-		Filters  string      `json:"positionFilters"`
+		Galaxy            CInt64           `json:"galaxy"`
+		System            CInt64           `json:"system"`
+		Position          CInt64           `json:"position"`
+		Planets           PlanetsList      `json:"planets"`
+		Player            PlayerJson       `json:"player"`
+		Filters           string           `json:"positionFilters"`
+		AvailableMissions []map[string]any `json:"availableMissions"`
 	}
 
 	PlanetsList []PlanetJson
@@ -196,6 +197,26 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 	res.SetSystem(tmp.System.System.Int64())
 
 	for i, pos := range tmp.System.Content {
+
+		for _, missionRaw := range pos.AvailableMissions {
+			if missionTypeRaw, ok := missionRaw["missionType"]; ok {
+				if missionTypeF64, ok := missionTypeRaw.(float64); ok {
+					if ogame.MissionID(missionTypeF64) == ogame.Relocate {
+						moveLinkRaw, _ := missionRaw["moveLink"]
+						planetMovePossible, _ := missionRaw["planetMovePossible"]
+						sufficientDarkMatter, _ := missionRaw["sufficientDarkMatter"]
+						darkMatterCost, _ := missionRaw["darkMatterCost"]
+						res.Relocations[i] = ogame.Relocation{
+							MoveLink:             moveLinkRaw.(string),
+							PlanetMovePossible:   planetMovePossible.(bool),
+							SufficientDarkMatter: sufficientDarkMatter.(bool),
+							MissionType:          ogame.MissionID(missionTypeF64),
+							DarkMatterCost:       int64(darkMatterCost.(float64)),
+						}
+					}
+				}
+			}
+		}
 
 		if pos.Position.Int64() == 16 {
 			res.ExpeditionDebris.Metal = pos.Planets[0].Resources.Metal
