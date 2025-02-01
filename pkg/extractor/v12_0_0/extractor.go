@@ -5,6 +5,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/extractor/v11_15_0"
+	"github.com/alaingilbert/ogame/pkg/ogame"
 	"time"
 )
 
@@ -33,4 +34,15 @@ func (e *Extractor) extractServerTime(pageHTML []byte, clock clockwork.Clock) (t
 func (e *Extractor) ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
 	clock := clockwork.NewRealClock()
 	return extractServerTimeFromDoc(doc, clock)
+}
+
+// ExtractHighscore ...
+func (e *Extractor) ExtractHighscore(pageHTML []byte) (ogame.Highscore, error) {
+	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	return e.ExtractHighscoreFromDoc(doc)
+}
+
+// ExtractHighscoreFromDoc ...
+func (e *Extractor) ExtractHighscoreFromDoc(doc *goquery.Document) (ogame.Highscore, error) {
+	return extractHighscoreFromDoc(doc)
 }
