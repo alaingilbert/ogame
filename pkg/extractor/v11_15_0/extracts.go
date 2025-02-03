@@ -439,7 +439,7 @@ func extractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
 	b := ogame.NewLfBonuses()
 	doc.Find("bonus-item-content[data-toggable-target^=category]").Each(func(_ int, s *goquery.Selection) {
 		category := s.AttrOr("data-toggable-target", "")
-		if category == "categoryShips" || category == "categoryCostAndTime" {
+		if category == "categoryShips" || category == "categoryCostAndTime" || category == "categoryResources" {
 			s.Find("inner-bonus-item-heading[data-toggable^=subcategory]").Each(func(_ int, g *goquery.Selection) {
 				category, subcategory := extractCategories(g, category)
 				if category != "" && subcategory != "" {
@@ -460,12 +460,21 @@ func extractCategories(g *goquery.Selection, category string) (string, string) {
 
 func assignBonusValue(s *goquery.Selection, b *ogame.LfBonuses, category string, subcategory string) {
 	switch category {
+	case "Resources":
+		if subcategory == "Expedition" {
+			extractResourcesExpeditionBonus(s, b)
+		}
 	case "Ships":
 		extractShipStatBonus(s, b, subcategory)
 	case "CostAndTime":
 		extractCostReductionBonus(s, b, subcategory)
 		extractTimeReductionBonus(s, b, subcategory)
 	}
+}
+
+func extractResourcesExpeditionBonus(s *goquery.Selection, l *ogame.LfBonuses) {
+	txt := s.Find("div.subCategoryBonus").First().Text()
+	l.LfResourceBonuses.ResourcesExpedition = extractBonusFromStringPercentage(txt)
 }
 
 // Extracts cost reduction
