@@ -248,6 +248,11 @@ func (s ShipsInfos) ByID(id ID) int64 {
 	}
 }
 
+// ByShip get number of ships given a "Ship"
+func (s ShipsInfos) ByShip(ship Ship) int64 {
+	return s.ByID(ship.GetID())
+}
+
 // Set sets the ships value using the ship id
 func (s *ShipsInfos) Set(id ID, val int64) {
 	switch id {

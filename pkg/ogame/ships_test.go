@@ -10,6 +10,11 @@ func TestByID(t *testing.T) {
 	assert.Equal(t, int64(0), ShipsInfos{}.ByID(123456))
 }
 
+func TestByShip(t *testing.T) {
+	assert.Equal(t, int64(0), ShipsInfos{}.ByShip(Ships[0]))
+	assert.Equal(t, int64(123), ShipsInfos{LightFighter: 123}.ByShip(Ships[0]))
+}
+
 func TestShipsInfos_Cargo(t *testing.T) {
 	ships := ShipsInfos{
 		SmallCargo: 2,
