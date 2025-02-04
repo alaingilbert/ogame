@@ -439,7 +439,7 @@ func extractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
 	b := ogame.NewLfBonuses()
 	doc.Find("bonus-item-content[data-toggable-target^=category]").Each(func(_ int, s *goquery.Selection) {
 		category := s.AttrOr("data-toggable-target", "")
-		if category == "categoryShips" || category == "categoryCostAndTime" || category == "categoryResources" {
+		if category == "categoryShips" || category == "categoryCostAndTime" || category == "categoryResources" || category == "categoryCharacterclasses" {
 			s.Find("inner-bonus-item-heading[data-toggable^=subcategory]").Each(func(_ int, g *goquery.Selection) {
 				category, subcategory := extractCategories(g, category)
 				if category != "" && subcategory != "" {
@@ -463,6 +463,13 @@ func assignBonusValue(s *goquery.Selection, b *ogame.LfBonuses, category string,
 	case "Resources":
 		if subcategory == "Expedition" {
 			extractResourcesExpeditionBonus(s, b)
+		}
+	case "Characterclasses":
+		if subcategory == "3" {
+			txt := s.Find("div.subCategoryBonus").First().Text()
+			re := regexp.MustCompile(`\d+[.|,]\d+|\d+`)
+			match := re.FindString(txt)
+			b.CharacterClassesBonuses.Characterclasses3 = extractBonusFromStringPercentage(match)
 		}
 	case "Ships":
 		extractShipStatBonus(s, b, subcategory)

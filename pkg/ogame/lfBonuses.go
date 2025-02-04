@@ -1,9 +1,10 @@
 package ogame
 
 type LfBonuses struct {
-	LfResourceBonuses LfResourceBonuses
-	LfShipBonuses     LfShipBonuses
-	CostTimeBonuses   CostTimeBonuses
+	LfResourceBonuses       LfResourceBonuses
+	CharacterClassesBonuses CharacterClassesBonuses
+	LfShipBonuses           LfShipBonuses
+	CostTimeBonuses         CostTimeBonuses
 
 	// Following lifeform buildings decreases the costs and duration for researching new technologies.
 	// Humans ResearchCentre / Rocktal RuneTechnologium / Mechas RoboticsResearchCentre / Kaelesh VortexChamber
@@ -38,4 +39,8 @@ type LfShipBonus struct {
 
 type LfResourceBonuses struct {
 	ResourcesExpedition float64
+}
+
+type CharacterClassesBonuses struct {
+	Characterclasses3 float64
 }
