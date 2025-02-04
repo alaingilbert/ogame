@@ -293,6 +293,11 @@ func (s *ShipsInfos) Set(id ID, val int64) {
 	}
 }
 
+// SetShip sets the ships value using the "Ship" id
+func (s *ShipsInfos) SetShip(ship Ship, val int64) {
+	s.Set(ship.GetID(), val)
+}
+
 func (s ShipsInfos) String() string {
 	return "\n" +
 		"  Light Fighter: " + utils.FI64(s.LightFighter) + "\n" +
