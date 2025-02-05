@@ -70,7 +70,6 @@ type gfLoginParams struct {
 	Device   *device.Device
 	platform Platform
 	lobby    string
-	baseURL  string
 }
 
 // CaptchaCallback the returned answer should be one of "0" "1" "2" "3"
@@ -157,7 +156,7 @@ func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeI
 func (g *Gameforge) GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 	maxTry := g.maxCaptchaRetries
 	for {
-		out, err = gFLogin(&gfLoginParams{GfLoginParams: params, Device: g.device, Ctx: g.ctx, platform: g.platform, lobby: g.lobby, baseURL: g.getGameforgeLobbyBaseURL()})
+		out, err = gFLogin(&gfLoginParams{GfLoginParams: params, Device: g.device, Ctx: g.ctx, platform: g.platform, lobby: g.lobby})
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
 			captchaCallback := g.solver
@@ -176,10 +175,6 @@ func (g *Gameforge) GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) 
 	}
 	g.bearerToken = out.Token
 	return out, nil
-}
-
-func (g *Gameforge) getGameforgeLobbyBaseURL() string {
-	return getGameforgeLobbyBaseURL(g.lobby, g.platform)
 }
 
 // GetUserAccounts ...
@@ -484,7 +479,7 @@ func gFLogin(params *gfLoginParams) (out *GFLoginRes, err error) {
 	}
 	client := params.Device.GetClient()
 	ctx := params.Ctx
-	gameEnvironmentID, platformGameID, err := getConfiguration(ctx, client, params.baseURL)
+	gameEnvironmentID, platformGameID, err := getConfiguration(ctx, client, params.platform, params.lobby)
 	if err != nil {
 		return out, err
 	}
@@ -531,8 +526,8 @@ func gFLogin(params *gfLoginParams) (out *GFLoginRes, err error) {
 	return out, nil
 }
 
-func getConfiguration(ctx context.Context, client httpclient.IHttpClient, baseURL string) (string, string, error) {
-	ogURL := baseURL + "/config/configuration.js"
+func getConfiguration(ctx context.Context, client httpclient.IHttpClient, platform Platform, lobby string) (string, string, error) {
+	ogURL := getGameforgeLobbyBaseURL(lobby, platform) + "/config/configuration.js"
 	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
 	if err != nil {
 		return "", "", err
