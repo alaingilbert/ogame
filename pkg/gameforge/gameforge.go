@@ -317,21 +317,33 @@ func setDefaultParams(params *gfLoginParams) {
 }
 
 // LoginAndRedeemCode ...
-func LoginAndRedeemCode(params *gfLoginParams, code string) error {
-	postSessionsRes, err := gFLogin(params)
+func (g *Gameforge) LoginAndRedeemCode(params *GfLoginParams, code string) error {
+	postSessionsRes, err := gFLogin(&gfLoginParams{
+		GfLoginParams: params,
+		Ctx:           g.ctx,
+		Device:        g.device,
+		platform:      g.platform,
+		lobby:         g.lobby,
+	})
 	if err != nil {
 		return err
 	}
-	return RedeemCode(params.Ctx, params.Device.GetClient(), params.platform, params.lobby, postSessionsRes.Token, code)
+	return RedeemCode(g.ctx, g.device.GetClient(), g.platform, g.lobby, postSessionsRes.Token, code)
 }
 
 // LoginAndAddAccount adds an account to a gameforge lobby
-func LoginAndAddAccount(params *gfLoginParams, universe, lang string) (*AddAccountRes, error) {
-	postSessionsRes, err := gFLogin(params)
+func (g *Gameforge) LoginAndAddAccount(params *GfLoginParams, universe, lang string) (*AddAccountRes, error) {
+	postSessionsRes, err := gFLogin(&gfLoginParams{
+		GfLoginParams: params,
+		Ctx:           g.ctx,
+		Device:        g.device,
+		platform:      g.platform,
+		lobby:         g.lobby,
+	})
 	if err != nil {
 		return nil, err
 	}
-	return AddAccountByUniverseLang(params.Ctx, params.Device, params.platform, params.lobby, postSessionsRes.Token, universe, lang)
+	return AddAccountByUniverseLang(g.ctx, g.device, g.platform, g.lobby, postSessionsRes.Token, universe, lang)
 }
 
 // RedeemCode ...
