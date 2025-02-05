@@ -734,6 +734,18 @@ func (s Server) OGameSettings() OGameServerSettings {
 	return result
 }
 
+func (s Server) IkariamSettings() IkariamServerSettings {
+	by, err := json.Marshal(s.Settings)
+	if err != nil {
+		panic(err)
+	}
+	var result IkariamServerSettings
+	if err := json.Unmarshal(by, &result); err != nil {
+		panic(err)
+	}
+	return result
+}
+
 // OGameServerSettings ...
 type OGameServerSettings struct {
 	AKS                      int64
