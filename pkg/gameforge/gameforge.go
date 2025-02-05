@@ -723,27 +723,22 @@ type Server struct {
 }
 
 func (s Server) OGameSettings() OGameServerSettings {
-	by, err := json.Marshal(s.Settings)
-	if err != nil {
-		panic(err)
-	}
-	var result OGameServerSettings
-	if err := json.Unmarshal(by, &result); err != nil {
-		panic(err)
-	}
-	return result
+	return convertToStruct[OGameServerSettings](s.Settings)
 }
 
 func (s Server) IkariamSettings() IkariamServerSettings {
-	by, err := json.Marshal(s.Settings)
+	return convertToStruct[IkariamServerSettings](s.Settings)
+}
+
+func convertToStruct[T any](v any) (out T) {
+	by, err := json.Marshal(v)
 	if err != nil {
 		panic(err)
 	}
-	var result IkariamServerSettings
-	if err := json.Unmarshal(by, &result); err != nil {
+	if err := json.Unmarshal(by, &out); err != nil {
 		panic(err)
 	}
-	return result
+	return out
 }
 
 // OGameServerSettings ...
