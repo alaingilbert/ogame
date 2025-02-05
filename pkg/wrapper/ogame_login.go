@@ -151,7 +151,7 @@ func (b *OGame) login() error {
 
 func (b *OGame) getAndExecLoginLink(userAccount gameforge.Account, token string) (string, []byte, error) {
 	b.debug("get login link")
-	loginLink, err := gameforge.GetLoginLink(b.device, b.ctx, b.lobby, userAccount, token)
+	loginLink, err := gameforge.GetLoginLink(b.ctx, b.device, gameforge.OGAME, b.lobby, userAccount, token)
 	if err != nil {
 		return "", nil, err
 	}
@@ -179,12 +179,12 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 	ctx := b.ctx
 	lobby := b.lobby
 	b.debug("get user accounts")
-	accounts, err := gameforge.GetUserAccounts(client, ctx, lobby, token)
+	accounts, err := gameforge.GetUserAccounts(ctx, client, gameforge.OGAME, lobby, token)
 	if err != nil {
 		return
 	}
 	b.debug("get servers")
-	servers, err := gameforge.GetServers(lobby, client, ctx)
+	servers, err := gameforge.GetServers(ctx, client, gameforge.OGAME, lobby)
 	if err != nil {
 		return
 	}
@@ -207,7 +207,7 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 	start := time.Now()
 	b.server = server
 	serverData, err := b.getServerDataWrapper(func() (gameforge.ServerData, error) {
-		return gameforge.GetServerData(b.device.GetClient(), b.ctx, b.server.Number, b.server.Language)
+		return gameforge.GetServerData(b.ctx, b.device.GetClient(), b.server.Number, b.server.Language)
 	})
 	if err != nil {
 		return err

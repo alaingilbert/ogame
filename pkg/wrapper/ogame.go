@@ -28,7 +28,6 @@ import (
 	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
-	"github.com/alaingilbert/ogame/pkg/wrapper/solvers"
 	err2 "github.com/pkg/errors"
 
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
@@ -106,7 +105,7 @@ type OGame struct {
 	hasEngineer           bool
 	hasGeologist          bool
 	hasTechnocrat         bool
-	captchaCallback       solvers.CaptchaCallback
+	captchaCallback       gameforge.CaptchaCallback
 	device                *device.Device
 	coloniesCount         int64
 	coloniesPossible      int64
@@ -131,7 +130,7 @@ type Params struct {
 	Lobby           string
 	APINewHostname  string
 	Device          *device.Device
-	CaptchaCallback solvers.CaptchaCallback
+	CaptchaCallback gameforge.CaptchaCallback
 }
 
 // GetClientWithProxy ...
@@ -147,7 +146,7 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 
 func (b *OGame) validateAccount(code string) error {
 	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
-		return gameforge.ValidateAccount(client, b.ctx, b.lobby, code)
+		return gameforge.ValidateAccount(b.ctx, client, gameforge.OGAME, b.lobby, code)
 	})
 }
 
@@ -295,37 +294,19 @@ func (b *OGame) introBypass(page *parser.OverviewPage) error {
 func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
 	client := b.device.GetClient()
 	if err := client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
-		var challengeID string
-		maxTry := uint(3)
-		for {
-			params := &gameforge.GfLoginParams{
-				Ctx:         b.ctx,
-				Device:      b.device,
-				Lobby:       b.lobby,
-				Username:    b.Username,
-				Password:    b.password,
-				OtpSecret:   b.otpSecret,
-				ChallengeID: challengeID,
-			}
-			out, err = gameforge.GFLogin(params)
-			var captchaErr *gameforge.CaptchaRequiredError
-			if errors.As(err, &captchaErr) {
-				captchaCallback := b.captchaCallback
-				if maxTry == 0 || captchaCallback == nil {
-					return err
-				}
-				maxTry--
-				challengeID = captchaErr.ChallengeID
-				if err := solveCaptcha(b.ctx, client, challengeID, captchaCallback); err != nil {
-					return err
-				}
-				continue
-			} else if err != nil {
-				return err
-			}
-			break
-		}
-		return nil
+		gf, _ := gameforge.NewGameforge(&gameforge.Config{
+			Ctx:      b.ctx,
+			Device:   b.device,
+			Platform: gameforge.OGAME,
+			Lobby:    b.lobby,
+			Solver:   b.captchaCallback,
+		})
+		out, err = gf.GFLogin(&gameforge.GfLoginParams{
+			Username:  b.Username,
+			Password:  b.password,
+			OtpSecret: b.otpSecret,
+		})
+		return err
 	}); err != nil {
 		return nil, err
 	}
@@ -350,8 +331,8 @@ func appendCookie(client *httpclient.Client, cookie *http.Cookie) {
 	client.Jar.SetCookies(u, cookies)
 }
 
-func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeID string, captchaCallback solvers.CaptchaCallback) error {
-	questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(client, ctx, challengeID)
+func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeID string, captchaCallback gameforge.CaptchaCallback) error {
+	questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(ctx, client, challengeID)
 	if err != nil {
 		return errors.New("failed to start captcha challenge: " + err.Error())
 	}
@@ -359,7 +340,7 @@ func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeI
 	if err != nil {
 		return errors.New("failed to get answer for captcha challenge: " + err.Error())
 	}
-	if err := gameforge.SolveChallenge(client, ctx, challengeID, answer); err != nil {
+	if err := gameforge.SolveChallenge(ctx, client, challengeID, answer); err != nil {
 		return errors.New("failed to solve captcha challenge: " + err.Error())
 	}
 	return err
@@ -2555,8 +2536,8 @@ func getOwnCoordinates(planets []Planet) (ownCoords []ogame.Coordinate) {
 func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemInfos, error) {
 	cfg := getOptions(opts...)
 	var res ogame.SystemInfos
-	if galaxy < 1 || galaxy > b.server.Settings.UniverseSize {
-		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.Settings.UniverseSize)
+	if galaxy < 1 || galaxy > b.server.Settings.(gameforge.OGameServerSettings).UniverseSize {
+		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.Settings.(gameforge.OGameServerSettings).UniverseSize)
 	}
 	if system < 1 || system > b.serverData.Systems {
 		return res, errors.New("system must be within [1, " + utils.FI64(b.serverData.Systems) + "]")
@@ -3442,7 +3423,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		return ogame.Fleet{}, err
 	}
 	multiplier := float64(b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
-	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.ProbeRaidsEnabled())
+	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.Settings.(gameforge.OGameServerSettings).ProbeRaidsEnabled())
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
 		newResources.Deuterium = utils.MinInt(resources.Deuterium, cargo)
@@ -3989,7 +3970,7 @@ func (b *OGame) botUnlock(unlockedBy string) {
 
 func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
-	return gameforge.AddAccount(b.device, b.ctx, b.lobby, accountGroup, b.bearerToken)
+	return gameforge.AddAccount(b.ctx, b.device, gameforge.OGAME, b.lobby, accountGroup, b.bearerToken)
 }
 
 func (b *OGame) getCachedCelestial(v IntoCelestial) (Celestial, error) {

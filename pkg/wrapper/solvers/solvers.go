@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"image"
@@ -17,11 +18,8 @@ import (
 	"os"
 )
 
-// CaptchaCallback the returned answer should be one of "0" "1" "2" "3"
-type CaptchaCallback func(ctx context.Context, question, icons []byte) (int64, error)
-
 // TelegramSolver ...
-func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
+func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaCallback {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		tgBot, _ := tgbotapi.NewBotAPI(tgBotToken)
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
@@ -79,7 +77,7 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 }
 
 // NinjaSolver direct integration of ogame.ninja captcha auto solver service
-func NinjaSolver(apiKey string) CaptchaCallback {
+func NinjaSolver(apiKey string) gameforge.CaptchaCallback {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -117,7 +115,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 }
 
 // ManualSolver manually solve the captcha
-func ManualSolver() CaptchaCallback {
+func ManualSolver() gameforge.CaptchaCallback {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		saveImg := func(imgBytes []byte, fileName string) error {
 			img, err := png.Decode(bytes.NewReader(imgBytes))

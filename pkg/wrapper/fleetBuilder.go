@@ -2,6 +2,7 @@ package wrapper
 
 import (
 	"errors"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
 	"time"
@@ -227,7 +228,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 		techs, _ := tx.GetResearch()
 		lfBonuses, _ := tx.GetCachedLfBonuses()
 		multiplier := float64(f.b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
-		cargoCapacity := f.ships.Cargo(techs, lfBonuses, f.b.CharacterClass(), multiplier, f.b.GetServer().ProbeRaidsEnabled())
+		cargoCapacity := f.ships.Cargo(techs, lfBonuses, f.b.CharacterClass(), multiplier, f.b.GetServer().Settings.(gameforge.OGameServerSettings).ProbeRaidsEnabled())
 		if f.minimumDeuterium <= 0 {
 			planetResources, _ = tx.GetResources(f.origin.GetID())
 		}
