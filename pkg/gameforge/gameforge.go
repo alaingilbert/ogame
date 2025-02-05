@@ -187,6 +187,16 @@ func (g *Gameforge) GetServers() ([]Server, error) {
 	return GetServers(g.ctx, g.device.GetClient(), g.platform, g.lobby)
 }
 
+// StartCaptchaChallenge ...
+func (g *Gameforge) StartCaptchaChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error) {
+	return StartCaptchaChallenge(g.ctx, g.device.GetClient(), challengeID)
+}
+
+// SolveChallenge ...
+func (g *Gameforge) SolveChallenge(challengeID string, answer int64) error {
+	return SolveChallenge(g.ctx, g.device.GetClient(), challengeID, answer)
+}
+
 // Register ...
 func (g *Gameforge) Register(email, password, challengeID, lang string) error {
 	return Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
