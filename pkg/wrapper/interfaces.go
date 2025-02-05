@@ -205,7 +205,7 @@ type Wrapper interface {
 	GetPublicIP() (string, error)
 	GetResearchSpeed() int64
 	GetServer() gameforge.Server
-	GetServerData() gameforge.ServerData
+	GetServerData() ServerData
 	GetSession() string
 	GetState() (bool, string)
 	GetTasks() taskRunner.TasksOverview
@@ -235,7 +235,7 @@ type Wrapper interface {
 	ServerURL() string
 	ServerVersion() string
 	SetClient(*httpclient.Client)
-	SetGetServerDataWrapper(func(func() (gameforge.ServerData, error)) (gameforge.ServerData, error))
+	SetGetServerDataWrapper(func(func() (ServerData, error)) (ServerData, error))
 	SetLoginWrapper(func(func() (bool, error)) error)
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error

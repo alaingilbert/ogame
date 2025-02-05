@@ -206,8 +206,8 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 	// Get server data
 	start := time.Now()
 	b.server = server
-	serverData, err := b.getServerDataWrapper(func() (gameforge.ServerData, error) {
-		return gameforge.GetServerData(b.ctx, b.device.GetClient(), b.server.Number, b.server.Language)
+	serverData, err := b.getServerDataWrapper(func() (ServerData, error) {
+		return getServerData(b.ctx, b.device.GetClient(), b.server.Number, b.server.Language)
 	})
 	if err != nil {
 		return err

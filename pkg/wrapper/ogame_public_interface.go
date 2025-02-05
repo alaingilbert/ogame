@@ -133,7 +133,7 @@ func (b *OGame) GetServer() gameforge.Server {
 }
 
 // GetServerData get ogame server data information that the bot is connected to
-func (b *OGame) GetServerData() gameforge.ServerData {
+func (b *OGame) GetServerData() ServerData {
 	return b.serverData
 }
 

@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -81,7 +82,7 @@ type OGame struct {
 	ogameSession          string
 	sessionChatCounter    int64
 	server                gameforge.Server
-	serverData            gameforge.ServerData
+	serverData            ServerData
 	serverVersion         *version.Version
 	location              *time.Location
 	serverURL             string
@@ -94,7 +95,7 @@ type OGame struct {
 	ws                    *websocket.Conn
 	taskRunnerInst        *taskRunner.TaskRunner[*Prioritize]
 	loginWrapper          func(func() (bool, error)) error
-	getServerDataWrapper  func(func() (gameforge.ServerData, error)) (gameforge.ServerData, error)
+	getServerDataWrapper  func(func() (ServerData, error)) (ServerData, error)
 	loginProxyTransport   http.RoundTripper
 	extractor             extractor.Extractor
 	apiNewHostname        string
@@ -131,6 +132,73 @@ type Params struct {
 	APINewHostname  string
 	Device          *device.Device
 	CaptchaCallback gameforge.CaptchaCallback
+}
+
+// ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
+type ServerData struct {
+	Name                          string  `xml:"name"`                          // Europa
+	Number                        int64   `xml:"number"`                        // 157
+	Language                      string  `xml:"language"`                      // ru
+	Timezone                      string  `xml:"timezone"`                      // Europe/Moscow
+	TimezoneOffset                string  `xml:"timezoneOffset"`                // +03:00
+	Domain                        string  `xml:"domain"`                        // s157-ru.ogame.gameforge.com
+	Version                       string  `xml:"version"`                       // 6.8.8-pl2
+	Speed                         int64   `xml:"speed"`                         // 6
+	SpeedFleetPeaceful            int64   `xml:"speedFleetPeaceful"`            // 1
+	SpeedFleetWar                 int64   `xml:"speedFleetWar"`                 // 1
+	SpeedFleetHolding             int64   `xml:"speedFleetHolding"`             // 1
+	Galaxies                      int64   `xml:"galaxies"`                      // 4
+	Systems                       int64   `xml:"systems"`                       // 499
+	ACS                           bool    `xml:"acs"`                           // 1
+	RapidFire                     bool    `xml:"rapidFire"`                     // 1
+	DefToTF                       bool    `xml:"defToTF"`                       // 0
+	DebrisFactor                  float64 `xml:"debrisFactor"`                  // 0.5
+	DebrisFactorDef               float64 `xml:"debrisFactorDef"`               // 0
+	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
+	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
+	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
+	TopScore                      float64 `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
+	BonusFields                   int64   `xml:"bonusFields"`                   // 30
+	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
+	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
+	WfEnabled                     bool    `xml:"wfEnabled"`                     // 1 (WreckField)
+	WfMinimumRessLost             int64   `xml:"wfMinimumRessLost"`             // 150000
+	WfMinimumLossPercentage       int64   `xml:"wfMinimumLossPercentage"`       // 5
+	WfBasicPercentageRepairable   int64   `xml:"wfBasicPercentageRepairable"`   // 45
+	GlobalDeuteriumSaveFactor     float64 `xml:"globalDeuteriumSaveFactor"`     // 0.5
+	Bashlimit                     int64   `xml:"bashlimit"`                     // 0
+	ProbeCargo                    int64   `xml:"probeCargo"`                    // 5
+	ResearchDurationDivisor       int64   `xml:"researchDurationDivisor"`       // 2
+	DarkMatterNewAcount           int64   `xml:"darkMatterNewAcount"`           // 8000
+	CargoHyperspaceTechMultiplier int64   `xml:"cargoHyperspaceTechMultiplier"` // 5
+	SpeedFleet                    int64   `xml:"speedFleet"`                    // 6 // Deprecated in 8.1.0
+	FleetIgnoreEmptySystems       bool    `xml:"fleetIgnoreEmptySystems"`       // 1
+	FleetIgnoreInactiveSystems    bool    `xml:"fleetIgnoreInactiveSystems"`    // 1
+}
+
+// getServerData gets the server data from xml api
+func getServerData(ctx context.Context, client httpclient.IHttpClient, serverNumber int64, serverLang string) (ServerData, error) {
+	var serverData ServerData
+	serverDataURL := "https://s" + utils.FI64(serverNumber) + "-" + serverLang + ".ogame.gameforge.com/api/serverData.xml"
+	req, err := http.NewRequest(http.MethodGet, serverDataURL, nil)
+	if err != nil {
+		return serverData, err
+	}
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return serverData, err
+	}
+	defer resp.Body.Close()
+	by, err := utils.ReadBody(resp)
+	if err != nil {
+		return serverData, err
+	}
+	if err := xml.Unmarshal(by, &serverData); err != nil {
+		return serverData, fmt.Errorf("failed to xml unmarshal %s : %w", serverDataURL, err)
+	}
+	return serverData, nil
 }
 
 // GetClientWithProxy ...
@@ -431,7 +499,7 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 }
 
 // DefaultGetServerDataWrapper ...
-var DefaultGetServerDataWrapper = func(getServerDataFn func() (gameforge.ServerData, error)) (gameforge.ServerData, error) {
+var DefaultGetServerDataWrapper = func(getServerDataFn func() (ServerData, error)) (ServerData, error) {
 	return getServerDataFn()
 }
 
@@ -462,7 +530,7 @@ func (b *OGame) setOGameLobby(lobby string) {
 }
 
 // SetGetServerDataWrapper ...
-func (b *OGame) SetGetServerDataWrapper(newWrapper func(func() (gameforge.ServerData, error)) (gameforge.ServerData, error)) {
+func (b *OGame) SetGetServerDataWrapper(newWrapper func(func() (ServerData, error)) (ServerData, error)) {
 	b.getServerDataWrapper = newWrapper
 }
 
