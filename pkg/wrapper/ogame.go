@@ -2604,8 +2604,8 @@ func getOwnCoordinates(planets []Planet) (ownCoords []ogame.Coordinate) {
 func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemInfos, error) {
 	cfg := getOptions(opts...)
 	var res ogame.SystemInfos
-	if galaxy < 1 || galaxy > b.server.Settings.(gameforge.OGameServerSettings).UniverseSize {
-		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.Settings.(gameforge.OGameServerSettings).UniverseSize)
+	if galaxy < 1 || galaxy > b.server.OGameSettings().UniverseSize {
+		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.OGameSettings().UniverseSize)
 	}
 	if system < 1 || system > b.serverData.Systems {
 		return res, errors.New("system must be within [1, " + utils.FI64(b.serverData.Systems) + "]")
@@ -3491,7 +3491,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		return ogame.Fleet{}, err
 	}
 	multiplier := float64(b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
-	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.Settings.(gameforge.OGameServerSettings).ProbeRaidsEnabled())
+	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.OGameSettings().ProbeRaidsEnabled())
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
 		newResources.Deuterium = utils.MinInt(resources.Deuterium, cargo)

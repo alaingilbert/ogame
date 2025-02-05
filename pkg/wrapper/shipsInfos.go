@@ -1,7 +1,6 @@
 package wrapper
 
 import (
-	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
@@ -41,7 +40,7 @@ func (s *ShipsInfos) GetCargo() (out int64) {
 	bonuses, _ := tx.GetCachedLfBonuses()
 	characterClass := s.wrapper.CharacterClass()
 	multiplier := float64(s.wrapper.GetServerData().CargoHyperspaceTechMultiplier) / 100
-	probeRaids := s.wrapper.GetServer().Settings.(gameforge.OGameServerSettings).EspionageProbeRaids == 1
+	probeRaids := s.wrapper.GetServer().OGameSettings().EspionageProbeRaids == 1
 	return s.ShipsInfos.Cargo(techs, bonuses, characterClass, multiplier, probeRaids)
 }
 

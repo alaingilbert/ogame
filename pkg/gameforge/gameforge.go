@@ -722,6 +722,18 @@ type Server struct {
 	Settings      any
 }
 
+func (s Server) OGameSettings() OGameServerSettings {
+	by, err := json.Marshal(s.Settings)
+	if err != nil {
+		panic(err)
+	}
+	var result OGameServerSettings
+	if err := json.Unmarshal(by, &result); err != nil {
+		panic(err)
+	}
+	return result
+}
+
 // OGameServerSettings ...
 type OGameServerSettings struct {
 	AKS                      int64
