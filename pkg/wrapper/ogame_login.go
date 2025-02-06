@@ -277,15 +277,14 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 			defer b.chatConnectedAtom.Store(false)
 			sessionChatCounter := int64(1)
 			chatRetry := exponentialBackoff.New(context.Background(), clockwork.NewRealClock(), 60)
-			chatRetry.LoopForever(func() bool {
+			for range chatRetry.Iterator() {
 				select {
 				case <-b.closeChatCh:
-					return false
+					return
 				default:
 					b.connectChat(chatRetry, chatHost, chatPort, &sessionChatCounter)
 				}
-				return true
-			})
+			}
 		}(b)
 	} else {
 		b.ReconnectChat()

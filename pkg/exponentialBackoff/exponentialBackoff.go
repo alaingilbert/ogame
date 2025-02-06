@@ -45,6 +45,12 @@ func (e *ExponentialBackoff) LoopForever(clb func() bool) {
 	}
 }
 
+func (e *ExponentialBackoff) Iterator() func(func() bool) {
+	return func(yield func() bool) {
+		e.LoopForever(yield)
+	}
+}
+
 // Wait ...
 func (e *ExponentialBackoff) Wait() {
 	currVal := atomic.LoadUint32(&e.val)

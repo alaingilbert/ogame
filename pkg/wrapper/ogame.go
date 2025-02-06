@@ -9,24 +9,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/ogame/pkg/device"
-	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
-	"github.com/alaingilbert/ogame/pkg/extractor"
-	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
-	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
-	"github.com/alaingilbert/ogame/pkg/gameforge"
-	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/parser"
-	"github.com/alaingilbert/ogame/pkg/taskRunner"
-	"github.com/alaingilbert/ogame/pkg/utils"
-	version "github.com/hashicorp/go-version"
-	cookiejar "github.com/orirawlings/persistent-cookiejar"
-	err2 "github.com/pkg/errors"
-	lua "github.com/yuin/gopher-lua"
-	"golang.org/x/net/proxy"
-	"golang.org/x/net/websocket"
 	"io"
 	"log"
 	"math"
@@ -42,6 +24,27 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
+	err2 "github.com/pkg/errors"
+
+	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
+	"github.com/alaingilbert/ogame/pkg/extractor"
+	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/parser"
+	"github.com/alaingilbert/ogame/pkg/taskRunner"
+	"github.com/alaingilbert/ogame/pkg/utils"
+
+	"github.com/PuerkitoBio/goquery"
+	version "github.com/hashicorp/go-version"
+	cookiejar "github.com/orirawlings/persistent-cookiejar"
+	lua "github.com/yuin/gopher-lua"
+	"golang.org/x/net/proxy"
+	"golang.org/x/net/websocket"
 )
 
 // OGame is a client for ogame.org. It is safe for concurrent use by
@@ -66,6 +69,7 @@ type OGame struct {
 	language             string
 	playerID             int64
 	lobby                string
+	sessionChatCounter   int64
 	server               gameforge.Server
 	logger               *log.Logger
 	chatCallbacks        []func(msg ogame.ChatMsg)
@@ -83,6 +87,7 @@ type OGame struct {
 	device               *device.Device
 	cache                struct {
 		serverData            ServerData
+		serverVersion         *version.Version
 		location              *time.Location
 		player                ogame.UserInfos
 		CachedPreferences     ogame.Preferences
@@ -127,79 +132,6 @@ type Params struct {
 	APINewHostname  string
 	Device          *device.Device
 	CaptchaCallback gameforge.CaptchaCallback
-}
-
-// New creates a new instance of OGame wrapper.
-func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
-	return newWithParams(Params{
-		Universe:  universe,
-		Username:  username,
-		Password:  password,
-		Lang:      lang,
-		Device:    deviceInst,
-		AutoLogin: true,
-	})
-}
-
-// NewNoLogin creates a new instance of OGame wrapper, does not auto-login.
-func NewNoLogin(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
-	return newWithParams(Params{
-		Universe:  universe,
-		Username:  username,
-		Password:  password,
-		Lang:      lang,
-		Device:    deviceInst,
-		AutoLogin: false,
-	})
-}
-
-// NewWithParams create a new OGame instance with full control over the possible parameters
-func NewWithParams(params Params) (*OGame, error) {
-	return newWithParams(params)
-}
-
-func newWithParams(params Params) (*OGame, error) {
-	if params.Device == nil {
-		return nil, errors.New("no device defined")
-	}
-
-	b := new(OGame)
-	b.device = params.Device
-	b.loginWrapper = DefaultLoginWrapper
-	b.Enable()
-	b.quiet = false
-	b.logger = log.New(os.Stdout, "", 0)
-
-	b.universe = params.Universe
-	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
-	b.setOGameLobby(gameforge.Lobby)
-	b.language = params.Lang
-	b.playerID = params.PlayerID
-
-	ext := v12_0_0.NewExtractor()
-	ext.SetLanguage(params.Lang)
-	ext.SetLocation(time.UTC)
-	b.extractor = ext
-
-	factory := func() *Prioritize { return &Prioritize{bot: b} }
-	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
-
-	b.wsCallbacks = make(map[string]func([]byte))
-
-	b.captchaCallback = params.CaptchaCallback
-	b.setOGameLobby(params.Lobby)
-	b.apiNewHostname = params.APINewHostname
-	if params.Proxy != "" {
-		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
-			return nil, err
-		}
-	}
-	if params.AutoLogin {
-		if _, err := b.LoginWithExistingCookies(); err != nil {
-			return nil, err
-		}
-	}
-	return b, nil
 }
 
 const PLATFORM = gameforge.OGAME
@@ -286,6 +218,74 @@ func (b *OGame) validateAccount(code string) error {
 	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		return gameforge.ValidateAccount(b.ctx, client, PLATFORM, b.lobby, code)
 	})
+}
+
+// New creates a new instance of OGame wrapper.
+func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return NewWithParams(Params{
+		Universe:  universe,
+		Username:  username,
+		Password:  password,
+		Lang:      lang,
+		Device:    deviceInst,
+		AutoLogin: true,
+	})
+}
+
+// NewNoLogin creates a new instance of OGame wrapper, does not auto-login.
+func NewNoLogin(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return NewWithParams(Params{
+		Universe: universe,
+		Username: username,
+		Password: password,
+		Lang:     lang,
+		Device:   deviceInst,
+	})
+}
+
+// NewWithParams create a new OGame instance with full control over the possible parameters
+func NewWithParams(params Params) (*OGame, error) {
+	if params.Device == nil {
+		return nil, errors.New("no device defined")
+	}
+
+	b := new(OGame)
+	b.device = params.Device
+	b.loginWrapper = DefaultLoginWrapper
+	b.Enable()
+	b.quiet = false
+	b.logger = log.New(os.Stdout, "", 0)
+
+	b.universe = params.Universe
+	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
+	b.setOGameLobby(gameforge.Lobby)
+	b.language = params.Lang
+	b.playerID = params.PlayerID
+
+	ext := v12_0_0.NewExtractor()
+	ext.SetLanguage(params.Lang)
+	ext.SetLocation(time.UTC)
+	b.extractor = ext
+
+	factory := func() *Prioritize { return &Prioritize{bot: b} }
+	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
+
+	b.wsCallbacks = make(map[string]func([]byte))
+
+	b.captchaCallback = params.CaptchaCallback
+	b.setOGameLobby(params.Lobby)
+	b.apiNewHostname = params.APINewHostname
+	if params.Proxy != "" {
+		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
+			return nil, err
+		}
+	}
+	if params.AutoLogin {
+		if _, err := b.LoginWithExistingCookies(); err != nil {
+			return nil, err
+		}
+	}
+	return b, nil
 }
 
 func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url.Values, pageHTML []byte) {
@@ -444,11 +444,29 @@ var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
 	return err
 }
 
+// GetExtractor gets extractor object
+func (b *OGame) GetExtractor() extractor.Extractor {
+	return b.extractor
+}
+
+// SetOGameCredentials sets ogame credentials for the bot
+func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
+	b.username = username
+	b.password = password
+	b.otpSecret = otpSecret
+	b.bearerToken = bearerToken
+}
+
 func (b *OGame) setOGameLobby(lobby string) {
 	if lobby != gameforge.LobbyPioneers {
 		lobby = gameforge.Lobby
 	}
 	b.lobby = lobby
+}
+
+// SetLoginWrapper ...
+func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
+	b.loginWrapper = newWrapper
 }
 
 // execute a request using the login proxy transport if set
@@ -526,8 +544,8 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 	return err
 }
 
-func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
-	b.connectChatV8(chatRetry, host, port, sessionChatCounter)
+func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
+	b.connectChatV8(chatRetry, host, port)
 }
 
 // Socket IO v3 timestamp encoding
@@ -570,7 +588,7 @@ func getWebsocket(host, port string) (*websocket.Conn, error) {
 	return ws, nil
 }
 
-func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
+func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
 	var err error
 	b.ws, err = getWebsocket(host, port)
 	if err != nil {
@@ -623,8 +641,8 @@ LOOP:
 			b.debug("got auctioneer sid")
 		} else if regexp.MustCompile(`40/chat,{"sid":"[^"]+"}`).MatchString(buf) {
 			b.debug("got chat sid")
-			_ = websocket.Message.Send(b.ws, `42/chat,`+utils.FI64(*sessionChatCounter)+`["authorize","`+b.cache.ogameSession+`"]`)
-			*sessionChatCounter++
+			_ = websocket.Message.Send(b.ws, `42/chat,`+utils.FI64(b.sessionChatCounter)+`["authorize","`+b.cache.ogameSession+`"]`)
+			b.sessionChatCounter++
 		} else if regexp.MustCompile(`43/chat,\d+\[true]`).MatchString(buf) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`43/chat,\d+\[false]`).MatchString(buf) {
@@ -728,6 +746,15 @@ LOOP:
 			}
 		}
 	}
+}
+
+// ReconnectChat ...
+func (b *OGame) ReconnectChat() bool {
+	if b.ws == nil {
+		return false
+	}
+	_ = websocket.Message.Send(b.ws, "1::/chat")
+	return true
 }
 
 func (b *OGame) logout() {
@@ -2771,6 +2798,41 @@ func (b *OGame) getProduction(celestialID ogame.CelestialID) ([]ogame.Quantifiab
 		return []ogame.Quantifiable{}, 0, err
 	}
 	return page.ExtractProduction()
+}
+
+// IsV7 ...
+func (b *OGame) IsV7() bool {
+	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '7'
+}
+
+// IsV8 ...
+func (b *OGame) IsV8() bool {
+	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '8'
+}
+
+// IsV9 ...
+func (b *OGame) IsV9() bool {
+	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '9'
+}
+
+// IsV10 ...
+func (b *OGame) IsV10() bool {
+	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "10"
+}
+
+// IsV104 ...
+func (b *OGame) IsV104() bool {
+	return len(b.ServerVersion()) > 3 && b.ServerVersion()[:4] == "10.4"
+}
+
+// IsV11 ...
+func (b *OGame) IsV11() bool {
+	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "11"
+}
+
+// IsVGreaterThanOrEqual ...
+func (b *OGame) IsVGreaterThanOrEqual(compareVersion string) bool {
+	return isVGreaterThanOrEqual(b.cache.serverVersion, compareVersion)
 }
 
 func isVGreaterThanOrEqual(v *version.Version, compareVersion string) bool {
