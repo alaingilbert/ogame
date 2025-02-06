@@ -216,10 +216,7 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 		serverData.SpeedFleet = serverData.SpeedFleetPeaceful
 	}
 	b.cache.serverData = serverData
-	lang := server.Language
-	if server.Language == "yu" {
-		lang = "ba"
-	}
+	lang := sanitizeServerLang(server.Language)
 	b.language = lang
 	b.cache.serverURL = fmt.Sprintf("https://s%d-%s.ogame.gameforge.com", server.Number, lang)
 	b.debug("get server data", time.Since(start))
@@ -320,6 +317,13 @@ func getExtractorFor(ogVersion *version.Version) (ext extractor.Extractor) {
 		ext = v7.NewExtractor()
 	}
 	return
+}
+
+func sanitizeServerLang(lang string) string {
+	if lang == "yu" {
+		lang = "ba"
+	}
+	return lang
 }
 
 func sanitizeServerVersion(serverVersion string) string {
