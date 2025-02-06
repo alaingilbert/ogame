@@ -281,6 +281,9 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	}
 
 	serverTime, err := page.ExtractServerTime()
+	if err != nil {
+		b.error(err)
+	}
 	b.location = serverTime.Location()
 
 	ext.SetLocation(b.location)
