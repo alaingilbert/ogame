@@ -61,7 +61,7 @@ func GetServerHandler(c echo.Context) error {
 // GetServerDataHandler ...
 func GetServerDataHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.serverData))
+	return c.JSON(http.StatusOK, SuccessResp(bot.cache.serverData))
 }
 
 // SetUserAgentHandler deprecated
@@ -126,19 +126,19 @@ func GetUniverseNameHandler(c echo.Context) error {
 // GetUniverseSpeedHandler ...
 func GetUniverseSpeedHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.serverData.Speed))
+	return c.JSON(http.StatusOK, SuccessResp(bot.cache.serverData.Speed))
 }
 
 // GetUniverseSpeedFleetHandler ...
 func GetUniverseSpeedFleetHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.serverData.SpeedFleet))
+	return c.JSON(http.StatusOK, SuccessResp(bot.cache.serverData.SpeedFleet))
 }
 
 // ServerVersionHandler ...
 func ServerVersionHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	return c.JSON(http.StatusOK, SuccessResp(bot.serverData.Version))
+	return c.JSON(http.StatusOK, SuccessResp(bot.cache.serverData.Version))
 }
 
 // ServerTimeHandler ...
@@ -174,7 +174,7 @@ func IsUnderAttackByIDHandler(c echo.Context) error {
 // IsVacationModeHandler ...
 func IsVacationModeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	isVacationMode := bot.isVacationModeEnabled
+	isVacationMode := bot.cache.isVacationModeEnabled
 	return c.JSON(http.StatusOK, SuccessResp(isVacationMode))
 }
 
@@ -194,35 +194,35 @@ func GetCharacterClassHandler(c echo.Context) error {
 // HasCommanderHandler ...
 func HasCommanderHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	hasCommander := bot.hasCommander
+	hasCommander := bot.cache.hasCommander
 	return c.JSON(http.StatusOK, SuccessResp(hasCommander))
 }
 
 // HasAdmiralHandler ...
 func HasAdmiralHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	hasAdmiral := bot.hasAdmiral
+	hasAdmiral := bot.cache.hasAdmiral
 	return c.JSON(http.StatusOK, SuccessResp(hasAdmiral))
 }
 
 // HasEngineerHandler ...
 func HasEngineerHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	hasEngineer := bot.hasEngineer
+	hasEngineer := bot.cache.hasEngineer
 	return c.JSON(http.StatusOK, SuccessResp(hasEngineer))
 }
 
 // HasGeologistHandler ...
 func HasGeologistHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	hasGeologist := bot.hasGeologist
+	hasGeologist := bot.cache.hasGeologist
 	return c.JSON(http.StatusOK, SuccessResp(hasGeologist))
 }
 
 // HasTechnocratHandler ...
 func HasTechnocratHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	hasTechnocrat := bot.hasTechnocrat
+	hasTechnocrat := bot.cache.hasTechnocrat
 	return c.JSON(http.StatusOK, SuccessResp(hasTechnocrat))
 }
 
@@ -1097,7 +1097,7 @@ func GetAlliancePageContentHandler(c echo.Context) error {
 }
 
 func replaceHostname(bot *OGame, html []byte) []byte {
-	serverURLBytes := []byte(bot.serverURL)
+	serverURLBytes := []byte(bot.cache.serverURL)
 	apiNewHostnameBytes := []byte(bot.apiNewHostname)
 	escapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte(`\/`), -1)
 	doubleEscapedServerURL := bytes.Replace(serverURLBytes, []byte("/"), []byte("\\\\\\/"), -1)
@@ -1113,7 +1113,7 @@ func replaceHostname(bot *OGame, html []byte) []byte {
 func GetStaticHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 
-	newURL := bot.serverURL + c.Request().URL.String()
+	newURL := bot.cache.serverURL + c.Request().URL.String()
 	req, err := http.NewRequest(http.MethodGet, newURL, nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
@@ -1285,11 +1285,11 @@ func SendIPMHandler(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
 	galaxy, err := utils.ParseI64(c.Request().PostFormValue("galaxy"))
-	if err != nil || galaxy < 1 || galaxy > bot.serverData.Galaxies {
+	if err != nil || galaxy < 1 || galaxy > bot.cache.serverData.Galaxies {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid galaxy"))
 	}
 	system, err := utils.ParseI64(c.Request().PostFormValue("system"))
-	if err != nil || system < 1 || system > bot.serverData.Systems {
+	if err != nil || system < 1 || system > bot.cache.serverData.Systems {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid system"))
 	}
 	position, err := utils.ParseI64(c.Request().PostFormValue("position"))

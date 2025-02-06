@@ -618,18 +618,19 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ogame.ResourcesBu
 	resSettings ogame.ResourceSettings, temp ogame.Temperature) ogame.Resources {
 	b.begin("GetResourcesProductionsLight")
 	defer b.done()
-	return getResourcesProductionsLight(resBuildings, researches, resSettings, temp, b.bot.serverData.Speed)
+	return getResourcesProductionsLight(resBuildings, researches, resSettings, temp, b.bot.cache.serverData.Speed)
 }
 
 // FlightTime calculate flight time and fuel needed
 func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
 	b.begin("FlightTime")
 	defer b.done()
+	serverData := b.bot.cache.serverData
 	researches := b.bot.getCachedResearch()
 	lfbonuses, _ := b.bot.getCachedLfBonuses()
 	allianceClass, _ := b.bot.getCachedAllianceClass()
-	fleetIgnoreEmptySystems := b.bot.serverData.FleetIgnoreEmptySystems
-	fleetIgnoreInactiveSystems := b.bot.serverData.FleetIgnoreInactiveSystems
+	fleetIgnoreEmptySystems := serverData.FleetIgnoreEmptySystems
+	fleetIgnoreInactiveSystems := serverData.FleetIgnoreInactiveSystems
 	var systemsSkip int64
 	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
 		opts := make([]Option, 0)
@@ -644,9 +645,9 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 			systemsSkip += res.InactiveSystems
 		}
 	}
-	return CalcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
-		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, lfbonuses, b.bot.characterClass, allianceClass, systemsSkip)
+	return CalcFlightTime(origin, destination, serverData.Galaxies, serverData.Systems,
+		serverData.DonutGalaxy, serverData.DonutSystem, serverData.GlobalDeuteriumSaveFactor,
+		float64(speed)/10, GetFleetSpeedForMission(serverData, missionID), ships, researches, lfbonuses, b.bot.cache.characterClass, allianceClass, systemsSkip)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information

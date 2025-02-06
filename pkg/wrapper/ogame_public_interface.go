@@ -86,7 +86,7 @@ func (b *OGame) IsLocked() bool {
 
 // GetSession get ogame session
 func (b *OGame) GetSession() string {
-	return b.ogameSession
+	return b.cache.ogameSession
 }
 
 // AddAccount add a new account (server) to your list of accounts
@@ -134,12 +134,12 @@ func (b *OGame) GetServer() gameforge.Server {
 
 // GetServerData get ogame server data information that the bot is connected to
 func (b *OGame) GetServerData() ServerData {
-	return b.serverData
+	return b.cache.serverData
 }
 
 // ServerURL get the ogame server specific url
 func (b *OGame) ServerURL() string {
-	return b.serverURL
+	return b.cache.serverURL
 }
 
 // GetLanguage get ogame server language
@@ -188,12 +188,12 @@ func (b *OGame) GetUsername() string {
 
 // GetResearchSpeed gets the research speed
 func (b *OGame) GetResearchSpeed() int64 {
-	return b.serverData.ResearchDurationDivisor
+	return b.cache.serverData.ResearchDurationDivisor
 }
 
 // GetNbSystems gets the number of systems
 func (b *OGame) GetNbSystems() int64 {
-	return b.serverData.Systems
+	return b.cache.serverData.Systems
 }
 
 // GetUniverseSpeed shortcut to get ogame universe speed
@@ -228,7 +228,7 @@ func (b *OGame) ConstructionTime(id ogame.ID, nbr int64, facilities ogame.Facili
 
 // FleetDeutSaveFactor returns the fleet deut save factor
 func (b *OGame) FleetDeutSaveFactor() float64 {
-	return b.serverData.GlobalDeuteriumSaveFactor
+	return b.cache.serverData.GlobalDeuteriumSaveFactor
 }
 
 // GetPageContent gets the html for a specific ogame page
@@ -249,12 +249,12 @@ func (b *OGame) IsUnderAttack(opts ...Option) (bool, error) {
 
 // GetCachedPlayer returns cached player infos
 func (b *OGame) GetCachedPlayer() ogame.UserInfos {
-	return b.Player
+	return b.cache.player
 }
 
 // GetCachedPreferences returns cached preferences
 func (b *OGame) GetCachedPreferences() ogame.Preferences {
-	return b.CachedPreferences
+	return b.cache.CachedPreferences
 }
 
 // SetVacationMode puts account in vacation mode
@@ -274,7 +274,7 @@ func (b *OGame) SetPreferencesLang(lang string) error {
 
 // IsVacationModeEnabled returns either or not the bot is in vacation mode
 func (b *OGame) IsVacationModeEnabled() bool {
-	return b.isVacationModeEnabled
+	return b.cache.isVacationModeEnabled
 }
 
 // GetPlanets returns the user planets
@@ -352,7 +352,7 @@ func (b *OGame) GetCelestial(v IntoCelestial) (Celestial, error) {
 
 // ServerVersion returns OGame version
 func (b *OGame) ServerVersion() string {
-	return b.serverData.Version
+	return b.cache.serverData.Version
 }
 
 // ServerTime returns server time
@@ -363,7 +363,7 @@ func (b *OGame) ServerTime() (time.Time, error) {
 
 // Location returns bot Time zone.
 func (b *OGame) Location() *time.Location {
-	return b.location
+	return b.cache.location
 }
 
 // GetUserInfos gets the user information
@@ -668,12 +668,14 @@ func (b *OGame) FlightTime(origin, destination ogame.Coordinate, speed ogame.Spe
 
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination ogame.Coordinate) int64 {
-	return Distance(origin, destination, b.serverData.Galaxies, b.serverData.Systems, 0, b.serverData.DonutGalaxy, b.serverData.DonutSystem)
+	serverData := b.cache.serverData
+	return Distance(origin, destination, serverData.Galaxies, serverData.Systems, 0, serverData.DonutGalaxy, serverData.DonutSystem)
 }
 
 // SystemDistance return the distance between two systems
 func (b *OGame) SystemDistance(system1, system2 int64) int64 {
-	return systemDistance(b.serverData.Systems, system1, system2, b.serverData.DonutSystem)
+	serverData := b.cache.serverData
+	return systemDistance(serverData.Systems, system1, system2, serverData.DonutSystem)
 }
 
 // RegisterWSCallback ...
@@ -756,7 +758,7 @@ func (b *OGame) GetEmpireJSON(celestialType ogame.CelestialType) (any, error) {
 
 // CharacterClass returns the bot character class
 func (b *OGame) CharacterClass() ogame.CharacterClass {
-	return b.characterClass
+	return b.cache.characterClass
 }
 
 // GetCachedAllianceClass returns the bot alliance class
@@ -771,7 +773,7 @@ func (b *OGame) CheckTarget(ships ogame.ShipsInfos, coordinate ogame.Coordinate,
 
 // CountColonies returns colonies count/possible
 func (b *OGame) CountColonies() (int64, int64) {
-	return b.coloniesCount, b.coloniesPossible
+	return b.cache.coloniesCount, b.cache.coloniesPossible
 }
 
 // GetAuction ...

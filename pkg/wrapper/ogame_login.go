@@ -217,13 +217,13 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 	if serverData.SpeedFleet == 0 {
 		serverData.SpeedFleet = serverData.SpeedFleetPeaceful
 	}
-	b.serverData = serverData
+	b.cache.serverData = serverData
 	lang := server.Language
 	if server.Language == "yu" {
 		lang = "ba"
 	}
 	b.language = lang
-	b.serverURL = fmt.Sprintf("https://s%d-%s.ogame.gameforge.com", server.Number, lang)
+	b.cache.serverURL = fmt.Sprintf("https://s%d-%s.ogame.gameforge.com", server.Number, lang)
 	b.debug("get server data", time.Since(start))
 	return nil
 }
@@ -231,13 +231,13 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
 	var ext extractor.Extractor = v12_0_0.NewExtractor()
 	r := regexp.MustCompile(`(\d+\.\d+\.\d+)`)
-	versionMatches := r.FindStringSubmatch(b.serverData.Version)
-	versionMatch := b.serverData.Version
+	versionMatches := r.FindStringSubmatch(b.cache.serverData.Version)
+	versionMatch := b.cache.serverData.Version
 	if len(versionMatches) == 2 {
 		versionMatch = versionMatches[1]
 	}
 	if ogVersion, err := version.NewVersion(versionMatch); err == nil {
-		b.serverVersion = ogVersion
+		b.cache.serverVersion = ogVersion
 		if b.IsVGreaterThanOrEqual("12.0.0") {
 			ext = v12_0_0.NewExtractor()
 		} else if b.IsVGreaterThanOrEqual("11.15.0") {
@@ -274,8 +274,8 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	b.debug("logged in as " + userAccount.Name + " on " + b.Universe + "-" + b.language)
 
 	b.debug("extract information from html")
-	b.ogameSession = page.ExtractOGameSession()
-	if b.ogameSession == "" {
+	b.cache.ogameSession = page.ExtractOGameSession()
+	if b.cache.ogameSession == "" {
 		return gameforge.ErrBadCredentials
 	}
 
@@ -283,19 +283,19 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	if err != nil {
 		b.error(err)
 	}
-	b.location = serverTime.Location()
+	b.cache.location = serverTime.Location()
 
-	ext.SetLocation(b.location)
+	ext.SetLocation(b.cache.location)
 	b.extractor = ext
 
 	preferencesPage, err := getPage[parser.PreferencesPage](b, SkipCacheFullPage)
 	if err != nil {
 		b.error(err)
 	}
-	b.CachedPreferences = preferencesPage.ExtractPreferences()
-	language := b.serverData.Language
-	if b.CachedPreferences.Language != "" {
-		language = b.CachedPreferences.Language
+	b.cache.CachedPreferences = preferencesPage.ExtractPreferences()
+	language := b.cache.serverData.Language
+	if b.cache.CachedPreferences.Language != "" {
+		language = b.cache.CachedPreferences.Language
 	}
 	ext.SetLanguage(language)
 	b.extractor = ext
