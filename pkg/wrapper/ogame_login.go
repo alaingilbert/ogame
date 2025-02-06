@@ -104,19 +104,23 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 
 // Return either or not the bot logged in using the existing cookies.
 func (b *OGame) loginWithExistingCookies() (bool, error) {
-	token := ""
+	var token string
 	if b.bearerToken != "" {
 		token = b.bearerToken
 	} else {
-		cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
-		for _, c := range cookies {
-			if c.Name == gameforge.TokenCookieName {
-				token = c.Value
-				break
-			}
-		}
+		token = b.getBearerTokenFromCookie()
 	}
 	return b.loginWithBearerToken(token)
+}
+
+func (b *OGame) getBearerTokenFromCookie() string {
+	cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
+	for _, c := range cookies {
+		if c.Name == gameforge.TokenCookieName {
+			return c.Value
+		}
+	}
+	return ""
 }
 
 func (b *OGame) login() error {
