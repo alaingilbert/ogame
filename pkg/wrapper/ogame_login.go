@@ -187,18 +187,8 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 	client := b.device.GetClient()
 	ctx := b.ctx
 	lobby := b.lobby
-	b.debug("get user accounts")
-	accounts, err := gameforge.GetUserAccounts(ctx, client, PLATFORM, lobby, token)
-	if err != nil {
-		return
-	}
-	b.debug("get servers")
-	servers, err := gameforge.GetServers(ctx, client, PLATFORM, lobby)
-	if err != nil {
-		return
-	}
 	b.debug("find account & server for universe")
-	userAccount, server, err = gameforge.FindAccount(b.Universe, b.language, b.playerID, accounts, servers)
+	userAccount, server, err = gameforge.GetServerAccount(ctx, client, PLATFORM, lobby, token, b.Universe, b.language, b.playerID)
 	if err != nil {
 		return
 	}

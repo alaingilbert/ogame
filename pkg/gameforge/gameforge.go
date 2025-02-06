@@ -839,6 +839,22 @@ type Account struct {
 	}
 }
 
+func GetServerAccount(ctx context.Context, client httpclient.IHttpClient, platform Platform, lobby, bearerToken, serverName, lang string, playerID int64) (account Account, server Server, err error) {
+	accounts, err := GetUserAccounts(ctx, client, platform, lobby, bearerToken)
+	if err != nil {
+		return
+	}
+	servers, err := GetServers(ctx, client, platform, lobby)
+	if err != nil {
+		return
+	}
+	account, server, err = FindAccount(serverName, lang, playerID, accounts, servers)
+	if err != nil {
+		return
+	}
+	return
+}
+
 func GetUserAccounts(ctx context.Context, client httpclient.IHttpClient, platform Platform, lobby, bearerToken string) ([]Account, error) {
 	var userAccounts []Account
 	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/accounts", nil)
