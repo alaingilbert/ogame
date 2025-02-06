@@ -226,49 +226,6 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 	return nil
 }
 
-func getExtractorFor(ogVersion *version.Version) (ext extractor.Extractor) {
-	if isVGreaterThanOrEqual(ogVersion, "12.0.0") {
-		ext = v12_0_0.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "11.15.0") {
-		ext = v11_15_0.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "11.13.0") {
-		ext = v11_13_0.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "11.9.0") {
-		ext = v11_9_0.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "11.0.0") {
-		ext = v11.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "10.4.0") {
-		ext = v104.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "10.0.0") {
-		ext = v10.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "9.0.0") {
-		ext = v9.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "8.7.4") {
-		ext = v874.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "8.0.0") {
-		ext = v8.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "7.1.0") {
-		ext = v71.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "7.0.0") {
-		ext = v7.NewExtractor()
-	}
-	return
-}
-
-func sanitizeServerVersion(serverVersion string) string {
-	if match := regexp.MustCompile(`\d+\.\d+\.\d+`).FindString(serverVersion); match != "" {
-		return match
-	}
-	return serverVersion
-}
-
-func extractChatHostPort(content []byte) (chatHost string, chatPort string) {
-	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(content)
-	chatHost = string(m[1])
-	chatPort = string(m[2])
-	return
-}
-
 func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
 	var ext extractor.Extractor = v12_0_0.NewExtractor()
 
@@ -341,4 +298,47 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	}
 
 	return nil
+}
+
+func getExtractorFor(ogVersion *version.Version) (ext extractor.Extractor) {
+	if isVGreaterThanOrEqual(ogVersion, "12.0.0") {
+		ext = v12_0_0.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "11.15.0") {
+		ext = v11_15_0.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "11.13.0") {
+		ext = v11_13_0.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "11.9.0") {
+		ext = v11_9_0.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "11.0.0") {
+		ext = v11.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "10.4.0") {
+		ext = v104.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "10.0.0") {
+		ext = v10.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "9.0.0") {
+		ext = v9.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "8.7.4") {
+		ext = v874.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "8.0.0") {
+		ext = v8.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "7.1.0") {
+		ext = v71.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "7.0.0") {
+		ext = v7.NewExtractor()
+	}
+	return
+}
+
+func sanitizeServerVersion(serverVersion string) string {
+	if match := regexp.MustCompile(`\d+\.\d+\.\d+`).FindString(serverVersion); match != "" {
+		return match
+	}
+	return serverVersion
+}
+
+func extractChatHostPort(content []byte) (chatHost string, chatPort string) {
+	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(content)
+	chatHost = string(m[1])
+	chatPort = string(m[2])
+	return
 }
