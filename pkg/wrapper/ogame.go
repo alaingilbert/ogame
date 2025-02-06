@@ -579,35 +579,41 @@ func yeast(num int64) (encoded string) {
 	return
 }
 
-func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
+func getWebsocket(host, port string) (*websocket.Conn, error) {
 	token := yeast(time.Now().UnixNano() / 1000000)
 	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/?EIO=4&transport=polling&t="+token, nil)
 	if err != nil {
-		b.error("failed to create request:", err)
-		return
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		b.error("failed to get socket.io token:", err)
-		return
+		return nil, fmt.Errorf("failed to get socket.io token: %w", err)
 	}
 	defer resp.Body.Close()
-	chatRetry.Reset()
 	by, _ := io.ReadAll(resp.Body)
 	m := regexp.MustCompile(`"sid":"([^"]+)"`).FindSubmatch(by)
 	if len(m) != 2 {
-		b.error("failed to get websocket sid:", err)
-		return
+		return nil, fmt.Errorf("failed to get websocket sid: %s", string(by))
 	}
 	sid := string(m[1])
 
 	origin := "https://" + host + ":" + port + "/"
 	wssURL := "wss://" + host + ":" + port + "/socket.io/?EIO=4&transport=websocket&sid=" + sid
-	b.ws, err = websocket.Dial(wssURL, "", origin)
+	ws, err := websocket.Dial(wssURL, "", origin)
+	if err != nil {
+		return nil, fmt.Errorf("failed to dial websocket: %w", err)
+	}
+	return ws, nil
+}
+
+func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
+	var err error
+	b.ws, err = getWebsocket(host, port)
 	if err != nil {
 		b.error("failed to dial websocket:", err)
 		return
 	}
+	chatRetry.Reset()
 	_ = websocket.Message.Send(b.ws, "2probe")
 
 	// Recv msgs
