@@ -446,29 +446,11 @@ var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
 	return err
 }
 
-// GetExtractor gets extractor object
-func (b *OGame) GetExtractor() extractor.Extractor {
-	return b.extractor
-}
-
-// SetOGameCredentials sets ogame credentials for the bot
-func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
-	b.username = username
-	b.password = password
-	b.otpSecret = otpSecret
-	b.bearerToken = bearerToken
-}
-
 func (b *OGame) setOGameLobby(lobby string) {
 	if lobby != gameforge.LobbyPioneers {
 		lobby = gameforge.Lobby
 	}
 	b.lobby = lobby
-}
-
-// SetLoginWrapper ...
-func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
-	b.loginWrapper = newWrapper
 }
 
 // execute a request using the login proxy transport if set
@@ -748,15 +730,6 @@ LOOP:
 			}
 		}
 	}
-}
-
-// ReconnectChat ...
-func (b *OGame) ReconnectChat() bool {
-	if b.ws == nil {
-		return false
-	}
-	_ = websocket.Message.Send(b.ws, "1::/chat")
-	return true
 }
 
 func (b *OGame) logout() {

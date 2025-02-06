@@ -3,10 +3,12 @@ package wrapper
 import (
 	"crypto/tls"
 	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/extractor"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
+	"golang.org/x/net/websocket"
 	"net/http"
 	"net/url"
 	"time"
@@ -881,4 +883,31 @@ func (b *OGame) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int6
 // An empty proxyAddress will reset the client transport to default value.
 func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error {
 	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly, config)
+}
+
+// GetExtractor gets extractor object
+func (b *OGame) GetExtractor() extractor.Extractor {
+	return b.extractor
+}
+
+// SetOGameCredentials sets ogame credentials for the bot
+func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
+	b.username = username
+	b.password = password
+	b.otpSecret = otpSecret
+	b.bearerToken = bearerToken
+}
+
+// SetLoginWrapper ...
+func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
+	b.loginWrapper = newWrapper
+}
+
+// ReconnectChat ...
+func (b *OGame) ReconnectChat() bool {
+	if b.ws == nil {
+		return false
+	}
+	_ = websocket.Message.Send(b.ws, "1::/chat")
+	return true
 }
