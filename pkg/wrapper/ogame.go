@@ -42,27 +42,6 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/alaingilbert/ogame/pkg/device"
-	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
-	"github.com/alaingilbert/ogame/pkg/gameforge"
-	err2 "github.com/pkg/errors"
-
-	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
-	"github.com/alaingilbert/ogame/pkg/extractor"
-	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
-	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/parser"
-	"github.com/alaingilbert/ogame/pkg/taskRunner"
-	"github.com/alaingilbert/ogame/pkg/utils"
-
-	"github.com/PuerkitoBio/goquery"
-	version "github.com/hashicorp/go-version"
-	cookiejar "github.com/orirawlings/persistent-cookiejar"
-	lua "github.com/yuin/gopher-lua"
-	"golang.org/x/net/proxy"
-	"golang.org/x/net/websocket"
 )
 
 // OGame is a client for ogame.org. It is safe for concurrent use by
@@ -463,29 +442,11 @@ var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
 	return err
 }
 
-// GetExtractor gets extractor object
-func (b *OGame) GetExtractor() extractor.Extractor {
-	return b.extractor
-}
-
-// SetOGameCredentials sets ogame credentials for the bot
-func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
-	b.username = username
-	b.password = password
-	b.otpSecret = otpSecret
-	b.bearerToken = bearerToken
-}
-
 func (b *OGame) setOGameLobby(lobby string) {
 	if lobby != gameforge.LobbyPioneers {
 		lobby = gameforge.Lobby
 	}
 	b.lobby = lobby
-}
-
-// SetLoginWrapper ...
-func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
-	b.loginWrapper = newWrapper
 }
 
 // execute a request using the login proxy transport if set
@@ -563,8 +524,8 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 	return err
 }
 
-func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	b.connectChatV8(chatRetry, host, port)
+func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
+	b.connectChatV8(chatRetry, host, port, sessionChatCounter)
 }
 
 // Socket IO v3 timestamp encoding
@@ -675,82 +636,10 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 				clb(chatMsg)
 			}
 		} else if regexp.MustCompile(`^\d+/auctioneer`).MatchString(buf) {
-			// 42/auctioneer,["timeLeft","<span style=\"color:#99CC00;\"><b>approx. 30m</b></span> remaining until the auction ends"] // every minute
-			// 42/auctioneer,["timeLeft","Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">117</span>"]
-			// 42/auctioneer,["new bid",{"player":{"id":219657,"name":"Payback","link":"https://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"sum":5000,"price":6000,"bids":5,"auctionId":"42894"}]
-			// 42/auctioneer,["new auction",{"info":"<span style=\"color:#99CC00;\"><b>approx. 35m</b></span> remaining until the auction ends","item":{"uuid":"0968999df2fe956aa4a07aea74921f860af7d97f","image":"55d4b1750985e4843023d7d0acd2b9bafb15f0b7","rarity":"rare"},"oldAuction":{"item":{"uuid":"3c9f85221807b8d593fa5276cdf7af9913c4a35d","imageSmall":"286f3eaf6072f55d8858514b159d1df5f16a5654","rarity":"common"},"time":"20.05.2021 08:42:07","bids":5,"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"}},"auctionId":42895}]
-			// 42/auctioneer,["auction finished",{"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"bids":5,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1072</span>","time":"08:42"}]
-			parts := strings.SplitN(buf, ",", 2)
-			msg := parts[1]
-			var pck any = msg
-			var out []any
-			_ = json.Unmarshal([]byte(msg), &out)
-			if len(out) == 0 {
-				b.error("unknown message received:", buf)
+			pck, err := processAuctioneerMessage(buf)
+			if err != nil {
+				b.error(err.Error())
 				continue
-			}
-			if name, ok := out[0].(string); ok {
-				arg := out[1]
-				if name == "new bid" {
-					if firstArg, ok := arg.(map[string]any); ok {
-						auctionID := utils.DoParseI64(utils.DoCastStr(firstArg["auctionId"]))
-						pck1 := ogame.AuctioneerNewBid{
-							Sum:       int64(utils.DoCastF64(firstArg["sum"])),
-							Price:     int64(utils.DoCastF64(firstArg["price"])),
-							Bids:      int64(utils.DoCastF64(firstArg["bids"])),
-							AuctionID: auctionID,
-						}
-						if player, ok := firstArg["player"].(map[string]any); ok {
-							pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
-							pck1.Player.Name = utils.DoCastStr(player["name"])
-							pck1.Player.Link = utils.DoCastStr(player["link"])
-						}
-						pck = pck1
-					}
-				} else if name == "timeLeft" {
-					if timeLeftMsg, ok := arg.(string); ok {
-						if strings.Contains(timeLeftMsg, "color:") {
-							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
-							rgx := regexp.MustCompile(`\d+`)
-							txt := rgx.FindString(doc.Find("b").Text())
-							approx := utils.DoParseI64(txt)
-							pck = ogame.AuctioneerTimeRemaining{Approx: approx * 60}
-						} else if strings.Contains(timeLeftMsg, "nextAuction") {
-							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
-							rgx := regexp.MustCompile(`\d+`)
-							txt := rgx.FindString(doc.Find("span").Text())
-							secs := utils.DoParseI64(txt)
-							pck = ogame.AuctioneerNextAuction{Secs: secs}
-						}
-					}
-				} else if name == "new auction" {
-					if firstArg, ok := arg.(map[string]any); ok {
-						pck1 := ogame.AuctioneerNewAuction{
-							AuctionID: int64(utils.DoCastF64(firstArg["auctionId"])),
-						}
-						if infoMsg, ok := firstArg["info"].(string); ok {
-							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
-							rgx := regexp.MustCompile(`\d+`)
-							txt := rgx.FindString(doc.Find("b").Text())
-							approx := utils.DoParseI64(txt)
-							pck1.Approx = approx * 60
-						}
-						pck = pck1
-					}
-				} else if name == "auction finished" {
-					if firstArg, ok := arg.(map[string]any); ok {
-						pck1 := ogame.AuctioneerAuctionFinished{
-							Sum:  int64(utils.DoCastF64(firstArg["sum"])),
-							Bids: int64(utils.DoCastF64(firstArg["bids"])),
-						}
-						if player, ok := firstArg["player"].(map[string]any); ok {
-							pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
-							pck1.Player.Name = utils.DoCastStr(player["name"])
-							pck1.Player.Link = utils.DoCastStr(player["link"])
-						}
-						pck = pck1
-					}
-				}
 			}
 			for _, clb := range b.auctioneerCallbacks {
 				clb(pck)
@@ -764,13 +653,86 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 	}
 }
 
-// ReconnectChat ...
-func (b *OGame) ReconnectChat() bool {
-	if b.ws == nil {
-		return false
+func processAuctioneerMessage(buf string) (any, error) {
+	// 42/auctioneer,["timeLeft","<span style=\"color:#99CC00;\"><b>approx. 30m</b></span> remaining until the auction ends"] // every minute
+	// 42/auctioneer,["timeLeft","Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">117</span>"]
+	// 42/auctioneer,["new bid",{"player":{"id":219657,"name":"Payback","link":"https://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"sum":5000,"price":6000,"bids":5,"auctionId":"42894"}]
+	// 42/auctioneer,["new auction",{"info":"<span style=\"color:#99CC00;\"><b>approx. 35m</b></span> remaining until the auction ends","item":{"uuid":"0968999df2fe956aa4a07aea74921f860af7d97f","image":"55d4b1750985e4843023d7d0acd2b9bafb15f0b7","rarity":"rare"},"oldAuction":{"item":{"uuid":"3c9f85221807b8d593fa5276cdf7af9913c4a35d","imageSmall":"286f3eaf6072f55d8858514b159d1df5f16a5654","rarity":"common"},"time":"20.05.2021 08:42:07","bids":5,"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"}},"auctionId":42895}]
+	// 42/auctioneer,["auction finished",{"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"bids":5,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1072</span>","time":"08:42"}]
+	parts := strings.SplitN(buf, ",", 2)
+	msg := parts[1]
+	var pck any = msg
+	var out []any
+	_ = json.Unmarshal([]byte(msg), &out)
+	if len(out) == 0 {
+		return nil, fmt.Errorf("unknown message received: %s", buf)
 	}
-	_ = websocket.Message.Send(b.ws, "1::/chat")
-	return true
+	name, ok := out[0].(string)
+	if !ok {
+		return pck, nil
+	}
+	arg := out[1]
+	if name == "new bid" {
+		if firstArg, ok := arg.(map[string]any); ok {
+			auctionID := utils.DoParseI64(utils.DoCastStr(firstArg["auctionId"]))
+			pck1 := ogame.AuctioneerNewBid{
+				Sum:       int64(utils.DoCastF64(firstArg["sum"])),
+				Price:     int64(utils.DoCastF64(firstArg["price"])),
+				Bids:      int64(utils.DoCastF64(firstArg["bids"])),
+				AuctionID: auctionID,
+			}
+			if player, ok := firstArg["player"].(map[string]any); ok {
+				pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
+				pck1.Player.Name = utils.DoCastStr(player["name"])
+				pck1.Player.Link = utils.DoCastStr(player["link"])
+			}
+			pck = pck1
+		}
+	} else if name == "timeLeft" {
+		if timeLeftMsg, ok := arg.(string); ok {
+			if strings.Contains(timeLeftMsg, "color:") {
+				doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
+				rgx := regexp.MustCompile(`\d+`)
+				txt := rgx.FindString(doc.Find("b").Text())
+				approx := utils.DoParseI64(txt)
+				pck = ogame.AuctioneerTimeRemaining{Approx: approx * 60}
+			} else if strings.Contains(timeLeftMsg, "nextAuction") {
+				doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
+				rgx := regexp.MustCompile(`\d+`)
+				txt := rgx.FindString(doc.Find("span").Text())
+				secs := utils.DoParseI64(txt)
+				pck = ogame.AuctioneerNextAuction{Secs: secs}
+			}
+		}
+	} else if name == "new auction" {
+		if firstArg, ok := arg.(map[string]any); ok {
+			pck1 := ogame.AuctioneerNewAuction{
+				AuctionID: int64(utils.DoCastF64(firstArg["auctionId"])),
+			}
+			if infoMsg, ok := firstArg["info"].(string); ok {
+				doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
+				rgx := regexp.MustCompile(`\d+`)
+				txt := rgx.FindString(doc.Find("b").Text())
+				approx := utils.DoParseI64(txt)
+				pck1.Approx = approx * 60
+			}
+			pck = pck1
+		}
+	} else if name == "auction finished" {
+		if firstArg, ok := arg.(map[string]any); ok {
+			pck1 := ogame.AuctioneerAuctionFinished{
+				Sum:  int64(utils.DoCastF64(firstArg["sum"])),
+				Bids: int64(utils.DoCastF64(firstArg["bids"])),
+			}
+			if player, ok := firstArg["player"].(map[string]any); ok {
+				pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
+				pck1.Player.Name = utils.DoCastStr(player["name"])
+				pck1.Player.Link = utils.DoCastStr(player["link"])
+			}
+			pck = pck1
+		}
+	}
+	return pck, nil
 }
 
 func (b *OGame) logout() {
