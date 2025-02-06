@@ -63,7 +63,7 @@ type OGame struct {
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
 	universe             string
-	Username             string
+	username             string
 	password             string
 	otpSecret            string
 	bearerToken          string
@@ -329,7 +329,7 @@ func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
 			Solver:   b.captchaCallback,
 		})
 		out, err = gf.GFLogin(&gameforge.GfLoginParams{
-			Username:  b.Username,
+			Username:  b.username,
 			Password:  b.password,
 			OtpSecret: b.otpSecret,
 		})
@@ -470,7 +470,7 @@ func (b *OGame) GetExtractor() extractor.Extractor {
 
 // SetOGameCredentials sets ogame credentials for the bot
 func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
-	b.Username = username
+	b.username = username
 	b.password = password
 	b.otpSecret = otpSecret
 	b.bearerToken = bearerToken

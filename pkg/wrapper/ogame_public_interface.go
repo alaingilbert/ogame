@@ -183,7 +183,7 @@ func (b *OGame) GetUniverseName() string {
 
 // GetUsername get the username that was used to login on ogame server
 func (b *OGame) GetUsername() string {
-	return b.Username
+	return b.username
 }
 
 // GetResearchSpeed gets the research speed
