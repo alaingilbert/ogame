@@ -220,8 +220,6 @@ type Wrapper interface {
 	IsLocked() bool
 	IsLoggedIn() bool
 	IsPioneers() bool
-	IsV7() bool
-	IsV9() bool
 	IsVacationModeEnabled() bool
 	Location() *time.Location
 	OnStateChange(clb func(locked bool, actor string))

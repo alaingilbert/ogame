@@ -2775,36 +2775,6 @@ func (b *OGame) getProduction(celestialID ogame.CelestialID) ([]ogame.Quantifiab
 	return page.ExtractProduction()
 }
 
-// IsV7 ...
-func (b *OGame) IsV7() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '7'
-}
-
-// IsV8 ...
-func (b *OGame) IsV8() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '8'
-}
-
-// IsV9 ...
-func (b *OGame) IsV9() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '9'
-}
-
-// IsV10 ...
-func (b *OGame) IsV10() bool {
-	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "10"
-}
-
-// IsV104 ...
-func (b *OGame) IsV104() bool {
-	return len(b.ServerVersion()) > 3 && b.ServerVersion()[:4] == "10.4"
-}
-
-// IsV11 ...
-func (b *OGame) IsV11() bool {
-	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "11"
-}
-
 // IsVGreaterThanOrEqual ...
 func (b *OGame) IsVGreaterThanOrEqual(compareVersion string) bool {
 	return isVGreaterThanOrEqual(b.cache.serverVersion, compareVersion)
