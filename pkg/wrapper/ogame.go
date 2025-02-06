@@ -619,10 +619,8 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 
 	// Recv msgs
 	for {
-		select {
-		case <-b.closeChatCtx.Done():
+		if b.closeChatCtx.Err() != nil {
 			return
-		default:
 		}
 
 		var buf string
