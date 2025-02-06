@@ -354,21 +354,6 @@ func appendCookie(client *httpclient.Client, cookie *http.Cookie) {
 	client.Jar.SetCookies(u, cookies)
 }
 
-func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeID string, captchaCallback gameforge.CaptchaCallback) error {
-	questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(ctx, client, challengeID)
-	if err != nil {
-		return errors.New("failed to start captcha challenge: " + err.Error())
-	}
-	answer, err := captchaCallback(ctx, questionRaw, iconsRaw)
-	if err != nil {
-		return errors.New("failed to get answer for captcha challenge: " + err.Error())
-	}
-	if err := gameforge.SolveChallenge(ctx, client, challengeID, answer); err != nil {
-		return errors.New("failed to solve captcha challenge: " + err.Error())
-	}
-	return err
-}
-
 func convertPlanets(b *OGame, planetsIn []ogame.Planet) []Planet {
 	out := make([]Planet, 0)
 	for _, planet := range planetsIn {
