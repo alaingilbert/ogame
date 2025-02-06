@@ -84,7 +84,6 @@ type OGame struct {
 	device               *device.Device
 	cache                struct {
 		serverData            ServerData
-		serverVersion         *version.Version
 		location              *time.Location
 		player                ogame.UserInfos
 		CachedPreferences     ogame.Preferences
@@ -2773,11 +2772,6 @@ func (b *OGame) getProduction(celestialID ogame.CelestialID) ([]ogame.Quantifiab
 		return []ogame.Quantifiable{}, 0, err
 	}
 	return page.ExtractProduction()
-}
-
-// IsVGreaterThanOrEqual ...
-func (b *OGame) IsVGreaterThanOrEqual(compareVersion string) bool {
-	return isVGreaterThanOrEqual(b.cache.serverVersion, compareVersion)
 }
 
 func isVGreaterThanOrEqual(v *version.Version, compareVersion string) bool {

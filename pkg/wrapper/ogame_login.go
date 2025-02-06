@@ -235,30 +235,29 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 		versionMatch = versionMatches[1]
 	}
 	if ogVersion, err := version.NewVersion(versionMatch); err == nil {
-		b.cache.serverVersion = ogVersion
-		if b.IsVGreaterThanOrEqual("12.0.0") {
+		if isVGreaterThanOrEqual(ogVersion, "12.0.0") {
 			ext = v12_0_0.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("11.15.0") {
+		} else if isVGreaterThanOrEqual(ogVersion, "11.15.0") {
 			ext = v11_15_0.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("11.13.0") {
+		} else if isVGreaterThanOrEqual(ogVersion, "11.13.0") {
 			ext = v11_13_0.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("11.9.0") {
+		} else if isVGreaterThanOrEqual(ogVersion, "11.9.0") {
 			ext = v11_9_0.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("11.0.0-beta25") {
+		} else if isVGreaterThanOrEqual(ogVersion, "11.0.0-beta25") {
 			ext = v11.NewExtractor()
-		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("10.4.0-beta2"))) {
+		} else if isVGreaterThanOrEqual(ogVersion, "10.4.0-beta2") {
 			ext = v104.NewExtractor()
-		} else if ogVersion.GreaterThanOrEqual(version.Must(version.NewVersion("10.0.0"))) {
+		} else if isVGreaterThanOrEqual(ogVersion, "10.0.0") {
 			ext = v10.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("9.0.0") {
+		} else if isVGreaterThanOrEqual(ogVersion, "9.0.0") {
 			ext = v9.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("8.7.4-pl3") {
+		} else if isVGreaterThanOrEqual(ogVersion, "8.7.4-pl3") {
 			ext = v874.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("8.0.0") {
+		} else if isVGreaterThanOrEqual(ogVersion, "8.0.0") {
 			ext = v8.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("7.1.0-rc0") {
+		} else if isVGreaterThanOrEqual(ogVersion, "7.1.0-rc0") {
 			ext = v71.NewExtractor()
-		} else if b.IsVGreaterThanOrEqual("7.0.0") {
+		} else if isVGreaterThanOrEqual(ogVersion, "7.0.0") {
 			ext = v7.NewExtractor()
 		}
 		ext.SetLanguage(b.language)
