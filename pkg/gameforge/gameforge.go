@@ -930,3 +930,19 @@ func GetLoginLink(ctx context.Context, device *device.Device, platform Platform,
 	}
 	return loginLink.URL, nil
 }
+
+// ExecLoginLink ...
+func ExecLoginLink(ctx context.Context, client httpclient.IHttpClient, loginLink string) ([]byte, error) {
+	req, err := http.NewRequest(http.MethodGet, loginLink, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add(acceptEncodingHeaderKey, gzipEncoding)
+	req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return utils.ReadBody(resp)
+}

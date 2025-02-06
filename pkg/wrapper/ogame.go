@@ -313,21 +313,6 @@ func findAccount(serverName, lang string, playerID int64, accounts []gameforge.A
 	return acc, server, nil
 }
 
-func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, loginLink, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	b.debug("login to universe")
-	resp, err := b.doReqWithLoginProxyTransport(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	return utils.ReadBody(resp)
-}
-
 func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url.Values, pageHTML []byte) {
 	for _, fn := range b.interceptorCallbacks {
 		fn(method, url, params, payload, pageHTML)

@@ -19,6 +19,7 @@ import (
 	v874 "github.com/alaingilbert/ogame/pkg/extractor/v874"
 	v9 "github.com/alaingilbert/ogame/pkg/extractor/v9"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/parser"
 	"github.com/alaingilbert/ogame/pkg/utils"
@@ -155,7 +156,12 @@ func (b *OGame) getAndExecLoginLink(userAccount gameforge.Account, token string)
 	if err != nil {
 		return "", nil, err
 	}
-	pageHTML, err := execLoginLink(b, loginLink)
+	b.debug("login to universe")
+	var pageHTML []byte
+	err = b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
+		pageHTML, err = gameforge.ExecLoginLink(b.ctx, client, loginLink)
+		return err
+	})
 	if err != nil {
 		return "", nil, err
 	}
