@@ -905,9 +905,9 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 
 // ReconnectChat ...
 func (b *OGame) ReconnectChat() bool {
-	if b.ws == nil {
-		return false
+	if b.ws != nil {
+		_ = websocket.Message.Send(b.ws, "1::/chat")
+		return true
 	}
-	_ = websocket.Message.Send(b.ws, "1::/chat")
-	return true
+	return false
 }

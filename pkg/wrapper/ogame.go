@@ -607,15 +607,15 @@ func getWebsocket(host, port string) (*websocket.Conn, error) {
 	return ws, nil
 }
 
-func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	var err error
-	b.ws, err = getWebsocket(host, port)
+func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
+	ws, err := getWebsocket(host, port)
 	if err != nil {
 		b.error("failed to dial websocket:", err)
 		return
 	}
+	b.ws = ws
 	chatRetry.Reset()
-	_ = websocket.Message.Send(b.ws, "2probe")
+	_ = websocket.Message.Send(ws, "2probe")
 
 	// Recv msgs
 	for {
@@ -624,10 +624,10 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 		}
 
 		var buf string
-		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+		if err := ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
 			b.error("failed to set read deadline:", err)
 		}
-		err := websocket.Message.Receive(b.ws, &buf)
+		err := websocket.Message.Receive(ws, &buf)
 		if err != nil {
 			if err == io.EOF {
 				b.error("chat eof:", err)
@@ -648,17 +648,17 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 		}
 		b.Unlock()
 		if buf == "3probe" {
-			_ = websocket.Message.Send(b.ws, "5")
-			_ = websocket.Message.Send(b.ws, "40/chat,")
-			_ = websocket.Message.Send(b.ws, "40/auctioneer,")
+			_ = websocket.Message.Send(ws, "5")
+			_ = websocket.Message.Send(ws, "40/chat,")
+			_ = websocket.Message.Send(ws, "40/auctioneer,")
 		} else if buf == "2" {
-			_ = websocket.Message.Send(b.ws, "3")
+			_ = websocket.Message.Send(ws, "3")
 		} else if regexp.MustCompile(`40/auctioneer,{"sid":"[^"]+"}`).MatchString(buf) {
 			b.debug("got auctioneer sid")
 		} else if regexp.MustCompile(`40/chat,{"sid":"[^"]+"}`).MatchString(buf) {
 			b.debug("got chat sid")
-			_ = websocket.Message.Send(b.ws, `42/chat,`+utils.FI64(b.sessionChatCounter)+`["authorize","`+b.cache.ogameSession+`"]`)
-			b.sessionChatCounter++
+			_ = websocket.Message.Send(ws, `42/chat,`+utils.FI64(*sessionChatCounter)+`["authorize","`+b.cache.ogameSession+`"]`)
+			*sessionChatCounter++
 		} else if regexp.MustCompile(`43/chat,\d+\[true]`).MatchString(buf) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`43/chat,\d+\[false]`).MatchString(buf) {
