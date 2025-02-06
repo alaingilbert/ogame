@@ -777,13 +777,9 @@ func (b *OGame) logout() {
 	_, _ = b.getPage(LogoutPageName)
 	_ = b.device.GetClient().Jar.(*cookiejar.Jar).Save()
 	if b.isLoggedInAtom.CompareAndSwap(true, false) {
-		select {
-		case <-b.closeChatCtx.Done():
-		default:
-			b.closeChatCancel()
-			if b.ws != nil {
-				_ = b.ws.Close()
-			}
+		b.closeChatCancel()
+		if b.ws != nil {
+			_ = b.ws.Close()
 		}
 	}
 }
