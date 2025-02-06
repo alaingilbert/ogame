@@ -1654,13 +1654,13 @@ func (b *OGame) getSlots() (out ogame.Slots, err error) {
 // Returns the distance between two galaxy
 func galaxyDistance(galaxy1, galaxy2, universeSize int64, donutGalaxy bool) (distance int64) {
 	if !donutGalaxy {
-		return int64(20000 * math.Abs(float64(galaxy2-galaxy1)))
+		return int64(20_000 * math.Abs(float64(galaxy2-galaxy1)))
 	}
 	if galaxy1 > galaxy2 {
 		galaxy1, galaxy2 = galaxy2, galaxy1
 	}
 	val := math.Min(float64(galaxy2-galaxy1), float64((galaxy1+universeSize)-galaxy2))
-	return int64(20000 * val)
+	return int64(20_000 * val)
 }
 
 func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) (distance int64) {
@@ -1676,12 +1676,12 @@ func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) (distan
 // Returns the distance between two systems
 func flightSystemDistance(nbSystems, system1, system2, systemsSkip int64, donutSystem bool) (distance int64) {
 	dist := utils.MaxInt(systemDistance(nbSystems, system1, system2, donutSystem)-systemsSkip, 0)
-	return 2700 + 95*dist
+	return 2_700 + 95*dist
 }
 
 // Returns the distance between two planets
 func planetDistance(planet1, planet2 int64) (distance int64) {
-	return int64(1000 + 5*math.Abs(float64(planet2-planet1)))
+	return int64(1_000 + 5*math.Abs(float64(planet2-planet1)))
 }
 
 // Distance returns the distance between two coordinates
@@ -1716,8 +1716,8 @@ func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses 
 func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
 	lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (fuel int64) {
 	tmpFn := func(baseFuel, nbr, shipSpeed int64) float64 {
-		tmpSpeed := (35000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
-		return float64(baseFuel*nbr*dist) / 35000 * math.Pow(tmpSpeed/10+1, 2)
+		tmpSpeed := (35_000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
+		return float64(baseFuel*nbr*dist) / 35_000 * math.Pow(tmpSpeed/10+1, 2)
 	}
 	tmpFuel := 0.0
 	for _, ship := range ogame.Ships {
@@ -1762,7 +1762,7 @@ func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeS
 	v := float64(baseSpeed)
 	a := float64(universeSpeedFleet)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem))
-	return int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
+	return int64(math.Round(((3_500/s)*math.Sqrt(d*10/v) + 10) / a))
 }
 
 // CalcFlightTime calculates the flight time and the fuel consumption
