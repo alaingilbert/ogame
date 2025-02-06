@@ -8,7 +8,6 @@ import (
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
-	"golang.org/x/net/websocket"
 	"net/http"
 	"net/url"
 	"time"
@@ -905,9 +904,5 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 
 // ReconnectChat ...
 func (b *OGame) ReconnectChat() bool {
-	if b.ws != nil {
-		_ = websocket.Message.Send(b.ws, "1::/chat")
-		return true
-	}
-	return false
+	return b.reconnectChat()
 }

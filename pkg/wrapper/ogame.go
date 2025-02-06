@@ -4289,3 +4289,11 @@ type OGameError struct {
 	Message string `json:"message"`
 	Error   int    `json:"error"`
 }
+
+func (b *OGame) reconnectChat() bool {
+	if b.ws != nil {
+		_ = websocket.Message.Send(b.ws, "1::/chat")
+		return true
+	}
+	return false
+}
