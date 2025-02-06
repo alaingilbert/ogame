@@ -952,7 +952,7 @@ func FindAccount(serverName, lang string, playerID int64, accounts []Account, se
 	if lang == "ba" {
 		lang = "yu"
 	}
-	var acc Account
+	var account Account
 	server, found := FindServer(serverName, lang, servers)
 	if !found {
 		return Account{}, Server{}, fmt.Errorf("server %s, %s not found", serverName, lang)
@@ -960,13 +960,13 @@ func FindAccount(serverName, lang string, playerID int64, accounts []Account, se
 	for _, a := range accounts {
 		if a.Server.Language == server.Language && a.Server.Number == server.Number {
 			if playerID == 0 || a.ID == playerID {
-				acc = a
+				account = a
 				break
 			}
 		}
 	}
-	if acc.ID == 0 {
+	if account.ID == 0 {
 		return Account{}, Server{}, ErrAccountNotFound
 	}
-	return acc, server, nil
+	return account, server, nil
 }
