@@ -237,8 +237,6 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 		b.error("failed to parse ogame version: " + err.Error())
 	}
 
-	b.sessionChatCounter = 1
-
 	b.debug("logged in as " + userAccount.Name + " on " + b.universe + "-" + b.language)
 
 	b.debug("extract information from html")
@@ -277,13 +275,14 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
 			defer b.chatConnectedAtom.Store(false)
+			sessionChatCounter := int64(1)
 			chatRetry := exponentialBackoff.New(context.Background(), clockwork.NewRealClock(), 60)
 			chatRetry.LoopForever(func() bool {
 				select {
 				case <-b.closeChatCh:
 					return false
 				default:
-					b.connectChat(chatRetry, chatHost, chatPort)
+					b.connectChat(chatRetry, chatHost, chatPort, &sessionChatCounter)
 				}
 				return true
 			})

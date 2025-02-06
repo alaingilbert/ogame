@@ -66,7 +66,6 @@ type OGame struct {
 	language             string
 	playerID             int64
 	lobby                string
-	sessionChatCounter   int64
 	server               gameforge.Server
 	logger               *log.Logger
 	chatCallbacks        []func(msg ogame.ChatMsg)
@@ -527,8 +526,8 @@ func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, log
 	return err
 }
 
-func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	b.connectChatV8(chatRetry, host, port)
+func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
+	b.connectChatV8(chatRetry, host, port, sessionChatCounter)
 }
 
 // Socket IO v3 timestamp encoding
@@ -571,7 +570,7 @@ func getWebsocket(host, port string) (*websocket.Conn, error) {
 	return ws, nil
 }
 
-func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
+func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
 	var err error
 	b.ws, err = getWebsocket(host, port)
 	if err != nil {
@@ -624,8 +623,8 @@ LOOP:
 			b.debug("got auctioneer sid")
 		} else if regexp.MustCompile(`40/chat,{"sid":"[^"]+"}`).MatchString(buf) {
 			b.debug("got chat sid")
-			_ = websocket.Message.Send(b.ws, `42/chat,`+utils.FI64(b.sessionChatCounter)+`["authorize","`+b.cache.ogameSession+`"]`)
-			b.sessionChatCounter++
+			_ = websocket.Message.Send(b.ws, `42/chat,`+utils.FI64(*sessionChatCounter)+`["authorize","`+b.cache.ogameSession+`"]`)
+			*sessionChatCounter++
 		} else if regexp.MustCompile(`43/chat,\d+\[true]`).MatchString(buf) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`43/chat,\d+\[false]`).MatchString(buf) {
