@@ -688,7 +688,7 @@ func StartCaptchaChallenge(ctx context.Context, client httpclient.IHttpClient, c
 
 func SolveChallenge(ctx context.Context, client httpclient.IHttpClient, challengeID string, answer int64) error {
 	challengeURL := getChallengeURL(imgDropChallengeBaseURL, challengeID) + "/" + endpointLoc
-	body := strings.NewReader(`{"answer":` + utils.FI64(answer) + `}`)
+	body := strings.NewReader(fmt.Sprintf(`{"answer":%d}`, answer))
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
