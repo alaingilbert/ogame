@@ -195,7 +195,7 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 		return
 	}
 	b.debug("find account & server for universe")
-	userAccount, server, err = findAccount(b.Universe, b.language, b.playerID, accounts, servers)
+	userAccount, server, err = gameforge.FindAccount(b.Universe, b.language, b.playerID, accounts, servers)
 	if err != nil {
 		return
 	}

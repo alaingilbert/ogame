@@ -290,29 +290,6 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang strin
 	return b, nil
 }
 
-func findAccount(serverName, lang string, playerID int64, accounts []gameforge.Account, servers []gameforge.Server) (gameforge.Account, gameforge.Server, error) {
-	if lang == "ba" {
-		lang = "yu"
-	}
-	var acc gameforge.Account
-	server, found := gameforge.FindServer(serverName, lang, servers)
-	if !found {
-		return gameforge.Account{}, gameforge.Server{}, fmt.Errorf("server %s, %s not found", serverName, lang)
-	}
-	for _, a := range accounts {
-		if a.Server.Language == server.Language && a.Server.Number == server.Number {
-			if playerID == 0 || a.ID == playerID {
-				acc = a
-				break
-			}
-		}
-	}
-	if acc.ID == 0 {
-		return gameforge.Account{}, gameforge.Server{}, gameforge.ErrAccountNotFound
-	}
-	return acc, server, nil
-}
-
 func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url.Values, pageHTML []byte) {
 	for _, fn := range b.interceptorCallbacks {
 		fn(method, url, params, payload, pageHTML)

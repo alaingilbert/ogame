@@ -946,3 +946,27 @@ func ExecLoginLink(ctx context.Context, client httpclient.IHttpClient, loginLink
 	defer resp.Body.Close()
 	return utils.ReadBody(resp)
 }
+
+// FindAccount ...
+func FindAccount(serverName, lang string, playerID int64, accounts []Account, servers []Server) (Account, Server, error) {
+	if lang == "ba" {
+		lang = "yu"
+	}
+	var acc Account
+	server, found := FindServer(serverName, lang, servers)
+	if !found {
+		return Account{}, Server{}, fmt.Errorf("server %s, %s not found", serverName, lang)
+	}
+	for _, a := range accounts {
+		if a.Server.Language == server.Language && a.Server.Number == server.Number {
+			if playerID == 0 || a.ID == playerID {
+				acc = a
+				break
+			}
+		}
+	}
+	if acc.ID == 0 {
+		return Account{}, Server{}, ErrAccountNotFound
+	}
+	return acc, server, nil
+}
