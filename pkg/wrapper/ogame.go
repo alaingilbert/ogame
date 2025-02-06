@@ -618,11 +618,10 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 	_ = websocket.Message.Send(b.ws, "2probe")
 
 	// Recv msgs
-LOOP:
 	for {
 		select {
 		case <-b.closeChatCtx.Done():
-			break LOOP
+			return
 		default:
 		}
 
