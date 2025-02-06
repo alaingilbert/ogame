@@ -326,7 +326,7 @@ func (g *Gameforge) LoginAndRedeemCode(params *GfLoginParams, code string) error
 }
 
 // LoginAndAddAccount adds an account to a gameforge lobby
-func (g *Gameforge) LoginAndAddAccount(params *GfLoginParams, universe, lang string) (*AddAccountRes, error) {
+func (g *Gameforge) LoginAndAddAccount(params *GfLoginParams, serverName, lang string) (*AddAccountRes, error) {
 	postSessionsRes, err := gFLogin(&gfLoginParams{
 		GfLoginParams: params,
 		Ctx:           g.ctx,
@@ -337,7 +337,7 @@ func (g *Gameforge) LoginAndAddAccount(params *GfLoginParams, universe, lang str
 	if err != nil {
 		return nil, err
 	}
-	return AddAccountByUniverseLang(g.ctx, g.device, g.platform, g.lobby, postSessionsRes.Token, universe, lang)
+	return AddAccountByServerNameLang(g.ctx, g.device, g.platform, g.lobby, postSessionsRes.Token, serverName, lang)
 }
 
 // RedeemCode ...
@@ -383,21 +383,21 @@ func RedeemCode(ctx context.Context, client httpclient.IHttpClient, platform Pla
 	return nil
 }
 
-func FindServer(universe, lang string, servers []Server) (out Server, found bool) {
+func FindServer(serverName, lang string, servers []Server) (out Server, found bool) {
 	for _, s := range servers {
-		if s.Name == universe && s.Language == lang {
+		if s.Name == serverName && s.Language == lang {
 			return s, true
 		}
 	}
 	return
 }
 
-func AddAccountByUniverseLang(ctx context.Context, device *device.Device, platform Platform, lobby, bearerToken, universe, lang string) (*AddAccountRes, error) {
+func AddAccountByServerNameLang(ctx context.Context, device *device.Device, platform Platform, lobby, bearerToken, serverName, lang string) (*AddAccountRes, error) {
 	servers, err := GetServers(ctx, device.GetClient(), platform, lobby)
 	if err != nil {
 		return nil, err
 	}
-	server, found := FindServer(universe, lang, servers)
+	server, found := FindServer(serverName, lang, servers)
 	if !found {
 		return nil, errors.New("server not found")
 	}
