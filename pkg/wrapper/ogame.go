@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"net"
@@ -1024,37 +1023,7 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 
 		if detectLoggedOut(method, page, vals, pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
-
-			if home, err := os.UserHomeDir(); err == nil {
-				type FileInfo struct {
-					Name    string
-					ModTime time.Time
-				}
-				notLoggedPath := filepath.Join(home, ".ogame", "not_logged")
-				if err := os.MkdirAll(notLoggedPath, 0755); err == nil {
-					if files, err := ioutil.ReadDir(notLoggedPath); err == nil {
-						// Create a slice to hold file info
-						fileInfos := make([]FileInfo, 0, len(files))
-						for _, file := range files {
-							if !file.IsDir() {
-								fileInfos = append(fileInfos, FileInfo{
-									Name:    file.Name(),
-									ModTime: file.ModTime(),
-								})
-							}
-						}
-						sort.Slice(fileInfos, func(i, j int) bool { return fileInfos[i].ModTime.After(fileInfos[j].ModTime) })
-						if len(fileInfos) > 20 {
-							for _, file := range fileInfos[20:] {
-								_ = os.Remove(filepath.Join(notLoggedPath, file.Name))
-							}
-						}
-						filename := fmt.Sprintf("not_logged_%s_%s_.html", page, time.Now().Format("2006-01-02_15:04:05"))
-						_ = os.WriteFile(filepath.Join(notLoggedPath, filename), pageHTMLBytes, 0644)
-					}
-				}
-			}
-
+			saveNotLoggedHTML(page, pageHTMLBytes)
 			b.isConnectedAtom.Store(false)
 			return ogame.ErrNotLogged
 		}
@@ -1079,6 +1048,43 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 	}
 
 	return pageHTMLBytes, nil
+}
+
+// Save html when we detect a "notLogged", only keep last 20 files, delete others
+func saveNotLoggedHTML(page string, pageHTMLBytes []byte) {
+	if home, err := os.UserHomeDir(); err == nil {
+		type FileInfo struct {
+			Name    string
+			ModTime time.Time
+		}
+		notLoggedPath := filepath.Join(home, ".ogame", "not_logged")
+		if err := os.MkdirAll(notLoggedPath, 0755); err == nil {
+			if entries, err := os.ReadDir(notLoggedPath); err == nil {
+				// Create a slice to hold file info
+				fileInfos := make([]FileInfo, 0, len(entries))
+				for _, entry := range entries {
+					file, err := entry.Info()
+					if err != nil {
+						continue
+					}
+					if !file.IsDir() {
+						fileInfos = append(fileInfos, FileInfo{
+							Name:    file.Name(),
+							ModTime: file.ModTime(),
+						})
+					}
+				}
+				sort.Slice(fileInfos, func(i, j int) bool { return fileInfos[i].ModTime.After(fileInfos[j].ModTime) })
+				if len(fileInfos) > 20 {
+					for _, file := range fileInfos[20:] {
+						_ = os.Remove(filepath.Join(notLoggedPath, file.Name))
+					}
+				}
+				filename := fmt.Sprintf("not_logged_%s_%s_.html", page, time.Now().Format("2006-01-02_15:04:05"))
+				_ = os.WriteFile(filepath.Join(notLoggedPath, filename), pageHTMLBytes, 0644)
+			}
+		}
+	}
 }
 
 func applyDelay(b *OGame, delay time.Duration) error {
@@ -3473,7 +3479,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	if mission == ogame.ParkInThatAlly || mission == ogame.Expedition {
 		if mission == ogame.Expedition { // Expedition 1 to 18
 			holdingTime = utils.Clamp(holdingTime, 1, 18)
-		} else if mission == ogame.ParkInThatAlly { // ParkInThatAlly 0, 1, 2, 4, 8, 16, 32
+		} else { // ParkInThatAlly 0, 1, 2, 4, 8, 16, 32
 			holdingTime = utils.Clamp(holdingTime, 0, 32)
 		}
 		payload.Set("holdingtime", utils.FI64(holdingTime))
