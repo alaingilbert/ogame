@@ -1885,7 +1885,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 
 	finalURL := b.cache.serverURL + url
 
-	req, err := http.NewRequest("HEAD", finalURL, nil)
+	req, err := http.NewRequest(http.MethodHead, finalURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1898,7 +1898,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 	defer resp.Body.Close()
 	_, _ = io.Copy(io.Discard, resp.Body)
 
-	if resp.StatusCode >= 500 {
+	if resp.StatusCode >= http.StatusInternalServerError {
 		return nil, err
 	}
 
