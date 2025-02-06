@@ -235,19 +235,19 @@ func getExtractorFor(ogVersion *version.Version) (ext extractor.Extractor) {
 		ext = v11_13_0.NewExtractor()
 	} else if isVGreaterThanOrEqual(ogVersion, "11.9.0") {
 		ext = v11_9_0.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "11.0.0-beta25") {
+	} else if isVGreaterThanOrEqual(ogVersion, "11.0.0") {
 		ext = v11.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "10.4.0-beta2") {
+	} else if isVGreaterThanOrEqual(ogVersion, "10.4.0") {
 		ext = v104.NewExtractor()
 	} else if isVGreaterThanOrEqual(ogVersion, "10.0.0") {
 		ext = v10.NewExtractor()
 	} else if isVGreaterThanOrEqual(ogVersion, "9.0.0") {
 		ext = v9.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "8.7.4-pl3") {
+	} else if isVGreaterThanOrEqual(ogVersion, "8.7.4") {
 		ext = v874.NewExtractor()
 	} else if isVGreaterThanOrEqual(ogVersion, "8.0.0") {
 		ext = v8.NewExtractor()
-	} else if isVGreaterThanOrEqual(ogVersion, "7.1.0-rc0") {
+	} else if isVGreaterThanOrEqual(ogVersion, "7.1.0") {
 		ext = v71.NewExtractor()
 	} else if isVGreaterThanOrEqual(ogVersion, "7.0.0") {
 		ext = v7.NewExtractor()
@@ -255,15 +255,20 @@ func getExtractorFor(ogVersion *version.Version) (ext extractor.Extractor) {
 	return
 }
 
-func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
-	var ext extractor.Extractor = v12_0_0.NewExtractor()
+func sanitizeServerVersion(serverVersion string) string {
 	r := regexp.MustCompile(`(\d+\.\d+\.\d+)`)
-	serverVersion := b.cache.serverData.Version
 	versionMatches := r.FindStringSubmatch(serverVersion)
 	versionMatch := serverVersion
 	if len(versionMatches) == 2 {
 		versionMatch = versionMatches[1]
 	}
+	return versionMatch
+}
+
+func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
+	var ext extractor.Extractor = v12_0_0.NewExtractor()
+
+	versionMatch := sanitizeServerVersion(b.cache.serverData.Version)
 	if ogVersion, err := version.NewVersion(versionMatch); err == nil {
 		ext = getExtractorFor(ogVersion)
 		ext.SetLanguage(b.language)
