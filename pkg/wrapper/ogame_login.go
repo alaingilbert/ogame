@@ -223,7 +223,7 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 		lang = "ba"
 	}
 	b.language = lang
-	b.serverURL = "https://s" + utils.FI64(server.Number) + "-" + lang + ".ogame.gameforge.com"
+	b.serverURL = fmt.Sprintf("https://s%d-%s.ogame.gameforge.com", server.Number, lang)
 	b.debug("get server data", time.Since(start))
 	return nil
 }
