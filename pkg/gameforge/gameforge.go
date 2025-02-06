@@ -203,10 +203,7 @@ func (g *Gameforge) Register(email, password, challengeID, lang string) error {
 }
 
 func getGameforgeLobbyBaseURL(lobby string, platform Platform) string {
-	if lobby == "" {
-		lobby = Lobby
-	}
-	return fmt.Sprintf("https://%s.%s.gameforge.com", lobby, platform)
+	return fmt.Sprintf("https://%s.%s.gameforge.com", utils.Or(lobby, Lobby), platform)
 }
 
 // Register a new gameforge lobby account
@@ -215,7 +212,6 @@ func Register(device *device.Device, ctx context.Context, platform Platform, lob
 	if err != nil {
 		return err
 	}
-	lang = utils.Or(lang, "en")
 	var payload struct {
 		Blackbox    string `json:"blackbox"`
 		Credentials struct {
@@ -228,7 +224,7 @@ func Register(device *device.Device, ctx context.Context, platform Platform, lob
 	payload.Blackbox = blackboxPrefix + blackbox
 	payload.Credentials.Email = email
 	payload.Credentials.Password = password
-	payload.Language = lang
+	payload.Language = utils.Or(lang, "en")
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return err
