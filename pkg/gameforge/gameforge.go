@@ -215,9 +215,7 @@ func Register(device *device.Device, ctx context.Context, platform Platform, lob
 	if err != nil {
 		return err
 	}
-	if lang == "" {
-		lang = "en"
-	}
+	lang = utils.Or(lang, "en")
 	var payload struct {
 		Blackbox    string `json:"blackbox"`
 		Credentials struct {

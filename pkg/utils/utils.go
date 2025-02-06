@@ -207,6 +207,11 @@ func TernaryOrZero[T any](predicate bool, a T) T {
 	return Ternary(predicate, a, zero)
 }
 
+// Or return "a" if it is non-zero otherwise "b"
+func Or[T comparable](a, b T) (zero T) {
+	return Ternary(a != zero, a, b)
+}
+
 // RoundThousandth round value to the nearest thousandth
 func RoundThousandth(n float64) float64 {
 	return math.Floor(n*1000) / 1000
