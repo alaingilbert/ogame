@@ -10,7 +10,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
 	"github.com/alaingilbert/ogame/pkg/extractor"
@@ -1189,7 +1188,7 @@ func (b *OGame) withoutRetry(fn func() error) error {
 
 func (b *OGame) withRetry(fn func() error) error {
 	maxRetry := 10
-	eb := exponentialBackoff.New(b.ctx, clockwork.NewRealClock(), 60)
+	eb := exponentialBackoff.New(b.ctx, 60)
 	for range eb.Iterator() {
 		err := fn()
 		if err == nil {

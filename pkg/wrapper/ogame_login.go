@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
 	"github.com/alaingilbert/ogame/pkg/extractor"
 	v10 "github.com/alaingilbert/ogame/pkg/extractor/v10"
@@ -273,7 +272,7 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 		go func(b *OGame) {
 			defer b.chatConnectedAtom.Store(false)
 			sessionChatCounter := int64(1)
-			chatRetry := exponentialBackoff.New(b.closeChatCtx, clockwork.NewRealClock(), 60)
+			chatRetry := exponentialBackoff.New(b.closeChatCtx, 60)
 			for range chatRetry.Iterator() {
 				b.connectChat(chatRetry, chatHost, chatPort, &sessionChatCounter)
 			}

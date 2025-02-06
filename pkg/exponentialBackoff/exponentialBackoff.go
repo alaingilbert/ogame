@@ -16,7 +16,12 @@ type ExponentialBackoff struct {
 }
 
 // New ...
-func New(ctx context.Context, clock clockwork.Clock, max int) *ExponentialBackoff {
+func New(ctx context.Context, max int) *ExponentialBackoff {
+	return NewWithClock(ctx, clockwork.NewRealClock(), max)
+}
+
+// NewWithClock ...
+func NewWithClock(ctx context.Context, clock clockwork.Clock, max int) *ExponentialBackoff {
 	if max < 0 {
 		max = 0
 	}
