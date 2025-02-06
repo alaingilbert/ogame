@@ -76,7 +76,8 @@ type OGame struct {
 	wsCallbacks          map[string]func(msg []byte)
 	auctioneerCallbacks  []func(any)
 	interceptorCallbacks []func(method, url string, params, payload url.Values, pageHTML []byte)
-	closeChatCh          chan struct{}
+	closeChatCtx         context.Context
+	closeChatCancel      context.CancelFunc
 	ws                   *websocket.Conn
 	taskRunnerInst       *taskRunner.TaskRunner[*Prioritize]
 	loginWrapper         func(func() (bool, error)) error
@@ -602,7 +603,7 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 LOOP:
 	for {
 		select {
-		case <-b.closeChatCh:
+		case <-b.closeChatCtx.Done():
 			break LOOP
 		default:
 		}
@@ -762,9 +763,9 @@ func (b *OGame) logout() {
 	_ = b.device.GetClient().Jar.(*cookiejar.Jar).Save()
 	if b.isLoggedInAtom.CompareAndSwap(true, false) {
 		select {
-		case <-b.closeChatCh:
+		case <-b.closeChatCtx.Done():
 		default:
-			close(b.closeChatCh)
+			b.closeChatCancel()
 			if b.ws != nil {
 				_ = b.ws.Close()
 			}

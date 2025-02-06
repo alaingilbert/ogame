@@ -272,18 +272,13 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 
 	if b.chatConnectedAtom.CompareAndSwap(false, true) {
 		chatHost, chatPort := extractChatHostPort(page.GetContent())
-		b.closeChatCh = make(chan struct{})
+		b.closeChatCtx, b.closeChatCancel = context.WithCancel(context.Background())
 		go func(b *OGame) {
 			defer b.chatConnectedAtom.Store(false)
 			sessionChatCounter := int64(1)
-			chatRetry := exponentialBackoff.New(context.Background(), clockwork.NewRealClock(), 60)
+			chatRetry := exponentialBackoff.New(b.closeChatCtx, clockwork.NewRealClock(), 60)
 			for range chatRetry.Iterator() {
-				select {
-				case <-b.closeChatCh:
-					return
-				default:
-					b.connectChat(chatRetry, chatHost, chatPort, &sessionChatCounter)
-				}
+				b.connectChat(chatRetry, chatHost, chatPort, &sessionChatCounter)
 			}
 		}(b)
 	} else {
