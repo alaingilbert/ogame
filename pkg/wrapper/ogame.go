@@ -222,14 +222,14 @@ func (b *OGame) validateAccount(code string) error {
 
 // New creates a new instance of OGame wrapper.
 func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
-	b, err := NewNoLogin(username, password, "", "", universe, lang, 0, deviceInst)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := b.LoginWithExistingCookies(); err != nil {
-		return nil, err
-	}
-	return b, nil
+	return NewWithParams(Params{
+		Universe:  universe,
+		Username:  username,
+		Password:  password,
+		Lang:      lang,
+		Device:    deviceInst,
+		AutoLogin: true,
+	})
 }
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
