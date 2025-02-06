@@ -39,3 +39,19 @@ func TestExponentialBackoff_Wait(t *testing.T) {
 	wg.Wait()
 	assert.Equal(t, uint32(1), atomic.LoadUint32(&counter))
 }
+
+//func TestExponentialBackoff_1(t *testing.T) {
+//	start := time.Now()
+//	clock := clockwork.NewRealClock()
+//	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+//	defer cancel()
+//	e := New(ctx, clock, 60)
+//	go func() {
+//		time.Sleep(5 * time.Second)
+//		e.Reset()
+//	}()
+//	for range e.Iterator() {
+//		fmt.Println("?????", time.Since(start))
+//	}
+//	assert.Equal(t, 1, 2)
+//}
