@@ -134,6 +134,8 @@ type Params struct {
 	CaptchaCallback gameforge.CaptchaCallback
 }
 
+const PLATFORM = gameforge.OGAME
+
 // ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
 type ServerData struct {
 	Name                          string  `xml:"name"`                          // Europa
@@ -214,7 +216,7 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 
 func (b *OGame) validateAccount(code string) error {
 	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
-		return gameforge.ValidateAccount(b.ctx, client, gameforge.OGAME, b.lobby, code)
+		return gameforge.ValidateAccount(b.ctx, client, PLATFORM, b.lobby, code)
 	})
 }
 
@@ -322,7 +324,7 @@ func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
 		gf, _ := gameforge.NewGameforge(&gameforge.Config{
 			Ctx:      b.ctx,
 			Device:   b.device,
-			Platform: gameforge.OGAME,
+			Platform: PLATFORM,
 			Lobby:    b.lobby,
 			Solver:   b.captchaCallback,
 		})
@@ -3995,7 +3997,7 @@ func (b *OGame) botUnlock(unlockedBy string) {
 
 func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
-	return gameforge.AddAccount(b.ctx, b.device, gameforge.OGAME, b.lobby, accountGroup, b.bearerToken)
+	return gameforge.AddAccount(b.ctx, b.device, PLATFORM, b.lobby, accountGroup, b.bearerToken)
 }
 
 func (b *OGame) getCachedCelestial(v IntoCelestial) (Celestial, error) {

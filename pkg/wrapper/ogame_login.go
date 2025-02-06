@@ -152,7 +152,7 @@ func (b *OGame) login() error {
 
 func (b *OGame) getAndExecLoginLink(userAccount gameforge.Account, token string) (string, []byte, error) {
 	b.debug("get login link")
-	loginLink, err := gameforge.GetLoginLink(b.ctx, b.device, gameforge.OGAME, b.lobby, userAccount, token)
+	loginLink, err := gameforge.GetLoginLink(b.ctx, b.device, PLATFORM, b.lobby, userAccount, token)
 	if err != nil {
 		return "", nil, err
 	}
@@ -185,12 +185,12 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 	ctx := b.ctx
 	lobby := b.lobby
 	b.debug("get user accounts")
-	accounts, err := gameforge.GetUserAccounts(ctx, client, gameforge.OGAME, lobby, token)
+	accounts, err := gameforge.GetUserAccounts(ctx, client, PLATFORM, lobby, token)
 	if err != nil {
 		return
 	}
 	b.debug("get servers")
-	servers, err := gameforge.GetServers(ctx, client, gameforge.OGAME, lobby)
+	servers, err := gameforge.GetServers(ctx, client, PLATFORM, lobby)
 	if err != nil {
 		return
 	}

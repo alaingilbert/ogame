@@ -1460,7 +1460,7 @@ func TechsHandler(c echo.Context) error {
 // GetCaptchaHandler ...
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	gf, _ := gameforge.NewGameforge(&gameforge.Config{Ctx: bot.ctx, Device: bot.device, Platform: gameforge.OGAME, Lobby: bot.lobby})
+	gf, _ := gameforge.NewGameforge(&gameforge.Config{Ctx: bot.ctx, Device: bot.device, Platform: PLATFORM, Lobby: bot.lobby})
 	_, err := gf.GFLogin(&gameforge.GfLoginParams{
 		Username:  bot.Username,
 		Password:  bot.password,
@@ -1518,7 +1518,7 @@ type CaptchaChallenge struct {
 // GetCaptchaChallengeHandler ...
 func GetCaptchaChallengeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	gf, _ := gameforge.NewGameforge(&gameforge.Config{Ctx: bot.ctx, Device: bot.device, Platform: gameforge.OGAME, Lobby: bot.lobby})
+	gf, _ := gameforge.NewGameforge(&gameforge.Config{Ctx: bot.ctx, Device: bot.device, Platform: PLATFORM, Lobby: bot.lobby})
 	_, err := gf.GFLogin(&gameforge.GfLoginParams{
 		Username:  bot.Username,
 		Password:  bot.password,
