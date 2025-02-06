@@ -154,24 +154,23 @@ func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeI
 
 // GFLogin ...
 func (g *Gameforge) GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
+	solver := g.solver
 	maxTry := g.maxCaptchaRetries
-	for {
-		out, err = gFLogin(&gfLoginParams{GfLoginParams: params, Device: g.device, Ctx: g.ctx, platform: g.platform, lobby: g.lobby})
+LOGIN:
+	out, err = gFLogin(&gfLoginParams{GfLoginParams: params, Device: g.device, Ctx: g.ctx, platform: g.platform, lobby: g.lobby})
+	if err != nil {
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
-			captchaCallback := g.solver
-			if maxTry == 0 || captchaCallback == nil {
+			if maxTry == 0 || solver == nil {
 				return nil, err
 			}
 			maxTry--
-			if err := solveCaptcha(g.ctx, g.device.GetClient(), captchaErr.ChallengeID, captchaCallback); err != nil {
+			if err := solveCaptcha(g.ctx, g.device.GetClient(), captchaErr.ChallengeID, solver); err != nil {
 				return nil, err
 			}
-			continue
-		} else if err != nil {
-			return nil, err
+			goto LOGIN
 		}
-		break
+		return nil, err
 	}
 	g.bearerToken = out.Token
 	return out, nil
