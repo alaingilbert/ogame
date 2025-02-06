@@ -152,7 +152,8 @@ func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeI
 	return err
 }
 
-// GFLogin ...
+// GFLogin do the gameforge login, if we get a captcha, solve the captcha and retry login.
+// If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
 func (g *Gameforge) GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 	solver := g.solver
 	maxTry := g.maxCaptchaRetries
