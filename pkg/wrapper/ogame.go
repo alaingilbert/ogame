@@ -9,6 +9,25 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/clockwork"
+	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
+	"github.com/alaingilbert/ogame/pkg/extractor"
+	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
+	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/parser"
+	"github.com/alaingilbert/ogame/pkg/taskRunner"
+	"github.com/alaingilbert/ogame/pkg/utils"
+	version "github.com/hashicorp/go-version"
+	cookiejar "github.com/orirawlings/persistent-cookiejar"
+	err2 "github.com/pkg/errors"
+	lua "github.com/yuin/gopher-lua"
+	"golang.org/x/net/proxy"
+	"golang.org/x/net/websocket"
 	"io"
 	"log"
 	"math"
@@ -1170,25 +1189,11 @@ func (b *OGame) withoutRetry(fn func() error) error {
 
 func (b *OGame) withRetry(fn func() error) error {
 	maxRetry := 10
-	retryInterval := 1
-	retry := func(err error) error {
-		b.error(err.Error())
-		select {
-		case <-time.After(time.Duration(retryInterval) * time.Second):
-		case <-b.ctx.Done():
-			return ogame.ErrBotInactive
-		}
-		retryInterval *= 2
-		if retryInterval > 60 {
-			retryInterval = 60
-		}
-		return nil
-	}
-
-	for {
+	eb := exponentialBackoff.New(b.ctx, clockwork.NewRealClock(), 60)
+	for range eb.Iterator() {
 		err := fn()
 		if err == nil {
-			break
+			return nil
 		}
 		// If we manually logged out, do not try to auto re login.
 		if !b.IsEnabled() {
@@ -1201,11 +1206,7 @@ func (b *OGame) withRetry(fn func() error) error {
 		if maxRetry <= 0 {
 			return err2.Wrap(err, ogame.ErrFailedExecuteCallback.Error())
 		}
-
-		if retryErr := retry(err); retryErr != nil {
-			return retryErr
-		}
-
+		b.error(err.Error())
 		if errors.Is(err, ogame.ErrNotLogged) {
 			if _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
@@ -1219,7 +1220,7 @@ func (b *OGame) withRetry(fn func() error) error {
 			}
 		}
 	}
-	return nil
+	return ogame.ErrBotInactive
 }
 
 func (b *OGame) getPageJSON(vals url.Values, v any) error {
