@@ -262,6 +262,13 @@ func sanitizeServerVersion(serverVersion string) string {
 	return serverVersion
 }
 
+func extractChatHostPort(content []byte) (chatHost string, chatPort string) {
+	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(content)
+	chatHost = string(m[1])
+	chatPort = string(m[2])
+	return
+}
+
 func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
 	var ext extractor.Extractor = v12_0_0.NewExtractor()
 
@@ -308,12 +315,8 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 
 	b.cacheFullPageInfo(page)
 
-	// Extract chat host and port
-	m := regexp.MustCompile(`var nodeUrl\s?=\s?"https:\\/\\/([^:]+):(\d+)\\/socket.io\\/socket.io.js"`).FindSubmatch(page.GetContent())
-	chatHost := string(m[1])
-	chatPort := string(m[2])
-
 	if b.chatConnectedAtom.CompareAndSwap(false, true) {
+		chatHost, chatPort := extractChatHostPort(page.GetContent())
 		b.closeChatCh = make(chan struct{})
 		go func(b *OGame) {
 			defer b.chatConnectedAtom.Store(false)
