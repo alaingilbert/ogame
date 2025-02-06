@@ -48,18 +48,16 @@ func (e *ExponentialBackoff) LoopForever(clb func() bool) {
 // Wait ...
 func (e *ExponentialBackoff) Wait() {
 	currVal := atomic.LoadUint32(&e.val)
-	if currVal == 0 {
-		atomic.StoreUint32(&e.val, 1)
-		return
-	}
-
-	newVal := currVal * 2
-	if e.max > 0 && newVal > uint32(e.max) {
-		newVal = uint32(e.max)
+	newVal := uint32(1)
+	if currVal > 0 {
+		newVal = currVal * 2
+		if e.max > 0 && newVal > uint32(e.max) {
+			newVal = uint32(e.max)
+		}
 	}
 	atomic.StoreUint32(&e.val, newVal)
 	select {
-	case <-e.clock.After(time.Duration(currVal) * time.Second):
+	case <-e.clock.After(time.Duration(newVal) * time.Second):
 	case <-e.ctx.Done():
 		return
 	}
