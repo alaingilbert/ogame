@@ -163,6 +163,50 @@ func NewWithParams(params Params) (*OGame, error) {
 	return newWithParams(params)
 }
 
+func newWithParams(params Params) (*OGame, error) {
+	if params.Device == nil {
+		return nil, errors.New("no device defined")
+	}
+
+	b := new(OGame)
+	b.device = params.Device
+	b.loginWrapper = DefaultLoginWrapper
+	b.Enable()
+	b.quiet = false
+	b.logger = log.New(os.Stdout, "", 0)
+
+	b.universe = params.Universe
+	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
+	b.setOGameLobby(gameforge.Lobby)
+	b.language = params.Lang
+	b.playerID = params.PlayerID
+
+	ext := v12_0_0.NewExtractor()
+	ext.SetLanguage(params.Lang)
+	ext.SetLocation(time.UTC)
+	b.extractor = ext
+
+	factory := func() *Prioritize { return &Prioritize{bot: b} }
+	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
+
+	b.wsCallbacks = make(map[string]func([]byte))
+
+	b.captchaCallback = params.CaptchaCallback
+	b.setOGameLobby(params.Lobby)
+	b.apiNewHostname = params.APINewHostname
+	if params.Proxy != "" {
+		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
+			return nil, err
+		}
+	}
+	if params.AutoLogin {
+		if _, err := b.LoginWithExistingCookies(); err != nil {
+			return nil, err
+		}
+	}
+	return b, nil
+}
+
 const PLATFORM = gameforge.OGAME
 
 // ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
@@ -230,50 +274,6 @@ func getServerData(ctx context.Context, client httpclient.IHttpClient, serverNum
 		return serverData, fmt.Errorf("failed to xml unmarshal %s : %w", serverDataURL, err)
 	}
 	return serverData, nil
-}
-
-func newWithParams(params Params) (*OGame, error) {
-	if params.Device == nil {
-		return nil, errors.New("no device defined")
-	}
-
-	b := new(OGame)
-	b.device = params.Device
-	b.loginWrapper = DefaultLoginWrapper
-	b.Enable()
-	b.quiet = false
-	b.logger = log.New(os.Stdout, "", 0)
-
-	b.universe = params.Universe
-	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
-	b.setOGameLobby(gameforge.Lobby)
-	b.language = params.Lang
-	b.playerID = params.PlayerID
-
-	ext := v12_0_0.NewExtractor()
-	ext.SetLanguage(params.Lang)
-	ext.SetLocation(time.UTC)
-	b.extractor = ext
-
-	factory := func() *Prioritize { return &Prioritize{bot: b} }
-	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
-
-	b.wsCallbacks = make(map[string]func([]byte))
-
-	b.captchaCallback = params.CaptchaCallback
-	b.setOGameLobby(params.Lobby)
-	b.apiNewHostname = params.APINewHostname
-	if params.Proxy != "" {
-		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
-			return nil, err
-		}
-	}
-	if params.AutoLogin {
-		if _, err := b.LoginWithExistingCookies(); err != nil {
-			return nil, err
-		}
-	}
-	return b, nil
 }
 
 // GetClientWithProxy ...
