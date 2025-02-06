@@ -3,6 +3,7 @@ package wrapper
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
 	"github.com/alaingilbert/ogame/pkg/extractor"
@@ -204,7 +205,7 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 	if userAccount.Blocked {
 		return server, userAccount, gameforge.ErrAccountBlocked
 	}
-	b.debug("Players online: " + utils.FI64(server.PlayersOnline) + ", Players: " + utils.FI64(server.PlayerCount))
+	b.debug(fmt.Sprintf("Players online: %d, Players: %d", server.PlayersOnline, server.PlayerCount))
 	return
 }
 
