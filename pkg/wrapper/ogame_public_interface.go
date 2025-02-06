@@ -178,7 +178,7 @@ func (b *OGame) BytesUploaded() int64 {
 
 // GetUniverseName get the name of the universe the bot is playing into
 func (b *OGame) GetUniverseName() string {
-	return b.Universe
+	return b.universe
 }
 
 // GetUsername get the username that was used to login on ogame server

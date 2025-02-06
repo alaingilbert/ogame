@@ -188,7 +188,7 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 	ctx := b.ctx
 	lobby := b.lobby
 	b.debug("find account & server for universe")
-	userAccount, server, err = gameforge.GetServerAccount(ctx, client, PLATFORM, lobby, token, b.Universe, b.language, b.playerID)
+	userAccount, server, err = gameforge.GetServerAccount(ctx, client, PLATFORM, lobby, token, b.universe, b.language, b.playerID)
 	if err != nil {
 		return
 	}
@@ -269,7 +269,7 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 
 	b.sessionChatCounter = 1
 
-	b.debug("logged in as " + userAccount.Name + " on " + b.Universe + "-" + b.language)
+	b.debug("logged in as " + userAccount.Name + " on " + b.universe + "-" + b.language)
 
 	b.debug("extract information from html")
 	b.cache.ogameSession = page.ExtractOGameSession()

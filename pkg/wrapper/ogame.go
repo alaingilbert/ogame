@@ -62,7 +62,7 @@ type OGame struct {
 	cancelCtx            context.CancelFunc
 	stateChangeCallbacks []func(locked bool, actor string)
 	quiet                bool
-	Universe             string
+	universe             string
 	Username             string
 	password             string
 	otpSecret            string
@@ -273,7 +273,7 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang strin
 	b.quiet = false
 	b.logger = log.New(os.Stdout, "", 0)
 
-	b.Universe = universe
+	b.universe = universe
 	b.SetOGameCredentials(username, password, otpSecret, bearerToken)
 	b.setOGameLobby(gameforge.Lobby)
 	b.language = lang
