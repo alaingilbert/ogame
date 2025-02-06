@@ -290,23 +290,18 @@ func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang strin
 	return b, nil
 }
 
-func findAccount(universe, lang string, playerID int64, accounts []gameforge.Account, servers []gameforge.Server) (gameforge.Account, gameforge.Server, error) {
+func findAccount(serverName, lang string, playerID int64, accounts []gameforge.Account, servers []gameforge.Server) (gameforge.Account, gameforge.Server, error) {
 	if lang == "ba" {
 		lang = "yu"
 	}
 	var acc gameforge.Account
-	server, found := gameforge.FindServer(universe, lang, servers)
+	server, found := gameforge.FindServer(serverName, lang, servers)
 	if !found {
-		return gameforge.Account{}, gameforge.Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
+		return gameforge.Account{}, gameforge.Server{}, fmt.Errorf("server %s, %s not found", serverName, lang)
 	}
 	for _, a := range accounts {
 		if a.Server.Language == server.Language && a.Server.Number == server.Number {
-			if playerID != 0 {
-				if a.ID == playerID {
-					acc = a
-					break
-				}
-			} else {
+			if playerID == 0 || a.ID == playerID {
 				acc = a
 				break
 			}
