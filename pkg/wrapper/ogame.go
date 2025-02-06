@@ -1856,15 +1856,6 @@ func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([
 	return page.ExtractPhalanx()
 }
 
-func moonIDInSlice(needle ogame.MoonID, haystack []ogame.MoonID) bool {
-	for _, element := range haystack {
-		if needle == element {
-			return true
-		}
-	}
-	return false
-}
-
 func (b *OGame) headersForPage(url string) (http.Header, error) {
 	if !b.IsEnabled() {
 		return nil, ogame.ErrBotInactive
@@ -1933,7 +1924,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 	}
 
 	// Validate destination moon id
-	if !moonIDInSlice(destMoonID, dests) {
+	if !utils.InArr(destMoonID, dests) {
 		return false, 0, errors.New("destination moon id invalid")
 	}
 
