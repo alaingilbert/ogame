@@ -586,8 +586,7 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 		b.error("failed to create request:", err)
 		return
 	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		b.error("failed to get socket.io token:", err)
 		return
@@ -931,10 +930,9 @@ func getPageName(vals url.Values) string {
 
 func getOptions(opts ...Option) (out Options) {
 	for _, opt := range opts {
-		if opt == nil {
-			continue
+		if opt != nil {
+			opt(&out)
 		}
-		opt(&out)
 	}
 	return
 }
