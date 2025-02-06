@@ -134,6 +134,35 @@ type Params struct {
 	CaptchaCallback gameforge.CaptchaCallback
 }
 
+// New creates a new instance of OGame wrapper.
+func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return newWithParams(Params{
+		Universe:  universe,
+		Username:  username,
+		Password:  password,
+		Lang:      lang,
+		Device:    deviceInst,
+		AutoLogin: true,
+	})
+}
+
+// NewNoLogin creates a new instance of OGame wrapper, does not auto-login.
+func NewNoLogin(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return newWithParams(Params{
+		Universe:  universe,
+		Username:  username,
+		Password:  password,
+		Lang:      lang,
+		Device:    deviceInst,
+		AutoLogin: false,
+	})
+}
+
+// NewWithParams create a new OGame instance with full control over the possible parameters
+func NewWithParams(params Params) (*OGame, error) {
+	return newWithParams(params)
+}
+
 const PLATFORM = gameforge.OGAME
 
 // ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
@@ -203,48 +232,7 @@ func getServerData(ctx context.Context, client httpclient.IHttpClient, serverNum
 	return serverData, nil
 }
 
-// GetClientWithProxy ...
-func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) (*http.Client, error) {
-	var err error
-	client := &http.Client{}
-	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
-}
-
-func (b *OGame) validateAccount(code string) error {
-	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
-		return gameforge.ValidateAccount(b.ctx, client, PLATFORM, b.lobby, code)
-	})
-}
-
-// New creates a new instance of OGame wrapper.
-func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
-	return NewWithParams(Params{
-		Universe:  universe,
-		Username:  username,
-		Password:  password,
-		Lang:      lang,
-		Device:    deviceInst,
-		AutoLogin: true,
-	})
-}
-
-// NewNoLogin creates a new instance of OGame wrapper, does not auto-login.
-func NewNoLogin(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
-	return NewWithParams(Params{
-		Universe: universe,
-		Username: username,
-		Password: password,
-		Lang:     lang,
-		Device:   deviceInst,
-	})
-}
-
-// NewWithParams create a new OGame instance with full control over the possible parameters
-func NewWithParams(params Params) (*OGame, error) {
+func newWithParams(params Params) (*OGame, error) {
 	if params.Device == nil {
 		return nil, errors.New("no device defined")
 	}
@@ -286,6 +274,23 @@ func NewWithParams(params Params) (*OGame, error) {
 		}
 	}
 	return b, nil
+}
+
+// GetClientWithProxy ...
+func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType string, config *tls.Config) (*http.Client, error) {
+	var err error
+	client := &http.Client{}
+	client.Transport, err = getTransport(proxyAddr, proxyUsername, proxyPassword, proxyType, config)
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
+}
+
+func (b *OGame) validateAccount(code string) error {
+	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
+		return gameforge.ValidateAccount(b.ctx, client, PLATFORM, b.lobby, code)
+	})
 }
 
 func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url.Values, pageHTML []byte) {

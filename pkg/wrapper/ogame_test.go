@@ -3,6 +3,7 @@ package wrapper
 import (
 	"bytes"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/hashicorp/go-version"
@@ -39,7 +40,7 @@ func BenchmarkUserInfoGoquery(b *testing.B) {
 
 func TestWrapper(t *testing.T) {
 	var bot Wrapper
-	bot, _ = NewNoLogin("", "", "", "", "", "", 0, nil)
+	bot, _ = NewNoLogin(&device.Device{}, "", "", "", "")
 	assert.NotNil(t, bot)
 }
 
@@ -263,7 +264,7 @@ func TestFindSlowestSpeed(t *testing.T) {
 }
 
 func TestOGame_GetCachedCelestial(t *testing.T) {
-	bot, _ := NewNoLogin("", "", "", "", "", "", 0, nil)
+	bot, _ := NewNoLogin(&device.Device{}, "", "", "", "")
 	bot.cache.planets = []Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}}
 	celestial, _ := bot.GetCachedCelestial(123)
 	assert.Equal(t, ogame.CelestialID(123), celestial.GetID())
@@ -281,7 +282,7 @@ func TestOGame_GetCachedCelestial(t *testing.T) {
 }
 
 func TestOGame_GetCachedCelestials(t *testing.T) {
-	bot, _ := NewNoLogin("", "", "", "", "", "", 0, nil)
+	bot, _ := NewNoLogin(&device.Device{}, "", "", "", "")
 	bot.cache.planets = []Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}}
 
 	celestials := bot.GetCachedCelestials()
