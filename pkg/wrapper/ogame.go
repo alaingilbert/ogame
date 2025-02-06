@@ -232,15 +232,46 @@ func New(deviceInst *device.Device, universe, username, password, lang string) (
 	})
 }
 
+// NewNoLogin creates a new instance of OGame wrapper, does not auto-login.
+func NewNoLogin(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return NewWithParams(Params{
+		Universe: universe,
+		Username: username,
+		Password: password,
+		Lang:     lang,
+		Device:   deviceInst,
+	})
+}
+
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
 	if params.Device == nil {
 		return nil, errors.New("no device defined")
 	}
-	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.BearerToken, params.Universe, params.Lang, params.PlayerID, params.Device)
-	if err != nil {
-		return nil, err
-	}
+
+	b := new(OGame)
+	b.device = params.Device
+	b.loginWrapper = DefaultLoginWrapper
+	b.Enable()
+	b.quiet = false
+	b.logger = log.New(os.Stdout, "", 0)
+
+	b.universe = params.Universe
+	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
+	b.setOGameLobby(gameforge.Lobby)
+	b.language = params.Lang
+	b.playerID = params.PlayerID
+
+	ext := v12_0_0.NewExtractor()
+	ext.SetLanguage(params.Lang)
+	ext.SetLocation(time.UTC)
+	b.extractor = ext
+
+	factory := func() *Prioritize { return &Prioritize{bot: b} }
+	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
+
+	b.wsCallbacks = make(map[string]func([]byte))
+
 	b.captchaCallback = params.CaptchaCallback
 	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
@@ -250,44 +281,10 @@ func NewWithParams(params Params) (*OGame, error) {
 		}
 	}
 	if params.AutoLogin {
-		if params.BearerToken != "" {
-			if _, err := b.LoginWithBearerToken(params.BearerToken); err != nil {
-				return nil, err
-			}
-		} else {
-			if _, err := b.LoginWithExistingCookies(); err != nil {
-				return nil, err
-			}
+		if _, err := b.LoginWithExistingCookies(); err != nil {
+			return nil, err
 		}
 	}
-	return b, nil
-}
-
-// NewNoLogin does not auto login.
-func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang string, playerID int64, device *device.Device) (*OGame, error) {
-	b := new(OGame)
-	b.device = device
-	b.loginWrapper = DefaultLoginWrapper
-	b.Enable()
-	b.quiet = false
-	b.logger = log.New(os.Stdout, "", 0)
-
-	b.universe = universe
-	b.SetOGameCredentials(username, password, otpSecret, bearerToken)
-	b.setOGameLobby(gameforge.Lobby)
-	b.language = lang
-	b.playerID = playerID
-
-	ext := v12_0_0.NewExtractor()
-	ext.SetLanguage(lang)
-	ext.SetLocation(time.UTC)
-	b.extractor = ext
-
-	factory := func() *Prioritize { return &Prioritize{bot: b} }
-	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
-
-	b.wsCallbacks = make(map[string]func([]byte))
-
 	return b, nil
 }
 
