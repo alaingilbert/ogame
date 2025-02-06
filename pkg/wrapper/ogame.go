@@ -88,22 +88,22 @@ type OGame struct {
 	cache                struct {
 		serverData            ServerData
 		serverVersion         *version.Version
+		location              *time.Location
+		player                ogame.UserInfos
+		CachedPreferences     ogame.Preferences
+		researches            *ogame.Researches
+		lfBonuses             *ogame.LfBonuses
+		characterClass        ogame.CharacterClass
+		allianceClass         *ogame.AllianceClass
+		planets               []Planet
+		planetsMu             sync.RWMutex
 		ogameSession          string
 		token                 string
 		ajaxChatToken         string
-		location              *time.Location
 		serverURL             string
-		player                ogame.UserInfos
-		CachedPreferences     ogame.Preferences
-		isVacationModeEnabled bool
-		researches            *ogame.Researches
-		lfBonuses             *ogame.LfBonuses
-		planets               []Planet
-		planetsMu             sync.RWMutex
 		coloniesCount         int64
 		coloniesPossible      int64
-		characterClass        ogame.CharacterClass
-		allianceClass         *ogame.AllianceClass
+		isVacationModeEnabled bool
 		hasCommander          bool
 		hasAdmiral            bool
 		hasEngineer           bool
