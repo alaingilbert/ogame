@@ -313,7 +313,7 @@ func findAccount(universe, lang string, playerID int64, accounts []gameforge.Acc
 		}
 	}
 	if acc.ID == 0 {
-		return gameforge.Account{}, gameforge.Server{}, ogame.ErrAccountNotFound
+		return gameforge.Account{}, gameforge.Server{}, gameforge.ErrAccountNotFound
 	}
 	return acc, server, nil
 }
@@ -1267,11 +1267,11 @@ func (b *OGame) withRetry(fn func() error) error {
 		if errors.Is(err, ogame.ErrNotLogged) {
 			if _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
-				if errors.Is(loginErr, ogame.ErrAccountNotFound) ||
-					errors.Is(loginErr, ogame.ErrAccountBlocked) ||
-					errors.Is(loginErr, ogame.ErrBadCredentials) ||
-					errors.Is(loginErr, ogame.ErrOTPRequired) ||
-					errors.Is(loginErr, ogame.ErrOTPInvalid) {
+				if errors.Is(loginErr, gameforge.ErrAccountNotFound) ||
+					errors.Is(loginErr, gameforge.ErrAccountBlocked) ||
+					errors.Is(loginErr, gameforge.ErrBadCredentials) ||
+					errors.Is(loginErr, gameforge.ErrOTPRequired) ||
+					errors.Is(loginErr, gameforge.ErrOTPInvalid) {
 					return loginErr
 				}
 			}

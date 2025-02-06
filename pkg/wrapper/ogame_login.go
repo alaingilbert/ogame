@@ -59,7 +59,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	b.bearerToken = token
 	server, userAccount, err := b.loginPart1(token)
 	if errors.Is(err, context.Canceled) ||
-		errors.Is(err, ogame.ErrAccountBlocked) {
+		errors.Is(err, gameforge.ErrAccountBlocked) {
 		return false, err
 	} else if err != nil {
 		err := botLoginFn()
@@ -194,7 +194,7 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 		return
 	}
 	if userAccount.Blocked {
-		return server, userAccount, ogame.ErrAccountBlocked
+		return server, userAccount, gameforge.ErrAccountBlocked
 	}
 	b.debug("Players online: " + utils.FI64(server.PlayersOnline) + ", Players: " + utils.FI64(server.PlayerCount))
 	return
@@ -277,7 +277,7 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	b.debug("extract information from html")
 	b.ogameSession = page.ExtractOGameSession()
 	if b.ogameSession == "" {
-		return ogame.ErrBadCredentials
+		return gameforge.ErrBadCredentials
 	}
 
 	serverTime, err := page.ExtractServerTime()

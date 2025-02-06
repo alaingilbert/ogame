@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -19,7 +18,7 @@ import (
 	"time"
 )
 
-// TokenCookieName ogame cookie name for token id
+// TokenCookieName gameforge cookie name for token id
 const (
 	TokenCookieName         = "gf-token-production"
 	ChallengeIDCookieName   = "gf-challenge-id"
@@ -56,6 +55,24 @@ var (
 	ErrEmailUsed       = &RegisterError{"Failed to create new lobby, email already used."}
 	ErrPasswordInvalid = &RegisterError{"Must contain at least 10 characters including at least one upper and lowercase letter and a number."}
 )
+
+// ErrBadCredentials returned when the provided credentials are invalid
+var ErrBadCredentials = errors.New("bad credentials")
+
+// ErrOTPRequired returned when the otp is required
+var ErrOTPRequired = errors.New("otp required")
+
+// ErrOTPInvalid returned when the otp is invalid
+var ErrOTPInvalid = errors.New("otp invalid")
+
+// ErrLoginLink returned when account is somewhat banned, cannot login for no apparent reason
+var ErrLoginLink = errors.New("failed to get login link")
+
+// ErrAccountNotFound returned when the account is not found
+var ErrAccountNotFound = errors.New("account not found")
+
+// ErrAccountBlocked returned when account is banned
+var ErrAccountBlocked = errors.New("account is blocked")
 
 type GfLoginParams struct {
 	Username    string
@@ -525,15 +542,15 @@ func gFLogin(params *gfLoginParams) (out *GFLoginRes, err error) {
 	if resp.StatusCode == http.StatusForbidden {
 		return out, errors.New(resp.Status + " : " + string(by))
 	} else if resp.StatusCode >= http.StatusInternalServerError {
-		return out, errors.New("OGame server error code : " + resp.Status)
+		return out, errors.New("gameforge server error code : " + resp.Status)
 	} else if resp.StatusCode != http.StatusCreated {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
-			return out, ogame.ErrOTPRequired
+			return out, ErrOTPRequired
 		}
 		if string(by) == `{"reason":"OTP_INVALID"}` {
-			return out, ogame.ErrOTPInvalid
+			return out, ErrOTPInvalid
 		}
-		return out, ogame.ErrBadCredentials
+		return out, ErrBadCredentials
 	}
 
 	if err := json.Unmarshal(by, &out); err != nil {
@@ -697,7 +714,7 @@ func SolveChallenge(ctx context.Context, client httpclient.IHttpClient, challeng
 	return nil
 }
 
-// Server ogame information for their servers
+// Server gameforge information for their servers
 type Server struct {
 	Language      string
 	Number        int64
@@ -904,7 +921,7 @@ func GetLoginLink(ctx context.Context, device *device.Device, platform Platform,
 	}
 
 	if resp.StatusCode == http.StatusBadRequest && string(by2) == `[]` {
-		return "", ogame.ErrLoginLink
+		return "", ErrLoginLink
 	}
 
 	var loginLink struct{ URL string }
