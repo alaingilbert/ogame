@@ -104,10 +104,8 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 
 // Return either or not the bot logged in using the existing cookies.
 func (b *OGame) loginWithExistingCookies() (bool, error) {
-	var token string
-	if b.bearerToken != "" {
-		token = b.bearerToken
-	} else {
+	token := b.bearerToken
+	if token == "" {
 		token = b.getBearerTokenFromCookie()
 	}
 	return b.loginWithBearerToken(token)
