@@ -21,14 +21,12 @@ func New(ctx context.Context, max int) *ExponentialBackoff {
 }
 
 // NewWithClock ...
-func NewWithClock(ctx context.Context, clock clockwork.Clock, max int) *ExponentialBackoff {
-	if max < 0 {
-		max = 0
-	}
+func NewWithClock(ctx context.Context, clock clockwork.Clock, maxSleep int) *ExponentialBackoff {
+	maxSleep = max(maxSleep, 0)
 	e := new(ExponentialBackoff)
 	e.ctx = ctx
 	e.clock = clock
-	e.max = max
+	e.max = maxSleep
 	return e
 }
 
