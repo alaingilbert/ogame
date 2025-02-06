@@ -400,15 +400,6 @@ func RedeemCode(ctx context.Context, client httpclient.IHttpClient, platform Pla
 	return nil
 }
 
-func FindServer(serverName, lang string, servers []Server) (out Server, found bool) {
-	for _, s := range servers {
-		if s.Name == serverName && s.Language == lang {
-			return s, true
-		}
-	}
-	return
-}
-
 func AddAccountByServerNameLang(ctx context.Context, device *device.Device, platform Platform, lobby, bearerToken, serverName, lang string) (*AddAccountRes, error) {
 	servers, err := GetServers(ctx, device.GetClient(), platform, lobby)
 	if err != nil {
@@ -945,6 +936,16 @@ func ExecLoginLink(ctx context.Context, client httpclient.IHttpClient, loginLink
 	}
 	defer resp.Body.Close()
 	return utils.ReadBody(resp)
+}
+
+// FindServer ...
+func FindServer(serverName, lang string, servers []Server) (out Server, found bool) {
+	for _, s := range servers {
+		if s.Name == serverName && s.Language == lang {
+			return s, true
+		}
+	}
+	return
 }
 
 // FindAccount ...
