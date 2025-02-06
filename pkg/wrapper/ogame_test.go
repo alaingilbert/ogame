@@ -290,3 +290,8 @@ func TestOGame_GetCachedCelestials(t *testing.T) {
 	_, ok := celestials[1].(Moon)
 	assert.True(t, ok)
 }
+
+func TestSanitizeServerVersion(t *testing.T) {
+	assert.Equal(t, "8.7.4", sanitizeServerVersion("8.7.4-pl3"))
+	assert.Equal(t, "8.7.5", sanitizeServerVersion("8.7.5"))
+}

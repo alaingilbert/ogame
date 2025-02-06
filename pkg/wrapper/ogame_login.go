@@ -256,20 +256,16 @@ func getExtractorFor(ogVersion *version.Version) (ext extractor.Extractor) {
 }
 
 func sanitizeServerVersion(serverVersion string) string {
-	r := regexp.MustCompile(`(\d+\.\d+\.\d+)`)
-	versionMatches := r.FindStringSubmatch(serverVersion)
-	versionMatch := serverVersion
-	if len(versionMatches) == 2 {
-		versionMatch = versionMatches[1]
+	if match := regexp.MustCompile(`\d+\.\d+\.\d+`).FindString(serverVersion); match != "" {
+		return match
 	}
-	return versionMatch
+	return serverVersion
 }
 
 func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
 	var ext extractor.Extractor = v12_0_0.NewExtractor()
 
-	versionMatch := sanitizeServerVersion(b.cache.serverData.Version)
-	if ogVersion, err := version.NewVersion(versionMatch); err == nil {
+	if ogVersion, err := version.NewVersion(sanitizeServerVersion(b.cache.serverData.Version)); err == nil {
 		ext = getExtractorFor(ogVersion)
 		ext.SetLanguage(b.language)
 		ext.SetLifeformEnabled(page.ExtractLifeformEnabled())
