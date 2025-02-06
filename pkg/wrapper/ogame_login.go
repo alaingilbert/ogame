@@ -226,40 +226,46 @@ func (b *OGame) loginPart2(server gameforge.Server) error {
 	return nil
 }
 
+func getExtractorFor(ogVersion *version.Version) (ext extractor.Extractor) {
+	if isVGreaterThanOrEqual(ogVersion, "12.0.0") {
+		ext = v12_0_0.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "11.15.0") {
+		ext = v11_15_0.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "11.13.0") {
+		ext = v11_13_0.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "11.9.0") {
+		ext = v11_9_0.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "11.0.0-beta25") {
+		ext = v11.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "10.4.0-beta2") {
+		ext = v104.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "10.0.0") {
+		ext = v10.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "9.0.0") {
+		ext = v9.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "8.7.4-pl3") {
+		ext = v874.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "8.0.0") {
+		ext = v8.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "7.1.0-rc0") {
+		ext = v71.NewExtractor()
+	} else if isVGreaterThanOrEqual(ogVersion, "7.0.0") {
+		ext = v7.NewExtractor()
+	}
+	return
+}
+
 func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewPage) error {
 	var ext extractor.Extractor = v12_0_0.NewExtractor()
 	r := regexp.MustCompile(`(\d+\.\d+\.\d+)`)
-	versionMatches := r.FindStringSubmatch(b.cache.serverData.Version)
-	versionMatch := b.cache.serverData.Version
+	serverVersion := b.cache.serverData.Version
+	versionMatches := r.FindStringSubmatch(serverVersion)
+	versionMatch := serverVersion
 	if len(versionMatches) == 2 {
 		versionMatch = versionMatches[1]
 	}
 	if ogVersion, err := version.NewVersion(versionMatch); err == nil {
-		if isVGreaterThanOrEqual(ogVersion, "12.0.0") {
-			ext = v12_0_0.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "11.15.0") {
-			ext = v11_15_0.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "11.13.0") {
-			ext = v11_13_0.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "11.9.0") {
-			ext = v11_9_0.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "11.0.0-beta25") {
-			ext = v11.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "10.4.0-beta2") {
-			ext = v104.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "10.0.0") {
-			ext = v10.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "9.0.0") {
-			ext = v9.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "8.7.4-pl3") {
-			ext = v874.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "8.0.0") {
-			ext = v8.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "7.1.0-rc0") {
-			ext = v71.NewExtractor()
-		} else if isVGreaterThanOrEqual(ogVersion, "7.0.0") {
-			ext = v7.NewExtractor()
-		}
+		ext = getExtractorFor(ogVersion)
 		ext.SetLanguage(b.language)
 		ext.SetLifeformEnabled(page.ExtractLifeformEnabled())
 	} else {
