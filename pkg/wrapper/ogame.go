@@ -1652,25 +1652,20 @@ func (b *OGame) getSlots() (out ogame.Slots, err error) {
 }
 
 // Returns the distance between two galaxy
-func galaxyDistance(galaxy1, galaxy2, universeSize int64, donutGalaxy bool) (distance int64) {
-	if !donutGalaxy {
-		return int64(20_000 * math.Abs(float64(galaxy2-galaxy1)))
+func galaxyDistance(galaxy1, galaxy2, universeSize int64, donutGalaxy bool) int64 {
+	distance := math.Abs(float64(galaxy2 - galaxy1))
+	if donutGalaxy {
+		distance = min(distance, float64(universeSize)-distance)
 	}
-	if galaxy1 > galaxy2 {
-		galaxy1, galaxy2 = galaxy2, galaxy1
-	}
-	val := math.Min(float64(galaxy2-galaxy1), float64((galaxy1+universeSize)-galaxy2))
-	return int64(20_000 * val)
+	return int64(20_000 * distance)
 }
 
-func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) (distance int64) {
-	if !donutSystem {
-		return int64(math.Abs(float64(system2 - system1)))
+func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) int64 {
+	distance := math.Abs(float64(system2 - system1))
+	if donutSystem {
+		distance = min(distance, float64(nbSystems)-distance)
 	}
-	if system1 > system2 {
-		system1, system2 = system2, system1
-	}
-	return utils.MinInt(system2-system1, (system1+nbSystems)-system2)
+	return int64(distance)
 }
 
 // Returns the distance between two systems
