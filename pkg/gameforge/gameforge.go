@@ -269,7 +269,7 @@ func Register(device *device.Device, ctx context.Context, platform Platform, lob
 			return NewCaptchaRequiredError(newChallengeID)
 		}
 	}
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -381,7 +381,7 @@ func RedeemCode(ctx context.Context, client httpclient.IHttpClient, platform Pla
 	}
 	defer resp.Body.Close()
 	// {"tokenType":"accountTrading"}
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -457,7 +457,7 @@ func AddAccount(ctx context.Context, device *device.Device, platform Platform, l
 		return nil, err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -519,7 +519,7 @@ func gFLogin(params *gfLoginParams) (out *GFLoginRes, err error) {
 	}
 	defer resp.Body.Close()
 
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return out, err
 	}
@@ -563,7 +563,7 @@ func getConfiguration(ctx context.Context, client httpclient.IHttpClient, platfo
 		return "", "", err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", "", err
 	}
@@ -808,7 +808,7 @@ func GetServers(ctx context.Context, client httpclient.IHttpClient, platform Pla
 		return servers, err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return servers, err
 	}
@@ -869,7 +869,7 @@ func GetUserAccounts(ctx context.Context, client httpclient.IHttpClient, platfor
 		return userAccounts, err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return userAccounts, err
 	}
@@ -922,7 +922,7 @@ func GetLoginLink(ctx context.Context, device *device.Device, platform Platform,
 	}
 	defer resp.Body.Close()
 
-	by2, err := utils.ReadBody(resp)
+	by2, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -951,7 +951,7 @@ func ExecLoginLink(ctx context.Context, client httpclient.IHttpClient, loginLink
 		return nil, err
 	}
 	defer resp.Body.Close()
-	return utils.ReadBody(resp)
+	return io.ReadAll(resp.Body)
 }
 
 // FindServer ...

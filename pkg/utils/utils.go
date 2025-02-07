@@ -1,12 +1,9 @@
 package utils
 
 import (
-	"compress/gzip"
 	"github.com/PuerkitoBio/goquery"
-	"io"
 	"math"
 	"math/rand"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -115,21 +112,6 @@ func GetNbrShips(doc *goquery.Document, name string) int64 {
 		return 0
 	}
 	return ParseInt(m[1])
-}
-
-func ReadBody(resp *http.Response) (respContent []byte, err error) {
-	var reader io.ReadCloser
-	switch resp.Header.Get("Content-Encoding") {
-	case "gzip":
-		reader, err = gzip.NewReader(resp.Body)
-		if err != nil {
-			return
-		}
-		defer reader.Close()
-	default:
-		reader = resp.Body
-	}
-	return io.ReadAll(reader)
 }
 
 type Equalable[T any] interface {

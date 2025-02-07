@@ -2,6 +2,7 @@ package httpclient
 
 import (
 	"bytes"
+	"compress/gzip"
 	"fmt"
 	"io"
 	"net/http"
@@ -117,13 +118,29 @@ func (c *Client) do(req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		resp.Body.Close()
 		return nil, err
 	}
+	resp.Body.Close()
+
 	atomic.AddInt64(&c.bytesDownloaded, int64(len(body)))
 	atomic.AddInt64(&c.bytesUploaded, req.ContentLength)
+
+	if resp.Header.Get("Content-Encoding") == "gzip" {
+		reader, err := gzip.NewReader(bytes.NewReader(body))
+		if err != nil {
+			return nil, err
+		}
+		defer reader.Close()
+		body, err = io.ReadAll(reader)
+		if err != nil {
+			return nil, err
+		}
+		resp.Header.Del("Content-Encoding")
+	}
+
 	// Reset resp.Body so it can be use again
 	resp.Body = io.NopCloser(bytes.NewBuffer(body))
 	return resp, err
