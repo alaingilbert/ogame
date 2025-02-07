@@ -55,6 +55,9 @@ func MaxInt(vals ...int64) int64 {
 	return maxV
 }
 
+// Noop ...
+func Noop(_ ...any) {}
+
 // Clamp ensure the value is within a range
 func Clamp(val, min, max int64) int64 {
 	val = MinInt(val, max)
