@@ -31,13 +31,13 @@ const (
 	endpointLoc             = "en-GB"
 )
 
-type IHttpClient interface {
+type HttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
 // Device is anything that can make http requests and solve the gameforge blackbox
 type Device interface {
-	IHttpClient
+	HttpClient
 	GetBlackbox() (string, error)
 }
 
@@ -173,7 +173,7 @@ func NewGameforge(config *Config) (*Gameforge, error) {
 	}, nil
 }
 
-func solveCaptcha(ctx context.Context, client IHttpClient, challengeID string, captchaCallback CaptchaCallback) error {
+func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaCallback) error {
 	questionRaw, iconsRaw, err := StartCaptchaChallenge(ctx, client, challengeID)
 	if err != nil {
 		return errors.New("failed to start captcha challenge: " + err.Error())
@@ -312,7 +312,7 @@ func Register(device Device, ctx context.Context, platform Platform, lobby, emai
 }
 
 // ValidateAccount validate a gameforge account
-func ValidateAccount(ctx context.Context, client IHttpClient, platform Platform, lobby, code string) error {
+func ValidateAccount(ctx context.Context, client HttpClient, platform Platform, lobby, code string) error {
 	if len(code) != 36 {
 		return errors.New("invalid validation code")
 	}
@@ -377,7 +377,7 @@ func (g *Gameforge) LoginAndAddAccount(params *GfLoginParams, serverName, lang s
 }
 
 // RedeemCode ...
-func RedeemCode(ctx context.Context, client IHttpClient, platform Platform, lobby, bearerToken, code string) error {
+func RedeemCode(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken, code string) error {
 	var payload struct {
 		Token string `json:"token"`
 	}
@@ -569,7 +569,7 @@ func gFLogin(params *gfLoginParams) (out *GFLoginRes, err error) {
 	return out, nil
 }
 
-func getConfiguration(ctx context.Context, client IHttpClient, platform Platform, lobby string) (string, string, error) {
+func getConfiguration(ctx context.Context, client HttpClient, platform Platform, lobby string) (string, string, error) {
 	ogURL := getGameforgeLobbyBaseURL(lobby, platform) + "/config/configuration.js"
 	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
 	if err != nil {
@@ -669,7 +669,7 @@ func postSessionsReq(params *gfLoginParams, gameEnvironmentID, platformGameID st
 	return req, nil
 }
 
-func StartCaptchaChallenge(ctx context.Context, client IHttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
+func StartCaptchaChallenge(ctx context.Context, client HttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
 	doReq := func(u string) ([]byte, error) {
 		req, err := http.NewRequest(http.MethodGet, u, nil)
 		if err != nil {
@@ -705,7 +705,7 @@ func StartCaptchaChallenge(ctx context.Context, client IHttpClient, challengeID 
 	return
 }
 
-func SolveChallenge(ctx context.Context, client IHttpClient, challengeID string, answer int64) error {
+func SolveChallenge(ctx context.Context, client HttpClient, challengeID string, answer int64) error {
 	challengeURL := getChallengeURL(imgDropChallengeBaseURL, challengeID) + "/" + endpointLoc
 	body := strings.NewReader(fmt.Sprintf(`{"answer":%d}`, answer))
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
@@ -814,7 +814,7 @@ func (s OGameServerSettings) ProbeRaidsEnabled() bool {
 	return s.EspionageProbeRaids == 1
 }
 
-func GetServers(ctx context.Context, client IHttpClient, platform Platform, lobby string) ([]Server, error) {
+func GetServers(ctx context.Context, client HttpClient, platform Platform, lobby string) ([]Server, error) {
 	var servers []Server
 	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby, platform)+"/api/servers", nil)
 	if err != nil {
@@ -858,7 +858,7 @@ type Account struct {
 	}
 }
 
-func GetServerAccount(ctx context.Context, client IHttpClient, platform Platform, lobby, bearerToken, serverName, lang string, playerID int64) (account Account, server Server, err error) {
+func GetServerAccount(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken, serverName, lang string, playerID int64) (account Account, server Server, err error) {
 	accounts, err := GetUserAccounts(ctx, client, platform, lobby, bearerToken)
 	if err != nil {
 		return
@@ -874,7 +874,7 @@ func GetServerAccount(ctx context.Context, client IHttpClient, platform Platform
 	return
 }
 
-func GetUserAccounts(ctx context.Context, client IHttpClient, platform Platform, lobby, bearerToken string) ([]Account, error) {
+func GetUserAccounts(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string) ([]Account, error) {
 	var userAccounts []Account
 	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/accounts", nil)
 	if err != nil {
@@ -958,7 +958,7 @@ func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby s
 }
 
 // ExecLoginLink ...
-func ExecLoginLink(ctx context.Context, client IHttpClient, loginLink string) ([]byte, error) {
+func ExecLoginLink(ctx context.Context, client HttpClient, loginLink string) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, loginLink, nil)
 	if err != nil {
 		return nil, err
