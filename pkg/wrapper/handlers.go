@@ -1469,7 +1469,7 @@ func GetCaptchaHandler(c echo.Context) error {
 	})
 	var captchaErr *gameforge.CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
-		questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(bot.ctx, bot.GetClient(), captchaErr.ChallengeID)
+		questionRaw, iconsRaw, err := gameforge.StartChallenge(bot.ctx, bot.GetClient(), captchaErr.ChallengeID)
 		if err != nil {
 			return c.HTML(http.StatusOK, err.Error())
 		}
@@ -1527,7 +1527,7 @@ func GetCaptchaChallengeHandler(c echo.Context) error {
 	})
 	var captchaErr *gameforge.CaptchaRequiredError
 	if errors.As(err, &captchaErr) {
-		questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(bot.ctx, bot.GetClient(), captchaErr.ChallengeID)
+		questionRaw, iconsRaw, err := gameforge.StartChallenge(bot.ctx, bot.GetClient(), captchaErr.ChallengeID)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 		}
