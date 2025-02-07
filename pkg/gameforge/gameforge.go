@@ -199,8 +199,10 @@ func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, ca
 func (g *Gameforge) Login(params *GfLoginParams) (out *LoginResponse, err error) {
 	solver := g.solver
 	maxTry := g.maxCaptchaRetries
+	ctx := g.ctx
+	device := g.device
 LOGIN:
-	out, err = login(&gfLoginParams{GfLoginParams: params, Device: g.device, Ctx: g.ctx, platform: g.platform, lobby: g.lobby})
+	out, err = login(&gfLoginParams{GfLoginParams: params, Device: device, Ctx: ctx, platform: g.platform, lobby: g.lobby})
 	if err != nil {
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
@@ -208,7 +210,7 @@ LOGIN:
 				return nil, err
 			}
 			maxTry--
-			if err := solveCaptcha(g.ctx, g.device, captchaErr.ChallengeID, solver); err != nil {
+			if err := solveCaptcha(ctx, device, captchaErr.ChallengeID, solver); err != nil {
 				return nil, err
 			}
 			goto LOGIN
