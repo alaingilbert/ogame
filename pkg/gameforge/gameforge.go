@@ -37,7 +37,7 @@ type GameforgeClient interface {
 	Logout() error
 	GetUserAccounts() ([]Account, error)
 	GetServers() ([]Server, error)
-	StartChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error)
+	StartChallenge(challengeID string) (question, icons []byte, err error)
 	SolveChallenge(challengeID string, answer int64) error
 	Register(email, password, lang string) error
 	RedeemCode(code string) error
