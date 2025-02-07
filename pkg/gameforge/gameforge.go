@@ -36,7 +36,7 @@ type GameforgeClient interface {
 	Login(params *LoginParams) (out *LoginResponse, err error)
 	GetUserAccounts() ([]Account, error)
 	GetServers() ([]Server, error)
-	StartCaptchaChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error)
+	StartChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error)
 	SolveChallenge(challengeID string, answer int64) error
 	Register(email, password, lang string) error
 	RedeemCode(code string) error
@@ -241,9 +241,9 @@ func (g *Gameforge) GetServers() ([]Server, error) {
 	return GetServers(g.ctx, g.device, g.platform, g.lobby)
 }
 
-// StartCaptchaChallenge ...
-func (g *Gameforge) StartCaptchaChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error) {
-	return StartCaptchaChallenge(g.ctx, g.device, challengeID)
+// StartChallenge ...
+func (g *Gameforge) StartChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error) {
+	return StartChallenge(g.ctx, g.device, challengeID)
 }
 
 // SolveChallenge ...
@@ -310,7 +310,7 @@ RETRY:
 }
 
 func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaSolver) error {
-	questionRaw, iconsRaw, err := StartCaptchaChallenge(ctx, client, challengeID)
+	questionRaw, iconsRaw, err := StartChallenge(ctx, client, challengeID)
 	if err != nil {
 		return errors.New("failed to start captcha challenge: " + err.Error())
 	}
@@ -719,7 +719,7 @@ func postSessionsReq(params *loginParams, gameEnvironmentID, platformGameID stri
 	return req, nil
 }
 
-func StartCaptchaChallenge(ctx context.Context, client HttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
+func StartChallenge(ctx context.Context, client HttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
 	doReq := func(u string) ([]byte, error) {
 		req, err := http.NewRequest(http.MethodGet, u, nil)
 		if err != nil {
