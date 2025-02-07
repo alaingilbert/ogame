@@ -19,7 +19,7 @@ import (
 )
 
 // TelegramSolver ...
-func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaCallback {
+func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaSolver {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		tgBot, _ := tgbotapi.NewBotAPI(tgBotToken)
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
@@ -77,7 +77,7 @@ func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaCallback
 }
 
 // NinjaSolver direct integration of ogame.ninja captcha auto solver service
-func NinjaSolver(apiKey string) gameforge.CaptchaCallback {
+func NinjaSolver(apiKey string) gameforge.CaptchaSolver {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
@@ -115,7 +115,7 @@ func NinjaSolver(apiKey string) gameforge.CaptchaCallback {
 }
 
 // ManualSolver manually solve the captcha
-func ManualSolver() gameforge.CaptchaCallback {
+func ManualSolver() gameforge.CaptchaSolver {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		saveImg := func(imgBytes []byte, fileName string) error {
 			img, err := png.Decode(bytes.NewReader(imgBytes))

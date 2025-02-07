@@ -108,8 +108,8 @@ type gfLoginParams struct {
 	lobby    string
 }
 
-// CaptchaCallback the returned answer should be one of "0" "1" "2" "3"
-type CaptchaCallback func(ctx context.Context, question, icons []byte) (int64, error)
+// CaptchaSolver the returned answer should be one of "0" "1" "2" "3"
+type CaptchaSolver func(ctx context.Context, question, icons []byte) (int64, error)
 
 func getChallengeURL(base, challengeID string) string {
 	return fmt.Sprintf("%s/challenge/%s", base, challengeID)
@@ -134,7 +134,7 @@ type Gameforge struct {
 	lobby             string
 	platform          Platform
 	device            Device
-	solver            CaptchaCallback
+	solver            CaptchaSolver
 	maxCaptchaRetries int
 	bearerToken       string
 }
@@ -142,7 +142,7 @@ type Gameforge struct {
 type Config struct {
 	Ctx               context.Context
 	Device            Device
-	Solver            CaptchaCallback
+	Solver            CaptchaSolver
 	MaxCaptchaRetries *int // default to 3
 	Platform          Platform
 	Lobby             string
@@ -173,12 +173,12 @@ func New(config *Config) (*Gameforge, error) {
 	}, nil
 }
 
-func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaCallback) error {
+func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaSolver) error {
 	questionRaw, iconsRaw, err := StartCaptchaChallenge(ctx, client, challengeID)
 	if err != nil {
 		return errors.New("failed to start captcha challenge: " + err.Error())
 	}
-	answer, err := captchaCallback(questionRaw, iconsRaw)
+	answer, err := captchaCallback(ctx, questionRaw, iconsRaw)
 	if err != nil {
 		return errors.New("failed to get answer for captcha challenge: " + err.Error())
 	}

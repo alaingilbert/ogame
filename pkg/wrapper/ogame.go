@@ -81,7 +81,7 @@ type OGame struct {
 	loginProxyTransport  http.RoundTripper
 	extractor            extractor.Extractor
 	apiNewHostname       string
-	captchaCallback      gameforge.CaptchaCallback
+	captchaCallback      gameforge.CaptchaSolver
 	device               *device.Device
 	cache                struct {
 		serverData            ServerData
@@ -129,7 +129,7 @@ type Params struct {
 	Lobby           string
 	APINewHostname  string
 	Device          *device.Device
-	CaptchaCallback gameforge.CaptchaCallback
+	CaptchaCallback gameforge.CaptchaSolver
 }
 
 const PLATFORM = gameforge.OGAME
