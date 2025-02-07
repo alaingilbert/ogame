@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"io"
@@ -38,6 +37,12 @@ type IHttpClient interface {
 	Get(url string) (*http.Response, error)
 	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
 	PostForm(url string, data url.Values) (resp *http.Response, err error)
+}
+
+// Device is anything that can make http requests and solve the gameforge blackbox
+type Device interface {
+	IHttpClient
+	GetBlackbox() (string, error)
 }
 
 func Ternary[T any](predicate bool, a, b T) T {
@@ -102,7 +107,7 @@ type GfLoginParams struct {
 type gfLoginParams struct {
 	*GfLoginParams
 	Ctx      context.Context
-	Device   *device.Device
+	Device   Device
 	platform Platform
 	lobby    string
 }
@@ -132,7 +137,7 @@ type Gameforge struct {
 	ctx               context.Context
 	lobby             string
 	platform          Platform
-	device            *device.Device
+	device            Device
 	solver            CaptchaCallback
 	maxCaptchaRetries int
 	bearerToken       string
@@ -140,7 +145,7 @@ type Gameforge struct {
 
 type Config struct {
 	Ctx               context.Context
-	Device            *device.Device
+	Device            Device
 	Solver            CaptchaCallback
 	MaxCaptchaRetries *int // default to 3
 	Platform          Platform
@@ -201,7 +206,7 @@ LOGIN:
 				return nil, err
 			}
 			maxTry--
-			if err := solveCaptcha(g.ctx, g.device.GetClient(), captchaErr.ChallengeID, solver); err != nil {
+			if err := solveCaptcha(g.ctx, g.device, captchaErr.ChallengeID, solver); err != nil {
 				return nil, err
 			}
 			goto LOGIN
@@ -214,22 +219,22 @@ LOGIN:
 
 // GetUserAccounts ...
 func (g *Gameforge) GetUserAccounts() ([]Account, error) {
-	return GetUserAccounts(g.ctx, g.device.GetClient(), g.platform, g.lobby, g.bearerToken)
+	return GetUserAccounts(g.ctx, g.device, g.platform, g.lobby, g.bearerToken)
 }
 
 // GetServers ...
 func (g *Gameforge) GetServers() ([]Server, error) {
-	return GetServers(g.ctx, g.device.GetClient(), g.platform, g.lobby)
+	return GetServers(g.ctx, g.device, g.platform, g.lobby)
 }
 
 // StartCaptchaChallenge ...
 func (g *Gameforge) StartCaptchaChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error) {
-	return StartCaptchaChallenge(g.ctx, g.device.GetClient(), challengeID)
+	return StartCaptchaChallenge(g.ctx, g.device, challengeID)
 }
 
 // SolveChallenge ...
 func (g *Gameforge) SolveChallenge(challengeID string, answer int64) error {
-	return SolveChallenge(g.ctx, g.device.GetClient(), challengeID, answer)
+	return SolveChallenge(g.ctx, g.device, challengeID, answer)
 }
 
 // Register ...
@@ -242,7 +247,7 @@ func getGameforgeLobbyBaseURL(lobby string, platform Platform) string {
 }
 
 // Register a new gameforge lobby account
-func Register(device *device.Device, ctx context.Context, platform Platform, lobby, email, password, challengeID, lang string) error {
+func Register(device Device, ctx context.Context, platform Platform, lobby, email, password, challengeID, lang string) error {
 	blackbox, err := device.GetBlackbox()
 	if err != nil {
 		return err
@@ -274,7 +279,7 @@ func Register(device *device.Device, ctx context.Context, platform Platform, lob
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
-	resp, err := device.GetClient().Do(req)
+	resp, err := device.Do(req)
 	if err != nil {
 		return err
 	}
@@ -357,7 +362,7 @@ func (g *Gameforge) LoginAndRedeemCode(params *GfLoginParams, code string) error
 	if err != nil {
 		return err
 	}
-	return RedeemCode(g.ctx, g.device.GetClient(), g.platform, g.lobby, postSessionsRes.Token, code)
+	return RedeemCode(g.ctx, g.device, g.platform, g.lobby, postSessionsRes.Token, code)
 }
 
 // LoginAndAddAccount adds an account to a gameforge lobby
@@ -418,8 +423,8 @@ func RedeemCode(ctx context.Context, client IHttpClient, platform Platform, lobb
 	return nil
 }
 
-func AddAccountByServerNameLang(ctx context.Context, device *device.Device, platform Platform, lobby, bearerToken, serverName, lang string) (*AddAccountRes, error) {
-	servers, err := GetServers(ctx, device.GetClient(), platform, lobby)
+func AddAccountByServerNameLang(ctx context.Context, device Device, platform Platform, lobby, bearerToken, serverName, lang string) (*AddAccountRes, error) {
+	servers, err := GetServers(ctx, device, platform, lobby)
 	if err != nil {
 		return nil, err
 	}
@@ -444,7 +449,7 @@ type AddAccountRes struct {
 
 func (r AddAccountRes) GetBearerToken() string { return r.BearerToken }
 
-func AddAccount(ctx context.Context, device *device.Device, platform Platform, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
+func AddAccount(ctx context.Context, device Device, platform Platform, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
 	blackbox, err := device.GetBlackbox()
 	if err != nil {
 		return nil, err
@@ -470,7 +475,7 @@ func AddAccount(ctx context.Context, device *device.Device, platform Platform, l
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
-	resp, err := device.GetClient().Do(req)
+	resp, err := device.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -519,7 +524,7 @@ func gFLogin(params *gfLoginParams) (out *GFLoginRes, err error) {
 	if params.Device == nil {
 		return out, errors.New("device is nil")
 	}
-	client := params.Device.GetClient()
+	client := params.Device
 	ctx := params.Ctx
 	gameEnvironmentID, platformGameID, err := getConfiguration(ctx, client, params.platform, params.lobby)
 	if err != nil {
@@ -897,7 +902,7 @@ func GetUserAccounts(ctx context.Context, client IHttpClient, platform Platform,
 	return userAccounts, nil
 }
 
-func GetLoginLink(ctx context.Context, device *device.Device, platform Platform, lobby string, userAccount Account, bearerToken string) (string, error) {
+func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby string, userAccount Account, bearerToken string) (string, error) {
 	ogURL := getGameforgeLobbyBaseURL(lobby, platform) + "/api/users/me/loginLink"
 
 	blackbox, err := device.GetBlackbox()
@@ -934,7 +939,7 @@ func GetLoginLink(ctx context.Context, device *device.Device, platform Platform,
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
 	req.WithContext(ctx)
-	resp, err := device.GetClient().Do(req)
+	resp, err := device.Do(req)
 	if err != nil {
 		return "", err
 	}
