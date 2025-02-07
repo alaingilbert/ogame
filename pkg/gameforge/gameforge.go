@@ -259,6 +259,11 @@ func (g *Gameforge) ValidateAccount(code string) error {
 	return ValidateAccount(g.ctx, g.device, g.platform, g.lobby, code)
 }
 
+// GetServerAccount ...
+func (g *Gameforge) GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error) {
+	return GetServerAccount(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, serverName, lang, playerID)
+}
+
 func getGameforgeLobbyBaseURL(lobby string, platform Platform) string {
 	return fmt.Sprintf("https://%s.%s.gameforge.com", Or(lobby, Lobby), platform)
 }
