@@ -224,7 +224,8 @@ func (g *Gameforge) Login(params *LoginParams) (out *LoginResponse, err error) {
 	return out, err
 }
 
-// Register ...
+// Register a new gameforge account. Handle the captcha if needed.
+// If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
 func (g *Gameforge) Register(email, password, lang string) error {
 	return g.handleCaptcha(func(challengeID string) error {
 		return Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
