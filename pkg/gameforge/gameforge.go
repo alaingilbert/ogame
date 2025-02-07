@@ -124,6 +124,12 @@ const (
 	IKARIAM Platform = "ikariam"
 )
 
+// Lobby constants
+const (
+	Lobby         = "lobby"
+	LobbyPioneers = "lobby-pioneers"
+)
+
 func (p Platform) isValid() bool {
 	return p == OGAME || p == IKARIAM
 }
@@ -238,6 +244,21 @@ func (g *Gameforge) Register(email, password, challengeID, lang string) error {
 	return Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
 }
 
+// RedeemCode ...
+func (g *Gameforge) RedeemCode(code string) error {
+	return RedeemCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, code)
+}
+
+// AddAccount adds an account to a gameforge lobby
+func (g *Gameforge) AddAccount(serverName, lang string) (*AddAccountRes, error) {
+	return AddAccountByServerNameLang(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, serverName, lang)
+}
+
+// ValidateAccount ...
+func (g *Gameforge) ValidateAccount(code string) error {
+	return ValidateAccount(g.ctx, g.device, g.platform, g.lobby, code)
+}
+
 func getGameforgeLobbyBaseURL(lobby string, platform Platform) string {
 	return fmt.Sprintf("https://%s.%s.gameforge.com", Or(lobby, Lobby), platform)
 }
@@ -311,7 +332,7 @@ func Register(device Device, ctx context.Context, platform Platform, lobby, emai
 	return nil
 }
 
-// ValidateAccount validate a gameforge account
+// ValidateAccount validate a gameforge account eg: ________-____-____-____-____________
 func ValidateAccount(ctx context.Context, client HttpClient, platform Platform, lobby, code string) error {
 	if len(code) != 36 {
 		return errors.New("invalid validation code")
@@ -334,26 +355,10 @@ func ValidateAccount(ctx context.Context, client HttpClient, platform Platform, 
 
 func buildBearerHeaderValue(token string) string { return "Bearer " + token }
 
-// Lobby constants
-const (
-	Lobby         = "lobby"
-	LobbyPioneers = "lobby-pioneers"
-)
-
 func setDefaultParams(params *gfLoginParams) {
 	if params.Ctx == nil {
 		params.Ctx = context.Background()
 	}
-}
-
-// RedeemCode ...
-func (g *Gameforge) RedeemCode(code string) error {
-	return RedeemCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, code)
-}
-
-// AddAccount adds an account to a gameforge lobby
-func (g *Gameforge) AddAccount(serverName, lang string) (*AddAccountRes, error) {
-	return AddAccountByServerNameLang(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, serverName, lang)
 }
 
 // RedeemCode ...
