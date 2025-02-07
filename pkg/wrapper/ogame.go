@@ -191,7 +191,7 @@ func getServerData(ctx context.Context, client httpclient.IHttpClient, serverNum
 		return serverData, err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return serverData, err
 	}
@@ -876,7 +876,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	if resp.StatusCode >= http.StatusInternalServerError {
 		return []byte{}, nil
 	}
-	return utils.ReadBody(resp)
+	return io.ReadAll(resp.Body)
 }
 
 func getPageName(vals url.Values) string {
@@ -3889,7 +3889,7 @@ func (b *OGame) getPublicIP() (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}

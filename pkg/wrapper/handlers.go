@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
+	"io"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -1124,7 +1125,7 @@ func GetStaticHandler(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
 	defer resp.Body.Close()
-	body, err := utils.ReadBody(resp)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, ErrorResp(500, err.Error()))
 	}
