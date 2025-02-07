@@ -47,6 +47,7 @@ type GameforgeClient interface {
 	ExecLoginLink(loginLink string) ([]byte, error)
 	GenerateGiftingCode(userAccounts []Account) (giftingCode string, err error)
 	RevokeGiftingCode(userAccount Account) error
+	GenerateSittingCode(userAccounts []Account) (sittingCode string, err error)
 }
 
 // Compile time checks to ensure type satisfies IGameforge interface
@@ -294,6 +295,11 @@ func (g *Gameforge) GenerateGiftingCode(userAccounts []Account) (giftingCode str
 // RevokeGiftingCode ...
 func (g *Gameforge) RevokeGiftingCode(userAccount Account) error {
 	return RevokeGiftingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccount)
+}
+
+// GenerateSittingCode ...
+func (g *Gameforge) GenerateSittingCode(userAccounts []Account) (sittingCode string, err error) {
+	return GenerateGiftingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccounts)
 }
 
 func (g *Gameforge) handleCaptcha(fn func(challengeID string) error) error {
@@ -1046,9 +1052,12 @@ func GenerateGiftingCode(ctx context.Context, client HttpClient, platform Platfo
 		GameAccountId int64     `json:"gameAccountId"`
 		Server        RowServer `json:"server"`
 	}
-	var payload []Row
+	type Payload struct {
+		Accounts []Row `json:"accounts"`
+	}
+	var payload Payload
 	for _, account := range userAccounts {
-		payload = append(payload, Row{
+		payload.Accounts = append(payload.Accounts, Row{
 			GameAccountId: account.ID,
 			Server: RowServer{
 				Language: account.Server.Language,
@@ -1073,6 +1082,9 @@ func GenerateGiftingCode(ctx context.Context, client HttpClient, platform Platfo
 		return "", err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", errors.New("failed to generate gifting code: " + resp.Status)
+	}
 	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
@@ -1106,6 +1118,65 @@ func RevokeGiftingCode(ctx context.Context, client HttpClient, platform Platform
 		return errors.New("failed to revoke gift code: " + resp.Status)
 	}
 	return nil
+}
+
+// GenerateSittingCode (24h -> 86400 | 48h -> 172800)
+func GenerateSittingCode(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string, userAccounts []Account, duration int64) (string, error) {
+	type RowServer struct {
+		Language string `json:"language"`
+		Number   int64  `json:"number"`
+	}
+	type Row struct {
+		GameAccountId int64     `json:"gameAccountId"`
+		Server        RowServer `json:"server"`
+	}
+	type Payload struct {
+		Accounts []Row `json:"accounts"`
+		Duration int64 `json:"duration"`
+	}
+	var payload Payload
+	for _, account := range userAccounts {
+		payload.Accounts = append(payload.Accounts, Row{
+			GameAccountId: account.ID,
+			Server: RowServer{
+				Language: account.Server.Language,
+				Number:   account.Server.Number,
+			},
+		})
+	}
+	payload.Duration = duration
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/sitting", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", errors.New("failed to generate sitting code: " + resp.Status)
+	}
+	by, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	type GenerateSittingCodeResponse struct {
+		Token string `json:"token"`
+	}
+	var tokenResponse GenerateSittingCodeResponse
+	if err := json.Unmarshal(by, &tokenResponse); err != nil {
+		return "", errors.New(err.Error() + " : " + string(by))
+	}
+	return tokenResponse.Token, nil
 }
 
 // FindServer ...
