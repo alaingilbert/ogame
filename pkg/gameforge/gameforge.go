@@ -31,6 +31,22 @@ const (
 	endpointLoc             = "en-GB"
 )
 
+type GameforgeClient interface {
+	Login(params *GfLoginParams) (out *LoginResponse, err error)
+	GetUserAccounts() ([]Account, error)
+	GetServers() ([]Server, error)
+	StartCaptchaChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error)
+	SolveChallenge(challengeID string, answer int64) error
+	Register(email, password, challengeID, lang string) error
+	RedeemCode(code string) error
+	AddAccount(serverName, lang string) (*AddAccountRes, error)
+	ValidateAccount(code string) error
+	GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error)
+}
+
+// Compile time checks to ensure type satisfies IGameforge interface
+var _ GameforgeClient = (*Gameforge)(nil)
+
 type HttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
@@ -179,21 +195,6 @@ func New(config *Config) (*Gameforge, error) {
 	}, nil
 }
 
-func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaSolver) error {
-	questionRaw, iconsRaw, err := StartCaptchaChallenge(ctx, client, challengeID)
-	if err != nil {
-		return errors.New("failed to start captcha challenge: " + err.Error())
-	}
-	answer, err := captchaCallback(ctx, questionRaw, iconsRaw)
-	if err != nil {
-		return errors.New("failed to get answer for captcha challenge: " + err.Error())
-	}
-	if err := SolveChallenge(ctx, client, challengeID, answer); err != nil {
-		return errors.New("failed to solve captcha challenge: " + err.Error())
-	}
-	return err
-}
-
 // Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
 func (g *Gameforge) Login(params *GfLoginParams) (out *LoginResponse, err error) {
@@ -264,6 +265,21 @@ func (g *Gameforge) ValidateAccount(code string) error {
 // GetServerAccount ...
 func (g *Gameforge) GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error) {
 	return GetServerAccount(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, serverName, lang, playerID)
+}
+
+func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaSolver) error {
+	questionRaw, iconsRaw, err := StartCaptchaChallenge(ctx, client, challengeID)
+	if err != nil {
+		return errors.New("failed to start captcha challenge: " + err.Error())
+	}
+	answer, err := captchaCallback(ctx, questionRaw, iconsRaw)
+	if err != nil {
+		return errors.New("failed to get answer for captcha challenge: " + err.Error())
+	}
+	if err := SolveChallenge(ctx, client, challengeID, answer); err != nil {
+		return errors.New("failed to solve captcha challenge: " + err.Error())
+	}
+	return err
 }
 
 func getGameforgeLobbyBaseURL(lobby string, platform Platform) string {
