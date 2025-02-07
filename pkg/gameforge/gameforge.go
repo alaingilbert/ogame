@@ -38,7 +38,7 @@ type GameforgeClient interface {
 	GetServers() ([]Server, error)
 	StartCaptchaChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error)
 	SolveChallenge(challengeID string, answer int64) error
-	Register(email, password, challengeID, lang string) error
+	Register(email, password, lang string) error
 	RedeemCode(code string) error
 	AddAccount(serverName, lang string) (*AddAccountResponse, error)
 	ValidateAccount(code string) error
@@ -233,6 +233,33 @@ LOGIN:
 	return out, nil
 }
 
+// Register ...
+func (g *Gameforge) Register(email, password, lang string) error {
+	solver := g.solver
+	maxTry := g.maxCaptchaRetries
+	ctx := g.ctx
+	device := g.device
+	challengeID := ""
+REGISTER:
+	err := Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
+	if err != nil {
+		var captchaErr *CaptchaRequiredError
+		if errors.As(err, &captchaErr) {
+			if maxTry <= 0 || solver == nil {
+				return err
+			}
+			maxTry--
+			challengeID = captchaErr.ChallengeID
+			if err := solveCaptcha(ctx, device, challengeID, solver); err != nil {
+				return err
+			}
+			goto REGISTER
+		}
+		return err
+	}
+	return nil
+}
+
 // GetUserAccounts ...
 func (g *Gameforge) GetUserAccounts() ([]Account, error) {
 	return GetUserAccounts(g.ctx, g.device, g.platform, g.lobby, g.bearerToken)
@@ -251,11 +278,6 @@ func (g *Gameforge) StartCaptchaChallenge(challengeID string) (questionRaw, icon
 // SolveChallenge ...
 func (g *Gameforge) SolveChallenge(challengeID string, answer int64) error {
 	return SolveChallenge(g.ctx, g.device, challengeID, answer)
-}
-
-// Register ...
-func (g *Gameforge) Register(email, password, challengeID, lang string) error {
-	return Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
 }
 
 // RedeemCode ...
