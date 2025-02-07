@@ -42,6 +42,8 @@ type GameforgeClient interface {
 	AddAccount(serverName, lang string) (*AddAccountResponse, error)
 	ValidateAccount(code string) error
 	GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error)
+	GetLoginLink(userAccount Account) (string, error)
+	ExecLoginLink(loginLink string) ([]byte, error)
 }
 
 // Compile time checks to ensure type satisfies IGameforge interface
@@ -262,9 +264,21 @@ func (g *Gameforge) ValidateAccount(code string) error {
 	return ValidateAccount(g.ctx, g.device, g.platform, g.lobby, code)
 }
 
-// GetServerAccount ...
+// GetServerAccount first get the gameforge servers and user accounts,
+// then find the server and account that matches the given serverName, lang and playerID.
+// PlayerID is optional, when given the zero value, the first server/account that matches will be returned.
 func (g *Gameforge) GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error) {
 	return GetServerAccount(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, serverName, lang, playerID)
+}
+
+// GetLoginLink ...
+func (g *Gameforge) GetLoginLink(userAccount Account) (string, error) {
+	return GetLoginLink(g.ctx, g.device, g.platform, g.lobby, userAccount, g.bearerToken)
+}
+
+// ExecLoginLink ...
+func (g *Gameforge) ExecLoginLink(loginLink string) ([]byte, error) {
+	return ExecLoginLink(g.ctx, g.device, loginLink)
 }
 
 func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaSolver) error {
