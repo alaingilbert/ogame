@@ -190,7 +190,7 @@ func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, ca
 
 // Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
-func (g *Gameforge) Login(params *GfLoginParams) (out *GFLoginRes, err error) {
+func (g *Gameforge) Login(params *GfLoginParams) (out *LoginResponse, err error) {
 	solver := g.solver
 	maxTry := g.maxCaptchaRetries
 LOGIN:
@@ -494,7 +494,7 @@ func AddAccount(ctx context.Context, device Device, platform Platform, lobby, ac
 	return &newAccount, nil
 }
 
-type GFLoginRes struct {
+type LoginResponse struct {
 	Token                     string `json:"token"`
 	IsPlatformLogin           bool   `json:"isPlatformLogin"`
 	IsGameAccountMigrated     bool   `json:"isGameAccountMigrated"`
@@ -503,7 +503,7 @@ type GFLoginRes struct {
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
 
-func (r GFLoginRes) GetBearerToken() string { return r.Token }
+func (r LoginResponse) GetBearerToken() string { return r.Token }
 
 func extractChallengeID(resp *http.Response) (challengeID string) {
 	gfChallengeID := resp.Header.Get(ChallengeIDCookieName)
@@ -515,7 +515,7 @@ func extractChallengeID(resp *http.Response) (challengeID string) {
 	return
 }
 
-func login(params *gfLoginParams) (out *GFLoginRes, err error) {
+func login(params *gfLoginParams) (out *LoginResponse, err error) {
 	setDefaultParams(params)
 	if params.Device == nil {
 		return out, errors.New("device is nil")
