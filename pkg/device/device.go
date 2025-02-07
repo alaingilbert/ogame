@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -82,18 +81,6 @@ type Device struct {
 
 func (d *Device) Do(req *http.Request) (*http.Response, error) {
 	return d.client.Do(req)
-}
-
-func (d *Device) Get(url string) (*http.Response, error) {
-	return d.client.Get(url)
-}
-
-func (d *Device) Post(url, contentType string, body io.Reader) (resp *http.Response, err error) {
-	return d.client.Post(url, contentType, body)
-}
-
-func (d *Device) PostForm(url string, data url.Values) (resp *http.Response, err error) {
-	return d.client.PostForm(url, data)
 }
 
 func (d *Device) GetClient() *httpclient.Client {

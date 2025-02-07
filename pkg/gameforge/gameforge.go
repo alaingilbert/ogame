@@ -10,7 +10,6 @@ import (
 	"github.com/pquerna/otp/totp"
 	"io"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
@@ -34,9 +33,6 @@ const (
 
 type IHttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
-	Get(url string) (*http.Response, error)
-	Post(url, contentType string, body io.Reader) (resp *http.Response, err error)
-	PostForm(url string, data url.Values) (resp *http.Response, err error)
 }
 
 // Device is anything that can make http requests and solve the gameforge blackbox
