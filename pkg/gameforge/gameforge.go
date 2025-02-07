@@ -211,16 +211,9 @@ func New(config *Config) (*Gameforge, error) {
 
 // Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
-func (g *Gameforge) Login(params *LoginParams) (*LoginResponse, error) {
-	var out *LoginResponse
-	err := g.handleCaptcha(func(_ string) error {
-		res, err := login(&loginParams{
-			LoginParams: params,
-			Device:      g.device,
-			Ctx:         g.ctx,
-			platform:    g.platform,
-			lobby:       g.lobby,
-		})
+func (g *Gameforge) Login(params *LoginParams) (out *LoginResponse, err error) {
+	err = g.handleCaptcha(func(_ string) error {
+		res, err := login(&loginParams{LoginParams: params, Ctx: g.ctx, Device: g.device, platform: g.platform, lobby: g.lobby})
 		if err != nil {
 			return err
 		}
