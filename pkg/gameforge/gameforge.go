@@ -206,32 +206,6 @@ func New(config *Config) (*Gameforge, error) {
 	}, nil
 }
 
-func (g *Gameforge) handleCaptcha(fn func(challengeID string) error) error {
-	solver := g.solver
-	maxTry := g.maxCaptchaRetries
-	ctx := g.ctx
-	device := g.device
-	challengeID := ""
-RETRY:
-	err := fn(challengeID)
-	if err == nil {
-		return nil
-	}
-	var captchaErr *CaptchaRequiredError
-	if errors.As(err, &captchaErr) {
-		if maxTry <= 0 || solver == nil {
-			return err
-		}
-		maxTry--
-		challengeID = captchaErr.ChallengeID
-		if err := solveCaptcha(ctx, device, challengeID, solver); err != nil {
-			return err
-		}
-		goto RETRY
-	}
-	return err
-}
-
 // Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
 func (g *Gameforge) Login(params *LoginParams) (*LoginResponse, error) {
@@ -311,6 +285,32 @@ func (g *Gameforge) GetLoginLink(userAccount Account) (string, error) {
 // ExecLoginLink ...
 func (g *Gameforge) ExecLoginLink(loginLink string) ([]byte, error) {
 	return ExecLoginLink(g.ctx, g.device, loginLink)
+}
+
+func (g *Gameforge) handleCaptcha(fn func(challengeID string) error) error {
+	solver := g.solver
+	maxTry := g.maxCaptchaRetries
+	ctx := g.ctx
+	device := g.device
+	challengeID := ""
+RETRY:
+	err := fn(challengeID)
+	if err == nil {
+		return nil
+	}
+	var captchaErr *CaptchaRequiredError
+	if errors.As(err, &captchaErr) {
+		if maxTry <= 0 || solver == nil {
+			return err
+		}
+		maxTry--
+		challengeID = captchaErr.ChallengeID
+		if err := solveCaptcha(ctx, device, challengeID, solver); err != nil {
+			return err
+		}
+		goto RETRY
+	}
+	return err
 }
 
 func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaSolver) error {
