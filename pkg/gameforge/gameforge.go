@@ -974,11 +974,11 @@ func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby s
 	payload.Server.Language = userAccount.Server.Language
 	payload.Server.Number = userAccount.Server.Number
 
-	by, err := json.Marshal(&payload)
+	payloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest(http.MethodPost, ogURL, bytes.NewReader(by))
+	req, err := http.NewRequest(http.MethodPost, ogURL, bytes.NewReader(payloadBytes))
 	if err != nil {
 		return "", err
 	}
@@ -992,18 +992,18 @@ func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby s
 	}
 	defer resp.Body.Close()
 
-	by2, err := io.ReadAll(resp.Body)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
 
-	if resp.StatusCode == http.StatusBadRequest && string(by2) == `[]` {
+	if resp.StatusCode == http.StatusBadRequest && string(by) == `[]` {
 		return "", ErrLoginLink
 	}
 
 	var loginLink struct{ URL string }
-	if err := json.Unmarshal(by2, &loginLink); err != nil {
-		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by2))
+	if err := json.Unmarshal(by, &loginLink); err != nil {
+		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by))
 	}
 	return loginLink.URL, nil
 }
