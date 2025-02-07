@@ -177,7 +177,7 @@ type ServerData struct {
 }
 
 // getServerData gets the server data from xml api
-func getServerData(ctx context.Context, client httpclient.IHttpClient, serverNumber int64, serverLang string) (ServerData, error) {
+func getServerData(ctx context.Context, client gameforge.HttpClient, serverNumber int64, serverLang string) (ServerData, error) {
 	var serverData ServerData
 	serverDataURL := fmt.Sprintf("https://s%d-%s.ogame.gameforge.com/api/serverData.xml", serverNumber, serverLang)
 	req, err := http.NewRequest(http.MethodGet, serverDataURL, nil)
