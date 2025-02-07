@@ -12,7 +12,7 @@ type ExponentialBackoff struct {
 	ctx   context.Context
 	clock clockwork.Clock
 	val   uint32 // atomic
-	max   int
+	max   uint32
 }
 
 // New ...
@@ -26,7 +26,7 @@ func NewWithClock(ctx context.Context, clock clockwork.Clock, maxSleep int) *Exp
 	e := new(ExponentialBackoff)
 	e.ctx = ctx
 	e.clock = clock
-	e.max = maxSleep
+	e.max = uint32(max(maxSleep, 0))
 	return e
 }
 
@@ -60,8 +60,8 @@ func (e *ExponentialBackoff) Wait() {
 	newVal := uint32(1)
 	if currVal > 0 {
 		newVal = currVal * 2
-		if e.max > 0 && newVal > uint32(e.max) {
-			newVal = uint32(e.max)
+		if e.max > 0 {
+			newVal = min(newVal, e.max)
 		}
 	}
 	atomic.StoreUint32(&e.val, newVal)
