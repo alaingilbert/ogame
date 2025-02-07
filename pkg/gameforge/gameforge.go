@@ -47,7 +47,7 @@ type GameforgeClient interface {
 	ExecLoginLink(loginLink string) ([]byte, error)
 	GenerateGiftingCode(userAccounts []Account) (giftingCode string, err error)
 	RevokeGiftingCode(userAccount Account) error
-	GenerateSittingCode(userAccounts []Account) (sittingCode string, err error)
+	GenerateSittingCode(userAccounts []Account, duration int64) (sittingCode string, err error)
 }
 
 // Compile time checks to ensure type satisfies IGameforge interface
@@ -298,8 +298,8 @@ func (g *Gameforge) RevokeGiftingCode(userAccount Account) error {
 }
 
 // GenerateSittingCode ...
-func (g *Gameforge) GenerateSittingCode(userAccounts []Account) (sittingCode string, err error) {
-	return GenerateGiftingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccounts)
+func (g *Gameforge) GenerateSittingCode(userAccounts []Account, duration int64) (sittingCode string, err error) {
+	return GenerateSittingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccounts, duration)
 }
 
 func (g *Gameforge) handleCaptcha(fn func(challengeID string) error) error {
