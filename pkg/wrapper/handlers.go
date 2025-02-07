@@ -1462,7 +1462,7 @@ func TechsHandler(c echo.Context) error {
 func GetCaptchaHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	gf, _ := gameforge.New(&gameforge.Config{Ctx: bot.ctx, Device: bot.device, Platform: PLATFORM, Lobby: bot.lobby})
-	_, err := gf.Login(&gameforge.GfLoginParams{
+	_, err := gf.Login(&gameforge.LoginParams{
 		Username:  bot.username,
 		Password:  bot.password,
 		OtpSecret: bot.otpSecret,
@@ -1520,7 +1520,7 @@ type CaptchaChallenge struct {
 func GetCaptchaChallengeHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
 	gf, _ := gameforge.New(&gameforge.Config{Ctx: bot.ctx, Device: bot.device, Platform: PLATFORM, Lobby: bot.lobby})
-	_, err := gf.Login(&gameforge.GfLoginParams{
+	_, err := gf.Login(&gameforge.LoginParams{
 		Username:  bot.username,
 		Password:  bot.password,
 		OtpSecret: bot.otpSecret,

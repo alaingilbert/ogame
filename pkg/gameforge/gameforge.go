@@ -31,8 +31,9 @@ const (
 	endpointLoc             = "en-GB"
 )
 
+// GameforgeClient ...
 type GameforgeClient interface {
-	Login(params *GfLoginParams) (out *LoginResponse, err error)
+	Login(params *LoginParams) (out *LoginResponse, err error)
 	GetUserAccounts() ([]Account, error)
 	GetServers() ([]Server, error)
 	StartCaptchaChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error)
@@ -71,20 +72,25 @@ func Or[T comparable](a, b T) (zero T) {
 	return Ternary(a != zero, a, b)
 }
 
+// CaptchaRequiredError ...
 type CaptchaRequiredError struct {
 	ChallengeID string
 }
 
+// NewCaptchaRequiredError ...
 func NewCaptchaRequiredError(challengeID string) *CaptchaRequiredError {
 	return &CaptchaRequiredError{ChallengeID: challengeID}
 }
 
+// Error ...
 func (e CaptchaRequiredError) Error() string {
 	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
 }
 
+// RegisterError ...
 type RegisterError struct{ ErrorString string }
 
+// Error ...
 func (e *RegisterError) Error() string { return e.ErrorString }
 
 var (
@@ -111,15 +117,16 @@ var ErrAccountNotFound = errors.New("account not found")
 // ErrAccountBlocked returned when account is banned
 var ErrAccountBlocked = errors.New("account is blocked")
 
-type GfLoginParams struct {
+// LoginParams ...
+type LoginParams struct {
 	Username    string
 	Password    string
 	OtpSecret   string
 	ChallengeID string
 }
 
-type gfLoginParams struct {
-	*GfLoginParams
+type loginParams struct {
+	*LoginParams
 	Ctx      context.Context
 	Device   Device
 	platform Platform
@@ -135,6 +142,7 @@ func getChallengeURL(base, challengeID string) string {
 
 const blackboxPrefix = "tra:"
 
+// Platform ...
 type Platform string
 
 const (
@@ -163,6 +171,7 @@ type Gameforge struct {
 	bearerToken       string
 }
 
+// Config ...
 type Config struct {
 	Ctx               context.Context
 	Device            Device
@@ -199,13 +208,13 @@ func New(config *Config) (*Gameforge, error) {
 
 // Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
-func (g *Gameforge) Login(params *GfLoginParams) (out *LoginResponse, err error) {
+func (g *Gameforge) Login(params *LoginParams) (out *LoginResponse, err error) {
 	solver := g.solver
 	maxTry := g.maxCaptchaRetries
 	ctx := g.ctx
 	device := g.device
 LOGIN:
-	out, err = login(&gfLoginParams{GfLoginParams: params, Device: device, Ctx: ctx, platform: g.platform, lobby: g.lobby})
+	out, err = login(&loginParams{LoginParams: params, Device: device, Ctx: ctx, platform: g.platform, lobby: g.lobby})
 	if err != nil {
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
@@ -392,7 +401,7 @@ func ValidateAccount(ctx context.Context, client HttpClient, platform Platform, 
 
 func buildBearerHeaderValue(token string) string { return "Bearer " + token }
 
-func setDefaultParams(params *gfLoginParams) {
+func setDefaultParams(params *loginParams) {
 	if params.Ctx == nil {
 		params.Ctx = context.Background()
 	}
@@ -537,7 +546,7 @@ func extractChallengeID(resp *http.Response) (challengeID string) {
 	return
 }
 
-func login(params *gfLoginParams) (out *LoginResponse, err error) {
+func login(params *loginParams) (out *LoginResponse, err error) {
 	setDefaultParams(params)
 	if params.Device == nil {
 		return out, errors.New("device is nil")
@@ -626,7 +635,7 @@ func getConfiguration(ctx context.Context, client HttpClient, platform Platform,
 	return string(gameEnvironmentID), string(platformGameID), nil
 }
 
-func postSessionsReq(params *gfLoginParams, gameEnvironmentID, platformGameID string) (*http.Request, error) {
+func postSessionsReq(params *loginParams, gameEnvironmentID, platformGameID string) (*http.Request, error) {
 	dev := params.Device
 	ctx := params.Ctx
 	username := params.Username
