@@ -206,58 +206,59 @@ func New(config *Config) (*Gameforge, error) {
 	}, nil
 }
 
-// Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
-// If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
-func (g *Gameforge) Login(params *LoginParams) (out *LoginResponse, err error) {
-	solver := g.solver
-	maxTry := g.maxCaptchaRetries
-	ctx := g.ctx
-	device := g.device
-LOGIN:
-	out, err = login(&loginParams{LoginParams: params, Device: device, Ctx: ctx, platform: g.platform, lobby: g.lobby})
-	if err != nil {
-		var captchaErr *CaptchaRequiredError
-		if errors.As(err, &captchaErr) {
-			if maxTry <= 0 || solver == nil {
-				return nil, err
-			}
-			maxTry--
-			if err := solveCaptcha(ctx, device, captchaErr.ChallengeID, solver); err != nil {
-				return nil, err
-			}
-			goto LOGIN
-		}
-		return nil, err
-	}
-	g.bearerToken = out.Token
-	return out, nil
-}
-
-// Register ...
-func (g *Gameforge) Register(email, password, lang string) error {
+func (g *Gameforge) handleCaptcha(fn func(challengeID string) error) error {
 	solver := g.solver
 	maxTry := g.maxCaptchaRetries
 	ctx := g.ctx
 	device := g.device
 	challengeID := ""
-REGISTER:
-	err := Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
-	if err != nil {
-		var captchaErr *CaptchaRequiredError
-		if errors.As(err, &captchaErr) {
-			if maxTry <= 0 || solver == nil {
-				return err
-			}
-			maxTry--
-			challengeID = captchaErr.ChallengeID
-			if err := solveCaptcha(ctx, device, challengeID, solver); err != nil {
-				return err
-			}
-			goto REGISTER
-		}
-		return err
+RETRY:
+	err := fn(challengeID)
+	if err == nil {
+		return nil
 	}
-	return nil
+	var captchaErr *CaptchaRequiredError
+	if errors.As(err, &captchaErr) {
+		if maxTry <= 0 || solver == nil {
+			return err
+		}
+		maxTry--
+		challengeID = captchaErr.ChallengeID
+		if err := solveCaptcha(ctx, device, challengeID, solver); err != nil {
+			return err
+		}
+		goto RETRY
+	}
+	return err
+}
+
+// Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
+// If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
+func (g *Gameforge) Login(params *LoginParams) (*LoginResponse, error) {
+	var out *LoginResponse
+	err := g.handleCaptcha(func(_ string) error {
+		res, err := login(&loginParams{
+			LoginParams: params,
+			Device:      g.device,
+			Ctx:         g.ctx,
+			platform:    g.platform,
+			lobby:       g.lobby,
+		})
+		if err != nil {
+			return err
+		}
+		out = res
+		g.bearerToken = res.Token
+		return nil
+	})
+	return out, err
+}
+
+// Register ...
+func (g *Gameforge) Register(email, password, lang string) error {
+	return g.handleCaptcha(func(challengeID string) error {
+		return Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
+	})
 }
 
 // GetUserAccounts ...
