@@ -148,8 +148,8 @@ type Config struct {
 	Lobby             string
 }
 
-// NewGameforge ...
-func NewGameforge(config *Config) (*Gameforge, error) {
+// New ...
+func New(config *Config) (*Gameforge, error) {
 	if config.Device == nil {
 		return nil, errors.New("device is required")
 	}

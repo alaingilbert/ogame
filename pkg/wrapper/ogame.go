@@ -315,7 +315,7 @@ func (b *OGame) introBypass(page *parser.OverviewPage) error {
 func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
 	client := b.device.GetClient()
 	if err := client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
-		gf, _ := gameforge.NewGameforge(&gameforge.Config{
+		gf, _ := gameforge.New(&gameforge.Config{
 			Ctx:      b.ctx,
 			Device:   b.device,
 			Platform: PLATFORM,
