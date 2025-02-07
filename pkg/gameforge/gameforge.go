@@ -232,7 +232,7 @@ func (g *Gameforge) Login(params *LoginParams) (out *LoginResponse, err error) {
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
 func (g *Gameforge) Register(email, password, lang string) error {
 	return g.handleCaptcha(func(challengeID string) error {
-		return Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
+		return Register(g.ctx, g.device, g.platform, g.lobby, email, password, challengeID, lang)
 	})
 }
 
@@ -354,7 +354,7 @@ func getGameforgeLobbyBaseURL(lobby string, platform Platform) string {
 }
 
 // Register a new gameforge lobby account
-func Register(device Device, ctx context.Context, platform Platform, lobby, email, password, challengeID, lang string) error {
+func Register(ctx context.Context, device Device, platform Platform, lobby, email, password, challengeID, lang string) error {
 	blackbox, err := device.GetBlackbox()
 	if err != nil {
 		return err
