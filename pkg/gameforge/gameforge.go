@@ -45,6 +45,8 @@ type GameforgeClient interface {
 	GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error)
 	GetLoginLink(userAccount Account) (string, error)
 	ExecLoginLink(loginLink string) ([]byte, error)
+	GenerateGiftingCode(userAccounts []Account) (giftingCode string, err error)
+	RevokeGiftingCode(userAccount Account) error
 }
 
 // Compile time checks to ensure type satisfies IGameforge interface
@@ -282,6 +284,16 @@ func (g *Gameforge) GetLoginLink(userAccount Account) (string, error) {
 // ExecLoginLink ...
 func (g *Gameforge) ExecLoginLink(loginLink string) ([]byte, error) {
 	return ExecLoginLink(g.ctx, g.device, loginLink)
+}
+
+// GenerateGiftingCode ...
+func (g *Gameforge) GenerateGiftingCode(userAccounts []Account) (giftingCode string, err error) {
+	return GenerateGiftingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccounts)
+}
+
+// RevokeGiftingCode ...
+func (g *Gameforge) RevokeGiftingCode(userAccount Account) error {
+	return RevokeGiftingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccount)
 }
 
 func (g *Gameforge) handleCaptcha(fn func(challengeID string) error) error {
@@ -1022,6 +1034,78 @@ func ExecLoginLink(ctx context.Context, client HttpClient, loginLink string) ([]
 	}
 	defer resp.Body.Close()
 	return io.ReadAll(resp.Body)
+}
+
+// GenerateGiftingCode ...
+func GenerateGiftingCode(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string, userAccounts []Account) (string, error) {
+	type RowServer struct {
+		Language string `json:"language"`
+		Number   int64  `json:"number"`
+	}
+	type Row struct {
+		GameAccountId int64     `json:"gameAccountId"`
+		Server        RowServer `json:"server"`
+	}
+	var payload []Row
+	for _, account := range userAccounts {
+		payload = append(payload, Row{
+			GameAccountId: account.ID,
+			Server: RowServer{
+				Language: account.Server.Language,
+				Number:   account.Server.Number,
+			},
+		})
+	}
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/accountTrading", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	by, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	type GenerateGiftingCodeResponse struct {
+		Token string `json:"token"`
+	}
+	var tokenResponse GenerateGiftingCodeResponse
+	if err := json.Unmarshal(by, &tokenResponse); err != nil {
+		return "", errors.New(err.Error() + " : " + string(by))
+	}
+	return tokenResponse.Token, nil
+}
+
+// RevokeGiftingCode ...
+func RevokeGiftingCode(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string, userAccount Account) error {
+	u := getGameforgeLobbyBaseURL(lobby, platform) + fmt.Sprintf("/api/users/me/accountTrading/en/%d/%d", userAccount.Server.Number, userAccount.ID)
+	req, err := http.NewRequest(http.MethodDelete, u, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("failed to revoke gift code: " + resp.Status)
+	}
+	return nil
 }
 
 // FindServer ...
