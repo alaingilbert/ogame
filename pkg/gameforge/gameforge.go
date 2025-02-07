@@ -183,14 +183,17 @@ type Config struct {
 
 // New ...
 func New(config *Config) (*Gameforge, error) {
+	if config == nil {
+		return nil, errors.New("config is required")
+	}
 	if config.Device == nil {
 		return nil, errors.New("device is required")
 	}
-	if config.Ctx == nil {
-		config.Ctx = context.Background()
-	}
 	if !config.Platform.isValid() {
 		return nil, errors.New("invalid platform")
+	}
+	if config.Ctx == nil {
+		config.Ctx = context.Background()
 	}
 	if config.MaxCaptchaRetries == nil {
 		maxCaptchaRetries := 3
