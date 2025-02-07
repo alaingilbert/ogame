@@ -188,13 +188,13 @@ func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, ca
 	return err
 }
 
-// GFLogin do the gameforge login, if we get a captcha, solve the captcha and retry login.
+// Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
-func (g *Gameforge) GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
+func (g *Gameforge) Login(params *GfLoginParams) (out *GFLoginRes, err error) {
 	solver := g.solver
 	maxTry := g.maxCaptchaRetries
 LOGIN:
-	out, err = gFLogin(&gfLoginParams{GfLoginParams: params, Device: g.device, Ctx: g.ctx, platform: g.platform, lobby: g.lobby})
+	out, err = login(&gfLoginParams{GfLoginParams: params, Device: g.device, Ctx: g.ctx, platform: g.platform, lobby: g.lobby})
 	if err != nil {
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
@@ -348,7 +348,7 @@ func setDefaultParams(params *gfLoginParams) {
 
 // LoginAndRedeemCode ...
 func (g *Gameforge) LoginAndRedeemCode(params *GfLoginParams, code string) error {
-	postSessionsRes, err := gFLogin(&gfLoginParams{
+	postSessionsRes, err := login(&gfLoginParams{
 		GfLoginParams: params,
 		Ctx:           g.ctx,
 		Device:        g.device,
@@ -363,7 +363,7 @@ func (g *Gameforge) LoginAndRedeemCode(params *GfLoginParams, code string) error
 
 // LoginAndAddAccount adds an account to a gameforge lobby
 func (g *Gameforge) LoginAndAddAccount(params *GfLoginParams, serverName, lang string) (*AddAccountRes, error) {
-	postSessionsRes, err := gFLogin(&gfLoginParams{
+	postSessionsRes, err := login(&gfLoginParams{
 		GfLoginParams: params,
 		Ctx:           g.ctx,
 		Device:        g.device,
@@ -515,7 +515,7 @@ func extractChallengeID(resp *http.Response) (challengeID string) {
 	return
 }
 
-func gFLogin(params *gfLoginParams) (out *GFLoginRes, err error) {
+func login(params *gfLoginParams) (out *GFLoginRes, err error) {
 	setDefaultParams(params)
 	if params.Device == nil {
 		return out, errors.New("device is nil")

@@ -322,7 +322,7 @@ func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
 			Lobby:    b.lobby,
 			Solver:   b.captchaCallback,
 		})
-		out, err = gf.GFLogin(&gameforge.GfLoginParams{
+		out, err = gf.Login(&gameforge.GfLoginParams{
 			Username:  b.username,
 			Password:  b.password,
 			OtpSecret: b.otpSecret,
