@@ -178,7 +178,7 @@ var _ Wrapper = (*OGame)(nil)
 // Wrapper all available functions to control ogame bot
 type Wrapper interface {
 	Prioritizable
-	AddAccount(number int, lang string) (*gameforge.AddAccountRes, error)
+	AddAccount(number int, lang string) (*gameforge.AddAccountResponse, error)
 	BytesDownloaded() int64
 	BytesUploaded() int64
 	CharacterClass() ogame.CharacterClass

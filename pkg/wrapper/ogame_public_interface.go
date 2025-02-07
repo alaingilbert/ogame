@@ -91,7 +91,7 @@ func (b *OGame) GetSession() string {
 }
 
 // AddAccount add a new account (server) to your list of accounts
-func (b *OGame) AddAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
+func (b *OGame) AddAccount(number int, lang string) (*gameforge.AddAccountResponse, error) {
 	return b.addAccount(number, lang)
 }
 

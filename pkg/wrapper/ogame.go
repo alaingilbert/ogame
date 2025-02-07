@@ -3921,7 +3921,7 @@ func (b *OGame) botUnlock(unlockedBy string) {
 	}
 }
 
-func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
+func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountResponse, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
 	return gameforge.AddAccount(b.ctx, b.device, PLATFORM, b.lobby, accountGroup, b.bearerToken)
 }

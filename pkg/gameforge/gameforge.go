@@ -39,7 +39,7 @@ type GameforgeClient interface {
 	SolveChallenge(challengeID string, answer int64) error
 	Register(email, password, challengeID, lang string) error
 	RedeemCode(code string) error
-	AddAccount(serverName, lang string) (*AddAccountRes, error)
+	AddAccount(serverName, lang string) (*AddAccountResponse, error)
 	ValidateAccount(code string) error
 	GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error)
 }
@@ -253,7 +253,7 @@ func (g *Gameforge) RedeemCode(code string) error {
 }
 
 // AddAccount adds an account to a gameforge lobby
-func (g *Gameforge) AddAccount(serverName, lang string) (*AddAccountRes, error) {
+func (g *Gameforge) AddAccount(serverName, lang string) (*AddAccountResponse, error) {
 	return AddAccountByServerNameLang(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, serverName, lang)
 }
 
@@ -427,7 +427,7 @@ func RedeemCode(ctx context.Context, client HttpClient, platform Platform, lobby
 	return nil
 }
 
-func AddAccountByServerNameLang(ctx context.Context, device Device, platform Platform, lobby, bearerToken, serverName, lang string) (*AddAccountRes, error) {
+func AddAccountByServerNameLang(ctx context.Context, device Device, platform Platform, lobby, bearerToken, serverName, lang string) (*AddAccountResponse, error) {
 	servers, err := GetServers(ctx, device, platform, lobby)
 	if err != nil {
 		return nil, err
@@ -439,8 +439,8 @@ func AddAccountByServerNameLang(ctx context.Context, device Device, platform Pla
 	return AddAccount(ctx, device, platform, lobby, server.AccountGroup, bearerToken)
 }
 
-// AddAccountRes response from creating a new account
-type AddAccountRes struct {
+// AddAccountResponse response from creating a new account
+type AddAccountResponse struct {
 	ID     int `json:"id"`
 	Server struct {
 		Language string `json:"language"`
@@ -451,9 +451,9 @@ type AddAccountRes struct {
 	BearerToken  string `json:"bearerToken"` // Added by us; not part of ogame response
 }
 
-func (r AddAccountRes) GetBearerToken() string { return r.BearerToken }
+func (r AddAccountResponse) GetBearerToken() string { return r.BearerToken }
 
-func AddAccount(ctx context.Context, device Device, platform Platform, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
+func AddAccount(ctx context.Context, device Device, platform Platform, lobby, accountGroup, sessionToken string) (*AddAccountResponse, error) {
 	blackbox, err := device.GetBlackbox()
 	if err != nil {
 		return nil, err
@@ -491,7 +491,7 @@ func AddAccount(ctx context.Context, device Device, platform Platform, lobby, ac
 	if resp.StatusCode == http.StatusBadRequest { // Same status is returned when IP is temporarily blocked
 		return nil, errors.New("invalid request, account already in lobby ?")
 	}
-	var newAccount AddAccountRes
+	var newAccount AddAccountResponse
 	if err := json.Unmarshal(by, &newAccount); err != nil {
 		return nil, errors.New(err.Error() + " : " + string(by))
 	}
