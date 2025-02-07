@@ -40,10 +40,8 @@ func (e *ExponentialBackoff) LoopForever(clb func() bool) {
 			return
 		}
 		e.Wait()
-		select {
-		case <-e.ctx.Done():
+		if e.ctx.Err() != nil {
 			return
-		default:
 		}
 	}
 }
@@ -68,7 +66,6 @@ func (e *ExponentialBackoff) Wait() {
 	select {
 	case <-e.clock.After(time.Duration(newVal) * time.Second):
 	case <-e.ctx.Done():
-		return
 	}
 }
 
