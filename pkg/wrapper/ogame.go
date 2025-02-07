@@ -1707,6 +1707,7 @@ func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystem
 // CalcFlightTimeWithBaseSpeed ...
 // baseSpeed is the speed of the slowest ship in a fleet
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
+// https://ogame.fandom.com/wiki/Distance
 func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool, speed float64, baseSpeed, universeSpeedFleet, systemsSkip int64) (secs int64) {
 	s := speed
 	v := float64(baseSpeed)
