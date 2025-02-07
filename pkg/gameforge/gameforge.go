@@ -209,7 +209,7 @@ LOGIN:
 	if err != nil {
 		var captchaErr *CaptchaRequiredError
 		if errors.As(err, &captchaErr) {
-			if maxTry == 0 || solver == nil {
+			if maxTry <= 0 || solver == nil {
 				return nil, err
 			}
 			maxTry--
