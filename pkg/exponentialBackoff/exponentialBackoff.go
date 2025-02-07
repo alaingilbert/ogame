@@ -30,6 +30,13 @@ func NewWithClock(ctx context.Context, clock clockwork.Clock, maxSleep int) *Exp
 	return e
 }
 
+// Iterator implements iterator so that we can use the backoff in a for loop and avoid having to deal with closure
+func (e *ExponentialBackoff) Iterator() func(func() bool) {
+	return func(yield func() bool) {
+		e.LoopForever(yield)
+	}
+}
+
 // LoopForever execute the callback with exponential backoff
 // The callback return true if we should continue retrying
 // or false if we should stop and exit.
@@ -43,12 +50,6 @@ func (e *ExponentialBackoff) LoopForever(clb func() bool) {
 		if e.ctx.Err() != nil {
 			return
 		}
-	}
-}
-
-func (e *ExponentialBackoff) Iterator() func(func() bool) {
-	return func(yield func() bool) {
-		e.LoopForever(yield)
 	}
 }
 
