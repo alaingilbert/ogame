@@ -34,6 +34,7 @@ const (
 // GameforgeClient ...
 type GameforgeClient interface {
 	Login(params *LoginParams) (out *LoginResponse, err error)
+	Logout() error
 	GetUserAccounts() ([]Account, error)
 	GetServers() ([]Server, error)
 	StartChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error)
@@ -233,6 +234,11 @@ func (g *Gameforge) Register(email, password, lang string) error {
 	return g.handleCaptcha(func(challengeID string) error {
 		return Register(g.device, g.ctx, g.platform, g.lobby, email, password, challengeID, lang)
 	})
+}
+
+// Logout ...
+func (g *Gameforge) Logout() error {
+	return Logout(g.ctx, g.device, g.platform, g.lobby, g.bearerToken)
 }
 
 // GetUserAccounts ...
@@ -636,6 +642,28 @@ func login(params *loginParams) (out *LoginResponse, err error) {
 		return out, err
 	}
 	return out, nil
+}
+
+// Logout ...
+func Logout(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string) error {
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/logout", nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("failed to logout: " + resp.Status)
+	}
+	return nil
 }
 
 func getConfiguration(ctx context.Context, client HttpClient, platform Platform, lobby string) (string, string, error) {
