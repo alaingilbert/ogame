@@ -33,7 +33,7 @@ const (
 
 // GameforgeClient ...
 type GameforgeClient interface {
-	Login(params *LoginParams) (out *LoginResponse, err error)
+	Login(params *LoginParams) (bearerToken string, err error)
 	Logout() error
 	GetUserAccounts() ([]Account, error)
 	GetServers() ([]Server, error)
@@ -123,9 +123,10 @@ var ErrAccountBlocked = errors.New("account is blocked")
 
 // LoginParams ...
 type LoginParams struct {
-	Username  string
-	Password  string
-	OtpSecret string
+	Username    string
+	Password    string
+	OtpSecret   string
+	BearerToken string
 }
 
 type loginParams struct {
@@ -215,17 +216,21 @@ func New(config *Config) (*Gameforge, error) {
 
 // Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
-func (g *Gameforge) Login(params *LoginParams) (out *LoginResponse, err error) {
+func (g *Gameforge) Login(params *LoginParams) (bearerToken string, err error) {
+	bearerToken = params.BearerToken
+	if bearerToken != "" {
+		return
+	}
 	err = g.handleCaptcha(func(challengeID string) error {
 		res, err := login(&loginParams{LoginParams: params, Ctx: g.ctx, Device: g.device, platform: g.platform, lobby: g.lobby, challengeID: challengeID})
 		if err != nil {
 			return err
 		}
-		out = res
-		g.bearerToken = res.Token
+		bearerToken = res.Token
+		g.bearerToken = bearerToken
 		return nil
 	})
-	return out, err
+	return
 }
 
 // Register a new gameforge account. Handle the captcha if needed.
