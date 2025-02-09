@@ -198,6 +198,12 @@ func getServerData(ctx context.Context, client gameforge.HttpClient, serverNumbe
 	if err := xml.Unmarshal(by, &serverData); err != nil {
 		return serverData, fmt.Errorf("failed to xml unmarshal %s : %w", serverDataURL, err)
 	}
+	serverData.SpeedFleetWar = utils.MaxInt(serverData.SpeedFleetWar, 1)
+	serverData.SpeedFleetPeaceful = utils.MaxInt(serverData.SpeedFleetPeaceful, 1)
+	serverData.SpeedFleetHolding = utils.MaxInt(serverData.SpeedFleetHolding, 1)
+	if serverData.SpeedFleet == 0 {
+		serverData.SpeedFleet = serverData.SpeedFleetPeaceful
+	}
 	return serverData, nil
 }
 

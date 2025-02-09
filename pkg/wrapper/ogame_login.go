@@ -22,7 +22,6 @@ import (
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/parser"
-	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"net/http"
@@ -198,23 +197,16 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 	return
 }
 
-func (b *OGame) loginPart2(server gameforge.Server) error {
+func (b *OGame) loginPart2(server gameforge.Server) (err error) {
 	b.isLoggedInAtom.Store(true) // At this point, we are logged in
 	b.isConnectedAtom.Store(true)
 	// Get server data
 	start := time.Now()
 	b.server = server
-	serverData, err := getServerData(b.ctx, b.device, b.server.Number, b.server.Language)
+	b.cache.serverData, err = getServerData(b.ctx, b.device, b.server.Number, b.server.Language)
 	if err != nil {
 		return err
 	}
-	serverData.SpeedFleetWar = utils.MaxInt(serverData.SpeedFleetWar, 1)
-	serverData.SpeedFleetPeaceful = utils.MaxInt(serverData.SpeedFleetPeaceful, 1)
-	serverData.SpeedFleetHolding = utils.MaxInt(serverData.SpeedFleetHolding, 1)
-	if serverData.SpeedFleet == 0 {
-		serverData.SpeedFleet = serverData.SpeedFleetPeaceful
-	}
-	b.cache.serverData = serverData
 	lang := sanitizeServerLang(server.Language)
 	b.language = lang
 	b.cache.serverURL = fmt.Sprintf("https://s%d-%s.ogame.gameforge.com", server.Number, lang)
