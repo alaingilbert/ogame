@@ -123,18 +123,18 @@ var ErrAccountBlocked = errors.New("account is blocked")
 
 // LoginParams ...
 type LoginParams struct {
-	Username    string
-	Password    string
-	OtpSecret   string
-	ChallengeID string
+	Username  string
+	Password  string
+	OtpSecret string
 }
 
 type loginParams struct {
 	*LoginParams
-	Ctx      context.Context
-	Device   Device
-	platform Platform
-	lobby    string
+	Ctx         context.Context
+	Device      Device
+	platform    Platform
+	lobby       string
+	challengeID string
 }
 
 // CaptchaSolver the returned answer should be one of "0" "1" "2" "3"
@@ -216,8 +216,8 @@ func New(config *Config) (*Gameforge, error) {
 // Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
 // If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
 func (g *Gameforge) Login(params *LoginParams) (out *LoginResponse, err error) {
-	err = g.handleCaptcha(func(_ string) error {
-		res, err := login(&loginParams{LoginParams: params, Ctx: g.ctx, Device: g.device, platform: g.platform, lobby: g.lobby})
+	err = g.handleCaptcha(func(challengeID string) error {
+		res, err := login(&loginParams{LoginParams: params, Ctx: g.ctx, Device: g.device, platform: g.platform, lobby: g.lobby, challengeID: challengeID})
 		if err != nil {
 			return err
 		}
@@ -707,7 +707,7 @@ func postSessionsReq(params *loginParams, gameEnvironmentID, platformGameID stri
 	username := params.Username
 	password := params.Password
 	otpSecret := params.OtpSecret
-	challengeID := params.ChallengeID
+	challengeID := params.challengeID
 
 	blackbox, err := dev.GetBlackbox()
 	if err != nil {
