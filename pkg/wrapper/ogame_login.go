@@ -123,11 +123,11 @@ func (b *OGame) getBearerTokenFromCookie() string {
 
 func (b *OGame) login() error {
 	b.debug("post sessions")
-	postSessionsRes, err := postSessions(b)
+	bearerToken, err := postSessions(b)
 	if err != nil {
 		return err
 	}
-	token := postSessionsRes.Token
+	token := bearerToken
 
 	server, userAccount, err := b.loginPart1(token)
 	if err != nil {

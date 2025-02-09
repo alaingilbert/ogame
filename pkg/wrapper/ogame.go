@@ -312,7 +312,7 @@ func (b *OGame) introBypass(page *parser.OverviewPage) error {
 	return nil
 }
 
-func postSessions(b *OGame) (out *gameforge.LoginResponse, err error) {
+func postSessions(b *OGame) (bearerToken string, err error) {
 	client := b.device.GetClient()
 	if err := client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		gf, _ := gameforge.New(&gameforge.Config{
@@ -322,17 +322,15 @@ func postSessions(b *OGame) (out *gameforge.LoginResponse, err error) {
 			Lobby:    b.lobby,
 			Solver:   b.captchaCallback,
 		})
-		out, err = gf.Login(&gameforge.LoginParams{
+		bearerToken, err = gf.Login(&gameforge.LoginParams{
 			Username:  b.username,
 			Password:  b.password,
 			OtpSecret: b.otpSecret,
 		})
 		return err
 	}); err != nil {
-		return nil, err
+		return "", err
 	}
-
-	bearerToken := out.Token
 
 	// put in cookie jar so that we can re-login reusing the cookies
 	appendCookie(client, &http.Cookie{
@@ -342,7 +340,7 @@ func postSessions(b *OGame) (out *gameforge.LoginResponse, err error) {
 		Domain: ".gameforge.com",
 	})
 	b.bearerToken = bearerToken
-	return out, nil
+	return bearerToken, nil
 }
 
 func appendCookie(client *httpclient.Client, cookie *http.Cookie) {
