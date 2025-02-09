@@ -48,24 +48,37 @@ func (b *OGame) wrapLogin() error {
 	return b.loginWrapper(func() (bool, error) { return false, b.login() })
 }
 
+func (b *OGame) login() error {
+	_, err := b.loginWithBearerToken("")
+	return err
+}
+
 // Return either or not the bot logged in using the provided bearer token.
 func (b *OGame) loginWithBearerToken(token string) (bool, error) {
-	botLoginFn := b.login
+beginning:
+	var didFullLogin bool
 	if token == "" {
-		err := botLoginFn()
-		return false, err
+		didFullLogin = true
+		bearerToken, err := postSessions(b)
+		if err != nil {
+			return false, err
+		}
+		token = bearerToken
 	}
 	b.bearerToken = token
 	server, userAccount, err := b.loginPart1(token)
 	if errors.Is(err, context.Canceled) || errors.Is(err, gameforge.ErrAccountBlocked) {
 		return false, err
 	} else if err != nil {
-		err := botLoginFn()
-		return false, err
+		if didFullLogin {
+			return false, err
+		}
+		token = ""
+		goto beginning
 	}
 	loginLink, pageHTML, err := b.getAndExecLoginLink(userAccount, token)
 	if err != nil {
-		return true, err
+		return false, err
 	}
 	if err := b.loginPart2(server); err != nil {
 		return false, err
@@ -78,7 +91,7 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	if err := b.loginPart3Tmp(userAccount, page, loginLink, pageHTML); err != nil {
 		return false, err
 	}
-	return true, nil
+	return !didFullLogin, nil
 }
 
 // Return either or not the bot logged in using the existing cookies.
@@ -98,37 +111,6 @@ func (b *OGame) getBearerTokenFromCookie() string {
 		}
 	}
 	return ""
-}
-
-func (b *OGame) login() error {
-	b.debug("post sessions")
-	bearerToken, err := postSessions(b)
-	if err != nil {
-		return err
-	}
-	token := bearerToken
-
-	server, userAccount, err := b.loginPart1(token)
-	if err != nil {
-		return err
-	}
-
-	loginLink, pageHTML, err := b.getAndExecLoginLink(userAccount, token)
-	if err != nil {
-		return err
-	}
-
-	if err := b.loginPart2(server); err != nil {
-		return err
-	}
-	page, err := parser.ParsePage[parser.OverviewPage](b.extractor, pageHTML)
-	if err != nil {
-		return err
-	}
-	if err := b.loginPart3Tmp(userAccount, page, loginLink, pageHTML); err != nil {
-		return err
-	}
-	return nil
 }
 
 func (b *OGame) getAndExecLoginLink(userAccount gameforge.Account, token string) (string, []byte, error) {

@@ -319,6 +319,7 @@ func (b *OGame) introBypass(page *parser.OverviewPage) error {
 }
 
 func postSessions(b *OGame) (bearerToken string, err error) {
+	b.debug("post sessions")
 	client := b.device.GetClient()
 	if err := client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		gf, _ := gameforge.New(&gameforge.Config{
