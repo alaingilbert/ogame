@@ -154,7 +154,7 @@ func (b *OGame) login() error {
 
 func (b *OGame) getAndExecLoginLink(userAccount gameforge.Account, token string) (string, []byte, error) {
 	b.debug("get login link")
-	loginLink, err := gameforge.GetLoginLink(b.ctx, b.device, PLATFORM, b.lobby, userAccount, token)
+	loginLink, err := gameforge.GetLoginLink(b.ctx, b.device, PLATFORM, b.lobby, token, userAccount)
 	if err != nil {
 		return "", nil, err
 	}

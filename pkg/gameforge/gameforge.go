@@ -290,7 +290,7 @@ func (g *Gameforge) GetServerAccount(serverName, lang string, playerID int64) (a
 
 // GetLoginLink ...
 func (g *Gameforge) GetLoginLink(userAccount Account) (string, error) {
-	return GetLoginLink(g.ctx, g.device, g.platform, g.lobby, userAccount, g.bearerToken)
+	return GetLoginLink(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccount)
 }
 
 // ExecLoginLink ...
@@ -1000,7 +1000,7 @@ func GetUserAccounts(ctx context.Context, client HttpClient, platform Platform, 
 	return userAccounts, nil
 }
 
-func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby string, userAccount Account, bearerToken string) (string, error) {
+func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby, bearerToken string, userAccount Account) (string, error) {
 	ogURL := getGameforgeLobbyBaseURL(lobby, platform) + "/api/users/me/loginLink"
 
 	blackbox, err := device.GetBlackbox()
