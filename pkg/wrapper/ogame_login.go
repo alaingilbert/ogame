@@ -20,7 +20,6 @@ import (
 	v9 "github.com/alaingilbert/ogame/pkg/extractor/v9"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/parser"
 	"github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
@@ -58,44 +57,25 @@ func (b *OGame) loginWithBearerToken(token string) (bool, error) {
 	}
 	b.bearerToken = token
 	server, userAccount, err := b.loginPart1(token)
-	if errors.Is(err, context.Canceled) ||
-		errors.Is(err, gameforge.ErrAccountBlocked) {
+	if errors.Is(err, context.Canceled) || errors.Is(err, gameforge.ErrAccountBlocked) {
 		return false, err
 	} else if err != nil {
 		err := botLoginFn()
 		return false, err
 	}
-
+	loginLink, pageHTML, err := b.getAndExecLoginLink(userAccount, token)
+	if err != nil {
+		return true, err
+	}
 	if err := b.loginPart2(server); err != nil {
 		return false, err
 	}
-
-	loginOpts := []Option{SkipRetry, SkipCacheFullPage}
-	page, err := getPage[parser.OverviewPage](b, loginOpts...)
+	page, err := parser.ParsePage[parser.OverviewPage](b.extractor, pageHTML)
 	if err != nil {
-		if errors.Is(err, ogame.ErrNotLogged) {
-			loginLink, pageHTML, err := b.getAndExecLoginLink(userAccount, token)
-			if err != nil {
-				return true, err
-			}
-			page, err := getPage[parser.OverviewPage](b, loginOpts...)
-			if err != nil {
-				if errors.Is(err, ogame.ErrNotLogged) {
-					err := botLoginFn()
-					return false, err
-				}
-				return false, err
-			}
-			b.debug("login using existing cookies")
-			if err := b.loginPart3Tmp(userAccount, page, loginLink, pageHTML); err != nil {
-				return false, err
-			}
-			return true, nil
-		}
 		return false, err
 	}
 	b.debug("login using existing cookies")
-	if err := b.loginPart3(userAccount, page); err != nil {
+	if err := b.loginPart3Tmp(userAccount, page, loginLink, pageHTML); err != nil {
 		return false, err
 	}
 	return true, nil
