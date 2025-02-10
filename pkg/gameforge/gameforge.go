@@ -127,15 +127,15 @@ type LoginParams struct {
 	Password    string
 	OtpSecret   string
 	BearerToken string
+	ChallengeID string
 }
 
 type loginParams struct {
 	*LoginParams
-	Ctx         context.Context
-	Device      Device
-	platform    Platform
-	lobby       string
-	challengeID string
+	Ctx      context.Context
+	Device   Device
+	platform Platform
+	lobby    string
 }
 
 // CaptchaSolver the returned answer should be one of "0" "1" "2" "3"
@@ -222,7 +222,10 @@ func (g *Gameforge) Login(params *LoginParams) (bearerToken string, err error) {
 		return
 	}
 	err = g.handleCaptcha(func(challengeID string) error {
-		res, err := login(&loginParams{LoginParams: params, Ctx: g.ctx, Device: g.device, platform: g.platform, lobby: g.lobby, challengeID: challengeID})
+		if params.ChallengeID == "" || challengeID != "" {
+			params.ChallengeID = challengeID
+		}
+		res, err := login(&loginParams{LoginParams: params, Ctx: g.ctx, Device: g.device, platform: g.platform, lobby: g.lobby})
 		if err != nil {
 			return err
 		}
@@ -712,7 +715,7 @@ func postSessionsReq(params *loginParams, gameEnvironmentID, platformGameID stri
 	username := params.Username
 	password := params.Password
 	otpSecret := params.OtpSecret
-	challengeID := params.challengeID
+	challengeID := params.ChallengeID
 
 	blackbox, err := dev.GetBlackbox()
 	if err != nil {
