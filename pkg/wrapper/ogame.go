@@ -329,11 +329,12 @@ func postSessions(b *OGame) (bearerToken string, err error) {
 			Lobby:    b.lobby,
 			Solver:   b.captchaCallback,
 		})
-		bearerToken, err = gf.Login(&gameforge.LoginParams{
+		res, err := gf.Login(&gameforge.LoginParams{
 			Username:  b.username,
 			Password:  b.password,
 			OtpSecret: b.otpSecret,
 		})
+		bearerToken = res.Token
 		return err
 	}); err != nil {
 		return "", err
