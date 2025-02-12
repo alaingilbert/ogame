@@ -31,8 +31,8 @@ const (
 	endpointLoc             = "en-GB"
 )
 
-// GameforgeClient ...
-type GameforgeClient interface {
+// Client ...
+type Client interface {
 	Login(params *LoginParams) (out *LoginResponse, err error)
 	Logout() error
 	GetUserAccounts() ([]Account, error)
@@ -52,7 +52,7 @@ type GameforgeClient interface {
 }
 
 // Compile time checks to ensure type satisfies IGameforge interface
-var _ GameforgeClient = (*Gameforge)(nil)
+var _ Client = (*Gameforge)(nil)
 
 type HttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
@@ -185,7 +185,7 @@ type Config struct {
 	Lobby             string
 }
 
-// New ...
+// New return a new Gameforge instance
 func New(config *Config) (*Gameforge, error) {
 	if config == nil {
 		return nil, errors.New("config is required")
