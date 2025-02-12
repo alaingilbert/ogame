@@ -220,7 +220,7 @@ func start(c *cli.Context) error {
 		APINewHostname: apiNewHostname,
 	}
 	if njaApiKey != "" {
-		params.CaptchaCallback = solvers.NinjaSolver(njaApiKey)
+		params.CaptchaSolver = solvers.NinjaSolver(njaApiKey)
 	}
 
 	bot, err := wrapper.NewWithParams(params)

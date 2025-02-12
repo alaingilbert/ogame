@@ -112,26 +112,71 @@ type OGame struct {
 
 // Params parameters for more fine-grained initialization
 type Params struct {
-	Username        string
-	Password        string
-	BearerToken     string // Gameforge auth bearer token
-	OTPSecret       string
-	Universe        string
-	Lang            string
-	PlayerID        int64
-	AutoLogin       bool
-	Proxy           string
-	ProxyUsername   string
-	ProxyPassword   string
-	ProxyType       string
-	ProxyLoginOnly  bool
-	TLSConfig       *tls.Config
-	Lobby           string
-	APINewHostname  string
-	Device          *device.Device
-	CaptchaCallback gameforge.CaptchaSolver
+	Username       string
+	Password       string
+	BearerToken    string // Gameforge auth bearer token
+	OTPSecret      string
+	Universe       string
+	Lang           string
+	PlayerID       int64
+	AutoLogin      bool
+	Proxy          string
+	ProxyUsername  string
+	ProxyPassword  string
+	ProxyType      string
+	ProxyLoginOnly bool
+	TLSConfig      *tls.Config
+	Lobby          string
+	APINewHostname string
+	Device         *device.Device
+	CaptchaSolver  gameforge.CaptchaSolver
 }
 
+func newWithParams(params Params) (*OGame, error) {
+	if params.Device == nil {
+		return nil, errors.New("no device defined")
+	}
+
+	b := new(OGame)
+	b.device = params.Device
+	b.loginWrapper = DefaultLoginWrapper
+	b.Enable()
+	b.quiet = false
+	b.logger = log.New(os.Stdout, "", 0)
+
+	b.universe = params.Universe
+	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
+	b.setOGameLobby(gameforge.Lobby)
+	b.language = params.Lang
+	b.playerID = params.PlayerID
+
+	ext := v12_0_0.NewExtractor()
+	ext.SetLanguage(params.Lang)
+	ext.SetLocation(time.UTC)
+	b.extractor = ext
+
+	factory := func() *Prioritize { return &Prioritize{bot: b} }
+	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
+
+	b.wsCallbacks = make(map[string]func([]byte))
+
+	b.captchaCallback = params.CaptchaSolver
+	b.setOGameLobby(params.Lobby)
+	b.apiNewHostname = params.APINewHostname
+	if params.Proxy != "" {
+		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
+			return nil, err
+		}
+	}
+	if params.AutoLogin {
+		if _, err := b.LoginWithExistingCookies(); err != nil {
+			return nil, err
+		}
+	}
+	return b, nil
+}
+
+>>>>>>> 5c20d3e8 (cleanup refactor name)
 const PLATFORM = gameforge.OGAME
 
 // ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
@@ -249,47 +294,7 @@ func NewNoLogin(deviceInst *device.Device, universe, username, password, lang st
 
 // NewWithParams create a new OGame instance with full control over the possible parameters
 func NewWithParams(params Params) (*OGame, error) {
-	if params.Device == nil {
-		return nil, errors.New("no device defined")
-	}
-
-	b := new(OGame)
-	b.device = params.Device
-	b.loginWrapper = DefaultLoginWrapper
-	b.Enable()
-	b.quiet = false
-	b.logger = log.New(os.Stdout, "", 0)
-
-	b.universe = params.Universe
-	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
-	b.setOGameLobby(gameforge.Lobby)
-	b.language = params.Lang
-	b.playerID = params.PlayerID
-
-	ext := v12_0_0.NewExtractor()
-	ext.SetLanguage(params.Lang)
-	ext.SetLocation(time.UTC)
-	b.extractor = ext
-
-	factory := func() *Prioritize { return &Prioritize{bot: b} }
-	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
-
-	b.wsCallbacks = make(map[string]func([]byte))
-
-	b.captchaCallback = params.CaptchaCallback
-	b.setOGameLobby(params.Lobby)
-	b.apiNewHostname = params.APINewHostname
-	if params.Proxy != "" {
-		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
-			return nil, err
-		}
-	}
-	if params.AutoLogin {
-		if _, err := b.LoginWithExistingCookies(); err != nil {
-			return nil, err
-		}
-	}
-	return b, nil
+	return newWithParams(params)
 }
 
 func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url.Values, pageHTML []byte) {
