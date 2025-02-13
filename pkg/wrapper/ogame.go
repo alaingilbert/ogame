@@ -1723,10 +1723,16 @@ func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystem
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
 // https://ogame.fandom.com/wiki/Distance
 func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool, speed float64, baseSpeed, universeSpeedFleet, systemsSkip int64) (secs int64) {
+	d := Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem)
+	return CalcFlightTimeWithBaseSpeedDistance(speed, baseSpeed, d, universeSpeedFleet)
+}
+
+// CalcFlightTimeWithBaseSpeedDistance ...
+func CalcFlightTimeWithBaseSpeedDistance(speed float64, baseSpeed, distance, universeSpeedFleet int64) (secs int64) {
 	s := speed
 	v := float64(baseSpeed)
 	a := float64(universeSpeedFleet)
-	d := float64(Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem))
+	d := float64(distance)
 	return int64(math.Round(((3_500/s)*math.Sqrt(d*10/v) + 10) / a))
 }
 
