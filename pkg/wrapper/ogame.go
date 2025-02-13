@@ -339,6 +339,9 @@ func postSessions(b *OGame) (bearerToken string, err error) {
 			Password:  b.password,
 			OtpSecret: b.otpSecret,
 		})
+		if err != nil {
+			return err
+		}
 		bearerToken = res.Token
 		return err
 	}); err != nil {
