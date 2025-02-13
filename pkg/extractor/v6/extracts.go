@@ -1891,10 +1891,7 @@ func extractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
 		mission := utils.DoParseI64(s.AttrOr("data-mission-type", "0"))
 		returning, _ := strconv.ParseBool(s.AttrOr("data-return-flight", "false"))
 		arrivalTime := utils.DoParseI64(s.AttrOr("data-arrival-time", "0"))
-		arriveIn := arrivalTime - ogameTimestamp
-		if arriveIn < 0 {
-			arriveIn = 0
-		}
+		arriveIn := max(arrivalTime-ogameTimestamp, 0)
 		originFleetFigure := s.Find("li.originFleet figure")
 		originTxt := s.Find("li.coordsOrigin a").Text()
 		destTxt := s.Find("li.destCoords a").Text()
