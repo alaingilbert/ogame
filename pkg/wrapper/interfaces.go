@@ -223,6 +223,7 @@ type Wrapper interface {
 	IsVacationModeEnabled() bool
 	Location() *time.Location
 	OnStateChange(clb func(locked bool, actor string))
+	PlanetID() ogame.CelestialID
 	Quiet(bool)
 	ReconnectChat() bool
 	RegisterAuctioneerCallback(func(any))

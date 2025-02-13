@@ -101,6 +101,7 @@ type OGame struct {
 		serverURL             string
 		coloniesCount         int64
 		coloniesPossible      int64
+		planetID              ogame.CelestialID
 		isVacationModeEnabled bool
 		hasCommander          bool
 		hasAdmiral            bool
@@ -430,6 +431,7 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 	b.cache.hasGeologist = page.ExtractGeologist()
 	b.cache.hasTechnocrat = page.ExtractTechnocrat()
 	b.cache.coloniesCount, b.cache.coloniesPossible = page.ExtractColonies()
+	b.cache.planetID, _ = page.ExtractPlanetID()
 
 	switch castedPage := page.(type) {
 	case *parser.OverviewPage:

@@ -138,6 +138,11 @@ func (b *OGame) GetServerData() ServerData {
 	return b.cache.serverData
 }
 
+// PlanetID returns the last known currently selected planet/moon ID
+func (b *OGame) PlanetID() ogame.CelestialID {
+	return b.cache.planetID
+}
+
 // ServerURL get the ogame server specific url
 func (b *OGame) ServerURL() string {
 	return b.cache.serverURL
