@@ -26,9 +26,11 @@ func TestSensorPhalanx_GetRange(t *testing.T) {
 	assert.Equal(t, int64(3), sp.GetRange(2, false))
 	assert.Equal(t, int64(8), sp.GetRange(3, false))
 	assert.Equal(t, int64(15), sp.GetRange(4, false))
+	assert.Equal(t, int64(120), sp.GetRange(11, false))
 
 	assert.Equal(t, int64(1), sp.GetRange(1, true))
 	assert.Equal(t, int64(18), sp.GetRange(4, true))
+	assert.Equal(t, int64(144), sp.GetRange(11, true))
 }
 
 func TestSensorPhalanx_ScanConsumption(t *testing.T) {
