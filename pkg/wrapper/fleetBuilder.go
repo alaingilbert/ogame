@@ -212,9 +212,7 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 
 	if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
 		planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
-		if f.resources.Deuterium > planetResources.Deuterium {
-			f.resources.Deuterium = planetResources.Deuterium
-		}
+		f.resources.Deuterium = min(f.resources.Deuterium, planetResources.Deuterium)
 	}
 
 	payload := f.resources
