@@ -70,6 +70,32 @@ func (s ShipsInfos) HasFlyableShips() bool {
 	return false
 }
 
+// HasCombatShips returns either or not at least one combat ship is present
+func (s ShipsInfos) HasCombatShips() bool {
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		if shipID.IsCombatShip() {
+			if s.ByID(shipID) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// HasCivilShips returns either or not at least one civil ship is present
+func (s ShipsInfos) HasCivilShips() bool {
+	for _, ship := range Ships {
+		shipID := ship.GetID()
+		if shipID.IsCombatShip() {
+			if s.ByID(shipID) > 0 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 // Speed returns the speed of the slowest ship
 func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, allianceClass AllianceClass) int64 {
 	var minSpeed int64 = math.MaxInt64
