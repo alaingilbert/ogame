@@ -631,21 +631,12 @@ func (o ID) IsDefense() bool {
 func (o ID) IsShip() bool {
 	return o == SmallCargoID ||
 		o == LargeCargoID ||
-		o == LightFighterID ||
-		o == HeavyFighterID ||
-		o == CruiserID ||
-		o == BattleshipID ||
 		o == ColonyShipID ||
 		o == RecyclerID ||
 		o == EspionageProbeID ||
-		o == BomberID ||
 		o == SolarSatelliteID ||
-		o == DestroyerID ||
-		o == DeathstarID ||
-		o == BattlecruiserID ||
 		o == CrawlerID ||
-		o == ReaperID ||
-		o == PathfinderID
+		o.IsCombatShip()
 }
 
 // IsFlyableShip returns either or not the id is a ship that can fly
