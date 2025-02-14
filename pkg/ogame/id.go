@@ -629,14 +629,7 @@ func (o ID) IsDefense() bool {
 
 // IsShip returns either or not the id is a ship
 func (o ID) IsShip() bool {
-	return o == SmallCargoID ||
-		o == LargeCargoID ||
-		o == ColonyShipID ||
-		o == RecyclerID ||
-		o == EspionageProbeID ||
-		o == SolarSatelliteID ||
-		o == CrawlerID ||
-		o.IsCombatShip()
+	return o.IsCivilShip() || o.IsCombatShip()
 }
 
 // IsFlyableShip returns either or not the id is a ship that can fly
@@ -645,6 +638,17 @@ func (o ID) IsFlyableShip() bool {
 		return false
 	}
 	return o.IsShip()
+}
+
+// IsCivilShip returns either or not the id is a civil ship
+func (o ID) IsCivilShip() bool {
+	return o == SmallCargoID ||
+		o == LargeCargoID ||
+		o == ColonyShipID ||
+		o == RecyclerID ||
+		o == EspionageProbeID ||
+		o == SolarSatelliteID ||
+		o == CrawlerID
 }
 
 // IsCombatShip returns either or not the id is a combat ship
