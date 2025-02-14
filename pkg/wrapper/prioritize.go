@@ -638,12 +638,8 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 			opts = append(opts, ChangePlanet(originCelestial.GetID()))
 		}
 		res, _ := b.bot.checkTarget(ships, destination, opts...)
-		if fleetIgnoreEmptySystems {
-			systemsSkip += res.EmptySystems
-		}
-		if fleetIgnoreInactiveSystems {
-			systemsSkip += res.InactiveSystems
-		}
+		systemsSkip += utils.TernaryOrZero(fleetIgnoreEmptySystems, res.EmptySystems)
+		systemsSkip += utils.TernaryOrZero(fleetIgnoreInactiveSystems, res.InactiveSystems)
 	}
 	return CalcFlightTime(origin, destination, serverData.Galaxies, serverData.Systems,
 		serverData.DonutGalaxy, serverData.DonutSystem, serverData.GlobalDeuteriumSaveFactor,
