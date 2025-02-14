@@ -656,7 +656,7 @@ func (o ID) IsFlyableShip() bool {
 	return o.IsShip()
 }
 
-// IsCombatShip ...
+// IsCombatShip returns either or not the id is a combat ship
 func (o ID) IsCombatShip() bool {
 	return o == LightFighterID ||
 		o == HeavyFighterID ||
@@ -666,7 +666,8 @@ func (o ID) IsCombatShip() bool {
 		o == DestroyerID ||
 		o == DeathstarID ||
 		o == BattlecruiserID ||
-		o == ReaperID
+		o == ReaperID ||
+		o == PathfinderID
 }
 
 func (o ID) IsValidIPMTarget() bool {
