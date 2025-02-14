@@ -232,15 +232,15 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 			if f.minimumDeuterium > 0 {
 				planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
 			}
-			payload.Deuterium = utils.MinInt(cargoCapacity, planetResources.Deuterium)
+			payload.Deuterium = min(cargoCapacity, planetResources.Deuterium)
 			cargoCapacity -= payload.Deuterium
 		}
 		if f.resources.Crystal == -1 {
-			payload.Crystal = utils.MinInt(cargoCapacity, planetResources.Crystal)
+			payload.Crystal = min(cargoCapacity, planetResources.Crystal)
 			cargoCapacity -= payload.Crystal
 		}
 		if f.resources.Metal == -1 {
-			payload.Metal = utils.MinInt(cargoCapacity, planetResources.Metal)
+			payload.Metal = min(cargoCapacity, planetResources.Metal)
 		}
 	}
 
