@@ -1675,7 +1675,7 @@ func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses 
 
 func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
 	lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (fuel int64) {
-	tmpFn := func(baseFuel, nbr, shipSpeed int64) float64 {
+	calcShipFuel := func(baseFuel, nbr, shipSpeed int64) float64 {
 		tmpSpeed := (35_000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
 		return float64(baseFuel*nbr*dist) / 35_000 * math.Pow(tmpSpeed/10+1, 2)
 	}
@@ -1684,7 +1684,7 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 		ship := ogame.Objs.GetShip(shipID)
 		getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
 		speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-		tmpFuel += tmpFn(getFuelConsumption, nb, speed)
+		tmpFuel += calcShipFuel(getFuelConsumption, nb, speed)
 	})
 	fuel = int64(1 + math.Round(tmpFuel))
 	return
