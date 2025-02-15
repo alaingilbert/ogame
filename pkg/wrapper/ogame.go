@@ -1666,16 +1666,10 @@ func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems, systemsSkip int6
 
 func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) int64 {
 	var minSpeed int64 = math.MaxInt64
-	for _, ship := range ogame.Ships {
-		shipID := ship.GetID()
-		if shipID == ogame.SolarSatelliteID || shipID == ogame.CrawlerID {
-			continue
-		}
-		shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-		if ships.ByID(shipID) > 0 && shipSpeed < minSpeed {
-			minSpeed = shipSpeed
-		}
-	}
+	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+		shipSpeed := ogame.Objs.GetShip(shipID).GetSpeed(techs, lfBonuses, characterClass, allianceClass)
+		minSpeed = min(minSpeed, shipSpeed)
+	})
 	return minSpeed
 }
 
