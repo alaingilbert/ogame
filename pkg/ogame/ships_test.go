@@ -176,3 +176,21 @@ func TestIterFlyable(t *testing.T) {
 	}
 	assert.Equal(t, int64(5), nbFlyable)
 }
+
+func TestHasFlyableShips(t *testing.T) {
+	assert.False(t, ShipsInfos{Crawler: 1, SolarSatellite: 1}.HasFlyableShips())
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1}.HasFlyableShips())
+}
+
+func TestHasCombatShips(t *testing.T) {
+	assert.False(t, ShipsInfos{Crawler: 1, SolarSatellite: 1}.HasCombatShips())
+	assert.False(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1}.HasCombatShips())
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1, Cruiser: 1}.HasCombatShips())
+}
+
+func TestHasCivilShips(t *testing.T) {
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1}.HasCivilShips())
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1}.HasCivilShips())
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1, Cruiser: 1}.HasCivilShips())
+	assert.False(t, ShipsInfos{Cruiser: 1}.HasCivilShips())
+}
