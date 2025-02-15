@@ -109,16 +109,9 @@ func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass
 // ToQuantifiables convert a ShipsInfos to an array of Quantifiable
 func (s ShipsInfos) ToQuantifiables() []Quantifiable {
 	out := make([]Quantifiable, 0)
-	for _, ship := range Ships {
-		if ship.GetID() == SolarSatelliteID || ship.GetID() == CrawlerID {
-			continue
-		}
-		shipID := ship.GetID()
-		nbr := s.ByID(shipID)
-		if nbr > 0 {
-			out = append(out, Quantifiable{ID: shipID, Nbr: nbr})
-		}
-	}
+	s.EachFlyable(func(shipID ID, nb int64) {
+		out = append(out, Quantifiable{ID: shipID, Nbr: nb})
+	})
 	return out
 }
 
