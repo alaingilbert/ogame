@@ -55,12 +55,9 @@ func (s ShipsInfos) IsEmpty() bool {
 
 // HasFlyableShips returns either or not at least one flyable ship is present
 func (s ShipsInfos) HasFlyableShips() bool {
-	for _, ship := range Ships {
-		shipID := ship.GetID()
+	for shipID := range s.Iter() {
 		if shipID.IsFlyableShip() {
-			if s.ByID(shipID) > 0 {
-				return true
-			}
+			return true
 		}
 	}
 	return false
@@ -68,12 +65,9 @@ func (s ShipsInfos) HasFlyableShips() bool {
 
 // HasCombatShips returns either or not at least one combat ship is present
 func (s ShipsInfos) HasCombatShips() bool {
-	for _, ship := range Ships {
-		shipID := ship.GetID()
+	for shipID := range s.Iter() {
 		if shipID.IsCombatShip() {
-			if s.ByID(shipID) > 0 {
-				return true
-			}
+			return true
 		}
 	}
 	return false
@@ -81,12 +75,9 @@ func (s ShipsInfos) HasCombatShips() bool {
 
 // HasCivilShips returns either or not at least one civil ship is present
 func (s ShipsInfos) HasCivilShips() bool {
-	for _, ship := range Ships {
-		shipID := ship.GetID()
-		if shipID.IsCombatShip() {
-			if s.ByID(shipID) > 0 {
-				return true
-			}
+	for shipID := range s.Iter() {
+		if shipID.IsCivilShip() {
+			return true
 		}
 	}
 	return false
