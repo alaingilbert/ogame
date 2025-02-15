@@ -45,10 +45,8 @@ func (s ShipsInfos) Equal(other ShipsInfos) bool {
 
 // HasShips returns either or not at least one ship is present
 func (s ShipsInfos) HasShips() bool {
-	for _, ship := range Ships {
-		if s.ByID(ship.GetID()) > 0 {
-			return true
-		}
+	for range s.Iter() {
+		return true
 	}
 	return false
 }
@@ -126,8 +124,8 @@ func (s ShipsInfos) FromQuantifiables(in []Quantifiable) (out ShipsInfos) {
 
 // Cargo returns the total cargo of the ships
 func (s ShipsInfos) Cargo(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, multiplier float64, probeRaids bool) (out int64) {
-	for _, ship := range Ships {
-		out += ship.GetCargoCapacity(techs, lfBonuses, characterClass, multiplier, probeRaids) * s.ByID(ship.GetID())
+	for shipID, nb := range s.Iter() {
+		out += Objs.GetShip(shipID).GetCargoCapacity(techs, lfBonuses, characterClass, multiplier, probeRaids) * nb
 	}
 	return
 }
@@ -146,24 +144,24 @@ func (s ShipsInfos) Has(v ShipsInfos) bool {
 
 // FleetValue returns the value of the fleet
 func (s ShipsInfos) FleetValue(lfBonuses LfBonuses) (out int64) {
-	for _, ship := range Ships {
-		out += ship.GetPrice(s.ByID(ship.GetID()), lfBonuses).Total()
+	for shipID, nb := range s.Iter() {
+		out += Objs.GetShip(shipID).GetPrice(nb, lfBonuses).Total()
 	}
 	return
 }
 
 // FleetCost returns the cost of the fleet
 func (s ShipsInfos) FleetCost(lfBonuses LfBonuses) (out Resources) {
-	for _, ship := range Ships {
-		out = out.Add(ship.GetPrice(s.ByID(ship.GetID()), lfBonuses))
+	for shipID, nb := range s.Iter() {
+		out = out.Add(Objs.GetShip(shipID).GetPrice(nb, lfBonuses))
 	}
 	return
 }
 
 // CountShips returns the count of ships
 func (s ShipsInfos) CountShips() (out int64) {
-	for _, ship := range Ships {
-		out += s.ByID(ship.GetID())
+	for _, nb := range s.Iter() {
+		out += nb
 	}
 	return
 }
@@ -172,8 +170,9 @@ func (s ShipsInfos) CountShips() (out int64) {
 func (s *ShipsInfos) Add(v ShipsInfos) {
 	for _, ship := range Ships {
 		shipID := ship.GetID()
-		nb := v.ByID(shipID)
-		toSet := utils.Ternary(nb != -1, max(s.ByID(shipID)+nb, 0), -1)
+		ownNb := s.ByID(shipID)
+		otherNb := v.ByID(shipID)
+		toSet := utils.Ternary(otherNb != -1, max(ownNb+otherNb, 0), -1)
 		s.Set(shipID, toSet)
 	}
 }
@@ -196,37 +195,55 @@ func (s *ShipsInfos) SubShips(shipID ID, nb int64) {
 	s.AddShips(shipID, -1*nb)
 }
 
-// Each calls clb callback for every ships that has a value higher than zero
-func (s ShipsInfos) Each(clb func(shipID ID, nb int64)) {
+func (s ShipsInfos) each(clb func(shipID ID, nb int64) bool) {
 	for _, ship := range Ships {
 		shipID := ship.GetID()
 		nb := s.ByID(shipID)
 		if nb > 0 {
-			clb(shipID, nb)
+			if !clb(shipID, nb) {
+				return
+			}
 		}
 	}
 }
 
-// EachFlyable calls clb callback for every ships that has a value higher than zero and is flyable
-func (s ShipsInfos) EachFlyable(clb func(shipID ID, nb int64)) {
+func (s ShipsInfos) eachFlyable(clb func(shipID ID, nb int64) bool) {
 	for shipID, nb := range s.Iter() {
 		if shipID.IsFlyableShip() {
-			clb(shipID, nb)
+			if !clb(shipID, nb) {
+				return
+			}
 		}
 	}
+}
+
+// Each calls clb callback for every ships that has a value higher than zero
+func (s ShipsInfos) Each(clb func(shipID ID, nb int64)) {
+	s.each(func(shipID ID, nb int64) bool {
+		clb(shipID, nb)
+		return true
+	})
+}
+
+// EachFlyable calls clb callback for every ships that has a value higher than zero and is flyable
+func (s ShipsInfos) EachFlyable(clb func(shipID ID, nb int64)) {
+	s.eachFlyable(func(shipID ID, nb int64) bool {
+		clb(shipID, nb)
+		return true
+	})
 }
 
 // Iter implements iterator so that we can use in a for loop and avoid having to deal with closure
 func (s ShipsInfos) Iter() iter.Seq2[ID, int64] {
 	return func(yield func(shipID ID, nb int64) bool) {
-		s.Each(func(shipID ID, nb int64) { yield(shipID, nb) })
+		s.each(yield)
 	}
 }
 
 // IterFlyable implements iterator so that we can use in a for loop and avoid having to deal with closure
 func (s ShipsInfos) IterFlyable() iter.Seq2[ID, int64] {
 	return func(yield func(shipID ID, nb int64) bool) {
-		s.EachFlyable(func(shipID ID, nb int64) { yield(shipID, nb) })
+		s.eachFlyable(yield)
 	}
 }
 
