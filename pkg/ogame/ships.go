@@ -99,19 +99,19 @@ func (s ShipsInfos) HasCivilShips() bool {
 // Speed returns the speed of the slowest ship
 func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, allianceClass AllianceClass) int64 {
 	var minSpeed int64 = math.MaxInt64
-	s.EachFlyable(func(shipID ID, nb int64) {
+	for shipID := range s.IterFlyable() {
 		shipSpeed := Objs.GetShip(shipID).GetSpeed(techs, lfBonuses, characterClass, allianceClass)
 		minSpeed = min(minSpeed, shipSpeed)
-	})
+	}
 	return minSpeed
 }
 
 // ToQuantifiables convert a ShipsInfos to an array of Quantifiable
 func (s ShipsInfos) ToQuantifiables() []Quantifiable {
 	out := make([]Quantifiable, 0)
-	s.EachFlyable(func(shipID ID, nb int64) {
+	for shipID, nb := range s.IterFlyable() {
 		out = append(out, Quantifiable{ID: shipID, Nbr: nb})
-	})
+	}
 	return out
 }
 

@@ -1671,12 +1671,12 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 		return float64(baseFuel*nbr*dist) / 35_000 * math.Pow(tmpSpeed/10+1, 2)
 	}
 	tmpFuel := 0.0
-	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+	for shipID, nb := range ships.IterFlyable() {
 		ship := ogame.Objs.GetShip(shipID)
 		getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
 		speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
 		tmpFuel += calcShipFuel(getFuelConsumption, nb, speed)
-	})
+	}
 	fuel = int64(1 + math.Round(tmpFuel))
 	return
 }
@@ -3210,9 +3210,9 @@ type CheckTargetResponse struct {
 
 func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate, opts ...Option) (out CheckTargetResponse, err error) {
 	payload := url.Values{}
-	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+	for shipID, nb := range ships.IterFlyable() {
 		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
-	})
+	}
 	payload.Set("token", b.cache.token)
 	payload.Set("galaxy", utils.FI64(where.Galaxy))
 	payload.Set("system", utils.FI64(where.System))
@@ -3290,24 +3290,20 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 
 	atLeastOneShipSelected := false
 	if !ensure {
-		ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+		for shipID, nb := range ships.IterFlyable() {
 			avail := availableShips.ByID(shipID)
-			nb = utils.MinInt(nb, avail)
+			nb = min(nb, avail)
 			if nb > 0 {
 				atLeastOneShipSelected = true
 			}
-		})
+		}
 	} else {
-		var err1 error
-		ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+		for shipID, nb := range ships.IterFlyable() {
 			avail := availableShips.ByID(shipID)
 			if nb > avail {
-				err1 = fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
+				return ogame.Fleet{}, fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
 			}
 			atLeastOneShipSelected = true
-		})
-		if err1 != nil {
-			return ogame.Fleet{}, err1
 		}
 	}
 	if !atLeastOneShipSelected {
@@ -3316,9 +3312,9 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 
 	payload := b.extractor.ExtractHiddenFieldsFromDoc(fleet1Doc)
 	payload.Del("expeditionFleetTemplateId")
-	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+	for shipID, nb := range ships.IterFlyable() {
 		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
-	})
+	}
 
 	token, err := b.extractor.ExtractToken(pageHTML)
 	if err != nil {
