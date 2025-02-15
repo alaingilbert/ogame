@@ -99,17 +99,10 @@ func (s ShipsInfos) HasCivilShips() bool {
 // Speed returns the speed of the slowest ship
 func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, allianceClass AllianceClass) int64 {
 	var minSpeed int64 = math.MaxInt64
-	for _, ship := range Ships {
-		shipID := ship.GetID()
-		if shipID == SolarSatelliteID {
-			continue
-		}
-		nbr := s.ByID(shipID)
-		if nbr > 0 {
-			shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-			minSpeed = utils.MinInt(shipSpeed, minSpeed)
-		}
-	}
+	s.EachFlyable(func(shipID ID, nb int64) {
+		shipSpeed := Objs.GetShip(shipID).GetSpeed(techs, lfBonuses, characterClass, allianceClass)
+		minSpeed = min(minSpeed, shipSpeed)
+	})
 	return minSpeed
 }
 
