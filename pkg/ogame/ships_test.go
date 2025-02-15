@@ -167,3 +167,12 @@ func TestShipsInfos_ToPtr(t *testing.T) {
 	shipsPtr := ships.ToPtr()
 	assert.Equal(t, &ships, shipsPtr)
 }
+
+func TestIterFlyable(t *testing.T) {
+	ships := ShipsInfos{SmallCargo: 2, LargeCargo: 3, Crawler: 3}
+	var nbFlyable int64
+	for _, nb := range ships.IterFlyable() {
+		nbFlyable += nb
+	}
+	assert.Equal(t, int64(5), nbFlyable)
+}

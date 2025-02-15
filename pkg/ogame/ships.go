@@ -218,6 +218,18 @@ func (s ShipsInfos) EachFlyable(clb func(shipID ID, nb int64)) {
 	})
 }
 
+func (s ShipsInfos) Iter() func(func(shipID ID, nb int64) bool) {
+	return func(yield func(shipID ID, nb int64) bool) {
+		s.Each(func(shipID ID, nb int64) { yield(shipID, nb) })
+	}
+}
+
+func (s ShipsInfos) IterFlyable() func(func(shipID ID, nb int64) bool) {
+	return func(yield func(shipID ID, nb int64) bool) {
+		s.EachFlyable(func(shipID ID, nb int64) { yield(shipID, nb) })
+	}
+}
+
 // ByID get number of ships by ship id
 func (s ShipsInfos) ByID(id ID) int64 {
 	switch id {
