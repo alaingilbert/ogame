@@ -1680,18 +1680,12 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 		return float64(baseFuel*nbr*dist) / 35_000 * math.Pow(tmpSpeed/10+1, 2)
 	}
 	tmpFuel := 0.0
-	for _, ship := range ogame.Ships {
-		shipID := ship.GetID()
-		if shipID == ogame.SolarSatelliteID || shipID == ogame.CrawlerID {
-			continue
-		}
-		nbr := ships.ByID(shipID)
-		if nbr > 0 {
-			getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
-			speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-			tmpFuel += tmpFn(getFuelConsumption, nbr, speed)
-		}
-	}
+	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+		ship := ogame.Objs.GetShip(shipID)
+		getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
+		speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
+		tmpFuel += tmpFn(getFuelConsumption, nb, speed)
+	})
 	fuel = int64(1 + math.Round(tmpFuel))
 	return
 }
