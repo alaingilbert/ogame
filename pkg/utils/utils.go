@@ -209,17 +209,6 @@ func All[V any](it iter.Seq[V], clb func(V) bool) bool {
 	return true
 }
 
-// Iter turn a slice into an iterator
-func Iter[T any](arr []T) iter.Seq[T] {
-	return func(yield func(v T) bool) {
-		for _, v := range arr {
-			if !yield(v) {
-				return
-			}
-		}
-	}
-}
-
 func Ternary[T any](predicate bool, a, b T) T {
 	if predicate {
 		return a
