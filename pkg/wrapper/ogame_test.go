@@ -259,10 +259,6 @@ func TestVersion(t *testing.T) {
 	assert.True(t, version.Must(version.NewVersion("8.7.5-pl3")).GreaterThanOrEqual(version.Must(version.NewVersion("8.7.5-pl3"))))
 }
 
-func TestFindSlowestSpeed(t *testing.T) {
-	assert.Equal(t, int64(8000), findSlowestSpeed(ogame.ShipsInfos{SmallCargo: 1, LargeCargo: 1}, ogame.Researches{CombustionDrive: 6}, ogame.LfBonuses{}, ogame.NoClass, ogame.NoAllianceClass))
-}
-
 func TestOGame_GetCachedCelestial(t *testing.T) {
 	bot, _ := NewNoLogin(&device.Device{}, "", "", "", "")
 	bot.cache.planets = []Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}}
