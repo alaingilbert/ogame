@@ -189,6 +189,16 @@ func Count2[K, V any](it iter.Seq2[K, V]) (out int) {
 	return
 }
 
+// Any2 return true if calling clb with any item in Seq2 return true
+func Any2[K, V any](it iter.Seq2[K, V], clb func(K, V) bool) bool {
+	for k, v := range it {
+		if clb(k, v) {
+			return true
+		}
+	}
+	return false
+}
+
 func Ternary[T any](predicate bool, a, b T) T {
 	if predicate {
 		return a
