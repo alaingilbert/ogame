@@ -173,11 +173,8 @@ func (s *ShipsInfos) Add(v ShipsInfos) {
 	for _, ship := range Ships {
 		shipID := ship.GetID()
 		nb := v.ByID(shipID)
-		if nb == -1 {
-			s.Set(shipID, -1)
-		} else {
-			s.Set(shipID, max(s.ByID(shipID)+nb, 0))
-		}
+		toSet := utils.Ternary(nb != -1, max(s.ByID(shipID)+nb, 0), -1)
+		s.Set(shipID, toSet)
 	}
 }
 
