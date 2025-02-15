@@ -3231,6 +3231,7 @@ func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate, opts
 
 func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64, ensure bool) (ogame.Fleet, error) {
+	zeroFleet := ogame.Fleet{}
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
 	initialFleets, slots := b.getFleets()
@@ -3242,27 +3243,27 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	}
 
 	if slots.IsAllSlotsInUse(mission) {
-		return ogame.Fleet{}, ogame.ErrAllSlotsInUse
+		return zeroFleet, ogame.ErrAllSlotsInUse
 	}
 
 	// Page 1 : get to fleet page
 	pageHTML, err := b.getPage(FleetdispatchPageName, ChangePlanet(celestialID))
 	if err != nil {
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 
 	fleet1Doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
 	if fleet1BodyID != FleetdispatchPageName {
 		b.error(ogame.ErrInvalidPlanetID.Error()+", planetID:", celestialID)
-		return ogame.Fleet{}, ogame.ErrInvalidPlanetID
+		return zeroFleet, ogame.ErrInvalidPlanetID
 	}
 
 	if b.extractor.ExtractIsInVacationFromDoc(fleet1Doc) {
-		return ogame.Fleet{}, ogame.ErrAccountInVacationMode
+		return zeroFleet, ogame.ErrAccountInVacationMode
 	}
 
 	// Ensure we're not trying to attack/spy ourselves
@@ -3270,7 +3271,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	myCelestials, _ := b.extractor.ExtractCelestialsFromDoc(fleet1Doc)
 	for _, c := range myCelestials {
 		if c.GetCoordinate().Equal(where) && c.GetID() == celestialID {
-			return ogame.Fleet{}, errors.New("origin and destination are the same")
+			return zeroFleet, errors.New("origin and destination are the same")
 		}
 		if c.GetCoordinate().Equal(where) {
 			destinationIsMyOwnPlanet = true
@@ -3280,9 +3281,9 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	if destinationIsMyOwnPlanet {
 		switch mission {
 		case ogame.Spy:
-			return ogame.Fleet{}, errors.New("you cannot spy yourself")
+			return zeroFleet, errors.New("you cannot spy yourself")
 		case ogame.Attack:
-			return ogame.Fleet{}, errors.New("you cannot attack yourself")
+			return zeroFleet, errors.New("you cannot attack yourself")
 		}
 	}
 
@@ -3292,7 +3293,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	for shipID, nb := range ships.IterFlyable() {
 		avail := availableShips.ByID(shipID)
 		if ensure && nb > avail {
-			return ogame.Fleet{}, fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
+			return zeroFleet, fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
 		}
 		nb = min(nb, avail)
 		if nb > 0 {
@@ -3300,7 +3301,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		}
 	}
 	if !atLeastOneShipSelected {
-		return ogame.Fleet{}, ogame.ErrNoShipSelected
+		return zeroFleet, ogame.ErrNoShipSelected
 	}
 
 	payload := b.extractor.ExtractHiddenFieldsFromDoc(fleet1Doc)
@@ -3311,7 +3312,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 
 	token, err := b.extractor.ExtractToken(pageHTML)
 	if err != nil {
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 
 	payload.Set("token", token)
@@ -3339,7 +3340,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 			}
 		}
 		if !found {
-			return ogame.Fleet{}, ogame.ErrUnionNotFound
+			return zeroFleet, ogame.ErrUnionNotFound
 		}
 	}
 
@@ -3347,24 +3348,24 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	by1, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
 	if err != nil {
 		b.error(err.Error())
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 	var checkRes CheckTargetResponse
 	if err := json.Unmarshal(by1, &checkRes); err != nil {
 		b.error(err.Error())
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 
 	if !checkRes.TargetOk {
 		if len(checkRes.Errors) > 0 {
-			return ogame.Fleet{}, errors.New(checkRes.Errors[0].Message + " (" + strconv.Itoa(checkRes.Errors[0].Error) + ")")
+			return zeroFleet, errors.New(checkRes.Errors[0].Message + " (" + strconv.Itoa(checkRes.Errors[0].Error) + ")")
 		}
-		return ogame.Fleet{}, errors.New("target is not ok")
+		return zeroFleet, errors.New("target is not ok")
 	}
 
 	lfBonuses, err := b.getCachedLfBonuses()
 	if err != nil {
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 	multiplier := float64(b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
 	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.cache.characterClass, multiplier, b.server.OGameSettings().ProbeRaidsEnabled())
@@ -3429,11 +3430,11 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		} `json:"errors"`
 	}
 	if err := json.Unmarshal(res, &resStruct); err != nil {
-		return ogame.Fleet{}, errors.New("failed to unmarshal response: " + err.Error())
+		return zeroFleet, errors.New("failed to unmarshal response: " + err.Error())
 	}
 
 	if len(resStruct.Errors) > 0 {
-		return ogame.Fleet{}, errors.New(resStruct.Errors[0].Message + " (" + utils.FI64(resStruct.Errors[0].Error) + ")")
+		return zeroFleet, errors.New(resStruct.Errors[0].Message + " (" + utils.FI64(resStruct.Errors[0].Error) + ")")
 	}
 
 	// Page 5
@@ -3446,17 +3447,17 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 
 	slots, _ = page.ExtractSlots()
 	if slots.InUse == slots.Total {
-		return ogame.Fleet{}, ogame.ErrAllSlotsInUse
+		return zeroFleet, ogame.ErrAllSlotsInUse
 	}
 
 	if mission == ogame.Expedition {
 		if slots.ExpInUse == slots.ExpTotal {
-			return ogame.Fleet{}, ogame.ErrAllSlotsInUse
+			return zeroFleet, ogame.ErrAllSlotsInUse
 		}
 	}
 
 	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID)
-	return ogame.Fleet{}, errors.New("could not find new fleet ID")
+	return zeroFleet, errors.New("could not find new fleet ID")
 }
 
 func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) error {
