@@ -1664,15 +1664,6 @@ func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems, systemsSkip int6
 	return 5
 }
 
-func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) int64 {
-	var minSpeed int64 = math.MaxInt64
-	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
-		shipSpeed := ogame.Objs.GetShip(shipID).GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-		minSpeed = min(minSpeed, shipSpeed)
-	})
-	return minSpeed
-}
-
 func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
 	lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (fuel int64) {
 	calcShipFuel := func(baseFuel, nbr, shipSpeed int64) float64 {
@@ -1701,7 +1692,7 @@ func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystem
 	if !ships.HasShips() {
 		return
 	}
-	v := findSlowestSpeed(ships, techs, lfBonuses, characterClass, allianceClass)
+	v := ships.Speed(techs, lfBonuses, characterClass, allianceClass)
 	secs = CalcFlightTimeWithBaseSpeed(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem, speed, v, universeSpeedFleet, systemsSkip)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem))
 	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass, allianceClass)
