@@ -182,8 +182,8 @@ func RandFloat(min, max float64) float64 {
 }
 
 // Count2 counts element in an iter.Seq2
-func Count2[K, V any](iter iter.Seq2[K, V]) (out int) {
-	for range iter {
+func Count2[K, V any](it iter.Seq2[K, V]) (out int) {
+	for range it {
 		out++
 	}
 	return
