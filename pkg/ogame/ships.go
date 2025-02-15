@@ -45,10 +45,7 @@ func (s ShipsInfos) Equal(other ShipsInfos) bool {
 
 // HasShips returns either or not at least one ship is present
 func (s ShipsInfos) HasShips() bool {
-	for range s.Iter() {
-		return true
-	}
-	return false
+	return utils.Count2(s.Iter()) > 0
 }
 
 // IsEmpty returns true if no ships are set

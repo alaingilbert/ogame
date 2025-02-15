@@ -2,6 +2,7 @@ package utils
 
 import (
 	"github.com/PuerkitoBio/goquery"
+	"iter"
 	"math"
 	"math/rand"
 	"regexp"
@@ -178,6 +179,14 @@ func RandFloat(min, max float64) float64 {
 		min, max = max, min
 	}
 	return rand.Float64()*(max-min) + min
+}
+
+// Count2 counts element in an iter.Seq2
+func Count2[K, V any](iter iter.Seq2[K, V]) (out int) {
+	for range iter {
+		out++
+	}
+	return
 }
 
 func Ternary[T any](predicate bool, a, b T) T {
