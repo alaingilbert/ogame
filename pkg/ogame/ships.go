@@ -212,11 +212,11 @@ func (s ShipsInfos) Each(clb func(shipID ID, nb int64)) {
 
 // EachFlyable calls clb callback for every ships that has a value higher than zero and is flyable
 func (s ShipsInfos) EachFlyable(clb func(shipID ID, nb int64)) {
-	s.Each(func(shipID ID, nb int64) {
+	for shipID, nb := range s.Iter() {
 		if shipID.IsFlyableShip() {
 			clb(shipID, nb)
 		}
-	})
+	}
 }
 
 // Iter implements iterator so that we can use in a for loop and avoid having to deal with closure
