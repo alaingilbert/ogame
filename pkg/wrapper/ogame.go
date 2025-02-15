@@ -3289,20 +3289,13 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
 
 	atLeastOneShipSelected := false
-	if !ensure {
-		for shipID, nb := range ships.IterFlyable() {
-			avail := availableShips.ByID(shipID)
-			nb = min(nb, avail)
-			if nb > 0 {
-				atLeastOneShipSelected = true
-			}
+	for shipID, nb := range ships.IterFlyable() {
+		avail := availableShips.ByID(shipID)
+		if ensure && nb > avail {
+			return ogame.Fleet{}, fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
 		}
-	} else {
-		for shipID, nb := range ships.IterFlyable() {
-			avail := availableShips.ByID(shipID)
-			if nb > avail {
-				return ogame.Fleet{}, fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
-			}
+		nb = min(nb, avail)
+		if nb > 0 {
 			atLeastOneShipSelected = true
 		}
 	}
