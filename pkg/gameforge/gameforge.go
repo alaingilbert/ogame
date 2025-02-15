@@ -183,6 +183,7 @@ type Config struct {
 	MaxCaptchaRetries *int // default to 3
 	Platform          Platform
 	Lobby             string
+	BearerToken       string
 }
 
 // New return a new Gameforge instance
@@ -210,6 +211,7 @@ func New(config *Config) (*Gameforge, error) {
 		lobby:             config.Lobby,
 		solver:            config.Solver,
 		maxCaptchaRetries: *config.MaxCaptchaRetries,
+		bearerToken:       config.BearerToken,
 	}, nil
 }
 
