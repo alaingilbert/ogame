@@ -218,12 +218,14 @@ func (s ShipsInfos) EachFlyable(clb func(shipID ID, nb int64)) {
 	})
 }
 
+// Iter implements iterator so that we can use in a for loop and avoid having to deal with closure
 func (s ShipsInfos) Iter() func(func(shipID ID, nb int64) bool) {
 	return func(yield func(shipID ID, nb int64) bool) {
 		s.Each(func(shipID ID, nb int64) { yield(shipID, nb) })
 	}
 }
 
+// IterFlyable implements iterator so that we can use in a for loop and avoid having to deal with closure
 func (s ShipsInfos) IterFlyable() func(func(shipID ID, nb int64) bool) {
 	return func(yield func(shipID ID, nb int64) bool) {
 		s.EachFlyable(func(shipID ID, nb int64) { yield(shipID, nb) })
