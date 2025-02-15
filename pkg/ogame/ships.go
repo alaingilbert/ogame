@@ -55,32 +55,17 @@ func (s ShipsInfos) IsEmpty() bool {
 
 // HasFlyableShips returns either or not at least one flyable ship is present
 func (s ShipsInfos) HasFlyableShips() bool {
-	for shipID := range s.Iter() {
-		if shipID.IsFlyableShip() {
-			return true
-		}
-	}
-	return false
+	return utils.Any2(s.Iter(), func(shipID ID, i int64) bool { return shipID.IsFlyableShip() })
 }
 
 // HasCombatShips returns either or not at least one combat ship is present
 func (s ShipsInfos) HasCombatShips() bool {
-	for shipID := range s.Iter() {
-		if shipID.IsCombatShip() {
-			return true
-		}
-	}
-	return false
+	return utils.Any2(s.Iter(), func(shipID ID, i int64) bool { return shipID.IsCombatShip() })
 }
 
 // HasCivilShips returns either or not at least one civil ship is present
 func (s ShipsInfos) HasCivilShips() bool {
-	for shipID := range s.Iter() {
-		if shipID.IsCivilShip() {
-			return true
-		}
-	}
-	return false
+	return utils.Any2(s.Iter(), func(shipID ID, i int64) bool { return shipID.IsCivilShip() })
 }
 
 // Speed returns the speed of the slowest ship
