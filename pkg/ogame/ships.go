@@ -70,12 +70,21 @@ func (s ShipsInfos) HasCivilShips() bool {
 
 // Speed returns the speed of the slowest ship
 func (s ShipsInfos) Speed(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, allianceClass AllianceClass) int64 {
+	return utils.Second(s.SlowestShip(techs, lfBonuses, characterClass, allianceClass))
+}
+
+// SlowestShip returns the slowest ship and its speed
+func (s ShipsInfos) SlowestShip(techs IResearches, lfBonuses LfBonuses, characterClass CharacterClass, allianceClass AllianceClass) (ID, int64) {
+	var slowestShipID ID
 	var minSpeed int64 = math.MaxInt64
 	for shipID := range s.IterFlyable() {
 		shipSpeed := Objs.GetShip(shipID).GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-		minSpeed = min(minSpeed, shipSpeed)
+		if shipSpeed < minSpeed {
+			minSpeed = shipSpeed
+			slowestShipID = shipID
+		}
 	}
-	return minSpeed
+	return slowestShipID, minSpeed
 }
 
 // ToQuantifiables convert a ShipsInfos to an array of Quantifiable
