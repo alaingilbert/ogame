@@ -1667,7 +1667,7 @@ func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems, systemsSkip int6
 func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
 	lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (fuel int64) {
 	calcShipFuel := func(baseFuel, nbr, shipSpeed int64) float64 {
-		tmpSpeed := (35_000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
+		tmpSpeed := (35_000 / max(0.5, float64(duration)*universeSpeedFleet-10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
 		return float64(baseFuel*nbr*dist) / 35_000 * math.Pow(tmpSpeed/10+1, 2)
 	}
 	tmpFuel := 0.0
