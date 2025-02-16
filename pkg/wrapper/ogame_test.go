@@ -228,6 +228,49 @@ func TestCalcFlightTime(t *testing.T) {
 		ogame.Researches{CombustionDrive: 17, ImpulseDrive: 15, HyperspaceDrive: 10}, ogame.LfBonuses{}, ogame.Discoverer, ogame.NoAllianceClass, 24)
 	assert.Equal(t, int64(1521), secs)
 	assert.Equal(t, int64(109), fuel)
+
+	secs, fuel = CalcFlightTime(
+		ogame.Coordinate{Galaxy: 1, System: 106, Position: 10, Type: ogame.PlanetType},
+		ogame.Coordinate{Galaxy: 1, System: 103, Position: 5, Type: ogame.PlanetType},
+		5, 499, true, true, 0.5, 0.1, 4,
+		ogame.ShipsInfos{Recycler: 1},
+		ogame.Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10},
+		ogame.LfBonuses{LfShipBonuses: ogame.LfShipBonuses{
+			ogame.SmallCargoID:    ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+			ogame.BattlecruiserID: ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+			ogame.RecyclerID:      ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+		}}, ogame.Discoverer, ogame.NoAllianceClass, 0)
+	assert.Equal(t, int64(21_312), secs)
+	assert.Equal(t, int64(15), fuel)
+
+	secs, fuel = CalcFlightTime(
+		ogame.Coordinate{Galaxy: 1, System: 106, Position: 10, Type: ogame.PlanetType},
+		ogame.Coordinate{Galaxy: 1, System: 103, Position: 5, Type: ogame.PlanetType},
+		5, 499, true, true, 0.5, 0.1, 4,
+		ogame.ShipsInfos{SmallCargo: 250, Recycler: 6, Battlecruiser: 15, EspionageProbe: 165},
+		ogame.Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10},
+		ogame.LfBonuses{LfShipBonuses: ogame.LfShipBonuses{
+			ogame.SmallCargoID:    ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+			ogame.BattlecruiserID: ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+			ogame.RecyclerID:      ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+		}}, ogame.Discoverer, ogame.NoAllianceClass, 0)
+	assert.Equal(t, int64(21_312), secs)
+	assert.Equal(t, int64(483), fuel)
+
+	secs, fuel = CalcFlightTime(
+		ogame.Coordinate{Galaxy: 1, System: 106, Position: 10, Type: ogame.PlanetType},
+		ogame.Coordinate{Galaxy: 1, System: 103, Position: 5, Type: ogame.PlanetType},
+		5, 499, true, true, 0.5, 1.0, 4,
+		ogame.ShipsInfos{EspionageProbe: 165},
+		ogame.Researches{CombustionDrive: 15, ImpulseDrive: 12, HyperspaceDrive: 10},
+		ogame.LfBonuses{LfShipBonuses: ogame.LfShipBonuses{
+			ogame.SmallCargoID:     ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+			ogame.BattlecruiserID:  ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+			ogame.RecyclerID:       ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+			ogame.EspionageProbeID: ogame.LfShipBonus{Speed: 0.01666, FuelConsumption: -0.0019},
+		}}, ogame.Discoverer, ogame.NoAllianceClass, 0)
+	assert.Equal(t, int64(12), secs)
+	assert.Equal(t, int64(56), fuel)
 }
 
 func TestFixAttackEvents(t *testing.T) {
