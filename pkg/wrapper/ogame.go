@@ -1677,7 +1677,7 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 		speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
 		tmpFuel += max(calcShipFuel(getFuelConsumption, nb, speed), 1)
 	}
-	fuel = int64(math.Round(tmpFuel))
+	fuel = int64(1 + math.Round(tmpFuel))
 	return
 }
 
