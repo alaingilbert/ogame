@@ -668,8 +668,8 @@ func (b *OGame) GetResourcesProductionsLight(resBuildings ogame.ResourcesBuildin
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *OGame) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
-	return b.WithPriority(taskRunner.Normal).FlightTime(origin, destination, speed, ships, missionID)
+func (b *OGame) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
+	return b.WithPriority(taskRunner.Normal).FlightTime(origin, destination, speed, ships, missionID, holdingTime)
 }
 
 // Distance return distance between two coordinates

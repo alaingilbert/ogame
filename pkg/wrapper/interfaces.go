@@ -62,7 +62,7 @@ type Prioritizable interface {
 	DeleteMessage(msgID int64) error
 	DoAuction(bid map[ogame.CelestialID]ogame.Resources) error
 	Done()
-	FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, mission ogame.MissionID) (secs, fuel int64)
+	FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, mission ogame.MissionID, holdingTime int64) (secs, fuel int64)
 	FreeResetTree(planetID ogame.PlanetID, tier int64) error
 	GalaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemInfos, error)
 	GetActiveItems(ogame.CelestialID) ([]ogame.ActiveItem, error)

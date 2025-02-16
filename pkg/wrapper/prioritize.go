@@ -622,7 +622,7 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ogame.ResourcesBu
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
+func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
 	b.begin("FlightTime")
 	defer b.done()
 	serverData := b.bot.cache.serverData
@@ -643,7 +643,7 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 	}
 	return CalcFlightTime(origin, destination, serverData.Galaxies, serverData.Systems,
 		serverData.DonutGalaxy, serverData.DonutSystem, serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(serverData, missionID), ships, researches, lfbonuses, b.bot.cache.characterClass, allianceClass, systemsSkip)
+		float64(speed)/10, GetFleetSpeedForMission(serverData, missionID), ships, researches, lfbonuses, b.bot.cache.characterClass, allianceClass, systemsSkip, holdingTime)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information

@@ -1664,20 +1664,22 @@ func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems, systemsSkip int6
 	return 5
 }
 
-func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
+func calcFuel(ships ogame.ShipsInfos, dist, duration, holdingTime int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
 	lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (fuel int64) {
-	calcShipFuel := func(baseFuel, nbr, shipSpeed int64) float64 {
-		tmpSpeed := (35_000 / max(0.5, float64(duration)*universeSpeedFleet-10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
-		return float64(baseFuel*nbr*dist) / 35_000 * math.Pow(tmpSpeed/10+1, 2)
-	}
+	var holdingCosts int64
 	tmpFuel := 0.0
 	for shipID, nb := range ships.IterFlyable() {
 		ship := ogame.Objs.GetShip(shipID)
 		getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
 		speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-		tmpFuel += max(calcShipFuel(getFuelConsumption, nb, speed), 1)
+		holdingCosts += getFuelConsumption * nb * holdingTime
+		shipSpeedValue := (35_000 / max(0.5, float64(duration)*universeSpeedFleet-10)) * math.Sqrt(float64(dist)*10/float64(speed))
+		tmpFuel += max(float64(getFuelConsumption*nb*dist)/35_000*math.Pow(shipSpeedValue/10+1, 2), 1)
 	}
 	fuel = int64(1 + math.Round(tmpFuel))
+	if holdingTime > 0 {
+		fuel += max(int64(float64(holdingCosts)/10.0), 1)
+	}
 	return
 }
 
@@ -1688,14 +1690,14 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
 func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses,
-	characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass, systemsSkip int64) (secs, fuel int64) {
+	characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass, systemsSkip, holdingTime int64) (secs, fuel int64) {
 	if !ships.HasShips() {
 		return
 	}
 	v := ships.Speed(techs, lfBonuses, characterClass, allianceClass)
 	secs = CalcFlightTimeWithBaseSpeed(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem, speed, v, universeSpeedFleet, systemsSkip)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem))
-	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass, allianceClass)
+	fuel = calcFuel(ships, int64(d), secs, holdingTime, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass, allianceClass)
 	return
 }
 
@@ -1718,7 +1720,7 @@ func CalcFlightTimeWithBaseSpeedDistance(speed float64, baseSpeed, distance, uni
 }
 
 // CalcFlightTime calculates the flight time and the fuel consumption
-func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float64, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
+func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float64, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
 	serverData := b.cache.serverData
 	lfBonuses, _ := b.GetCachedLfBonuses()
 	allianceClass, _ := b.GetCachedAllianceClass()
@@ -1740,7 +1742,7 @@ func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float
 	}
 	return CalcFlightTime(origin, destination, serverData.Galaxies, serverData.Systems, serverData.DonutGalaxy,
 		serverData.DonutSystem, serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(serverData, missionID), ships,
-		b.GetCachedResearch(), lfBonuses, b.cache.characterClass, allianceClass, systemsSkip)
+		b.GetCachedResearch(), lfBonuses, b.cache.characterClass, allianceClass, systemsSkip, holdingTime)
 }
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
