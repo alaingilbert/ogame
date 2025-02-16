@@ -233,3 +233,7 @@ func RoundThousandth(n float64) float64 {
 
 // Ptr return a pointer to v
 func Ptr[T any](v T) *T { return &v }
+
+func First[T any](a T, _ ...any) T { return a }
+
+func Second[T any](_ any, a T, _ ...any) T { return a }
