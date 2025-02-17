@@ -2235,38 +2235,36 @@ type MessageSuccess struct {
 }
 
 func (b *OGame) activateItem(ref string, celestialID ogame.CelestialID) error {
-	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
-	pageHTML, _ := b.getPageContent(params, ChangePlanet(celestialID))
-	token, _, err := b.extractor.ExtractBuffActivation(pageHTML)
-	if err != nil {
-		return err
-	}
-	params = url.Values{"page": {"inventory"}}
-	payload := url.Values{
-		"ajax":         {"1"},
-		"token":        {token},
+	params := url.Values{
+		"page":         {"componentOnly"},
+		"component":    {"itemactions"},
+		"asJson":       {"1"},
+		"itemUuid":     {ref},
+		"action":       {"activate"},
+		"token":        {b.cache.token},
 		"referrerPage": {"ingame"},
-		"item":         {ref},
+		"_":            {strconv.FormatInt(time.Now().UnixMilli(), 10)},
 	}
-	var res struct {
-		Message  any    `json:"message"`
-		Error    bool   `json:"error"`
-		NewToken string `json:"newToken"`
-	}
-	by, err := b.postPageContent(params, payload)
+	params.Add("itemUuid", ref)
+	pageHTML, err := b.getPageContent(params, ChangePlanet(celestialID))
 	if err != nil {
 		return err
 	}
-	if err := json.Unmarshal(by, &res); err != nil {
+	var responseStruct struct {
+		Status string `json:"status"`
+	}
+	if err := json.Unmarshal(pageHTML, &responseStruct); err != nil {
 		return err
 	}
-	if res.Error {
-		if msg, ok := res.Message.(string); ok {
-			return errors.New(msg)
-		}
-		return errors.New("unknown error")
+	if responseStruct.Status == "failure" {
+		return errors.New("failed to activate item")
 	}
-	return err
+	params = url.Values{"page": {"ajax"}, "component": {"buffactivation"}, "ajax": {"1"}}
+	payload := url.Values{"type": {ref}}
+	if _, err := b.postPageContent(params, payload); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b *OGame) getAuction(celestialID ogame.CelestialID) (ogame.Auction, error) {
