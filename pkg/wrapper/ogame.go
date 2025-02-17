@@ -3293,7 +3293,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	for shipID, nb := range ships.IterFlyable() {
 		avail := availableShips.ByID(shipID)
 		if ensure && nb > avail {
-			return zeroFleet, fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
+			return zeroFleet, fmt.Errorf("%w, %s (%d > %d)", ogame.ErrNotEnoughShips, ogame.Objs.ByID(shipID).GetName(), nb, avail)
 		}
 		nb = min(nb, avail)
 		if nb > 0 {
