@@ -606,6 +606,11 @@ func (b *OGame) SendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int
 	return b.WithPriority(taskRunner.Normal).SendIPM(planetID, coord, nbr, priority)
 }
 
+// GetCombatReportSummaryForFleet gets the latest combat report for a given FleetID
+func (b *OGame) GetCombatReportSummaryForFleet(fleetID ogame.FleetID) (ogame.CombatReportSummary, error) {
+	return b.WithPriority(taskRunner.Normal).GetCombatReportSummaryForFleet(fleetID)
+}
+
 // GetCombatReportSummaryFor gets the latest combat report for a given coordinate
 func (b *OGame) GetCombatReportSummaryFor(coord ogame.Coordinate) (ogame.CombatReportSummary, error) {
 	return b.WithPriority(taskRunner.Normal).GetCombatReportSummaryFor(coord)

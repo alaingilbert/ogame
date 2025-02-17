@@ -3644,10 +3644,10 @@ func (b *OGame) getExpeditionMessageAt(t time.Time) (ogame.ExpeditionMessage, er
 	return ogame.ExpeditionMessage{}, errors.New("expedition message not found for " + t.String())
 }
 
-func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSummary, error) {
+func (b *OGame) getCombatReportSummaries() ([]ogame.CombatReportSummary, error) {
 	pageHTML, err := b.getPageMessages(1, CombatReportsMessagesTabID)
 	if err != nil {
-		return ogame.CombatReportSummary{}, err
+		return nil, err
 	}
 	var res struct {
 		ServerLang   string `json:"js_serverlang"`
@@ -3666,6 +3666,27 @@ func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSu
 		doc := ([]byte)(m.(string))
 		newMessage, _, _ := b.extractor.ExtractCombatReportMessagesSummary(doc)
 		newMessages = append(newMessages, newMessage...)
+	}
+	return newMessages, nil
+}
+
+func (b *OGame) getCombatReportForFleet(fleetID ogame.FleetID) (ogame.CombatReportSummary, error) {
+	newMessages, err := b.getCombatReportSummaries()
+	if err != nil {
+		return ogame.CombatReportSummary{}, err
+	}
+	for _, m := range newMessages {
+		if m.FleetID == fleetID {
+			return m, nil
+		}
+	}
+	return ogame.CombatReportSummary{}, errors.New("combat report not found for " + fleetID.String())
+}
+
+func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSummary, error) {
+	newMessages, err := b.getCombatReportSummaries()
+	if err != nil {
+		return ogame.CombatReportSummary{}, err
 	}
 	for _, m := range newMessages {
 		if m.Destination.Equal(coord) {

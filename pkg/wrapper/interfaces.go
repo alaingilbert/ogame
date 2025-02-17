@@ -75,6 +75,7 @@ type Prioritizable interface {
 	GetCachedResearch() ogame.Researches
 	GetCelestial(IntoCelestial) (Celestial, error)
 	GetCelestials() ([]Celestial, error)
+	GetCombatReportSummaryForFleet(ogame.FleetID) (ogame.CombatReportSummary, error)
 	GetCombatReportSummaryFor(ogame.Coordinate) (ogame.CombatReportSummary, error)
 	GetDMCosts(ogame.CelestialID) (ogame.DMCosts, error)
 	GetEmpire(ogame.CelestialType) ([]ogame.EmpireCelestial, error)

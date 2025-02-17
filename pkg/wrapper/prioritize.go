@@ -535,6 +535,13 @@ func (b *Prioritize) SendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nb
 	return b.bot.sendIPM(planetID, coord, nbr, priority)
 }
 
+// GetCombatReportSummaryForFleet gets the latest combat report for a given FleetID
+func (b *Prioritize) GetCombatReportSummaryForFleet(fleetID ogame.FleetID) (ogame.CombatReportSummary, error) {
+	b.begin("GetCombatReportSummaryForFleet")
+	defer b.done()
+	return b.bot.getCombatReportForFleet(fleetID)
+}
+
 // GetCombatReportSummaryFor gets the latest combat report for a given coordinate
 func (b *Prioritize) GetCombatReportSummaryFor(coord ogame.Coordinate) (ogame.CombatReportSummary, error) {
 	b.begin("GetCombatReportSummaryFor")
