@@ -25,6 +25,31 @@ func (c Coordinate) Equal(v Coordinate) bool {
 		c.Type == v.Type
 }
 
+// Cmp returns -1 if c < v, 0 if c == v, 1 if c > v
+// Planet type is considered < Moon type
+func (c Coordinate) Cmp(v Coordinate) int {
+	switch {
+	case c.Galaxy < v.Galaxy:
+		return -1
+	case c.Galaxy > v.Galaxy:
+		return 1
+	case c.System < v.System:
+		return -1
+	case c.System > v.System:
+		return 1
+	case c.Position < v.Position:
+		return -1
+	case c.Position > v.Position:
+		return 1
+	case c.Type < v.Type:
+		return -1
+	case c.Type > v.Type:
+		return 1
+	default:
+		return 0
+	}
+}
+
 // IsPlanet return true if coordinate is a planet
 func (c Coordinate) IsPlanet() bool {
 	return c.Type == PlanetType

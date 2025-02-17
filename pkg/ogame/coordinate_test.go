@@ -54,3 +54,17 @@ func TestCoordinate_Debris(t *testing.T) {
 	assert.Equal(t, Coordinate{1, 2, 3, MoonType}.Debris(), Coordinate{1, 2, 3, DebrisType})
 	assert.Equal(t, Coordinate{1, 2, 3, DebrisType}.Debris(), Coordinate{1, 2, 3, DebrisType})
 }
+
+func TestCoordinate_Cmp(t *testing.T) {
+	mustParseCoord := MustParseCoord
+	assert.Equal(t, 0, mustParseCoord("2:2:2").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, -1, mustParseCoord("2:2:1").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, 1, mustParseCoord("2:2:2").Cmp(mustParseCoord("2:2:1")))
+	assert.Equal(t, -1, mustParseCoord("2:1:2").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, 1, mustParseCoord("2:2:2").Cmp(mustParseCoord("2:1:2")))
+	assert.Equal(t, -1, mustParseCoord("1:2:2").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, 1, mustParseCoord("2:2:2").Cmp(mustParseCoord("1:2:2")))
+	assert.Equal(t, -1, mustParseCoord("2:2:2").Cmp(mustParseCoord("M:2:2:2")))
+	assert.Equal(t, 1, mustParseCoord("M:2:2:2").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, 0, mustParseCoord("M:2:2:2").Cmp(mustParseCoord("M:2:2:2")))
+}
