@@ -18,6 +18,11 @@ func GetFleetSpeedForMission(serverData ServerData, missionID ogame.MissionID) i
 	return serverData.SpeedFleetPeaceful
 }
 
+// HasCoordinate ...
+type HasCoordinate interface {
+	GetCoordinate() ogame.Coordinate
+}
+
 // ConvertIntoCoordinate helper that turns any type into a coordinate
 func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error) {
 	switch vv := v.(type) {
@@ -25,11 +30,7 @@ func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error
 		return ogame.ParseCoord(vv)
 	case ogame.Coordinate:
 		return vv, nil
-	case ogame.Celestial:
-		return vv.GetCoordinate(), nil
-	case ogame.Planet:
-		return vv.GetCoordinate(), nil
-	case ogame.Moon:
+	case HasCoordinate:
 		return vv.GetCoordinate(), nil
 	case ogame.CelestialID, ogame.PlanetID, ogame.MoonID:
 		c, err := w.GetCachedCelestial(vv)
