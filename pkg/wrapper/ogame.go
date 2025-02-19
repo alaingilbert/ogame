@@ -3967,6 +3967,12 @@ func (b *OGame) getCachedCelestial(v IntoCelestial) (Celestial, error) {
 		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case lua.LNumber:
 		return getCachedCelestialByID(ogame.CelestialID(vv))
+	case HasCoordinate:
+		coordinate, err := ConvertIntoCoordinate(b, vv)
+		if err != nil {
+			return nil, err
+		}
+		return getCachedCelestialByCoord(coordinate)
 	case ogame.Coordinate:
 		return getCachedCelestialByCoord(vv)
 	case string:
