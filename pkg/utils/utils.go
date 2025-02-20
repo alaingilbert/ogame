@@ -237,3 +237,19 @@ func Ptr[T any](v T) *T { return &v }
 func First[T any](a T, _ ...any) T { return a }
 
 func Second[T any](_ any, a T, _ ...any) T { return a }
+
+// Find looks through each value in the list, returning the first one that passes a truth test (predicate),
+// or nil if no value passes the test.
+// The function returns as soon as it finds an acceptable element, and doesn't traverse the entire list
+func Find[T any](arr []T, predicate func(T) bool) (out *T) {
+	return First(FindIdx(arr, predicate))
+}
+
+func FindIdx[T any](arr []T, predicate func(T) bool) (*T, int) {
+	for i, el := range arr {
+		if predicate(el) {
+			return &el, i
+		}
+	}
+	return nil, -1
+}
