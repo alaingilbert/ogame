@@ -3375,7 +3375,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 
 	// Page 3 : select coord, mission, speed
 	payload.Set("token", checkRes.NewAjaxToken)
-	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
+	payload.Set("speed", utils.FI64(int64(speed)))
 	payload.Set("crystal", utils.FI64(newResources.Crystal))
 	payload.Set("deuterium", utils.FI64(newResources.Deuterium))
 	payload.Set("metal", utils.FI64(newResources.Metal))
