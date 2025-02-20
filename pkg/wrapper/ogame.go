@@ -3440,16 +3440,10 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	}
 
 	slots, _ = page.ExtractSlots()
-	if slots.InUse == slots.Total {
+	if slots.IsAllSlotsInUse(mission) {
 		return zeroFleet, ogame.ErrAllSlotsInUse
 	}
-
-	if mission == ogame.Expedition {
-		if slots.ExpInUse == slots.ExpTotal {
-			return zeroFleet, ogame.ErrAllSlotsInUse
-		}
-	}
-
+	
 	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID)
 	return zeroFleet, errors.New("could not find new fleet ID")
 }
