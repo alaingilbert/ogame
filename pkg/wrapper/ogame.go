@@ -3266,23 +3266,17 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	}
 
 	// Ensure we're not trying to attack/spy ourselves
-	destinationIsMyOwnPlanet := false
 	myCelestials, _ := b.extractor.ExtractCelestialsFromDoc(fleet1Doc)
 	for _, c := range myCelestials {
-		if c.GetCoordinate().Equal(where) && c.GetID() == celestialID {
-			return zeroFleet, errors.New("origin and destination are the same")
-		}
 		if c.GetCoordinate().Equal(where) {
-			destinationIsMyOwnPlanet = true
+			if c.GetID() == celestialID {
+				return zeroFleet, errors.New("origin and destination are the same")
+			} else if mission == ogame.Spy {
+				return zeroFleet, errors.New("you cannot spy yourself")
+			} else if mission == ogame.Attack {
+				return zeroFleet, errors.New("you cannot attack yourself")
+			}
 			break
-		}
-	}
-	if destinationIsMyOwnPlanet {
-		switch mission {
-		case ogame.Spy:
-			return zeroFleet, errors.New("you cannot spy yourself")
-		case ogame.Attack:
-			return zeroFleet, errors.New("you cannot attack yourself")
 		}
 	}
 
