@@ -3450,7 +3450,7 @@ func (b *OGame) fastMiniFleetSpy(coord ogame.Coordinate, shipCount int64, option
 		"galaxy":    {utils.FI64(coord.Galaxy)},
 		"system":    {utils.FI64(coord.System)},
 		"position":  {utils.FI64(coord.Position)},
-		"type":      {"1"}, // ?
+		"type":      {utils.FI64(coord.Type)},
 		"shipCount": {utils.FI64(shipCount)},
 		"token":     {b.cache.token},
 	}
