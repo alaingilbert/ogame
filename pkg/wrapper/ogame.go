@@ -3328,20 +3328,14 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	payload.Set("union", "0")
 
 	if unionID != 0 {
-		found := false
 		acsArr := b.extractor.ExtractFleetDispatchACSFromDoc(fleet1Doc)
-		for _, acs := range acsArr {
-			if unionID == acs.Union {
-				found = true
-				payload.Add("acsValues", acs.ACSValues)
-				payload.Add("union", utils.FI64(acs.Union))
-				mission = ogame.GroupedAttack
-				break
-			}
-		}
-		if !found {
+		acs := utils.Find(acsArr, func(v ogame.ACSValues) bool { return v.Union == unionID })
+		if acs == nil {
 			return zeroFleet, ogame.ErrUnionNotFound
 		}
+		payload.Add("acsValues", acs.ACSValues)
+		payload.Add("union", utils.FI64(acs.Union))
+		mission = ogame.GroupedAttack
 	}
 
 	// Check
