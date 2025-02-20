@@ -3437,28 +3437,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	return zeroFleet, errors.New("could not find new fleet ID")
 }
 
-type MinifleetResponse struct {
-	Response struct {
-		Message     string `json:"message"` // `Send espionage probe to:`
-		Type        int    `json:"type"`
-		Slots       int    `json:"slots"`  // slots used by the minifleet call
-		Probes      int    `json:"probes"` // probes remaining on the celestial
-		Recyclers   int    `json:"recyclers"`
-		Explorers   int    `json:"explorers"`
-		Missiles    int    `json:"missiles"`
-		ShipsSent   int    `json:"shipsSent"`
-		Coordinates struct {
-			Galaxy   int `json:"galaxy"`
-			System   int `json:"system"`
-			Position int `json:"position"`
-		} `json:"coordinates"`
-		PlanetType int  `json:"planetType"` // 1/3 = planet/moon
-		Success    bool `json:"success"`
-	} `json:"response"`
-	NewAjaxToken string `json:"newAjaxToken"`
-}
-
-func (b *OGame) fastMiniFleetSpy(coord ogame.Coordinate, shipCount int64, options ...Option) (MinifleetResponse, error) {
+func (b *OGame) fastMiniFleetSpy(coord ogame.Coordinate, shipCount int64, options ...Option) (ogame.MinifleetResponse, error) {
 	vals := url.Values{
 		"page":      {"ingame"},
 		"component": {"fleetdispatch"},
@@ -3475,7 +3454,7 @@ func (b *OGame) fastMiniFleetSpy(coord ogame.Coordinate, shipCount int64, option
 		"shipCount": {utils.FI64(shipCount)},
 		"token":     {b.cache.token},
 	}
-	var res MinifleetResponse
+	var res ogame.MinifleetResponse
 	pageHTML, err := b.postPageContent(vals, payload, options...)
 	if err != nil {
 		return res, err

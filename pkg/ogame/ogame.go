@@ -276,3 +276,24 @@ type Relocation struct {
 	MissionType          MissionID
 	DarkMatterCost       int64
 }
+
+type MinifleetResponse struct {
+	Response struct {
+		Message     string `json:"message"` // `Send espionage probe to:`
+		Type        int    `json:"type"`
+		Slots       int    `json:"slots"`  // slots used by the minifleet call
+		Probes      int    `json:"probes"` // probes remaining on the celestial
+		Recyclers   int    `json:"recyclers"`
+		Explorers   int    `json:"explorers"`
+		Missiles    int    `json:"missiles"`
+		ShipsSent   int    `json:"shipsSent"`
+		Coordinates struct {
+			Galaxy   int `json:"galaxy"`
+			System   int `json:"system"`
+			Position int `json:"position"`
+		} `json:"coordinates"`
+		PlanetType int  `json:"planetType"` // 1/3 = planet/moon
+		Success    bool `json:"success"`
+	} `json:"response"`
+	NewAjaxToken string `json:"newAjaxToken"`
+}

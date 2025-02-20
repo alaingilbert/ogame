@@ -500,7 +500,7 @@ func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships ogame.ShipsI
 }
 
 // FastMiniFleetSpy sends a minifleet spy mission
-func (b *Prioritize) FastMiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (MinifleetResponse, error) {
+func (b *Prioritize) FastMiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (ogame.MinifleetResponse, error) {
 	b.begin("FastMiniFleetSpy")
 	defer b.done()
 	return b.bot.fastMiniFleetSpy(coordinate, nbShips, options...)
