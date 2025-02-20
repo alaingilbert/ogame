@@ -1573,9 +1573,8 @@ func (b *OGame) getLastFleetFor(origin, destination ogame.Coordinate, mission og
 	return getLastFleetFor(fleets, origin, destination, mission)
 }
 
-func getLastFleetFor(fleets []ogame.Fleet, origin, destination ogame.Coordinate, mission ogame.MissionID) (ogame.Fleet, error) {
+func getLastFleetFor(fleets []ogame.Fleet, origin, destination ogame.Coordinate, mission ogame.MissionID) (maxV ogame.Fleet, err error) {
 	if len(fleets) > 0 {
-		maxV := ogame.MakeFleet()
 		for i, fleet := range fleets {
 			if fleet.ID > maxV.ID &&
 				fleet.Origin.Equal(origin) &&
@@ -1589,7 +1588,7 @@ func getLastFleetFor(fleets []ogame.Fleet, origin, destination ogame.Coordinate,
 			return maxV, nil
 		}
 	}
-	return ogame.Fleet{}, errors.New("could not find fleet")
+	return maxV, errors.New("could not find fleet")
 }
 
 func (b *OGame) getFleetDispatch(celestialID ogame.CelestialID, options ...Option) (out ogame.FleetDispatchInfos, err error) {
@@ -3443,7 +3442,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	if slots.IsAllSlotsInUse(mission) {
 		return zeroFleet, ogame.ErrAllSlotsInUse
 	}
-	
+
 	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID)
 	return zeroFleet, errors.New("could not find new fleet ID")
 }
