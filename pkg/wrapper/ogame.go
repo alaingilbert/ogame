@@ -3364,18 +3364,14 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.cache.characterClass, multiplier, b.server.OGameSettings().ProbeRaidsEnabled())
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
-		newResources.Deuterium = min(resources.Deuterium, cargo)
+		newResources.Deuterium = utils.Clamp(resources.Deuterium, 0, cargo)
 		cargo -= newResources.Deuterium
-		newResources.Crystal = min(resources.Crystal, cargo)
+		newResources.Crystal = utils.Clamp(resources.Crystal, 0, cargo)
 		cargo -= newResources.Crystal
-		newResources.Metal = min(resources.Metal, cargo)
+		newResources.Metal = utils.Clamp(resources.Metal, 0, cargo)
 	} else {
 		newResources = resources
 	}
-
-	newResources.Metal = max(newResources.Metal, 0)
-	newResources.Crystal = max(newResources.Crystal, 0)
-	newResources.Deuterium = max(newResources.Deuterium, 0)
 
 	// Page 3 : select coord, mission, speed
 	payload.Set("token", checkRes.NewAjaxToken)
