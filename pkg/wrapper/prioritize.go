@@ -499,6 +499,13 @@ func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships ogame.ShipsI
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID, false)
 }
 
+// MiniFleetSpy sends a minifleet spy mission
+func (b *Prioritize) MiniFleetSpy(coordinate ogame.Coordinate, nbShips int64) (ogame.Fleet, error) {
+	b.begin("MiniFleetSpy")
+	defer b.done()
+	return b.bot.miniFleetSpy(coordinate, nbShips)
+}
+
 // SendDiscoveryFleet sends a discovery fleet
 func (b *Prioritize) SendDiscoveryFleet(celestialID ogame.CelestialID, coord ogame.Coordinate, options ...Option) error {
 	b.begin("SendDiscoveryFleet")

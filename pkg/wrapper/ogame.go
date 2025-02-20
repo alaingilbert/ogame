@@ -3458,7 +3458,8 @@ type MinifleetResponse struct {
 	NewAjaxToken string `json:"newAjaxToken"`
 }
 
-func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) error {
+func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) (ogame.Fleet, error) {
+	fleet := ogame.MakeFleet()
 	vals := url.Values{
 		"page":      {"ingame"},
 		"component": {"fleetdispatch"},
@@ -3477,16 +3478,54 @@ func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) error {
 	}
 	pageHTML, err := b.postPageContent(vals, payload)
 	if err != nil {
-		return err
+		return fleet, err
 	}
 	var res MinifleetResponse
 	if err := json.Unmarshal(pageHTML, &res); err != nil {
-		return err
+		return fleet, err
 	}
 	if !res.Response.Success {
-		return errors.New(res.Response.Message)
+		return fleet, errors.New(res.Response.Message)
 	}
-	return nil
+	by, err := b.getPageContent(url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}})
+	if err != nil {
+		return fleet, err
+	}
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(by))
+	if err != nil {
+		return fleet, err
+	}
+	type FleetRow struct {
+		ArrivalTs int64
+		FleetID   ogame.FleetID
+	}
+	rows := make([]FleetRow, 0)
+	doc.Find("tr.eventFleet").Each(func(i int, s *goquery.Selection) {
+		arrivalTs := utils.DoParseI64(s.AttrOr("data-arrival-time", ""))
+		fleetID := ogame.FleetID(utils.DoParseI64(s.Find("a.recallFleet").AttrOr("data-fleet-id", "")))
+		rows = append(rows, FleetRow{ArrivalTs: arrivalTs, FleetID: fleetID})
+	})
+	maxRow := FleetRow{}
+	for _, row := range rows {
+		if row.FleetID > maxRow.FleetID {
+			maxRow = row
+		}
+	}
+	if maxRow.FleetID == 0 {
+		return fleet, errors.New("could not find fleet ID")
+	}
+	currCelestial, _ := b.getCachedCelestial(b.cache.planetID)
+	fleet.Mission = ogame.Spy
+	fleet.ID = maxRow.FleetID
+	fleet.Origin = currCelestial.GetCoordinate()
+	fleet.Destination = coord
+	fleet.Ships = ogame.ShipsInfos{EspionageProbe: shipCount}
+	fleet.StartTime = time.Now()
+	fleet.ArrivalTime = time.UnixMilli(maxRow.ArrivalTs)
+	fleet.ArriveIn = int64(time.Until(fleet.ArrivalTime).Seconds())
+	fleet.BackTime = fleet.ArrivalTime.Add(time.Duration(2*fleet.ArriveIn) * time.Second)
+	fleet.BackIn = int64(time.Until(fleet.BackTime).Seconds())
+	return fleet, nil
 }
 
 func (b *OGame) getPageMessages(page int64, tabid ogame.MessagesTabID) ([]byte, error) {
