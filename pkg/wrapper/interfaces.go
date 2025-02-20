@@ -148,7 +148,7 @@ type Prioritizable interface {
 	GetResourcesDetails(ogame.CelestialID) (ogame.ResourcesDetails, error)
 	GetShips(ogame.CelestialID, ...Option) (ogame.ShipsInfos, error)
 	GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
-	MiniFleetSpy(coordinate ogame.Coordinate, nbShips int64) (ogame.Fleet, error)
+	MiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, opts ...Option) (ogame.Fleet, error)
 	SendDiscoveryFleet(ogame.CelestialID, ogame.Coordinate, ...Option) error
 	SendDiscoveryFleet2(ogame.CelestialID, ogame.Coordinate, ...Option) (ogame.Fleet, error)
 	SendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)

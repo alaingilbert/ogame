@@ -597,8 +597,8 @@ func (b *OGame) EnsureFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfo
 }
 
 // MiniFleetSpy sends a minifleet spy mission
-func (b *OGame) MiniFleetSpy(coordinate ogame.Coordinate, nbShips int64) (ogame.Fleet, error) {
-	return b.WithPriority(taskRunner.Normal).MiniFleetSpy(coordinate, nbShips)
+func (b *OGame) MiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (ogame.Fleet, error) {
+	return b.WithPriority(taskRunner.Normal).MiniFleetSpy(coordinate, nbShips, options...)
 }
 
 // DestroyRockets destroys anti-ballistic & inter-planetary missiles

@@ -3458,7 +3458,7 @@ type MinifleetResponse struct {
 	NewAjaxToken string `json:"newAjaxToken"`
 }
 
-func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) (ogame.Fleet, error) {
+func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64, options ...Option) (ogame.Fleet, error) {
 	fleet := ogame.MakeFleet()
 	vals := url.Values{
 		"page":      {"ingame"},
@@ -3476,7 +3476,7 @@ func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) (ogame.Fle
 		"shipCount": {utils.FI64(shipCount)},
 		"token":     {b.cache.token},
 	}
-	pageHTML, err := b.postPageContent(vals, payload)
+	pageHTML, err := b.postPageContent(vals, payload, options...)
 	if err != nil {
 		return fleet, err
 	}
