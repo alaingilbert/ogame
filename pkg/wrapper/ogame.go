@@ -3230,7 +3230,7 @@ func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate, opts
 
 func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64, ensure bool) (ogame.Fleet, error) {
-	zeroFleet := ogame.Fleet{}
+	zeroFleet := ogame.MakeFleet()
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
 	initialFleets, slots := b.getFleets()
