@@ -3458,8 +3458,7 @@ type MinifleetResponse struct {
 	NewAjaxToken string `json:"newAjaxToken"`
 }
 
-func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64, options ...Option) (ogame.Fleet, error) {
-	fleet := ogame.MakeFleet()
+func (b *OGame) fastMiniFleetSpy(coord ogame.Coordinate, shipCount int64, options ...Option) (MinifleetResponse, error) {
 	vals := url.Values{
 		"page":      {"ingame"},
 		"component": {"fleetdispatch"},
@@ -3476,16 +3475,24 @@ func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64, options ..
 		"shipCount": {utils.FI64(shipCount)},
 		"token":     {b.cache.token},
 	}
+	var res MinifleetResponse
 	pageHTML, err := b.postPageContent(vals, payload, options...)
 	if err != nil {
-		return fleet, err
+		return res, err
 	}
-	var res MinifleetResponse
 	if err := json.Unmarshal(pageHTML, &res); err != nil {
-		return fleet, err
+		return res, err
 	}
 	if !res.Response.Success {
-		return fleet, errors.New(res.Response.Message)
+		return res, errors.New(res.Response.Message)
+	}
+	return res, nil
+}
+
+func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64, options ...Option) (ogame.Fleet, error) {
+	fleet := ogame.MakeFleet()
+	if _, err := b.fastMiniFleetSpy(coord, shipCount, options...); err != nil {
+		return fleet, err
 	}
 	by, err := b.getPageContent(url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}})
 	if err != nil {

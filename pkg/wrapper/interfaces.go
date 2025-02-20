@@ -137,6 +137,7 @@ type Prioritizable interface {
 	CancelResearch(ogame.CelestialID) error
 	ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64)
 	EnsureFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
+	FastMiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, opts ...Option) (MinifleetResponse, error)
 	GetDefense(ogame.CelestialID, ...Option) (ogame.DefensesInfos, error)
 	GetFacilities(ogame.CelestialID, ...Option) (ogame.Facilities, error)
 	GetLfBuildings(ogame.CelestialID, ...Option) (ogame.LfBuildings, error)

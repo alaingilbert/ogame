@@ -596,6 +596,11 @@ func (b *OGame) EnsureFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfo
 	return b.WithPriority(taskRunner.Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
+// FastMiniFleetSpy sends a minifleet spy mission
+func (b *OGame) FastMiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (MinifleetResponse, error) {
+	return b.WithPriority(taskRunner.Normal).FastMiniFleetSpy(coordinate, nbShips, options...)
+}
+
 // MiniFleetSpy sends a minifleet spy mission
 func (b *OGame) MiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (ogame.Fleet, error) {
 	return b.WithPriority(taskRunner.Normal).MiniFleetSpy(coordinate, nbShips, options...)
