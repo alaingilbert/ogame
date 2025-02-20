@@ -3521,7 +3521,7 @@ func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64, options ..
 	fleet.Destination = coord
 	fleet.Ships = ogame.ShipsInfos{EspionageProbe: shipCount}
 	fleet.StartTime = time.Now()
-	fleet.ArrivalTime = time.UnixMilli(maxRow.ArrivalTs)
+	fleet.ArrivalTime = time.Unix(maxRow.ArrivalTs, 0)
 	fleet.ArriveIn = int64(time.Until(fleet.ArrivalTime).Seconds())
 	fleet.BackTime = fleet.ArrivalTime.Add(time.Duration(2*fleet.ArriveIn) * time.Second)
 	fleet.BackIn = int64(time.Until(fleet.BackTime).Seconds())
