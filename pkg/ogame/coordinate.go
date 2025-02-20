@@ -19,10 +19,7 @@ func (c Coordinate) String() string {
 
 // Equal returns either two coordinates are equal or not
 func (c Coordinate) Equal(v Coordinate) bool {
-	return c.Galaxy == v.Galaxy &&
-		c.System == v.System &&
-		c.Position == v.Position &&
-		c.Type == v.Type
+	return c.Cmp(v) == 0
 }
 
 // Cmp returns -1 if c < v, 0 if c == v, 1 if c > v
