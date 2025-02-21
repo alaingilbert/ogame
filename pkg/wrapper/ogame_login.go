@@ -122,22 +122,12 @@ func (b *OGame) loginWithExistingCookies() (bool, bool, error) {
 
 func (b *OGame) getBearerTokenFromCookie() string {
 	cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
-	for _, c := range cookies {
-		if c.Name == gameforge.TokenCookieName {
-			return c.Value
-		}
-	}
-	return ""
+	return utils.Deref(utils.Find(cookies, func(c *http.Cookie) bool { return c.Name == gameforge.TokenCookieName })).Value
 }
 
 func (b *OGame) getPhpSessIDFromCookie() string {
 	cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
-	for _, c := range cookies {
-		if c.Name == "PHPSESSID" {
-			return c.Value
-		}
-	}
-	return ""
+	return utils.Deref(utils.Find(cookies, func(c *http.Cookie) bool { return c.Name == "PHPSESSID" })).Value
 }
 
 func (b *OGame) getAndExecLoginLink(userAccount gameforge.Account, token string) (string, []byte, error) {
