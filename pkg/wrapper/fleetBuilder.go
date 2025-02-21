@@ -176,6 +176,15 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 
 // FlightTime ...
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
+	return f.flightTime(false)
+}
+
+// FastFlightTime ...
+func (f *FleetBuilder) FastFlightTime() (secs, fuel int64) {
+	return f.flightTime(true)
+}
+
+func (f *FleetBuilder) flightTime(checkTarget bool) (secs, fuel int64) {
 	var w Prioritizable = f.b
 	if f.tx != nil {
 		w = f.tx
@@ -189,7 +198,10 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 	if f.allShips {
 		ships, _ = w.GetShips(origin.GetID())
 	}
-	return w.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission, f.holdingTime)
+	if checkTarget {
+		return w.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission, f.holdingTime)
+	}
+	return w.FastFlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission, f.holdingTime)
 }
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {

@@ -687,6 +687,11 @@ func (b *OGame) FlightTime(origin, destination ogame.Coordinate, speed ogame.Spe
 	return b.WithPriority(taskRunner.Normal).FlightTime(origin, destination, speed, ships, missionID, holdingTime)
 }
 
+// FastFlightTime calculate flight time and fuel needed. Does not call ogame for TargetCheck to get empty/inactive systems
+func (b *OGame) FastFlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
+	return b.WithPriority(taskRunner.Normal).FastFlightTime(origin, destination, speed, ships, missionID, holdingTime)
+}
+
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination ogame.Coordinate) int64 {
 	serverData := b.cache.serverData

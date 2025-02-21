@@ -646,14 +646,25 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ogame.ResourcesBu
 func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
 	b.begin("FlightTime")
 	defer b.done()
+	return b.flightTime(origin, destination, speed, ships, missionID, holdingTime, true)
+}
+
+// FastFlightTime calculate flight time and fuel needed. Does not call ogame for TargetCheck to get empty/inactive systems
+func (b *Prioritize) FastFlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
+	b.begin("FastFlightTime")
+	defer b.done()
+	return b.flightTime(origin, destination, speed, ships, missionID, holdingTime, false)
+}
+
+func (b *Prioritize) flightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64, checkTarget bool) (secs, fuel int64) {
 	serverData := b.bot.cache.serverData
 	researches := b.bot.getCachedResearch()
-	lfbonuses, _ := b.bot.getCachedLfBonuses()
+	lfBonuses, _ := b.bot.getCachedLfBonuses()
 	allianceClass, _ := b.bot.getCachedAllianceClass()
-	fleetIgnoreEmptySystems := serverData.FleetIgnoreEmptySystems
-	fleetIgnoreInactiveSystems := serverData.FleetIgnoreInactiveSystems
 	var systemsSkip int64
-	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
+	if checkTarget {
+		fleetIgnoreEmptySystems := serverData.FleetIgnoreEmptySystems
+		fleetIgnoreInactiveSystems := serverData.FleetIgnoreInactiveSystems
 		opts := make([]Option, 0)
 		if originCelestial, err := b.bot.GetCachedCelestial(origin); err == nil {
 			opts = append(opts, ChangePlanet(originCelestial.GetID()))
@@ -664,7 +675,7 @@ func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogam
 	}
 	return CalcFlightTime(origin, destination, serverData.Galaxies, serverData.Systems,
 		serverData.DonutGalaxy, serverData.DonutSystem, serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(serverData, missionID), ships, researches, lfbonuses, b.bot.cache.characterClass, allianceClass, systemsSkip, holdingTime)
+		float64(speed)/10, GetFleetSpeedForMission(serverData, missionID), ships, researches, lfBonuses, b.bot.cache.characterClass, allianceClass, systemsSkip, holdingTime)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
