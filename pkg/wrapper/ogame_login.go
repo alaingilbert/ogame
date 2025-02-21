@@ -120,14 +120,18 @@ func (b *OGame) loginWithExistingCookies() (bool, bool, error) {
 	return b.loginWithBearerToken(token, phpSessID)
 }
 
+func getCookieValue(cookies []*http.Cookie, cookieName string) string {
+	return utils.Deref(utils.Find(cookies, func(c *http.Cookie) bool { return c.Name == cookieName })).Value
+}
+
 func (b *OGame) getBearerTokenFromCookie() string {
 	cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
-	return utils.Deref(utils.Find(cookies, func(c *http.Cookie) bool { return c.Name == gameforge.TokenCookieName })).Value
+	return getCookieValue(cookies, gameforge.TokenCookieName)
 }
 
 func (b *OGame) getPhpSessIDFromCookie() string {
 	cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
-	return utils.Deref(utils.Find(cookies, func(c *http.Cookie) bool { return c.Name == "PHPSESSID" })).Value
+	return getCookieValue(cookies, "PHPSESSID")
 }
 
 func (b *OGame) getAndExecLoginLink(userAccount gameforge.Account, token string) (string, []byte, error) {
