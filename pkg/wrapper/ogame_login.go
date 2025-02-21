@@ -70,6 +70,8 @@ func (b *OGame) loginWithBearerToken(token, phpSessID string) (bool, bool, error
 					}
 				}
 			}
+		} else {
+			token = ""
 		}
 	}
 beginning:
