@@ -121,8 +121,12 @@ func (b *OGame) loginWithExistingCookies() (bool, bool, error) {
 }
 
 func (b *OGame) getCookieValue(cookieName string) string {
-	cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
-	return utils.Deref(utils.Find(cookies, func(c *http.Cookie) bool { return c.Name == cookieName })).Value
+	if cookieJar, ok := b.device.GetClient().Jar.(*cookiejar.Jar); ok {
+		cookies := cookieJar.AllCookies()
+		cookie := utils.Find(cookies, func(c *http.Cookie) bool { return c.Name == cookieName })
+		return utils.Deref(cookie).Value
+	}
+	return ""
 }
 
 func (b *OGame) getBearerTokenFromCookie() string {
