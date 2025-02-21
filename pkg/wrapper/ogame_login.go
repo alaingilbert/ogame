@@ -117,7 +117,6 @@ beginning:
 func (b *OGame) loginWithExistingCookies() (bool, bool, error) {
 	token := utils.Or(b.bearerToken, b.getBearerTokenFromCookie())
 	phpSessID := utils.Or(b.cache.ogameSession, b.getPhpSessIDFromCookie())
-	fmt.Println("???", token, phpSessID)
 	return b.loginWithBearerToken(token, phpSessID)
 }
 
