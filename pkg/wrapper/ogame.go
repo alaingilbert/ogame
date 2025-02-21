@@ -77,7 +77,7 @@ type OGame struct {
 	closeChatCancel      context.CancelFunc
 	ws                   *websocket.Conn
 	taskRunnerInst       *taskRunner.TaskRunner[*Prioritize]
-	loginWrapper         func(func() (bool, error)) error
+	loginWrapper         func(func() (bool, bool, error)) error
 	loginProxyTransport  http.RoundTripper
 	extractor            extractor.Extractor
 	apiNewHostname       string
@@ -170,7 +170,7 @@ func newWithParams(params Params) (*OGame, error) {
 		}
 	}
 	if params.AutoLogin {
-		if _, err := b.LoginWithExistingCookies(); err != nil {
+		if _, _, err := b.LoginWithExistingCookies(); err != nil {
 			return nil, err
 		}
 	}
@@ -453,8 +453,8 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 }
 
 // DefaultLoginWrapper ...
-var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
-	_, err := loginFn()
+var DefaultLoginWrapper = func(loginFn func() (bool, bool, error)) error {
+	_, _, err := loginFn()
 	return err
 }
 
@@ -1178,7 +1178,7 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 		b.error(err.Error())
 		if errors.Is(err, ogame.ErrNotLogged) {
-			if _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
+			if _, _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
 				if errors.Is(loginErr, gameforge.ErrAccountNotFound) ||
 					errors.Is(loginErr, gameforge.ErrAccountBlocked) ||

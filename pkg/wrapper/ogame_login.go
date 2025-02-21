@@ -21,6 +21,7 @@ import (
 	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/parser"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"net/http"
@@ -28,85 +29,112 @@ import (
 	"time"
 )
 
-func (b *OGame) wrapLoginWithBearerToken(token string) (useToken bool, err error) {
-	fn := func() (bool, error) {
-		useToken, err = b.loginWithBearerToken(token)
-		return useToken, err
+func (b *OGame) wrapLoginWithBearerToken(token string) (useToken, usePhpSessID bool, err error) {
+	fn := func() (bool, bool, error) {
+		useToken, usePhpSessID, err = b.loginWithBearerToken(token, "")
+		return useToken, usePhpSessID, err
 	}
-	return useToken, b.loginWrapper(fn)
+	return useToken, usePhpSessID, b.loginWrapper(fn)
 }
 
-func (b *OGame) wrapLoginWithExistingCookies() (useCookies bool, err error) {
-	fn := func() (bool, error) {
-		useCookies, err = b.loginWithExistingCookies()
-		return useCookies, err
+func (b *OGame) wrapLoginWithExistingCookies() (useCookies, usePhpSessID bool, err error) {
+	fn := func() (bool, bool, error) {
+		useCookies, usePhpSessID, err = b.loginWithExistingCookies()
+		return useCookies, usePhpSessID, err
 	}
-	return useCookies, b.loginWrapper(fn)
+	return useCookies, usePhpSessID, b.loginWrapper(fn)
 }
 
 func (b *OGame) wrapLogin() error {
-	return b.loginWrapper(func() (bool, error) { return false, b.login() })
+	return b.loginWrapper(func() (bool, bool, error) { return false, false, b.login() })
 }
 
 func (b *OGame) login() error {
-	_, err := b.loginWithBearerToken("")
+	_, _, err := b.loginWithBearerToken("", "")
 	return err
 }
 
 // Return either or not the bot logged in using the provided bearer token.
-func (b *OGame) loginWithBearerToken(token string) (bool, error) {
+func (b *OGame) loginWithBearerToken(token, phpSessID string) (bool, bool, error) {
+	var didPart1n2 bool
+	var server gameforge.Server
+	var userAccount gameforge.Account
+	if token != "" && phpSessID != "" {
+		var err error
+		if server, userAccount, err = b.loginPart1(token); err == nil {
+			if err := b.loginPart2(server); err == nil {
+				didPart1n2 = true
+				if page, err := getPage[parser.OverviewPage](b, SkipRetry); err == nil {
+					if err := b.loginPart3(userAccount, page); err == nil {
+						return true, true, nil
+					}
+				}
+			}
+		}
+	}
 beginning:
 	var didFullLogin bool
 	if token == "" {
 		didFullLogin = true
 		bearerToken, err := postSessions(b)
 		if err != nil {
-			return false, err
+			return false, false, err
 		}
 		token = bearerToken
 	}
 	b.bearerToken = token
-	server, userAccount, err := b.loginPart1(token)
-	if errors.Is(err, context.Canceled) || errors.Is(err, gameforge.ErrAccountBlocked) {
-		return false, err
-	} else if err != nil {
-		if didFullLogin {
-			return false, err
+	if !didPart1n2 {
+		var err error
+		server, userAccount, err = b.loginPart1(token)
+		if errors.Is(err, context.Canceled) || errors.Is(err, gameforge.ErrAccountBlocked) {
+			return false, false, err
+		} else if err != nil {
+			if didFullLogin {
+				return false, false, err
+			}
+			token = ""
+			goto beginning
 		}
-		token = ""
-		goto beginning
+		if err := b.loginPart2(server); err != nil {
+			return false, false, err
+		}
 	}
 	loginLink, pageHTML, err := b.getAndExecLoginLink(userAccount, token)
 	if err != nil {
-		return false, err
-	}
-	if err := b.loginPart2(server); err != nil {
-		return false, err
+		return false, false, err
 	}
 	page, err := parser.ParsePage[parser.OverviewPage](b.extractor, pageHTML)
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
-	b.debug("login using existing cookies")
 	if err := b.loginPart3Tmp(userAccount, page, loginLink, pageHTML); err != nil {
-		return false, err
+		return false, false, err
 	}
-	return !didFullLogin, nil
+	return !didFullLogin, false, nil
 }
 
 // Return either or not the bot logged in using the existing cookies.
-func (b *OGame) loginWithExistingCookies() (bool, error) {
-	token := b.bearerToken
-	if token == "" {
-		token = b.getBearerTokenFromCookie()
-	}
-	return b.loginWithBearerToken(token)
+func (b *OGame) loginWithExistingCookies() (bool, bool, error) {
+	token := utils.Or(b.bearerToken, b.getBearerTokenFromCookie())
+	phpSessID := utils.Or(b.cache.ogameSession, b.getPhpSessIDFromCookie())
+	fmt.Println("???", token, phpSessID)
+	return b.loginWithBearerToken(token, phpSessID)
 }
 
 func (b *OGame) getBearerTokenFromCookie() string {
 	cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
 	for _, c := range cookies {
 		if c.Name == gameforge.TokenCookieName {
+			return c.Value
+		}
+	}
+	return ""
+}
+
+func (b *OGame) getPhpSessIDFromCookie() string {
+	cookies := b.device.GetClient().Jar.(*cookiejar.Jar).AllCookies()
+	for _, c := range cookies {
+		if c.Name == "PHPSESSID" {
 			return c.Value
 		}
 	}

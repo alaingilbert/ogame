@@ -96,7 +96,7 @@ func PageContentHandler(c echo.Context) error {
 // LoginHandler ...
 func LoginHandler(c echo.Context) error {
 	bot := c.Get("bot").(*OGame)
-	if _, err := bot.LoginWithExistingCookies(); err != nil {
+	if _, _, err := bot.LoginWithExistingCookies(); err != nil {
 		if err == gameforge.ErrBadCredentials {
 			return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 		}

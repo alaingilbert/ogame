@@ -104,8 +104,8 @@ type Prioritizable interface {
 	Highscore(category, typ, page int64) (ogame.Highscore, error)
 	IsUnderAttack(opts ...Option) (bool, error)
 	Login() error
-	LoginWithBearerToken(token string) (bool, error)
-	LoginWithExistingCookies() (bool, error)
+	LoginWithBearerToken(token string) (bool, bool, error)
+	LoginWithExistingCookies() (bool, bool, error)
 	Logout()
 	OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error
 	OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error
@@ -240,7 +240,7 @@ type Wrapper interface {
 	SetAllianceClass(ogame.AllianceClass)
 	SetClient(*httpclient.Client)
 	SetLfBonuses(lfBonuses ogame.LfBonuses)
-	SetLoginWrapper(func(func() (bool, error)) error)
+	SetLoginWrapper(func(func() (bool, bool, error)) error)
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetResearches(researches ogame.Researches)

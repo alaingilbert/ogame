@@ -154,12 +154,12 @@ func (b *OGame) GetLanguage() string {
 }
 
 // LoginWithBearerToken to ogame server reusing existing token
-func (b *OGame) LoginWithBearerToken(token string) (bool, error) {
+func (b *OGame) LoginWithBearerToken(token string) (bool, bool, error) {
 	return b.WithPriority(taskRunner.Normal).LoginWithBearerToken(token)
 }
 
 // LoginWithExistingCookies to ogame server reusing existing cookies
-func (b *OGame) LoginWithExistingCookies() (bool, error) {
+func (b *OGame) LoginWithExistingCookies() (bool, bool, error) {
 	return b.WithPriority(taskRunner.Normal).LoginWithExistingCookies()
 }
 
@@ -923,7 +923,7 @@ func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken s
 }
 
 // SetLoginWrapper ...
-func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
+func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, bool, error)) error) {
 	b.loginWrapper = newWrapper
 }
 
