@@ -198,10 +198,8 @@ func (f *FleetBuilder) flightTime(checkTarget bool) (secs, fuel int64) {
 	if f.allShips {
 		ships, _ = w.GetShips(origin.GetID())
 	}
-	if checkTarget {
-		return w.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission, f.holdingTime)
-	}
-	return w.FastFlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission, f.holdingTime)
+	flightTimeFn := utils.Ternary(checkTarget, w.FlightTime, w.FastFlightTime)
+	return flightTimeFn(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission, f.holdingTime)
 }
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {
