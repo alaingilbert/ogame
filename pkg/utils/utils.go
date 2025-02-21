@@ -253,3 +253,12 @@ func FindIdx[T any](arr []T, predicate func(T) bool) (*T, int) {
 	}
 	return nil, -1
 }
+
+// Deref generic deref return the zero value if v is nil
+func Deref[T any](v *T) T {
+	var zero T
+	if v == nil {
+		return zero
+	}
+	return *v
+}
