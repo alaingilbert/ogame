@@ -2613,10 +2613,11 @@ func (b *OGame) getLfBonuses() (out ogame.LfBonuses, err error) {
 }
 
 func (b *OGame) getCachedAllianceClass() (out ogame.AllianceClass, err error) {
-	if b.cache.allianceClass == nil {
+	allianceClass := b.cache.allianceClass
+	if allianceClass == nil {
 		return b.getAllianceClass()
 	}
-	return *b.cache.allianceClass, nil
+	return *allianceClass, nil
 }
 
 func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
@@ -2628,27 +2629,20 @@ func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
 	if err != nil {
 		return
 	}
-	if bytes.Contains(pageHTML, []byte("createNewAlliance")) {
-		b.cache.allianceClass = utils.Ptr(ogame.NoAllianceClass)
-		return *b.cache.allianceClass, nil
+	allianceClass := ogame.NoAllianceClass
+	if !bytes.Contains(pageHTML, []byte("createNewAlliance")) {
+		vals := url.Values{"page": {"ingame"}, "component": {"alliance"}, "tab": {"overview"}, "action": {"fetchOverview"}, "ajax": {"1"}, "token": {token}}
+		pageHTML, err = b.getPageContent(vals, SkipCacheFullPage)
+		if err == nil && len(pageHTML) > 0 {
+			var res parser.AllianceOverviewTabRes
+			if err = json.Unmarshal(pageHTML, &res); err == nil {
+				allianceClass, _ = b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
+				b.cache.token = res.NewAjaxToken
+			}
+		}
 	}
-	vals := url.Values{"page": {"ingame"}, "component": {"alliance"}, "tab": {"overview"}, "action": {"fetchOverview"}, "ajax": {"1"}, "token": {token}}
-	pageHTML, err = b.getPageContent(vals, SkipCacheFullPage)
-	if err != nil {
-		return
-	}
-	if len(pageHTML) == 0 {
-		b.cache.allianceClass = utils.Ptr(ogame.NoAllianceClass)
-		return *b.cache.allianceClass, nil
-	}
-	var res parser.AllianceOverviewTabRes
-	if err = json.Unmarshal(pageHTML, &res); err != nil {
-		return
-	}
-	allianceClass, _ := b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
 	b.cache.allianceClass = &allianceClass
-	b.cache.token = res.NewAjaxToken
-	return *b.cache.allianceClass, nil
+	return allianceClass, nil
 }
 
 func (b *OGame) getResourcesBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.ResourcesBuildings, error) {
