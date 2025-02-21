@@ -176,12 +176,12 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 
 // FlightTime ...
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
-	return f.flightTime(false)
+	return f.flightTime(true)
 }
 
 // FastFlightTime ...
 func (f *FleetBuilder) FastFlightTime() (secs, fuel int64) {
-	return f.flightTime(true)
+	return f.flightTime(false)
 }
 
 func (f *FleetBuilder) flightTime(checkTarget bool) (secs, fuel int64) {
