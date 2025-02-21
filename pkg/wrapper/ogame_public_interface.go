@@ -931,3 +931,18 @@ func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
 func (b *OGame) ReconnectChat() bool {
 	return b.reconnectChat()
 }
+
+// SetAllianceClass ...
+func (b *OGame) SetAllianceClass(allianceClass ogame.AllianceClass) {
+	b.cache.allianceClass = &allianceClass // TODO: bot should be locked ?
+}
+
+// SetResearches ...
+func (b *OGame) SetResearches(researches ogame.Researches) {
+	b.cache.researches = &researches // TODO: bot should be locked ?
+}
+
+// SetLfBonuses ...
+func (b *OGame) SetLfBonuses(lfBonuses ogame.LfBonuses) {
+	b.cache.lfBonuses = &lfBonuses // TODO: bot should be locked ?
+}
