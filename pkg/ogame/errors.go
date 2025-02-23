@@ -29,6 +29,9 @@ var ErrDeactivateHidePictures = errors.New("deactivate 'Hide pictures in reports
 // ErrEventsBoxNotDisplayed returned when trying to get attacks from a full page without event box
 var ErrEventsBoxNotDisplayed = errors.New("eventList box is not displayed")
 
+// ErrNotEnoughDeuterium ...
+var ErrNotEnoughDeuterium = errors.New("not enough deuterium")
+
 // Send fleet errors
 var (
 	ErrUnionNotFound                      = errors.New("union not found")

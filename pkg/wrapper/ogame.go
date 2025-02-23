@@ -1766,7 +1766,7 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 
 	// Ensure we have the resources to scan the planet
 	if resources.Deuterium < ogame.SensorPhalanx.ScanConsumption() {
-		return res, errors.New("not enough deuterium")
+		return res, ogame.ErrNotEnoughDeuterium
 	}
 
 	// Verify that coordinate is in phalanx range
@@ -2513,7 +2513,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 		return res, err
 	}
 	if res.Galaxy() != galaxy || res.System() != system {
-		return ogame.SystemInfos{}, errors.New("not enough deuterium")
+		return ogame.SystemInfos{}, ogame.ErrNotEnoughDeuterium
 	}
 	return res, err
 }

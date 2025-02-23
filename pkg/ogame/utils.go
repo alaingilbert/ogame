@@ -75,10 +75,12 @@ func IsStrCrystal(name string) bool {
 	return utils.InArr(name, arr)
 }
 
+// DeuteriumStrings ...
+var DeuteriumStrings = []string{"deuter", "deuterij", "deutérium", "deuterium", "deuterio", "дейтерий", "deutério", "deuteriu", "デューテリウム", "重氫", "δευτέριο"}
+
 // IsStrDeuterium ...
 func IsStrDeuterium(name string) bool {
-	arr := []string{"deuter", "deuterij", "deutérium", "deuterium", "deuterio", "дейтерий", "deutério", "deuteriu", "デューテリウム", "重氫", "δευτέριο"}
-	return utils.InArr(name, arr)
+	return utils.InArr(name, DeuteriumStrings)
 }
 
 // DefenceName2ID ...

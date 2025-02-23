@@ -1872,11 +1872,14 @@ func extractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
 	eventFleet := doc.Find("div.eventFleet")
 	if eventFleet.Size() == 0 {
 		txt := strings.TrimSpace(doc.Find("div#phalanxEventContent").Text())
-		// TODO: 'fleet' and 'deuterium' won't work in other languages
+		// TODO: 'fleet' won't work in other languages
 		if strings.Contains(txt, "fleet") {
 			return res, nil
-		} else if strings.Contains(txt, "deuterium") {
-			return res, errors.New(strings.TrimSpace(txt))
+		}
+		for _, s := range ogame.DeuteriumStrings {
+			if strings.Contains(txt, s) {
+				return res, fmt.Errorf("%s: %w", strings.TrimSpace(txt), ogame.ErrNotEnoughDeuterium)
+			}
 		}
 		return res, errors.New("phalanx failed: " + txt)
 	}
