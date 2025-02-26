@@ -17,6 +17,11 @@ func (c Coordinate) String() string {
 	return fmt.Sprintf("[%c:%d:%d:%d]", strings.ToUpper(c.Type.String())[0], c.Galaxy, c.System, c.Position)
 }
 
+// IsZero reports whether c represents the zero coordinate,
+func (c Coordinate) IsZero() bool {
+	return c.Galaxy == 0 && c.System == 0 && c.Position == 0 && c.Type == 0
+}
+
 // Equal returns either two coordinates are equal or not
 func (c Coordinate) Equal(v Coordinate) bool {
 	return c.Cmp(v) == 0
