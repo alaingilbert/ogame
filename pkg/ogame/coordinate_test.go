@@ -17,6 +17,11 @@ func TestCoordinate_Equal(t *testing.T) {
 	assert.False(t, Coordinate{1, 2, 3, PlanetType}.Equal(Coordinate{2, 2, 3, PlanetType}))
 	assert.False(t, Coordinate{1, 2, 3, PlanetType}.Equal(Coordinate{1, 3, 3, PlanetType}))
 	assert.False(t, Coordinate{1, 2, 3, PlanetType}.Equal(Coordinate{1, 2, 4, PlanetType}))
+	assert.False(t, Coordinate{1, 2, 3, PlanetType}.Equal(Coordinate{1, 2, 3, MoonType}))
+	assert.False(t, Coordinate{1, 2, 3, PlanetType} == Coordinate{1, 2, 3, MoonType})
+	assert.True(t, Coordinate{1, 2, 3, PlanetType} == Coordinate{1, 2, 3, PlanetType})
+	assert.True(t, Coordinate{1, 2, 3, MoonType} == Coordinate{1, 2, 3, MoonType})
+	assert.False(t, Coordinate{1, 2, 3, MoonType} == Coordinate{1, 2, 4, MoonType})
 }
 
 func TestCoordinate_IsPlanet(t *testing.T) {
