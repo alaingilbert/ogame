@@ -244,6 +244,7 @@ type Wrapper interface {
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetResearches(researches ogame.Researches)
+	SoftLogout()
 	SystemDistance(system1, system2 int64) int64
 	ValidateAccount(code string) error
 	WithPriority(priority taskRunner.Priority) Prioritizable
