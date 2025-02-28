@@ -590,6 +590,7 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 		b.error("failed to dial websocket:", err)
 		return
 	}
+	defer ws.Close()
 	b.ws = ws
 	chatRetry.Reset()
 	_ = websocket.Message.Send(ws, "2probe")
@@ -604,8 +605,7 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 		if err := ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
 			b.error("failed to set read deadline:", err)
 		}
-		err := websocket.Message.Receive(ws, &buf)
-		if err != nil {
+		if err := websocket.Message.Receive(ws, &buf); err != nil {
 			if err == io.EOF {
 				b.error("chat eof:", err)
 				break
@@ -756,9 +756,6 @@ func (b *OGame) logout() {
 	_ = b.device.GetClient().Jar.(*cookiejar.Jar).Save()
 	if b.isLoggedInAtom.CompareAndSwap(true, false) {
 		b.closeChatCancel()
-		if b.ws != nil {
-			_ = b.ws.Close()
-		}
 	}
 }
 
