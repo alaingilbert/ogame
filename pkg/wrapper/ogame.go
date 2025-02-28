@@ -754,6 +754,11 @@ func processAuctioneerMessage(buf string) (any, error) {
 func (b *OGame) logout() {
 	_, _ = b.getPage(LogoutPageName)
 	_ = b.device.GetClient().Jar.(*cookiejar.Jar).Save()
+	b.softLogout()
+}
+
+// Simulate closing the browser without logging out
+func (b *OGame) softLogout() {
 	if b.isLoggedInAtom.CompareAndSwap(true, false) {
 		b.closeChatCancel()
 	}

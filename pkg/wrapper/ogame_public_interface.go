@@ -946,3 +946,8 @@ func (b *OGame) SetResearches(researches ogame.Researches) {
 func (b *OGame) SetLfBonuses(lfBonuses ogame.LfBonuses) {
 	b.cache.lfBonuses = &lfBonuses // TODO: bot should be locked ?
 }
+
+// SoftLogout simulate closing the browser without logging out
+func (b *OGame) SoftLogout() {
+	b.softLogout()
+}
