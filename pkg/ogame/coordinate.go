@@ -13,6 +13,27 @@ type Coordinate struct {
 	Type     CelestialType
 }
 
+// NewCoordinate creates a new Coordinate
+func NewCoordinate(galaxy, system, position int64, typ CelestialType) Coordinate {
+	return Coordinate{Galaxy: galaxy, System: system, Position: position, Type: typ}
+}
+
+// NewPlanetCoordinate creates a new planet Coordinate
+func NewPlanetCoordinate(galaxy, system, position int64) Coordinate {
+	return Coordinate{Galaxy: galaxy, System: system, Position: position, Type: PlanetType}
+}
+
+// NewDebrisCoordinate creates a new debris Coordinate
+func NewDebrisCoordinate(galaxy, system, position int64) Coordinate {
+	return Coordinate{Galaxy: galaxy, System: system, Position: position, Type: DebrisType}
+}
+
+// NewMoonCoordinate creates a new moon Coordinate
+func NewMoonCoordinate(galaxy, system, position int64) Coordinate {
+	return Coordinate{Galaxy: galaxy, System: system, Position: position, Type: MoonType}
+}
+
+// String ...
 func (c Coordinate) String() string {
 	return fmt.Sprintf("[%c:%d:%d:%d]", strings.ToUpper(c.Type.String())[0], c.Galaxy, c.System, c.Position)
 }
