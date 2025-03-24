@@ -11,6 +11,7 @@ import (
 
 func TestParseInt(t *testing.T) {
 	assert.Equal(t, int64(1234567890), ParseInt("1.234.567.890"))
+	assert.Equal(t, int64(0), ParseInt(""))
 }
 
 func TestParseInt2(t *testing.T) {
