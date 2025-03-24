@@ -25,7 +25,7 @@ type Fleet struct {
 
 // IsCancellable returns either or not a fleet can be recalled
 func (f Fleet) IsCancellable() bool {
-	return !f.ReturnFlight && !f.InDeepSpace
+	return !f.ReturnFlight && !f.InDeepSpace && f.Mission != MissileAttack
 }
 
 // MakeFleet make a new Fleet object
