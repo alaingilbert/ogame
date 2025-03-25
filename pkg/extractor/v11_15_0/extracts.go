@@ -42,9 +42,9 @@ func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatRe
 
 				report := ogame.CombatReportSummary{ID: id}
 
-				if len(fleetsResult) >= 0 && fleetsResult[0].FleetID > 0 {
+				if len(fleetsResult) > 0 && fleetsResult[0].FleetID > 0 {
 					report.FleetID = ogame.FleetID(fleetsResult[0].FleetID)
-				} else if len(fleetsResult) >= 1 && fleetsResult[1].FleetID > 0 {
+				} else if len(fleetsResult) > 1 && fleetsResult[1].FleetID > 0 {
 					report.FleetID = ogame.FleetID(fleetsResult[1].FleetID)
 				}
 
