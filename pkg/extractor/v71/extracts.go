@@ -1121,17 +1121,17 @@ func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoor
 	}
 
 	allianceAttacks := make(map[int64]*ogame.AttackEvent)
+	eventRowRgx := regexp.MustCompile(`eventRow-(union)?(\d+)`)
+	unionRgx := regexp.MustCompile(`unionunion(\d+)`)
 
 	tmp := func(rowType string) func(int, *goquery.Selection) {
 		return func(i int, s *goquery.Selection) {
 			trIDAttr := s.AttrOr("id", "")
-			r := regexp.MustCompile(`eventRow-(union)?(\d+)`)
-			m := r.FindStringSubmatch(trIDAttr)
+			m := eventRowRgx.FindStringSubmatch(trIDAttr)
 			var id int64
 			if len(m) != 3 {
 				classes := s.AttrOr("class", "")
-				r = regexp.MustCompile(`unionunion(\d+)`)
-				m = r.FindStringSubmatch(classes)
+				m = unionRgx.FindStringSubmatch(classes)
 				if len(m) == 2 {
 					id = utils.DoParseI64(m[1])
 				}
@@ -1223,7 +1223,7 @@ func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoor
 					if allianceAttack.AttackerID == 0 {
 						allianceAttack.AttackerID = attack.AttackerID
 					}
-					if allianceAttack.Origin.Equal(ogame.Coordinate{}) {
+					if allianceAttack.Origin.IsZero() {
 						allianceAttack.Origin = attack.Origin
 					}
 				} else {
