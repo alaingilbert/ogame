@@ -24,11 +24,14 @@ func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Con
 	}
 	constructionRows := make([]ogame.Construction, 4)
 	for i, d := range data {
-		buildingDataEnd := utils.DoParseI64(doc.Find("time."+d[0]).AttrOr("data-end", "0"))
+		s := doc.Find("time." + d[0])
+		parent := s.Parent().Parent().Parent()
+		buildingDataEnd := utils.DoParseI64(s.AttrOr("data-end", "0"))
 		if buildingDataEnd > 0 {
 			countdown := time.Duration(buildingDataEnd-clock.Now().Unix()) * time.Second
 			id := ogame.ID(utils.ToInt(regexp.MustCompile(`onclick="` + d[1] + `\((\d+),`).FindSubmatch(pageHTML)[1]))
-			constructionRows[i] = ogame.Construction{ID: id, Countdown: countdown}
+			level := utils.DoParseI64(regexp.MustCompile(`(\d+)`).FindStringSubmatch(parent.Find("span.level").Text())[1])
+			constructionRows[i] = ogame.Construction{ID: id, Countdown: countdown, Level: level}
 		}
 	}
 	out.Building = constructionRows[0]

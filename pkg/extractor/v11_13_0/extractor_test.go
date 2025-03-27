@@ -15,12 +15,16 @@ func TestGetConstructions(t *testing.T) {
 	constructions := ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.DeuteriumTankID, constructions.Building.ID)
 	assert.Equal(t, int64(243), int64(constructions.Building.Countdown.Seconds()))
+	assert.Equal(t, int64(11), constructions.Building.Level)
 	assert.Equal(t, ogame.IonTechnologyID, constructions.Research.ID)
 	assert.Equal(t, int64(52), int64(constructions.Research.Countdown.Seconds()))
+	assert.Equal(t, int64(6), constructions.Research.Level)
 	assert.Equal(t, ogame.ResidentialSectorID, constructions.LfBuilding.ID)
 	assert.Equal(t, int64(414), int64(constructions.LfBuilding.Countdown.Seconds()))
+	assert.Equal(t, int64(42), constructions.LfBuilding.Level)
 	assert.Equal(t, ogame.IntergalacticEnvoysID, constructions.LfResearch.ID)
 	assert.Equal(t, int64(25972), int64(constructions.LfResearch.Countdown.Seconds()))
+	assert.Equal(t, int64(15), constructions.LfResearch.Level)
 }
 
 func TestExtractProduction(t *testing.T) {

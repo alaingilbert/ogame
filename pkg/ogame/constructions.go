@@ -12,4 +12,5 @@ type Constructions struct {
 type Construction struct {
 	ID        ID
 	Countdown time.Duration
+	Level     int64
 }
