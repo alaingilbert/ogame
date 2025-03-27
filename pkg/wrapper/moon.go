@@ -18,7 +18,7 @@ func (m Moon) GetProduction() ([]ogame.Quantifiable, int64, error) {
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (m Moon) ConstructionsBeingBuilt() ogame.Constructions {
+func (m Moon) ConstructionsBeingBuilt() (ogame.Constructions, error) {
 	return m.ogame.ConstructionsBeingBuilt(ogame.CelestialID(m.ID))
 }
 

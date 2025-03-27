@@ -2976,12 +2976,12 @@ func (b *OGame) buildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 	return b.buildProduction(celestialID, shipID, nbr)
 }
 
-func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) ogame.Constructions {
+func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.Constructions, error) {
 	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
 	if err != nil {
-		return ogame.Constructions{}
+		return ogame.Constructions{}, err
 	}
-	return page.ExtractConstructions()
+	return page.ExtractConstructions(), nil
 }
 
 func (b *OGame) cancel(token string, techID, listID int64) error {

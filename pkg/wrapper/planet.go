@@ -109,7 +109,7 @@ func (p Planet) EnsureFleet(ships ogame.ShipsInfos, speed ogame.Speed, where oga
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (p Planet) ConstructionsBeingBuilt() ogame.Constructions {
+func (p Planet) ConstructionsBeingBuilt() (ogame.Constructions, error) {
 	return p.ogame.ConstructionsBeingBuilt(ogame.CelestialID(p.ID))
 }
 
