@@ -26,7 +26,7 @@ func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Con
 	for i, d := range data {
 		buildingDataEnd := utils.DoParseI64(doc.Find("time."+d[0]).AttrOr("data-end", "0"))
 		if buildingDataEnd > 0 {
-			countdown := buildingDataEnd - clock.Now().Unix()
+			countdown := time.Duration(buildingDataEnd-clock.Now().Unix()) * time.Second
 			id := ogame.ID(utils.ToInt(regexp.MustCompile(`onclick="` + d[1] + `\((\d+),`).FindSubmatch(pageHTML)[1]))
 			constructionRows[i] = ogame.Construction{ID: id, Countdown: countdown}
 		}

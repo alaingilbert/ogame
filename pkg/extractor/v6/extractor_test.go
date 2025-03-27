@@ -1903,9 +1903,9 @@ func TestGetConstructions(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/overview_active.html")
 	constructions := NewExtractor().ExtractConstructions(pageHTMLBytes)
 	assert.Equal(t, ogame.CrystalMineID, constructions.Building.ID)
-	assert.Equal(t, int64(731), constructions.Building.Countdown)
+	assert.Equal(t, int64(731), int64(constructions.Building.Countdown.Seconds()))
 	assert.Equal(t, ogame.CombustionDriveID, constructions.Research.ID)
-	assert.Equal(t, int64(927), constructions.Research.Countdown)
+	assert.Equal(t, int64(927), int64(constructions.Research.Countdown.Seconds()))
 }
 
 func TestExtractIPM(t *testing.T) {

@@ -2019,13 +2019,13 @@ func extractFederation(pageHTML []byte) url.Values {
 func extractConstructions(pageHTML []byte) (out ogame.Constructions) {
 	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		out.Building.Countdown = int64(utils.ToInt(buildingCountdownMatch[1]))
+		out.Building.Countdown = time.Duration(int64(utils.ToInt(buildingCountdownMatch[1]))) * time.Second
 		buildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelProduction\((\d+),`).FindSubmatch(pageHTML)[1])
 		out.Building.ID = ogame.ID(buildingIDInt)
 	}
 	researchCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("researchCountdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(researchCountdownMatch) > 0 {
-		out.Research.Countdown = int64(utils.ToInt(researchCountdownMatch[1]))
+		out.Research.Countdown = time.Duration(int64(utils.ToInt(researchCountdownMatch[1]))) * time.Second
 		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelResearch\((\d+),`).FindSubmatch(pageHTML)[1])
 		out.Research.ID = ogame.ID(researchIDInt)
 	}

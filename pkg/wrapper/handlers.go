@@ -834,13 +834,13 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 			LfResearchCountdown int64
 		}{
 			BuildingID:          int64(constructions.Building.ID),
-			BuildingCountdown:   constructions.Building.Countdown,
+			BuildingCountdown:   int64(constructions.Building.Countdown.Seconds()),
 			ResearchID:          int64(constructions.Research.ID),
-			ResearchCountdown:   constructions.Research.Countdown,
+			ResearchCountdown:   int64(constructions.Research.Countdown.Seconds()),
 			LfBuildingID:        int64(constructions.LfBuilding.ID),
-			LfBuildingCountdown: constructions.LfBuilding.Countdown,
+			LfBuildingCountdown: int64(constructions.LfBuilding.Countdown.Seconds()),
 			LfResearchID:        int64(constructions.LfResearch.ID),
-			LfResearchCountdown: constructions.LfResearch.Countdown,
+			LfResearchCountdown: int64(constructions.LfResearch.Countdown.Seconds()),
 		},
 	))
 }

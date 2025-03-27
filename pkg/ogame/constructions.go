@@ -1,5 +1,7 @@
 package ogame
 
+import "time"
+
 type Constructions struct {
 	Building   Construction
 	Research   Construction
@@ -9,5 +11,5 @@ type Constructions struct {
 
 type Construction struct {
 	ID        ID
-	Countdown int64
+	Countdown time.Duration
 }

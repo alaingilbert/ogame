@@ -14,13 +14,13 @@ func TestGetConstructions(t *testing.T) {
 	clock := clockwork.NewFakeClockAt(time.Date(2024, 4, 11, 21, 24, 7, 0, time.UTC))
 	constructions := ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.DeuteriumTankID, constructions.Building.ID)
-	assert.Equal(t, int64(243), constructions.Building.Countdown)
+	assert.Equal(t, int64(243), int64(constructions.Building.Countdown.Seconds()))
 	assert.Equal(t, ogame.IonTechnologyID, constructions.Research.ID)
-	assert.Equal(t, int64(52), constructions.Research.Countdown)
+	assert.Equal(t, int64(52), int64(constructions.Research.Countdown.Seconds()))
 	assert.Equal(t, ogame.ResidentialSectorID, constructions.LfBuilding.ID)
-	assert.Equal(t, int64(414), constructions.LfBuilding.Countdown)
+	assert.Equal(t, int64(414), int64(constructions.LfBuilding.Countdown.Seconds()))
 	assert.Equal(t, ogame.IntergalacticEnvoysID, constructions.LfResearch.ID)
-	assert.Equal(t, int64(25972), constructions.LfResearch.Countdown)
+	assert.Equal(t, int64(25972), int64(constructions.LfResearch.Countdown.Seconds()))
 }
 
 func TestExtractProduction(t *testing.T) {

@@ -315,7 +315,7 @@ func TestGetConstructionsV7(t *testing.T) {
 	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 9, 6, 43, 0, time.UTC))
 	constructions := ExtractConstructions(pageHTMLBytes, clock)
 	assert.Equal(t, ogame.MetalMineID, constructions.Building.ID)
-	assert.Equal(t, int64(62), constructions.Building.Countdown)
+	assert.Equal(t, int64(62), int64(constructions.Building.Countdown.Seconds()))
 	assert.Equal(t, ogame.EnergyTechnologyID, constructions.Research.ID)
-	assert.Equal(t, int64(271), constructions.Research.Countdown)
+	assert.Equal(t, int64(271), int64(constructions.Research.Countdown.Seconds()))
 }

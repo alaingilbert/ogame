@@ -223,13 +223,13 @@ func extractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err e
 func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Constructions) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		out.Building.Countdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
+		out.Building.Countdown = time.Duration(int64(utils.ToInt(buildingCountdownMatch[1]))-clock.Now().Unix()) * time.Second
 		buildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
 		out.Building.ID = ogame.ID(buildingIDInt)
 	}
 	researchCountdownMatch := regexp.MustCompile(`var restTimeresearch = (\d+) -`).FindSubmatch(pageHTML)
 	if len(researchCountdownMatch) > 0 {
-		out.Research.Countdown = int64(utils.ToInt(researchCountdownMatch[1])) - clock.Now().Unix()
+		out.Research.Countdown = time.Duration(int64(utils.ToInt(researchCountdownMatch[1]))-clock.Now().Unix()) * time.Second
 		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
 		out.Research.ID = ogame.ID(researchIDInt)
 	}
