@@ -1901,11 +1901,11 @@ func TestCancelResearch(t *testing.T) {
 
 func TestGetConstructions(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/overview_active.html")
-	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ := NewExtractor().ExtractConstructions(pageHTMLBytes)
-	assert.Equal(t, ogame.CrystalMineID, buildingID)
-	assert.Equal(t, int64(731), buildingCountdown)
-	assert.Equal(t, ogame.CombustionDriveID, researchID)
-	assert.Equal(t, int64(927), researchCountdown)
+	constructions := NewExtractor().ExtractConstructions(pageHTMLBytes)
+	assert.Equal(t, ogame.CrystalMineID, constructions.Building.ID)
+	assert.Equal(t, int64(731), constructions.Building.Countdown)
+	assert.Equal(t, ogame.CombustionDriveID, constructions.Research.ID)
+	assert.Equal(t, int64(927), constructions.Research.Countdown)
 }
 
 func TestExtractIPM(t *testing.T) {

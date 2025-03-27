@@ -26,7 +26,7 @@ type Celestial interface {
 	CancelBuilding() error
 	CancelLfBuilding() error
 	CancelResearch() error
-	ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64)
+	ConstructionsBeingBuilt() ogame.Constructions
 	EnsureFleet(ogame.ShipsInfos, ogame.Speed, ogame.Coordinate, ogame.MissionID, ogame.Resources, int64, int64) (ogame.Fleet, error)
 	GetDefense(...Option) (ogame.DefensesInfos, error)
 	GetFacilities(...Option) (ogame.Facilities, error)
@@ -136,7 +136,7 @@ type Prioritizable interface {
 	CancelBuilding(ogame.CelestialID) error
 	CancelLfBuilding(ogame.CelestialID) error
 	CancelResearch(ogame.CelestialID) error
-	ConstructionsBeingBuilt(ogame.CelestialID) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64)
+	ConstructionsBeingBuilt(ogame.CelestialID) ogame.Constructions
 	EnsureFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate, mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error)
 	FastMiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, opts ...Option) (ogame.MinifleetResponse, error)
 	GetDefense(ogame.CelestialID, ...Option) (ogame.DefensesInfos, error)

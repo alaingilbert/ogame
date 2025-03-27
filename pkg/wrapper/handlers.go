@@ -821,7 +821,7 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid planet id"))
 	}
-	buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown, lfResearchID, lfResearchCountdown := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
+	constructions := bot.ConstructionsBeingBuilt(ogame.CelestialID(planetID))
 	return c.JSON(http.StatusOK, SuccessResp(
 		struct {
 			BuildingID          int64
@@ -833,14 +833,14 @@ func ConstructionsBeingBuiltHandler(c echo.Context) error {
 			LfResearchID        int64
 			LfResearchCountdown int64
 		}{
-			BuildingID:          int64(buildingID),
-			BuildingCountdown:   buildingCountdown,
-			ResearchID:          int64(researchID),
-			ResearchCountdown:   researchCountdown,
-			LfBuildingID:        int64(lfBuildingID),
-			LfBuildingCountdown: lfBuildingCountdown,
-			LfResearchID:        int64(lfResearchID),
-			LfResearchCountdown: lfResearchCountdown,
+			BuildingID:          int64(constructions.Building.ID),
+			BuildingCountdown:   constructions.Building.Countdown,
+			ResearchID:          int64(constructions.Research.ID),
+			ResearchCountdown:   constructions.Research.Countdown,
+			LfBuildingID:        int64(constructions.LfBuilding.ID),
+			LfBuildingCountdown: constructions.LfBuilding.Countdown,
+			LfResearchID:        int64(constructions.LfResearch.ID),
+			LfResearchCountdown: constructions.LfResearch.Countdown,
 		},
 	))
 }

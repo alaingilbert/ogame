@@ -313,9 +313,9 @@ func TestExtractFleetSlot_FleetDispatch(t *testing.T) {
 func TestGetConstructionsV7(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/overview_supplies_in_construction.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2019, 11, 12, 9, 6, 43, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ := ExtractConstructions(pageHTMLBytes, clock)
-	assert.Equal(t, ogame.MetalMineID, buildingID)
-	assert.Equal(t, int64(62), buildingCountdown)
-	assert.Equal(t, ogame.EnergyTechnologyID, researchID)
-	assert.Equal(t, int64(271), researchCountdown)
+	constructions := ExtractConstructions(pageHTMLBytes, clock)
+	assert.Equal(t, ogame.MetalMineID, constructions.Building.ID)
+	assert.Equal(t, int64(62), constructions.Building.Countdown)
+	assert.Equal(t, ogame.EnergyTechnologyID, constructions.Research.ID)
+	assert.Equal(t, int64(271), constructions.Research.Countdown)
 }

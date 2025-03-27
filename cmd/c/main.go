@@ -328,8 +328,11 @@ func BuildShips(planetID, shipID, nbr C.int) (errorMsg *C.char) {
 
 //export ConstructionsBeingBuilt
 func ConstructionsBeingBuilt(planetID C.int) (buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown, lfResearchID, lfResearchCountdown C.int) {
-	a, b, c, d, e, f, g, h := bot.ConstructionsBeingBuilt(ogame2.CelestialID(planetID))
-	return C.int(a), C.int(b), C.int(c), C.int(d), C.int(e), C.int(f), C.int(g), C.int(h)
+	constructions := bot.ConstructionsBeingBuilt(ogame2.CelestialID(planetID))
+	return C.int(constructions.Building.ID), C.int(constructions.Building.Countdown),
+		C.int(constructions.Research.ID), C.int(constructions.Research.Countdown),
+		C.int(constructions.LfBuilding.ID), C.int(constructions.LfBuilding.Countdown),
+		C.int(constructions.LfResearch.ID), C.int(constructions.LfResearch.Countdown)
 }
 
 //export CancelBuilding

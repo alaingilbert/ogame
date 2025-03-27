@@ -20,7 +20,7 @@ func NewExtractor() *Extractor {
 }
 
 // ExtractConstructions ...
-func (e *Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64) {
+func (e *Extractor) ExtractConstructions(pageHTML []byte) ogame.Constructions {
 	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
 }
 

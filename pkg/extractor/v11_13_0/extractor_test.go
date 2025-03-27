@@ -12,15 +12,15 @@ import (
 func TestGetConstructions(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.13.0/en/overview.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2024, 4, 11, 21, 24, 7, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown, lfBuildingID, lfBuildingCountdown, lfResearchID, lfResearchCountdown := ExtractConstructions(pageHTMLBytes, clock)
-	assert.Equal(t, ogame.DeuteriumTankID, buildingID)
-	assert.Equal(t, int64(243), buildingCountdown)
-	assert.Equal(t, ogame.IonTechnologyID, researchID)
-	assert.Equal(t, int64(52), researchCountdown)
-	assert.Equal(t, ogame.ResidentialSectorID, lfBuildingID)
-	assert.Equal(t, int64(414), lfBuildingCountdown)
-	assert.Equal(t, ogame.IntergalacticEnvoysID, lfResearchID)
-	assert.Equal(t, int64(25972), lfResearchCountdown)
+	constructions := ExtractConstructions(pageHTMLBytes, clock)
+	assert.Equal(t, ogame.DeuteriumTankID, constructions.Building.ID)
+	assert.Equal(t, int64(243), constructions.Building.Countdown)
+	assert.Equal(t, ogame.IonTechnologyID, constructions.Research.ID)
+	assert.Equal(t, int64(52), constructions.Research.Countdown)
+	assert.Equal(t, ogame.ResidentialSectorID, constructions.LfBuilding.ID)
+	assert.Equal(t, int64(414), constructions.LfBuilding.Countdown)
+	assert.Equal(t, ogame.IntergalacticEnvoysID, constructions.LfResearch.ID)
+	assert.Equal(t, int64(25972), constructions.LfResearch.Countdown)
 }
 
 func TestExtractProduction(t *testing.T) {

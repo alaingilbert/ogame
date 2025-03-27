@@ -2016,18 +2016,18 @@ func extractFederation(pageHTML []byte) url.Values {
 	return payload
 }
 
-func extractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64) {
+func extractConstructions(pageHTML []byte) (out ogame.Constructions) {
 	buildingCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("Countdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1]))
+		out.Building.Countdown = int64(utils.ToInt(buildingCountdownMatch[1]))
 		buildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelProduction\((\d+),`).FindSubmatch(pageHTML)[1])
-		buildingID = ogame.ID(buildingIDInt)
+		out.Building.ID = ogame.ID(buildingIDInt)
 	}
 	researchCountdownMatch := regexp.MustCompile(`getElementByIdWithCache\("researchCountdown"\),(\d+),`).FindSubmatch(pageHTML)
 	if len(researchCountdownMatch) > 0 {
-		researchCountdown = int64(utils.ToInt(researchCountdownMatch[1]))
+		out.Research.Countdown = int64(utils.ToInt(researchCountdownMatch[1]))
 		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelResearch\((\d+),`).FindSubmatch(pageHTML)[1])
-		researchID = ogame.ID(researchIDInt)
+		out.Research.ID = ogame.ID(researchIDInt)
 	}
 	return
 }

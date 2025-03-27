@@ -220,18 +220,18 @@ func extractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err e
 	return
 }
 
-func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64) {
+func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Constructions) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
+		out.Building.Countdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
 		buildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
-		buildingID = ogame.ID(buildingIDInt)
+		out.Building.ID = ogame.ID(buildingIDInt)
 	}
 	researchCountdownMatch := regexp.MustCompile(`var restTimeresearch = (\d+) -`).FindSubmatch(pageHTML)
 	if len(researchCountdownMatch) > 0 {
-		researchCountdown = int64(utils.ToInt(researchCountdownMatch[1])) - clock.Now().Unix()
+		out.Research.Countdown = int64(utils.ToInt(researchCountdownMatch[1])) - clock.Now().Unix()
 		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
-		researchID = ogame.ID(researchIDInt)
+		out.Research.ID = ogame.ID(researchIDInt)
 	}
 	return
 }

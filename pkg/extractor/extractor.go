@@ -78,7 +78,7 @@ type OverviewExtractorBytes interface {
 	ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)
-	ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64)
+	ExtractConstructions(pageHTML []byte) ogame.Constructions
 	ExtractDMCosts(pageHTML []byte) (ogame.DMCosts, error)
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error)

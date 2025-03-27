@@ -545,7 +545,7 @@ func (b *OGame) BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
+func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) ogame.Constructions {
 	return b.WithPriority(taskRunner.Normal).ConstructionsBeingBuilt(celestialID)
 }
 

@@ -114,20 +114,20 @@ func TestGetConstructions(t *testing.T) {
 	// Without lifeform
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2022, 8, 20, 12, 43, 11, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ := ExtractConstructions(pageHTMLBytes, clock)
-	assert.Equal(t, ogame.MetalMineID, buildingID)
-	assert.Equal(t, int64(5413), buildingCountdown)
-	assert.Equal(t, ogame.ComputerTechnologyID, researchID)
-	assert.Equal(t, int64(7), researchCountdown)
+	constructions := ExtractConstructions(pageHTMLBytes, clock)
+	assert.Equal(t, ogame.MetalMineID, constructions.Building.ID)
+	assert.Equal(t, int64(5413), constructions.Building.Countdown)
+	assert.Equal(t, ogame.ComputerTechnologyID, constructions.Research.ID)
+	assert.Equal(t, int64(7), constructions.Research.Countdown)
 
 	// With lifeform
 	pageHTMLBytes, _ = os.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues2.html")
 	clock = clockwork.NewFakeClockAt(time.Date(2022, 8, 28, 17, 22, 26, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ = ExtractConstructions(pageHTMLBytes, clock)
-	assert.Equal(t, ogame.MetalStorageID, buildingID)
-	assert.Equal(t, int64(33483), buildingCountdown)
-	assert.Equal(t, ogame.ComputerTechnologyID, researchID)
-	assert.Equal(t, int64(18355), researchCountdown)
+	constructions = ExtractConstructions(pageHTMLBytes, clock)
+	assert.Equal(t, ogame.MetalStorageID, constructions.Building.ID)
+	assert.Equal(t, int64(33483), constructions.Building.Countdown)
+	assert.Equal(t, ogame.ComputerTechnologyID, constructions.Research.ID)
+	assert.Equal(t, int64(18355), constructions.Research.Countdown)
 }
 
 func TestExtractUserInfos(t *testing.T) {
