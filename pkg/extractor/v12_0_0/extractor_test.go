@@ -22,6 +22,15 @@ func TestExtractHighscore(t *testing.T) {
 	assert.Equal(t, int64(107694), highscore.Players[0].ID)
 }
 
+func TestExtractHighscoreIgnored(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v12.0.27/en/highscore_ignored.html")
+	highscore, _ := NewExtractor().ExtractHighscore(pageHTMLBytes)
+	assert.Equal(t, "Kosmokratoras", highscore.Players[66].Name)
+	assert.Equal(t, int64(114011), highscore.Players[66].ID)
+	assert.Equal(t, "Marshal Tempo", highscore.Players[67].Name)
+	assert.Equal(t, int64(111580), highscore.Players[67].ID)
+}
+
 func TestExtractGalaxyInfos_alliance(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v12.0.27/en/galaxy_ajax.json")
 	infos, _ := NewExtractor().ExtractGalaxyInfos(pageHTMLBytes, "Commodore Nomade", 123, 456)
