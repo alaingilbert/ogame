@@ -1086,6 +1086,16 @@ func alterPayload(method string, b *OGame, vals, payload url.Values) {
 }
 
 func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, payload, vals url.Values, SkipCacheFullPage bool) error {
+	extractNewAjaxToken := func() {
+		var res struct {
+			NewAjaxToken string `json:"newAjaxToken"`
+		}
+		if err := json.Unmarshal(pageHTML, &res); err == nil {
+			if res.NewAjaxToken != "" {
+				b.cache.token = res.NewAjaxToken
+			}
+		}
+	}
 	isAjax := IsAjaxPage(vals)
 	switch method {
 	case http.MethodGet:
@@ -1108,14 +1118,7 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 				}
 			}
 		} else if isAjax {
-			var res struct {
-				NewAjaxToken string `json:"newAjaxToken"`
-			}
-			if err := json.Unmarshal(pageHTML, &res); err == nil {
-				if res.NewAjaxToken != "" {
-					b.cache.token = res.NewAjaxToken
-				}
-			}
+			extractNewAjaxToken()
 		}
 
 	case http.MethodPost:
@@ -1127,14 +1130,7 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 				return err
 			}
 		} else if isAjax {
-			var res struct {
-				NewAjaxToken string `json:"newAjaxToken"`
-			}
-			if err := json.Unmarshal(pageHTML, &res); err == nil {
-				if res.NewAjaxToken != "" {
-					b.cache.token = res.NewAjaxToken
-				}
-			}
+			extractNewAjaxToken()
 		}
 	}
 	return nil
