@@ -4163,7 +4163,7 @@ func (b *OGame) sendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, 
 				Position int64 `json:"position"`
 			} `json:"sentToCoordinates"`
 			Discovery struct {
-				CanSendDiscovery string `json:"canSendDiscovery"`
+				CanSendDiscovery any    `json:"canSendDiscovery"` // `true` or `"Maximum number of fleets reached."`
 				DiscoveryCount   string `json:"discoveryCount"`
 				GalaxyHeader     struct {
 					LocaGalaxyLifeformDiscoveryCount string `json:"LOCA_GALAXY_LIFEFORM_DISCOVERY_COUNT"`
