@@ -892,6 +892,11 @@ func (b *OGame) SendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.C
 	return b.WithPriority(taskRunner.Normal).SendDiscoveryFleet2(celestialID, coord, options...)
 }
 
+// SendSystemDiscoveryFleet sends a discovery fleets to all positions in a system
+func (b *OGame) SendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, system int64, options ...Option) ([]ogame.Coordinate, error) {
+	return b.WithPriority(taskRunner.Normal).SendSystemDiscoveryFleet(celestialID, galaxy, system, options...)
+}
+
 // GetAvailableDiscoveries ...
 func (b *OGame) GetAvailableDiscoveries(opts ...Option) int64 {
 	return b.WithPriority(taskRunner.Normal).GetAvailableDiscoveries(opts...)

@@ -527,6 +527,13 @@ func (b *Prioritize) SendDiscoveryFleet2(celestialID ogame.CelestialID, coord og
 	return b.bot.sendDiscoveryFleet2(celestialID, coord, options...)
 }
 
+// SendSystemDiscoveryFleet sends a discovery fleets to all positions in a system
+func (b *Prioritize) SendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, system int64, options ...Option) ([]ogame.Coordinate, error) {
+	b.begin("SendSystemDiscoveryFleet")
+	defer b.done()
+	return b.bot.sendSystemDiscoveryFleet(celestialID, galaxy, system, options...)
+}
+
 // EnsureFleet either sends all the requested ships or fail
 func (b *Prioritize) EnsureFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64) (ogame.Fleet, error) {

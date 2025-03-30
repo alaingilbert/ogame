@@ -4130,6 +4130,63 @@ func (b *OGame) sendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.C
 	return fleet, nil
 }
 
+func (b *OGame) sendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, system int64, options ...Option) ([]ogame.Coordinate, error) {
+	options = append(options, ChangePlanet(celestialID))
+	galaxyPage, err := b.getGalaxyPage(galaxy, system, options...)
+	if err != nil {
+		return nil, err
+	}
+	if !galaxyPage.System.CanSendSystemDiscovery {
+		return nil, errors.New("can't send system discovery")
+	}
+	// Send fleets.
+	res, err := b.postPageContent(url.Values{
+		"page":      {"ingame"},
+		"component": {"fleetdispatch"},
+		"action":    {"sendSystemDiscoveryFleet"},
+		"asJson":    {"1"},
+	}, url.Values{
+		"galaxy": {utils.FI64(galaxy)},
+		"system": {utils.FI64(system)},
+		"token":  {galaxyPage.Token},
+	})
+	if err != nil {
+		return nil, err
+	}
+	var resStruct struct {
+		Response struct {
+			Message           string `json:"message"`
+			ShipsSent         int    `json:"shipsSent"`
+			SentToCoordinates []struct {
+				Galaxy   int64 `json:"galaxy"`
+				System   int64 `json:"system"`
+				Position int64 `json:"position"`
+			} `json:"sentToCoordinates"`
+			Discovery struct {
+				CanSendDiscovery string `json:"canSendDiscovery"`
+				DiscoveryCount   string `json:"discoveryCount"`
+				GalaxyHeader     struct {
+					LocaGalaxyLifeformDiscoveryCount string `json:"LOCA_GALAXY_LIFEFORM_DISCOVERY_COUNT"`
+				} `json:"galaxyHeader"`
+			} `json:"discovery"`
+			Success bool `json:"success"`
+		} `json:"response"`
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
+	if err := json.Unmarshal(res, &resStruct); err != nil {
+		return nil, errors.New("failed to unmarshal response: " + err.Error())
+	}
+	if !resStruct.Response.Success {
+		return nil, errors.New(resStruct.Response.Message)
+	}
+	coordinates := make([]ogame.Coordinate, 0)
+	for _, resCoord := range resStruct.Response.SentToCoordinates {
+		coord := ogame.NewPlanetCoordinate(resCoord.Galaxy, resCoord.System, resCoord.Position)
+		coordinates = append(coordinates, coord)
+	}
+	return coordinates, nil
+}
+
 func (b *OGame) getAvailableDiscoveries(opts ...Option) int64 {
 	// Return the amount of available discoveries.
 	pageHTML, _ := b.getPageContent(url.Values{
@@ -4141,7 +4198,8 @@ func (b *OGame) getAvailableDiscoveries(opts ...Option) int64 {
 
 type GalaxyPageContent struct {
 	System struct {
-		GalaxyContent []struct {
+		CanSendSystemDiscovery bool `json:"canSendSystemDiscovery"`
+		GalaxyContent          []struct {
 			Position          int64 `json:"position"`
 			AvailableMissions []struct {
 				CanSend     any             `json:"canSend,omitempty"`
