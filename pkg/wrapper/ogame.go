@@ -4136,7 +4136,7 @@ func (b *OGame) sendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, 
 	if err != nil {
 		return nil, err
 	}
-	if !galaxyPage.System.CanSendSystemDiscovery {
+	if _, ok := galaxyPage.System.CanSendSystemDiscovery.(string); ok {
 		return nil, errors.New("can't send system discovery")
 	}
 	// Send fleets.
@@ -4198,7 +4198,7 @@ func (b *OGame) getAvailableDiscoveries(opts ...Option) int64 {
 
 type GalaxyPageContent struct {
 	System struct {
-		CanSendSystemDiscovery bool `json:"canSendSystemDiscovery"`
+		CanSendSystemDiscovery any `json:"canSendSystemDiscovery"`
 		GalaxyContent          []struct {
 			Position          int64 `json:"position"`
 			AvailableMissions []struct {
