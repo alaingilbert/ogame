@@ -121,6 +121,9 @@ var ErrAccountNotFound = errors.New("account not found")
 // ErrAccountBlocked returned when account is banned
 var ErrAccountBlocked = errors.New("account is blocked")
 
+// ErrForbidden returned when receiving an http 403
+var ErrForbidden = errors.New("403 Forbidden")
+
 // LoginParams ...
 type LoginParams struct {
 	Username    string
@@ -630,6 +633,9 @@ func login(params *loginParams) (out *LoginResponse, err error) {
 	}
 
 	if resp.StatusCode == http.StatusForbidden {
+		if string(by) == `{"error":{"message":"Forbidden"}}` {
+			return out, ErrForbidden
+		}
 		return out, errors.New(resp.Status + " : " + string(by))
 	} else if resp.StatusCode >= http.StatusInternalServerError {
 		return out, errors.New("gameforge server error code : " + resp.Status)
