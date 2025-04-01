@@ -58,6 +58,30 @@ func (d DefensesInfos) AttackableValue() int64 {
 	return val
 }
 
+// GetWeaponPower returns weapon power of a DefensesInfos
+func (d DefensesInfos) GetWeaponPower(researches IResearches) (out int64) {
+	for _, defense := range Defenses {
+		out += d.ByID(defense.GetID()) * defense.GetWeaponPower(researches)
+	}
+	return
+}
+
+// GetShieldPower returns shield power of a DefensesInfos
+func (d DefensesInfos) GetShieldPower(researches IResearches) (out int64) {
+	for _, defense := range Defenses {
+		out += d.ByID(defense.GetID()) * defense.GetShieldPower(researches)
+	}
+	return
+}
+
+// GetStructuralIntegrity returns structural integrity of a DefensesInfos
+func (d DefensesInfos) GetStructuralIntegrity(researches IResearches) (out int64) {
+	for _, defense := range Defenses {
+		out += d.ByID(defense.GetID()) * defense.GetStructuralIntegrity(researches)
+	}
+	return
+}
+
 func (d DefensesInfos) String() string {
 	return "\n" +
 		"        Rocket Launcher: " + utils.FI64(d.RocketLauncher) + "\n" +

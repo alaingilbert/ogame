@@ -229,6 +229,30 @@ func (s ShipsInfos) IterFlyable() iter.Seq2[ID, int64] {
 	}
 }
 
+// GetWeaponPower returns weapon power of a ShipsInfos
+func (s ShipsInfos) GetWeaponPower(researches IResearches) (out int64) {
+	for _, ship := range Ships {
+		out += s.ByShip(ship) * ship.GetWeaponPower(researches)
+	}
+	return
+}
+
+// GetShieldPower returns shield power of a ShipsInfos
+func (s ShipsInfos) GetShieldPower(researches IResearches) (out int64) {
+	for _, ship := range Ships {
+		out += s.ByShip(ship) * ship.GetShieldPower(researches)
+	}
+	return
+}
+
+// GetStructuralIntegrity returns structural integrity of a ShipsInfos
+func (s ShipsInfos) GetStructuralIntegrity(researches IResearches) (out int64) {
+	for _, ship := range Ships {
+		out += s.ByShip(ship) * ship.GetStructuralIntegrity(researches)
+	}
+	return
+}
+
 // ByID get number of ships by ship id
 func (s ShipsInfos) ByID(id ID) int64 {
 	switch id {
