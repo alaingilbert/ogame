@@ -160,6 +160,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	report.Date = msgDate.In(time.Local)
 
 	report.Username = strings.TrimSpace(rawMessageData.AttrOr("data-raw-playername", ""))
+	report.PlayerID = utils.DoParseI64(rawMessageData.AttrOr("data-raw-targetplayerid", "0"))
 
 	characterClassJsonStr := strings.TrimSpace(rawMessageData.AttrOr("data-raw-characterclass", ""))
 	var characterClassStruct struct{ ID int }

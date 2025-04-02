@@ -8,6 +8,7 @@ import (
 type EspionageReport struct {
 	Resources
 	ID                           int64
+	PlayerID                     int64
 	Username                     string
 	CharacterClass               CharacterClass
 	AllianceClass                AllianceClass
