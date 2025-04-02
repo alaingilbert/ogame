@@ -3692,7 +3692,10 @@ func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSu
 }
 
 func (b *OGame) getEspionageReport(msgID int64) (ogame.EspionageReport, error) {
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"componentOnly"}, "component": {"messagedetails"}, "messageId": {utils.FI64(msgID)}})
+	pageHTML, err := b.getPageContent(url.Values{"page": {"componentOnly"}, "component": {"messagedetails"}, "messageId": {utils.FI64(msgID)}})
+	if err != nil {
+		return ogame.EspionageReport{}, err
+	}
 	return b.extractor.ExtractEspionageReport(pageHTML)
 }
 
