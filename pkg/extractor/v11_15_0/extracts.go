@@ -138,6 +138,9 @@ func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.Esp
 func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Location) (ogame.EspionageReport, error) {
 	report := ogame.EspionageReport{}
 	report.ID = utils.DoParseI64(doc.Find("div.detail_msg").AttrOr("data-msg-id", "0"))
+	if report.ID == 0 {
+		return report, errors.New("failed to extract espionage report")
+	}
 	rawMessageData := doc.Find("div.rawMessageData").First()
 	txt := rawMessageData.AttrOr("data-raw-coordinates", "")
 	report.Coordinate = ogame.DoParseCoord(txt)
