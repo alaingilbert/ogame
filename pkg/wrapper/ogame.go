@@ -1870,7 +1870,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 	_, _ = io.Copy(io.Discard, resp.Body)
 
 	if resp.StatusCode >= http.StatusInternalServerError {
-		return nil, err
+		return nil, fmt.Errorf("gameforme internal server error : %s", resp.Status)
 	}
 
 	return resp.Header, err
