@@ -855,6 +855,9 @@ func canParseNewSystemInfos(by []byte) bool {
 }
 
 func (b *OGame) preRequestChecks() error {
+	if b.parentCtx.Err() != nil {
+		return b.parentCtx.Err()
+	}
 	if !b.IsEnabled() {
 		return ogame.ErrBotInactive
 	}
@@ -1075,6 +1078,8 @@ func applyDelay(b *OGame, delay time.Duration) error {
 	if delay > 0 {
 		select {
 		case <-time.After(delay):
+		case <-b.parentCtx.Done():
+			return b.parentCtx.Err()
 		case <-b.ctx.Done():
 			return ogame.ErrBotInactive
 		}
@@ -1170,6 +1175,9 @@ func (b *OGame) withRetry(fn func() error) error {
 			return nil
 		}
 		// If we manually logged out, do not try to auto re login.
+		if b.parentCtx.Err() != nil {
+			return b.parentCtx.Err()
+		}
 		if !b.IsEnabled() {
 			return ogame.ErrBotInactive
 		}
@@ -4125,6 +4133,8 @@ func (b *OGame) sendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.C
 	}
 	select {
 	case <-time.After(utils.RandMs(250, 500)):
+	case <-b.parentCtx.Done():
+		return ogame.Fleet{}, b.parentCtx.Err()
 	case <-b.ctx.Done():
 		return ogame.Fleet{}, ogame.ErrBotInactive
 	}
