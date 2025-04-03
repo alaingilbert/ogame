@@ -83,7 +83,7 @@ func (e *Extractor) ExtractPremiumToken(pageHTML []byte, days int64) (string, er
 }
 
 // ExtractTechs ...
-func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
+func (e *Extractor) ExtractTechs(pageHTML []byte) (ogame.Techs, error) {
 	panic("implement me")
 }
 

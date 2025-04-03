@@ -149,6 +149,6 @@ func (m Moon) GetLfResearch(options ...Option) (ogame.LfResearches, error) {
 }
 
 // GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)
-func (m Moon) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
+func (m Moon) GetTechs() (ogame.Techs, error) {
 	return m.ogame.GetTechs(m.ID.Celestial())
 }

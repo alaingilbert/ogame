@@ -1443,18 +1443,18 @@ func TechsHandler(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, "invalid celestial id"))
 	}
-	supplies, facilities, ships, defenses, researches, lfbuildings, lfResearches, err := bot.GetTechs(ogame.CelestialID(celestialID))
+	techs, err := bot.GetTechs(ogame.CelestialID(celestialID))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, ErrorResp(400, err.Error()))
 	}
 	return c.JSON(http.StatusOK, SuccessResp(map[string]any{
-		"supplies":     supplies,
-		"facilities":   facilities,
-		"ships":        ships,
-		"defenses":     defenses,
-		"researches":   researches,
-		"lfbuildings":  lfbuildings,
-		"lfResearches": lfResearches,
+		"supplies":     techs.ResourcesBuildings,
+		"facilities":   techs.Facilities,
+		"ships":        techs.ShipsInfos,
+		"defenses":     techs.DefensesInfos,
+		"researches":   techs.Researches,
+		"lfbuildings":  techs.LfBuildings,
+		"lfResearches": techs.LfResearches,
 	}))
 }
 

@@ -404,15 +404,15 @@ type planetTechsResp struct {
 	Num14218 int64 `json:"14218"`
 }
 
-func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilities ogame.Facilities, shipsInfos ogame.ShipsInfos, defenses ogame.DefensesInfos, researches ogame.Researches, lfBuildings ogame.LfBuildings, lfResearches ogame.LfResearches, err error) {
+func extractTechs(pageHTML []byte) (techs ogame.Techs, err error) {
 	var res planetTechsResp
 	if err = json.Unmarshal(pageHTML, &res); err != nil {
 		if v6.IsLogged(pageHTML) {
-			return supplies, facilities, shipsInfos, defenses, researches, lfBuildings, lfResearches, ogame.ErrInvalidPlanetID
+			return techs, ogame.ErrInvalidPlanetID
 		}
 		return
 	}
-	supplies = ogame.ResourcesBuildings{
+	techs.ResourcesBuildings = ogame.ResourcesBuildings{
 		MetalMine:            res.Num1,
 		CrystalMine:          res.Num2,
 		DeuteriumSynthesizer: res.Num3,
@@ -423,7 +423,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		CrystalStorage:       res.Num23,
 		DeuteriumTank:        res.Num24,
 	}
-	facilities = ogame.Facilities{
+	techs.Facilities = ogame.Facilities{
 		RoboticsFactory: res.Num14,
 		Shipyard:        res.Num21,
 		ResearchLab:     res.Num31,
@@ -436,7 +436,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		SensorPhalanx:   res.Num42,
 		JumpGate:        res.Num43,
 	}
-	shipsInfos = ogame.ShipsInfos{
+	techs.ShipsInfos = ogame.ShipsInfos{
 		LightFighter:   res.Num204,
 		HeavyFighter:   res.Num205,
 		Cruiser:        res.Num206,
@@ -455,7 +455,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		Reaper:         res.Num218,
 		Pathfinder:     res.Num219,
 	}
-	defenses = ogame.DefensesInfos{
+	techs.DefensesInfos = ogame.DefensesInfos{
 		RocketLauncher:         res.Num401,
 		LightLaser:             res.Num402,
 		HeavyLaser:             res.Num403,
@@ -467,7 +467,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		AntiBallisticMissiles:  res.Num502,
 		InterplanetaryMissiles: res.Num503,
 	}
-	researches = ogame.Researches{
+	techs.Researches = ogame.Researches{
 		EnergyTechnology:             res.Num113,
 		LaserTechnology:              res.Num120,
 		IonTechnology:                res.Num121,
@@ -485,7 +485,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		ShieldingTechnology:          res.Num110,
 		ArmourTechnology:             res.Num111,
 	}
-	lfBuildings = ogame.LfBuildings{
+	techs.LfBuildings = ogame.LfBuildings{
 		ResidentialSector:          res.Num11101,
 		BiosphereFarm:              res.Num11102,
 		ResearchCentre:             res.Num11103,
@@ -536,7 +536,7 @@ func extractTechs(pageHTML []byte) (supplies ogame.ResourcesBuildings, facilitie
 		SupraRefractor:             res.Num14112,
 	}
 
-	lfResearches = ogame.LfResearches{
+	techs.LfResearches = ogame.LfResearches{
 		IntergalacticEnvoys:               &res.Num11201,
 		HighPerformanceExtractors:         &res.Num11202,
 		FusionDrives:                      &res.Num11203,

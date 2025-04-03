@@ -585,7 +585,7 @@ func (b *OGame) GetResourcesDetails(celestialID ogame.CelestialID) (ogame.Resour
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *OGame) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
+func (b *OGame) GetTechs(celestialID ogame.CelestialID) (ogame.Techs, error) {
 	return b.WithPriority(taskRunner.Normal).GetTechs(celestialID)
 }
 
