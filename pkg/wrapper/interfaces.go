@@ -70,7 +70,7 @@ type Prioritizable interface {
 	GetAllResources() (map[ogame.CelestialID]ogame.Resources, error)
 	GetAttacks(...Option) ([]ogame.AttackEvent, error)
 	GetAuction() (ogame.Auction, error)
-	GetAvailableDiscoveries(...Option) int64
+	GetAvailableDiscoveries(...Option) (int64, error)
 	GetCachedAllianceClass() (ogame.AllianceClass, error)
 	GetCachedLfBonuses() (ogame.LfBonuses, error)
 	GetCachedResearch() ogame.Researches
@@ -87,8 +87,8 @@ type Prioritizable interface {
 	GetExpeditionMessageAt(time.Time) (ogame.ExpeditionMessage, error)
 	GetExpeditionMessages(maxPage int64) ([]ogame.ExpeditionMessage, error)
 	GetFleetDispatch(ogame.CelestialID, ...Option) (ogame.FleetDispatchInfos, error)
-	GetFleets(...Option) ([]ogame.Fleet, ogame.Slots)
-	GetFleetsFromEventList() []ogame.Fleet
+	GetFleets(...Option) ([]ogame.Fleet, ogame.Slots, error)
+	GetFleetsFromEventList() ([]ogame.Fleet, error)
 	GetItems(ogame.CelestialID) ([]ogame.Item, error)
 	GetLfBonuses() (ogame.LfBonuses, error)
 	GetMoon(IntoMoon) (Moon, error)
@@ -106,7 +106,7 @@ type Prioritizable interface {
 	Login() error
 	LoginWithBearerToken(token string) (bool, bool, error)
 	LoginWithExistingCookies() (bool, bool, error)
-	Logout()
+	Logout() error
 	OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error
 	OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error
 	PostPageContent(url.Values, url.Values) ([]byte, error)
@@ -202,6 +202,7 @@ type Wrapper interface {
 	GetCachedPlanets() []Planet
 	GetCachedPlayer() ogame.UserInfos
 	GetCachedPreferences() ogame.Preferences
+	GetCachedToken() string
 	GetClient() *httpclient.Client
 	GetDevice() *device.Device
 	GetExtractor() extractor.Extractor
@@ -244,10 +245,9 @@ type Wrapper interface {
 	SetLoginWrapper(func(func() (bool, bool, error)) error)
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
-	SetResearches(researches ogame.Researches)
+	SetResearches(ogame.Researches)
 	SoftLogout()
 	SystemDistance(system1, system2 int64) int64
-	Token() string
 	ValidateAccount(code string) error
 	WithPriority(priority taskRunner.Priority) Prioritizable
 }

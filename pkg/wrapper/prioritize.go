@@ -100,10 +100,10 @@ func (b *Prioritize) Login() error {
 }
 
 // Logout the bot from ogame server
-func (b *Prioritize) Logout() {
+func (b *Prioritize) Logout() error {
 	b.begin("Logout")
 	defer b.done()
-	b.bot.logout()
+	return b.bot.logout()
 }
 
 // GetPageContent gets the html for a specific ogame page
@@ -238,14 +238,14 @@ func (b *Prioritize) SendMessageAlliance(associationID int64, message string) er
 }
 
 // GetFleets get the player's own fleets activities
-func (b *Prioritize) GetFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots) {
+func (b *Prioritize) GetFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	b.begin("GetFleets")
 	defer b.done()
 	return b.bot.getFleets(opts...)
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
-func (b *Prioritize) GetFleetsFromEventList() []ogame.Fleet {
+func (b *Prioritize) GetFleetsFromEventList() ([]ogame.Fleet, error) {
 	b.begin("GetFleets")
 	defer b.done()
 	return b.bot.getFleetsFromEventList()
@@ -858,7 +858,7 @@ func (b *Prioritize) GetLfResearchDetails(celestialID ogame.CelestialID, options
 }
 
 // GetAvailableDiscoveries ...
-func (b *Prioritize) GetAvailableDiscoveries(opts ...Option) int64 {
+func (b *Prioritize) GetAvailableDiscoveries(opts ...Option) (int64, error) {
 	b.begin("GetAvailableDiscoveries")
 	defer b.done()
 	return b.bot.getAvailableDiscoveries(opts...)

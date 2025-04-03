@@ -757,10 +757,16 @@ func processAuctioneerMessage(buf string) (any, error) {
 	return pck, nil
 }
 
-func (b *OGame) logout() {
-	_, _ = b.getPage(LogoutPageName)
-	_ = b.device.GetClient().Jar.(*cookiejar.Jar).Save()
+func (b *OGame) logout() error {
+	_, err := b.getPage(LogoutPageName)
+	if err != nil {
+		return err
+	}
+	if err := b.device.GetClient().Jar.(*cookiejar.Jar).Save(); err != nil {
+		return err
+	}
 	b.softLogout()
+	return nil
 }
 
 // Simulate closing the browser without logging out
@@ -1549,22 +1555,25 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 	return nil
 }
 
-func (b *OGame) getFleetsFromEventList() []ogame.Fleet {
+func (b *OGame) getFleetsFromEventList() ([]ogame.Fleet, error) {
 	pageHTML, err := b.getPageContent(url.Values{"eventList": {"movement"}, "ajax": {"1"}})
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return b.extractor.ExtractFleetsFromEventList(pageHTML)
+	return b.extractor.ExtractFleetsFromEventList(pageHTML), nil
 }
 
-func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots) {
+func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	page, err := getPage[parser.MovementPage](b, opts...)
 	if err != nil {
-		return []ogame.Fleet{}, ogame.Slots{}
+		return []ogame.Fleet{}, ogame.Slots{}, err
 	}
 	fleets := page.ExtractFleets()
-	slots, _ := page.ExtractSlots()
-	return fleets, slots
+	slots, err := page.ExtractSlots()
+	if err != nil {
+		return []ogame.Fleet{}, ogame.Slots{}, err
+	}
+	return fleets, slots, nil
 }
 
 func (b *OGame) cancelFleet(fleetID ogame.FleetID) error {
@@ -3269,7 +3278,10 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	zeroFleet := ogame.MakeFleet()
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
-	initialFleets, slots := b.getFleets()
+	initialFleets, slots, err := b.getFleets()
+	if err != nil {
+		return zeroFleet, err
+	}
 	maxInitialFleetID := ogame.FleetID(0)
 	for _, f := range initialFleets {
 		if f.ID > maxInitialFleetID {
@@ -4242,16 +4254,16 @@ func (b *OGame) sendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, 
 	return coordinates, nil
 }
 
-func (b *OGame) getAvailableDiscoveries(opts ...Option) int64 {
+func (b *OGame) getAvailableDiscoveries(opts ...Option) (int64, error) {
 	// Return the amount of available discoveries.
 	pageHTML, err := b.getPageContent(url.Values{
 		"page":      {"ingame"},
 		"component": {"galaxy"},
 	}, opts...)
 	if err != nil {
-		return 0
+		return 0, err
 	}
-	return b.extractor.ExtractAvailableDiscoveries(pageHTML)
+	return b.extractor.ExtractAvailableDiscoveries(pageHTML), nil
 }
 
 type GalaxyPageContent struct {

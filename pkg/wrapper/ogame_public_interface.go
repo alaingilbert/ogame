@@ -170,7 +170,7 @@ func (b *OGame) Login() error {
 }
 
 // Logout the bot from ogame server
-func (b *OGame) Logout() { b.WithPriority(taskRunner.Normal).Logout() }
+func (b *OGame) Logout() error { return b.WithPriority(taskRunner.Normal).Logout() }
 
 // BytesDownloaded returns the amount of bytes downloaded
 func (b *OGame) BytesDownloaded() int64 {
@@ -372,8 +372,8 @@ func (b *OGame) Location() *time.Location {
 	return b.cache.location
 }
 
-// Token ...
-func (b *OGame) Token() string {
+// GetCachedToken ...
+func (b *OGame) GetCachedToken() string {
 	return b.cache.token
 }
 
@@ -418,12 +418,12 @@ func (b *OGame) SendMessageAlliance(associationID int64, message string) error {
 }
 
 // GetFleets get the player's own fleets activities
-func (b *OGame) GetFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots) {
+func (b *OGame) GetFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	return b.WithPriority(taskRunner.Normal).GetFleets(opts...)
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
-func (b *OGame) GetFleetsFromEventList() []ogame.Fleet {
+func (b *OGame) GetFleetsFromEventList() ([]ogame.Fleet, error) {
 	return b.WithPriority(taskRunner.Normal).GetFleetsFromEventList()
 }
 
@@ -903,7 +903,7 @@ func (b *OGame) SendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, 
 }
 
 // GetAvailableDiscoveries ...
-func (b *OGame) GetAvailableDiscoveries(opts ...Option) int64 {
+func (b *OGame) GetAvailableDiscoveries(opts ...Option) (int64, error) {
 	return b.WithPriority(taskRunner.Normal).GetAvailableDiscoveries(opts...)
 }
 
