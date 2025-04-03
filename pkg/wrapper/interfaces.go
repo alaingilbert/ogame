@@ -247,6 +247,7 @@ type Wrapper interface {
 	SetResearches(researches ogame.Researches)
 	SoftLogout()
 	SystemDistance(system1, system2 int64) int64
+	Token() string
 	ValidateAccount(code string) error
 	WithPriority(priority taskRunner.Priority) Prioritizable
 }

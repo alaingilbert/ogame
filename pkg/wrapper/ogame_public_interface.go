@@ -372,6 +372,11 @@ func (b *OGame) Location() *time.Location {
 	return b.cache.location
 }
 
+// Token ...
+func (b *OGame) Token() string {
+	return b.cache.token
+}
+
 // GetUserInfos gets the user information
 func (b *OGame) GetUserInfos() (ogame.UserInfos, error) {
 	return b.WithPriority(taskRunner.Normal).GetUserInfos()
