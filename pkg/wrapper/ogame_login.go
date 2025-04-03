@@ -234,6 +234,7 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	preferencesPage, err := getPage[parser.PreferencesPage](b, SkipCacheFullPage)
 	if err != nil {
 		b.error(err)
+		return err
 	}
 	b.cache.CachedPreferences = preferencesPage.ExtractPreferences()
 	language := b.cache.serverData.Language
