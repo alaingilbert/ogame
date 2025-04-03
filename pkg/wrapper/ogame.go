@@ -54,6 +54,7 @@ type OGame struct {
 	lockedAtom           atomic.Bool // atomic, bot state locked/unlocked
 	chatConnectedAtom    atomic.Bool // atomic, either or not the chat is connected
 	state                string      // keep name of the function that currently lock the bot
+	parentCtx            context.Context
 	ctx                  context.Context
 	cancelCtx            context.CancelFunc
 	stateChangeCallbacks []func(locked bool, actor string)
@@ -113,6 +114,7 @@ type OGame struct {
 
 // Params parameters for more fine-grained initialization
 type Params struct {
+	Ctx            context.Context
 	Username       string
 	Password       string
 	BearerToken    string // Gameforge auth bearer token
@@ -137,8 +139,12 @@ func newWithParams(params Params) (*OGame, error) {
 	if params.Device == nil {
 		return nil, errors.New("no device defined")
 	}
+	if params.Ctx == nil {
+		params.Ctx = context.Background()
+	}
 
 	b := new(OGame)
+	b.parentCtx = params.Ctx
 	b.device = params.Device
 	b.loginWrapper = DefaultLoginWrapper
 	b.Enable()
@@ -157,7 +163,7 @@ func newWithParams(params Params) (*OGame, error) {
 	b.extractor = ext
 
 	factory := func() *Prioritize { return &Prioritize{bot: b} }
-	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
+	b.taskRunnerInst = taskRunner.NewTaskRunner(params.Ctx, factory)
 
 	b.wsCallbacks = make(map[string]func([]byte))
 
@@ -1212,7 +1218,7 @@ func (b *OGame) constructionTime(id ogame.ID, nbr int64, facilities ogame.Facili
 }
 
 func (b *OGame) enable() {
-	b.ctx, b.cancelCtx = context.WithCancel(context.Background())
+	b.ctx, b.cancelCtx = context.WithCancel(b.parentCtx)
 	b.isEnabledAtom.Store(true)
 	b.stateChanged(false, "Enable")
 }

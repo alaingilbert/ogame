@@ -249,7 +249,7 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 
 	if b.chatConnectedAtom.CompareAndSwap(false, true) {
 		chatHost, chatPort := extractChatHostPort(page.GetContent())
-		b.closeChatCtx, b.closeChatCancel = context.WithCancel(context.Background())
+		b.closeChatCtx, b.closeChatCancel = context.WithCancel(b.ctx)
 		go func(b *OGame) {
 			defer b.chatConnectedAtom.Store(false)
 			sessionChatCounter := int64(1)
