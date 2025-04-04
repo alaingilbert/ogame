@@ -3,7 +3,7 @@ package wrapper
 import (
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 

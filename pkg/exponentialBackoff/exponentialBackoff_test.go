@@ -3,7 +3,7 @@ package exponentialBackoff
 import (
 	"context"
 	"github.com/alaingilbert/clockwork"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	"sync"
 	"sync/atomic"
 	"testing"
