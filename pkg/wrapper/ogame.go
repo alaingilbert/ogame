@@ -4104,7 +4104,7 @@ func (b *OGame) getCachedMoon(v IntoMoon) (Moon, error) {
 			return moon, nil
 		}
 	}
-	return Moon{}, errors.New("invalid planet")
+	return Moon{}, errors.New("invalid moon")
 }
 
 func (b *OGame) getTasks() (out taskRunner.TasksOverview) {
