@@ -526,22 +526,22 @@ func getSocks5Transport(proxyAddress, username, password string) (*http.Transpor
 
 func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error {
 	client := b.device.GetClient()
-	if proxyType == "" {
-		proxyType = "socks5"
+	proxyType = utils.Or(proxyType, "socks5")
+	transport := http.DefaultTransport
+	var loginTransport http.RoundTripper
+	if proxyAddress != "" {
+		proxyTransport, err := getTransport(proxyAddress, username, password, proxyType, config)
+		if err != nil {
+			return err
+		}
+		loginTransport = proxyTransport
+		if !loginOnly {
+			transport = proxyTransport
+		}
 	}
-	if proxyAddress == "" {
-		b.loginProxyTransport = nil
-		client.SetTransport(http.DefaultTransport)
-		return nil
-	}
-	transport, err := getTransport(proxyAddress, username, password, proxyType, config)
-	b.loginProxyTransport = transport
-	if loginOnly {
-		client.SetTransport(http.DefaultTransport)
-	} else {
-		client.SetTransport(transport)
-	}
-	return err
+	b.loginProxyTransport = loginTransport
+	client.SetTransport(transport)
+	return nil
 }
 
 func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
