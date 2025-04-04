@@ -209,7 +209,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	}
 
 	// APIKey
-	apikey, _ := doc.Find("button.icon_apikey").Attr("title")
+	apikey := doc.Find("button.icon_apikey").AttrOr("title", "")
 	apiDoc, err := goquery.NewDocumentFromReader(strings.NewReader(apikey))
 	if err != nil {
 		return report, err
@@ -474,7 +474,7 @@ func extractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
 
 func extractCategories(g *goquery.Selection, category string) (string, string) {
 	c := strings.Replace(category, "category", "", 1)
-	s, _ := g.Attr("data-toggable")
+	s := g.AttrOr("data-toggable", "")
 	v := "sub" + category
 	return c, strings.Replace(s, v, "", 1)
 }

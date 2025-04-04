@@ -633,10 +633,8 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 	}
 	vals := make([]int64, 0)
 	for _, s := range doc.Find("option").EachIter() {
-		_, selectedExists := s.Attr("selected")
-		if selectedExists {
-			a, _ := s.Attr("value")
-			val := utils.DoParseI64(a)
+		if _, selectedExists := s.Attr("selected"); selectedExists {
+			val := utils.DoParseI64(s.AttrOr("value", ""))
 			vals = append(vals, val)
 		}
 	}
@@ -664,7 +662,7 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 func extractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
 	active := doc.Find("table.construction").Eq(2)
-	href, _ := active.Find("td a").Attr("href")
+	href := active.Find("td a").AttrOr("href", "")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
 		return []ogame.Quantifiable{}, nil

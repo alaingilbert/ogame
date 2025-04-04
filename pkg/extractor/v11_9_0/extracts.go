@@ -16,7 +16,7 @@ import (
 func extractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
 	active := doc.Find("table.construction")
-	href, _ := active.Find("td a").Attr("href")
+	href := active.Find("td a").AttrOr("href", "")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
 		return []ogame.Quantifiable{}, nil

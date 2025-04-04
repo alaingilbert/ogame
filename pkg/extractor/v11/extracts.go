@@ -23,10 +23,8 @@ func extractResourceSettingsFromPage(pageHTML []byte) (ogame.ResourceSettings, s
 	}
 	vals := make([]int64, 0)
 	for _, s := range doc.Find("option").EachIter() {
-		_, selectedExists := s.Attr("selected")
-		if selectedExists {
-			a, _ := s.Attr("value")
-			val := utils.DoParseI64(a)
+		if _, selectedExists := s.Attr("selected"); selectedExists {
+			val := utils.DoParseI64(s.AttrOr("value", ""))
 			vals = append(vals, val)
 		}
 	}
@@ -72,7 +70,7 @@ func ExtractCancelInfos(pageHTML []byte, fnName string, tableIdx int) (token str
 		return "", 0, 0, err
 	}
 	t := doc.Find("table.construction").Eq(tableIdx)
-	a, _ := t.Find("a").First().Attr("onclick")
+	a := t.Find("a").First().AttrOr("onclick", "")
 	r := regexp.MustCompile(fnName + `\((\d+),\s?(\d+),`)
 	m := r.FindStringSubmatch(a)
 	if len(m) < 3 {

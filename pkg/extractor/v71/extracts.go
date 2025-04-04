@@ -994,7 +994,7 @@ func extractCancelFleetTokenFromDoc(doc *goquery.Document, fleetID ogame.FleetID
 func extractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
 	active := doc.Find("table.construction")
-	href, _ := active.Find("td a").Attr("href")
+	href := active.Find("td a").AttrOr("href", "")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
 		return []ogame.Quantifiable{}, nil
@@ -1139,7 +1139,7 @@ func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoor
 				id = utils.DoParseI64(m[2])
 			}
 
-			classes, _ := s.Attr("class")
+			classes := s.AttrOr("class", "")
 			partner := strings.Contains(classes, "partnerInfo")
 
 			td := s.Find("td.countDown")

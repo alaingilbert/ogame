@@ -367,7 +367,7 @@ func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoor
 	allianceAttacks := make(map[int64]*ogame.AttackEvent)
 
 	tmp := func(i int, s *goquery.Selection) {
-		classes, _ := s.Attr("class")
+		classes := s.AttrOr("class", "")
 		partner := strings.Contains(classes, "partnerInfo")
 
 		td := s.Find("td.countDown")
@@ -507,7 +507,7 @@ func extractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToke
 func extractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
 	active := doc.Find("table.construction")
-	href, _ := active.Find("td a").Attr("href")
+	href := active.Find("td a").AttrOr("href", "")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
 		return []ogame.Quantifiable{}, nil
@@ -543,7 +543,7 @@ func extractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, erro
 func extractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error) {
 	res := make([]ogame.Quantifiable, 0)
 	active := doc.Find("table.construction").Eq(2)
-	href, _ := active.Find("td a").Attr("href")
+	href := active.Find("td a").AttrOr("href", "")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
 		return []ogame.Quantifiable{}, nil
@@ -1020,10 +1020,8 @@ func extractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettin
 	}
 	vals := make([]int64, 0)
 	for _, s := range doc.Find("option").EachIter() {
-		_, selectedExists := s.Attr("selected")
-		if selectedExists {
-			a, _ := s.Attr("value")
-			val := utils.DoParseI64(a)
+		if _, selectedExists := s.Attr("selected"); selectedExists {
+			val := utils.DoParseI64(s.AttrOr("value", ""))
 			vals = append(vals, val)
 		}
 	}
@@ -1257,48 +1255,39 @@ func extractServerTimeFromDoc(doc *goquery.Document) (time.Time, error) {
 }
 
 func extractSpioAnzFromDoc(doc *goquery.Document) int64 {
-	out := utils.DoParseI64(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
-	return out
+	return utils.DoParseI64(doc.Find("input[name=spio_anz]").AttrOr("value", "1"))
 }
 
 func extractSpySystemAutomaticQuantityFromDoc(doc *goquery.Document) int64 {
-	out := utils.DoParseI64(doc.Find("input[name=spySystemAutomaticQuantity]").AttrOr("value", "0"))
-	return out
+	return utils.DoParseI64(doc.Find("input[name=spySystemAutomaticQuantity]").AttrOr("value", ""))
 }
 
 func extractSpySystemIgnoreSpiedInLastXMinutesFromDoc(doc *goquery.Document) int64 {
-	out := utils.DoParseI64(doc.Find("input[name=spySystemIgnoreSpiedInLastXMinutes]").AttrOr("value", "0"))
-	return out
+	return utils.DoParseI64(doc.Find("input[name=spySystemIgnoreSpiedInLastXMinutes]").AttrOr("value", ""))
 }
 
 func extractDisableChatBarFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=disableChatBar]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=disableChatBar]").Attr("checked"))
 }
 
 func extractDisableOutlawWarningFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=disableOutlawWarning]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=disableOutlawWarning]").Attr("checked"))
 }
 
 func extractMobileVersionFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=mobileVersion]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=mobileVersion]").Attr("checked"))
 }
 
 func extractUrlaubsModus(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=urlaubs_modus]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=urlaubs_modus]").Attr("checked"))
 }
 
 func extractShowOldDropDownsFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=showOldDropDowns]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=showOldDropDowns]").Attr("checked"))
 }
 
 func extractActivateAutofocusFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=activateAutofocus]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=activateAutofocus]").Attr("checked"))
 }
 
 func extractEventsShowFromDoc(doc *goquery.Document) int64 {
@@ -1322,33 +1311,27 @@ func extractSortOrderFromDoc(doc *goquery.Document) int64 {
 }
 
 func extractShowDetailOverlayFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=showDetailOverlay]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=showDetailOverlay]").Attr("checked"))
 }
 
 func extractAnimatedSlidersFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=animatedSliders]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=animatedSliders]").Attr("checked"))
 }
 
 func extractAnimatedOverviewFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=animatedOverview]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=animatedOverview]").Attr("checked"))
 }
 
 func extractPopupsNoticesFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="popups[notices]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="popups[notices]"]`).Attr("checked"))
 }
 
 func extractPopopsCombatreportFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="popups[combatreport]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="popups[combatreport]"]`).Attr("checked"))
 }
 
 func extractSpioReportPicturesFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=spioReportPictures]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=spioReportPictures]").Attr("checked"))
 }
 
 func extractMsgResultsPerPageFromDoc(doc *goquery.Document) int64 {
@@ -1356,68 +1339,55 @@ func extractMsgResultsPerPageFromDoc(doc *goquery.Document) int64 {
 }
 
 func extractAuctioneerNotificationsFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=auctioneerNotifications]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=auctioneerNotifications]").Attr("checked"))
 }
 
 func extractEconomyNotificationsFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=economyNotifications]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=economyNotifications]").Attr("checked"))
 }
 
 func extractShowActivityMinutesFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=showActivityMinutes]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=showActivityMinutes]").Attr("checked"))
 }
 
 func extractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=preserveSystemOnPlanetChange]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=preserveSystemOnPlanetChange]").Attr("checked"))
 }
 
 func extractDiscoveryWarningEnabledFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find("input[name=discoveryWarningEnabled]").Attr("checked")
-	return exists
+	return utils.Second(doc.Find("input[name=discoveryWarningEnabled]").Attr("checked"))
 }
 
 func extractNotifBuildListFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="notifications[buildList]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="notifications[buildList]"]`).Attr("checked"))
 }
 
 func extractNotifFriendlyFleetActivitiesFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="notifications[friendlyFleetActivities]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="notifications[friendlyFleetActivities]"]`).Attr("checked"))
 }
 
 func extractNotifHostileFleetActivitiesFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="notifications[hostileFleetActivities]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="notifications[hostileFleetActivities]"]`).Attr("checked"))
 }
 
 func extractNotifForeignEspionageFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="notifications[foreignEspionage]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="notifications[foreignEspionage]"]`).Attr("checked"))
 }
 
 func extractNotifAllianceBroadcastsFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="notifications[allianceBroadcasts]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="notifications[allianceBroadcasts]"]`).Attr("checked"))
 }
 
 func extractNotifAllianceMessagesFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="notifications[allianceMessages]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="notifications[allianceMessages]"]`).Attr("checked"))
 }
 
 func extractNotifAuctionsFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="notifications[auctions]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="notifications[auctions]"]`).Attr("checked"))
 }
 
 func extractNotifAccountFromDoc(doc *goquery.Document) bool {
-	_, exists := doc.Find(`input[name="notifications[account]"]`).Attr("checked")
-	return exists
+	return utils.Second(doc.Find(`input[name="notifications[account]"]`).Attr("checked"))
 }
 
 func extractCommanderFromDoc(doc *goquery.Document) bool {
@@ -1739,14 +1709,14 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 		return res, ogame.ErrMobileView
 	}
 	for i, s := range doc.Find("tr.row").EachIter() {
-		classes, _ := s.Attr("class")
+		classes := s.AttrOr("class", "")
 		if !strings.Contains(classes, "empty_filter") {
 			position := s.Find("td.position").Text()
 
 			tooltips := s.Find("div.htmlTooltip")
 			planetTooltip := tooltips.First()
 			planetName := planetTooltip.Find("h1").Find("span").Text()
-			planetImg, _ := planetTooltip.Find("img").Attr("src")
+			planetImg := planetTooltip.Find("img").AttrOr("src", "")
 			coordsRaw := planetTooltip.Find("span#pos-planet").Text()
 
 			metalTxt := s.Find("div#debris" + position + " ul.ListLinks li").First().Text()
@@ -1767,7 +1737,7 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 
 			allianceSpan := s.Find("span.allytagwrapper")
 			if allianceSpan.Size() > 0 {
-				longID, _ := allianceSpan.Attr("rel")
+				longID := allianceSpan.AttrOr("rel", "")
 				planetInfos.Alliance = new(ogame.AllianceInfos)
 				planetInfos.Alliance.Name = allianceSpan.Find("h1").Text()
 				planetInfos.Alliance.ID = utils.DoParseI64(strings.TrimPrefix(longID, "alliance"))
@@ -1802,7 +1772,7 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 			var playerRank int64
 			if len(tooltips.Nodes) > 1 {
 				for _, s := range tooltips.EachIter() {
-					idAttr, _ := s.Attr("id")
+					idAttr := s.AttrOr("id", "")
 					if strings.HasPrefix(idAttr, "player") {
 						playerID = utils.DoParseI64(regexp.MustCompile(`player(\d+)`).FindStringSubmatch(idAttr)[1])
 						playerName = s.Find("h1").Find("span").Text()
@@ -2116,13 +2086,13 @@ var moonInfosRgx = regexp.MustCompile(`([^\[]+) \[(\d+):(\d+):(\d+)]([\d.,]+)(?i
 var cpRgx = regexp.MustCompile(`&cp=(\d+)`)
 
 func extractPlanetFromSelection(s *goquery.Selection) (ogame.Planet, error) {
-	el, _ := s.Attr("id")
+	el := s.AttrOr("id", "")
 	id, err := utils.ParseI64(strings.TrimPrefix(el, "planet-"))
 	if err != nil {
 		return ogame.Planet{}, err
 	}
 
-	title, _ := s.Find("a.planetlink").Attr("title")
+	title := s.Find("a.planetlink").AttrOr("title", "")
 	root, err := html.Parse(strings.NewReader(title))
 	if err != nil {
 		return ogame.Planet{}, err
@@ -2159,7 +2129,7 @@ func extractMoonFromSelection(moonLink *goquery.Selection) (ogame.Moon, error) {
 	}
 	m := cpRgx.FindStringSubmatch(href)
 	id := utils.DoParseI64(m[1])
-	title, _ := moonLink.Attr("title")
+	title := moonLink.AttrOr("title", "")
 	root, err := html.Parse(strings.NewReader(title))
 	if err != nil {
 		return ogame.Moon{}, err

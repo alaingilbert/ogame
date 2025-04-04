@@ -330,7 +330,7 @@ func extractOverviewProductionFromDoc(doc *goquery.Document, lifeformEnabled boo
 	if lifeformEnabled {
 		active = doc.Find("table.construction").Eq(4)
 	}
-	href, _ := active.Find("td a").Attr("href")
+	href := active.Find("td a").AttrOr("href", "")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
 		return []ogame.Quantifiable{}, nil
