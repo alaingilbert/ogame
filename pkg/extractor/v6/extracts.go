@@ -93,9 +93,10 @@ func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.Res
 func extractHiddenFieldsFromDoc(doc *goquery.Document) url.Values {
 	fields := url.Values{}
 	for _, s := range doc.Find("input[type=hidden]").EachIter() {
-		name, _ := s.Attr("name")
-		value, _ := s.Attr("value")
-		fields.Add(name, value)
+		if name, exists := s.Attr("name"); exists {
+			value := s.AttrOr("value", "")
+			fields.Add(name, value)
+		}
 	}
 	return fields
 }
