@@ -15,7 +15,6 @@ require (
 	github.com/martinlindhe/base36 v1.1.1
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/orirawlings/persistent-cookiejar v0.3.0
-	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.2.0
 	github.com/stretchr/testify v1.10.0
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb

@@ -23,7 +23,6 @@ import (
 	"github.com/alaingilbert/ogame/pkg/utils"
 	version "github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
-	err2 "github.com/pkg/errors"
 	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
@@ -1192,7 +1191,7 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 		maxRetry--
 		if maxRetry <= 0 {
-			return err2.Wrap(err, ogame.ErrFailedExecuteCallback.Error())
+			return fmt.Errorf("failed to execute callback: %w", err)
 		}
 		b.error(err.Error())
 		if errors.Is(err, ogame.ErrNotLogged) {
