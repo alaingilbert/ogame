@@ -16,7 +16,6 @@ require (
 	github.com/orirawlings/persistent-cookiejar v0.3.2
 	github.com/pquerna/otp v1.4.0
 	github.com/stretchr/testify v1.10.0
-	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
 	golang.org/x/net v0.38.0
 	golang.org/x/text v0.23.0
 	gopkg.in/abiosoft/ishell.v2 v2.0.0

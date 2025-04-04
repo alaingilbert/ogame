@@ -23,7 +23,6 @@ import (
 	"github.com/alaingilbert/ogame/pkg/utils"
 	version "github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
-	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
 	"io"
@@ -4023,8 +4022,6 @@ func (b *OGame) getCachedCelestial(v IntoCelestial) (Celestial, error) {
 	case float32:
 		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case float64:
-		return getCachedCelestialByID(ogame.CelestialID(vv))
-	case lua.LNumber:
 		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case HasCoordinate:
 		coordinate, err := ConvertIntoCoordinate(b, vv)

@@ -17,7 +17,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
-	lua "github.com/yuin/gopher-lua"
 	"golang.org/x/net/html"
 )
 
@@ -223,8 +222,6 @@ func extractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, err
 	case float32:
 		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case float64:
-		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
-	case lua.LNumber:
 		return extractCelestialByIDFromDocLocal(doc, ogame.CelestialID(vv))
 	case ogame.Coordinate:
 		return extractCelestialByCoordFromDocLocal(doc, vv)
