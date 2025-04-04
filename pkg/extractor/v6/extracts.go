@@ -2147,8 +2147,7 @@ func extractPlanetFromSelection(s *goquery.Selection) (ogame.Planet, error) {
 	res.Fields.Total = utils.DoParseI64(m[7])
 	res.Temperature.Min = utils.DoParseI64(m[8])
 	res.Temperature.Max = utils.DoParseI64(m[9])
-
-	res.Moon, _ = extractMoonFromPlanetSelection(s)
+	res.Moon = utils.First(extractMoonFromPlanetSelection(s))
 
 	return res, nil
 }
