@@ -1,8 +1,8 @@
 package wrapper
 
 import (
+	"errors"
 	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/go-errors/errors"
 )
 
 // Moon ogame moon object

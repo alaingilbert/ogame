@@ -9,7 +9,6 @@ require (
 	github.com/alaingilbert/clockwork v0.1.1-0.20220821091847-24a25c94a5fe
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/dustin/go-humanize v1.0.0
-	github.com/go-errors/errors v1.0.1
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/hashicorp/go-version v1.2.0
 	github.com/labstack/echo/v4 v4.9.0
