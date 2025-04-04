@@ -16,10 +16,10 @@ require (
 	github.com/orirawlings/persistent-cookiejar v0.3.2
 	github.com/pquerna/otp v1.4.0
 	github.com/stretchr/testify v1.10.0
+	github.com/urfave/cli/v3 v3.1.1
 	golang.org/x/net v0.38.0
 	golang.org/x/text v0.23.0
 	gopkg.in/abiosoft/ishell.v2 v2.0.0
-	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8
 )
 
 require (
