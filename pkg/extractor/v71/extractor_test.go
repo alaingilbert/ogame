@@ -50,11 +50,11 @@ func TestExtractAttacksACS_v72(t *testing.T) {
 
 func TestExtractIsMobile(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.1/en/movement.html")
-	isMobile := NewExtractor().ExtractIsMobile(pageHTMLBytes)
+	isMobile, _ := NewExtractor().ExtractIsMobile(pageHTMLBytes)
 	assert.False(t, isMobile)
 
 	pageHTMLBytes, _ = os.ReadFile("../../../samples/v7.2/en/movement_mobile.html")
-	isMobile = NewExtractor().ExtractIsMobile(pageHTMLBytes)
+	isMobile, _ = NewExtractor().ExtractIsMobile(pageHTMLBytes)
 	assert.True(t, isMobile)
 }
 

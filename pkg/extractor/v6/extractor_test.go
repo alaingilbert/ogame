@@ -5,6 +5,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/clockwork"
 	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -271,19 +272,19 @@ func TestExtractJumpGate(t *testing.T) {
 
 func TestExtractOgameTimestamp(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/moon_facilities.html")
-	res := NewExtractor().ExtractOgameTimestamp(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractOgameTimestamp(pageHTMLBytes)
 	assert.Equal(t, int64(1538912592), res)
 }
 
 func TestExtractOgameTimestampFromBytes(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/moon_facilities.html")
-	res := NewExtractor().ExtractOGameTimestampFromBytes(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractOGameTimestampFromBytes(pageHTMLBytes)
 	assert.Equal(t, int64(1538912592), res)
 }
 
 func TestExtractResources(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/moon_facilities.html")
-	res := NewExtractor().ExtractResources(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResources(pageHTMLBytes)
 	assert.Equal(t, int64(280000), res.Metal)
 	assert.Equal(t, int64(260000), res.Crystal)
 	assert.Equal(t, int64(280000), res.Deuterium)
@@ -293,7 +294,7 @@ func TestExtractResources(t *testing.T) {
 
 func TestExtractResourcesMobile(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/preferences_mobile.html")
-	res := NewExtractor().ExtractResources(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResources(pageHTMLBytes)
 	assert.Equal(t, int64(7325851), res.Metal)
 	assert.Equal(t, int64(1695823), res.Crystal)
 	assert.Equal(t, int64(1835627), res.Deuterium)
@@ -303,7 +304,7 @@ func TestExtractResourcesMobile(t *testing.T) {
 
 func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/fleets_1.html")
-	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
 	assert.Equal(t, int64(1959227), res.Metal.Available)
 	assert.Equal(t, int64(37818), res.Metal.CurrentProduction)
 	assert.Equal(t, int64(5355000), res.Metal.StorageCapacity)
@@ -323,7 +324,7 @@ func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 
 func TestExtractResourcesDetailsFromFullPageV7(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/overview2.html")
-	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
 	assert.Equal(t, int64(36800), res.Metal.Available)
 	assert.Equal(t, int64(396), res.Metal.CurrentProduction)
 	assert.Equal(t, int64(40000), res.Metal.StorageCapacity)
@@ -1594,13 +1595,13 @@ func TestExtractUserInfos_ba(t *testing.T) {
 
 func TestExtractMoons(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/overview_with_moon.html")
-	moons := NewExtractor().ExtractMoons(pageHTMLBytes)
+	moons, _ := NewExtractor().ExtractMoons(pageHTMLBytes)
 	assert.Equal(t, 1, len(moons))
 }
 
 func TestExtractMoons2(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/overview_with_many_moon.html")
-	moons := NewExtractor().ExtractMoons(pageHTMLBytes)
+	moons, _ := NewExtractor().ExtractMoons(pageHTMLBytes)
 	assert.Equal(t, 2, len(moons))
 }
 
@@ -1630,16 +1631,16 @@ func TestExtractMoonByCoord_notExists(t *testing.T) {
 
 func TestExtractIsInVacationFromDoc(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v6/es/overview_vacation.html")
-	assert.True(t, NewExtractor().ExtractIsInVacation(pageHTMLBytes))
+	assert.True(t, utils.First(NewExtractor().ExtractIsInVacation(pageHTMLBytes)))
 	pageHTMLBytes, _ = os.ReadFile("../../../samples/v6/es/fleet1_vacation.html")
-	assert.True(t, NewExtractor().ExtractIsInVacation(pageHTMLBytes))
+	assert.True(t, utils.First(NewExtractor().ExtractIsInVacation(pageHTMLBytes)))
 	pageHTMLBytes, _ = os.ReadFile("../../../samples/v6/es/shipyard.html")
-	assert.False(t, NewExtractor().ExtractIsInVacation(pageHTMLBytes))
+	assert.False(t, utils.First(NewExtractor().ExtractIsInVacation(pageHTMLBytes)))
 }
 
 func TestExtractPlanetsMoon(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/overview_with_moon.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, ogame.MoonID(33741598), planets[0].Moon.ID)
 	assert.Equal(t, "Moon", planets[0].Moon.Name)
 	assert.Equal(t, "https://gf1.geo.gfsrv.net/cdn9d/8e0e6034049bd64e18a1804b42f179.gif", planets[0].Moon.Img)
@@ -1652,7 +1653,7 @@ func TestExtractPlanetsMoon(t *testing.T) {
 
 func TestExtractPlanets_fieldsFilled(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/overview_fields_filled.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 5, len(planets))
 	assert.Equal(t, ogame.PlanetID(33698658), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 4, System: 116, Position: 12, Type: ogame.PlanetType}, planets[0].Coordinate)
@@ -1667,7 +1668,7 @@ func TestExtractPlanets_fieldsFilled(t *testing.T) {
 
 func TestExtractPlanetsEsV902(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/es/overview.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(33620383), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 1, System: 41, Position: 4, Type: ogame.PlanetType}, planets[0].Coordinate)
@@ -1682,7 +1683,7 @@ func TestExtractPlanetsEsV902(t *testing.T) {
 
 func TestExtractPlanetsTwV902(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/tw/overview.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(33620229), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 1, System: 10, Position: 6, Type: ogame.PlanetType}, planets[0].Coordinate)
@@ -1697,7 +1698,7 @@ func TestExtractPlanetsTwV902(t *testing.T) {
 
 func TestExtractPlanets(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/overview_inactive.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(33672410), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 1, System: 301, Position: 5, Type: ogame.PlanetType}, planets[0].Coordinate)
@@ -1712,7 +1713,7 @@ func TestExtractPlanets(t *testing.T) {
 
 func TestExtractPlanets_es(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/overview_es.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(33630486), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 2, System: 147, Position: 8, Type: ogame.PlanetType}, planets[0].Coordinate)
@@ -1727,7 +1728,7 @@ func TestExtractPlanets_es(t *testing.T) {
 
 func TestExtractPlanets_fr(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/unversioned/fr_overview.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(33629512), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 2, System: 180, Position: 4, Type: ogame.PlanetType}, planets[0].Coordinate)
@@ -1742,7 +1743,7 @@ func TestExtractPlanets_fr(t *testing.T) {
 
 func TestExtractPlanets_fr1(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v6/fr/overview.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(33693887), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 5, System: 201, Position: 4, Type: ogame.PlanetType}, planets[0].Coordinate)
@@ -1757,7 +1758,7 @@ func TestExtractPlanets_fr1(t *testing.T) {
 
 func TestExtractPlanets_br(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v6/br/overview.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(33633767), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 1, System: 449, Position: 12, Type: ogame.PlanetType}, planets[0].Coordinate)

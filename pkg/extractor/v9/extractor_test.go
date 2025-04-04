@@ -14,7 +14,7 @@ import (
 
 func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/overview2.html")
-	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
 	assert.Equal(t, int64(6182), res.Metal.Available)
 	assert.Equal(t, int64(10060), res.Metal.CurrentProduction)
 	assert.Equal(t, int64(1590000), res.Metal.StorageCapacity)
@@ -34,7 +34,7 @@ func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 
 func TestExtractResourcesDetailsFromFullPagePopulation(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.4/en/lifeform/overview.html")
-	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
 	assert.Equal(t, int64(1974118), res.Population.Available)
 	assert.Equal(t, 0.233, res.Population.Hungry)
 	assert.Equal(t, 61.983, res.Population.GrowthRate)
@@ -42,7 +42,7 @@ func TestExtractResourcesDetailsFromFullPagePopulation(t *testing.T) {
 
 func TestExtractResources(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/overview.html")
-	res := NewExtractor().ExtractResources(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResources(pageHTMLBytes)
 	assert.Equal(t, int64(10000), res.Metal)
 	assert.Equal(t, int64(10000), res.Crystal)
 	assert.Equal(t, int64(7829), res.Deuterium)

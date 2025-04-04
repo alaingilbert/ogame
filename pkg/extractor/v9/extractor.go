@@ -93,9 +93,12 @@ func (e *Extractor) ExtractEspionageReportFromDoc(doc *goquery.Document) (ogame.
 }
 
 // ExtractResources ...
-func (e *Extractor) ExtractResources(pageHTML []byte) ogame.Resources {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractResourcesFromDoc(doc)
+func (e *Extractor) ExtractResources(pageHTML []byte) (ogame.Resources, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.Resources{}, err
+	}
+	return e.ExtractResourcesFromDoc(doc), nil
 }
 
 // ExtractResourcesFromDoc ...
@@ -104,9 +107,12 @@ func (e *Extractor) ExtractResourcesFromDoc(doc *goquery.Document) ogame.Resourc
 }
 
 // ExtractResourcesDetailsFromFullPage ...
-func (e *Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.ResourcesDetails {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc)
+func (e *Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) (ogame.ResourcesDetails, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ResourcesDetails{}, err
+	}
+	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc), nil
 }
 
 // ExtractResourcesDetailsFromFullPageFromDoc ...

@@ -129,15 +129,21 @@ func (e *Extractor) ExtractLifeformEnabled(pageHTML []byte) bool {
 }
 
 // ExtractIsInVacation ...
-func (e *Extractor) ExtractIsInVacation(pageHTML []byte) bool {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractIsInVacationFromDoc(doc)
+func (e *Extractor) ExtractIsInVacation(pageHTML []byte) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, err
+	}
+	return e.ExtractIsInVacationFromDoc(doc), nil
 }
 
 // ExtractPlanets ...
-func (e *Extractor) ExtractPlanets(pageHTML []byte) []ogame.Planet {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractPlanetsFromDoc(doc)
+func (e *Extractor) ExtractPlanets(pageHTML []byte) ([]ogame.Planet, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, err
+	}
+	return e.ExtractPlanetsFromDoc(doc), nil
 }
 
 // ExtractPlanet ...
@@ -147,9 +153,12 @@ func (e *Extractor) ExtractPlanet(pageHTML []byte, v any) (ogame.Planet, error) 
 }
 
 // ExtractMoons ...
-func (e *Extractor) ExtractMoons(pageHTML []byte) []ogame.Moon {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractMoonsFromDoc(doc)
+func (e *Extractor) ExtractMoons(pageHTML []byte) ([]ogame.Moon, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, err
+	}
+	return e.ExtractMoonsFromDoc(doc), nil
 }
 
 // ExtractMoon ...
@@ -205,21 +214,30 @@ func (e *Extractor) ExtractSlots(pageHTML []byte) (ogame.Slots, error) {
 }
 
 // ExtractOgameTimestamp ...
-func (e *Extractor) ExtractOgameTimestamp(pageHTML []byte) int64 {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractOgameTimestampFromDoc(doc)
+func (e *Extractor) ExtractOgameTimestamp(pageHTML []byte) (int64, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return 0, err
+	}
+	return e.ExtractOgameTimestampFromDoc(doc), nil
 }
 
 // ExtractResources ...
-func (e *Extractor) ExtractResources(pageHTML []byte) ogame.Resources {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractResourcesFromDoc(doc)
+func (e *Extractor) ExtractResources(pageHTML []byte) (ogame.Resources, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.Resources{}, err
+	}
+	return e.ExtractResourcesFromDoc(doc), nil
 }
 
 // ExtractResourcesDetailsFromFullPage ...
-func (e *Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.ResourcesDetails {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc)
+func (e *Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) (ogame.ResourcesDetails, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ResourcesDetails{}, err
+	}
+	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc), nil
 }
 
 // ExtractResourceSettings ...
@@ -350,33 +368,48 @@ func (e *Extractor) ExtractHiddenFields(pageHTML []byte) (fields url.Values) {
 }
 
 // ExtractCommander ...
-func (e *Extractor) ExtractCommander(pageHTML []byte) bool {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractCommanderFromDoc(doc)
+func (e *Extractor) ExtractCommander(pageHTML []byte) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, err
+	}
+	return e.ExtractCommanderFromDoc(doc), nil
 }
 
 // ExtractAdmiral ...
-func (e *Extractor) ExtractAdmiral(pageHTML []byte) bool {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractAdmiralFromDoc(doc)
+func (e *Extractor) ExtractAdmiral(pageHTML []byte) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, err
+	}
+	return e.ExtractAdmiralFromDoc(doc), nil
 }
 
 // ExtractEngineer ...
-func (e *Extractor) ExtractEngineer(pageHTML []byte) bool {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractEngineerFromDoc(doc)
+func (e *Extractor) ExtractEngineer(pageHTML []byte) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, err
+	}
+	return e.ExtractEngineerFromDoc(doc), nil
 }
 
 // ExtractGeologist ...
-func (e *Extractor) ExtractGeologist(pageHTML []byte) bool {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractGeologistFromDoc(doc)
+func (e *Extractor) ExtractGeologist(pageHTML []byte) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, err
+	}
+	return e.ExtractGeologistFromDoc(doc), nil
 }
 
 // ExtractTechnocrat ...
-func (e *Extractor) ExtractTechnocrat(pageHTML []byte) bool {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractTechnocratFromDoc(doc)
+func (e *Extractor) ExtractTechnocrat(pageHTML []byte) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, err
+	}
+	return e.ExtractTechnocratFromDoc(doc), nil
 }
 
 // ExtractOGameSession ...
@@ -801,7 +834,7 @@ func (e *Extractor) ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) in
 }
 
 // ExtractOGameTimestampFromBytes extracts ogame timestamp from an html page
-func (e *Extractor) ExtractOGameTimestampFromBytes(pageHTML []byte) int64 {
+func (e *Extractor) ExtractOGameTimestampFromBytes(pageHTML []byte) (int64, error) {
 	return extractOGameTimestampFromBytes(pageHTML)
 }
 
@@ -925,7 +958,7 @@ func (e *Extractor) ExtractBuffActivation(pageHTML []byte) (string, []ogame.Item
 }
 
 // ExtractIsMobile ...
-func (e *Extractor) ExtractIsMobile(pageHTML []byte) bool {
+func (e *Extractor) ExtractIsMobile(pageHTML []byte) (bool, error) {
 	panic("not implemented")
 }
 

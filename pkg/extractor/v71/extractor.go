@@ -166,9 +166,12 @@ func (e *Extractor) ExtractActiveItemsFromDoc(doc *goquery.Document) ([]ogame.Ac
 }
 
 // ExtractIsMobile ...
-func (e *Extractor) ExtractIsMobile(pageHTML []byte) bool {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractIsMobileFromDoc(doc)
+func (e *Extractor) ExtractIsMobile(pageHTML []byte) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, err
+	}
+	return e.ExtractIsMobileFromDoc(doc), nil
 }
 
 // ExtractIsMobileFromDoc ...

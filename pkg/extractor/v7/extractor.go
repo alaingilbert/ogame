@@ -26,9 +26,12 @@ func (e Extractor) ExtractPremiumToken(pageHTML []byte, days int64) (string, err
 }
 
 // ExtractResourcesDetailsFromFullPage ...
-func (e Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.ResourcesDetails {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc)
+func (e Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) (ogame.ResourcesDetails, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ResourcesDetails{}, err
+	}
+	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc), nil
 }
 
 // ExtractResourcesDetailsFromFullPageFromDoc ...

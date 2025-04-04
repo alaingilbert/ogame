@@ -22,31 +22,31 @@ import (
 )
 
 type FullPageExtractorBytes interface {
-	ExtractAdmiral(pageHTML []byte) bool
+	ExtractAdmiral(pageHTML []byte) (bool, error)
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
 	ExtractToken(pageHTML []byte) (string, error)
 	ExtractCelestial(pageHTML []byte, v any) (ogame.Celestial, error)
 	ExtractCelestials(pageHTML []byte) ([]ogame.Celestial, error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)
-	ExtractCommander(pageHTML []byte) bool
-	ExtractEngineer(pageHTML []byte) bool
-	ExtractGeologist(pageHTML []byte) bool
-	ExtractIsInVacation(pageHTML []byte) bool
-	ExtractIsMobile(pageHTML []byte) bool
+	ExtractCommander(pageHTML []byte) (bool, error)
+	ExtractEngineer(pageHTML []byte) (bool, error)
+	ExtractGeologist(pageHTML []byte) (bool, error)
+	ExtractIsInVacation(pageHTML []byte) (bool, error)
+	ExtractIsMobile(pageHTML []byte) (bool, error)
 	ExtractLifeformEnabled(pageHTML []byte) bool
 	ExtractMoon(pageHTML []byte, v any) (ogame.Moon, error)
-	ExtractMoons(pageHTML []byte) []ogame.Moon
-	ExtractOGameTimestampFromBytes(pageHTML []byte) int64
-	ExtractOgameTimestamp(pageHTML []byte) int64
+	ExtractMoons(pageHTML []byte) ([]ogame.Moon, error)
+	ExtractOGameTimestampFromBytes(pageHTML []byte) (int64, error)
+	ExtractOgameTimestamp(pageHTML []byte) (int64, error)
 	ExtractPlanet(pageHTML []byte, v any) (ogame.Planet, error)
 	ExtractPlanetCoordinate(pageHTML []byte) (ogame.Coordinate, error)
 	ExtractPlanetID(pageHTML []byte) (ogame.CelestialID, error)
 	ExtractPlanetType(pageHTML []byte) (ogame.CelestialType, error)
-	ExtractPlanets(pageHTML []byte) []ogame.Planet
-	ExtractResources(pageHTML []byte) ogame.Resources
-	ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.ResourcesDetails
+	ExtractPlanets(pageHTML []byte) ([]ogame.Planet, error)
+	ExtractResources(pageHTML []byte) (ogame.Resources, error)
+	ExtractResourcesDetailsFromFullPage(pageHTML []byte) (ogame.ResourcesDetails, error)
 	ExtractServerTime(pageHTML []byte) (time.Time, error)
-	ExtractTechnocrat(pageHTML []byte) bool
+	ExtractTechnocrat(pageHTML []byte) (bool, error)
 }
 
 type FullPageExtractorDoc interface {

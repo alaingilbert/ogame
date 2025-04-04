@@ -1778,7 +1778,10 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 	if err != nil {
 		return res, errors.New("moon not found")
 	}
-	resources := b.extractor.ExtractResources(moonFacilitiesHTML)
+	resources, err := b.extractor.ExtractResources(moonFacilitiesHTML)
+	if err != nil {
+		return res, err
+	}
 	moonFacilities, _ := b.extractor.ExtractFacilities(moonFacilitiesHTML)
 	phalanxLvl := moonFacilities.SensorPhalanx
 

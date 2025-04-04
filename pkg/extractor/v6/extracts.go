@@ -1504,13 +1504,12 @@ func extractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
 	return shipSumCountdown
 }
 
-func extractOGameTimestampFromBytes(pageHTML []byte) int64 {
+func extractOGameTimestampFromBytes(pageHTML []byte) (int64, error) {
 	m := regexp.MustCompile(`<meta name="ogame-timestamp" content="(\d+)"/>`).FindSubmatch(pageHTML)
 	if len(m) != 2 {
-		return 0
+		return 0, errors.New("ogame-timestamp not found")
 	}
-	ts := utils.DoParseI64(string(m[1]))
-	return ts
+	return utils.ParseI64(string(m[1]))
 }
 
 func extractPlanetType(pageHTML []byte) (ogame.CelestialType, error) {
