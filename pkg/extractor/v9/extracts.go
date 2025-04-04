@@ -332,23 +332,22 @@ func extractOverviewProductionFromDoc(doc *goquery.Document, lifeformEnabled boo
 	if len(m) == 0 {
 		return []ogame.Quantifiable{}, nil
 	}
-	idInt := utils.DoParseI64(m[1])
-	activeID := ogame.ID(idInt)
+	activeID := ogame.ID(utils.DoParseI64(m[1]))
 	activeNbr := utils.DoParseI64(active.Find("div.shipSumCount").Text())
 	res = append(res, ogame.Quantifiable{ID: activeID, Nbr: activeNbr})
-	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
+	for _, s := range active.Parent().Find("table.queue td").EachIter() {
 		img := s.Find("img")
 		alt := img.AttrOr("alt", "")
 		activeID := ogame.ShipName2ID(alt)
 		if !activeID.IsSet() {
 			activeID = ogame.DefenceName2ID(alt)
 			if !activeID.IsSet() {
-				return
+				continue
 			}
 		}
 		activeNbr := utils.ParseInt(s.Text())
 		res = append(res, ogame.Quantifiable{ID: activeID, Nbr: activeNbr})
-	})
+	}
 	return res, nil
 }
 
