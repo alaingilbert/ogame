@@ -1,6 +1,16 @@
 package extractor
 
 import (
+	v10 "github.com/alaingilbert/ogame/pkg/extractor/v10"
+	v104 "github.com/alaingilbert/ogame/pkg/extractor/v104"
+	v11 "github.com/alaingilbert/ogame/pkg/extractor/v11"
+	"github.com/alaingilbert/ogame/pkg/extractor/v11_13_0"
+	"github.com/alaingilbert/ogame/pkg/extractor/v11_15_0"
+	"github.com/alaingilbert/ogame/pkg/extractor/v11_9_0"
+	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
+	v71 "github.com/alaingilbert/ogame/pkg/extractor/v71"
+	v8 "github.com/alaingilbert/ogame/pkg/extractor/v8"
+	v874 "github.com/alaingilbert/ogame/pkg/extractor/v874"
 	"net/url"
 	"time"
 
@@ -565,4 +575,14 @@ type Extractor interface {
 // Compile time checks to ensure type satisfies Extractor interface
 var _ Extractor = (*v6.Extractor)(nil)
 var _ Extractor = (*v7.Extractor)(nil)
+var _ Extractor = (*v71.Extractor)(nil)
+var _ Extractor = (*v8.Extractor)(nil)
+var _ Extractor = (*v874.Extractor)(nil)
 var _ Extractor = (*v9.Extractor)(nil)
+var _ Extractor = (*v10.Extractor)(nil)
+var _ Extractor = (*v104.Extractor)(nil)
+var _ Extractor = (*v11.Extractor)(nil)
+var _ Extractor = (*v11_9_0.Extractor)(nil)
+var _ Extractor = (*v11_13_0.Extractor)(nil)
+var _ Extractor = (*v11_15_0.Extractor)(nil)
+var _ Extractor = (*v12_0_0.Extractor)(nil)
