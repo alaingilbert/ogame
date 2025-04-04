@@ -12,7 +12,7 @@ func (p *OverviewPage) ExtractDMCosts() (ogame.DMCosts, error) {
 	return p.e.ExtractDMCosts(p.content)
 }
 
-func (p *OverviewPage) ExtractConstructions() ogame.Constructions {
+func (p *OverviewPage) ExtractConstructions() (ogame.Constructions, error) {
 	return p.e.ExtractConstructions(p.content)
 }
 

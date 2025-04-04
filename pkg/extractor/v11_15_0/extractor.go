@@ -33,7 +33,10 @@ func (e *Extractor) ExtractEspionageReportFromDoc(doc *goquery.Document) (ogame.
 
 // ExtractEspionageReportMessageIDs ...
 func (e *Extractor) ExtractEspionageReportMessageIDs(pageHTML []byte) ([]ogame.EspionageReportSummary, int64, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, 0, err
+	}
 	return e.ExtractEspionageReportMessageIDsFromDoc(doc)
 }
 
@@ -44,7 +47,10 @@ func (e *Extractor) ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Documen
 
 // ExtractCombatReportMessagesSummary ...
 func (e *Extractor) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, 0, err
+	}
 	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
 
@@ -55,7 +61,10 @@ func (e *Extractor) ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([
 
 // ExtractExpeditionMessages ...
 func (e *Extractor) ExtractExpeditionMessages(pageHTML []byte) ([]ogame.ExpeditionMessage, int64, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, 0, err
+	}
 	return e.ExtractExpeditionMessagesFromDoc(doc)
 }
 
@@ -66,7 +75,10 @@ func (e *Extractor) ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]o
 
 // ExtractLfBonuses ...
 func (e *Extractor) ExtractLfBonuses(pageHTML []byte) (ogame.LfBonuses, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.LfBonuses{}, err
+	}
 	return e.ExtractLfBonusesFromDoc(doc)
 }
 
@@ -77,7 +89,10 @@ func (e *Extractor) ExtractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonu
 
 // ExtractAllianceClass ...
 func (e Extractor) ExtractAllianceClass(pageHTML []byte) (ogame.AllianceClass, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.NoAllianceClass, err
+	}
 	return e.ExtractAllianceClassFromDoc(doc)
 }
 

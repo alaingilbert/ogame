@@ -52,11 +52,11 @@ func extractIsInVacationFromDoc(doc *goquery.Document) bool {
 
 func extractResourcesFromDoc(doc *goquery.Document) ogame.Resources {
 	res := ogame.Resources{}
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
+	metalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", ""))))
+	crystalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", ""))))
+	deuteriumDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", ""))))
+	energyDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", ""))))
+	darkmatterDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", ""))))
 	res.Metal = utils.ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
 	res.Crystal = utils.ParseInt(crystalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
 	res.Deuterium = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
@@ -72,11 +72,11 @@ func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.Res
 	out.Deuterium.Available = utils.ParseInt(doc.Find("span#resources_deuterium").Text())
 	out.Energy.Available = utils.ParseInt(doc.Find("span#resources_energy").Text())
 	out.Darkmatter.Available = utils.ParseInt(doc.Find("span#resources_darkmatter").Text())
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", "")))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", "")))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", "")))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", "")))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", "")))
+	metalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#metal_box").AttrOr("title", ""))))
+	crystalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#crystal_box").AttrOr("title", ""))))
+	deuteriumDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#deuterium_box").AttrOr("title", ""))))
+	energyDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#energy_box").AttrOr("title", ""))))
+	darkmatterDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("li#darkmatter_box").AttrOr("title", ""))))
 	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Crystal.StorageCapacity = utils.ParseInt(crystalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
@@ -573,7 +573,7 @@ func extractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiab
 	return res, nil
 }
 
-func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
+func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos, err error) {
 	onclick := doc.Find("a#sendall").AttrOr("onclick", "")
 	matches := regexp.MustCompile(`setMaxIntInput\("form\[name=shipsChosen]", (.+)\); checkShips`).FindStringSubmatch(onclick)
 	if len(matches) == 0 {
@@ -581,7 +581,7 @@ func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
 	}
 	m := matches[1]
 	var res map[ogame.ID]int64
-	if err := json.Unmarshal([]byte(m), &res); err != nil {
+	if err = json.Unmarshal([]byte(m), &res); err != nil {
 		return
 	}
 	for k, v := range res {
@@ -752,8 +752,11 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	}
 
 	// APIKey
-	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
-	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	apikey := doc.Find("span.icon_apikey").AttrOr("title", "")
+	apiDoc, err := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	if err != nil {
+		return report, err
+	}
 	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
 
 	// Inactivity timer
@@ -1096,7 +1099,7 @@ func extractFleetsFromEventListFromDoc(doc *goquery.Document) []ogame.Fleet {
 	return res
 }
 
-func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
+func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string, err error) {
 	duration = utils.DoParseI64(doc.Find("span#timer").AttrOr("data-duration", "0"))
 	max = utils.DoParseI64(doc.Find("input[name=anz]").AttrOr("data-max", "0"))
 	token = doc.Find("input[name=token]").AttrOr("value", "")
@@ -1668,11 +1671,11 @@ func extractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err e
 	out.Deuterium.StorageCapacity = res.Deuterium.Resources.Max
 	out.Energy.Available = res.Energy.Resources.Actual
 	out.Darkmatter.Available = res.Darkmatter.Resources.Actual
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Metal.Tooltip))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Crystal.Tooltip))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Deuterium.Tooltip))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Darkmatter.Tooltip))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Energy.Tooltip))
+	metalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Metal.Tooltip)))
+	crystalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Crystal.Tooltip)))
+	deuteriumDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Deuterium.Tooltip)))
+	darkmatterDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Darkmatter.Tooltip)))
+	energyDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Energy.Tooltip)))
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Crystal.CurrentProduction = utils.ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Deuterium.CurrentProduction = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
@@ -1724,7 +1727,10 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 		res.OverlayToken = m[1]
 	}
 
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(tmp.Galaxy))
+	if err != nil {
+		return res, err
+	}
 	res.SetGalaxy(utils.ParseInt(doc.Find("table").AttrOr("data-galaxy", "0")))
 	res.SetSystem(utils.ParseInt(doc.Find("table").AttrOr("data-system", "0")))
 	isVacationMode := doc.Find("div#warning").Length() == 1
@@ -1860,7 +1866,10 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 func extractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
 	res := make([]ogame.PhalanxFleet, 0)
 	var ogameTimestamp int64
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return res, err
+	}
 	eventFleet := doc.Find("div.eventFleet")
 	if eventFleet.Size() == 0 {
 		txt := strings.TrimSpace(doc.Find("div#phalanxEventContent").Text())
@@ -1973,15 +1982,18 @@ func extractPhalanx(pageHTML []byte) ([]ogame.PhalanxFleet, error) {
 	return res, nil
 }
 
-func extractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64) {
+func extractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64, error) {
 	m := regexp.MustCompile(`\$\("#cooldown"\), (\d+),`).FindSubmatch(pageHTML)
 	ships := ogame.ShipsInfos{}
 	var destinations []ogame.MoonID
 	if len(m) > 0 {
 		waitTime := int64(utils.ToInt(m[1]))
-		return ships, "", destinations, waitTime
+		return ships, "", destinations, waitTime, nil
 	}
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ships, "", destinations, 0, err
+	}
 	for _, s := range ogame.Ships {
 		ships.Set(s.GetID(), utils.ParseInt(doc.Find("input#ship_"+utils.FI64(s.GetID())).AttrOr("rel", "0")))
 	}
@@ -1994,18 +2006,21 @@ func extractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID,
 		}
 	}
 
-	return ships, token, destinations, 0
+	return ships, token, destinations, 0, nil
 }
 
-func extractFederation(pageHTML []byte) url.Values {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+func extractFederation(pageHTML []byte) (url.Values, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, err
+	}
 	payload := extractHiddenFieldsFromDoc(doc)
 	groupName := doc.Find("input#groupNameInput").AttrOr("value", "")
 	for _, s := range doc.Find("ul#participantselect li").EachIter() {
 		payload.Add("unionUsers", s.Text())
 	}
 	payload.Add("groupname", groupName)
-	return payload
+	return payload, nil
 }
 
 func extractConstructions(pageHTML []byte) (out ogame.Constructions) {
@@ -2040,9 +2055,12 @@ func extractCancelBuildingInfos(pageHTML []byte) (token string, techID, listID i
 		return "", 0, 0, errors.New("unable to find token")
 	}
 	token = string(m1[1])
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return "", 0, 0, err
+	}
 	t := doc.Find("table.construction").Eq(0)
-	a, _ := t.Find("a.abortNow").Attr("onclick")
+	a := t.Find("a.abortNow").AttrOr("onclick", "")
 	r := regexp.MustCompile(`cancelProduction\((\d+),\s?(\d+),`)
 	m := r.FindStringSubmatch(a)
 	if len(m) < 3 {
@@ -2060,9 +2078,12 @@ func extractCancelResearchInfos(pageHTML []byte) (token string, techID, listID i
 		return "", 0, 0, errors.New("unable to find token")
 	}
 	token = string(m1[1])
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return "", 0, 0, err
+	}
 	t := doc.Find("table.construction").Eq(1)
-	a, _ := t.Find("a.abortNow").Attr("onclick")
+	a := t.Find("a.abortNow").AttrOr("onclick", "")
 	r := regexp.MustCompile(`cancelResearch\((\d+),\s?(\d+),`)
 	m := r.FindStringSubmatch(a)
 	if len(m) < 3 {
@@ -2075,14 +2096,17 @@ func extractCancelResearchInfos(pageHTML []byte) (token string, techID, listID i
 
 // ExtractUniverseSpeed extract universe speed from html calculation
 // pageHTML := b.getPageContent(url.Values{"page": {"techtree"}, "tab": {"2"}, "techID": {"1"}})
-func ExtractUniverseSpeed(pageHTML []byte) int64 {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+func ExtractUniverseSpeed(pageHTML []byte) (int64, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return 0, err
+	}
 	spans := doc.Find("span.undermark")
 	level := utils.ParseInt(spans.Eq(0).Text())
 	val := utils.ParseInt(spans.Eq(1).Text())
 	metalProduction := int64(math.Floor(30 * float64(level) * math.Pow(1.1, float64(level))))
 	universeSpeed := val / metalProduction
-	return universeSpeed
+	return universeSpeed, nil
 }
 
 var temperatureRgxStr = `([-\d]+).+C\s*(?:bis|-tól|para|to|à|至|a|～|do|ile|tot|og|до|až|til|la|έως|:sta)\s*([-\d]+).+C`
@@ -2206,7 +2230,10 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 		}
 		mm := DiameterRgx.FindStringSubmatch(utils.DoCastStr(planet["diameter"]))
 		energyStr := utils.DoCastStr(planet["energy"])
-		energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
+		energyDoc, err := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
+		if err != nil {
+			return nil, err
+		}
 		energy := utils.ParseInt(energyDoc.Find("div span").Text())
 		celestialType := ogame.CelestialType(utils.DoCastF64(planet["type"]))
 		out = append(out, ogame.EmpireCelestial{

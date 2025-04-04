@@ -88,7 +88,7 @@ type OverviewExtractorBytes interface {
 	ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)
-	ExtractConstructions(pageHTML []byte) ogame.Constructions
+	ExtractConstructions(pageHTML []byte) (ogame.Constructions, error)
 	ExtractDMCosts(pageHTML []byte) (ogame.DMCosts, error)
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error)
@@ -116,12 +116,12 @@ type FleetsExtractorDoc interface {
 
 type MovementExtractorBytes interface {
 	FleetsExtractorBytes
-	ExtractFleets(pageHTML []byte) (res []ogame.Fleet)
+	ExtractFleets(pageHTML []byte) ([]ogame.Fleet, error)
 }
 
 type MovementExtractorDoc interface {
 	FleetsExtractorDoc
-	ExtractFleetsFromDoc(doc *goquery.Document) (res []ogame.Fleet)
+	ExtractFleetsFromDoc(doc *goquery.Document) []ogame.Fleet
 }
 
 type MovementExtractorBytesDoc interface {
@@ -131,12 +131,12 @@ type MovementExtractorBytesDoc interface {
 
 type FleetDispatchExtractorBytes interface {
 	FleetsExtractorBytes
-	ExtractFleet1Ships(pageHTML []byte) ogame.ShipsInfos
+	ExtractFleet1Ships(pageHTML []byte) (ogame.ShipsInfos, error)
 }
 
 type FleetDispatchExtractorDoc interface {
 	FleetsExtractorBytes
-	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos)
+	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (ogame.ShipsInfos, error)
 	ExtractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues
 }
 
@@ -164,7 +164,7 @@ type ShipyardExtractorBytesDoc interface {
 }
 
 type ResearchExtractorBytes interface {
-	ExtractResearch(pageHTML []byte) ogame.Researches
+	ExtractResearch(pageHTML []byte) (ogame.Researches, error)
 	ExtractUpgradeToken(pageHTML []byte) (string, error)
 }
 
@@ -198,9 +198,9 @@ type PhalanxExtractorBytes interface {
 
 type PreferencesExtractorBytes interface {
 	ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool
-	ExtractPreferences(pageHTML []byte) ogame.Preferences
-	ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool
-	ExtractSpioAnz(pageHTML []byte) int64
+	ExtractPreferences(pageHTML []byte) (ogame.Preferences, error)
+	ExtractPreferencesShowActivityMinutes(pageHTML []byte) (bool, error)
+	ExtractSpioAnz(pageHTML []byte) (int64, error)
 }
 
 type PreferencesExtractorDoc interface {
@@ -255,7 +255,7 @@ type DefensesExtractorBytesDoc interface {
 
 type EventListExtractorBytes interface {
 	ExtractAttacks(pageHTML []byte, ownCoords []ogame.Coordinate) ([]ogame.AttackEvent, error)
-	ExtractFleetsFromEventList(pageHTML []byte) []ogame.Fleet
+	ExtractFleetsFromEventList(pageHTML []byte) ([]ogame.Fleet, error)
 }
 
 type EventListExtractorDoc interface {
@@ -350,12 +350,12 @@ type MessagesExpeditionExtractorBytesDoc interface {
 
 // FederationExtractorBytes popup when we click to create a union for our attacking fleet
 type FederationExtractorBytes interface {
-	ExtractFederation(pageHTML []byte) url.Values
+	ExtractFederation(pageHTML []byte) (url.Values, error)
 }
 
 // GalaxyPageExtractorBytes galaxy page
 type GalaxyPageExtractorBytes interface {
-	ExtractAvailableDiscoveries(pageHTML []byte) int64
+	ExtractAvailableDiscoveries(pageHTML []byte) (int64, error)
 }
 
 // GalaxyExtractorBytes ajax page containing galaxy information in galaxy page
@@ -411,11 +411,11 @@ type HighscoreExtractorBytesDoc interface {
 }
 
 type MissileAttackLayerExtractorBytes interface {
-	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
+	ExtractIPM(pageHTML []byte) (duration, max int64, token string, err error)
 }
 
 type MissileAttackLayerExtractorDoc interface {
-	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string)
+	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string, err error)
 }
 
 type MissileAttackLayerExtractorBytesDoc interface {
@@ -424,7 +424,7 @@ type MissileAttackLayerExtractorBytesDoc interface {
 }
 
 type JumpGateLayerExtractorBytes interface {
-	ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64)
+	ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64, error)
 }
 
 // MessagesMarketplaceExtractorBytes marketplace was removed from the game
@@ -502,7 +502,7 @@ type PlanetLayerExtractorDoc interface {
 
 type TechnologyDetailsExtractorBytes interface {
 	ExtractTechnologyDetails(pageHTML []byte) (ogame.TechnologyDetails, error)
-	ExtractTearDownButtonEnabled(pageHTML []byte) bool
+	ExtractTearDownButtonEnabled(pageHTML []byte) (bool, error)
 }
 
 type TechnologyDetailsExtractorDoc interface {
@@ -567,7 +567,7 @@ type Extractor interface {
 	TraderImportExportExtractorDoc
 
 	ExtractCoord(v string) (coord ogame.Coordinate)
-	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
+	ExtractHiddenFields(pageHTML []byte) (url.Values, error)
 
 	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
 }

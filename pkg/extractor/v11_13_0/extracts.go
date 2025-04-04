@@ -14,8 +14,11 @@ import (
 	"time"
 )
 
-func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Constructions) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Constructions, err error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return
+	}
 	data := [][]string{
 		{"buildingCountdown", "cancelbuilding"},
 		{"researchCountdown", "cancelresearch"},

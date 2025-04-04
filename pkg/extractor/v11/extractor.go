@@ -43,7 +43,7 @@ func (e Extractor) ExtractLifeformTypeFromDoc(doc *goquery.Document) ogame.Lifef
 
 // ExtractJumpGate return the available ships to send, form token, possible moon IDs and wait time (if any)
 // given a jump gate popup html.
-func (e *Extractor) ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64) {
+func (e *Extractor) ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64, error) {
 	return extractJumpGate(pageHTML)
 }
 

@@ -182,13 +182,13 @@ func extractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err e
 	out.Darkmatter.Available = int64(res.Resources.Darkmatter.Amount)
 	out.Population.Available = int64(res.Resources.Population.Amount)
 	out.Food.Available = int64(res.Resources.Food.Amount)
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Metal.Tooltip))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Crystal.Tooltip))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Deuterium.Tooltip))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Darkmatter.Tooltip))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Energy.Tooltip))
-	populationDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Population.Tooltip))
-	foodDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Food.Tooltip))
+	metalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Metal.Tooltip)))
+	crystalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Crystal.Tooltip)))
+	deuteriumDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Deuterium.Tooltip)))
+	darkmatterDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Darkmatter.Tooltip)))
+	energyDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Energy.Tooltip)))
+	populationDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Population.Tooltip)))
+	foodDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Resources.Food.Tooltip)))
 	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Crystal.StorageCapacity = utils.ParseInt(crystalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
@@ -727,8 +727,11 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	}
 
 	// APIKey
-	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
-	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	apikey := doc.Find("span.icon_apikey").AttrOr("title", "")
+	apiDoc, err := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	if err != nil {
+		return report, err
+	}
 	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
 
 	// Inactivity timer
@@ -961,7 +964,7 @@ func extractDestroyRocketsFromDoc(doc *goquery.Document) (abm, ipm int64, token 
 	return
 }
 
-func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
+func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string, err error) {
 	durationFloat, _ := strconv.ParseFloat(doc.Find("span#timer").AttrOr("data-duration", "0"), 64)
 	duration = int64(math.Ceil(durationFloat))
 	max = utils.DoParseI64(doc.Find("input#missileCount").AttrOr("data-max", "0"))

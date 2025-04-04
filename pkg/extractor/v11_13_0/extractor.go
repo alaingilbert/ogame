@@ -20,13 +20,16 @@ func NewExtractor() *Extractor {
 }
 
 // ExtractConstructions ...
-func (e *Extractor) ExtractConstructions(pageHTML []byte) ogame.Constructions {
+func (e *Extractor) ExtractConstructions(pageHTML []byte) (ogame.Constructions, error) {
 	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
 }
 
 // ExtractProduction extracts ships/defenses production from the shipyard page
 func (e *Extractor) ExtractProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, 0, err
+	}
 	shipSumCountdown := e.ExtractOverviewShipSumCountdownFromBytes(pageHTML)
 	production, err := e.ExtractProductionFromDoc(doc)
 	return production, shipSumCountdown, err
@@ -38,13 +41,16 @@ func (e Extractor) ExtractOverviewShipSumCountdownFromBytes(pageHTML []byte) int
 }
 
 // ExtractFleets ...
-func (e *Extractor) ExtractFleets(pageHTML []byte) (res []ogame.Fleet) {
+func (e *Extractor) ExtractFleets(pageHTML []byte) ([]ogame.Fleet, error) {
 	return e.extractFleets(pageHTML, e.GetLocation())
 }
 
-func (e *Extractor) extractFleets(pageHTML []byte, location *time.Location) (res []ogame.Fleet) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.extractFleetsFromDoc(doc, location)
+func (e *Extractor) extractFleets(pageHTML []byte, location *time.Location) ([]ogame.Fleet, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, err
+	}
+	return e.extractFleetsFromDoc(doc, location), nil
 }
 
 // ExtractFleetsFromDoc ...
@@ -52,6 +58,6 @@ func (e *Extractor) ExtractFleetsFromDoc(doc *goquery.Document) (res []ogame.Fle
 	return e.extractFleetsFromDoc(doc, e.GetLocation())
 }
 
-func (e *Extractor) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []ogame.Fleet) {
+func (e *Extractor) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) []ogame.Fleet {
 	return extractFleetsFromDoc(doc, location, e.GetLifeformEnabled())
 }

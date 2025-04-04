@@ -37,11 +37,11 @@ func extractPremiumToken(pageHTML []byte, days int64) (token string, err error) 
 
 func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.ResourcesDetails {
 	out := ogame.ResourcesDetails{}
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#metal_box").AttrOr("title", "")))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#crystal_box").AttrOr("title", "")))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", "")))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", "")))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", "")))
+	metalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#metal_box").AttrOr("title", ""))))
+	crystalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#crystal_box").AttrOr("title", ""))))
+	deuteriumDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", ""))))
+	energyDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", ""))))
+	darkmatterDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", ""))))
 	out.Metal.Available = utils.ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
 	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
@@ -205,11 +205,11 @@ func extractResourcesDetails(pageHTML []byte) (out ogame.ResourcesDetails, err e
 	out.Deuterium.StorageCapacity = res.Deuterium.Max
 	out.Energy.Available = res.Energy.Actual
 	out.Darkmatter.Available = res.Darkmatter.Actual
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Metal.Tooltip))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Crystal.Tooltip))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Deuterium.Tooltip))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Darkmatter.Tooltip))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(res.Energy.Tooltip))
+	metalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Metal.Tooltip)))
+	crystalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Crystal.Tooltip)))
+	deuteriumDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Deuterium.Tooltip)))
+	darkmatterDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Darkmatter.Tooltip)))
+	energyDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(res.Energy.Tooltip)))
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Crystal.CurrentProduction = utils.ParseInt(crystalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
 	out.Deuterium.CurrentProduction = utils.ParseInt(deuteriumDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
@@ -236,14 +236,14 @@ func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Con
 	return
 }
 
-func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
+func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string, err error) {
 	duration = utils.DoParseI64(doc.Find("span#timer").AttrOr("data-duration", "0"))
 	max = utils.DoParseI64(doc.Find("input[name=missileCount]").AttrOr("data-max", "0"))
 	token = doc.Find("input[name=token]").AttrOr("value", "")
 	return
 }
 
-func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
+func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos, err error) {
 	onclick := doc.Find("div#fleetdispatchcomponent")
 	h, _ := onclick.Html()
 	matches := regexp.MustCompile(`var shipsOnPlanet = ([^;]+);`).FindStringSubmatch(h)
@@ -255,7 +255,7 @@ func extractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
 		ID     int64 `json:"id"`
 		Number int64 `json:"number"`
 	}
-	if err := json.Unmarshal([]byte(m), &res); err != nil {
+	if err = json.Unmarshal([]byte(m), &res); err != nil {
 		return
 	}
 	for _, obj := range res {
@@ -375,8 +375,11 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	}
 
 	// APIKey
-	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
-	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	apikey := doc.Find("span.icon_apikey").AttrOr("title", "")
+	apiDoc, err := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	if err != nil {
+		return report, err
+	}
 	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
 
 	// Inactivity timer
@@ -599,9 +602,12 @@ func ExtractCancelInfos(pageHTML []byte, linkVarName, fnName string, tableIdx in
 		return "", 0, 0, errors.New("unable to find token")
 	}
 	token = string(m1[1])
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return "", 0, 0, err
+	}
 	t := doc.Find("table.construction").Eq(tableIdx)
-	a, _ := t.Find("a.abortNow").Attr("onclick")
+	a := t.Find("a.abortNow").AttrOr("onclick", "")
 	r := regexp.MustCompile(fnName + `\((\d+),\s?(\d+),`)
 	m := r.FindStringSubmatch(a)
 	if len(m) < 3 {

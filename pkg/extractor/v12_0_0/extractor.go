@@ -26,7 +26,10 @@ func (e *Extractor) ExtractServerTime(pageHTML []byte) (time.Time, error) {
 }
 
 func (e *Extractor) extractServerTime(pageHTML []byte, clock clockwork.Clock) (time.Time, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return time.Time{}, err
+	}
 	return extractServerTimeFromDoc(doc, clock)
 }
 
@@ -38,7 +41,10 @@ func (e *Extractor) ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, 
 
 // ExtractHighscore ...
 func (e *Extractor) ExtractHighscore(pageHTML []byte) (ogame.Highscore, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.Highscore{}, err
+	}
 	return e.ExtractHighscoreFromDoc(doc)
 }
 

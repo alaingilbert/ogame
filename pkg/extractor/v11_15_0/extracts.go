@@ -210,7 +210,10 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 
 	// APIKey
 	apikey, _ := doc.Find("button.icon_apikey").Attr("title")
-	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	apiDoc, err := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	if err != nil {
+		return report, err
+	}
 	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
 
 	// Inactivity timer
@@ -585,7 +588,10 @@ func extractAllianceClassFromDoc(doc *goquery.Document) (ogame.AllianceClass, er
 }
 
 func extractPhalanxNewToken(pageHTML []byte) (string, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return "", err
+	}
 	token := doc.Find("a.refreshPhalanxLink").AttrOr("data-overlay-token", "")
 	return token, nil
 }

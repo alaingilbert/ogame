@@ -708,17 +708,19 @@ func processAuctioneerMessage(buf string) (any, error) {
 	} else if name == "timeLeft" {
 		if timeLeftMsg, ok := arg.(string); ok {
 			if strings.Contains(timeLeftMsg, "color:") {
-				doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
-				rgx := regexp.MustCompile(`\d+`)
-				txt := rgx.FindString(doc.Find("b").Text())
-				approx := utils.DoParseI64(txt)
-				pck = ogame.AuctioneerTimeRemaining{Approx: approx * 60}
+				if doc, err := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg)); err == nil {
+					rgx := regexp.MustCompile(`\d+`)
+					txt := rgx.FindString(doc.Find("b").Text())
+					approx := utils.DoParseI64(txt)
+					pck = ogame.AuctioneerTimeRemaining{Approx: approx * 60}
+				}
 			} else if strings.Contains(timeLeftMsg, "nextAuction") {
-				doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
-				rgx := regexp.MustCompile(`\d+`)
-				txt := rgx.FindString(doc.Find("span").Text())
-				secs := utils.DoParseI64(txt)
-				pck = ogame.AuctioneerNextAuction{Secs: secs}
+				if doc, err := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg)); err == nil {
+					rgx := regexp.MustCompile(`\d+`)
+					txt := rgx.FindString(doc.Find("span").Text())
+					secs := utils.DoParseI64(txt)
+					pck = ogame.AuctioneerNextAuction{Secs: secs}
+				}
 			}
 		}
 	} else if name == "new auction" {
@@ -727,11 +729,12 @@ func processAuctioneerMessage(buf string) (any, error) {
 				AuctionID: int64(utils.DoCastF64(firstArg["auctionId"])),
 			}
 			if infoMsg, ok := firstArg["info"].(string); ok {
-				doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
-				rgx := regexp.MustCompile(`\d+`)
-				txt := rgx.FindString(doc.Find("b").Text())
-				approx := utils.DoParseI64(txt)
-				pck1.Approx = approx * 60
+				if doc, err := goquery.NewDocumentFromReader(strings.NewReader(infoMsg)); err == nil {
+					rgx := regexp.MustCompile(`\d+`)
+					txt := rgx.FindString(doc.Find("b").Text())
+					approx := utils.DoParseI64(txt)
+					pck1.Approx = approx * 60
+				}
 			}
 			pck = pck1
 		}
@@ -1136,7 +1139,9 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 	case http.MethodPost:
 		if page == PreferencesPageName {
 			b.cache.token, _ = b.extractor.ExtractToken(pageHTML)
-			b.cache.CachedPreferences = b.extractor.ExtractPreferences(pageHTML)
+			if prefs, err := b.extractor.ExtractPreferences(pageHTML); err == nil {
+				b.cache.CachedPreferences = prefs
+			}
 		} else if page == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
 			if err := extractNewChatToken(b, pageHTML); err != nil {
 				return err
@@ -1470,7 +1475,10 @@ func (b *OGame) abandon(v IntoPlanet) error {
 		return errors.New("invalid parameter")
 	}
 	pageHTML, _ := b.getPage(PlanetlayerPageName, ChangePlanet(planet.GetID()))
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return err
+	}
 	abandonToken, token := b.extractor.ExtractAbandonInformation(doc)
 	payload := url.Values{
 		"abandon":  {abandonToken},
@@ -1538,7 +1546,10 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 	if strings.Contains(string(bodyBytes), "INVALID_PARAMETERS") {
 		return errors.New("invalid parameters")
 	}
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(bodyBytes)))
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(bodyBytes)))
+	if err != nil {
+		return err
+	}
 	if doc.Find("title").Text() == "OGame Lobby" {
 		return ogame.ErrNotLogged
 	}
@@ -1555,7 +1566,7 @@ func (b *OGame) getFleetsFromEventList() ([]ogame.Fleet, error) {
 	if err != nil {
 		return nil, err
 	}
-	return b.extractor.ExtractFleetsFromEventList(pageHTML), nil
+	return b.extractor.ExtractFleetsFromEventList(pageHTML)
 }
 
 func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
@@ -1884,7 +1895,10 @@ func (b *OGame) jumpGateDestinations(originMoonID ogame.MoonID) ([]ogame.MoonID,
 	if err != nil {
 		return nil, 0, err
 	}
-	_, _, dests, wait := page.ExtractJumpGate()
+	_, _, dests, wait, err := page.ExtractJumpGate()
+	if err != nil {
+		return nil, 0, err
+	}
 	if wait > 0 {
 		return dests, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
 	}
@@ -1896,7 +1910,10 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 	if err != nil {
 		return false, 0, err
 	}
-	availShips, token, dests, wait := page.ExtractJumpGate()
+	availShips, token, dests, wait, err := page.ExtractJumpGate()
+	if err != nil {
+		return false, 0, err
+	}
 	if wait > 0 {
 		return false, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
 	}
@@ -1970,7 +1987,10 @@ func (b *OGame) createUnion(fleet ogame.Fleet, unionUsers []string) (int64, erro
 	if err != nil {
 		return 0, err
 	}
-	payload := b.extractor.ExtractFederation(pageHTML)
+	payload, err := b.extractor.ExtractFederation(pageHTML)
+	if err != nil {
+		return 0, err
+	}
 
 	payloadUnionUsers := payload["unionUsers"]
 	for _, user := range payloadUnionUsers {
@@ -2847,7 +2867,7 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		return err
 	}
 
-	if !b.extractor.ExtractTearDownButtonEnabled([]byte(jsonContent.Content.Technologydetails)) {
+	if ok, err := b.extractor.ExtractTearDownButtonEnabled([]byte(jsonContent.Content.Technologydetails)); err != nil || !ok {
 		return errors.New("tear down button is disabled")
 	}
 
@@ -2986,7 +3006,7 @@ func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.Co
 	if err != nil {
 		return ogame.Constructions{}, err
 	}
-	return page.ExtractConstructions(), nil
+	return page.ExtractConstructions()
 }
 
 func (b *OGame) cancel(token string, techID, listID int64) error {
@@ -3125,7 +3145,10 @@ func (b *OGame) sendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int
 		return 0, err
 	}
 
-	duration, maxV, token := page.ExtractIPM()
+	duration, maxV, token, err := page.ExtractIPM()
+	if err != nil {
+		return 0, err
+	}
 	if maxV == 0 {
 		return 0, errors.New("no missile available")
 	}
@@ -3287,7 +3310,10 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		}
 	}
 
-	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
+	availableShips, err := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
+	if err != nil {
+		return zeroFleet, err
+	}
 
 	atLeastOneShipSelected := false
 	for shipID, nb := range ships.IterFlyable() {
@@ -4220,7 +4246,7 @@ func (b *OGame) getAvailableDiscoveries(opts ...Option) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return b.extractor.ExtractAvailableDiscoveries(pageHTML), nil
+	return b.extractor.ExtractAvailableDiscoveries(pageHTML)
 }
 
 type GalaxyPageContent struct {

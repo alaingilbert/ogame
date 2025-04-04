@@ -27,7 +27,7 @@ func BenchmarkUserInfoRegex(b *testing.B) {
 
 func BenchmarkUserInfoGoquery(b *testing.B) {
 	extractUserGoquery := func(pageHTML []byte) (int64, string) {
-		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+		doc := utils.First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTML)))
 		playerID := utils.ParseInt(doc.Find("meta[name=ogame-player-id]").AttrOr("content", "0"))
 		playerName := doc.Find("meta[name=ogame-player-name]").AttrOr("content", "")
 		return playerID, playerName
@@ -101,7 +101,7 @@ func TestEnergyProduced(t *testing.T) {
 
 func TestExtractCargoCapacity(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../samples/unversioned/sendfleet3.htm")
-	fleet3Doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	fleet3Doc := utils.First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	cargo := utils.ParseInt(fleet3Doc.Find("#maxresources").Text())
 	assert.Equal(t, int64(442500), cargo)
 }

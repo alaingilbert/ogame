@@ -63,7 +63,7 @@ func TestExtractCombatReportMessages_Debris(t *testing.T) {
 
 func TestExtractShips_fleetdispatch(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/fleetdispatch.html")
-	ships := NewExtractor().ExtractFleet1Ships(pageHTMLBytes)
+	ships, _ := NewExtractor().ExtractFleet1Ships(pageHTMLBytes)
 	assert.Equal(t, int64(6), ships.SmallCargo)
 	assert.Equal(t, int64(1), ships.ColonyShip)
 	assert.Equal(t, int64(0), ships.Crawler)
@@ -129,7 +129,7 @@ func TestExtractShips_build(t *testing.T) {
 
 func TestExtractResearch(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/researches.html")
-	res := NewExtractor().ExtractResearch(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResearch(pageHTMLBytes)
 	assert.Equal(t, int64(2), res.EnergyTechnology)
 	assert.Equal(t, int64(4), res.LaserTechnology)
 	assert.Equal(t, int64(0), res.IonTechnology)
@@ -150,7 +150,7 @@ func TestExtractResearch(t *testing.T) {
 
 func TestExtractResearch_2(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7/researches2.html")
-	res := NewExtractor().ExtractResearch(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResearch(pageHTMLBytes)
 	assert.Equal(t, int64(1), res.EnergyTechnology)
 	assert.Equal(t, int64(0), res.LaserTechnology)
 	assert.Equal(t, int64(0), res.IonTechnology)

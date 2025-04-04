@@ -16,14 +16,14 @@ func TestParseInt(t *testing.T) {
 
 func TestParseInt2(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../samples/unversioned/deathstar_price.html")
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	doc := First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	title := doc.Find("li.metal").AttrOr("title", "")
 	metalStr := regexp.MustCompile(`([\d.]+)`).FindStringSubmatch(title)[1]
 	metal := ParseInt(metalStr)
 	assert.Equal(t, int64(5000000), metal)
 
 	pageHTMLBytes, _ = os.ReadFile("../../samples/unversioned/mrd_price.html")
-	doc, _ = goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	doc = First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	title = doc.Find("li.metal").AttrOr("title", "")
 	metalStr = regexp.MustCompile(`([\d.]+)`).FindStringSubmatch(title)[1]
 	metal = ParseInt(metalStr)

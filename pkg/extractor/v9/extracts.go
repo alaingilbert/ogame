@@ -90,7 +90,10 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 		}
 		mm := v6.DiameterRgx.FindStringSubmatch(utils.DoCastStr(planet["diameter"]))
 		energyStr := utils.DoCastStr(planet["energy"])
-		energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
+		energyDoc, err := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
+		if err != nil {
+			return nil, err
+		}
 		energy := utils.ParseInt(energyDoc.Find("div span").Text())
 		celestialType := ogame.CelestialType(utils.DoCastF64(planet["type"]))
 		out = append(out, ogame.EmpireCelestial{
@@ -357,13 +360,13 @@ func extractResourcesFromDoc(doc *goquery.Document) ogame.Resources {
 
 func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.ResourcesDetails {
 	out := ogame.ResourcesDetails{}
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#metal_box").AttrOr("title", "")))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#crystal_box").AttrOr("title", "")))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", "")))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", "")))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", "")))
-	populationDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#population_box").AttrOr("title", "")))
-	foodDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#food_box").AttrOr("title", "")))
+	metalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#metal_box").AttrOr("title", ""))))
+	crystalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#crystal_box").AttrOr("title", ""))))
+	deuteriumDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", ""))))
+	energyDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", ""))))
+	darkmatterDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", ""))))
+	populationDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#population_box").AttrOr("title", ""))))
+	foodDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#food_box").AttrOr("title", ""))))
 	out.Metal.Available = utils.ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
 	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
@@ -464,8 +467,11 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	}
 
 	// APIKey
-	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
-	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	apikey := doc.Find("span.icon_apikey").AttrOr("title", "")
+	apiDoc, err := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	if err != nil {
+		return report, err
+	}
 	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
 
 	// Inactivity timer

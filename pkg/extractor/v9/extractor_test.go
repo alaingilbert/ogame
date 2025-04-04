@@ -3,6 +3,7 @@ package v9
 import (
 	"bytes"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"os"
 	"testing"
 	"time"
@@ -144,7 +145,7 @@ func TestExtractFleetResources(t *testing.T) {
 	e := NewExtractor()
 	e.SetLocation(time.FixedZone("OGT", 3600))
 	e.SetLifeformEnabled(true)
-	fleets := e.ExtractFleets(pageHTMLBytes)
+	fleets, _ := e.ExtractFleets(pageHTMLBytes)
 	assert.Equal(t, int64(1), fleets[0].Resources.Metal)
 	assert.Equal(t, int64(2), fleets[0].Resources.Crystal)
 	assert.Equal(t, int64(3), fleets[0].Resources.Deuterium)
@@ -232,7 +233,7 @@ func TestExtractOverviewProduction_ships(t *testing.T) {
 
 func TestExtractArtefactsFromDoc(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.16.0/en/lfresearch_1.html")
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	doc := utils.First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	collected, limit := NewExtractor().ExtractArtefactsFromDoc(doc)
 	assert.Equal(t, int64(3607), collected)
 	assert.Equal(t, int64(3600), limit)
@@ -240,7 +241,7 @@ func TestExtractArtefactsFromDoc(t *testing.T) {
 
 func TestExtractLfSlotsFromDoc(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.16.0/en/lfresearch_1.html")
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	doc := utils.First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	slots := NewExtractor().ExtractLfSlotsFromDoc(doc)
 	assert.Equal(t, ogame.IntergalacticEnvoysID, slots[0].TechID)
 	assert.Equal(t, int64(0), slots[0].Level)
@@ -255,7 +256,7 @@ func TestExtractLfSlotsFromDoc(t *testing.T) {
 	assert.False(t, slots[8].Allowed)
 
 	pageHTMLBytes, _ = os.ReadFile("../../../samples/v11.16.0/en/lfresearch_2.html")
-	doc, _ = goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	doc = utils.First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	slots = NewExtractor().ExtractLfSlotsFromDoc(doc)
 	assert.Equal(t, ogame.IntergalacticEnvoysID, slots[0].TechID)
 	assert.Equal(t, int64(14), slots[0].Level)

@@ -210,7 +210,7 @@ func TestExtractProduction(t *testing.T) {
 
 func TestExtractIPM(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v7.1/nl/ipm_missile_launch.html")
-	duration, max, token := NewExtractor().ExtractIPM(pageHTMLBytes)
+	duration, max, token, _ := NewExtractor().ExtractIPM(pageHTMLBytes)
 	assert.Equal(t, "95b68270230217f7e9a813e4a4beb20e", token)
 	assert.Equal(t, int64(25), max)
 	assert.Equal(t, int64(248), duration)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"github.com/alaingilbert/ogame/pkg/utils"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -26,7 +27,13 @@ func (p *Page) GetContent() []byte { return p.content }
 
 func (p *Page) GetDoc() *goquery.Document {
 	if p.doc == nil {
-		doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(p.content))
+		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(p.content))
+		if err != nil {
+			doc, err = goquery.NewDocumentFromReader(strings.NewReader(""))
+			if err != nil {
+				panic(err)
+			}
+		}
 		p.doc = doc
 	}
 	return p.doc

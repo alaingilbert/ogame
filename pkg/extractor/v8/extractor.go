@@ -33,7 +33,10 @@ func (e *Extractor) ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
 
 // ExtractEspionageReport ...
 func (e *Extractor) ExtractEspionageReport(pageHTML []byte) (ogame.EspionageReport, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.EspionageReport{}, err
+	}
 	return e.ExtractEspionageReportFromDoc(doc)
 }
 
