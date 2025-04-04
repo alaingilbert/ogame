@@ -1097,8 +1097,15 @@ func applyDelay(b *OGame, delay time.Duration) error {
 func alterPayload(method string, b *OGame, vals, payload url.Values) {
 	switch method {
 	case http.MethodPost:
-		if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
+		page := vals.Get("page")
+		if page == "ingame" {
+			page = vals.Get("component")
+		}
+		if page == "ajaxChat" && payload.Get("mode") == "1" {
 			payload.Set("token", b.cache.ajaxChatToken)
+		} else if (page == "fleetdispatch" && vals.Get("action") == "miniFleet") ||
+			(page == "movement" && vals.Get("action") == "recallFleetAjax") {
+			payload.Set("token", b.cache.token)
 		}
 	}
 }
