@@ -3496,11 +3496,11 @@ func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64, options ..
 		FleetID   ogame.FleetID
 	}
 	rows := make([]FleetRow, 0)
-	doc.Find("tr.eventFleet").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("tr.eventFleet").EachIter() {
 		arrivalTs := utils.DoParseI64(s.AttrOr("data-arrival-time", ""))
 		fleetID := ogame.FleetID(utils.DoParseI64(s.Find("a.recallFleet").AttrOr("data-fleet-id", "")))
 		rows = append(rows, FleetRow{ArrivalTs: arrivalTs, FleetID: fleetID})
-	})
+	}
 	maxRow := FleetRow{}
 	for _, row := range rows {
 		if row.FleetID > maxRow.FleetID {

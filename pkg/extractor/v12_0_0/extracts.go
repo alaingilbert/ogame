@@ -57,7 +57,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 	changeSiteSize := s.Find("select.changeSite option").Size()
 	out.NbPage = utils.MaxInt(int64(changeSiteSize)-1, 0)
 
-	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
+	for _, s := range s.Find("#ranks tbody tr").EachIter() {
 		p := ogame.HighscorePlayer{}
 		p.Position = utils.DoParseI64(strings.TrimSpace(s.Find("td.position").Text()))
 		p.ID = utils.DoParseI64(strings.TrimPrefix(s.AttrOr("id", "position0"), "position"))
@@ -75,7 +75,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 		href := tdName.Find("a").AttrOr("href", "")
 		m := regexp.MustCompile(`galaxy=(\d+)&system=(\d+)&position=(\d+)`).FindStringSubmatch(href)
 		if len(m) != 4 {
-			return
+			continue
 		}
 		p.Homeworld.Type = ogame.PlanetType
 		p.Homeworld.Galaxy = utils.DoParseI64(m[1])
@@ -83,7 +83,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 		p.Homeworld.Position = utils.DoParseI64(m[3])
 		honorScoreSpan := s.Find("span.honorScore span")
 		if honorScoreSpan == nil {
-			return
+			continue
 		}
 		p.HonourPoints = utils.ParseInt(strings.TrimSpace(honorScoreSpan.Text()))
 		p.Score = utils.ParseInt(strings.TrimSpace(s.Find("td.score").Text()))
@@ -94,7 +94,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 			p.Ships = utils.ParseInt(shipsParts[1])
 		}
 		out.Players = append(out.Players, p)
-	})
+	}
 
 	return
 }

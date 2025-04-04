@@ -17,7 +17,7 @@ import (
 
 func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error) {
 	msgs := make([]ogame.CombatReportSummary, 0)
-	doc.Find(".msg").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find(".msg").EachIter() {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := utils.ParseI64(idStr); err == nil {
 				rawMessageData := s.Find("div.rawMessageData")
@@ -83,7 +83,7 @@ func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatRe
 				link := s.Find("message-footer.msg_actions button.msgAttackBtn").AttrOr("onclick", "")
 				m = regexp.MustCompile(`page=ingame&component=fleetdispatch&galaxy=(\d+)&system=(\d+)&position=(\d+)&type=(\d+)&`).FindStringSubmatch(link)
 				if len(m) != 5 {
-					return
+					continue
 				}
 				galaxy := utils.DoParseI64(m[1])
 				system := utils.DoParseI64(m[2])
@@ -97,13 +97,13 @@ func extractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatRe
 				msgs = append(msgs, report)
 			}
 		}
-	})
+	}
 	return msgs, 1, nil
 }
 
 func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64, error) {
 	msgs := make([]ogame.EspionageReportSummary, 0)
-	doc.Find(".msg").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find(".msg").EachIter() {
 		rawData := s.Find("div.rawMessageData").First()
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := utils.ParseI64(idStr); err == nil {
@@ -121,17 +121,17 @@ func extractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.Esp
 					report.Target.Type = ogame.MoonType
 				}
 				if messageType == ogame.Report {
-					s.Find(".lootPercentage").Each(func(i int, s *goquery.Selection) {
+					for _, s := range s.Find(".lootPercentage").EachIter() {
 						if regexp.MustCompile(`%`).MatchString(s.Text()) {
 							report.LootPercentage, _ = strconv.ParseFloat(regexp.MustCompile(`: (\d+)%`).FindStringSubmatch(s.Text())[1], 64)
 							report.LootPercentage /= 100
 						}
-					})
+					}
 				}
 				msgs = append(msgs, report)
 			}
 		}
-	})
+	}
 	return msgs, 1, nil
 }
 
@@ -389,7 +389,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 
 func extractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Location) ([]ogame.ExpeditionMessage, int64, error) {
 	msgs := make([]ogame.ExpeditionMessage, 0)
-	doc.Find(".msg").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find(".msg").EachIter() {
 		if idStr, exists := s.Attr("data-msg-id"); exists {
 			if id, err := utils.ParseI64(idStr); err == nil {
 				msg := ogame.ExpeditionMessage{ID: id}
@@ -449,23 +449,23 @@ func extractExpeditionMessagesFromDoc(doc *goquery.Document, location *time.Loca
 				msgs = append(msgs, msg)
 			}
 		}
-	})
+	}
 	return msgs, 1, nil
 }
 
 func extractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
 	b := ogame.NewLfBonuses()
-	doc.Find("bonus-item-content[data-toggable-target^=category]").Each(func(_ int, s *goquery.Selection) {
+	for _, s := range doc.Find("bonus-item-content[data-toggable-target^=category]").EachIter() {
 		category := s.AttrOr("data-toggable-target", "")
 		if category == "categoryShips" || category == "categoryCostAndTime" || category == "categoryResources" || category == "categoryCharacterclasses" {
-			s.Find("inner-bonus-item-heading[data-toggable^=subcategory]").Each(func(_ int, g *goquery.Selection) {
+			for _, g := range s.Find("inner-bonus-item-heading[data-toggable^=subcategory]").EachIter() {
 				category, subcategory := extractCategories(g, category)
 				if category != "" && subcategory != "" {
 					assignBonusValue(g, b, category, subcategory)
 				}
-			})
+			}
 		}
-	})
+	}
 	return *b, nil
 }
 
@@ -506,28 +506,28 @@ func extractResourcesExpeditionBonus(s *goquery.Selection, l *ogame.LfBonuses) {
 func extractCostReductionBonus(s *goquery.Selection, l *ogame.LfBonuses, subcategory string) {
 	i := utils.DoParseI64(subcategory)
 	id := ogame.ID(i)
-	s.Find("bonus-items").Each(func(_ int, s *goquery.Selection) {
+	for _, s := range s.Find("bonus-items").EachIter() {
 		txt := s.Eq(0).Children().Eq(0).Contents().FilterFunction(func(i int, s *goquery.Selection) bool {
 			return s.Nodes[0].Type == html.TextNode
 		}).Text()
 		costTimeBonus := l.CostTimeBonuses[id]
 		costTimeBonus.Cost = extractBonusFromStringPercentage(txt)
 		l.CostTimeBonuses[id] = costTimeBonus
-	})
+	}
 }
 
 // Extracts time reduction
 func extractTimeReductionBonus(s *goquery.Selection, l *ogame.LfBonuses, subcategory string) {
 	i := utils.DoParseI64(subcategory)
 	id := ogame.ID(i)
-	s.Find("bonus-items").Each(func(_ int, s *goquery.Selection) {
+	for _, s := range s.Find("bonus-items").EachIter() {
 		txt := s.Eq(0).Children().Eq(1).Contents().FilterFunction(func(i int, s *goquery.Selection) bool {
 			return s.Nodes[0].Type == html.TextNode
 		}).Text()
 		costTimeBonus := l.CostTimeBonuses[id]
 		costTimeBonus.Duration = extractBonusFromStringPercentage(txt)
 		l.CostTimeBonuses[id] = costTimeBonus
-	})
+	}
 }
 
 // Extracts ships stats fixed
@@ -537,7 +537,7 @@ func extractShipStatBonus(s *goquery.Selection, b *ogame.LfBonuses, subcategory 
 	if !id.IsShip() {
 		return
 	}
-	s.Find("bonus-items").Each(func(_ int, s *goquery.Selection) {
+	for _, s := range s.Find("bonus-items").EachIter() {
 		extractFn := func(idx int) float64 {
 			txt := s.Children().Eq(idx).Contents().FilterFunction(func(i int, s *goquery.Selection) bool {
 				return s.Nodes[0].Type == html.TextNode
@@ -554,7 +554,7 @@ func extractShipStatBonus(s *goquery.Selection, b *ogame.LfBonuses, subcategory 
 			FuelConsumption:     extractFn(5),
 		}
 		b.LfShipBonuses[id] = shipBonus
-	})
+	}
 	return
 }
 

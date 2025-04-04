@@ -746,7 +746,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 
 	hasError := false
 	resourcesFound := false
-	doc.Find("ul.detail_list").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("ul.detail_list").EachIter() {
 		dataType := s.AttrOr("data-type", "")
 		if dataType == "resources" && !resourcesFound {
 			resourcesFound = true
@@ -756,11 +756,11 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 			report.Energy = utils.ParseInt(s.Find("li").Eq(3).AttrOr("title", "0"))
 		} else if dataType == "buildings" {
 			report.HasBuildingsInformation = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+			for _, s2 := range s.Find("li.detail_list_el").EachIter() {
 				img := s2.Find("img")
 				if img.Size() == 0 {
 					hasError = true
-					return false
+					break
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
@@ -806,8 +806,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				case ogame.JumpGate.ID:
 					report.JumpGate = level
 				}
-				return true
-			})
+			}
 		} else if dataType == "research" {
 			report.HasResearchesInformation = s.Find("li.detail_list_fail").Size() == 0
 			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
@@ -858,11 +857,11 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 			})
 		} else if dataType == "ships" {
 			report.HasFleetInformation = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+			for _, s2 := range s.Find("li.detail_list_el").EachIter() {
 				img := s2.Find("img")
 				if img.Size() == 0 {
 					hasError = true
-					return false
+					break
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
@@ -904,15 +903,14 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				case ogame.Pathfinder.ID:
 					report.Pathfinder = level
 				}
-				return true
-			})
+			}
 		} else if dataType == "defense" {
 			report.HasDefensesInformation = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+			for _, s2 := range s.Find("li.detail_list_el").EachIter() {
 				img := s2.Find("img")
 				if img.Size() == 0 {
 					hasError = true
-					return false
+					break
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
@@ -940,10 +938,9 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				case ogame.InterplanetaryMissiles.ID:
 					report.InterplanetaryMissiles = level
 				}
-				return true
-			})
+			}
 		}
-	})
+	}
 	if hasError {
 		return report, ogame.ErrDeactivateHidePictures
 	}
@@ -1003,17 +1000,17 @@ func extractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, erro
 	activeID := ogame.ID(idInt)
 	activeNbr := utils.DoParseI64(active.Find("div.shipSumCount").Text())
 	res = append(res, ogame.Quantifiable{ID: activeID, Nbr: activeNbr})
-	doc.Find("table.queue td").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("table.queue td").EachIter() {
 		link := s.Find("img")
 		alt := link.AttrOr("alt", "")
 		m := regexp.MustCompile(`techId_(\d+)`).FindStringSubmatch(alt)
 		if len(m) == 0 {
-			return
+			continue
 		}
 		itemID := utils.DoParseI64(m[1])
 		itemNbr := utils.ParseInt(s.Text())
 		res = append(res, ogame.Quantifiable{ID: ogame.ID(itemID), Nbr: itemNbr})
-	})
+	}
 	return res, nil
 }
 
@@ -1046,7 +1043,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 	changeSiteSize := s.Find("select.changeSite option").Size()
 	out.NbPage = utils.MaxInt(int64(changeSiteSize)-1, 0)
 
-	s.Find("#ranks tbody tr").Each(func(i int, s *goquery.Selection) {
+	for _, s := range s.Find("#ranks tbody tr").EachIter() {
 		p := ogame.HighscorePlayer{}
 		p.Position = utils.DoParseI64(strings.TrimSpace(s.Find("td.position").Text()))
 		p.ID = utils.DoParseI64(s.Find("td.sendmsg a").AttrOr("data-playerid", "0"))
@@ -1064,7 +1061,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 		href := tdName.Find("a").AttrOr("href", "")
 		m := regexp.MustCompile(`galaxy=(\d+)&system=(\d+)&position=(\d+)`).FindStringSubmatch(href)
 		if len(m) != 4 {
-			return
+			continue
 		}
 		p.Homeworld.Type = ogame.PlanetType
 		p.Homeworld.Galaxy = utils.DoParseI64(m[1])
@@ -1072,7 +1069,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 		p.Homeworld.Position = utils.DoParseI64(m[3])
 		honorScoreSpan := s.Find("span.honorScore span")
 		if honorScoreSpan == nil {
-			return
+			continue
 		}
 		p.HonourPoints = utils.ParseInt(strings.TrimSpace(honorScoreSpan.Text()))
 		p.Score = utils.ParseInt(strings.TrimSpace(s.Find("td.score").Text()))
@@ -1083,7 +1080,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 			p.Ships = utils.ParseInt(shipsParts[1])
 		}
 		out.Players = append(out.Players, p)
-	})
+	}
 
 	return
 }
@@ -1183,7 +1180,7 @@ func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoor
 				}
 				attack.Ships = new(ogame.ShipsInfos)
 				q := goquery.NewDocumentFromNode(root)
-				q.Find("tr").Each(func(i int, s *goquery.Selection) {
+				for _, s := range q.Find("tr").EachIter() {
 					name := s.Find("td").Eq(0).Text()
 					nbrTxt := s.Find("td").Eq(1).Text()
 					nbr := utils.ParseInt(nbrTxt)
@@ -1192,7 +1189,7 @@ func extractAttacksFromDoc(doc *goquery.Document, clock clockwork.Clock, ownCoor
 					} else if nbrTxt == "?" {
 						attack.Ships.Set(ogame.ShipName2ID(name), -1)
 					}
-				})
+				}
 			}
 
 			rgx := regexp.MustCompile(`union(\d+)`)
@@ -1328,10 +1325,10 @@ func extractBuffActivationFromDoc(doc *goquery.Document) (token string, items []
 }
 
 func extractActiveItemsFromDoc(doc *goquery.Document) (items []ogame.ActiveItem, err error) {
-	doc.Find("ul.active_items div").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("ul.active_items div").EachIter() {
 		dataID := utils.ParseInt(s.AttrOr("data-id", ""))
 		if dataID == 0 {
-			return
+			continue
 		}
 		durationDiv := s.Find("div.js_duration").First()
 		aTitle := s.Find("a").AttrOr("title", "")
@@ -1344,7 +1341,7 @@ func extractActiveItemsFromDoc(doc *goquery.Document) (items []ogame.ActiveItem,
 		item.Name = strings.TrimSpace(strings.Split(aTitle, "|")[0])
 		item.ImgSmall = imgSrc
 		items = append(items, item)
-	})
+	}
 	return
 }
 

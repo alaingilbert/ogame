@@ -53,7 +53,7 @@ func extractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
 func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifeformEnabled bool) (res []ogame.Fleet) {
 	res = make([]ogame.Fleet, 0)
 	script := doc.Find("body script").Text()
-	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("div.fleetDetails").EachIter() {
 		originText := s.Find("span.originCoords a").Text()
 		origin := v6.ExtractCoord(originText)
 		origin.Type = ogame.PlanetType
@@ -155,6 +155,6 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 		}
 
 		res = append(res, fleet)
-	})
+	}
 	return
 }

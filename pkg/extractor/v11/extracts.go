@@ -19,14 +19,14 @@ func extractResourceSettingsFromPage(pageHTML []byte) (ogame.ResourceSettings, s
 		return ogame.ResourceSettings{}, "", ogame.ErrInvalidPlanetID
 	}
 	vals := make([]int64, 0)
-	doc.Find("option").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("option").EachIter() {
 		_, selectedExists := s.Attr("selected")
 		if selectedExists {
 			a, _ := s.Attr("value")
 			val := utils.DoParseI64(a)
 			vals = append(vals, val)
 		}
-	})
+	}
 	if len(vals) != 7 {
 		return ogame.ResourceSettings{}, "", errors.New("failed to find all resource settings")
 	}
@@ -118,12 +118,12 @@ func extractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID,
 	}
 	token := doc.Find("input[name=token]").AttrOr("value", "")
 
-	doc.Find("select[name=targetSpaceObjectId] option").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("select[name=targetSpaceObjectId] option").EachIter() {
 		moonID := utils.ParseInt(s.AttrOr("value", "0"))
 		if moonID > 0 {
 			destinations = append(destinations, ogame.MoonID(moonID))
 		}
-	})
+	}
 
 	return ships, token, destinations, 0
 }
