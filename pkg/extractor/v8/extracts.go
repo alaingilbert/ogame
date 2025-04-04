@@ -20,7 +20,10 @@ func extractIsInVacationFromDoc(doc *goquery.Document) bool {
 		if href == "" {
 			continue
 		}
-		u, _ := url.Parse(href)
+		u, err := url.Parse(href)
+		if err != nil {
+			continue
+		}
 		q := u.Query()
 		if q.Get("component") == "preferences" && q.Get("selectedTab") == "3" && q.Get("openGroup") == "0" {
 			isVacation = true

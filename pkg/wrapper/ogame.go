@@ -1574,7 +1574,10 @@ func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	if err != nil {
 		return []ogame.Fleet{}, ogame.Slots{}, err
 	}
-	fleets := page.ExtractFleets()
+	fleets, err := page.ExtractFleets()
+	if err != nil {
+		return []ogame.Fleet{}, ogame.Slots{}, err
+	}
 	slots, err := page.ExtractSlots()
 	if err != nil {
 		return []ogame.Fleet{}, ogame.Slots{}, err
@@ -1602,7 +1605,10 @@ func (b *OGame) getLastFleetFor(origin, destination ogame.Coordinate, mission og
 	if err != nil {
 		return ogame.Fleet{}, err
 	}
-	fleets := page.ExtractFleets()
+	fleets, err := page.ExtractFleets()
+	if err != nil {
+		return ogame.Fleet{}, err
+	}
 	return getLastFleetFor(fleets, origin, destination, mission)
 }
 
@@ -3462,7 +3468,10 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		return zeroFleet, err
 	}
 	originCoords, _ := page.ExtractPlanetCoordinate()
-	fleets := page.ExtractFleets()
+	fleets, err := page.ExtractFleets()
+	if err != nil {
+		return zeroFleet, err
+	}
 	if maxV, err := getLastFleetFor(fleets, originCoords, where, mission); err == nil && maxV.ID > maxInitialFleetID {
 		return maxV, nil
 	}

@@ -40,7 +40,10 @@ func extractIsInVacationFromDoc(doc *goquery.Document) bool {
 		if href == "" {
 			continue
 		}
-		u, _ := url.Parse(href)
+		u, err := url.Parse(href)
+		if err != nil {
+			continue
+		}
 		q := u.Query()
 		if q.Get("page") == "preferences" && q.Get("selectedTab") == "3" && q.Get("openGroup") == "0" {
 			isVacation = true
@@ -1107,7 +1110,7 @@ func extractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string
 	return
 }
 
-func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifeformEnabled bool) (res []ogame.Fleet) {
+func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifeformEnabled bool) (res []ogame.Fleet, err error) {
 	res = make([]ogame.Fleet, 0)
 	script := doc.Find("body script").Text()
 	for _, s := range doc.Find("div.fleetDetails").EachIter() {
@@ -1164,7 +1167,10 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 		shipment.Deuterium = utils.ParseInt(trs.Eq(trs.Size() - DeuteriumTrOffset).Find("td").Eq(1).Text())
 
 		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
-		fedAttackURL, _ := url.Parse(fedAttackHref)
+		fedAttackURL, err := url.Parse(fedAttackHref)
+		if err != nil {
+			return nil, err
+		}
 		fedAttackQuery := fedAttackURL.Query()
 		targetPlanetID := utils.DoParseI64(fedAttackQuery.Get("target"))
 		unionID := utils.DoParseI64(fedAttackQuery.Get("union"))

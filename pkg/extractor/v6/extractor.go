@@ -231,7 +231,7 @@ func (e *Extractor) extractFleets(pageHTML []byte, location *time.Location) ([]o
 	if err != nil {
 		return nil, err
 	}
-	return e.extractFleetsFromDoc(doc, location), nil
+	return e.extractFleetsFromDoc(doc, location)
 }
 
 // ExtractSlots ...
@@ -690,11 +690,11 @@ func (e *Extractor) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int6
 }
 
 // ExtractFleetsFromDoc ...
-func (e *Extractor) ExtractFleetsFromDoc(doc *goquery.Document) (res []ogame.Fleet) {
+func (e *Extractor) ExtractFleetsFromDoc(doc *goquery.Document) ([]ogame.Fleet, error) {
 	return e.extractFleetsFromDoc(doc, e.loc)
 }
 
-func (e *Extractor) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) (res []ogame.Fleet) {
+func (e *Extractor) extractFleetsFromDoc(doc *goquery.Document, location *time.Location) ([]ogame.Fleet, error) {
 	return extractFleetsFromDoc(doc, location, e.lifeformEnabled)
 }
 

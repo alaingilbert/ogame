@@ -2,7 +2,7 @@ package parser
 
 import "github.com/alaingilbert/ogame/pkg/ogame"
 
-func (p *MovementPage) ExtractFleets() []ogame.Fleet {
+func (p *MovementPage) ExtractFleets() ([]ogame.Fleet, error) {
 	return p.e.ExtractFleetsFromDoc(p.GetDoc())
 }
 

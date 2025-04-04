@@ -121,7 +121,7 @@ type MovementExtractorBytes interface {
 
 type MovementExtractorDoc interface {
 	FleetsExtractorDoc
-	ExtractFleetsFromDoc(*goquery.Document) []ogame.Fleet
+	ExtractFleetsFromDoc(*goquery.Document) ([]ogame.Fleet, error)
 }
 
 type MovementExtractorBytesDoc interface {
