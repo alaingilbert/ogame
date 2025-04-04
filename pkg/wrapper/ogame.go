@@ -171,13 +171,13 @@ func newWithParams(params Params) (*OGame, error) {
 	b.parentCtx = params.Ctx
 	b.device = params.Device
 	b.loginWrapper = DefaultLoginWrapper
-	b.Enable()
+	b.enable()
 	b.quiet = false
 	b.logger = log.New(os.Stdout, "", 0)
 
 	b.universe = params.Universe
 	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
-	b.setOGameLobby(gameforge.Lobby)
+	b.setOGameLobby(params.Lobby)
 	b.language = params.Lang
 	b.playerID = params.PlayerID
 
@@ -192,7 +192,6 @@ func newWithParams(params Params) (*OGame, error) {
 	b.wsCallbacks = make(map[string]func([]byte))
 
 	b.captchaCallback = params.CaptchaSolver
-	b.setOGameLobby(params.Lobby)
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
 		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
