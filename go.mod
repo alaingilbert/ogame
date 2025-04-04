@@ -1,6 +1,8 @@
 module github.com/alaingilbert/ogame
 
-go 1.23
+go 1.23.0
+
+toolchain go1.23.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
@@ -19,8 +21,8 @@ require (
 	github.com/pquerna/otp v1.2.0
 	github.com/stretchr/testify v1.8.0
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
-	golang.org/x/net v0.26.0
-	golang.org/x/text v0.16.0
+	golang.org/x/net v0.38.0
+	golang.org/x/text v0.23.0
 	gopkg.in/abiosoft/ishell.v2 v2.0.0
 	gopkg.in/urfave/cli.v2 v2.0.0-20180128182452-d3ae77c26ac8
 )
@@ -44,8 +46,8 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
 	go4.org v0.0.0-20200411211856-f5505b9728dd // indirect
-	golang.org/x/crypto v0.24.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
 	gopkg.in/retry.v1 v1.0.3 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
