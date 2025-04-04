@@ -271,6 +271,10 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	return nil
 }
 
+func isVGreaterThanOrEqual(v *version.Version, compareVersion string) bool {
+	return v.GreaterThanOrEqual(version.Must(version.NewVersion(compareVersion)))
+}
+
 func getExtractorFor(ogVersion *version.Version) (ext extractor.Extractor) {
 	if isVGreaterThanOrEqual(ogVersion, "12.0.0") {
 		ext = v12_0_0.NewExtractor()

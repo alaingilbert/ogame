@@ -21,7 +21,6 @@ import (
 	"github.com/alaingilbert/ogame/pkg/parser"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
 	"github.com/alaingilbert/ogame/pkg/utils"
-	version "github.com/hashicorp/go-version"
 	cookiejar "github.com/orirawlings/persistent-cookiejar"
 	"golang.org/x/net/proxy"
 	"golang.org/x/net/websocket"
@@ -65,7 +64,6 @@ type OGame struct {
 	language             string
 	playerID             int64
 	lobby                string
-	sessionChatCounter   int64
 	server               gameforge.Server
 	logger               *log.Logger
 	chatCallbacks        []func(msg ogame.ChatMsg)
@@ -84,7 +82,6 @@ type OGame struct {
 	device               *device.Device
 	cache                struct {
 		serverData            ServerData
-		serverVersion         *version.Version
 		location              *time.Location
 		player                ogame.UserInfos
 		CachedPreferences     ogame.Preferences
@@ -131,6 +128,35 @@ type Params struct {
 	APINewHostname string
 	Device         *device.Device
 	CaptchaSolver  gameforge.CaptchaSolver
+}
+
+// New creates a new instance of OGame wrapper.
+func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return newWithParams(Params{
+		Universe:  universe,
+		Username:  username,
+		Password:  password,
+		Lang:      lang,
+		Device:    deviceInst,
+		AutoLogin: true,
+	})
+}
+
+// NewNoLogin creates a new instance of OGame wrapper, does not auto-login.
+func NewNoLogin(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return newWithParams(Params{
+		Universe:  universe,
+		Username:  username,
+		Password:  password,
+		Lang:      lang,
+		Device:    deviceInst,
+		AutoLogin: false,
+	})
+}
+
+// NewWithParams create a new OGame instance with full control over the possible parameters
+func NewWithParams(params Params) (*OGame, error) {
+	return newWithParams(params)
 }
 
 func newWithParams(params Params) (*OGame, error) {
@@ -181,7 +207,6 @@ func newWithParams(params Params) (*OGame, error) {
 	return b, nil
 }
 
->>>>>>> 5c20d3e8 (cleanup refactor name)
 const PLATFORM = gameforge.OGAME
 
 // ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
@@ -272,34 +297,6 @@ func (b *OGame) validateAccount(code string) error {
 	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
 		return gameforge.ValidateAccount(b.ctx, client, PLATFORM, b.lobby, code)
 	})
-}
-
-// New creates a new instance of OGame wrapper.
-func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
-	return NewWithParams(Params{
-		Universe:  universe,
-		Username:  username,
-		Password:  password,
-		Lang:      lang,
-		Device:    deviceInst,
-		AutoLogin: true,
-	})
-}
-
-// NewNoLogin creates a new instance of OGame wrapper, does not auto-login.
-func NewNoLogin(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
-	return NewWithParams(Params{
-		Universe: universe,
-		Username: username,
-		Password: password,
-		Lang:     lang,
-		Device:   deviceInst,
-	})
-}
-
-// NewWithParams create a new OGame instance with full control over the possible parameters
-func NewWithParams(params Params) (*OGame, error) {
-	return newWithParams(params)
 }
 
 func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url.Values, pageHTML []byte) {
@@ -2775,45 +2772,6 @@ func (b *OGame) getProduction(celestialID ogame.CelestialID) ([]ogame.Quantifiab
 		return []ogame.Quantifiable{}, 0, err
 	}
 	return page.ExtractProduction()
-}
-
-// IsV7 ...
-func (b *OGame) IsV7() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '7'
-}
-
-// IsV8 ...
-func (b *OGame) IsV8() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '8'
-}
-
-// IsV9 ...
-func (b *OGame) IsV9() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '9'
-}
-
-// IsV10 ...
-func (b *OGame) IsV10() bool {
-	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "10"
-}
-
-// IsV104 ...
-func (b *OGame) IsV104() bool {
-	return len(b.ServerVersion()) > 3 && b.ServerVersion()[:4] == "10.4"
-}
-
-// IsV11 ...
-func (b *OGame) IsV11() bool {
-	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "11"
-}
-
-// IsVGreaterThanOrEqual ...
-func (b *OGame) IsVGreaterThanOrEqual(compareVersion string) bool {
-	return isVGreaterThanOrEqual(b.cache.serverVersion, compareVersion)
-}
-
-func isVGreaterThanOrEqual(v *version.Version, compareVersion string) bool {
-	return v.GreaterThanOrEqual(version.Must(version.NewVersion(compareVersion)))
 }
 
 func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
