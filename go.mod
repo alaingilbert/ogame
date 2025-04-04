@@ -6,6 +6,7 @@ toolchain go1.23.1
 
 require (
 	github.com/PuerkitoBio/goquery v1.10.2
+	github.com/abiosoft/ishell/v2 v2.0.2
 	github.com/alaingilbert/clockwork v0.1.1-0.20220821091847-24a25c94a5fe
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
@@ -19,7 +20,6 @@ require (
 	github.com/urfave/cli/v3 v3.1.1
 	golang.org/x/net v0.38.0
 	golang.org/x/text v0.23.0
-	gopkg.in/abiosoft/ishell.v2 v2.0.0
 )
 
 require (
@@ -28,7 +28,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fatih/color v1.9.0 // indirect
+	github.com/fatih/color v1.12.0 // indirect
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
