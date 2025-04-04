@@ -204,6 +204,7 @@ func start(ctx context.Context, c *cli.Command) error {
 	}
 
 	params := wrapper.Params{
+		Ctx:            ctx,
 		Device:         deviceInst,
 		Universe:       universe,
 		Username:       username,
