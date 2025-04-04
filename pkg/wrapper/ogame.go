@@ -362,7 +362,10 @@ func postSessions(b *OGame) (bearerToken string, err error) {
 }
 
 func appendCookie(client *httpclient.Client, cookie *http.Cookie) {
-	u, _ := url.Parse("https://gameforge.com")
+	u, err := url.Parse("https://gameforge.com")
+	if err != nil {
+		panic(err)
+	}
 	cookies := client.Jar.Cookies(u)
 	cookies = append(cookies, cookie)
 	client.Jar.SetCookies(u, cookies)
