@@ -145,25 +145,19 @@ func extractCelestialsFromDoc(doc *goquery.Document) []ogame.Celestial {
 }
 
 func extractPlanetsFromDoc(doc *goquery.Document) []ogame.Planet {
-	res := make([]ogame.Planet, 0)
-	for _, s := range doc.Find("div.smallplanet").EachIter() {
-		planet, err := extractPlanetFromSelection(s)
-		if err != nil {
-			continue
-		}
-		res = append(res, planet)
-	}
-	return res
+	return extractFromDoc(doc, "div.smallplanet", extractPlanetFromSelection)
 }
 
 func extractMoonsFromDoc(doc *goquery.Document) []ogame.Moon {
-	res := make([]ogame.Moon, 0)
-	for _, s := range doc.Find("a.moonlink").EachIter() {
-		moon, err := extractMoonFromSelection(s)
-		if err != nil {
-			continue
+	return extractFromDoc(doc, "a.moonlink", extractMoonFromSelection)
+}
+
+func extractFromDoc[T any](doc *goquery.Document, selector string, clb func(*goquery.Selection) (T, error)) []T {
+	res := make([]T, 0)
+	for _, s := range doc.Find(selector).EachIter() {
+		if c, err := clb(s); err == nil {
+			res = append(res, c)
 		}
-		res = append(res, moon)
 	}
 	return res
 }
