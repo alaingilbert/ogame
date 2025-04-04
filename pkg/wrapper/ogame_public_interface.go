@@ -944,17 +944,23 @@ func (b *OGame) ReconnectChat() bool {
 
 // SetAllianceClass ...
 func (b *OGame) SetAllianceClass(allianceClass ogame.AllianceClass) {
-	b.cache.allianceClass = &allianceClass // TODO: bot should be locked ?
+	b.Lock()
+	defer b.Unlock()
+	b.cache.allianceClass = &allianceClass
 }
 
 // SetResearches ...
 func (b *OGame) SetResearches(researches ogame.Researches) {
-	b.cache.researches = &researches // TODO: bot should be locked ?
+	b.Lock()
+	defer b.Unlock()
+	b.cache.researches = &researches
 }
 
 // SetLfBonuses ...
 func (b *OGame) SetLfBonuses(lfBonuses ogame.LfBonuses) {
-	b.cache.lfBonuses = &lfBonuses // TODO: bot should be locked ?
+	b.Lock()
+	defer b.Unlock()
+	b.cache.lfBonuses = &lfBonuses
 }
 
 // SoftLogout simulate closing the browser without logging out
