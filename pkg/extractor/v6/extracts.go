@@ -117,23 +117,19 @@ func ExtractBodyIDFromDoc(doc *goquery.Document) string {
 }
 
 func extractCelestialByIDFromDoc(doc *goquery.Document, celestialID ogame.CelestialID) (ogame.Celestial, error) {
-	celestials := extractCelestialsFromDoc(doc)
-	for _, celestial := range celestials {
-		if celestial.GetID() == celestialID {
-			return celestial, nil
-		}
-	}
-	return nil, errors.New("invalid celestial id")
+	return extractCelestialByPredicateFnFromDoc(doc, func(c ogame.Celestial) bool { return c.GetID() == celestialID })
 }
 
 func extractCelestialByCoordFromDoc(doc *goquery.Document, coord ogame.Coordinate) (ogame.Celestial, error) {
+	return extractCelestialByPredicateFnFromDoc(doc, func(c ogame.Celestial) bool { return c.GetCoordinate().Equal(coord) })
+}
+
+func extractCelestialByPredicateFnFromDoc(doc *goquery.Document, clb func(ogame.Celestial) bool) (ogame.Celestial, error) {
 	celestials := extractCelestialsFromDoc(doc)
-	for _, celestial := range celestials {
-		if celestial.GetCoordinate().Equal(coord) {
-			return celestial, nil
-		}
+	if celestial := utils.Find(celestials, func(c ogame.Celestial) bool { return clb(c) }); celestial != nil {
+		return *celestial, nil
 	}
-	return nil, errors.New("invalid coordinate")
+	return nil, errors.New("invalid celestial")
 }
 
 func extractCelestialsFromDoc(doc *goquery.Document) []ogame.Celestial {
