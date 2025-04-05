@@ -4450,3 +4450,137 @@ func (b *OGame) getClient() *httpclient.Client {
 func (b *OGame) setClient(client *httpclient.Client) {
 	b.device.SetClient(client)
 }
+
+func (b *OGame) onStateChange(clb func(locked bool, actor string)) {
+	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
+}
+
+func (b *OGame) getState() (bool, string) {
+	return b.lockedAtom.Load(), b.state
+}
+
+func (b *OGame) isLocked() bool {
+	return b.lockedAtom.Load()
+}
+
+func (b *OGame) getServer() gameforge.Server {
+	return b.server
+}
+
+func (b *OGame) planetID() ogame.CelestialID {
+	return b.cache.planetID
+}
+
+func (b *OGame) serverURL() string {
+	return b.cache.serverURL
+}
+
+func (b *OGame) getLanguage() string {
+	return b.language
+}
+
+func (b *OGame) bytesDownloaded() int64 {
+	return b.device.GetClient().BytesDownloaded()
+}
+
+func (b *OGame) bytesUploaded() int64 {
+	return b.device.GetClient().BytesUploaded()
+}
+
+func (b *OGame) getUniverseName() string {
+	return b.universe
+}
+
+func (b *OGame) getUsername() string {
+	return b.username
+}
+
+func (b *OGame) isPioneers() bool {
+	return b.lobby == gameforge.LobbyPioneers
+}
+
+func (b *OGame) getCachedPreferences() ogame.Preferences {
+	return b.cache.CachedPreferences
+}
+
+func (b *OGame) isVacationModeEnabled() bool {
+	return b.cache.isVacationModeEnabled
+}
+
+func (b *OGame) location() *time.Location {
+	return b.cache.location
+}
+
+func (b *OGame) getCachedToken() string {
+	return b.cache.token
+}
+
+func (b *OGame) getServerData() ServerData {
+	return b.cache.serverData
+}
+
+func (b *OGame) getResearchSpeed() int64 {
+	return b.cache.serverData.ResearchDurationDivisor
+}
+
+func (b *OGame) getNbSystems() int64 {
+	return b.cache.serverData.Systems
+}
+
+func (b *OGame) fleetDeutSaveFactor() float64 {
+	return b.cache.serverData.GlobalDeuteriumSaveFactor
+}
+
+func (b *OGame) serverVersion() string {
+	return b.cache.serverData.Version
+}
+
+func (b *OGame) characterClass() ogame.CharacterClass {
+	return b.cache.characterClass
+}
+
+func (b *OGame) countColonies() (int64, int64) {
+	return b.cache.coloniesCount, b.cache.coloniesPossible
+}
+
+func (b *OGame) getExtractor() extractor.Extractor {
+	return b.extractor
+}
+
+func (b *OGame) setAllianceClass(allianceClass ogame.AllianceClass) {
+	b.cache.allianceClass = &allianceClass
+}
+
+func (b *OGame) setResearches(researches ogame.Researches) {
+	b.cache.researches = &researches
+}
+
+func (b *OGame) setLfBonuses(lfBonuses ogame.LfBonuses) {
+	b.cache.lfBonuses = &lfBonuses
+}
+
+func (b *OGame) registerWSCallback(id string, fn func(msg []byte)) {
+	b.wsCallbacks[id] = fn
+}
+
+func (b *OGame) removeWSCallback(id string) {
+	delete(b.wsCallbacks, id)
+}
+
+func (b *OGame) registerChatCallback(fn func(msg ogame.ChatMsg)) {
+	b.chatCallbacks = append(b.chatCallbacks, fn)
+}
+
+func (b *OGame) registerAuctioneerCallback(fn func(packet any)) {
+	b.auctioneerCallbacks = append(b.auctioneerCallbacks, fn)
+}
+
+func (b *OGame) registerHTMLInterceptor(fn func(method, url string, params, payload url.Values, pageHTML []byte)) {
+	b.interceptorCallbacks = append(b.interceptorCallbacks, fn)
+}
+
+func (b *OGame) setInitiator(_ string) Prioritizable {
+	return nil
+}
+
+func (b *OGame) done() {}
