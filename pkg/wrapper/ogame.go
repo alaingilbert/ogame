@@ -1703,6 +1703,7 @@ func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) int64 {
 }
 
 // Returns the distance between two systems
+// https://ogame.fandom.com/wiki/Distance
 func flightSystemDistance(nbSystems, system1, system2, systemsSkip int64, donutSystem bool) (distance int64) {
 	dist := utils.MaxInt(systemDistance(nbSystems, system1, system2, donutSystem)-systemsSkip, 0)
 	return 2_700 + 95*dist
