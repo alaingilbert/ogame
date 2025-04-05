@@ -262,3 +262,11 @@ func Deref[T any](v *T) T {
 	}
 	return *v
 }
+
+// Default ...
+func Default[T any](v *T, d T) T {
+	if v == nil {
+		return d
+	}
+	return *v
+}

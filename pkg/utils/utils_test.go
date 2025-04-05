@@ -42,3 +42,12 @@ func TestI64Ptr(t *testing.T) {
 	v := int64(6)
 	assert.Equal(t, &v, I64Ptr(6))
 }
+
+func TestDefault(t *testing.T) {
+	assert.Equal(t, true, Default((*bool)(nil), true))
+	assert.Equal(t, false, Default((*bool)(nil), false))
+	assert.Equal(t, true, Default(Ptr(true), false))
+	assert.Equal(t, false, Default(Ptr(false), true))
+	assert.Equal(t, 1, Default((*int)(nil), 1))
+	assert.Equal(t, 2, Default(Ptr(2), 1))
+}
