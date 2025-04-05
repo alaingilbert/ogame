@@ -280,9 +280,7 @@ func getServerData(ctx context.Context, client gameforge.HttpClient, serverNumbe
 	serverData.SpeedFleetWar = max(serverData.SpeedFleetWar, 1)
 	serverData.SpeedFleetPeaceful = max(serverData.SpeedFleetPeaceful, 1)
 	serverData.SpeedFleetHolding = max(serverData.SpeedFleetHolding, 1)
-	if serverData.SpeedFleet == 0 {
-		serverData.SpeedFleet = serverData.SpeedFleetPeaceful
-	}
+	serverData.SpeedFleet = utils.Or(serverData.SpeedFleet, serverData.SpeedFleetPeaceful)
 	return serverData, nil
 }
 
