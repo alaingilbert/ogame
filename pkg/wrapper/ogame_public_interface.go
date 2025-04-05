@@ -694,14 +694,12 @@ func (b *OGame) ServerVersion() string {
 
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination ogame.Coordinate) int64 {
-	serverData := b.cache.serverData
-	return Distance(origin, destination, serverData.Galaxies, serverData.Systems, 0, serverData.DonutGalaxy, serverData.DonutSystem)
+	return b.distance(origin, destination)
 }
 
 // SystemDistance return the distance between two systems
 func (b *OGame) SystemDistance(system1, system2 int64) int64 {
-	serverData := b.cache.serverData
-	return systemDistance(serverData.Systems, system1, system2, serverData.DonutSystem)
+	return b.systemDistance(system1, system2)
 }
 
 // RegisterWSCallback ...

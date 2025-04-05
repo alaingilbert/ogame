@@ -4424,3 +4424,13 @@ func (b *OGame) reconnectChat() bool {
 func (b *OGame) setLoginWrapper(newWrapper func(func() (bool, bool, error)) error) {
 	b.loginWrapper = newWrapper
 }
+
+func (b *OGame) distance(origin, destination ogame.Coordinate) int64 {
+	serverData := b.cache.serverData
+	return Distance(origin, destination, serverData.Galaxies, serverData.Systems, 0, serverData.DonutGalaxy, serverData.DonutSystem)
+}
+
+func (b *OGame) systemDistance(system1, system2 int64) int64 {
+	serverData := b.cache.serverData
+	return systemDistance(serverData.Systems, system1, system2, serverData.DonutSystem)
+}
