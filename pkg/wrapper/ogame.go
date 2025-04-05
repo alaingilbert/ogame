@@ -129,6 +129,7 @@ type Params struct {
 	Device         *device.Device
 	CaptchaSolver  gameforge.CaptchaSolver
 	Logger         *log.Logger
+	Quiet          bool
 }
 
 // New creates a new instance of OGame wrapper.
@@ -176,7 +177,7 @@ func newWithParams(params Params) (*OGame, error) {
 	b.device = params.Device
 	b.loginWrapper = DefaultLoginWrapper
 	b.enable()
-	b.quiet = false
+	b.quiet = params.Quiet
 	b.logger = params.Logger
 
 	b.universe = params.Universe
