@@ -926,10 +926,7 @@ func (b *OGame) GetExtractor() extractor.Extractor {
 
 // SetOGameCredentials sets ogame credentials for the bot
 func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
-	b.username = username
-	b.password = password
-	b.otpSecret = otpSecret
-	b.bearerToken = bearerToken
+	b.setOGameCredentials(username, password, otpSecret, bearerToken)
 }
 
 // SetLoginWrapper ...

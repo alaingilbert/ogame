@@ -181,7 +181,7 @@ func newWithParams(params Params) (*OGame, error) {
 	b.logger = params.Logger
 
 	b.universe = params.Universe
-	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
+	b.setOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
 	b.setOGameLobby(params.Lobby)
 	b.language = params.Lang
 	b.playerID = params.PlayerID
@@ -1243,6 +1243,13 @@ func (b *OGame) constructionTime(id ogame.ID, nbr int64, facilities ogame.Facili
 	}
 	lfBonuses, _ := b.getCachedLfBonuses()
 	return obj.ConstructionTime(nbr, b.getUniverseSpeed(), facilities, lfBonuses, b.cache.characterClass, b.cache.hasTechnocrat)
+}
+
+func (b *OGame) setOGameCredentials(username, password, otpSecret, bearerToken string) {
+	b.username = username
+	b.password = password
+	b.otpSecret = otpSecret
+	b.bearerToken = bearerToken
 }
 
 func (b *OGame) enable() {
