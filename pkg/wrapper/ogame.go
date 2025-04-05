@@ -17,6 +17,7 @@ import (
 	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
+	"github.com/alaingilbert/ogame/pkg/mtx"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/parser"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
@@ -89,8 +90,7 @@ type OGame struct {
 		lfBonuses             *ogame.LfBonuses
 		characterClass        ogame.CharacterClass
 		allianceClass         *ogame.AllianceClass
-		planets               []Planet
-		planetsMu             sync.RWMutex
+		planets               mtx.RWMtx[[]Planet]
 		ogameSession          string
 		token                 string
 		ajaxChatToken         string
@@ -424,9 +424,7 @@ func convertCelestial(b *OGame, celestial ogame.Celestial) Celestial {
 }
 
 func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
-	b.cache.planetsMu.Lock()
-	b.cache.planets = convertPlanets(b, page.ExtractPlanets())
-	b.cache.planetsMu.Unlock()
+	b.cache.planets.Set(convertPlanets(b, page.ExtractPlanets()))
 	b.cache.isVacationModeEnabled = page.ExtractIsInVacation()
 	b.cache.token, _ = page.ExtractToken()
 	b.cache.ajaxChatToken, _ = page.ExtractAjaxChatToken()
@@ -4087,9 +4085,7 @@ func (b *OGame) getCelestialByPredicateFn(clb func(Celestial) bool) (Celestial, 
 }
 
 func (b *OGame) getCachedPlanets() []Planet {
-	b.cache.planetsMu.RLock()
-	defer b.cache.planetsMu.RUnlock()
-	return b.cache.planets
+	return b.cache.planets.Get()
 }
 
 func (b *OGame) getCachedMoons() []Moon {
