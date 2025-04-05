@@ -159,7 +159,7 @@ func (b *OGame) LoginWithExistingCookies() (bool, bool, error) {
 }
 
 // Login to ogame server
-// Can fails with BadCredentialsError
+// Can fail with BadCredentialsError
 func (b *OGame) Login() error {
 	return b.WithPriority(taskRunner.Normal).Login()
 }
