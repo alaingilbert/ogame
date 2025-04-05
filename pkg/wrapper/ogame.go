@@ -4430,3 +4430,23 @@ func (b *OGame) systemDistance(system1, system2 int64) int64 {
 	serverData := b.cache.serverData
 	return systemDistance(serverData.Systems, system1, system2, serverData.DonutSystem)
 }
+
+func (b *OGame) getSession() string {
+	return b.cache.ogameSession
+}
+
+func (b *OGame) withPriority(priority taskRunner.Priority) *Prioritize {
+	return b.taskRunnerInst.WithPriority(priority)
+}
+
+func (b *OGame) getDevice() *device.Device {
+	return b.device
+}
+
+func (b *OGame) getClient() *httpclient.Client {
+	return b.device.GetClient()
+}
+
+func (b *OGame) setClient(client *httpclient.Client) {
+	b.device.SetClient(client)
+}

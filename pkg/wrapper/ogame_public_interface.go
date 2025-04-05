@@ -42,17 +42,17 @@ func (b *OGame) IsConnected() bool {
 
 // GetDevice get the device used by the bot
 func (b *OGame) GetDevice() *device.Device {
-	return b.device
+	return b.getDevice()
 }
 
 // GetClient get the http client used by the bot
 func (b *OGame) GetClient() *httpclient.Client {
-	return b.device.GetClient()
+	return b.getClient()
 }
 
 // SetClient set the http client used by the bot
 func (b *OGame) SetClient(client *httpclient.Client) {
-	b.device.SetClient(client)
+	b.setClient(client)
 }
 
 // GetPublicIP get the public IP used by the bot
@@ -82,7 +82,7 @@ func (b *OGame) IsLocked() bool {
 
 // GetSession get ogame session
 func (b *OGame) GetSession() string {
-	return b.cache.ogameSession
+	return b.getSession()
 }
 
 // AddAccount add a new account (server) to your list of accounts
@@ -92,7 +92,7 @@ func (b *OGame) AddAccount(number int, lang string) (*gameforge.AddAccountRespon
 
 // WithPriority ...
 func (b *OGame) WithPriority(priority taskRunner.Priority) Prioritizable {
-	return b.taskRunnerInst.WithPriority(priority)
+	return b.withPriority(priority)
 }
 
 // Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
