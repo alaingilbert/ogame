@@ -194,7 +194,7 @@ func newWithParams(params Params) (*OGame, error) {
 	b.captchaCallback = params.CaptchaSolver
 	b.apiNewHostname = params.APINewHostname
 	if params.Proxy != "" {
-		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
+		if err := b.setProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
 			return nil, err
 		}
 	}
