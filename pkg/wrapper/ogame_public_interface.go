@@ -32,12 +32,12 @@ func (b *OGame) IsEnabled() bool {
 
 // IsLoggedIn returns true if the bot is currently logged-in, otherwise false
 func (b *OGame) IsLoggedIn() bool {
-	return b.isLoggedInAtom.Load()
+	return b.isLoggedIn()
 }
 
 // IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
 func (b *OGame) IsConnected() bool {
-	return b.isConnectedAtom.Load()
+	return b.isConnected()
 }
 
 // GetDevice get the device used by the bot
@@ -926,7 +926,7 @@ func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken s
 
 // SetLoginWrapper ...
 func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, bool, error)) error) {
-	b.loginWrapper = newWrapper
+	b.setLoginWrapper(newWrapper)
 }
 
 // ReconnectChat ...

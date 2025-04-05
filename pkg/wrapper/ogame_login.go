@@ -226,9 +226,10 @@ func (b *OGame) loginPart3(userAccount gameforge.Account, page *parser.OverviewP
 	if err != nil {
 		b.error(err)
 	}
-	b.cache.location = serverTime.Location()
+	serverLoc := serverTime.Location()
+	b.cache.location = serverLoc
 
-	ext.SetLocation(b.cache.location)
+	ext.SetLocation(serverLoc)
 	b.extractor = ext
 
 	preferencesPage, err := getPage[parser.PreferencesPage](b, SkipCacheFullPage)

@@ -1266,6 +1266,14 @@ func (b *OGame) isEnabled() bool {
 	return b.isEnabledAtom.Load()
 }
 
+func (b *OGame) isLoggedIn() bool {
+	return b.isLoggedInAtom.Load()
+}
+
+func (b *OGame) isConnected() bool {
+	return b.isConnectedAtom.Load()
+}
+
 func (b *OGame) isCollector() bool {
 	return b.cache.characterClass == ogame.Collector
 }
@@ -4411,4 +4419,8 @@ func (b *OGame) reconnectChat() bool {
 		return true
 	}
 	return false
+}
+
+func (b *OGame) setLoginWrapper(newWrapper func(func() (bool, bool, error)) error) {
+	b.loginWrapper = newWrapper
 }
