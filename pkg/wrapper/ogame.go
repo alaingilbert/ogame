@@ -2551,7 +2551,7 @@ func (b *OGame) getAttacks(opts ...Option) (out []ogame.AttackEvent, err error) 
 	if err != nil {
 		return
 	}
-	planets := b.GetCachedPlanets()
+	planets := b.getCachedPlanets()
 	ownCoords := getOwnCoordinates(planets)
 	out, err = page.ExtractAttacks(ownCoords)
 	if err != nil {
@@ -4086,7 +4086,7 @@ func (b *OGame) getCachedPlanets() []Planet {
 
 func (b *OGame) getCachedMoons() []Moon {
 	var moons []Moon
-	for _, p := range b.GetCachedPlanets() {
+	for _, p := range b.getCachedPlanets() {
 		if p.Moon != nil {
 			moons = append(moons, *p.Moon)
 		}
@@ -4096,7 +4096,7 @@ func (b *OGame) getCachedMoons() []Moon {
 
 func (b *OGame) getCachedCelestials() []Celestial {
 	celestials := make([]Celestial, 0)
-	for _, p := range b.GetCachedPlanets() {
+	for _, p := range b.getCachedPlanets() {
 		celestials = append(celestials, p)
 		if p.Moon != nil {
 			celestials = append(celestials, *p.Moon)
