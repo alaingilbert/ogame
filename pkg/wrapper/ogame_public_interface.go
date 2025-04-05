@@ -55,11 +55,6 @@ func (b *OGame) SetClient(client *httpclient.Client) {
 	b.device.SetClient(client)
 }
 
-// GetLoginClient get the http client used by the bot for login operations
-func (b *OGame) GetLoginClient() *httpclient.Client {
-	return b.device.GetClient()
-}
-
 // GetPublicIP get the public IP used by the bot
 func (b *OGame) GetPublicIP() (string, error) {
 	return b.getPublicIP()
