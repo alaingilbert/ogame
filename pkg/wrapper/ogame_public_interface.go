@@ -128,11 +128,6 @@ func (b *OGame) GetServer() gameforge.Server {
 	return b.server
 }
 
-// GetServerData get ogame server data information that the bot is connected to
-func (b *OGame) GetServerData() ServerData {
-	return b.cache.serverData
-}
-
 // PlanetID returns the last known currently selected planet/moon ID
 func (b *OGame) PlanetID() ogame.CelestialID {
 	return b.cache.planetID
@@ -187,16 +182,6 @@ func (b *OGame) GetUsername() string {
 	return b.username
 }
 
-// GetResearchSpeed gets the research speed
-func (b *OGame) GetResearchSpeed() int64 {
-	return b.cache.serverData.ResearchDurationDivisor
-}
-
-// GetNbSystems gets the number of systems
-func (b *OGame) GetNbSystems() int64 {
-	return b.cache.serverData.Systems
-}
-
 // GetUniverseSpeed shortcut to get ogame universe speed
 func (b *OGame) GetUniverseSpeed() int64 {
 	return b.getUniverseSpeed()
@@ -225,11 +210,6 @@ func (b *OGame) IsDonutSystem() bool {
 // ConstructionTime get duration to build something
 func (b *OGame) ConstructionTime(id ogame.ID, nbr int64, facilities ogame.Facilities) time.Duration {
 	return b.constructionTime(id, nbr, facilities)
-}
-
-// FleetDeutSaveFactor returns the fleet deut save factor
-func (b *OGame) FleetDeutSaveFactor() float64 {
-	return b.cache.serverData.GlobalDeuteriumSaveFactor
 }
 
 // GetPageContent gets the html for a specific ogame page
@@ -349,11 +329,6 @@ func (b *OGame) Abandon(v IntoPlanet) error {
 // GetCelestial get the player's planet/moon using the coordinate
 func (b *OGame) GetCelestial(v IntoCelestial) (Celestial, error) {
 	return b.WithPriority(taskRunner.Normal).GetCelestial(v)
-}
-
-// ServerVersion returns OGame version
-func (b *OGame) ServerVersion() string {
-	return b.cache.serverData.Version
 }
 
 // ServerTime returns server time
@@ -690,6 +665,31 @@ func (b *OGame) FlightTime(origin, destination ogame.Coordinate, speed ogame.Spe
 // FastFlightTime calculate flight time and fuel needed. Does not call ogame for TargetCheck to get empty/inactive systems
 func (b *OGame) FastFlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
 	return b.WithPriority(taskRunner.Normal).FastFlightTime(origin, destination, speed, ships, missionID, holdingTime)
+}
+
+// GetServerData get ogame server data information that the bot is connected to
+func (b *OGame) GetServerData() ServerData {
+	return b.cache.serverData
+}
+
+// GetResearchSpeed gets the research speed
+func (b *OGame) GetResearchSpeed() int64 {
+	return b.cache.serverData.ResearchDurationDivisor
+}
+
+// GetNbSystems gets the number of systems
+func (b *OGame) GetNbSystems() int64 {
+	return b.cache.serverData.Systems
+}
+
+// FleetDeutSaveFactor returns the fleet deut save factor
+func (b *OGame) FleetDeutSaveFactor() float64 {
+	return b.cache.serverData.GlobalDeuteriumSaveFactor
+}
+
+// ServerVersion returns OGame version
+func (b *OGame) ServerVersion() string {
+	return b.cache.serverData.Version
 }
 
 // Distance return distance between two coordinates
