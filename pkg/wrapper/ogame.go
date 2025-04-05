@@ -128,6 +128,7 @@ type Params struct {
 	APINewHostname string
 	Device         *device.Device
 	CaptchaSolver  gameforge.CaptchaSolver
+	Logger         *log.Logger
 }
 
 // New creates a new instance of OGame wrapper.
@@ -166,6 +167,9 @@ func newWithParams(params Params) (*OGame, error) {
 	if params.Ctx == nil {
 		params.Ctx = context.Background()
 	}
+	if params.Logger == nil {
+		params.Logger = log.New(os.Stdout, "", 0)
+	}
 
 	b := new(OGame)
 	b.parentCtx = params.Ctx
@@ -173,7 +177,7 @@ func newWithParams(params Params) (*OGame, error) {
 	b.loginWrapper = DefaultLoginWrapper
 	b.enable()
 	b.quiet = false
-	b.logger = log.New(os.Stdout, "", 0)
+	b.logger = params.Logger
 
 	b.universe = params.Universe
 	b.SetOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
