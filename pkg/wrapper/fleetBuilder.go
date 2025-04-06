@@ -86,19 +86,19 @@ func (f *FleetBuilder) SetResources(resources ogame.Resources) *FleetBuilder {
 
 // SetMetal ...
 func (f *FleetBuilder) SetMetal(metal int64) *FleetBuilder {
-	f.resources.Metal = utils.MaxInt(metal, -1)
+	f.resources.Metal = max(metal, -1)
 	return f
 }
 
 // SetCrystal ...
 func (f *FleetBuilder) SetCrystal(crystal int64) *FleetBuilder {
-	f.resources.Crystal = utils.MaxInt(crystal, -1)
+	f.resources.Crystal = max(crystal, -1)
 	return f
 }
 
 // SetDeuterium ...
 func (f *FleetBuilder) SetDeuterium(deuterium int64) *FleetBuilder {
-	f.resources.Deuterium = utils.MaxInt(deuterium, -1)
+	f.resources.Deuterium = max(deuterium, -1)
 	return f
 }
 

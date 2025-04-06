@@ -55,7 +55,7 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 	out.Type = utils.DoParseI64(m[1])
 
 	changeSiteSize := s.Find("select.changeSite option").Size()
-	out.NbPage = utils.MaxInt(int64(changeSiteSize)-1, 0)
+	out.NbPage = max(int64(changeSiteSize)-1, 0)
 
 	for _, s := range s.Find("#ranks tbody tr").EachIter() {
 		p := ogame.HighscorePlayer{}

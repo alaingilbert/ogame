@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"cmp"
 	"github.com/PuerkitoBio/goquery"
 	"iter"
 	"math"
@@ -31,35 +32,13 @@ func I64Ptr(v int64) *int64 {
 	return &v
 }
 
-// MinInt returns the minimum int64 value
-func MinInt(vals ...int64) int64 {
-	minV := vals[0]
-	for _, num := range vals {
-		if num < minV {
-			minV = num
-		}
-	}
-	return minV
-}
-
-// MaxInt returns the minimum int64 value
-func MaxInt(vals ...int64) int64 {
-	maxV := vals[0]
-	for _, num := range vals {
-		if num > maxV {
-			maxV = num
-		}
-	}
-	return maxV
-}
-
 // Noop ...
 func Noop(_ ...any) {}
 
 // Clamp ensure the value is within a range
-func Clamp(val, min, max int64) int64 {
-	val = MinInt(val, max)
-	val = MaxInt(val, min)
+func Clamp[T cmp.Ordered](val, pMin, pMax T) T {
+	val = min(val, pMax)
+	val = max(val, pMin)
 	return val
 }
 

@@ -1697,7 +1697,7 @@ func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) int64 {
 // Returns the distance between two systems
 // https://ogame.fandom.com/wiki/Distance
 func flightSystemDistance(nbSystems, system1, system2, systemsSkip int64, donutSystem bool) (distance int64) {
-	dist := utils.MaxInt(systemDistance(nbSystems, system1, system2, donutSystem)-systemsSkip, 0)
+	dist := max(systemDistance(nbSystems, system1, system2, donutSystem)-systemsSkip, 0)
 	return 2_700 + 95*dist
 }
 
@@ -1952,7 +1952,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 	// Add ships to payload
 	for _, s := range ogame.Ships {
 		// Get the min between what is available and what we want
-		nbr := utils.MinInt(ships.ByID(s.GetID()), availShips.ByID(s.GetID()))
+		nbr := min(ships.ByID(s.GetID()), availShips.ByID(s.GetID()))
 		if nbr > 0 {
 			payload.Add("ship_"+utils.FI64(s.GetID()), utils.FI64(nbr))
 		}
@@ -2945,7 +2945,7 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 	var amount int64 = 1
 	if id.IsShip() || id.IsDefense() {
 		var maximumNbr int64 = 99999
-		amount = utils.MinInt(nbr, maximumNbr)
+		amount = min(nbr, maximumNbr)
 	}
 
 	payload := url.Values{
@@ -3176,7 +3176,7 @@ func (b *OGame) sendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int
 	if maxV == 0 {
 		return 0, errors.New("no missile available")
 	}
-	nbr = utils.MinInt(nbr, maxV)
+	nbr = min(nbr, maxV)
 	params := url.Values{
 		"page":      {"ajax"},
 		"component": {"missileattacklayer"},

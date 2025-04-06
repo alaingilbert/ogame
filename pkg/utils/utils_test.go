@@ -34,10 +34,6 @@ func TestToInt(t *testing.T) {
 	assert.Equal(t, 1234567890, ToInt([]byte("1234567890")))
 }
 
-func TestMinInt(t *testing.T) {
-	assert.Equal(t, int64(2), MinInt(5, 2, 3))
-}
-
 func TestI64Ptr(t *testing.T) {
 	v := int64(6)
 	assert.Equal(t, &v, I64Ptr(6))
