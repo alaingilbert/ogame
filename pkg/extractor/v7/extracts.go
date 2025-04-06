@@ -16,13 +16,11 @@ import (
 )
 
 func GetNbr(doc *goquery.Document, name string) int64 {
-	val := utils.DoParseI64(doc.Find("span."+name+" span.level").First().AttrOr("data-value", "0"))
-	return val
+	return utils.DoParseI64(doc.Find("span."+name+" span.level").First().AttrOr("data-value", ""))
 }
 
 func getNbrShips(doc *goquery.Document, name string) int64 {
-	val := utils.DoParseI64(doc.Find("span."+name+" span.amount").First().AttrOr("data-value", "0"))
-	return val
+	return utils.DoParseI64(doc.Find("span."+name+" span.amount").First().AttrOr("data-value", ""))
 }
 
 func extractPremiumToken(pageHTML []byte, days int64) (token string, err error) {
