@@ -3411,7 +3411,8 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	if err != nil {
 		return zeroFleet, err
 	}
-	multiplier := float64(b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
+	serverData := b.getServerData()
+	multiplier := float64(serverData.CargoHyperspaceTechMultiplier) / 100.0
 	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.cache.characterClass, multiplier, b.server.OGameSettings().ProbeRaidsEnabled())
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
