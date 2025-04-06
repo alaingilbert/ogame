@@ -68,7 +68,7 @@ type OGame struct {
 	server               gameforge.Server
 	logger               *log.Logger
 	chatCallbacks        []func(msg ogame.ChatMsg)
-	wsCallbacks          map[string]func(msg []byte)
+	wsCallbacks          mtx.RWMtxMap[string, func(msg []byte)]
 	auctioneerCallbacks  []func(any)
 	interceptorCallbacks []func(method, url string, params, payload url.Values, pageHTML []byte)
 	closeChatCtx         context.Context
@@ -194,7 +194,7 @@ func newWithParams(params Params) (*OGame, error) {
 	factory := func() *Prioritize { return &Prioritize{bot: b} }
 	b.taskRunnerInst = taskRunner.NewTaskRunner(params.Ctx, factory)
 
-	b.wsCallbacks = make(map[string]func([]byte))
+	b.wsCallbacks.Set(make(map[string]func([]byte)))
 
 	b.captchaCallback = params.CaptchaSolver
 	b.apiNewHostname = params.APINewHostname
@@ -616,11 +616,9 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 				break
 			}
 		}
-		b.Lock()
-		for _, clb := range b.wsCallbacks {
+		b.wsCallbacks.Each(func(_ string, clb func(msg []byte)) {
 			go clb([]byte(buf))
-		}
-		b.Unlock()
+		})
 		if buf == "3probe" {
 			_ = websocket.Message.Send(ws, "5")
 			_ = websocket.Message.Send(ws, "40/chat,")
@@ -4554,11 +4552,11 @@ func (b *OGame) setLfBonuses(lfBonuses ogame.LfBonuses) {
 }
 
 func (b *OGame) registerWSCallback(id string, fn func(msg []byte)) {
-	b.wsCallbacks[id] = fn
+	b.wsCallbacks.SetKey(id, fn)
 }
 
 func (b *OGame) removeWSCallback(id string) {
-	delete(b.wsCallbacks, id)
+	b.wsCallbacks.DeleteKey(id)
 }
 
 func (b *OGame) registerChatCallback(fn func(msg ogame.ChatMsg)) {
