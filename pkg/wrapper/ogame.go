@@ -373,12 +373,24 @@ func appendCookie(client *httpclient.Client, cookie *http.Cookie) {
 	client.Jar.SetCookies(u, cookies)
 }
 
-func convertPlanets(b *OGame, planetsIn []ogame.Planet) []Planet {
-	out := make([]Planet, 0)
-	for _, planet := range planetsIn {
-		out = append(out, convertPlanet(b, planet))
+func convertCelestialGeneric[T, U any](b *OGame, moonsIn []T, convertFn func(*OGame, T) U) []U {
+	out := make([]U, len(moonsIn))
+	for i, moon := range moonsIn {
+		out[i] = convertFn(b, moon)
 	}
 	return out
+}
+
+func convertPlanets(b *OGame, planetsIn []ogame.Planet) []Planet {
+	return convertCelestialGeneric(b, planetsIn, convertPlanet)
+}
+
+func convertMoons(b *OGame, moonsIn []ogame.Moon) []Moon {
+	return convertCelestialGeneric(b, moonsIn, convertMoon)
+}
+
+func convertCelestials(b *OGame, celestials []ogame.Celestial) []Celestial {
+	return convertCelestialGeneric(b, celestials, convertCelestial)
 }
 
 func convertPlanet(b *OGame, planet ogame.Planet) Planet {
@@ -390,25 +402,8 @@ func convertPlanet(b *OGame, planet ogame.Planet) Planet {
 	return newPlanet
 }
 
-func convertMoons(b *OGame, moonsIn []ogame.Moon) []Moon {
-	out := make([]Moon, 0)
-	for _, moon := range moonsIn {
-		cMoon := convertMoon(b, moon)
-		out = append(out, cMoon)
-	}
-	return out
-}
-
 func convertMoon(b *OGame, moonIn ogame.Moon) Moon {
 	return Moon{ogame: b, Moon: moonIn}
-}
-
-func convertCelestials(b *OGame, celestials []ogame.Celestial) []Celestial {
-	out := make([]Celestial, 0)
-	for _, celestial := range celestials {
-		out = append(out, convertCelestial(b, celestial))
-	}
-	return out
 }
 
 func convertCelestial(b *OGame, celestial ogame.Celestial) Celestial {
