@@ -603,12 +603,13 @@ func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, 
 			b.error("failed to set read deadline:", err)
 		}
 		if err := websocket.Message.Receive(ws, &buf); err != nil {
+			var ne net.Error
 			if err == io.EOF {
 				b.error("chat eof:", err)
 				break
-			} else if strings.HasSuffix(err.Error(), "use of closed network connection") {
+			} else if errors.Is(err, net.ErrClosed) {
 				break
-			} else if strings.HasSuffix(err.Error(), "i/o timeout") {
+			} else if errors.As(err, &ne) && ne.Timeout() {
 				continue
 			} else {
 				b.error("chat unexpected error", err)
