@@ -3290,9 +3290,7 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	}
 	maxInitialFleetID := ogame.FleetID(0)
 	for _, f := range initialFleets {
-		if f.ID > maxInitialFleetID {
-			maxInitialFleetID = f.ID
-		}
+		maxInitialFleetID = max(maxInitialFleetID, f.ID)
 	}
 
 	if slots.IsAllSlotsInUse(mission) {
