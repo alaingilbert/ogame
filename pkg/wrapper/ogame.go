@@ -3309,7 +3309,6 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	}
 	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
 	if fleet1BodyID != FleetdispatchPageName {
-		b.error(ogame.ErrInvalidPlanetID.Error()+", planetID:", celestialID)
 		return zeroFleet, ogame.ErrInvalidPlanetID
 	}
 
@@ -3389,12 +3388,10 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	// Check
 	by1, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
 	if err != nil {
-		b.error(err.Error())
 		return zeroFleet, err
 	}
 	var checkRes CheckTargetResponse
 	if err := json.Unmarshal(by1, &checkRes); err != nil {
-		b.error(err.Error())
 		return zeroFleet, err
 	}
 
@@ -3498,7 +3495,6 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		return zeroFleet, ogame.ErrAllSlotsInUse
 	}
 
-	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID)
 	return zeroFleet, errors.New("could not find new fleet ID")
 }
 
