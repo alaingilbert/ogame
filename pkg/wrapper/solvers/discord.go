@@ -85,12 +85,21 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 		}
 
 		fmt.Print("Wait for reaction to solve challenge ... ")
-		answer := <-answerCh
+		var answer int64
+		select {
+		case answer = <-answerCh:
+		case <-ctx.Done():
+			return 0, ctx.Err()
+		}
 		fmt.Printf("Selected answer : %d.\n", answer)
 
 		// Self-cleaning history / image
 		go func(msg *discordgo.Message) {
-			time.Sleep(30 * time.Second)
+			select {
+			case <-time.After(30 * time.Second):
+			case <-ctx.Done():
+				return
+			}
 			_ = bot.ChannelMessageDelete(msg.ChannelID, msg.ID)
 		}(msg)
 
