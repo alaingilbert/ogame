@@ -16,6 +16,9 @@ import (
 
 var challenge int64 = -1
 
+// token : create bot token at https://discord.com/developers/applications
+// owner_id : get your user ID from your profile in the Discord application
+// Manual solver for remote challenge solving
 func DiscordSolver(token string, owner_id string) CaptchaCallback {
 	return func(question, icons []byte) (int64, error) {
 		bot, err := discordgo.New("Bot " + token)
