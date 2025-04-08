@@ -92,6 +92,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 		req, _ := http.NewRequest(http.MethodPost, "https://www.ogame.ninja/api/v1/captcha/solve", body)
 		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("NJA_API_KEY", apiKey)
+		req.WithContext(ctx)
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return 0, err
