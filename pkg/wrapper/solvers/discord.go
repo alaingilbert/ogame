@@ -35,7 +35,7 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 
 		answerCh := make(chan int64)
 
-		rmHandlerFn := bot.AddHandler(handleInteraction(answerCh))
+		rmHandlerFn := bot.AddHandler(handleInteraction(ctx, answerCh))
 		defer rmHandlerFn()
 
 		if err := bot.Open(); err != nil {
@@ -107,7 +107,7 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 	}
 }
 
-func handleInteraction(answerCh chan int64) func(*discordgo.Session, *discordgo.InteractionCreate) {
+func handleInteraction(ctx context.Context, answerCh chan int64) func(*discordgo.Session, *discordgo.InteractionCreate) {
 	return func(discord *discordgo.Session, i *discordgo.InteractionCreate) {
 		if i.Type == discordgo.InteractionMessageComponent {
 			var answer int64
@@ -130,7 +130,11 @@ func handleInteraction(answerCh chan int64) func(*discordgo.Session, *discordgo.
 					Flags:   1 << 6, // ephemeral
 				},
 			})
-			answerCh <- answer
+			select {
+			case answerCh <- answer:
+			case <-ctx.Done():
+				return
+			}
 		}
 	}
 }
