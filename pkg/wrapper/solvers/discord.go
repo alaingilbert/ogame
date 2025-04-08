@@ -2,6 +2,7 @@ package solvers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"image"
 	"image/color"
@@ -20,7 +21,7 @@ import (
 // Copy the "Generated URL" and invite your bot to a server that you own.
 // "owner_id" get your user ID from your profile in the Discord application
 func DiscordSolver(token string, ownerID string) CaptchaCallback {
-	return func(question, icons []byte) (int64, error) {
+	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		bot, err := discordgo.New("Bot " + token)
 		if err != nil {
 			return 0, err

@@ -2,6 +2,7 @@ package solvers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,11 +18,11 @@ import (
 )
 
 // CaptchaCallback ...
-type CaptchaCallback func(question, icons []byte) (int64, error)
+type CaptchaCallback func(ctx context.Context, question, icons []byte) (int64, error)
 
 // TelegramSolver ...
 func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
-	return func(question, icons []byte) (int64, error) {
+	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		tgBot, _ := tgbotapi.NewBotAPI(tgBotToken)
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("0", "0"),
@@ -72,7 +73,7 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 
 // NinjaSolver direct integration of ogame.ninja captcha auto solver service
 func NinjaSolver(apiKey string) CaptchaCallback {
-	return func(question, icons []byte) (int64, error) {
+	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
 		part, _ := writer.CreateFormFile("question", "question.png")
@@ -109,7 +110,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 
 // ManualSolver manually solve the captcha
 func ManualSolver() CaptchaCallback {
-	return func(question, icons []byte) (int64, error) {
+	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		questionImg, err := png.Decode(bytes.NewReader(question))
 		if err != nil {
 			return -1, err

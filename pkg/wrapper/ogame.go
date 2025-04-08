@@ -355,7 +355,7 @@ func solveCaptcha(client httpclient.IHttpClient, ctx context.Context, challengeI
 	if err != nil {
 		return errors.New("failed to start captcha challenge: " + err.Error())
 	}
-	answer, err := captchaCallback(questionRaw, iconsRaw)
+	answer, err := captchaCallback(ctx, questionRaw, iconsRaw)
 	if err != nil {
 		return errors.New("failed to get answer for captcha challenge: " + err.Error())
 	}
