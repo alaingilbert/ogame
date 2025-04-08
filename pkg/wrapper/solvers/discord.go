@@ -127,7 +127,7 @@ func handleInteraction(ctx context.Context, answerCh chan int64) func(*discordgo
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf("You selected image number %d.", answer+1),
-					Flags:   1 << 6, // ephemeral
+					Flags:   discordgo.MessageFlagsEphemeral,
 				},
 			})
 			select {
