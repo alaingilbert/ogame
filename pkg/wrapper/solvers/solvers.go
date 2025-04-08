@@ -54,20 +54,27 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 		u := tgbotapi.NewUpdate(0)
 		u.Timeout = 60
 		updates, _ := tgBot.GetUpdatesChan(u)
-		for update := range updates {
-			if update.CallbackQuery != nil {
-				if update.CallbackQuery.Message.MessageID == sentMsg.MessageID {
-					_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
-					_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
-					v, err := utils.ParseI64(update.CallbackQuery.Data)
-					if err != nil {
-						return 0, err
+		for {
+			select {
+			case <-ctx.Done():
+				return 0, ctx.Err()
+			case update, ok := <-updates:
+				if !ok {
+					return 0, errors.New("failed to get answer")
+				}
+				if update.CallbackQuery != nil {
+					if update.CallbackQuery.Message.MessageID == sentMsg.MessageID {
+						_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
+						_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
+						v, err := utils.ParseI64(update.CallbackQuery.Data)
+						if err != nil {
+							return 0, err
+						}
+						return v, nil
 					}
-					return v, nil
 				}
 			}
 		}
-		return 0, errors.New("failed to get answer")
 	}
 }
 
