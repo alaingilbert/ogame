@@ -119,28 +119,22 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 // ManualSolver manually solve the captcha
 func ManualSolver() CaptchaCallback {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
-		questionImg, err := png.Decode(bytes.NewReader(question))
-		if err != nil {
+		saveImg := func(imgBytes []byte, fileName string) error {
+			img, err := png.Decode(bytes.NewReader(imgBytes))
+			if err != nil {
+				return err
+			}
+			imgFile, err := os.Create(fileName)
+			if err != nil {
+				return err
+			}
+			defer imgFile.Close()
+			return png.Encode(imgFile, img)
+		}
+		if err := saveImg(question, "question.png"); err != nil {
 			return -1, err
 		}
-		questionFile, err := os.Create("question.png")
-		if err != nil {
-			return -1, err
-		}
-		defer questionFile.Close()
-		if err := png.Encode(questionFile, questionImg); err != nil {
-			return -1, err
-		}
-		iconsImg, err := png.Decode(bytes.NewReader(icons))
-		if err != nil {
-			return -1, err
-		}
-		iconsFile, err := os.Create("icons.png")
-		if err != nil {
-			return -1, err
-		}
-		defer iconsFile.Close()
-		if err := png.Encode(iconsFile, iconsImg); err != nil {
+		if err := saveImg(icons, "icons.png"); err != nil {
 			return -1, err
 		}
 		var answer int64
