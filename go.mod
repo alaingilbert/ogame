@@ -8,6 +8,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.10.2
 	github.com/abiosoft/ishell/v2 v2.0.2
 	github.com/alaingilbert/clockwork v0.1.1-0.20220821091847-24a25c94a5fe
+	github.com/bwmarrin/discordgo v0.28.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
 	github.com/hashicorp/go-version v1.7.0
@@ -30,6 +31,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/flynn-archive/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
