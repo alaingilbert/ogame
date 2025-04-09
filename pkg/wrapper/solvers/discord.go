@@ -8,7 +8,6 @@ import (
 	"image/color"
 	"image/draw"
 	"image/png"
-	"math"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -82,7 +81,7 @@ func buildEmbedImg(question, icons []byte) (out []byte, err error) {
 	iconsImage, _ := png.Decode(bytes.NewReader(icons))
 	questionBounds := questionImage.Bounds()
 	iconsBounds := iconsImage.Bounds()
-	resultWidth := int(math.Max(float64(questionBounds.Max.X), float64(iconsBounds.Max.X)))
+	resultWidth := max(questionBounds.Max.X, iconsBounds.Max.X)
 	resultHeight := questionBounds.Max.Y + iconsBounds.Max.Y
 	bottomRightPosition := image.Point{X: resultWidth, Y: resultHeight}
 	img := image.NewRGBA(image.Rectangle{Max: bottomRightPosition})
