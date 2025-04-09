@@ -21,18 +21,23 @@ import (
 // TelegramSolver ...
 func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaSolver {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
-		tgBot, _ := tgbotapi.NewBotAPI(tgBotToken)
+		tgBot, err := tgbotapi.NewBotAPI(tgBotToken)
+		if err != nil {
+			return -1, err
+		}
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("0", "0"),
 			tgbotapi.NewInlineKeyboardButtonData("1", "1"),
 			tgbotapi.NewInlineKeyboardButtonData("2", "2"),
 			tgbotapi.NewInlineKeyboardButtonData("3", "3"),
 		))
-		questionImgOrig, _ := png.Decode(bytes.NewReader(question))
+		questionImgOrig, err := png.Decode(bytes.NewReader(question))
+		if err != nil {
+			return -1, err
+		}
 		bounds := questionImgOrig.Bounds()
-		upLeft := image.Point{X: 0, Y: 0}
 		lowRight := bounds.Max
-		img := image.NewRGBA(image.Rectangle{Min: upLeft, Max: lowRight})
+		img := image.NewRGBA(image.Rectangle{Max: lowRight})
 		for y := 0; y < lowRight.Y; y++ {
 			for x := 0; x < lowRight.X; x++ {
 				c := questionImgOrig.At(x, y)
@@ -41,7 +46,9 @@ func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaSolver {
 			}
 		}
 		buf := bytes.NewBuffer(nil)
-		_ = png.Encode(buf, img)
+		if err := png.Encode(buf, img); err != nil {
+			return -1, err
+		}
 		questionImg := tgbotapi.FileBytes{Name: "question", Bytes: buf.Bytes()}
 		iconsImg := tgbotapi.FileBytes{Name: "icons", Bytes: icons}
 		_, _ = tgBot.Send(tgbotapi.NewPhotoUpload(tgChatID, questionImg))
@@ -51,12 +58,15 @@ func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaSolver {
 		sentMsg, _ := tgBot.Send(msg)
 		u := tgbotapi.NewUpdate(0)
 		u.Timeout = 60
-		updates, _ := tgBot.GetUpdatesChan(u)
+		updatesCh, err := tgBot.GetUpdatesChan(u)
+		if err != nil {
+			return -1, err
+		}
 		for {
 			select {
 			case <-ctx.Done():
 				return -1, ctx.Err()
-			case update, ok := <-updates:
+			case update, ok := <-updatesCh:
 				if !ok {
 					return -1, errors.New("failed to get answer")
 				}
