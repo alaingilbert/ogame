@@ -79,8 +79,14 @@ func DiscordSolver(token string, ownerID string) gameforge.CaptchaSolver {
 // Generate a single image, as Discord does not support multiple image files in a same embed
 func buildEmbedImg(question, icons []byte) (out []byte, err error) {
 	const topPadding = 5
-	questionImage, _ := png.Decode(bytes.NewReader(question))
-	iconsImage, _ := png.Decode(bytes.NewReader(icons))
+	questionImage, err := png.Decode(bytes.NewReader(question))
+	if err != nil {
+		return nil, err
+	}
+	iconsImage, err := png.Decode(bytes.NewReader(icons))
+	if err != nil {
+		return nil, err
+	}
 	questionBounds := questionImage.Bounds()
 	iconsBounds := iconsImage.Bounds()
 	resultWidth := max(questionBounds.Max.X, iconsBounds.Max.X)
