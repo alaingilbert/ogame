@@ -18,7 +18,7 @@ import (
 // Get the "token" from the "Bot" tab
 // Go to "OAuth2" tab, in "scopes" select "Bot" and "applications.commands", in "Bot Permissions" select "Send Messages"
 // Copy the "Generated URL" and invite your bot to a server that you own.
-// "owner_id" get your user ID from your profile in the Discord application
+// "ownerID" get your user ID from your profile in the Discord application
 func DiscordSolver(token string, ownerID string) CaptchaCallback {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		bot, err := discordgo.New("Bot " + token)
