@@ -11,6 +11,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/png"
 	"io"
 	"mime/multipart"
@@ -38,13 +39,8 @@ func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaSolver {
 		bounds := questionImgOrig.Bounds()
 		lowRight := bounds.Max
 		img := image.NewRGBA(image.Rectangle{Max: lowRight})
-		for y := 0; y < lowRight.Y; y++ {
-			for x := 0; x < lowRight.X; x++ {
-				c := questionImgOrig.At(x, y)
-				r, g, b, _ := c.RGBA()
-				img.Set(x, y, color.RGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 255})
-			}
-		}
+		draw.Draw(img, img.Bounds(), &image.Uniform{C: color.RGBA{R: 0, G: 0, B: 0, A: 255}}, image.Point{}, draw.Src)
+		draw.Draw(img, bounds, questionImgOrig, image.Point{}, draw.Over)
 		buf := bytes.NewBuffer(nil)
 		if err := png.Encode(buf, img); err != nil {
 			return -1, err
