@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"image"
 	"image/color"
-	"image/jpeg"
+	"image/draw"
 	"image/png"
 	"math"
 	"time"
@@ -43,43 +43,12 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 		}
 		defer bot.Close()
 
-		// Decode image, compute min/max size
-		questionImage, _ := png.Decode(bytes.NewReader(question))
-		iconsImage, _ := png.Decode(bytes.NewReader(icons))
-		questionBounds := questionImage.Bounds()
-		iconsBounds := iconsImage.Bounds()
-		topLeftPosition := image.Point{X: 0, Y: 0}
-		resultWidth := int(math.Max(float64(questionBounds.Max.X), float64(iconsBounds.Max.X)))
-		resultHeight := questionBounds.Max.Y + iconsBounds.Max.Y
-		bottomRightPosition := image.Point{X: resultWidth, Y: resultHeight}
-		img := image.NewRGBA(image.Rectangle{Min: topLeftPosition, Max: bottomRightPosition})
-
-		// Generate a single image, as Discord does not support multiple image files in a same embed
-		// Question first, start at 0;0
-		for y := 0; y < questionBounds.Max.Y; y++ {
-			for x := 0; x < questionBounds.Max.X; x++ {
-				c := questionImage.At(x, y)
-				r, g, b, _ := c.RGBA()
-				img.Set(x, y, color.RGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 255})
-			}
-		}
-
-		// Icons second, center the image
-		iconsStartX := (questionBounds.Max.X - iconsBounds.Max.X) / 2
-		for y := 0; y < iconsBounds.Max.Y; y++ {
-			for x := 0; x < iconsBounds.Max.X; x++ {
-				c := iconsImage.At(x, y)
-				r, g, b, _ := c.RGBA()
-				img.Set(x+iconsStartX, y+questionBounds.Max.Y, color.RGBA{R: uint8(r >> 8), G: uint8(g >> 8), B: uint8(b >> 8), A: 255})
-			}
-		}
-
-		buffer := new(bytes.Buffer)
-		if err = jpeg.Encode(buffer, img, nil); err != nil {
+		embedImg, err := buildEmbedImg(question, icons)
+		if err != nil {
 			return -1, err
 		}
 
-		msg, err := sendImageWithSelectMenu(bot, channel, buffer.Bytes())
+		msg, err := sendImageWithSelectMenu(bot, channel, embedImg)
 		if err != nil {
 			return -1, err
 		}
@@ -105,6 +74,28 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 
 		return answer, nil
 	}
+}
+
+// Generate a single image, as Discord does not support multiple image files in a same embed
+func buildEmbedImg(question, icons []byte) (out []byte, err error) {
+	questionImage, _ := png.Decode(bytes.NewReader(question))
+	iconsImage, _ := png.Decode(bytes.NewReader(icons))
+	questionBounds := questionImage.Bounds()
+	iconsBounds := iconsImage.Bounds()
+	resultWidth := int(math.Max(float64(questionBounds.Max.X), float64(iconsBounds.Max.X)))
+	resultHeight := questionBounds.Max.Y + iconsBounds.Max.Y
+	bottomRightPosition := image.Point{X: resultWidth, Y: resultHeight}
+	img := image.NewRGBA(image.Rectangle{Max: bottomRightPosition})
+	draw.Draw(img, img.Bounds(), &image.Uniform{C: color.RGBA{R: 0, G: 0, B: 0, A: 255}}, image.Point{}, draw.Src)
+	draw.Draw(img, questionBounds, questionImage, image.Point{}, draw.Over)
+	iconsStartX := (questionBounds.Max.X - iconsBounds.Max.X) / 2
+	iconsBounds = iconsBounds.Add(image.Point{X: iconsStartX, Y: questionBounds.Max.Y})
+	draw.Draw(img, iconsBounds, iconsImage, image.Point{}, draw.Src)
+	buffer := new(bytes.Buffer)
+	if err = png.Encode(buffer, img); err != nil {
+		return nil, err
+	}
+	return buffer.Bytes(), nil
 }
 
 func handleInteraction(ctx context.Context, answerCh chan int64) func(*discordgo.Session, *discordgo.InteractionCreate) {
@@ -149,9 +140,9 @@ func sendImageWithSelectMenu(bot *discordgo.Session, channel *discordgo.Channel,
 		},
 	}
 	message := &discordgo.MessageSend{
-		Embeds:     []*discordgo.MessageEmbed{{Title: "Select the image to answer the captcha !", Image: &discordgo.MessageEmbedImage{URL: "attachment://image.jpg"}}},
+		Embeds:     []*discordgo.MessageEmbed{{Title: "Select the image to answer the captcha !", Image: &discordgo.MessageEmbedImage{URL: "attachment://image.png"}}},
 		Components: []discordgo.MessageComponent{buttons},
-		Files:      []*discordgo.File{{Name: "image.jpg", Reader: bytes.NewReader(img)}},
+		Files:      []*discordgo.File{{Name: "image.png", Reader: bytes.NewReader(img)}},
 	}
 	return bot.ChannelMessageSendComplex(channel.ID, message)
 }
