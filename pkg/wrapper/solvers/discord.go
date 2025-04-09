@@ -28,7 +28,7 @@ func DiscordSolver(token string, ownerID string) gameforge.CaptchaSolver {
 		}
 
 		// Init a DM, and interaction management
-		channel, err := bot.UserChannelCreate(ownerID)
+		channel, err := bot.UserChannelCreate(ownerID, discordgo.WithContext(ctx))
 		if err != nil {
 			return -1, err
 		}
@@ -48,7 +48,7 @@ func DiscordSolver(token string, ownerID string) gameforge.CaptchaSolver {
 			return -1, err
 		}
 
-		msg, err := sendImageWithSelectMenu(bot, channel, embedImg)
+		msg, err := sendImageWithSelectMenu(ctx, bot, channel, embedImg)
 		if err != nil {
 			return -1, err
 		}
@@ -69,7 +69,7 @@ func DiscordSolver(token string, ownerID string) gameforge.CaptchaSolver {
 			case <-ctx.Done():
 				return
 			}
-			_ = bot.ChannelMessageDelete(msg.ChannelID, msg.ID)
+			_ = bot.ChannelMessageDelete(msg.ChannelID, msg.ID, discordgo.WithContext(ctx))
 		}(msg)
 
 		return answer, nil
@@ -139,7 +139,7 @@ func handleInteraction(ctx context.Context, answerCh chan int64) func(*discordgo
 	}
 }
 
-func sendImageWithSelectMenu(bot *discordgo.Session, channel *discordgo.Channel, img []byte) (*discordgo.Message, error) {
+func sendImageWithSelectMenu(ctx context.Context, bot *discordgo.Session, channel *discordgo.Channel, img []byte) (*discordgo.Message, error) {
 	buttons := discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
 			discordgo.Button{Label: "1", Style: discordgo.SecondaryButton, CustomID: discordBtnOpt1},
@@ -153,5 +153,5 @@ func sendImageWithSelectMenu(bot *discordgo.Session, channel *discordgo.Channel,
 		Components: []discordgo.MessageComponent{buttons},
 		Files:      []*discordgo.File{{Name: "image.png", Reader: bytes.NewReader(img)}},
 	}
-	return bot.ChannelMessageSendComplex(channel.ID, message)
+	return bot.ChannelMessageSendComplex(channel.ID, message, discordgo.WithContext(ctx))
 }
