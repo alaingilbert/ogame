@@ -114,7 +114,7 @@ const (
 )
 
 func handleInteraction(ctx context.Context, answerCh chan int64) func(*discordgo.Session, *discordgo.InteractionCreate) {
-	return func(discord *discordgo.Session, i *discordgo.InteractionCreate) {
+	return func(bot *discordgo.Session, i *discordgo.InteractionCreate) {
 		if i.Type == discordgo.InteractionMessageComponent {
 			var answer int64
 			switch i.MessageComponentData().CustomID {
@@ -129,7 +129,7 @@ func handleInteraction(ctx context.Context, answerCh chan int64) func(*discordgo
 			default:
 				answer = -1
 			}
-			_ = discord.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			_ = bot.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: fmt.Sprintf("You selected image number %d.", answer+1),
