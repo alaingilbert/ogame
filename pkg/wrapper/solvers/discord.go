@@ -149,9 +149,9 @@ func sendImageWithSelectMenu(bot *discordgo.Session, channel *discordgo.Channel,
 		},
 	}
 	message := &discordgo.MessageSend{
-		Embeds:     []*discordgo.MessageEmbed{{Title: "Select the image to answer the captcha !", Image: &discordgo.MessageEmbedImage{URL: "attachment://image.png"}}},
+		Embeds:     []*discordgo.MessageEmbed{{Title: "Select the image to answer the captcha !", Image: &discordgo.MessageEmbedImage{URL: "attachment://image.jpg"}}},
 		Components: []discordgo.MessageComponent{buttons},
-		Files:      []*discordgo.File{{Name: "image.png", Reader: bytes.NewReader(img)}},
+		Files:      []*discordgo.File{{Name: "image.jpg", Reader: bytes.NewReader(img)}},
 	}
 	return bot.ChannelMessageSendComplex(channel.ID, message)
 }
