@@ -77,15 +77,17 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 
 // Generate a single image, as Discord does not support multiple image files in a same embed
 func buildEmbedImg(question, icons []byte) (out []byte, err error) {
+	const topPadding = 5
 	questionImage, _ := png.Decode(bytes.NewReader(question))
 	iconsImage, _ := png.Decode(bytes.NewReader(icons))
 	questionBounds := questionImage.Bounds()
 	iconsBounds := iconsImage.Bounds()
 	resultWidth := max(questionBounds.Max.X, iconsBounds.Max.X)
-	resultHeight := questionBounds.Max.Y + iconsBounds.Max.Y
+	resultHeight := questionBounds.Max.Y + iconsBounds.Max.Y + topPadding
 	bottomRightPosition := image.Point{X: resultWidth, Y: resultHeight}
 	img := image.NewRGBA(image.Rectangle{Max: bottomRightPosition})
 	draw.Draw(img, img.Bounds(), &image.Uniform{C: color.RGBA{R: 0, G: 0, B: 0, A: 255}}, image.Point{}, draw.Src)
+	questionBounds = questionBounds.Add(image.Point{Y: topPadding})
 	draw.Draw(img, questionBounds, questionImage, image.Point{}, draw.Over)
 	iconsStartX := (questionBounds.Max.X - iconsBounds.Max.X) / 2
 	iconsBounds = iconsBounds.Add(image.Point{X: iconsStartX, Y: questionBounds.Max.Y})
