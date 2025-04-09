@@ -66,16 +66,14 @@ func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaSolver {
 				if !ok {
 					return -1, errors.New("failed to get answer")
 				}
-				if update.CallbackQuery != nil {
-					if update.CallbackQuery.Message.MessageID == sentMsg.MessageID {
-						_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
-						_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
-						v, err := utils.ParseI64(update.CallbackQuery.Data)
-						if err != nil {
-							return -1, err
-						}
-						return v, nil
+				if update.CallbackQuery != nil && update.CallbackQuery.Message.MessageID == sentMsg.MessageID {
+					_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
+					_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
+					v, err := utils.ParseI64(update.CallbackQuery.Data)
+					if err != nil {
+						return -1, err
 					}
+					return v, nil
 				}
 			}
 		}
