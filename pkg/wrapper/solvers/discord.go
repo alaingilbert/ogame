@@ -87,7 +87,7 @@ func buildEmbedImg(question, icons []byte) (out []byte, err error) {
 	resultHeight := questionBounds.Max.Y + iconsBounds.Max.Y + topPadding
 	bottomRightPosition := image.Point{X: resultWidth, Y: resultHeight}
 	img := image.NewRGBA(image.Rectangle{Max: bottomRightPosition})
-	draw.Draw(img, img.Bounds(), &image.Uniform{C: color.RGBA{R: 0, G: 0, B: 0, A: 255}}, image.Point{}, draw.Src)
+	draw.Draw(img, img.Bounds(), &image.Uniform{C: color.RGBA{A: 255}}, image.Point{}, draw.Src)
 	questionBounds = questionBounds.Add(image.Point{Y: topPadding})
 	draw.Draw(img, questionBounds, questionImage, image.Point{}, draw.Over)
 	iconsStartX := (questionBounds.Max.X - iconsBounds.Max.X) / 2

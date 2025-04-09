@@ -39,7 +39,7 @@ func TelegramSolver(tgBotToken string, tgChatID int64) gameforge.CaptchaSolver {
 		bounds := questionImgOrig.Bounds()
 		lowRight := bounds.Max
 		img := image.NewRGBA(image.Rectangle{Max: lowRight})
-		draw.Draw(img, img.Bounds(), &image.Uniform{C: color.RGBA{R: 0, G: 0, B: 0, A: 255}}, image.Point{}, draw.Src)
+		draw.Draw(img, img.Bounds(), &image.Uniform{C: color.RGBA{A: 255}}, image.Point{}, draw.Src)
 		draw.Draw(img, bounds, questionImgOrig, image.Point{}, draw.Over)
 		buf := bytes.NewBuffer(nil)
 		if err := png.Encode(buf, img); err != nil {
