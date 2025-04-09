@@ -100,18 +100,25 @@ func buildEmbedImg(question, icons []byte) (out []byte, err error) {
 	return buffer.Bytes(), nil
 }
 
+const (
+	discordBtnOpt1 = "btn_option1"
+	discordBtnOpt2 = "btn_option2"
+	discordBtnOpt3 = "btn_option3"
+	discordBtnOpt4 = "btn_option4"
+)
+
 func handleInteraction(ctx context.Context, answerCh chan int64) func(*discordgo.Session, *discordgo.InteractionCreate) {
 	return func(discord *discordgo.Session, i *discordgo.InteractionCreate) {
 		if i.Type == discordgo.InteractionMessageComponent {
 			var answer int64
 			switch i.MessageComponentData().CustomID {
-			case "btn_option1":
+			case discordBtnOpt1:
 				answer = 0
-			case "btn_option2":
+			case discordBtnOpt2:
 				answer = 1
-			case "btn_option3":
+			case discordBtnOpt3:
 				answer = 2
-			case "btn_option4":
+			case discordBtnOpt4:
 				answer = 3
 			default:
 				answer = -1
@@ -135,10 +142,10 @@ func handleInteraction(ctx context.Context, answerCh chan int64) func(*discordgo
 func sendImageWithSelectMenu(bot *discordgo.Session, channel *discordgo.Channel, img []byte) (*discordgo.Message, error) {
 	buttons := discordgo.ActionsRow{
 		Components: []discordgo.MessageComponent{
-			discordgo.Button{Label: "1", Style: discordgo.SecondaryButton, CustomID: "btn_option1"},
-			discordgo.Button{Label: "2", Style: discordgo.SecondaryButton, CustomID: "btn_option2"},
-			discordgo.Button{Label: "3", Style: discordgo.SecondaryButton, CustomID: "btn_option3"},
-			discordgo.Button{Label: "4", Style: discordgo.SecondaryButton, CustomID: "btn_option4"},
+			discordgo.Button{Label: "1", Style: discordgo.SecondaryButton, CustomID: discordBtnOpt1},
+			discordgo.Button{Label: "2", Style: discordgo.SecondaryButton, CustomID: discordBtnOpt2},
+			discordgo.Button{Label: "3", Style: discordgo.SecondaryButton, CustomID: discordBtnOpt3},
+			discordgo.Button{Label: "4", Style: discordgo.SecondaryButton, CustomID: discordBtnOpt4},
 		},
 	}
 	message := &discordgo.MessageSend{
