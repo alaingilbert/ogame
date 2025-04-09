@@ -316,7 +316,7 @@ func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
 				}
 				maxTry--
 				challengeID = captchaErr.ChallengeID
-				if err := solveCaptcha(client, b.ctx, challengeID, captchaCallback); err != nil {
+				if err := solveCaptcha(b.ctx, client, challengeID, captchaCallback); err != nil {
 					return err
 				}
 				continue
@@ -350,12 +350,12 @@ func appendCookie(client *httpclient.Client, cookie *http.Cookie) {
 	client.Jar.SetCookies(u, cookies)
 }
 
-func solveCaptcha(client httpclient.IHttpClient, ctx context.Context, challengeID string, captchaCallback solvers.CaptchaCallback) error {
+func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeID string, captchaCallback solvers.CaptchaCallback) error {
 	questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(client, ctx, challengeID)
 	if err != nil {
 		return errors.New("failed to start captcha challenge: " + err.Error())
 	}
-	answer, err := captchaCallback(questionRaw, iconsRaw)
+	answer, err := captchaCallback(ctx, questionRaw, iconsRaw)
 	if err != nil {
 		return errors.New("failed to get answer for captcha challenge: " + err.Error())
 	}

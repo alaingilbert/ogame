@@ -267,3 +267,11 @@ type ACSValues struct {
 	ACSValues     string // Raw string is used to send fleet. eg: `1#2#3#3#name#123456`
 	Union         int64
 }
+
+type Relocation struct {
+	MoveLink             string
+	PlanetMovePossible   bool
+	SufficientDarkMatter bool
+	MissionType          MissionID
+	DarkMatterCost       int64
+}

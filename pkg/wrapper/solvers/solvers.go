@@ -2,6 +2,7 @@ package solvers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,11 +18,11 @@ import (
 )
 
 // CaptchaCallback ...
-type CaptchaCallback func(question, icons []byte) (int64, error)
+type CaptchaCallback func(ctx context.Context, question, icons []byte) (int64, error)
 
 // TelegramSolver ...
 func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
-	return func(question, icons []byte) (int64, error) {
+	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		tgBot, _ := tgbotapi.NewBotAPI(tgBotToken)
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData("0", "0"),
@@ -53,26 +54,33 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 		u := tgbotapi.NewUpdate(0)
 		u.Timeout = 60
 		updates, _ := tgBot.GetUpdatesChan(u)
-		for update := range updates {
-			if update.CallbackQuery != nil {
-				if update.CallbackQuery.Message.MessageID == sentMsg.MessageID {
-					_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
-					_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
-					v, err := utils.ParseI64(update.CallbackQuery.Data)
-					if err != nil {
-						return 0, err
+		for {
+			select {
+			case <-ctx.Done():
+				return 0, ctx.Err()
+			case update, ok := <-updates:
+				if !ok {
+					return 0, errors.New("failed to get answer")
+				}
+				if update.CallbackQuery != nil {
+					if update.CallbackQuery.Message.MessageID == sentMsg.MessageID {
+						_, _ = tgBot.AnswerCallbackQuery(tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data))
+						_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
+						v, err := utils.ParseI64(update.CallbackQuery.Data)
+						if err != nil {
+							return 0, err
+						}
+						return v, nil
 					}
-					return v, nil
 				}
 			}
 		}
-		return 0, errors.New("failed to get answer")
 	}
 }
 
 // NinjaSolver direct integration of ogame.ninja captcha auto solver service
 func NinjaSolver(apiKey string) CaptchaCallback {
-	return func(question, icons []byte) (int64, error) {
+	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
 		part, _ := writer.CreateFormFile("question", "question.png")
@@ -84,6 +92,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 		req, _ := http.NewRequest(http.MethodPost, "https://www.ogame.ninja/api/v1/captcha/solve", body)
 		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("NJA_API_KEY", apiKey)
+		req.WithContext(ctx)
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return 0, err
@@ -109,7 +118,7 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 
 // ManualSolver manually solve the captcha
 func ManualSolver() CaptchaCallback {
-	return func(question, icons []byte) (int64, error) {
+	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		questionImg, err := png.Decode(bytes.NewReader(question))
 		if err != nil {
 			return -1, err

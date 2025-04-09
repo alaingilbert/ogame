@@ -9,6 +9,8 @@ type MissionID int
 
 func (m MissionID) String() string {
 	switch m {
+	case Relocate:
+		return "Relocate"
 	case Attack:
 		return "Attack"
 	case GroupedAttack:
@@ -330,6 +332,7 @@ const (
 	KaeleshDiscovererEnhancementID      ID = 14218
 
 	// Missions
+	Relocate           MissionID = 0
 	Attack             MissionID = 1
 	GroupedAttack      MissionID = 2
 	Transport          MissionID = 3
