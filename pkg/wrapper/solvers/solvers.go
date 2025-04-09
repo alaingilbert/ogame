@@ -57,10 +57,10 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 		for {
 			select {
 			case <-ctx.Done():
-				return 0, ctx.Err()
+				return -1, ctx.Err()
 			case update, ok := <-updates:
 				if !ok {
-					return 0, errors.New("failed to get answer")
+					return -1, errors.New("failed to get answer")
 				}
 				if update.CallbackQuery != nil {
 					if update.CallbackQuery.Message.MessageID == sentMsg.MessageID {
@@ -68,7 +68,7 @@ func TelegramSolver(tgBotToken string, tgChatID int64) CaptchaCallback {
 						_, _ = tgBot.Send(tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "got "+update.CallbackQuery.Data))
 						v, err := utils.ParseI64(update.CallbackQuery.Data)
 						if err != nil {
-							return 0, err
+							return -1, err
 						}
 						return v, nil
 					}
@@ -95,22 +95,22 @@ func NinjaSolver(apiKey string) CaptchaCallback {
 		req.WithContext(ctx)
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
-			return 0, err
+			return -1, err
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
 			by, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return 0, errors.New("failed to auto solve captcha: " + err.Error())
+				return -1, errors.New("failed to auto solve captcha: " + err.Error())
 			}
-			return 0, errors.New("failed to auto solve captcha: " + string(by))
+			return -1, errors.New("failed to auto solve captcha: " + string(by))
 		}
 		by, _ := io.ReadAll(resp.Body)
 		var answerJson struct {
 			Answer int64 `json:"answer"`
 		}
 		if err := json.Unmarshal(by, &answerJson); err != nil {
-			return 0, errors.New("failed to auto solve captcha: " + err.Error())
+			return -1, errors.New("failed to auto solve captcha: " + err.Error())
 		}
 		return answerJson.Answer, nil
 	}

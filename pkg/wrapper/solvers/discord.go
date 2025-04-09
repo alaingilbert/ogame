@@ -24,13 +24,13 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 	return func(ctx context.Context, question, icons []byte) (int64, error) {
 		bot, err := discordgo.New("Bot " + token)
 		if err != nil {
-			return 0, err
+			return -1, err
 		}
 
 		// Init a DM, and interaction management
 		channel, err := bot.UserChannelCreate(ownerID)
 		if err != nil {
-			return 0, err
+			return -1, err
 		}
 
 		answerCh := make(chan int64)
@@ -39,7 +39,7 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 		defer rmHandlerFn()
 
 		if err := bot.Open(); err != nil {
-			return 0, err
+			return -1, err
 		}
 		defer bot.Close()
 
@@ -76,12 +76,12 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 
 		buffer := new(bytes.Buffer)
 		if err = jpeg.Encode(buffer, img, nil); err != nil {
-			return 0, err
+			return -1, err
 		}
 
 		msg, err := sendImageWithSelectMenu(bot, channel, buffer.Bytes())
 		if err != nil {
-			return 0, err
+			return -1, err
 		}
 
 		fmt.Print("Wait for reaction to solve challenge ... ")
@@ -89,7 +89,7 @@ func DiscordSolver(token string, ownerID string) CaptchaCallback {
 		select {
 		case answer = <-answerCh:
 		case <-ctx.Done():
-			return 0, ctx.Err()
+			return -1, ctx.Err()
 		}
 		fmt.Printf("Selected answer : %d.\n", answer)
 
