@@ -17,7 +17,7 @@ import (
 	"os"
 )
 
-// CaptchaCallback ...
+// CaptchaCallback the returned answer should be one of "0" "1" "2" "3"
 type CaptchaCallback func(ctx context.Context, question, icons []byte) (int64, error)
 
 // TelegramSolver ...
