@@ -137,7 +137,9 @@ func ManualSolver() gameforge.CaptchaSolver {
 		}
 		var answer int64
 		fmt.Print("Answer: ")
-		_, _ = fmt.Scan(&answer)
+		if _, err := fmt.Scan(&answer); err != nil {
+			return -1, err
+		}
 		return answer, nil
 	}
 }
