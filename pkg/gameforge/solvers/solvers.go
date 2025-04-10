@@ -109,7 +109,7 @@ func NinjaSolver(apiKey string) gameforge.CaptchaSolver {
 		}
 		req.Header.Add("Content-Type", writer.FormDataContentType())
 		req.Header.Set("NJA_API_KEY", apiKey)
-		req.WithContext(ctx)
+		req = req.WithContext(ctx)
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return -1, err

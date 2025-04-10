@@ -393,7 +393,7 @@ func Register(ctx context.Context, device Device, platform Platform, lobby, emai
 	}
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := device.Do(req)
 	if err != nil {
 		return err
@@ -439,7 +439,7 @@ func ValidateAccount(ctx context.Context, client HttpClient, platform Platform, 
 	if err != nil {
 		return err
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -476,7 +476,7 @@ func RedeemCode(ctx context.Context, client HttpClient, platform Platform, lobby
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -553,7 +553,7 @@ func AddAccount(ctx context.Context, device Device, platform Platform, lobby, ac
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(sessionToken))
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := device.Do(req)
 	if err != nil {
 		return nil, err
@@ -664,7 +664,7 @@ func Logout(ctx context.Context, client HttpClient, platform Platform, lobby, be
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -684,7 +684,7 @@ func getConfiguration(ctx context.Context, client HttpClient, platform Platform,
 		return "", "", err
 	}
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", "", err
@@ -773,7 +773,7 @@ func postSessionsReq(params *loginParams, gameEnvironmentID, platformGameID stri
 
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	return req, nil
 }
 
@@ -784,7 +784,7 @@ func StartChallenge(ctx context.Context, client HttpClient, challengeID string) 
 			return nil, err
 		}
 		req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-		req.WithContext(ctx)
+		req = req.WithContext(ctx)
 		resp, err := client.Do(req)
 		if err != nil {
 			return nil, err
@@ -819,7 +819,7 @@ func SolveChallenge(ctx context.Context, client HttpClient, challengeID string, 
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -929,7 +929,7 @@ func GetServers(ctx context.Context, client HttpClient, platform Platform, lobby
 		return servers, err
 	}
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return servers, err
@@ -990,7 +990,7 @@ func GetUserAccounts(ctx context.Context, client HttpClient, platform Platform, 
 	}
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return userAccounts, err
@@ -1042,7 +1042,7 @@ func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby, 
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := device.Do(req)
 	if err != nil {
 		return "", err
@@ -1072,7 +1072,7 @@ func ExecLoginLink(ctx context.Context, client HttpClient, loginLink string) ([]
 		return nil, err
 	}
 	req.Header.Add(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
@@ -1115,7 +1115,7 @@ func GenerateGiftingCode(ctx context.Context, client HttpClient, platform Platfo
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
@@ -1148,7 +1148,7 @@ func RevokeGiftingCode(ctx context.Context, client HttpClient, platform Platform
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -1195,7 +1195,7 @@ func GenerateSittingCode(ctx context.Context, client HttpClient, platform Platfo
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", err

@@ -264,7 +264,7 @@ func getServerData(ctx context.Context, client gameforge.HttpClient, serverNumbe
 		return serverData, err
 	}
 	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return serverData, err
