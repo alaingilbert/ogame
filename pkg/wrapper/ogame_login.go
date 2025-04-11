@@ -88,7 +88,8 @@ beginning:
 	if !didPart1n2 {
 		var err error
 		server, userAccount, err = b.loginPart1(token)
-		if errors.Is(err, context.Canceled) || errors.As(err, &gameforge.AccountBlockedError{}) {
+		var accountBlockedErr *gameforge.AccountBlockedError
+		if errors.Is(err, context.Canceled) || errors.As(err, &accountBlockedErr) {
 			return false, false, err
 		} else if err != nil {
 			if didFullLogin {
