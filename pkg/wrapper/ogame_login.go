@@ -88,7 +88,7 @@ beginning:
 	if !didPart1n2 {
 		var err error
 		server, userAccount, err = b.loginPart1(token)
-		if errors.Is(err, context.Canceled) || errors.Is(err, gameforge.ErrAccountBlocked) {
+		if errors.Is(err, context.Canceled) || errors.As(err, &gameforge.AccountBlockedError{}) {
 			return false, false, err
 		} else if err != nil {
 			if didFullLogin {
@@ -180,7 +180,7 @@ func (b *OGame) loginPart1(token string) (server gameforge.Server, userAccount g
 		return
 	}
 	if userAccount.Blocked {
-		return server, userAccount, gameforge.ErrAccountBlocked
+		return server, userAccount, gameforge.NewAccountBlockedError(userAccount.BannedReason)
 	}
 	b.debug(fmt.Sprintf("Players online: %d, Players: %d", server.PlayersOnline, server.PlayerCount))
 	return

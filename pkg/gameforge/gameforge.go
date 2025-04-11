@@ -118,11 +118,23 @@ var ErrLoginLink = errors.New("failed to get login link")
 // ErrAccountNotFound returned when the account is not found
 var ErrAccountNotFound = errors.New("account not found")
 
-// ErrAccountBlocked returned when account is banned
-var ErrAccountBlocked = errors.New("account is blocked")
-
 // ErrForbidden returned when receiving an http 403
 var ErrForbidden = errors.New("403 Forbidden")
+
+// AccountBlockedError ...
+type AccountBlockedError struct {
+	BannedReason string
+}
+
+// NewAccountBlockedError ...
+func NewAccountBlockedError(reason string) *AccountBlockedError {
+	return &AccountBlockedError{BannedReason: reason}
+}
+
+// Error ...
+func (e AccountBlockedError) Error() string {
+	return fmt.Sprintf("account is blocked, %s", e.BannedReason)
+}
 
 // LoginParams ...
 type LoginParams struct {
@@ -950,11 +962,12 @@ type Account struct {
 		Language string
 		Number   int64
 	}
-	ID         int64 // player ID
-	Name       string
-	LastPlayed string
-	Blocked    bool
-	Details    []struct {
+	ID           int64 // player ID
+	Name         string
+	LastPlayed   string
+	Blocked      bool
+	BannedReason string
+	Details      []struct {
 		Type  string
 		Title string
 		Value any // Can be string or int

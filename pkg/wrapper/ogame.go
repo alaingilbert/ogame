@@ -1201,7 +1201,7 @@ func (b *OGame) withRetry(fn func() error) error {
 			if _, _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
 				if errors.Is(loginErr, gameforge.ErrAccountNotFound) ||
-					errors.Is(loginErr, gameforge.ErrAccountBlocked) ||
+					errors.As(loginErr, &gameforge.AccountBlockedError{}) ||
 					errors.Is(loginErr, gameforge.ErrBadCredentials) ||
 					errors.Is(loginErr, gameforge.ErrOTPRequired) ||
 					errors.Is(loginErr, gameforge.ErrOTPInvalid) {
