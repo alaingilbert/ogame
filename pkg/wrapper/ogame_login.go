@@ -41,7 +41,8 @@ func (b *OGame) wrapLoginWithBearerToken(token string) (useToken, usePhpSessID b
 		useToken, usePhpSessID, err = b.loginWithBearerToken(token, "")
 		return useToken, usePhpSessID, err
 	}
-	return useToken, usePhpSessID, b.loginWrapper(fn)
+	err = b.loginWrapper(fn)
+	return useToken, usePhpSessID, err
 }
 
 func (b *OGame) wrapLoginWithExistingCookies() (useCookies, usePhpSessID bool, err error) {
@@ -51,7 +52,8 @@ func (b *OGame) wrapLoginWithExistingCookies() (useCookies, usePhpSessID bool, e
 		useCookies, usePhpSessID, err = b.loginWithBearerToken(token, phpSessID)
 		return useCookies, usePhpSessID, err
 	}
-	return useCookies, usePhpSessID, b.loginWrapper(fn)
+	err = b.loginWrapper(fn)
+	return useCookies, usePhpSessID, err
 }
 
 // Return either or not the bot logged in using the provided bearer token.
