@@ -29,6 +29,13 @@ import (
 	"time"
 )
 
+func (b *OGame) wrapLogin() error {
+	fn := func() (bool, bool, error) {
+		return b.loginWithBearerToken("", "")
+	}
+	return b.loginWrapper(fn)
+}
+
 func (b *OGame) wrapLoginWithBearerToken(token string) (useToken, usePhpSessID bool, err error) {
 	fn := func() (bool, bool, error) {
 		useToken, usePhpSessID, err = b.loginWithBearerToken(token, "")
@@ -39,19 +46,12 @@ func (b *OGame) wrapLoginWithBearerToken(token string) (useToken, usePhpSessID b
 
 func (b *OGame) wrapLoginWithExistingCookies() (useCookies, usePhpSessID bool, err error) {
 	fn := func() (bool, bool, error) {
-		useCookies, usePhpSessID, err = b.loginWithExistingCookies()
+		token := utils.Or(b.bearerToken, b.getBearerTokenFromCookie())
+		phpSessID := utils.Or(b.cache.ogameSession, b.getPhpSessIDFromCookie())
+		useCookies, usePhpSessID, err = b.loginWithBearerToken(token, phpSessID)
 		return useCookies, usePhpSessID, err
 	}
 	return useCookies, usePhpSessID, b.loginWrapper(fn)
-}
-
-func (b *OGame) wrapLogin() error {
-	return b.loginWrapper(func() (bool, bool, error) { return false, false, b.login() })
-}
-
-func (b *OGame) login() error {
-	_, _, err := b.loginWithBearerToken("", "")
-	return err
 }
 
 // Return either or not the bot logged in using the provided bearer token.
@@ -114,13 +114,6 @@ beginning:
 		return false, false, err
 	}
 	return !didFullLogin, false, nil
-}
-
-// Return either or not the bot logged in using the existing cookies.
-func (b *OGame) loginWithExistingCookies() (bool, bool, error) {
-	token := utils.Or(b.bearerToken, b.getBearerTokenFromCookie())
-	phpSessID := utils.Or(b.cache.ogameSession, b.getPhpSessIDFromCookie())
-	return b.loginWithBearerToken(token, phpSessID)
 }
 
 func (b *OGame) getCookieValue(cookieName string) string {

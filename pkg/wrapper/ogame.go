@@ -75,7 +75,7 @@ type OGame struct {
 	closeChatCancel      context.CancelFunc
 	ws                   *websocket.Conn
 	taskRunnerInst       *taskRunner.TaskRunner[*Prioritize]
-	loginWrapper         func(func() (bool, bool, error)) error
+	loginWrapper         func(LoginFn) error
 	loginProxyTransport  http.RoundTripper
 	extractor            extractor.Extractor
 	apiNewHostname       string
@@ -449,8 +449,11 @@ func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
 	}
 }
 
+// LoginFn ...
+type LoginFn func() (bool, bool, error)
+
 // DefaultLoginWrapper ...
-var DefaultLoginWrapper = func(loginFn func() (bool, bool, error)) error {
+var DefaultLoginWrapper = func(loginFn LoginFn) error {
 	_, _, err := loginFn()
 	return err
 }
@@ -1183,8 +1186,8 @@ func (b *OGame) withRetry(fn func() error) error {
 			return nil
 		}
 		// If we manually logged out, do not try to auto re login.
-		if b.parentCtx.Err() != nil {
-			return b.parentCtx.Err()
+		if err := b.parentCtx.Err(); err != nil {
+			return err
 		}
 		if !b.IsEnabled() {
 			return ogame.ErrBotInactive
@@ -4406,7 +4409,7 @@ func (b *OGame) reconnectChat() bool {
 	return false
 }
 
-func (b *OGame) setLoginWrapper(newWrapper func(func() (bool, bool, error)) error) {
+func (b *OGame) setLoginWrapper(newWrapper func(LoginFn) error) {
 	b.loginWrapper = newWrapper
 }
 

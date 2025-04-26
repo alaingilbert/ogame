@@ -242,7 +242,7 @@ type Wrapper interface {
 	SetAllianceClass(ogame.AllianceClass)
 	SetClient(*httpclient.Client)
 	SetLfBonuses(lfBonuses ogame.LfBonuses)
-	SetLoginWrapper(func(func() (bool, bool, error)) error)
+	SetLoginWrapper(func(LoginFn) error)
 	SetOGameCredentials(username, password, otpSecret, bearerToken string)
 	SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 	SetResearches(ogame.Researches)

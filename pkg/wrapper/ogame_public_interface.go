@@ -925,7 +925,7 @@ func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken s
 }
 
 // SetLoginWrapper ...
-func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, bool, error)) error) {
+func (b *OGame) SetLoginWrapper(newWrapper func(LoginFn) error) {
 	b.setLoginWrapper(newWrapper)
 }
 

@@ -146,7 +146,7 @@ ServerURL() string
 ServerVersion() string
 SetClient(*OGameClient)
 SetGetServerDataWrapper(func(func() (ServerData, error)) (ServerData, error))
-SetLoginWrapper(func(func() (bool, bool, error)) error)
+SetLoginWrapper(func(LoginFn) error)
 SetOGameCredentials(username, password, otpSecret, bearerToken string)
 SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 ValidateAccount(code string) error
