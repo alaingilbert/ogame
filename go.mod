@@ -8,6 +8,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.10.2
 	github.com/abiosoft/ishell/v2 v2.0.2
 	github.com/alaingilbert/clockwork v0.1.1-0.20220821091847-24a25c94a5fe
+	github.com/alaingilbert/mtx v0.12.0
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible

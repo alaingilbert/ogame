@@ -318,7 +318,7 @@ func TestVersion(t *testing.T) {
 
 func TestOGame_GetCachedCelestial(t *testing.T) {
 	bot, _ := NewNoLogin(&device.Device{}, "", "", "", "")
-	bot.cache.planets.Set([]Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}})
+	bot.cache.planets.Store([]Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}})
 	celestial, _ := bot.GetCachedCelestial(123)
 	assert.Equal(t, ogame.CelestialID(123), celestial.GetID())
 	_, ok := celestial.(Planet)
@@ -336,7 +336,7 @@ func TestOGame_GetCachedCelestial(t *testing.T) {
 
 func TestOGame_GetCachedCelestials(t *testing.T) {
 	bot, _ := NewNoLogin(&device.Device{}, "", "", "", "")
-	bot.cache.planets.Set([]Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}})
+	bot.cache.planets.Store([]Planet{{Planet: ogame.Planet{ID: ogame.PlanetID(123)}, Moon: &Moon{Moon: ogame.Moon{ID: 456}}}})
 
 	celestials := bot.GetCachedCelestials()
 	assert.Equal(t, ogame.CelestialID(456), celestials[1].GetID())

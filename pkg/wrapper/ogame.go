@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/mtx"
 	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
 	"github.com/alaingilbert/ogame/pkg/extractor"
@@ -17,7 +18,6 @@ import (
 	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/mtx"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/parser"
 	"github.com/alaingilbert/ogame/pkg/taskRunner"
@@ -68,7 +68,7 @@ type OGame struct {
 	server               gameforge.Server
 	logger               *log.Logger
 	chatCallbacks        []func(msg ogame.ChatMsg)
-	wsCallbacks          mtx.RWMtxMap[string, func(msg []byte)]
+	wsCallbacks          mtx.RWMutexMap[string, func([]byte)]
 	auctioneerCallbacks  []func(any)
 	interceptorCallbacks []func(method, url string, params, payload url.Values, pageHTML []byte)
 	closeChatCtx         context.Context
@@ -90,7 +90,7 @@ type OGame struct {
 		lfBonuses             *ogame.LfBonuses
 		characterClass        ogame.CharacterClass
 		allianceClass         *ogame.AllianceClass
-		planets               mtx.RWMtx[[]Planet]
+		planets               mtx.RWMutex[[]Planet]
 		ogameSession          string
 		token                 string
 		ajaxChatToken         string
@@ -194,7 +194,7 @@ func newWithParams(params Params) (*OGame, error) {
 	factory := func() *Prioritize { return &Prioritize{bot: b} }
 	b.taskRunnerInst = taskRunner.NewTaskRunner(params.Ctx, factory)
 
-	b.wsCallbacks.Set(make(map[string]func([]byte)))
+	b.wsCallbacks.Store(make(map[string]func([]byte)))
 
 	b.captchaCallback = params.CaptchaSolver
 	b.apiNewHostname = params.APINewHostname
@@ -419,7 +419,7 @@ func convertCelestial(b *OGame, celestial ogame.Celestial) Celestial {
 }
 
 func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
-	b.cache.planets.Set(convertPlanets(b, page.ExtractPlanets()))
+	b.cache.planets.Store(convertPlanets(b, page.ExtractPlanets()))
 	b.cache.isVacationModeEnabled = page.ExtractIsInVacation()
 	b.cache.token, _ = page.ExtractToken()
 	b.cache.ajaxChatToken, _ = page.ExtractAjaxChatToken()
@@ -4077,7 +4077,7 @@ func (b *OGame) getCelestialByPredicateFn(clb func(Celestial) bool) (Celestial, 
 }
 
 func (b *OGame) getCachedPlanets() []Planet {
-	return b.cache.planets.Get()
+	return b.cache.planets.Load()
 }
 
 func (b *OGame) getCachedMoons() []Moon {
@@ -4552,11 +4552,11 @@ func (b *OGame) setLfBonuses(lfBonuses ogame.LfBonuses) {
 }
 
 func (b *OGame) registerWSCallback(id string, fn func(msg []byte)) {
-	b.wsCallbacks.SetKey(id, fn)
+	b.wsCallbacks.Insert(id, fn)
 }
 
 func (b *OGame) removeWSCallback(id string) {
-	b.wsCallbacks.DeleteKey(id)
+	b.wsCallbacks.Delete(id)
 }
 
 func (b *OGame) registerChatCallback(fn func(msg ogame.ChatMsg)) {

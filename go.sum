@@ -27,6 +27,8 @@ github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db h1:CjPUSXOiYptLb
 github.com/abiosoft/readline v0.0.0-20180607040430-155bce2042db/go.mod h1:rB3B4rKii8V21ydCbIzH5hZiCQE7f5E9SzUb/ZZx530=
 github.com/alaingilbert/clockwork v0.1.1-0.20220821091847-24a25c94a5fe h1:/Ta9Gu3ocbtO0X646f7XmgDftVl5qzRZFlM9StHAyr8=
 github.com/alaingilbert/clockwork v0.1.1-0.20220821091847-24a25c94a5fe/go.mod h1:0vLst+y08EBnefROgmTXZLo85oM7nvLd20gnzeR34GQ=
+github.com/alaingilbert/mtx v0.12.0 h1:fGLsh/aWlgZ935MhVyLD+4Pg1QTj5rDAGPuChtJGQaQ=
+github.com/alaingilbert/mtx v0.12.0/go.mod h1:I/Ni6O5OwsfwVtJW1x5K1/Sh3kaHmi3RvorL16lR4rw=
 github.com/andybalholm/cascadia v1.3.3 h1:AG2YHrzJIm4BZ19iwJ/DAua6Btl3IwJX+VI4kktS1LM=
 github.com/andybalholm/cascadia v1.3.3/go.mod h1:xNd9bqTn98Ln4DwST8/nG+H0yuB8Hmgu1YHNnWw0GeA=
 github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc h1:biVzkmvwrH8WK8raXaxBx6fRVTlJILwEwQGL1I/ByEI=
