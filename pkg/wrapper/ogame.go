@@ -3316,6 +3316,10 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		return zeroFleet, ogame.ErrInvalidPlanetID
 	}
 
+	if attackBlockActivated, blockedUntil := b.extractor.ExtractAttackBlockFromDoc(fleet1Doc); attackBlockActivated {
+		return zeroFleet, ogame.NewAttackBlockActivatedErr(blockedUntil)
+	}
+
 	if b.extractor.ExtractIsInVacationFromDoc(fleet1Doc) {
 		return zeroFleet, ogame.ErrAccountInVacationMode
 	}
@@ -3528,7 +3532,14 @@ func (b *OGame) fastMiniFleetSpy(coord ogame.Coordinate, shipCount int64, option
 		return res, err
 	}
 	if !res.Response.Success {
-		return res, errors.New(res.Response.Message)
+		msg := res.Response.Message
+		rgx := regexp.MustCompile(`\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}`)
+		if match := rgx.FindString(msg); match != "" {
+			if blockedUntil, err := time.Parse("02.01.2006 15:04:05", match); err == nil {
+				return res, ogame.NewAttackBlockActivatedErr(blockedUntil)
+			}
+		}
+		return res, errors.New(msg)
 	}
 	return res, nil
 }

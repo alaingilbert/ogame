@@ -13,6 +13,32 @@ import (
 	"github.com/alaingilbert/ogame/pkg/utils"
 )
 
+func extractAttackBlockFromDoc(doc *goquery.Document) (attackBlockActivated bool, blockUntil time.Time) {
+	for _, s := range doc.Find("div#advice-bar a").EachIter() {
+		href := s.AttrOr("href", "")
+		if href == "" {
+			continue
+		}
+		if href != "javascript:void(0);" {
+			continue
+		}
+		title := s.AttrOr("data-tooltip-title", "")
+		rgx := regexp.MustCompile(`\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}`)
+		match := rgx.FindString(title)
+		if match == "" {
+			continue
+		}
+		layout := "02.01.2006 15:04:05"
+		t, err := time.Parse(layout, match)
+		if err != nil {
+			continue
+		}
+		attackBlockActivated = true
+		blockUntil = t
+	}
+	return
+}
+
 func extractIsInVacationFromDoc(doc *goquery.Document) bool {
 	var isVacation bool
 	for _, s := range doc.Find("div#advice-bar a").EachIter() {

@@ -1,6 +1,10 @@
 package ogame
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"time"
+)
 
 // ErrNotLogged returned when the bot is not logged
 var ErrNotLogged = errors.New("not logged")
@@ -51,3 +55,18 @@ var (
 	ErrNotEnoughShips                     = errors.New("not enough ships to send")                 // 140054 No ships available
 	ErrEngagedInCombat                    = errors.New("the fleet is currently engaged in combat") // 140068 The fleet is currently engaged in combat
 )
+
+// AttackBlockActivatedErr ...
+type AttackBlockActivatedErr struct {
+	BlockedUntil time.Time
+}
+
+// Error ...
+func (a *AttackBlockActivatedErr) Error() string {
+	return fmt.Sprintf("account block activated : %s", a.BlockedUntil.Format(time.DateTime))
+}
+
+// NewAttackBlockActivatedErr ...
+func NewAttackBlockActivatedErr(blockedUntil time.Time) *AttackBlockActivatedErr {
+	return &AttackBlockActivatedErr{BlockedUntil: blockedUntil}
+}
