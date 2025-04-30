@@ -1079,6 +1079,7 @@ func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby, 
 }
 
 // ExecLoginLink ...
+// https://sXXX-en.ogame.gameforge.com/game/lobbylogin.php?id=100000&token=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 func ExecLoginLink(ctx context.Context, client HttpClient, loginLink string) ([]byte, error) {
 	req, err := http.NewRequest(http.MethodGet, loginLink, nil)
 	if err != nil {
