@@ -892,7 +892,15 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	}
 
 	req = req.WithContext(b.ctx)
-	resp, err := b.device.GetClient().Do(req)
+	var resp *http.Response
+	if vals.Get("component") == "support" {
+		err = b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
+			resp, err = client.Do(req)
+			return err
+		})
+	} else {
+		resp, err = b.device.GetClient().Do(req)
+	}
 	if err != nil {
 		return []byte{}, err
 	}
@@ -993,9 +1001,11 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 	var pageHTMLBytes []byte
 
 	clb := func() (err error) {
-		if method == http.MethodPost {
+		if method == http.MethodPost || vals.Get("component") == "support" {
 			// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
 			// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
+			// Content returned on "support" endpoint:
+			// <script>document.location.href='https://ogame.support.gameforge.com/index.php?fld=en&sso=login&key=100000-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&origin=sXXX-en.ogame.gameforge.com'</script>
 			client := b.device.GetClient()
 			client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
 			defer func() { client.CheckRedirect = nil }()
