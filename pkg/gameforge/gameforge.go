@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"io"
 	"net/http"
@@ -770,12 +769,7 @@ func postSessionsReq(params *loginParams, gameEnvironmentID, platformGameID stri
 	}
 
 	if otpSecret != "" {
-		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
-			Period:    30,
-			Skew:      1,
-			Digits:    otp.DigitsSix,
-			Algorithm: otp.AlgorithmSHA1,
-		})
+		passcode, err := totp.GenerateCode(otpSecret, time.Now())
 		if err != nil {
 			return nil, err
 		}
