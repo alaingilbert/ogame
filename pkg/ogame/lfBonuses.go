@@ -5,6 +5,7 @@ type LfBonuses struct {
 	CharacterClassesBonuses CharacterClassesBonuses
 	LfShipBonuses           LfShipBonuses
 	CostTimeBonuses         CostTimeBonuses
+	MiscBonuses             MiscBonuses
 
 	// Following lifeform buildings decreases the costs and duration for researching new technologies.
 	// Humans ResearchCentre / Rocktal RuneTechnologium / Mechas RoboticsResearchCentre / Kaelesh VortexChamber
@@ -43,4 +44,8 @@ type LfResourceBonuses struct {
 
 type CharacterClassesBonuses struct {
 	Characterclasses3 float64
+}
+
+type MiscBonuses struct {
+	PhalanxRange float64
 }

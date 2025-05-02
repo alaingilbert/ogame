@@ -460,7 +460,7 @@ func extractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
 	b := ogame.NewLfBonuses()
 	for _, s := range doc.Find("bonus-item-content[data-toggable-target^=category]").EachIter() {
 		category := s.AttrOr("data-toggable-target", "")
-		if category == "categoryShips" || category == "categoryCostAndTime" || category == "categoryResources" || category == "categoryCharacterclasses" {
+		if category == "categoryShips" || category == "categoryCostAndTime" || category == "categoryResources" || category == "categoryCharacterclasses" || category == "categoryMisc" {
 			for _, g := range s.Find("inner-bonus-item-heading[data-toggable^=subcategory]").EachIter() {
 				category, subcategory := extractCategories(g, category)
 				if category != "" && subcategory != "" {
@@ -497,6 +497,11 @@ func assignBonusValue(s *goquery.Selection, b *ogame.LfBonuses, category string,
 	case "CostAndTime":
 		extractCostReductionBonus(s, b, subcategory)
 		extractTimeReductionBonus(s, b, subcategory)
+	case "Misc":
+		if subcategory == "PhalanxRange" {
+			txt := s.Find("bonus-item").First().Text()
+			b.MiscBonuses.PhalanxRange = extractBonusFromStringPercentage(txt)
+		}
 	}
 }
 
