@@ -4328,6 +4328,44 @@ func (b *OGame) getPositionsAvailableForDiscoveryFleet(galaxy int64, system int6
 	return availablePositions, nil
 }
 
+func (b *OGame) getChapter(chapterID int64) (ogame.Chapter, error) {
+	pageHTML, err := b.getPageContent(url.Values{
+		"page":      {"ajax"},
+		"component": {"ipioverview"},
+		"action":    {"overviewLayer"},
+		"ajax":      {"1"},
+		"chapterId": {utils.FI64(chapterID)},
+	})
+	if err != nil {
+		return ogame.Chapter{}, err
+	}
+	return b.extractor.ExtractChapter(pageHTML)
+}
+
+func (b *OGame) chapterClaimAll(chapterID int64) error {
+	_, err := b.getPageContent(url.Values{
+		"page":      {"ajax"},
+		"component": {"ipioverview"},
+		"action":    {"collectChapter"},
+		"ajax":      {"1"},
+		"token":     {b.cache.token},
+		"chapterId": {utils.FI64(chapterID)},
+	})
+	return err
+}
+
+func (b *OGame) chapterCollectReward(taskID int64) error {
+	_, err := b.getPageContent(url.Values{
+		"page":      {"ajax"},
+		"component": {"ipioverview"},
+		"action":    {"collectTask"},
+		"ajax":      {"1"},
+		"token":     {b.cache.token},
+		"taskId":    {utils.FI64(taskID)},
+	})
+	return err
+}
+
 func (b *OGame) selectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error {
 	return b.selectLfResearch(planetID, slotNumber, "select", ogame.NoID)
 }

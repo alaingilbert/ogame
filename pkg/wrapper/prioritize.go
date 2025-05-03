@@ -871,6 +871,27 @@ func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system
 	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
 }
 
+// GetChapter ...
+func (b *Prioritize) GetChapter(chapterID int64) (ogame.Chapter, error) {
+	b.begin("GetChapter")
+	defer b.done()
+	return b.bot.getChapter(chapterID)
+}
+
+// ChapterClaimAll ...
+func (b *Prioritize) ChapterClaimAll(chapterID int64) error {
+	b.begin("GetChapter")
+	defer b.done()
+	return b.bot.chapterClaimAll(chapterID)
+}
+
+// ChapterCollectReward ...
+func (b *Prioritize) ChapterCollectReward(taskID int64) error {
+	b.begin("GetChapter")
+	defer b.done()
+	return b.bot.chapterCollectReward(taskID)
+}
+
 // SelectLfResearchSelect select a lifeform research
 func (b *Prioritize) SelectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error {
 	b.begin("SelectLfResearchSelect")

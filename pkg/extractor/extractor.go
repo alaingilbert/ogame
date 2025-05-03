@@ -572,6 +572,9 @@ type Extractor interface {
 	ExtractHiddenFields(pageHTML []byte) (url.Values, error)
 
 	ExtractHiddenFieldsFromDoc(*goquery.Document) url.Values
+
+	ExtractChapter(pageHTML []byte) (ogame.Chapter, error)
+	ExtractChapterFromDoc(*goquery.Document) (ogame.Chapter, error)
 }
 
 // Compile time checks to ensure type satisfies Extractor interface

@@ -1104,3 +1104,13 @@ func (e *Extractor) ExtractLfSlotsFromDoc(doc *goquery.Document) [18]ogame.LfSlo
 func (e *Extractor) ExtractArtefactsFromDoc(doc *goquery.Document) (int64, int64) {
 	panic("not implemented")
 }
+
+// ExtractChapter ...
+func (e *Extractor) ExtractChapter(pageHTML []byte) (ogame.Chapter, error) {
+	panic("implement me")
+}
+
+// ExtractChapterFromDoc ...
+func (e *Extractor) ExtractChapterFromDoc(document *goquery.Document) (ogame.Chapter, error) {
+	panic("implement me")
+}

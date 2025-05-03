@@ -98,3 +98,26 @@ func extractHighscoreFromDoc(doc *goquery.Document) (out ogame.Highscore, err er
 
 	return
 }
+
+func extractChapterFromDoc(doc *goquery.Document) (out ogame.Chapter, err error) {
+	claimAll := doc.Find("a.claimRewards").First()
+	out.ID = utils.DoParseI64(claimAll.AttrOr("data-target", ""))
+	if out.ID == 0 {
+		return out, errors.New("failed to find chapter id")
+	}
+	if !claimAll.HasClass("disabled") {
+		out.ClaimAll = &out.ID
+	}
+	for _, s := range doc.Find("div.ipiTaskItem").EachIter() {
+		state := s.AttrOr("data-state", "none")
+		collected := state == "collected"
+		completed := state == "completed" || collected
+		task := ogame.ChapterTask{
+			ID:        utils.DoParseI64(s.AttrOr("data-taskid", "")),
+			Collected: collected,
+			Completed: completed,
+		}
+		out.Tasks = append(out.Tasks, task)
+	}
+	return
+}

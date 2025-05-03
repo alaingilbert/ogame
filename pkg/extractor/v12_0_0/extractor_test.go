@@ -39,3 +39,17 @@ func TestExtractGalaxyInfos_alliance(t *testing.T) {
 	assert.Equal(t, int64(1), infos.Position(9).Alliance.Rank)
 	assert.Equal(t, int64(110), infos.Position(9).Alliance.Member)
 }
+
+func TestExtractChapter(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v12.0.43/en/directives_chapter.html")
+	chapter, _ := NewExtractor().ExtractChapter(pageHTMLBytes)
+	assert.Equal(t, int64(4006), chapter.ID)
+	assert.Equal(t, int64(4006), *chapter.ClaimAll)
+	assert.Equal(t, 13, len(chapter.Tasks))
+	assert.True(t, chapter.Tasks[6].Completed)
+	assert.False(t, chapter.Tasks[6].Collected)
+	assert.Equal(t, int64(5060), chapter.Tasks[6].ID)
+	assert.True(t, chapter.Tasks[5].Completed)
+	assert.True(t, chapter.Tasks[5].Collected)
+	assert.Equal(t, int64(5059), chapter.Tasks[5].ID)
+}

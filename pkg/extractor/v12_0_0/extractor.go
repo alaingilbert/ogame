@@ -52,3 +52,17 @@ func (e *Extractor) ExtractHighscore(pageHTML []byte) (ogame.Highscore, error) {
 func (e *Extractor) ExtractHighscoreFromDoc(doc *goquery.Document) (ogame.Highscore, error) {
 	return extractHighscoreFromDoc(doc)
 }
+
+// ExtractChapter ...
+func (e *Extractor) ExtractChapter(pageHTML []byte) (ogame.Chapter, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.Chapter{}, err
+	}
+	return e.ExtractChapterFromDoc(doc)
+}
+
+// ExtractChapterFromDoc ...
+func (e *Extractor) ExtractChapterFromDoc(doc *goquery.Document) (ogame.Chapter, error) {
+	return extractChapterFromDoc(doc)
+}

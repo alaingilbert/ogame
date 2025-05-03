@@ -907,6 +907,21 @@ func (b *OGame) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int6
 	return b.WithPriority(taskRunner.Normal).GetPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
 }
 
+// GetChapter ...
+func (b *OGame) GetChapter(chapterID int64) (ogame.Chapter, error) {
+	return b.WithPriority(taskRunner.Normal).GetChapter(chapterID)
+}
+
+// ChapterClaimAll ...
+func (b *OGame) ChapterClaimAll(chapterID int64) error {
+	return b.WithPriority(taskRunner.Normal).ChapterClaimAll(chapterID)
+}
+
+// ChapterCollectReward ...
+func (b *OGame) ChapterCollectReward(taskID int64) error {
+	return b.WithPriority(taskRunner.Normal).ChapterCollectReward(taskID)
+}
+
 // SetProxy this will change the bot http transport object.
 // proxyType can be "http" or "socks5".
 // An empty proxyAddress will reset the client transport to default value.
