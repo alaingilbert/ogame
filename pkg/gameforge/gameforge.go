@@ -855,6 +855,7 @@ type Server struct {
 	MultiLanguage int64
 	AvailableOn   []string
 	Settings      any
+	MaintenanceOn any // 0 for false, <unknown> for true
 }
 
 func (s Server) OGameSettings() OGameServerSettings {
