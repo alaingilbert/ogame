@@ -114,10 +114,10 @@ func (r *TaskRunner[T]) WithPriority(priority Priority) T {
 
 // TasksOverview overview of tasks in heap
 type TasksOverview struct {
-	Low       Priority
-	Normal    Priority
-	Important Priority
-	Critical  Priority
+	Low       int64
+	Normal    int64
+	Important int64
+	Critical  int64
 	Total     int64
 }
 
