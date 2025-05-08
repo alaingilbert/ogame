@@ -68,7 +68,13 @@ func NewTaskRunner[T ITask](ctx context.Context, factory func() T) *TaskRunner[T
 
 func (r *TaskRunner[T]) start() {
 	go func() {
-		for t := range r.tasksPushCh {
+		for {
+			var t *item
+			select {
+			case t = <-r.tasksPushCh:
+			case <-r.ctx.Done():
+				return
+			}
 			r.tasksLock.Lock()
 			r.tasks.Push(t)
 			r.tasksLock.Unlock()
@@ -80,7 +86,12 @@ func (r *TaskRunner[T]) start() {
 		}
 	}()
 	go func() {
-		for range r.tasksPopCh {
+		for {
+			select {
+			case <-r.tasksPopCh:
+			case <-r.ctx.Done():
+				return
+			}
 			r.tasksLock.Lock()
 			task := r.tasks.Pop()
 			r.tasksLock.Unlock()
