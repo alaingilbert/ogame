@@ -103,7 +103,10 @@ func (r *TaskRunner[T]) WithPriority(priority Priority) T {
 		isDoneCh:         taskIsDoneCh,
 	}
 	r.tasksPushCh <- task
-	<-canBeProcessedCh
+	select {
+	case <-canBeProcessedCh:
+	case <-r.ctx.Done():
+	}
 	t := r.factory()
 	t.SetTaskDoneCh(taskIsDoneCh)
 	return t
