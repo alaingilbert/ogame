@@ -97,10 +97,11 @@ func (r *TaskRunner[T]) start() {
 func (r *TaskRunner[T]) WithPriority(priority Priority) T {
 	canBeProcessedCh := make(chan struct{})
 	taskIsDoneCh := make(chan struct{})
-	task := new(item)
-	task.priority = priority
-	task.canBeProcessedCh = canBeProcessedCh
-	task.isDoneCh = taskIsDoneCh
+	task := &item{
+		priority:         priority,
+		canBeProcessedCh: canBeProcessedCh,
+		isDoneCh:         taskIsDoneCh,
+	}
 	r.tasksPushCh <- task
 	<-canBeProcessedCh
 	t := r.factory()
