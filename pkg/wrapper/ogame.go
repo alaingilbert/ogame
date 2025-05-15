@@ -758,8 +758,10 @@ func (b *OGame) logout() error {
 	if err != nil {
 		return err
 	}
-	if err := b.device.GetClient().Jar.(*cookiejar.Jar).Save(); err != nil {
-		return err
+	if j, ok := b.device.GetClient().Jar.(*cookiejar.Jar); ok {
+		if err := j.Save(); err != nil {
+			return err
+		}
 	}
 	b.softLogout()
 	return nil

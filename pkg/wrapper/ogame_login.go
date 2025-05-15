@@ -160,8 +160,10 @@ func (b *OGame) loginPart3Tmp(userAccount gameforge.Account, page *parser.Overvi
 	if err := b.loginPart3(userAccount, page); err != nil {
 		return err
 	}
-	if err := b.device.GetClient().Jar.(*cookiejar.Jar).Save(); err != nil {
-		return err
+	if j, ok := b.device.GetClient().Jar.(*cookiejar.Jar); ok {
+		if err := j.Save(); err != nil {
+			return err
+		}
 	}
 	b.execInterceptorCallbacks(http.MethodGet, loginLink, nil, nil, pageHTML)
 	return nil
