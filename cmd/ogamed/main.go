@@ -339,6 +339,7 @@ func start(ctx context.Context, c *cli.Command) error {
 	e.POST("/bot/planets/:planetID/cancel-building", wrapper.CancelBuildingHandler)
 	e.POST("/bot/planets/:planetID/cancel-research", wrapper.CancelResearchHandler)
 	e.GET("/bot/planets/:planetID/resources", wrapper.GetResourcesHandler)
+	e.POST("/bot/planets/:planetID/check-fleet", wrapper.CheckFleetHandler)
 	e.POST("/bot/planets/:planetID/send-fleet", wrapper.SendFleetHandler)
 	e.POST("/bot/planets/:planetID/send-discovery", wrapper.SendDiscoveryHandler)
 	e.POST("/bot/planets/:planetID/send-ipm", wrapper.SendIPMHandler)
