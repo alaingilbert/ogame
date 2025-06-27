@@ -17,6 +17,11 @@ func TestCoordinate_Equal(t *testing.T) {
 	assert.False(t, Coordinate{1, 2, 3, PlanetType}.Equal(Coordinate{2, 2, 3, PlanetType}))
 	assert.False(t, Coordinate{1, 2, 3, PlanetType}.Equal(Coordinate{1, 3, 3, PlanetType}))
 	assert.False(t, Coordinate{1, 2, 3, PlanetType}.Equal(Coordinate{1, 2, 4, PlanetType}))
+	assert.False(t, Coordinate{1, 2, 3, PlanetType}.Equal(Coordinate{1, 2, 3, MoonType}))
+	assert.False(t, Coordinate{1, 2, 3, PlanetType} == Coordinate{1, 2, 3, MoonType})
+	assert.True(t, Coordinate{1, 2, 3, PlanetType} == Coordinate{1, 2, 3, PlanetType})
+	assert.True(t, Coordinate{1, 2, 3, MoonType} == Coordinate{1, 2, 3, MoonType})
+	assert.False(t, Coordinate{1, 2, 3, MoonType} == Coordinate{1, 2, 4, MoonType})
 }
 
 func TestCoordinate_IsPlanet(t *testing.T) {
@@ -53,4 +58,18 @@ func TestCoordinate_Debris(t *testing.T) {
 	assert.Equal(t, Coordinate{1, 2, 3, PlanetType}.Debris(), Coordinate{1, 2, 3, DebrisType})
 	assert.Equal(t, Coordinate{1, 2, 3, MoonType}.Debris(), Coordinate{1, 2, 3, DebrisType})
 	assert.Equal(t, Coordinate{1, 2, 3, DebrisType}.Debris(), Coordinate{1, 2, 3, DebrisType})
+}
+
+func TestCoordinate_Cmp(t *testing.T) {
+	mustParseCoord := MustParseCoord
+	assert.Equal(t, 0, mustParseCoord("2:2:2").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, -1, mustParseCoord("2:2:1").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, 1, mustParseCoord("2:2:2").Cmp(mustParseCoord("2:2:1")))
+	assert.Equal(t, -1, mustParseCoord("2:1:2").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, 1, mustParseCoord("2:2:2").Cmp(mustParseCoord("2:1:2")))
+	assert.Equal(t, -1, mustParseCoord("1:2:2").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, 1, mustParseCoord("2:2:2").Cmp(mustParseCoord("1:2:2")))
+	assert.Equal(t, -1, mustParseCoord("2:2:2").Cmp(mustParseCoord("M:2:2:2")))
+	assert.Equal(t, 1, mustParseCoord("M:2:2:2").Cmp(mustParseCoord("2:2:2")))
+	assert.Equal(t, 0, mustParseCoord("M:2:2:2").Cmp(mustParseCoord("M:2:2:2")))
 }

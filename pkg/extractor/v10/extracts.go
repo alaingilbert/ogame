@@ -60,22 +60,31 @@ type (
 	}
 
 	PlayerJson struct {
-		PlayerID          CInt64   `json:"playerId"`
-		PlayerName        string   `json:"playerName"`
-		AllianceID        CInt64   `json:"allianceId"`
-		AllianceName      string   `json:"allianceName"`
-		AllianceTag       string   `json:"allianceTag"`
-		IsAllianceMember  bool     `json:"isAllianceMember"`
-		PositionPlayer    CInt64   `json:"highscorePositionPlayer"`
-		PositionAlliance  CInt64   `json:"highscorePositionAlliance"`
-		IsAdmin           bool     `json:"isAdmin"`
-		IsBanned          bool     `json:"isBanned"`
-		IsOnVacation      bool     `json:"isOnVacation"`
-		IsNewbie          bool     `json:"isNewbie"`
-		IsStrong          bool     `json:"isStrong"`
-		IsHonorableTarget bool     `json:"isHonorableTarget"`
-		IsInactive        bool     `json:"isInactive"`
-		Rank              RankJson `json:"rank"`
+		PlayerID          CInt64      `json:"playerId"`
+		PlayerName        string      `json:"playerName"`
+		AllianceID        CInt64      `json:"allianceId"`
+		AllianceName      string      `json:"allianceName"`
+		AllianceTag       string      `json:"allianceTag"`
+		IsAllianceMember  bool        `json:"isAllianceMember"`
+		PositionPlayer    CInt64      `json:"highscorePositionPlayer"`
+		PositionAlliance  CInt64      `json:"highscorePositionAlliance"`
+		IsAdmin           bool        `json:"isAdmin"`
+		IsBanned          bool        `json:"isBanned"`
+		IsOnVacation      bool        `json:"isOnVacation"`
+		IsNewbie          bool        `json:"isNewbie"`
+		IsStrong          bool        `json:"isStrong"`
+		IsHonorableTarget bool        `json:"isHonorableTarget"`
+		IsInactive        bool        `json:"isInactive"`
+		Rank              RankJson    `json:"rank"`
+		Actions           ActionsJson `json:"actions"`
+	}
+
+	ActionsJson struct {
+		Alliance AllianceJson `json:"alliance"`
+	}
+
+	AllianceJson struct {
+		MemberCount CInt64 `json:"memberCount"`
 	}
 
 	RankJson struct {
@@ -275,9 +284,7 @@ func extractGalaxyInfos(pageHTML []byte, botPlayerName string, botPlayerID, botP
 					planetInfos.Alliance.Name = player.AllianceName
 					planetInfos.Alliance.Tag = player.AllianceTag
 					planetInfos.Alliance.Rank = player.PositionAlliance.Int64()
-					if player.IsAllianceMember {
-						planetInfos.Alliance.Member = 1
-					}
+					planetInfos.Alliance.Member = player.Actions.Alliance.MemberCount.Int64()
 				}
 
 			} else if planet.PlanetType.Int64() == ogame.MoonType.Int64() {

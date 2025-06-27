@@ -19,3 +19,6 @@ type EmpireCelestial struct {
 	Researches   Researches
 	Ships        ShipsInfos
 }
+
+// GetCoordinate ...
+func (c EmpireCelestial) GetCoordinate() Coordinate { return c.Coordinate }

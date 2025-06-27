@@ -1,6 +1,16 @@
 package extractor
 
 import (
+	v10 "github.com/alaingilbert/ogame/pkg/extractor/v10"
+	v104 "github.com/alaingilbert/ogame/pkg/extractor/v104"
+	v11 "github.com/alaingilbert/ogame/pkg/extractor/v11"
+	"github.com/alaingilbert/ogame/pkg/extractor/v11_13_0"
+	"github.com/alaingilbert/ogame/pkg/extractor/v11_15_0"
+	"github.com/alaingilbert/ogame/pkg/extractor/v11_9_0"
+	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
+	v71 "github.com/alaingilbert/ogame/pkg/extractor/v71"
+	v8 "github.com/alaingilbert/ogame/pkg/extractor/v8"
+	v874 "github.com/alaingilbert/ogame/pkg/extractor/v874"
 	"net/url"
 	"time"
 
@@ -12,58 +22,60 @@ import (
 )
 
 type FullPageExtractorBytes interface {
-	ExtractAdmiral(pageHTML []byte) bool
+	ExtractAdmiral(pageHTML []byte) (bool, error)
 	ExtractAjaxChatToken(pageHTML []byte) (string, error)
 	ExtractToken(pageHTML []byte) (string, error)
 	ExtractCelestial(pageHTML []byte, v any) (ogame.Celestial, error)
 	ExtractCelestials(pageHTML []byte) ([]ogame.Celestial, error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)
-	ExtractCommander(pageHTML []byte) bool
-	ExtractEngineer(pageHTML []byte) bool
-	ExtractGeologist(pageHTML []byte) bool
-	ExtractIsInVacation(pageHTML []byte) bool
-	ExtractIsMobile(pageHTML []byte) bool
+	ExtractCommander(pageHTML []byte) (bool, error)
+	ExtractEngineer(pageHTML []byte) (bool, error)
+	ExtractGeologist(pageHTML []byte) (bool, error)
+	ExtractIsInVacation(pageHTML []byte) (bool, error)
+	ExtractAttackBlock(pageHTML []byte) (bool, time.Time, error)
+	ExtractIsMobile(pageHTML []byte) (bool, error)
 	ExtractLifeformEnabled(pageHTML []byte) bool
 	ExtractMoon(pageHTML []byte, v any) (ogame.Moon, error)
-	ExtractMoons(pageHTML []byte) []ogame.Moon
-	ExtractOGameTimestampFromBytes(pageHTML []byte) int64
-	ExtractOgameTimestamp(pageHTML []byte) int64
+	ExtractMoons(pageHTML []byte) ([]ogame.Moon, error)
+	ExtractOGameTimestampFromBytes(pageHTML []byte) (int64, error)
+	ExtractOgameTimestamp(pageHTML []byte) (int64, error)
 	ExtractPlanet(pageHTML []byte, v any) (ogame.Planet, error)
 	ExtractPlanetCoordinate(pageHTML []byte) (ogame.Coordinate, error)
 	ExtractPlanetID(pageHTML []byte) (ogame.CelestialID, error)
 	ExtractPlanetType(pageHTML []byte) (ogame.CelestialType, error)
-	ExtractPlanets(pageHTML []byte) []ogame.Planet
-	ExtractResources(pageHTML []byte) ogame.Resources
-	ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.ResourcesDetails
+	ExtractPlanets(pageHTML []byte) ([]ogame.Planet, error)
+	ExtractResources(pageHTML []byte) (ogame.Resources, error)
+	ExtractResourcesDetailsFromFullPage(pageHTML []byte) (ogame.ResourcesDetails, error)
 	ExtractServerTime(pageHTML []byte) (time.Time, error)
-	ExtractTechnocrat(pageHTML []byte) bool
+	ExtractTechnocrat(pageHTML []byte) (bool, error)
 }
 
 type FullPageExtractorDoc interface {
-	ExtractLifeformTypeFromDoc(doc *goquery.Document) ogame.LifeformType
-	ExtractAdmiralFromDoc(doc *goquery.Document) bool
-	ExtractBodyIDFromDoc(doc *goquery.Document) string
-	ExtractCelestialFromDoc(doc *goquery.Document, v any) (ogame.Celestial, error)
-	ExtractCelestialsFromDoc(doc *goquery.Document) ([]ogame.Celestial, error)
-	ExtractCharacterClassFromDoc(doc *goquery.Document) (ogame.CharacterClass, error)
-	ExtractCommanderFromDoc(doc *goquery.Document) bool
-	ExtractEngineerFromDoc(doc *goquery.Document) bool
-	ExtractGeologistFromDoc(doc *goquery.Document) bool
-	ExtractIsInVacationFromDoc(doc *goquery.Document) bool
-	ExtractIsMobileFromDoc(doc *goquery.Document) bool
-	ExtractMoonFromDoc(doc *goquery.Document, v any) (ogame.Moon, error)
-	ExtractMoonsFromDoc(doc *goquery.Document) []ogame.Moon
-	ExtractOGameSessionFromDoc(doc *goquery.Document) string
-	ExtractOgameTimestampFromDoc(doc *goquery.Document) int64
-	ExtractPlanetFromDoc(doc *goquery.Document, v any) (ogame.Planet, error)
-	ExtractPlanetIDFromDoc(doc *goquery.Document) (ogame.CelestialID, error)
-	ExtractPlanetTypeFromDoc(doc *goquery.Document) (ogame.CelestialType, error)
-	ExtractPlanetsFromDoc(doc *goquery.Document) []ogame.Planet
-	ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.ResourcesDetails
-	ExtractResourcesFromDoc(doc *goquery.Document) ogame.Resources
-	ExtractServerTimeFromDoc(doc *goquery.Document) (time.Time, error)
-	ExtractTechnocratFromDoc(doc *goquery.Document) bool
-	ExtractColoniesFromDoc(doc *goquery.Document) (int64, int64)
+	ExtractLifeformTypeFromDoc(*goquery.Document) ogame.LifeformType
+	ExtractAdmiralFromDoc(*goquery.Document) bool
+	ExtractBodyIDFromDoc(*goquery.Document) string
+	ExtractCelestialFromDoc(*goquery.Document, any) (ogame.Celestial, error)
+	ExtractCelestialsFromDoc(*goquery.Document) ([]ogame.Celestial, error)
+	ExtractCharacterClassFromDoc(*goquery.Document) (ogame.CharacterClass, error)
+	ExtractCommanderFromDoc(*goquery.Document) bool
+	ExtractEngineerFromDoc(*goquery.Document) bool
+	ExtractGeologistFromDoc(*goquery.Document) bool
+	ExtractAttackBlockFromDoc(doc *goquery.Document) (bool, time.Time)
+	ExtractIsInVacationFromDoc(*goquery.Document) bool
+	ExtractIsMobileFromDoc(*goquery.Document) bool
+	ExtractMoonFromDoc(*goquery.Document, any) (ogame.Moon, error)
+	ExtractMoonsFromDoc(*goquery.Document) []ogame.Moon
+	ExtractOGameSessionFromDoc(*goquery.Document) string
+	ExtractOgameTimestampFromDoc(*goquery.Document) int64
+	ExtractPlanetFromDoc(*goquery.Document, any) (ogame.Planet, error)
+	ExtractPlanetIDFromDoc(*goquery.Document) (ogame.CelestialID, error)
+	ExtractPlanetTypeFromDoc(*goquery.Document) (ogame.CelestialType, error)
+	ExtractPlanetsFromDoc(*goquery.Document) []ogame.Planet
+	ExtractResourcesDetailsFromFullPageFromDoc(*goquery.Document) ogame.ResourcesDetails
+	ExtractResourcesFromDoc(*goquery.Document) ogame.Resources
+	ExtractServerTimeFromDoc(*goquery.Document) (time.Time, error)
+	ExtractTechnocratFromDoc(*goquery.Document) bool
+	ExtractColoniesFromDoc(*goquery.Document) (int64, int64)
 }
 
 type FullPageExtractorBytesDoc interface {
@@ -78,7 +90,7 @@ type OverviewExtractorBytes interface {
 	ExtractCancelLfBuildingInfos(pageHTML []byte) (token string, id, listID int64, err error)
 	ExtractCancelResearchInfos(pageHTML []byte) (token string, techID, listID int64, err error)
 	ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error)
-	ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64)
+	ExtractConstructions(pageHTML []byte) (ogame.Constructions, error)
 	ExtractDMCosts(pageHTML []byte) (ogame.DMCosts, error)
 	ExtractFleetDeutSaveFactor(pageHTML []byte) float64
 	ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error)
@@ -87,8 +99,8 @@ type OverviewExtractorBytes interface {
 }
 
 type OverviewExtractorDoc interface {
-	ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error)
-	ExtractCharacterClassFromDoc(doc *goquery.Document) (ogame.CharacterClass, error)
+	ExtractOverviewProductionFromDoc(*goquery.Document) ([]ogame.Quantifiable, error)
+	ExtractCharacterClassFromDoc(*goquery.Document) (ogame.CharacterClass, error)
 }
 
 type OverviewExtractorBytesDoc interface {
@@ -101,17 +113,17 @@ type FleetsExtractorBytes interface {
 }
 
 type FleetsExtractorDoc interface {
-	ExtractSlotsFromDoc(doc *goquery.Document) (ogame.Slots, error)
+	ExtractSlotsFromDoc(*goquery.Document) (ogame.Slots, error)
 }
 
 type MovementExtractorBytes interface {
 	FleetsExtractorBytes
-	ExtractFleets(pageHTML []byte) (res []ogame.Fleet)
+	ExtractFleets(pageHTML []byte) ([]ogame.Fleet, error)
 }
 
 type MovementExtractorDoc interface {
 	FleetsExtractorDoc
-	ExtractFleetsFromDoc(doc *goquery.Document) (res []ogame.Fleet)
+	ExtractFleetsFromDoc(*goquery.Document) ([]ogame.Fleet, error)
 }
 
 type MovementExtractorBytesDoc interface {
@@ -121,13 +133,13 @@ type MovementExtractorBytesDoc interface {
 
 type FleetDispatchExtractorBytes interface {
 	FleetsExtractorBytes
-	ExtractFleet1Ships(pageHTML []byte) ogame.ShipsInfos
+	ExtractFleet1Ships(pageHTML []byte) (ogame.ShipsInfos, error)
 }
 
 type FleetDispatchExtractorDoc interface {
 	FleetsExtractorBytes
-	ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos)
-	ExtractFleetDispatchACSFromDoc(doc *goquery.Document) []ogame.ACSValues
+	ExtractFleet1ShipsFromDoc(*goquery.Document) (ogame.ShipsInfos, error)
+	ExtractFleetDispatchACSFromDoc(*goquery.Document) []ogame.ACSValues
 }
 
 type FleetDispatchExtractorBytesDoc interface {
@@ -144,8 +156,8 @@ type ShipyardExtractorBytes interface {
 }
 
 type ShipyardExtractorDoc interface {
-	ExtractProductionFromDoc(doc *goquery.Document) ([]ogame.Quantifiable, error)
-	ExtractShipsFromDoc(doc *goquery.Document) (ogame.ShipsInfos, error)
+	ExtractProductionFromDoc(*goquery.Document) ([]ogame.Quantifiable, error)
+	ExtractShipsFromDoc(*goquery.Document) (ogame.ShipsInfos, error)
 }
 
 type ShipyardExtractorBytesDoc interface {
@@ -154,12 +166,12 @@ type ShipyardExtractorBytesDoc interface {
 }
 
 type ResearchExtractorBytes interface {
-	ExtractResearch(pageHTML []byte) ogame.Researches
+	ExtractResearch(pageHTML []byte) (ogame.Researches, error)
 	ExtractUpgradeToken(pageHTML []byte) (string, error)
 }
 
 type ResearchExtractorDoc interface {
-	ExtractResearchFromDoc(doc *goquery.Document) ogame.Researches
+	ExtractResearchFromDoc(*goquery.Document) ogame.Researches
 }
 
 type ResearchExtractorBytesDoc interface {
@@ -173,7 +185,7 @@ type FacilitiesExtractorBytes interface {
 }
 
 type FacilitiesExtractorDoc interface {
-	ExtractFacilitiesFromDoc(doc *goquery.Document) (ogame.Facilities, error)
+	ExtractFacilitiesFromDoc(*goquery.Document) (ogame.Facilities, error)
 }
 
 type FacilitiesExtractorBytesDoc interface {
@@ -187,41 +199,41 @@ type PhalanxExtractorBytes interface {
 }
 
 type PreferencesExtractorBytes interface {
-	ExtractPopopsCombatreportFromDoc(doc *goquery.Document) bool
-	ExtractPreferences(pageHTML []byte) ogame.Preferences
-	ExtractPreferencesShowActivityMinutes(pageHTML []byte) bool
-	ExtractSpioAnz(pageHTML []byte) int64
+	ExtractPopopsCombatreportFromDoc(*goquery.Document) bool
+	ExtractPreferences(pageHTML []byte) (ogame.Preferences, error)
+	ExtractPreferencesShowActivityMinutes(pageHTML []byte) (bool, error)
+	ExtractSpioAnz(pageHTML []byte) (int64, error)
 }
 
 type PreferencesExtractorDoc interface {
-	ExtractActivateAutofocusFromDoc(doc *goquery.Document) bool
-	ExtractAnimatedOverviewFromDoc(doc *goquery.Document) bool
-	ExtractAnimatedSlidersFromDoc(doc *goquery.Document) bool
-	ExtractAuctioneerNotificationsFromDoc(doc *goquery.Document) bool
-	ExtractDisableChatBarFromDoc(doc *goquery.Document) bool
-	ExtractDisableOutlawWarningFromDoc(doc *goquery.Document) bool
-	ExtractEconomyNotificationsFromDoc(doc *goquery.Document) bool
-	ExtractEventsShowFromDoc(doc *goquery.Document) int64
-	ExtractMobileVersionFromDoc(doc *goquery.Document) bool
-	ExtractMsgResultsPerPageFromDoc(doc *goquery.Document) int64
-	ExtractNotifAccountFromDoc(doc *goquery.Document) bool
-	ExtractNotifAllianceBroadcastsFromDoc(doc *goquery.Document) bool
-	ExtractNotifAllianceMessagesFromDoc(doc *goquery.Document) bool
-	ExtractNotifAuctionsFromDoc(doc *goquery.Document) bool
-	ExtractNotifBuildListFromDoc(doc *goquery.Document) bool
-	ExtractNotifForeignEspionageFromDoc(doc *goquery.Document) bool
-	ExtractNotifFriendlyFleetActivitiesFromDoc(doc *goquery.Document) bool
-	ExtractNotifHostileFleetActivitiesFromDoc(doc *goquery.Document) bool
-	ExtractPopupsNoticesFromDoc(doc *goquery.Document) bool
-	ExtractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences
-	ExtractPreserveSystemOnPlanetChangeFromDoc(doc *goquery.Document) bool
-	ExtractShowActivityMinutesFromDoc(doc *goquery.Document) bool
-	ExtractShowDetailOverlayFromDoc(doc *goquery.Document) bool
-	ExtractShowOldDropDownsFromDoc(doc *goquery.Document) bool
-	ExtractSortOrderFromDoc(doc *goquery.Document) int64
-	ExtractSortSettingFromDoc(doc *goquery.Document) int64
-	ExtractSpioAnzFromDoc(doc *goquery.Document) int64
-	ExtractSpioReportPicturesFromDoc(doc *goquery.Document) bool
+	ExtractActivateAutofocusFromDoc(*goquery.Document) bool
+	ExtractAnimatedOverviewFromDoc(*goquery.Document) bool
+	ExtractAnimatedSlidersFromDoc(*goquery.Document) bool
+	ExtractAuctioneerNotificationsFromDoc(*goquery.Document) bool
+	ExtractDisableChatBarFromDoc(*goquery.Document) bool
+	ExtractDisableOutlawWarningFromDoc(*goquery.Document) bool
+	ExtractEconomyNotificationsFromDoc(*goquery.Document) bool
+	ExtractEventsShowFromDoc(*goquery.Document) int64
+	ExtractMobileVersionFromDoc(*goquery.Document) bool
+	ExtractMsgResultsPerPageFromDoc(*goquery.Document) int64
+	ExtractNotifAccountFromDoc(*goquery.Document) bool
+	ExtractNotifAllianceBroadcastsFromDoc(*goquery.Document) bool
+	ExtractNotifAllianceMessagesFromDoc(*goquery.Document) bool
+	ExtractNotifAuctionsFromDoc(*goquery.Document) bool
+	ExtractNotifBuildListFromDoc(*goquery.Document) bool
+	ExtractNotifForeignEspionageFromDoc(*goquery.Document) bool
+	ExtractNotifFriendlyFleetActivitiesFromDoc(*goquery.Document) bool
+	ExtractNotifHostileFleetActivitiesFromDoc(*goquery.Document) bool
+	ExtractPopupsNoticesFromDoc(*goquery.Document) bool
+	ExtractPreferencesFromDoc(*goquery.Document) ogame.Preferences
+	ExtractPreserveSystemOnPlanetChangeFromDoc(*goquery.Document) bool
+	ExtractShowActivityMinutesFromDoc(*goquery.Document) bool
+	ExtractShowDetailOverlayFromDoc(*goquery.Document) bool
+	ExtractShowOldDropDownsFromDoc(*goquery.Document) bool
+	ExtractSortOrderFromDoc(*goquery.Document) int64
+	ExtractSortSettingFromDoc(*goquery.Document) int64
+	ExtractSpioAnzFromDoc(*goquery.Document) int64
+	ExtractSpioReportPicturesFromDoc(*goquery.Document) bool
 }
 
 type PreferencesExtractorBytesDoc interface {
@@ -235,7 +247,7 @@ type DefensesExtractorBytes interface {
 }
 
 type DefensesExtractorDoc interface {
-	ExtractDefenseFromDoc(doc *goquery.Document) (ogame.DefensesInfos, error)
+	ExtractDefenseFromDoc(*goquery.Document) (ogame.DefensesInfos, error)
 }
 
 type DefensesExtractorBytesDoc interface {
@@ -245,12 +257,12 @@ type DefensesExtractorBytesDoc interface {
 
 type EventListExtractorBytes interface {
 	ExtractAttacks(pageHTML []byte, ownCoords []ogame.Coordinate) ([]ogame.AttackEvent, error)
-	ExtractFleetsFromEventList(pageHTML []byte) []ogame.Fleet
+	ExtractFleetsFromEventList(pageHTML []byte) ([]ogame.Fleet, error)
 }
 
 type EventListExtractorDoc interface {
 	ExtractAttacksFromDoc(doc *goquery.Document, ownCoords []ogame.Coordinate) ([]ogame.AttackEvent, error)
-	ExtractFleetsFromEventListFromDoc(doc *goquery.Document) []ogame.Fleet
+	ExtractFleetsFromEventListFromDoc(*goquery.Document) []ogame.Fleet
 }
 
 type EventListExtractorBytesDoc interface {
@@ -278,7 +290,7 @@ type MessagesCombatReportExtractorBytes interface {
 }
 
 type MessagesCombatReportExtractorDoc interface {
-	ExtractCombatReportMessagesFromDoc(doc *goquery.Document) ([]ogame.CombatReportSummary, int64, error)
+	ExtractCombatReportMessagesFromDoc(*goquery.Document) ([]ogame.CombatReportSummary, int64, error)
 }
 
 type MessagesCombatReportExtractorBytesDoc interface {
@@ -302,7 +314,7 @@ type EspionageReportExtractorBytes interface {
 }
 
 type EspionageReportExtractorDoc interface {
-	ExtractEspionageReportFromDoc(doc *goquery.Document) (ogame.EspionageReport, error)
+	ExtractEspionageReportFromDoc(*goquery.Document) (ogame.EspionageReport, error)
 }
 
 type EspionageReportExtractorBytesDoc interface {
@@ -316,7 +328,7 @@ type MessagesEspionageReportExtractorBytes interface {
 }
 
 type MessagesEspionageReportExtractorDoc interface {
-	ExtractEspionageReportMessageIDsFromDoc(doc *goquery.Document) ([]ogame.EspionageReportSummary, int64, error)
+	ExtractEspionageReportMessageIDsFromDoc(*goquery.Document) ([]ogame.EspionageReportSummary, int64, error)
 }
 
 type MessagesEspionageReportExtractorBytesDoc interface {
@@ -330,7 +342,7 @@ type MessagesExpeditionExtractorBytes interface {
 }
 
 type MessagesExpeditionExtractorDoc interface {
-	ExtractExpeditionMessagesFromDoc(doc *goquery.Document) ([]ogame.ExpeditionMessage, int64, error)
+	ExtractExpeditionMessagesFromDoc(*goquery.Document) ([]ogame.ExpeditionMessage, int64, error)
 }
 
 type MessagesExpeditionExtractorBytesDoc interface {
@@ -340,12 +352,12 @@ type MessagesExpeditionExtractorBytesDoc interface {
 
 // FederationExtractorBytes popup when we click to create a union for our attacking fleet
 type FederationExtractorBytes interface {
-	ExtractFederation(pageHTML []byte) url.Values
+	ExtractFederation(pageHTML []byte) (url.Values, error)
 }
 
 // GalaxyPageExtractorBytes galaxy page
 type GalaxyPageExtractorBytes interface {
-	ExtractAvailableDiscoveries(pageHTML []byte) int64
+	ExtractAvailableDiscoveries(pageHTML []byte) (int64, error)
 }
 
 // GalaxyExtractorBytes ajax page containing galaxy information in galaxy page
@@ -364,12 +376,12 @@ type TraderImportExportExtractorBytes interface {
 }
 
 type TraderImportExportExtractorDoc interface {
-	ExtractOfferOfTheDayFromDoc(doc *goquery.Document) (price int64, importToken string, planetResources ogame.PlanetResources, multiplier ogame.Multiplier, err error)
+	ExtractOfferOfTheDayFromDoc(*goquery.Document) (price int64, importToken string, planetResources ogame.PlanetResources, multiplier ogame.Multiplier, err error)
 }
 
 // FetchTechsExtractorBytes ajax page fetchTechs
 type FetchTechsExtractorBytes interface {
-	ExtractTechs(pageHTML []byte) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error)
+	ExtractTechs(pageHTML []byte) (ogame.Techs, error)
 }
 
 type ResourcesSettingsExtractorBytes interface {
@@ -378,8 +390,8 @@ type ResourcesSettingsExtractorBytes interface {
 }
 
 type ResourcesSettingsExtractorDoc interface {
-	ExtractResourceSettingsFromDoc(doc *goquery.Document) (ogame.ResourceSettings, string, error)
-	ExtractResourcesProductionsFromDoc(doc *goquery.Document) (ogame.Resources, error)
+	ExtractResourceSettingsFromDoc(*goquery.Document) (ogame.ResourceSettings, string, error)
+	ExtractResourcesProductionsFromDoc(*goquery.Document) (ogame.Resources, error)
 }
 
 type ResourcesSettingsExtractorBytesDoc interface {
@@ -392,7 +404,7 @@ type HighscoreExtractorBytes interface {
 }
 
 type HighscoreExtractorDoc interface {
-	ExtractHighscoreFromDoc(doc *goquery.Document) (ogame.Highscore, error)
+	ExtractHighscoreFromDoc(*goquery.Document) (ogame.Highscore, error)
 }
 
 type HighscoreExtractorBytesDoc interface {
@@ -401,11 +413,11 @@ type HighscoreExtractorBytesDoc interface {
 }
 
 type MissileAttackLayerExtractorBytes interface {
-	ExtractIPM(pageHTML []byte) (duration, max int64, token string)
+	ExtractIPM(pageHTML []byte) (duration, max int64, token string, err error)
 }
 
 type MissileAttackLayerExtractorDoc interface {
-	ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string)
+	ExtractIPMFromDoc(*goquery.Document) (duration, max int64, token string, err error)
 }
 
 type MissileAttackLayerExtractorBytesDoc interface {
@@ -414,7 +426,7 @@ type MissileAttackLayerExtractorBytesDoc interface {
 }
 
 type JumpGateLayerExtractorBytes interface {
-	ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64)
+	ExtractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64, error)
 }
 
 // MessagesMarketplaceExtractorBytes marketplace was removed from the game
@@ -428,7 +440,7 @@ type LfBuildingsExtractorBytes interface {
 }
 
 type LfBuildingsExtractorDoc interface {
-	ExtractLfBuildingsFromDoc(doc *goquery.Document) (ogame.LfBuildings, error)
+	ExtractLfBuildingsFromDoc(*goquery.Document) (ogame.LfBuildings, error)
 }
 
 type LfBuildingsExtractorBytesDoc interface {
@@ -442,9 +454,9 @@ type LfResearchExtractorBytes interface {
 }
 
 type LfResearchExtractorDoc interface {
-	ExtractLfResearchFromDoc(doc *goquery.Document) (ogame.LfResearches, error)
-	ExtractLfSlotsFromDoc(doc *goquery.Document) [18]ogame.LfSlot
-	ExtractArtefactsFromDoc(doc *goquery.Document) (int64, int64)
+	ExtractLfResearchFromDoc(*goquery.Document) (ogame.LfResearches, error)
+	ExtractLfSlotsFromDoc(*goquery.Document) [18]ogame.LfSlot
+	ExtractArtefactsFromDoc(*goquery.Document) (int64, int64)
 }
 
 type LfResearchExtractorBytesDoc interface {
@@ -457,7 +469,7 @@ type LfBonusesExtractorBytes interface {
 }
 
 type LfBonusesExtractorDoc interface {
-	ExtractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error)
+	ExtractLfBonusesFromDoc(*goquery.Document) (ogame.LfBonuses, error)
 }
 
 type LfBonusesExtractorBytesDoc interface {
@@ -473,7 +485,7 @@ type ResourcesBuildingsExtractorBytes interface {
 }
 
 type ResourcesBuildingsExtractorDoc interface {
-	ExtractResourcesBuildingsFromDoc(doc *goquery.Document) (ogame.ResourcesBuildings, error)
+	ExtractResourcesBuildingsFromDoc(*goquery.Document) (ogame.ResourcesBuildings, error)
 }
 
 type ResourcesBuildingsExtractorBytesDoc interface {
@@ -487,17 +499,17 @@ type PremiumExtractorBytes interface {
 }
 
 type PlanetLayerExtractorDoc interface {
-	ExtractAbandonInformation(doc *goquery.Document) (abandonToken string, token string)
+	ExtractAbandonInformation(*goquery.Document) (abandonToken string, token string)
 }
 
 type TechnologyDetailsExtractorBytes interface {
 	ExtractTechnologyDetails(pageHTML []byte) (ogame.TechnologyDetails, error)
-	ExtractTearDownButtonEnabled(pageHTML []byte) bool
+	ExtractTearDownButtonEnabled(pageHTML []byte) (bool, error)
 }
 
 type TechnologyDetailsExtractorDoc interface {
-	ExtractTearDownButtonEnabledFromDoc(doc *goquery.Document) bool
-	ExtractTechnologyDetailsFromDoc(doc *goquery.Document) (ogame.TechnologyDetails, error)
+	ExtractTearDownButtonEnabledFromDoc(*goquery.Document) bool
+	ExtractTechnologyDetailsFromDoc(*goquery.Document) (ogame.TechnologyDetails, error)
 }
 
 type TechnologyDetailsExtractorBytesDoc interface {
@@ -510,7 +522,7 @@ type Extractor interface {
 	GetLanguage() string
 	SetLanguage(lang string)
 	GetLocation() *time.Location
-	SetLocation(loc *time.Location)
+	SetLocation(*time.Location)
 	GetLifeformEnabled() bool
 	SetLifeformEnabled(lifeformEnabled bool)
 
@@ -556,13 +568,26 @@ type Extractor interface {
 	PlanetLayerExtractorDoc
 	TraderImportExportExtractorDoc
 
-	ExtractCoord(v string) (coord ogame.Coordinate)
-	ExtractHiddenFields(pageHTML []byte) (fields url.Values)
+	ExtractCoord(v string) ogame.Coordinate
+	ExtractHiddenFields(pageHTML []byte) (url.Values, error)
 
-	ExtractHiddenFieldsFromDoc(doc *goquery.Document) url.Values
+	ExtractHiddenFieldsFromDoc(*goquery.Document) url.Values
+
+	ExtractChapter(pageHTML []byte) (ogame.Chapter, error)
+	ExtractChapterFromDoc(*goquery.Document) (ogame.Chapter, error)
 }
 
 // Compile time checks to ensure type satisfies Extractor interface
 var _ Extractor = (*v6.Extractor)(nil)
 var _ Extractor = (*v7.Extractor)(nil)
+var _ Extractor = (*v71.Extractor)(nil)
+var _ Extractor = (*v8.Extractor)(nil)
+var _ Extractor = (*v874.Extractor)(nil)
 var _ Extractor = (*v9.Extractor)(nil)
+var _ Extractor = (*v10.Extractor)(nil)
+var _ Extractor = (*v104.Extractor)(nil)
+var _ Extractor = (*v11.Extractor)(nil)
+var _ Extractor = (*v11_9_0.Extractor)(nil)
+var _ Extractor = (*v11_13_0.Extractor)(nil)
+var _ Extractor = (*v11_15_0.Extractor)(nil)
+var _ Extractor = (*v12_0_0.Extractor)(nil)

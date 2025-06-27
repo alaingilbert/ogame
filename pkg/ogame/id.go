@@ -629,23 +629,7 @@ func (o ID) IsDefense() bool {
 
 // IsShip returns either or not the id is a ship
 func (o ID) IsShip() bool {
-	return o == SmallCargoID ||
-		o == LargeCargoID ||
-		o == LightFighterID ||
-		o == HeavyFighterID ||
-		o == CruiserID ||
-		o == BattleshipID ||
-		o == ColonyShipID ||
-		o == RecyclerID ||
-		o == EspionageProbeID ||
-		o == BomberID ||
-		o == SolarSatelliteID ||
-		o == DestroyerID ||
-		o == DeathstarID ||
-		o == BattlecruiserID ||
-		o == CrawlerID ||
-		o == ReaperID ||
-		o == PathfinderID
+	return o.IsCivilShip() || o.IsCombatShip()
 }
 
 // IsFlyableShip returns either or not the id is a ship that can fly
@@ -656,7 +640,18 @@ func (o ID) IsFlyableShip() bool {
 	return o.IsShip()
 }
 
-// IsCombatShip ...
+// IsCivilShip returns either or not the id is a civil ship
+func (o ID) IsCivilShip() bool {
+	return o == SmallCargoID ||
+		o == LargeCargoID ||
+		o == ColonyShipID ||
+		o == RecyclerID ||
+		o == EspionageProbeID ||
+		o == SolarSatelliteID ||
+		o == CrawlerID
+}
+
+// IsCombatShip returns either or not the id is a combat ship
 func (o ID) IsCombatShip() bool {
 	return o == LightFighterID ||
 		o == HeavyFighterID ||
@@ -666,7 +661,8 @@ func (o ID) IsCombatShip() bool {
 		o == DestroyerID ||
 		o == DeathstarID ||
 		o == BattlecruiserID ||
-		o == ReaperID
+		o == ReaperID ||
+		o == PathfinderID
 }
 
 func (o ID) IsValidIPMTarget() bool {

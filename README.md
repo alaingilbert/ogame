@@ -146,7 +146,7 @@ ServerURL() string
 ServerVersion() string
 SetClient(*OGameClient)
 SetGetServerDataWrapper(func(func() (ServerData, error)) (ServerData, error))
-SetLoginWrapper(func(func() (bool, error)) error)
+SetLoginWrapper(func(LoginFn) error)
 SetOGameCredentials(username, password, otpSecret, bearerToken string)
 SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error
 ValidateAccount(code string) error
@@ -199,8 +199,8 @@ HeadersForPage(url string) (http.Header, error)
 Highscore(category, typ, page int64) (v6.Highscore, error)
 IsUnderAttack() (bool, error)
 Login() error
-LoginWithBearerToken(token string) (bool, error)
-LoginWithExistingCookies() (bool, error)
+LoginWithBearerToken(token string) (bool, bool, error)
+LoginWithExistingCookies() (bool, bool, error)
 Logout()
 OfferBuyMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error
 OfferSellMarketplace(itemID any, quantity, priceType, price, priceRange int64, celestialID ogame.CelestialID) error

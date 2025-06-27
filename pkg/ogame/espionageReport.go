@@ -1,6 +1,7 @@
 package ogame
 
 import (
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"time"
 )
 
@@ -8,6 +9,7 @@ import (
 type EspionageReport struct {
 	Resources
 	ID                           int64
+	PlayerID                     int64
 	Username                     string
 	CharacterClass               CharacterClass
 	AllianceClass                AllianceClass
@@ -90,28 +92,21 @@ type EspionageReport struct {
 	Date                         time.Time
 }
 
-func i64(v *int64) int64 {
-	if v == nil {
-		return 0
-	}
-	return *v
-}
-
 // ResourcesBuildings returns a ResourcesBuildings struct from the espionage report
 func (r EspionageReport) ResourcesBuildings() *ResourcesBuildings {
 	if !r.HasBuildingsInformation {
 		return nil
 	}
 	return &ResourcesBuildings{
-		MetalMine:            i64(r.MetalMine),
-		CrystalMine:          i64(r.CrystalMine),
-		DeuteriumSynthesizer: i64(r.DeuteriumSynthesizer),
-		SolarPlant:           i64(r.SolarPlant),
-		FusionReactor:        i64(r.FusionReactor),
-		SolarSatellite:       i64(r.SolarSatellite),
-		MetalStorage:         i64(r.MetalStorage),
-		CrystalStorage:       i64(r.CrystalStorage),
-		DeuteriumTank:        i64(r.DeuteriumTank),
+		MetalMine:            utils.Deref(r.MetalMine),
+		CrystalMine:          utils.Deref(r.CrystalMine),
+		DeuteriumSynthesizer: utils.Deref(r.DeuteriumSynthesizer),
+		SolarPlant:           utils.Deref(r.SolarPlant),
+		FusionReactor:        utils.Deref(r.FusionReactor),
+		SolarSatellite:       utils.Deref(r.SolarSatellite),
+		MetalStorage:         utils.Deref(r.MetalStorage),
+		CrystalStorage:       utils.Deref(r.CrystalStorage),
+		DeuteriumTank:        utils.Deref(r.DeuteriumTank),
 	}
 }
 
@@ -121,17 +116,17 @@ func (r EspionageReport) Facilities() *Facilities {
 		return nil
 	}
 	return &Facilities{
-		RoboticsFactory: i64(r.RoboticsFactory),
-		Shipyard:        i64(r.Shipyard),
-		ResearchLab:     i64(r.ResearchLab),
-		AllianceDepot:   i64(r.AllianceDepot),
-		MissileSilo:     i64(r.MissileSilo),
-		NaniteFactory:   i64(r.NaniteFactory),
-		Terraformer:     i64(r.Terraformer),
-		SpaceDock:       i64(r.SpaceDock),
-		LunarBase:       i64(r.LunarBase),
-		SensorPhalanx:   i64(r.SensorPhalanx),
-		JumpGate:        i64(r.JumpGate),
+		RoboticsFactory: utils.Deref(r.RoboticsFactory),
+		Shipyard:        utils.Deref(r.Shipyard),
+		ResearchLab:     utils.Deref(r.ResearchLab),
+		AllianceDepot:   utils.Deref(r.AllianceDepot),
+		MissileSilo:     utils.Deref(r.MissileSilo),
+		NaniteFactory:   utils.Deref(r.NaniteFactory),
+		Terraformer:     utils.Deref(r.Terraformer),
+		SpaceDock:       utils.Deref(r.SpaceDock),
+		LunarBase:       utils.Deref(r.LunarBase),
+		SensorPhalanx:   utils.Deref(r.SensorPhalanx),
+		JumpGate:        utils.Deref(r.JumpGate),
 	}
 }
 
@@ -141,22 +136,22 @@ func (r EspionageReport) Researches() *Researches {
 		return nil
 	}
 	return &Researches{
-		EnergyTechnology:             i64(r.EnergyTechnology),
-		LaserTechnology:              i64(r.LaserTechnology),
-		IonTechnology:                i64(r.IonTechnology),
-		HyperspaceTechnology:         i64(r.HyperspaceTechnology),
-		PlasmaTechnology:             i64(r.PlasmaTechnology),
-		CombustionDrive:              i64(r.CombustionDrive),
-		ImpulseDrive:                 i64(r.ImpulseDrive),
-		HyperspaceDrive:              i64(r.HyperspaceDrive),
-		EspionageTechnology:          i64(r.EspionageTechnology),
-		ComputerTechnology:           i64(r.ComputerTechnology),
-		Astrophysics:                 i64(r.Astrophysics),
-		IntergalacticResearchNetwork: i64(r.IntergalacticResearchNetwork),
-		GravitonTechnology:           i64(r.GravitonTechnology),
-		WeaponsTechnology:            i64(r.WeaponsTechnology),
-		ShieldingTechnology:          i64(r.ShieldingTechnology),
-		ArmourTechnology:             i64(r.ArmourTechnology),
+		EnergyTechnology:             utils.Deref(r.EnergyTechnology),
+		LaserTechnology:              utils.Deref(r.LaserTechnology),
+		IonTechnology:                utils.Deref(r.IonTechnology),
+		HyperspaceTechnology:         utils.Deref(r.HyperspaceTechnology),
+		PlasmaTechnology:             utils.Deref(r.PlasmaTechnology),
+		CombustionDrive:              utils.Deref(r.CombustionDrive),
+		ImpulseDrive:                 utils.Deref(r.ImpulseDrive),
+		HyperspaceDrive:              utils.Deref(r.HyperspaceDrive),
+		EspionageTechnology:          utils.Deref(r.EspionageTechnology),
+		ComputerTechnology:           utils.Deref(r.ComputerTechnology),
+		Astrophysics:                 utils.Deref(r.Astrophysics),
+		IntergalacticResearchNetwork: utils.Deref(r.IntergalacticResearchNetwork),
+		GravitonTechnology:           utils.Deref(r.GravitonTechnology),
+		WeaponsTechnology:            utils.Deref(r.WeaponsTechnology),
+		ShieldingTechnology:          utils.Deref(r.ShieldingTechnology),
+		ArmourTechnology:             utils.Deref(r.ArmourTechnology),
 	}
 }
 
@@ -166,23 +161,23 @@ func (r EspionageReport) ShipsInfos() *ShipsInfos {
 		return nil
 	}
 	return &ShipsInfos{
-		LightFighter:   i64(r.LightFighter),
-		HeavyFighter:   i64(r.HeavyFighter),
-		Cruiser:        i64(r.Cruiser),
-		Battleship:     i64(r.Battleship),
-		Battlecruiser:  i64(r.Battlecruiser),
-		Bomber:         i64(r.Bomber),
-		Destroyer:      i64(r.Destroyer),
-		Deathstar:      i64(r.Deathstar),
-		SmallCargo:     i64(r.SmallCargo),
-		LargeCargo:     i64(r.LargeCargo),
-		ColonyShip:     i64(r.ColonyShip),
-		Recycler:       i64(r.Recycler),
-		EspionageProbe: i64(r.EspionageProbe),
-		SolarSatellite: i64(r.SolarSatellite),
-		Crawler:        i64(r.Crawler),
-		Reaper:         i64(r.Reaper),
-		Pathfinder:     i64(r.Pathfinder),
+		LightFighter:   utils.Deref(r.LightFighter),
+		HeavyFighter:   utils.Deref(r.HeavyFighter),
+		Cruiser:        utils.Deref(r.Cruiser),
+		Battleship:     utils.Deref(r.Battleship),
+		Battlecruiser:  utils.Deref(r.Battlecruiser),
+		Bomber:         utils.Deref(r.Bomber),
+		Destroyer:      utils.Deref(r.Destroyer),
+		Deathstar:      utils.Deref(r.Deathstar),
+		SmallCargo:     utils.Deref(r.SmallCargo),
+		LargeCargo:     utils.Deref(r.LargeCargo),
+		ColonyShip:     utils.Deref(r.ColonyShip),
+		Recycler:       utils.Deref(r.Recycler),
+		EspionageProbe: utils.Deref(r.EspionageProbe),
+		SolarSatellite: utils.Deref(r.SolarSatellite),
+		Crawler:        utils.Deref(r.Crawler),
+		Reaper:         utils.Deref(r.Reaper),
+		Pathfinder:     utils.Deref(r.Pathfinder),
 	}
 }
 
@@ -192,16 +187,16 @@ func (r EspionageReport) DefensesInfos() *DefensesInfos {
 		return nil
 	}
 	return &DefensesInfos{
-		RocketLauncher:         i64(r.RocketLauncher),
-		LightLaser:             i64(r.LightLaser),
-		HeavyLaser:             i64(r.HeavyLaser),
-		GaussCannon:            i64(r.GaussCannon),
-		IonCannon:              i64(r.IonCannon),
-		PlasmaTurret:           i64(r.PlasmaTurret),
-		SmallShieldDome:        i64(r.SmallShieldDome),
-		LargeShieldDome:        i64(r.LargeShieldDome),
-		AntiBallisticMissiles:  i64(r.AntiBallisticMissiles),
-		InterplanetaryMissiles: i64(r.InterplanetaryMissiles),
+		RocketLauncher:         utils.Deref(r.RocketLauncher),
+		LightLaser:             utils.Deref(r.LightLaser),
+		HeavyLaser:             utils.Deref(r.HeavyLaser),
+		GaussCannon:            utils.Deref(r.GaussCannon),
+		IonCannon:              utils.Deref(r.IonCannon),
+		PlasmaTurret:           utils.Deref(r.PlasmaTurret),
+		SmallShieldDome:        utils.Deref(r.SmallShieldDome),
+		LargeShieldDome:        utils.Deref(r.LargeShieldDome),
+		AntiBallisticMissiles:  utils.Deref(r.AntiBallisticMissiles),
+		InterplanetaryMissiles: utils.Deref(r.InterplanetaryMissiles),
 	}
 }
 

@@ -11,6 +11,7 @@ type BaseTechnology struct {
 }
 
 // TechnologyConstructionTime returns the duration it takes to build given technology
+// https://board.origin.ogame.gameforge.com/index.php/Thread/3602-Research-Time-Formula-enhanced/
 func (b BaseTechnology) TechnologyConstructionTime(level, universeSpeed int64, acc TechAccelerators, lfBonuses LfBonuses, class CharacterClass, hasTechnocrat bool) time.Duration {
 	price := b.GetPrice(level, lfBonuses)
 	metalCost := float64(price.Metal)

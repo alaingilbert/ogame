@@ -17,33 +17,30 @@ import (
 	"github.com/alaingilbert/ogame/pkg/utils"
 )
 
-func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64,
-	researchID ogame.ID, researchCountdown int64,
-	lfBuildingID ogame.ID, lfBuildingCountdown int64,
-	lfResearchID ogame.ID, lfResearchCountdown int64) {
+func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Constructions) {
 	buildingCountdownMatch := regexp.MustCompile(`var restTimebuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(buildingCountdownMatch) > 0 {
-		buildingCountdown = int64(utils.ToInt(buildingCountdownMatch[1])) - clock.Now().Unix()
+		out.Building.Countdown = time.Duration(int64(utils.ToInt(buildingCountdownMatch[1]))-clock.Now().Unix()) * time.Second
 		buildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
-		buildingID = ogame.ID(buildingIDInt)
+		out.Building.ID = ogame.ID(buildingIDInt)
 	}
 	researchCountdownMatch := regexp.MustCompile(`var restTimeresearch = (\d+) -`).FindSubmatch(pageHTML)
 	if len(researchCountdownMatch) > 0 {
-		researchCountdown = int64(utils.ToInt(researchCountdownMatch[1])) - clock.Now().Unix()
+		out.Research.Countdown = time.Duration(int64(utils.ToInt(researchCountdownMatch[1]))-clock.Now().Unix()) * time.Second
 		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
-		researchID = ogame.ID(researchIDInt)
+		out.Research.ID = ogame.ID(researchIDInt)
 	}
 	lfBuildingCountdownMatch := regexp.MustCompile(`var restTimelfbuilding = (\d+) -`).FindSubmatch(pageHTML)
 	if len(lfBuildingCountdownMatch) > 0 {
-		lfBuildingCountdown = int64(utils.ToInt(lfBuildingCountdownMatch[1])) - clock.Now().Unix()
+		out.LfBuilding.Countdown = time.Duration(int64(utils.ToInt(lfBuildingCountdownMatch[1]))-clock.Now().Unix()) * time.Second
 		lfBuildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
-		lfBuildingID = ogame.ID(lfBuildingIDInt)
+		out.LfBuilding.ID = ogame.ID(lfBuildingIDInt)
 	}
 	lfResearchCountdownMatch := regexp.MustCompile(`var restTimelfresearch = (\d+) -`).FindSubmatch(pageHTML)
 	if len(lfResearchCountdownMatch) > 0 {
-		lfResearchCountdown = int64(utils.ToInt(lfResearchCountdownMatch[1])) - clock.Now().Unix()
+		out.LfResearch.Countdown = time.Duration(int64(utils.ToInt(lfResearchCountdownMatch[1]))-clock.Now().Unix()) * time.Second
 		lfResearchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfresearch\((\d+),`).FindSubmatch(pageHTML)[1])
-		lfResearchID = ogame.ID(lfResearchIDInt)
+		out.LfResearch.ID = ogame.ID(lfResearchIDInt)
 	}
 	return
 }
@@ -93,7 +90,10 @@ func extractEmpire(pageHTML []byte) ([]ogame.EmpireCelestial, error) {
 		}
 		mm := v6.DiameterRgx.FindStringSubmatch(utils.DoCastStr(planet["diameter"]))
 		energyStr := utils.DoCastStr(planet["energy"])
-		energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
+		energyDoc, err := goquery.NewDocumentFromReader(strings.NewReader(energyStr))
+		if err != nil {
+			return nil, err
+		}
 		energy := utils.ParseInt(energyDoc.Find("div span").Text())
 		celestialType := ogame.CelestialType(utils.DoCastF64(planet["type"]))
 		out = append(out, ogame.EmpireCelestial{
@@ -330,28 +330,27 @@ func extractOverviewProductionFromDoc(doc *goquery.Document, lifeformEnabled boo
 	if lifeformEnabled {
 		active = doc.Find("table.construction").Eq(4)
 	}
-	href, _ := active.Find("td a").Attr("href")
+	href := active.Find("td a").AttrOr("href", "")
 	m := regexp.MustCompile(`openTech=(\d+)`).FindStringSubmatch(href)
 	if len(m) == 0 {
 		return []ogame.Quantifiable{}, nil
 	}
-	idInt := utils.DoParseI64(m[1])
-	activeID := ogame.ID(idInt)
+	activeID := ogame.ID(utils.DoParseI64(m[1]))
 	activeNbr := utils.DoParseI64(active.Find("div.shipSumCount").Text())
 	res = append(res, ogame.Quantifiable{ID: activeID, Nbr: activeNbr})
-	active.Parent().Find("table.queue td").Each(func(i int, s *goquery.Selection) {
+	for _, s := range active.Parent().Find("table.queue td").EachIter() {
 		img := s.Find("img")
 		alt := img.AttrOr("alt", "")
 		activeID := ogame.ShipName2ID(alt)
 		if !activeID.IsSet() {
 			activeID = ogame.DefenceName2ID(alt)
 			if !activeID.IsSet() {
-				return
+				continue
 			}
 		}
 		activeNbr := utils.ParseInt(s.Text())
 		res = append(res, ogame.Quantifiable{ID: activeID, Nbr: activeNbr})
-	})
+	}
 	return res, nil
 }
 
@@ -361,13 +360,13 @@ func extractResourcesFromDoc(doc *goquery.Document) ogame.Resources {
 
 func extractResourcesDetailsFromFullPageFromDoc(doc *goquery.Document) ogame.ResourcesDetails {
 	out := ogame.ResourcesDetails{}
-	metalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#metal_box").AttrOr("title", "")))
-	crystalDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#crystal_box").AttrOr("title", "")))
-	deuteriumDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", "")))
-	energyDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", "")))
-	darkmatterDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", "")))
-	populationDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#population_box").AttrOr("title", "")))
-	foodDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#food_box").AttrOr("title", "")))
+	metalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#metal_box").AttrOr("title", ""))))
+	crystalDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#crystal_box").AttrOr("title", ""))))
+	deuteriumDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#deuterium_box").AttrOr("title", ""))))
+	energyDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#energy_box").AttrOr("title", ""))))
+	darkmatterDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#darkmatter_box").AttrOr("title", ""))))
+	populationDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#population_box").AttrOr("title", ""))))
+	foodDoc := utils.First(goquery.NewDocumentFromReader(strings.NewReader(doc.Find("div#food_box").AttrOr("title", ""))))
 	out.Metal.Available = utils.ParseInt(metalDoc.Find("table tr").Eq(0).Find("td").Eq(0).Text())
 	out.Metal.StorageCapacity = utils.ParseInt(metalDoc.Find("table tr").Eq(1).Find("td").Eq(0).Text())
 	out.Metal.CurrentProduction = utils.ParseInt(metalDoc.Find("table tr").Eq(2).Find("td").Eq(0).Text())
@@ -468,8 +467,11 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	}
 
 	// APIKey
-	apikey, _ := doc.Find("span.icon_apikey").Attr("title")
-	apiDoc, _ := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	apikey := doc.Find("span.icon_apikey").AttrOr("title", "")
+	apiDoc, err := goquery.NewDocumentFromReader(strings.NewReader(apikey))
+	if err != nil {
+		return report, err
+	}
 	report.APIKey = apiDoc.Find("input").First().AttrOr("value", "")
 
 	// Inactivity timer
@@ -488,7 +490,7 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 	hasError := false
 	resourcesFound := false
 	buildingsFound := false
-	doc.Find("ul.detail_list").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("ul.detail_list").EachIter() {
 		dataType := s.AttrOr("data-type", "")
 		if dataType == "resources" && !resourcesFound {
 			resourcesFound = true
@@ -499,11 +501,11 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 		} else if dataType == "buildings" && !buildingsFound {
 			buildingsFound = true
 			report.HasBuildingsInformation = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+			for _, s2 := range s.Find("li.detail_list_el").EachIter() {
 				img := s2.Find("img")
 				if img.Size() == 0 {
 					hasError = true
-					return false
+					break
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`building(\d+)`)
@@ -549,15 +551,14 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				case ogame.JumpGate.ID:
 					report.JumpGate = level
 				}
-				return true
-			})
+			}
 		} else if dataType == "research" {
 			report.HasResearchesInformation = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+			for _, s2 := range s.Find("li.detail_list_el").EachIter() {
 				img := s2.Find("img")
 				if img.Size() == 0 {
 					hasError = true
-					return false
+					break
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`research(\d+)`)
@@ -597,15 +598,14 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				case ogame.GravitonTechnology.ID:
 					report.GravitonTechnology = level
 				}
-				return true
-			})
+			}
 		} else if dataType == "ships" {
 			report.HasFleetInformation = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+			for _, s2 := range s.Find("li.detail_list_el").EachIter() {
 				img := s2.Find("img")
 				if img.Size() == 0 {
 					hasError = true
-					return false
+					break
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`tech(\d+)`)
@@ -647,15 +647,14 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				case ogame.Pathfinder.ID:
 					report.Pathfinder = level
 				}
-				return true
-			})
+			}
 		} else if dataType == "defense" {
 			report.HasDefensesInformation = s.Find("li.detail_list_fail").Size() == 0
-			s.Find("li.detail_list_el").EachWithBreak(func(i int, s2 *goquery.Selection) bool {
+			for _, s2 := range s.Find("li.detail_list_el").EachIter() {
 				img := s2.Find("img")
 				if img.Size() == 0 {
 					hasError = true
-					return false
+					break
 				}
 				imgClass := img.AttrOr("class", "")
 				r := regexp.MustCompile(`defense(\d+)`)
@@ -683,10 +682,9 @@ func extractEspionageReportFromDoc(doc *goquery.Document, location *time.Locatio
 				case ogame.InterplanetaryMissiles.ID:
 					report.InterplanetaryMissiles = level
 				}
-				return true
-			})
+			}
 		}
-	})
+	}
 	if hasError {
 		return report, ogame.ErrDeactivateHidePictures
 	}

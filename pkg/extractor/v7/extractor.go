@@ -26,9 +26,12 @@ func (e Extractor) ExtractPremiumToken(pageHTML []byte, days int64) (string, err
 }
 
 // ExtractResourcesDetailsFromFullPage ...
-func (e Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) ogame.ResourcesDetails {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc)
+func (e Extractor) ExtractResourcesDetailsFromFullPage(pageHTML []byte) (ogame.ResourcesDetails, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ResourcesDetails{}, err
+	}
+	return e.ExtractResourcesDetailsFromFullPageFromDoc(doc), nil
 }
 
 // ExtractResourcesDetailsFromFullPageFromDoc ...
@@ -38,55 +41,82 @@ func (e Extractor) ExtractResourcesDetailsFromFullPageFromDoc(doc *goquery.Docum
 
 // ExtractExpeditionMessages ...
 func (e Extractor) ExtractExpeditionMessages(pageHTML []byte) ([]ogame.ExpeditionMessage, int64, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, 0, err
+	}
 	return e.ExtractExpeditionMessagesFromDoc(doc)
 }
 
 // ExtractMarketplaceMessages ...
 func (e Extractor) ExtractMarketplaceMessages(pageHTML []byte) ([]ogame.MarketplaceMessage, int64, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, 0, err
+	}
 	return e.ExtractMarketplaceMessagesFromDoc(doc, e.GetLocation())
 }
 
 // ExtractDefense ...
 func (e Extractor) ExtractDefense(pageHTML []byte) (ogame.DefensesInfos, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.DefensesInfos{}, err
+	}
 	return e.ExtractDefenseFromDoc(doc)
 }
 
 // ExtractFacilities ...
 func (e Extractor) ExtractFacilities(pageHTML []byte) (ogame.Facilities, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.Facilities{}, err
+	}
 	return e.ExtractFacilitiesFromDoc(doc)
 }
 
 // ExtractResearch ...
-func (e Extractor) ExtractResearch(pageHTML []byte) ogame.Researches {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractResearchFromDoc(doc)
+func (e Extractor) ExtractResearch(pageHTML []byte) (ogame.Researches, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.Researches{}, err
+	}
+	return e.ExtractResearchFromDoc(doc), nil
 }
 
 // ExtractShips ...
 func (e Extractor) ExtractShips(pageHTML []byte) (ogame.ShipsInfos, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ShipsInfos{}, err
+	}
 	return e.ExtractShipsFromDoc(doc)
 }
 
 // ExtractResourceSettings ...
 func (e Extractor) ExtractResourceSettings(pageHTML []byte) (ogame.ResourceSettings, string, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ResourceSettings{}, "", err
+	}
 	return e.ExtractResourceSettingsFromDoc(doc)
 }
 
 // ExtractCharacterClass ...
 func (e Extractor) ExtractCharacterClass(pageHTML []byte) (ogame.CharacterClass, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.NoClass, err
+	}
 	return e.ExtractCharacterClassFromDoc(doc)
 }
 
 // ExtractResourcesBuildings ...
 func (e Extractor) ExtractResourcesBuildings(pageHTML []byte) (ogame.ResourcesBuildings, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ResourcesBuildings{}, err
+	}
 	return e.ExtractResourcesBuildingsFromDoc(doc)
 }
 
@@ -96,42 +126,57 @@ func (e Extractor) ExtractResourcesDetails(pageHTML []byte) (out ogame.Resources
 }
 
 // ExtractConstructions ...
-func (e Extractor) ExtractConstructions(pageHTML []byte) (buildingID ogame.ID, buildingCountdown int64, researchID ogame.ID, researchCountdown int64, lfBuildingID ogame.ID, lfBuildingCountdown int64, lfResearchID ogame.ID, lfResearchCountdown int64) {
-	return ExtractConstructions(pageHTML, clockwork.NewRealClock())
+func (e Extractor) ExtractConstructions(pageHTML []byte) (ogame.Constructions, error) {
+	return ExtractConstructions(pageHTML, clockwork.NewRealClock()), nil
 }
 
 // ExtractFleet1Ships ...
-func (e Extractor) ExtractFleet1Ships(pageHTML []byte) ogame.ShipsInfos {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+func (e Extractor) ExtractFleet1Ships(pageHTML []byte) (ogame.ShipsInfos, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ShipsInfos{}, err
+	}
 	return e.ExtractFleet1ShipsFromDoc(doc)
 }
 
 // ExtractCombatReportMessagesSummary ...
 func (e Extractor) ExtractCombatReportMessagesSummary(pageHTML []byte) ([]ogame.CombatReportSummary, int64, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, 0, err
+	}
 	return e.ExtractCombatReportMessagesFromDoc(doc)
 }
 
 // ExtractIPM ...
-func (e Extractor) ExtractIPM(pageHTML []byte) (duration, max int64, token string) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+func (e Extractor) ExtractIPM(pageHTML []byte) (duration, max int64, token string, err error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return 0, 0, "", err
+	}
 	return e.ExtractIPMFromDoc(doc)
 }
 
 // ExtractIPMFromDoc ...
-func (e Extractor) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string) {
+func (e Extractor) ExtractIPMFromDoc(doc *goquery.Document) (duration, max int64, token string, err error) {
 	return extractIPMFromDoc(doc)
 }
 
 // ExtractEspionageReport ...
 func (e Extractor) ExtractEspionageReport(pageHTML []byte) (ogame.EspionageReport, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.EspionageReport{}, err
+	}
 	return e.ExtractEspionageReportFromDoc(doc)
 }
 
 // ExtractOverviewProduction extracts ships/defenses (partial) production from the overview page
 func (e Extractor) ExtractOverviewProduction(pageHTML []byte) ([]ogame.Quantifiable, int64, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return nil, 0, err
+	}
 	shipSumCountdown := e.ExtractOverviewShipSumCountdownFromBytes(pageHTML)
 	production, err := e.ExtractOverviewProductionFromDoc(doc)
 	return production, shipSumCountdown, err
@@ -148,7 +193,7 @@ func (e Extractor) ExtractOverviewProductionFromDoc(doc *goquery.Document) ([]og
 }
 
 // ExtractFleet1ShipsFromDoc ...
-func (e Extractor) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (s ogame.ShipsInfos) {
+func (e Extractor) ExtractFleet1ShipsFromDoc(doc *goquery.Document) (ogame.ShipsInfos, error) {
 	return extractFleet1ShipsFromDoc(doc)
 }
 

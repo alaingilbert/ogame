@@ -5,6 +5,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alaingilbert/ogame/pkg/extractor/v71"
 	"github.com/alaingilbert/ogame/pkg/ogame"
+	"time"
 )
 
 // Extractor ...
@@ -18,9 +19,12 @@ func NewExtractor() *Extractor {
 }
 
 // ExtractIsInVacation ...
-func (e *Extractor) ExtractIsInVacation(pageHTML []byte) bool {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	return e.ExtractIsInVacationFromDoc(doc)
+func (e *Extractor) ExtractIsInVacation(pageHTML []byte) (bool, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, err
+	}
+	return e.ExtractIsInVacationFromDoc(doc), nil
 }
 
 // ExtractIsInVacationFromDoc ...
@@ -28,9 +32,27 @@ func (e *Extractor) ExtractIsInVacationFromDoc(doc *goquery.Document) bool {
 	return extractIsInVacationFromDoc(doc)
 }
 
+// ExtractAttackBlock ...
+func (e *Extractor) ExtractAttackBlock(pageHTML []byte) (bool, time.Time, error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return false, time.Time{}, err
+	}
+	attackBlockActivated, blockedUntil := e.ExtractAttackBlockFromDoc(doc)
+	return attackBlockActivated, blockedUntil, nil
+}
+
+// ExtractAttackBlockFromDoc ...
+func (e *Extractor) ExtractAttackBlockFromDoc(doc *goquery.Document) (bool, time.Time) {
+	return extractAttackBlockFromDoc(doc)
+}
+
 // ExtractEspionageReport ...
 func (e *Extractor) ExtractEspionageReport(pageHTML []byte) (ogame.EspionageReport, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.EspionageReport{}, err
+	}
 	return e.ExtractEspionageReportFromDoc(doc)
 }
 

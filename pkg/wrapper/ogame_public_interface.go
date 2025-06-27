@@ -3,6 +3,7 @@ package wrapper
 import (
 	"crypto/tls"
 	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/extractor"
 	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/httpclient"
 	"github.com/alaingilbert/ogame/pkg/ogame"
@@ -31,32 +32,27 @@ func (b *OGame) IsEnabled() bool {
 
 // IsLoggedIn returns true if the bot is currently logged-in, otherwise false
 func (b *OGame) IsLoggedIn() bool {
-	return b.isLoggedInAtom.Load()
+	return b.isLoggedIn()
 }
 
 // IsConnected returns true if the bot is currently connected (communication between the bot and OGame is possible), otherwise false
 func (b *OGame) IsConnected() bool {
-	return b.isConnectedAtom.Load()
+	return b.isConnected()
 }
 
 // GetDevice get the device used by the bot
 func (b *OGame) GetDevice() *device.Device {
-	return b.device
+	return b.getDevice()
 }
 
 // GetClient get the http client used by the bot
 func (b *OGame) GetClient() *httpclient.Client {
-	return b.device.GetClient()
+	return b.getClient()
 }
 
 // SetClient set the http client used by the bot
 func (b *OGame) SetClient(client *httpclient.Client) {
-	b.device.SetClient(client)
-}
-
-// GetLoginClient get the http client used by the bot for login operations
-func (b *OGame) GetLoginClient() *httpclient.Client {
-	return b.device.GetClient()
+	b.setClient(client)
 }
 
 // GetPublicIP get the public IP used by the bot
@@ -71,32 +67,32 @@ func (b *OGame) ValidateAccount(code string) error {
 
 // OnStateChange register a callback that is notified when the bot state changes
 func (b *OGame) OnStateChange(clb func(locked bool, actor string)) {
-	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
+	b.onStateChange(clb)
 }
 
 // GetState returns the current bot state
 func (b *OGame) GetState() (bool, string) {
-	return b.lockedAtom.Load(), b.state
+	return b.getState()
 }
 
 // IsLocked returns either or not the bot is currently locked
 func (b *OGame) IsLocked() bool {
-	return b.lockedAtom.Load()
+	return b.isLocked()
 }
 
 // GetSession get ogame session
 func (b *OGame) GetSession() string {
-	return b.ogameSession
+	return b.getSession()
 }
 
 // AddAccount add a new account (server) to your list of accounts
-func (b *OGame) AddAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
+func (b *OGame) AddAccount(number int, lang string) (*gameforge.AddAccountResponse, error) {
 	return b.addAccount(number, lang)
 }
 
 // WithPriority ...
 func (b *OGame) WithPriority(priority taskRunner.Priority) Prioritizable {
-	return b.taskRunnerInst.WithPriority(priority)
+	return b.withPriority(priority)
 }
 
 // Begin start a transaction. Once this function is called, "Done" must be called to release the lock.
@@ -111,11 +107,13 @@ func (b *OGame) BeginNamed(name string) Prioritizable {
 
 // SetInitiator ...
 func (b *OGame) SetInitiator(initiator string) Prioritizable {
-	return nil
+	return b.setInitiator(initiator)
 }
 
 // Done ...
-func (b *OGame) Done() {}
+func (b *OGame) Done() {
+	b.done()
+}
 
 // Tx locks the bot during the transaction and ensure the lock is released afterward
 func (b *OGame) Tx(clb func(tx Prioritizable) error) error {
@@ -129,71 +127,61 @@ func (b *OGame) TxNamed(name string, clb func(tx Prioritizable) error) error {
 
 // GetServer get ogame server information that the bot is connected to
 func (b *OGame) GetServer() gameforge.Server {
-	return b.server
+	return b.getServer()
 }
 
-// GetServerData get ogame server data information that the bot is connected to
-func (b *OGame) GetServerData() gameforge.ServerData {
-	return b.serverData
+// PlanetID returns the last known currently selected planet/moon ID
+func (b *OGame) PlanetID() ogame.CelestialID {
+	return b.planetID()
 }
 
 // ServerURL get the ogame server specific url
 func (b *OGame) ServerURL() string {
-	return b.serverURL
+	return b.serverURL()
 }
 
 // GetLanguage get ogame server language
 func (b *OGame) GetLanguage() string {
-	return b.language
+	return b.getLanguage()
 }
 
 // LoginWithBearerToken to ogame server reusing existing token
-func (b *OGame) LoginWithBearerToken(token string) (bool, error) {
+func (b *OGame) LoginWithBearerToken(token string) (bool, bool, error) {
 	return b.WithPriority(taskRunner.Normal).LoginWithBearerToken(token)
 }
 
 // LoginWithExistingCookies to ogame server reusing existing cookies
-func (b *OGame) LoginWithExistingCookies() (bool, error) {
+func (b *OGame) LoginWithExistingCookies() (bool, bool, error) {
 	return b.WithPriority(taskRunner.Normal).LoginWithExistingCookies()
 }
 
 // Login to ogame server
-// Can fails with BadCredentialsError
+// Can fail with BadCredentialsError
 func (b *OGame) Login() error {
 	return b.WithPriority(taskRunner.Normal).Login()
 }
 
 // Logout the bot from ogame server
-func (b *OGame) Logout() { b.WithPriority(taskRunner.Normal).Logout() }
+func (b *OGame) Logout() error { return b.WithPriority(taskRunner.Normal).Logout() }
 
 // BytesDownloaded returns the amount of bytes downloaded
 func (b *OGame) BytesDownloaded() int64 {
-	return b.device.GetClient().BytesDownloaded()
+	return b.bytesDownloaded()
 }
 
 // BytesUploaded returns the amount of bytes uploaded
 func (b *OGame) BytesUploaded() int64 {
-	return b.device.GetClient().BytesUploaded()
+	return b.bytesUploaded()
 }
 
 // GetUniverseName get the name of the universe the bot is playing into
 func (b *OGame) GetUniverseName() string {
-	return b.Universe
+	return b.getUniverseName()
 }
 
 // GetUsername get the username that was used to login on ogame server
 func (b *OGame) GetUsername() string {
-	return b.Username
-}
-
-// GetResearchSpeed gets the research speed
-func (b *OGame) GetResearchSpeed() int64 {
-	return b.serverData.ResearchDurationDivisor
-}
-
-// GetNbSystems gets the number of systems
-func (b *OGame) GetNbSystems() int64 {
-	return b.serverData.Systems
+	return b.getUsername()
 }
 
 // GetUniverseSpeed shortcut to get ogame universe speed
@@ -208,7 +196,7 @@ func (b *OGame) GetUniverseSpeedFleet() int64 {
 
 // IsPioneers either or not the bot use lobby-pioneers
 func (b *OGame) IsPioneers() bool {
-	return b.lobby == gameforge.LobbyPioneers
+	return b.isPioneers()
 }
 
 // IsDonutGalaxy shortcut to get ogame galaxy donut config
@@ -224,11 +212,6 @@ func (b *OGame) IsDonutSystem() bool {
 // ConstructionTime get duration to build something
 func (b *OGame) ConstructionTime(id ogame.ID, nbr int64, facilities ogame.Facilities) time.Duration {
 	return b.constructionTime(id, nbr, facilities)
-}
-
-// FleetDeutSaveFactor returns the fleet deut save factor
-func (b *OGame) FleetDeutSaveFactor() float64 {
-	return b.serverData.GlobalDeuteriumSaveFactor
 }
 
 // GetPageContent gets the html for a specific ogame page
@@ -249,12 +232,12 @@ func (b *OGame) IsUnderAttack(opts ...Option) (bool, error) {
 
 // GetCachedPlayer returns cached player infos
 func (b *OGame) GetCachedPlayer() ogame.UserInfos {
-	return b.Player
+	return b.cache.player
 }
 
 // GetCachedPreferences returns cached preferences
 func (b *OGame) GetCachedPreferences() ogame.Preferences {
-	return b.CachedPreferences
+	return b.getCachedPreferences()
 }
 
 // SetVacationMode puts account in vacation mode
@@ -274,7 +257,7 @@ func (b *OGame) SetPreferencesLang(lang string) error {
 
 // IsVacationModeEnabled returns either or not the bot is in vacation mode
 func (b *OGame) IsVacationModeEnabled() bool {
-	return b.isVacationModeEnabled
+	return b.isVacationModeEnabled()
 }
 
 // GetPlanets returns the user planets
@@ -350,11 +333,6 @@ func (b *OGame) GetCelestial(v IntoCelestial) (Celestial, error) {
 	return b.WithPriority(taskRunner.Normal).GetCelestial(v)
 }
 
-// ServerVersion returns OGame version
-func (b *OGame) ServerVersion() string {
-	return b.serverData.Version
-}
-
 // ServerTime returns server time
 // Timezone is OGT (OGame Time zone)
 func (b *OGame) ServerTime() (time.Time, error) {
@@ -363,7 +341,12 @@ func (b *OGame) ServerTime() (time.Time, error) {
 
 // Location returns bot Time zone.
 func (b *OGame) Location() *time.Location {
-	return b.location
+	return b.location()
+}
+
+// GetCachedToken ...
+func (b *OGame) GetCachedToken() string {
+	return b.getCachedToken()
 }
 
 // GetUserInfos gets the user information
@@ -407,12 +390,12 @@ func (b *OGame) SendMessageAlliance(associationID int64, message string) error {
 }
 
 // GetFleets get the player's own fleets activities
-func (b *OGame) GetFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots) {
+func (b *OGame) GetFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	return b.WithPriority(taskRunner.Normal).GetFleets(opts...)
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
-func (b *OGame) GetFleetsFromEventList() []ogame.Fleet {
+func (b *OGame) GetFleetsFromEventList() ([]ogame.Fleet, error) {
 	return b.WithPriority(taskRunner.Normal).GetFleetsFromEventList()
 }
 
@@ -539,7 +522,7 @@ func (b *OGame) BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
+func (b *OGame) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.Constructions, error) {
 	return b.WithPriority(taskRunner.Normal).ConstructionsBeingBuilt(celestialID)
 }
 
@@ -574,7 +557,7 @@ func (b *OGame) GetResourcesDetails(celestialID ogame.CelestialID) (ogame.Resour
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *OGame) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
+func (b *OGame) GetTechs(celestialID ogame.CelestialID) (ogame.Techs, error) {
 	return b.WithPriority(taskRunner.Normal).GetTechs(celestialID)
 }
 
@@ -590,6 +573,16 @@ func (b *OGame) EnsureFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfo
 	return b.WithPriority(taskRunner.Normal).EnsureFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID)
 }
 
+// FastMiniFleetSpy sends a minifleet spy mission
+func (b *OGame) FastMiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (ogame.MinifleetResponse, error) {
+	return b.WithPriority(taskRunner.Normal).FastMiniFleetSpy(coordinate, nbShips, options...)
+}
+
+// MiniFleetSpy sends a minifleet spy mission
+func (b *OGame) MiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (ogame.Fleet, error) {
+	return b.WithPriority(taskRunner.Normal).MiniFleetSpy(coordinate, nbShips, options...)
+}
+
 // DestroyRockets destroys anti-ballistic & inter-planetary missiles
 func (b *OGame) DestroyRockets(planetID ogame.PlanetID, abm, ipm int64) error {
 	return b.WithPriority(taskRunner.Normal).DestroyRockets(planetID, abm, ipm)
@@ -598,6 +591,11 @@ func (b *OGame) DestroyRockets(planetID ogame.PlanetID, abm, ipm int64) error {
 // SendIPM sends IPM
 func (b *OGame) SendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int64, priority ogame.ID) (int64, error) {
 	return b.WithPriority(taskRunner.Normal).SendIPM(planetID, coord, nbr, priority)
+}
+
+// GetCombatReportSummaryForFleet gets the latest combat report for a given FleetID
+func (b *OGame) GetCombatReportSummaryForFleet(fleetID ogame.FleetID) (ogame.CombatReportSummary, error) {
+	return b.WithPriority(taskRunner.Normal).GetCombatReportSummaryForFleet(fleetID)
 }
 
 // GetCombatReportSummaryFor gets the latest combat report for a given coordinate
@@ -662,47 +660,77 @@ func (b *OGame) GetResourcesProductionsLight(resBuildings ogame.ResourcesBuildin
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *OGame) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
-	return b.WithPriority(taskRunner.Normal).FlightTime(origin, destination, speed, ships, missionID)
+func (b *OGame) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
+	return b.WithPriority(taskRunner.Normal).FlightTime(origin, destination, speed, ships, missionID, holdingTime)
+}
+
+// FastFlightTime calculate flight time and fuel needed. Does not call ogame for TargetCheck to get empty/inactive systems
+func (b *OGame) FastFlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
+	return b.WithPriority(taskRunner.Normal).FastFlightTime(origin, destination, speed, ships, missionID, holdingTime)
+}
+
+// GetServerData get ogame server data information that the bot is connected to
+func (b *OGame) GetServerData() ServerData {
+	return b.getServerData()
+}
+
+// GetResearchSpeed gets the research speed
+func (b *OGame) GetResearchSpeed() int64 {
+	return b.getResearchSpeed()
+}
+
+// GetNbSystems gets the number of systems
+func (b *OGame) GetNbSystems() int64 {
+	return b.getNbSystems()
+}
+
+// FleetDeutSaveFactor returns the fleet deut save factor
+func (b *OGame) FleetDeutSaveFactor() float64 {
+	return b.fleetDeutSaveFactor()
+}
+
+// ServerVersion returns OGame version
+func (b *OGame) ServerVersion() string {
+	return b.serverVersion()
 }
 
 // Distance return distance between two coordinates
 func (b *OGame) Distance(origin, destination ogame.Coordinate) int64 {
-	return Distance(origin, destination, b.serverData.Galaxies, b.serverData.Systems, 0, b.serverData.DonutGalaxy, b.serverData.DonutSystem)
+	return b.distance(origin, destination)
 }
 
 // SystemDistance return the distance between two systems
 func (b *OGame) SystemDistance(system1, system2 int64) int64 {
-	return systemDistance(b.serverData.Systems, system1, system2, b.serverData.DonutSystem)
+	return b.systemDistance(system1, system2)
 }
 
 // RegisterWSCallback ...
 func (b *OGame) RegisterWSCallback(id string, fn func(msg []byte)) {
 	b.Lock()
 	defer b.Unlock()
-	b.wsCallbacks[id] = fn
+	b.registerWSCallback(id, fn)
 }
 
 // RemoveWSCallback ...
 func (b *OGame) RemoveWSCallback(id string) {
 	b.Lock()
 	defer b.Unlock()
-	delete(b.wsCallbacks, id)
+	b.removeWSCallback(id)
 }
 
 // RegisterChatCallback register a callback that is called when chat messages are received
 func (b *OGame) RegisterChatCallback(fn func(msg ogame.ChatMsg)) {
-	b.chatCallbacks = append(b.chatCallbacks, fn)
+	b.registerChatCallback(fn)
 }
 
 // RegisterAuctioneerCallback register a callback that is called when auctioneer packets are received
 func (b *OGame) RegisterAuctioneerCallback(fn func(packet any)) {
-	b.auctioneerCallbacks = append(b.auctioneerCallbacks, fn)
+	b.registerAuctioneerCallback(fn)
 }
 
 // RegisterHTMLInterceptor ...
 func (b *OGame) RegisterHTMLInterceptor(fn func(method, url string, params, payload url.Values, pageHTML []byte)) {
-	b.interceptorCallbacks = append(b.interceptorCallbacks, fn)
+	b.registerHTMLInterceptor(fn)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
@@ -756,7 +784,7 @@ func (b *OGame) GetEmpireJSON(celestialType ogame.CelestialType) (any, error) {
 
 // CharacterClass returns the bot character class
 func (b *OGame) CharacterClass() ogame.CharacterClass {
-	return b.characterClass
+	return b.characterClass()
 }
 
 // GetCachedAllianceClass returns the bot alliance class
@@ -771,7 +799,7 @@ func (b *OGame) CheckTarget(ships ogame.ShipsInfos, coordinate ogame.Coordinate,
 
 // CountColonies returns colonies count/possible
 func (b *OGame) CountColonies() (int64, int64) {
-	return b.coloniesCount, b.coloniesPossible
+	return b.countColonies()
 }
 
 // GetAuction ...
@@ -864,8 +892,13 @@ func (b *OGame) SendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.C
 	return b.WithPriority(taskRunner.Normal).SendDiscoveryFleet2(celestialID, coord, options...)
 }
 
+// SendSystemDiscoveryFleet sends a discovery fleets to all positions in a system
+func (b *OGame) SendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, system int64, options ...Option) ([]ogame.Coordinate, error) {
+	return b.WithPriority(taskRunner.Normal).SendSystemDiscoveryFleet(celestialID, galaxy, system, options...)
+}
+
 // GetAvailableDiscoveries ...
-func (b *OGame) GetAvailableDiscoveries(opts ...Option) int64 {
+func (b *OGame) GetAvailableDiscoveries(opts ...Option) (int64, error) {
 	return b.WithPriority(taskRunner.Normal).GetAvailableDiscoveries(opts...)
 }
 
@@ -874,9 +907,70 @@ func (b *OGame) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system int6
 	return b.WithPriority(taskRunner.Normal).GetPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
 }
 
+// GetChapter ...
+func (b *OGame) GetChapter(chapterID int64) (ogame.Chapter, error) {
+	return b.WithPriority(taskRunner.Normal).GetChapter(chapterID)
+}
+
+// ChapterClaimAll ...
+func (b *OGame) ChapterClaimAll(chapterID int64) error {
+	return b.WithPriority(taskRunner.Normal).ChapterClaimAll(chapterID)
+}
+
+// ChapterCollectReward ...
+func (b *OGame) ChapterCollectReward(taskID int64) error {
+	return b.WithPriority(taskRunner.Normal).ChapterCollectReward(taskID)
+}
+
 // SetProxy this will change the bot http transport object.
 // proxyType can be "http" or "socks5".
 // An empty proxyAddress will reset the client transport to default value.
 func (b *OGame) SetProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error {
 	return b.setProxy(proxyAddress, username, password, proxyType, loginOnly, config)
+}
+
+// GetExtractor gets extractor object
+func (b *OGame) GetExtractor() extractor.Extractor {
+	return b.getExtractor()
+}
+
+// SetOGameCredentials sets ogame credentials for the bot
+func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
+	b.setOGameCredentials(username, password, otpSecret, bearerToken)
+}
+
+// SetLoginWrapper ...
+func (b *OGame) SetLoginWrapper(newWrapper func(LoginFn) error) {
+	b.setLoginWrapper(newWrapper)
+}
+
+// ReconnectChat ...
+func (b *OGame) ReconnectChat() bool {
+	return b.reconnectChat()
+}
+
+// SetAllianceClass ...
+func (b *OGame) SetAllianceClass(allianceClass ogame.AllianceClass) {
+	b.Lock()
+	defer b.Unlock()
+	b.setAllianceClass(allianceClass)
+}
+
+// SetResearches ...
+func (b *OGame) SetResearches(researches ogame.Researches) {
+	b.Lock()
+	defer b.Unlock()
+	b.setResearches(researches)
+}
+
+// SetLfBonuses ...
+func (b *OGame) SetLfBonuses(lfBonuses ogame.LfBonuses) {
+	b.Lock()
+	defer b.Unlock()
+	b.setLfBonuses(lfBonuses)
+}
+
+// SoftLogout simulate closing the browser without logging out
+func (b *OGame) SoftLogout() {
+	b.softLogout()
 }

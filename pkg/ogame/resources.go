@@ -2,7 +2,6 @@ package ogame
 
 import (
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/utils"
 	humanize "github.com/dustin/go-humanize"
 	"math"
 )
@@ -98,9 +97,9 @@ func (r Resources) Value() int64 {
 // Sub subtract v from r
 func (r Resources) Sub(v Resources) Resources {
 	return Resources{
-		Metal:     utils.MaxInt(r.Metal-v.Metal, 0),
-		Crystal:   utils.MaxInt(r.Crystal-v.Crystal, 0),
-		Deuterium: utils.MaxInt(r.Deuterium-v.Deuterium, 0),
+		Metal:     max(r.Metal-v.Metal, 0),
+		Crystal:   max(r.Crystal-v.Crystal, 0),
+		Deuterium: max(r.Deuterium-v.Deuterium, 0),
 	}
 }
 
@@ -129,10 +128,10 @@ func (r Resources) Div(price Resources) int64 {
 		nb = r.Metal / price.Metal
 	}
 	if price.Crystal > 0 {
-		nb = utils.MinInt(r.Crystal/price.Crystal, nb)
+		nb = min(r.Crystal/price.Crystal, nb)
 	}
 	if price.Deuterium > 0 {
-		nb = utils.MinInt(r.Deuterium/price.Deuterium, nb)
+		nb = min(r.Deuterium/price.Deuterium, nb)
 	}
 	return nb
 }

@@ -6,10 +6,26 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/mtx"
+	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
+	"github.com/alaingilbert/ogame/pkg/extractor"
+	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
+	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
+	"github.com/alaingilbert/ogame/pkg/gameforge"
+	"github.com/alaingilbert/ogame/pkg/httpclient"
+	"github.com/alaingilbert/ogame/pkg/ogame"
+	"github.com/alaingilbert/ogame/pkg/parser"
+	"github.com/alaingilbert/ogame/pkg/taskRunner"
+	"github.com/alaingilbert/ogame/pkg/utils"
+	cookiejar "github.com/orirawlings/persistent-cookiejar"
+	"golang.org/x/net/proxy"
+	"golang.org/x/net/websocket"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"net"
@@ -24,114 +40,248 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
-	"github.com/alaingilbert/ogame/pkg/device"
-	"github.com/alaingilbert/ogame/pkg/extractor/v12_0_0"
-	"github.com/alaingilbert/ogame/pkg/gameforge"
-	"github.com/alaingilbert/ogame/pkg/wrapper/solvers"
-	err2 "github.com/pkg/errors"
-
-	"github.com/alaingilbert/ogame/pkg/exponentialBackoff"
-	"github.com/alaingilbert/ogame/pkg/extractor"
-	v6 "github.com/alaingilbert/ogame/pkg/extractor/v6"
-	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/parser"
-	"github.com/alaingilbert/ogame/pkg/taskRunner"
-	"github.com/alaingilbert/ogame/pkg/utils"
-
-	"github.com/PuerkitoBio/goquery"
-	version "github.com/hashicorp/go-version"
-	cookiejar "github.com/orirawlings/persistent-cookiejar"
-	lua "github.com/yuin/gopher-lua"
-	"golang.org/x/net/proxy"
-	"golang.org/x/net/websocket"
 )
 
 // OGame is a client for ogame.org. It is safe for concurrent use by
 // multiple goroutines (thread-safe)
 type OGame struct {
 	sync.Mutex
-	isEnabledAtom         atomic.Bool // atomic, prevent auto re login if we manually logged out
-	isLoggedInAtom        atomic.Bool // atomic, prevent auto re login if we manually logged out
-	isConnectedAtom       atomic.Bool // atomic, either or not communication between the bot and OGame is possible
-	lockedAtom            atomic.Bool // atomic, bot state locked/unlocked
-	chatConnectedAtom     atomic.Bool // atomic, either or not the chat is connected
-	state                 string      // keep name of the function that currently lock the bot
-	ctx                   context.Context
-	cancelCtx             context.CancelFunc
-	stateChangeCallbacks  []func(locked bool, actor string)
-	quiet                 bool
-	Player                ogame.UserInfos
-	CachedPreferences     ogame.Preferences
-	isVacationModeEnabled bool
-	researches            *ogame.Researches
-	lfBonuses             *ogame.LfBonuses
-	planets               []Planet
-	planetsMu             sync.RWMutex
-	token                 string
-	ajaxChatToken         string
-	Universe              string
-	Username              string
-	password              string
-	otpSecret             string
-	bearerToken           string
-	language              string
-	playerID              int64
-	lobby                 string
-	ogameSession          string
-	sessionChatCounter    int64
-	server                gameforge.Server
-	serverData            gameforge.ServerData
-	serverVersion         *version.Version
-	location              *time.Location
-	serverURL             string
-	logger                *log.Logger
-	chatCallbacks         []func(msg ogame.ChatMsg)
-	wsCallbacks           map[string]func(msg []byte)
-	auctioneerCallbacks   []func(any)
-	interceptorCallbacks  []func(method, url string, params, payload url.Values, pageHTML []byte)
-	closeChatCh           chan struct{}
-	ws                    *websocket.Conn
-	taskRunnerInst        *taskRunner.TaskRunner[*Prioritize]
-	loginWrapper          func(func() (bool, error)) error
-	getServerDataWrapper  func(func() (gameforge.ServerData, error)) (gameforge.ServerData, error)
-	loginProxyTransport   http.RoundTripper
-	extractor             extractor.Extractor
-	apiNewHostname        string
-	characterClass        ogame.CharacterClass
-	allianceClass         *ogame.AllianceClass
-	hasCommander          bool
-	hasAdmiral            bool
-	hasEngineer           bool
-	hasGeologist          bool
-	hasTechnocrat         bool
-	captchaCallback       solvers.CaptchaCallback
-	device                *device.Device
-	coloniesCount         int64
-	coloniesPossible      int64
+	isEnabledAtom        atomic.Bool // atomic, prevent auto re login if we manually logged out
+	isLoggedInAtom       atomic.Bool // atomic, prevent auto re login if we manually logged out
+	isConnectedAtom      atomic.Bool // atomic, either or not communication between the bot and OGame is possible
+	lockedAtom           atomic.Bool // atomic, bot state locked/unlocked
+	chatConnectedAtom    atomic.Bool // atomic, either or not the chat is connected
+	state                string      // keep name of the function that currently lock the bot
+	parentCtx            context.Context
+	ctx                  context.Context
+	cancelCtx            context.CancelFunc
+	stateChangeCallbacks []func(locked bool, actor string)
+	quiet                bool
+	universe             string
+	username             string
+	password             string
+	otpSecret            string
+	bearerToken          string
+	language             string
+	playerID             int64
+	lobby                string
+	server               gameforge.Server
+	logger               *log.Logger
+	chatCallbacks        []func(msg ogame.ChatMsg)
+	wsCallbacks          mtx.RWMutexMap[string, func([]byte)]
+	auctioneerCallbacks  []func(any)
+	interceptorCallbacks []func(method, url string, params, payload url.Values, pageHTML []byte)
+	closeChatCtx         context.Context
+	closeChatCancel      context.CancelFunc
+	ws                   *websocket.Conn
+	taskRunnerInst       *taskRunner.TaskRunner[*Prioritize]
+	loginWrapper         func(LoginFn) error
+	loginProxyTransport  http.RoundTripper
+	extractor            extractor.Extractor
+	apiNewHostname       string
+	captchaCallback      gameforge.CaptchaSolver
+	device               *device.Device
+	cache                struct {
+		serverData            ServerData
+		location              *time.Location
+		player                ogame.UserInfos
+		CachedPreferences     ogame.Preferences
+		researches            *ogame.Researches
+		lfBonuses             *ogame.LfBonuses
+		characterClass        ogame.CharacterClass
+		allianceClass         *ogame.AllianceClass
+		planets               mtx.RWMutex[[]Planet]
+		ogameSession          string
+		token                 string
+		ajaxChatToken         string
+		serverURL             string
+		coloniesCount         int64
+		coloniesPossible      int64
+		planetID              ogame.CelestialID
+		isVacationModeEnabled bool
+		hasCommander          bool
+		hasAdmiral            bool
+		hasEngineer           bool
+		hasGeologist          bool
+		hasTechnocrat         bool
+	}
 }
 
 // Params parameters for more fine-grained initialization
 type Params struct {
-	Username        string
-	Password        string
-	BearerToken     string // Gameforge auth bearer token
-	OTPSecret       string
-	Universe        string
-	Lang            string
-	PlayerID        int64
-	AutoLogin       bool
-	Proxy           string
-	ProxyUsername   string
-	ProxyPassword   string
-	ProxyType       string
-	ProxyLoginOnly  bool
-	TLSConfig       *tls.Config
-	Lobby           string
-	APINewHostname  string
-	Device          *device.Device
-	CaptchaCallback solvers.CaptchaCallback
+	Ctx            context.Context
+	Username       string
+	Password       string
+	BearerToken    string // Gameforge auth bearer token
+	OTPSecret      string
+	Universe       string
+	Lang           string
+	PlayerID       int64
+	AutoLogin      bool
+	Proxy          string
+	ProxyUsername  string
+	ProxyPassword  string
+	ProxyType      string
+	ProxyLoginOnly bool
+	TLSConfig      *tls.Config
+	Lobby          string
+	APINewHostname string
+	Device         *device.Device
+	CaptchaSolver  gameforge.CaptchaSolver
+	Logger         *log.Logger
+	Quiet          bool
+}
+
+// New creates a new instance of OGame wrapper.
+func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return newWithParams(Params{
+		Universe:  universe,
+		Username:  username,
+		Password:  password,
+		Lang:      lang,
+		Device:    deviceInst,
+		AutoLogin: true,
+	})
+}
+
+// NewNoLogin creates a new instance of OGame wrapper, does not auto-login.
+func NewNoLogin(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
+	return newWithParams(Params{
+		Universe:  universe,
+		Username:  username,
+		Password:  password,
+		Lang:      lang,
+		Device:    deviceInst,
+		AutoLogin: false,
+	})
+}
+
+// NewWithParams create a new OGame instance with full control over the possible parameters
+func NewWithParams(params Params) (*OGame, error) {
+	return newWithParams(params)
+}
+
+func newWithParams(params Params) (*OGame, error) {
+	if params.Device == nil {
+		return nil, errors.New("no device defined")
+	}
+	if params.Ctx == nil {
+		params.Ctx = context.Background()
+	}
+	if params.Logger == nil {
+		params.Logger = log.New(os.Stdout, "", 0)
+	}
+
+	b := new(OGame)
+	b.parentCtx = params.Ctx
+	b.device = params.Device
+	b.loginWrapper = DefaultLoginWrapper
+	b.enable()
+	b.quiet = params.Quiet
+	b.logger = params.Logger
+
+	b.universe = params.Universe
+	b.setOGameCredentials(params.Username, params.Password, params.OTPSecret, params.BearerToken)
+	b.setOGameLobby(params.Lobby)
+	b.language = params.Lang
+	b.playerID = params.PlayerID
+
+	ext := v12_0_0.NewExtractor()
+	ext.SetLanguage(params.Lang)
+	ext.SetLocation(time.UTC)
+	b.extractor = ext
+
+	factory := func() *Prioritize { return &Prioritize{bot: b} }
+	b.taskRunnerInst = taskRunner.NewTaskRunner(params.Ctx, factory)
+
+	b.wsCallbacks.Store(make(map[string]func([]byte)))
+
+	b.captchaCallback = params.CaptchaSolver
+	b.apiNewHostname = params.APINewHostname
+	if params.Proxy != "" {
+		if err := b.setProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
+			return nil, err
+		}
+	}
+	if params.AutoLogin {
+		if _, _, err := b.LoginWithExistingCookies(); err != nil {
+			return nil, err
+		}
+	}
+	return b, nil
+}
+
+const PLATFORM = gameforge.OGAME
+
+// ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
+type ServerData struct {
+	Name                          string  `xml:"name"`                          // Europa
+	Number                        int64   `xml:"number"`                        // 157
+	Language                      string  `xml:"language"`                      // ru
+	Timezone                      string  `xml:"timezone"`                      // Europe/Moscow
+	TimezoneOffset                string  `xml:"timezoneOffset"`                // +03:00
+	Domain                        string  `xml:"domain"`                        // s157-ru.ogame.gameforge.com
+	Version                       string  `xml:"version"`                       // 6.8.8-pl2
+	Speed                         int64   `xml:"speed"`                         // 6
+	SpeedFleetPeaceful            int64   `xml:"speedFleetPeaceful"`            // 1
+	SpeedFleetWar                 int64   `xml:"speedFleetWar"`                 // 1
+	SpeedFleetHolding             int64   `xml:"speedFleetHolding"`             // 1
+	Galaxies                      int64   `xml:"galaxies"`                      // 4
+	Systems                       int64   `xml:"systems"`                       // 499
+	ACS                           bool    `xml:"acs"`                           // 1
+	RapidFire                     bool    `xml:"rapidFire"`                     // 1
+	DefToTF                       bool    `xml:"defToTF"`                       // 0
+	DebrisFactor                  float64 `xml:"debrisFactor"`                  // 0.5
+	DebrisFactorDef               float64 `xml:"debrisFactorDef"`               // 0
+	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
+	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
+	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
+	TopScore                      float64 `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
+	BonusFields                   int64   `xml:"bonusFields"`                   // 30
+	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
+	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
+	WfEnabled                     bool    `xml:"wfEnabled"`                     // 1 (WreckField)
+	WfMinimumRessLost             int64   `xml:"wfMinimumRessLost"`             // 150000
+	WfMinimumLossPercentage       int64   `xml:"wfMinimumLossPercentage"`       // 5
+	WfBasicPercentageRepairable   int64   `xml:"wfBasicPercentageRepairable"`   // 45
+	GlobalDeuteriumSaveFactor     float64 `xml:"globalDeuteriumSaveFactor"`     // 0.5
+	Bashlimit                     int64   `xml:"bashlimit"`                     // 0
+	ProbeCargo                    int64   `xml:"probeCargo"`                    // 5
+	ResearchDurationDivisor       int64   `xml:"researchDurationDivisor"`       // 2
+	DarkMatterNewAcount           int64   `xml:"darkMatterNewAcount"`           // 8000
+	CargoHyperspaceTechMultiplier int64   `xml:"cargoHyperspaceTechMultiplier"` // 5
+	SpeedFleet                    int64   `xml:"speedFleet"`                    // 6 // Deprecated in 8.1.0
+	FleetIgnoreEmptySystems       bool    `xml:"fleetIgnoreEmptySystems"`       // 1
+	FleetIgnoreInactiveSystems    bool    `xml:"fleetIgnoreInactiveSystems"`    // 1
+}
+
+// getServerData gets the server data from xml api
+func getServerData(ctx context.Context, client gameforge.HttpClient, serverNumber int64, serverLang string) (ServerData, error) {
+	var serverData ServerData
+	serverDataURL := fmt.Sprintf("https://s%d-%s.ogame.gameforge.com/api/serverData.xml", serverNumber, serverLang)
+	req, err := http.NewRequest(http.MethodGet, serverDataURL, nil)
+	if err != nil {
+		return serverData, err
+	}
+	req.Header.Set("Accept-Encoding", "gzip, deflate, br")
+	req = req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return serverData, err
+	}
+	defer resp.Body.Close()
+	by, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return serverData, err
+	}
+	if err := xml.Unmarshal(by, &serverData); err != nil {
+		return serverData, fmt.Errorf("failed to xml unmarshal %s : %w", serverDataURL, err)
+	}
+	serverData.SpeedFleetWar = max(serverData.SpeedFleetWar, 1)
+	serverData.SpeedFleetPeaceful = max(serverData.SpeedFleetPeaceful, 1)
+	serverData.SpeedFleetHolding = max(serverData.SpeedFleetHolding, 1)
+	serverData.SpeedFleet = utils.Or(serverData.SpeedFleet, serverData.SpeedFleetPeaceful)
+	return serverData, nil
 }
 
 // GetClientWithProxy ...
@@ -147,123 +297,8 @@ func GetClientWithProxy(proxyAddr, proxyUsername, proxyPassword, proxyType strin
 
 func (b *OGame) validateAccount(code string) error {
 	return b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
-		return gameforge.ValidateAccount(client, b.ctx, b.lobby, code)
+		return gameforge.ValidateAccount(b.ctx, client, PLATFORM, b.lobby, code)
 	})
-}
-
-// New creates a new instance of OGame wrapper.
-func New(deviceInst *device.Device, universe, username, password, lang string) (*OGame, error) {
-	b, err := NewNoLogin(username, password, "", "", universe, lang, 0, deviceInst)
-	if err != nil {
-		return nil, err
-	}
-	if _, err := b.LoginWithExistingCookies(); err != nil {
-		return nil, err
-	}
-	return b, nil
-}
-
-// NewWithParams create a new OGame instance with full control over the possible parameters
-func NewWithParams(params Params) (*OGame, error) {
-	if params.Device == nil {
-		return nil, errors.New("no device defined")
-	}
-	b, err := NewNoLogin(params.Username, params.Password, params.OTPSecret, params.BearerToken, params.Universe, params.Lang, params.PlayerID, params.Device)
-	if err != nil {
-		return nil, err
-	}
-	b.captchaCallback = params.CaptchaCallback
-	b.setOGameLobby(params.Lobby)
-	b.apiNewHostname = params.APINewHostname
-	if params.Proxy != "" {
-		if err := b.SetProxy(params.Proxy, params.ProxyUsername, params.ProxyPassword, params.ProxyType, params.ProxyLoginOnly, params.TLSConfig); err != nil {
-			return nil, err
-		}
-	}
-	if params.AutoLogin {
-		if params.BearerToken != "" {
-			if _, err := b.LoginWithBearerToken(params.BearerToken); err != nil {
-				return nil, err
-			}
-		} else {
-			if _, err := b.LoginWithExistingCookies(); err != nil {
-				return nil, err
-			}
-		}
-	}
-	return b, nil
-}
-
-// NewNoLogin does not auto login.
-func NewNoLogin(username, password, otpSecret, bearerToken, universe, lang string, playerID int64, device *device.Device) (*OGame, error) {
-	b := new(OGame)
-	b.device = device
-	b.getServerDataWrapper = DefaultGetServerDataWrapper
-	b.loginWrapper = DefaultLoginWrapper
-	b.Enable()
-	b.quiet = false
-	b.logger = log.New(os.Stdout, "", 0)
-
-	b.Universe = universe
-	b.SetOGameCredentials(username, password, otpSecret, bearerToken)
-	b.setOGameLobby(gameforge.Lobby)
-	b.language = lang
-	b.playerID = playerID
-
-	ext := v12_0_0.NewExtractor()
-	ext.SetLanguage(lang)
-	ext.SetLocation(time.UTC)
-	b.extractor = ext
-
-	factory := func() *Prioritize { return &Prioritize{bot: b} }
-	b.taskRunnerInst = taskRunner.NewTaskRunner(context.Background(), factory)
-
-	b.wsCallbacks = make(map[string]func([]byte))
-
-	return b, nil
-}
-
-func findAccount(universe, lang string, playerID int64, accounts []gameforge.Account, servers []gameforge.Server) (gameforge.Account, gameforge.Server, error) {
-	if lang == "ba" {
-		lang = "yu"
-	}
-	var acc gameforge.Account
-	server, found := gameforge.FindServer(universe, lang, servers)
-	if !found {
-		return gameforge.Account{}, gameforge.Server{}, fmt.Errorf("server %s, %s not found", universe, lang)
-	}
-	for _, a := range accounts {
-		if a.Server.Language == server.Language && a.Server.Number == server.Number {
-			if playerID != 0 {
-				if a.ID == playerID {
-					acc = a
-					break
-				}
-			} else {
-				acc = a
-				break
-			}
-		}
-	}
-	if acc.ID == 0 {
-		return gameforge.Account{}, gameforge.Server{}, ogame.ErrAccountNotFound
-	}
-	return acc, server, nil
-}
-
-func execLoginLink(b *OGame, loginLink string) ([]byte, error) {
-	req, err := http.NewRequest(http.MethodGet, loginLink, nil)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("Accept-Encoding", "gzip, deflate, br")
-	b.debug("login to universe")
-	resp, err := b.doReqWithLoginProxyTransport(req)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-	return utils.ReadBody(resp)
 }
 
 func (b *OGame) execInterceptorCallbacks(method, url string, params, payload url.Values, pageHTML []byte) {
@@ -282,7 +317,7 @@ func (b *OGame) introBypass(page *parser.OverviewPage) error {
 			"action":    {"continueToClassSelection"},
 		}
 		payload := url.Values{
-			"username":  {b.Player.PlayerName},
+			"username":  {b.cache.player.PlayerName},
 			"isVeteran": {"1"},
 		}
 		if _, err := b.postPageContent(vals, payload); err != nil {
@@ -292,45 +327,30 @@ func (b *OGame) introBypass(page *parser.OverviewPage) error {
 	return nil
 }
 
-func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
+func postSessions(b *OGame) (bearerToken string, err error) {
+	b.debug("post sessions")
 	client := b.device.GetClient()
 	if err := client.WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
-		var challengeID string
-		maxTry := uint(3)
-		for {
-			params := &gameforge.GfLoginParams{
-				Ctx:         b.ctx,
-				Device:      b.device,
-				Lobby:       b.lobby,
-				Username:    b.Username,
-				Password:    b.password,
-				OtpSecret:   b.otpSecret,
-				ChallengeID: challengeID,
-			}
-			out, err = gameforge.GFLogin(params)
-			var captchaErr *gameforge.CaptchaRequiredError
-			if errors.As(err, &captchaErr) {
-				captchaCallback := b.captchaCallback
-				if maxTry == 0 || captchaCallback == nil {
-					return err
-				}
-				maxTry--
-				challengeID = captchaErr.ChallengeID
-				if err := solveCaptcha(b.ctx, client, challengeID, captchaCallback); err != nil {
-					return err
-				}
-				continue
-			} else if err != nil {
-				return err
-			}
-			break
+		gf, _ := gameforge.New(&gameforge.Config{
+			Ctx:      b.ctx,
+			Device:   b.device,
+			Platform: PLATFORM,
+			Lobby:    b.lobby,
+			Solver:   b.captchaCallback,
+		})
+		res, err := gf.Login(&gameforge.LoginParams{
+			Username:  b.username,
+			Password:  b.password,
+			OtpSecret: b.otpSecret,
+		})
+		if err != nil {
+			return err
 		}
-		return nil
+		bearerToken = res.Token
+		return err
 	}); err != nil {
-		return nil, err
+		return "", err
 	}
-
-	bearerToken := out.Token
 
 	// put in cookie jar so that we can re-login reusing the cookies
 	appendCookie(client, &http.Cookie{
@@ -340,37 +360,37 @@ func postSessions(b *OGame) (out *gameforge.GFLoginRes, err error) {
 		Domain: ".gameforge.com",
 	})
 	b.bearerToken = bearerToken
-	return out, nil
+	return bearerToken, nil
 }
 
 func appendCookie(client *httpclient.Client, cookie *http.Cookie) {
-	u, _ := url.Parse("https://gameforge.com")
+	u, err := url.Parse("https://gameforge.com")
+	if err != nil {
+		panic(err)
+	}
 	cookies := client.Jar.Cookies(u)
 	cookies = append(cookies, cookie)
 	client.Jar.SetCookies(u, cookies)
 }
 
-func solveCaptcha(ctx context.Context, client httpclient.IHttpClient, challengeID string, captchaCallback solvers.CaptchaCallback) error {
-	questionRaw, iconsRaw, err := gameforge.StartCaptchaChallenge(client, ctx, challengeID)
-	if err != nil {
-		return errors.New("failed to start captcha challenge: " + err.Error())
+func convertCelestialGeneric[T, U any](b *OGame, moonsIn []T, convertFn func(*OGame, T) U) []U {
+	out := make([]U, len(moonsIn))
+	for i, moon := range moonsIn {
+		out[i] = convertFn(b, moon)
 	}
-	answer, err := captchaCallback(ctx, questionRaw, iconsRaw)
-	if err != nil {
-		return errors.New("failed to get answer for captcha challenge: " + err.Error())
-	}
-	if err := gameforge.SolveChallenge(client, ctx, challengeID, answer); err != nil {
-		return errors.New("failed to solve captcha challenge: " + err.Error())
-	}
-	return err
+	return out
 }
 
 func convertPlanets(b *OGame, planetsIn []ogame.Planet) []Planet {
-	out := make([]Planet, 0)
-	for _, planet := range planetsIn {
-		out = append(out, convertPlanet(b, planet))
-	}
-	return out
+	return convertCelestialGeneric(b, planetsIn, convertPlanet)
+}
+
+func convertMoons(b *OGame, moonsIn []ogame.Moon) []Moon {
+	return convertCelestialGeneric(b, moonsIn, convertMoon)
+}
+
+func convertCelestials(b *OGame, celestials []ogame.Celestial) []Celestial {
+	return convertCelestialGeneric(b, celestials, convertCelestial)
 }
 
 func convertPlanet(b *OGame, planet ogame.Planet) Planet {
@@ -382,25 +402,8 @@ func convertPlanet(b *OGame, planet ogame.Planet) Planet {
 	return newPlanet
 }
 
-func convertMoons(b *OGame, moonsIn []ogame.Moon) []Moon {
-	out := make([]Moon, 0)
-	for _, moon := range moonsIn {
-		cMoon := convertMoon(b, moon)
-		out = append(out, cMoon)
-	}
-	return out
-}
-
 func convertMoon(b *OGame, moonIn ogame.Moon) Moon {
 	return Moon{ogame: b, Moon: moonIn}
-}
-
-func convertCelestials(b *OGame, celestials []ogame.Celestial) []Celestial {
-	out := make([]Celestial, 0)
-	for _, celestial := range celestials {
-		out = append(out, convertCelestial(b, celestial))
-	}
-	return out
 }
 
 func convertCelestial(b *OGame, celestial ogame.Celestial) Celestial {
@@ -416,61 +419,43 @@ func convertCelestial(b *OGame, celestial ogame.Celestial) Celestial {
 }
 
 func (b *OGame) cacheFullPageInfo(page parser.IFullPage) {
-	b.planetsMu.Lock()
-	b.planets = convertPlanets(b, page.ExtractPlanets())
-	b.planetsMu.Unlock()
-	b.isVacationModeEnabled = page.ExtractIsInVacation()
-	b.token, _ = page.ExtractToken()
-	b.ajaxChatToken, _ = page.ExtractAjaxChatToken()
-	b.characterClass, _ = page.ExtractCharacterClass()
-	b.hasCommander = page.ExtractCommander()
-	b.hasAdmiral = page.ExtractAdmiral()
-	b.hasEngineer = page.ExtractEngineer()
-	b.hasGeologist = page.ExtractGeologist()
-	b.hasTechnocrat = page.ExtractTechnocrat()
-	b.coloniesCount, b.coloniesPossible = page.ExtractColonies()
+	b.cache.planets.Store(convertPlanets(b, page.ExtractPlanets()))
+	b.cache.isVacationModeEnabled = page.ExtractIsInVacation()
+	b.cache.token, _ = page.ExtractToken()
+	b.cache.ajaxChatToken, _ = page.ExtractAjaxChatToken()
+	b.cache.characterClass, _ = page.ExtractCharacterClass()
+	b.cache.hasCommander = page.ExtractCommander()
+	b.cache.hasAdmiral = page.ExtractAdmiral()
+	b.cache.hasEngineer = page.ExtractEngineer()
+	b.cache.hasGeologist = page.ExtractGeologist()
+	b.cache.hasTechnocrat = page.ExtractTechnocrat()
+	b.cache.coloniesCount, b.cache.coloniesPossible = page.ExtractColonies()
+	b.cache.planetID, _ = page.ExtractPlanetID()
 
 	switch castedPage := page.(type) {
 	case *parser.OverviewPage:
-		var err error
-		b.Player, err = castedPage.ExtractUserInfos()
-		if err != nil {
-			b.error(err)
+		if playerInfo, err := castedPage.ExtractUserInfos(); err == nil {
+			b.cache.player = playerInfo
 		}
 	case *parser.PreferencesPage:
-		b.CachedPreferences = castedPage.ExtractPreferences()
+		b.cache.CachedPreferences = castedPage.ExtractPreferences()
 	case *parser.ResearchPage:
 		researches := castedPage.ExtractResearch()
-		b.researches = &researches
+		b.cache.researches = &researches
 	case *parser.LfBonusesPage:
 		if bonuses, err := castedPage.ExtractLfBonuses(); err == nil {
-			b.lfBonuses = &bonuses
+			b.cache.lfBonuses = &bonuses
 		}
 	}
 }
 
-// DefaultGetServerDataWrapper ...
-var DefaultGetServerDataWrapper = func(getServerDataFn func() (gameforge.ServerData, error)) (gameforge.ServerData, error) {
-	return getServerDataFn()
-}
+// LoginFn ...
+type LoginFn func() (bool, bool, error)
 
 // DefaultLoginWrapper ...
-var DefaultLoginWrapper = func(loginFn func() (bool, error)) error {
-	_, err := loginFn()
+var DefaultLoginWrapper = func(loginFn LoginFn) error {
+	_, _, err := loginFn()
 	return err
-}
-
-// GetExtractor gets extractor object
-func (b *OGame) GetExtractor() extractor.Extractor {
-	return b.extractor
-}
-
-// SetOGameCredentials sets ogame credentials for the bot
-func (b *OGame) SetOGameCredentials(username, password, otpSecret, bearerToken string) {
-	b.Username = username
-	b.password = password
-	b.otpSecret = otpSecret
-	b.bearerToken = bearerToken
 }
 
 func (b *OGame) setOGameLobby(lobby string) {
@@ -478,16 +463,6 @@ func (b *OGame) setOGameLobby(lobby string) {
 		lobby = gameforge.Lobby
 	}
 	b.lobby = lobby
-}
-
-// SetGetServerDataWrapper ...
-func (b *OGame) SetGetServerDataWrapper(newWrapper func(func() (gameforge.ServerData, error)) (gameforge.ServerData, error)) {
-	b.getServerDataWrapper = newWrapper
-}
-
-// SetLoginWrapper ...
-func (b *OGame) SetLoginWrapper(newWrapper func(func() (bool, error)) error) {
-	b.loginWrapper = newWrapper
 }
 
 // execute a request using the login proxy transport if set
@@ -547,26 +522,26 @@ func getSocks5Transport(proxyAddress, username, password string) (*http.Transpor
 
 func (b *OGame) setProxy(proxyAddress, username, password, proxyType string, loginOnly bool, config *tls.Config) error {
 	client := b.device.GetClient()
-	if proxyType == "" {
-		proxyType = "socks5"
+	proxyType = utils.Or(proxyType, "socks5")
+	transport := http.DefaultTransport
+	var loginTransport http.RoundTripper
+	if proxyAddress != "" {
+		proxyTransport, err := getTransport(proxyAddress, username, password, proxyType, config)
+		if err != nil {
+			return err
+		}
+		loginTransport = proxyTransport
+		if !loginOnly {
+			transport = proxyTransport
+		}
 	}
-	if proxyAddress == "" {
-		b.loginProxyTransport = nil
-		client.SetTransport(http.DefaultTransport)
-		return nil
-	}
-	transport, err := getTransport(proxyAddress, username, password, proxyType, config)
-	b.loginProxyTransport = transport
-	if loginOnly {
-		client.SetTransport(http.DefaultTransport)
-	} else {
-		client.SetTransport(transport)
-	}
-	return err
+	b.loginProxyTransport = loginTransport
+	client.SetTransport(transport)
+	return nil
 }
 
-func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
-	b.connectChatV8(chatRetry, host, port)
+func (b *OGame) connectChat(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
+	b.connectChatV8(chatRetry, host, port, sessionChatCounter)
 }
 
 // Socket IO v3 timestamp encoding
@@ -582,59 +557,62 @@ func yeast(num int64) (encoded string) {
 	return
 }
 
-func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string) {
+func getWebsocket(host, port string) (*websocket.Conn, error) {
 	token := yeast(time.Now().UnixNano() / 1000000)
 	req, err := http.NewRequest(http.MethodGet, "https://"+host+":"+port+"/socket.io/?EIO=4&transport=polling&t="+token, nil)
 	if err != nil {
-		b.error("failed to create request:", err)
-		return
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		b.error("failed to get socket.io token:", err)
-		return
+		return nil, fmt.Errorf("failed to get socket.io token: %w", err)
 	}
 	defer resp.Body.Close()
-	chatRetry.Reset()
 	by, _ := io.ReadAll(resp.Body)
 	m := regexp.MustCompile(`"sid":"([^"]+)"`).FindSubmatch(by)
 	if len(m) != 2 {
-		b.error("failed to get websocket sid:", err)
-		return
+		return nil, fmt.Errorf("failed to get websocket sid: %s", string(by))
 	}
 	sid := string(m[1])
 
 	origin := "https://" + host + ":" + port + "/"
 	wssURL := "wss://" + host + ":" + port + "/socket.io/?EIO=4&transport=websocket&sid=" + sid
-	b.ws, err = websocket.Dial(wssURL, "", origin)
+	ws, err := websocket.Dial(wssURL, "", origin)
+	if err != nil {
+		return nil, fmt.Errorf("failed to dial websocket: %w", err)
+	}
+	return ws, nil
+}
+
+func (b *OGame) connectChatV8(chatRetry *exponentialBackoff.ExponentialBackoff, host, port string, sessionChatCounter *int64) {
+	ws, err := getWebsocket(host, port)
 	if err != nil {
 		b.error("failed to dial websocket:", err)
 		return
 	}
-	_ = websocket.Message.Send(b.ws, "2probe")
+	defer ws.Close()
+	b.ws = ws
+	chatRetry.Reset()
+	_ = websocket.Message.Send(ws, "2probe")
 
 	// Recv msgs
-LOOP:
 	for {
-		select {
-		case <-b.closeChatCh:
-			break LOOP
-		default:
+		if b.closeChatCtx.Err() != nil {
+			return
 		}
 
 		var buf string
-		if err := b.ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
+		if err := ws.SetReadDeadline(time.Now().Add(time.Second)); err != nil {
 			b.error("failed to set read deadline:", err)
 		}
-		err := websocket.Message.Receive(b.ws, &buf)
-		if err != nil {
+		if err := websocket.Message.Receive(ws, &buf); err != nil {
+			var ne net.Error
 			if err == io.EOF {
 				b.error("chat eof:", err)
 				break
-			} else if strings.HasSuffix(err.Error(), "use of closed network connection") {
+			} else if errors.Is(err, net.ErrClosed) {
 				break
-			} else if strings.HasSuffix(err.Error(), "i/o timeout") {
+			} else if errors.As(err, &ne) && ne.Timeout() {
 				continue
 			} else {
 				b.error("chat unexpected error", err)
@@ -642,23 +620,21 @@ LOOP:
 				break
 			}
 		}
-		b.Lock()
-		for _, clb := range b.wsCallbacks {
+		b.wsCallbacks.Each(func(_ string, clb func(msg []byte)) {
 			go clb([]byte(buf))
-		}
-		b.Unlock()
+		})
 		if buf == "3probe" {
-			_ = websocket.Message.Send(b.ws, "5")
-			_ = websocket.Message.Send(b.ws, "40/chat,")
-			_ = websocket.Message.Send(b.ws, "40/auctioneer,")
+			_ = websocket.Message.Send(ws, "5")
+			_ = websocket.Message.Send(ws, "40/chat,")
+			_ = websocket.Message.Send(ws, "40/auctioneer,")
 		} else if buf == "2" {
-			_ = websocket.Message.Send(b.ws, "3")
+			_ = websocket.Message.Send(ws, "3")
 		} else if regexp.MustCompile(`40/auctioneer,{"sid":"[^"]+"}`).MatchString(buf) {
 			b.debug("got auctioneer sid")
 		} else if regexp.MustCompile(`40/chat,{"sid":"[^"]+"}`).MatchString(buf) {
 			b.debug("got chat sid")
-			_ = websocket.Message.Send(b.ws, `42/chat,`+utils.FI64(b.sessionChatCounter)+`["authorize","`+b.ogameSession+`"]`)
-			b.sessionChatCounter++
+			_ = websocket.Message.Send(ws, `42/chat,`+utils.FI64(*sessionChatCounter)+`["authorize","`+b.cache.ogameSession+`"]`)
+			*sessionChatCounter++
 		} else if regexp.MustCompile(`43/chat,\d+\[true]`).MatchString(buf) {
 			b.debug("chat connected")
 		} else if regexp.MustCompile(`43/chat,\d+\[false]`).MatchString(buf) {
@@ -675,82 +651,10 @@ LOOP:
 				clb(chatMsg)
 			}
 		} else if regexp.MustCompile(`^\d+/auctioneer`).MatchString(buf) {
-			// 42/auctioneer,["timeLeft","<span style=\"color:#99CC00;\"><b>approx. 30m</b></span> remaining until the auction ends"] // every minute
-			// 42/auctioneer,["timeLeft","Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">117</span>"]
-			// 42/auctioneer,["new bid",{"player":{"id":219657,"name":"Payback","link":"https://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"sum":5000,"price":6000,"bids":5,"auctionId":"42894"}]
-			// 42/auctioneer,["new auction",{"info":"<span style=\"color:#99CC00;\"><b>approx. 35m</b></span> remaining until the auction ends","item":{"uuid":"0968999df2fe956aa4a07aea74921f860af7d97f","image":"55d4b1750985e4843023d7d0acd2b9bafb15f0b7","rarity":"rare"},"oldAuction":{"item":{"uuid":"3c9f85221807b8d593fa5276cdf7af9913c4a35d","imageSmall":"286f3eaf6072f55d8858514b159d1df5f16a5654","rarity":"common"},"time":"20.05.2021 08:42:07","bids":5,"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"}},"auctionId":42895}]
-			// 42/auctioneer,["auction finished",{"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"bids":5,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1072</span>","time":"08:42"}]
-			parts := strings.SplitN(buf, ",", 2)
-			msg := parts[1]
-			var pck any = msg
-			var out []any
-			_ = json.Unmarshal([]byte(msg), &out)
-			if len(out) == 0 {
-				b.error("unknown message received:", buf)
+			pck, err := processAuctioneerMessage(buf)
+			if err != nil {
+				b.error(err.Error())
 				continue
-			}
-			if name, ok := out[0].(string); ok {
-				arg := out[1]
-				if name == "new bid" {
-					if firstArg, ok := arg.(map[string]any); ok {
-						auctionID := utils.DoParseI64(utils.DoCastStr(firstArg["auctionId"]))
-						pck1 := ogame.AuctioneerNewBid{
-							Sum:       int64(utils.DoCastF64(firstArg["sum"])),
-							Price:     int64(utils.DoCastF64(firstArg["price"])),
-							Bids:      int64(utils.DoCastF64(firstArg["bids"])),
-							AuctionID: auctionID,
-						}
-						if player, ok := firstArg["player"].(map[string]any); ok {
-							pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
-							pck1.Player.Name = utils.DoCastStr(player["name"])
-							pck1.Player.Link = utils.DoCastStr(player["link"])
-						}
-						pck = pck1
-					}
-				} else if name == "timeLeft" {
-					if timeLeftMsg, ok := arg.(string); ok {
-						if strings.Contains(timeLeftMsg, "color:") {
-							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
-							rgx := regexp.MustCompile(`\d+`)
-							txt := rgx.FindString(doc.Find("b").Text())
-							approx := utils.DoParseI64(txt)
-							pck = ogame.AuctioneerTimeRemaining{Approx: approx * 60}
-						} else if strings.Contains(timeLeftMsg, "nextAuction") {
-							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg))
-							rgx := regexp.MustCompile(`\d+`)
-							txt := rgx.FindString(doc.Find("span").Text())
-							secs := utils.DoParseI64(txt)
-							pck = ogame.AuctioneerNextAuction{Secs: secs}
-						}
-					}
-				} else if name == "new auction" {
-					if firstArg, ok := arg.(map[string]any); ok {
-						pck1 := ogame.AuctioneerNewAuction{
-							AuctionID: int64(utils.DoCastF64(firstArg["auctionId"])),
-						}
-						if infoMsg, ok := firstArg["info"].(string); ok {
-							doc, _ := goquery.NewDocumentFromReader(strings.NewReader(infoMsg))
-							rgx := regexp.MustCompile(`\d+`)
-							txt := rgx.FindString(doc.Find("b").Text())
-							approx := utils.DoParseI64(txt)
-							pck1.Approx = approx * 60
-						}
-						pck = pck1
-					}
-				} else if name == "auction finished" {
-					if firstArg, ok := arg.(map[string]any); ok {
-						pck1 := ogame.AuctioneerAuctionFinished{
-							Sum:  int64(utils.DoCastF64(firstArg["sum"])),
-							Bids: int64(utils.DoCastF64(firstArg["bids"])),
-						}
-						if player, ok := firstArg["player"].(map[string]any); ok {
-							pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
-							pck1.Player.Name = utils.DoCastStr(player["name"])
-							pck1.Player.Link = utils.DoCastStr(player["link"])
-						}
-						pck = pck1
-					}
-				}
 			}
 			for _, clb := range b.auctioneerCallbacks {
 				clb(pck)
@@ -764,27 +668,109 @@ LOOP:
 	}
 }
 
-// ReconnectChat ...
-func (b *OGame) ReconnectChat() bool {
-	if b.ws == nil {
-		return false
+func processAuctioneerMessage(buf string) (any, error) {
+	// 42/auctioneer,["timeLeft","<span style=\"color:#99CC00;\"><b>approx. 30m</b></span> remaining until the auction ends"] // every minute
+	// 42/auctioneer,["timeLeft","Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">117</span>"]
+	// 42/auctioneer,["new bid",{"player":{"id":219657,"name":"Payback","link":"https://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"sum":5000,"price":6000,"bids":5,"auctionId":"42894"}]
+	// 42/auctioneer,["new auction",{"info":"<span style=\"color:#99CC00;\"><b>approx. 35m</b></span> remaining until the auction ends","item":{"uuid":"0968999df2fe956aa4a07aea74921f860af7d97f","image":"55d4b1750985e4843023d7d0acd2b9bafb15f0b7","rarity":"rare"},"oldAuction":{"item":{"uuid":"3c9f85221807b8d593fa5276cdf7af9913c4a35d","imageSmall":"286f3eaf6072f55d8858514b159d1df5f16a5654","rarity":"common"},"time":"20.05.2021 08:42:07","bids":5,"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"}},"auctionId":42895}]
+	// 42/auctioneer,["auction finished",{"sum":5000,"player":{"id":219657,"name":"Payback","link":"http://s129-en.ogame.gameforge.com/game/index.php?page=ingame&component=galaxy&galaxy=2&system=146"},"bids":5,"info":"Next auction in:<br />\n<span class=\"nextAuction\" id=\"nextAuction\">1072</span>","time":"08:42"}]
+	parts := strings.SplitN(buf, ",", 2)
+	msg := parts[1]
+	var pck any = msg
+	var out []any
+	_ = json.Unmarshal([]byte(msg), &out)
+	if len(out) == 0 {
+		return nil, fmt.Errorf("unknown message received: %s", buf)
 	}
-	_ = websocket.Message.Send(b.ws, "1::/chat")
-	return true
-}
-
-func (b *OGame) logout() {
-	_, _ = b.getPage(LogoutPageName)
-	_ = b.device.GetClient().Jar.(*cookiejar.Jar).Save()
-	if b.isLoggedInAtom.CompareAndSwap(true, false) {
-		select {
-		case <-b.closeChatCh:
-		default:
-			close(b.closeChatCh)
-			if b.ws != nil {
-				_ = b.ws.Close()
+	name, ok := out[0].(string)
+	if !ok {
+		return pck, nil
+	}
+	arg := out[1]
+	if name == "new bid" {
+		if firstArg, ok := arg.(map[string]any); ok {
+			auctionID := utils.DoParseI64(utils.DoCastStr(firstArg["auctionId"]))
+			pck1 := ogame.AuctioneerNewBid{
+				Sum:       int64(utils.DoCastF64(firstArg["sum"])),
+				Price:     int64(utils.DoCastF64(firstArg["price"])),
+				Bids:      int64(utils.DoCastF64(firstArg["bids"])),
+				AuctionID: auctionID,
+			}
+			if player, ok := firstArg["player"].(map[string]any); ok {
+				pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
+				pck1.Player.Name = utils.DoCastStr(player["name"])
+				pck1.Player.Link = utils.DoCastStr(player["link"])
+			}
+			pck = pck1
+		}
+	} else if name == "timeLeft" {
+		if timeLeftMsg, ok := arg.(string); ok {
+			if strings.Contains(timeLeftMsg, "color:") {
+				if doc, err := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg)); err == nil {
+					rgx := regexp.MustCompile(`\d+`)
+					txt := rgx.FindString(doc.Find("b").Text())
+					approx := utils.DoParseI64(txt)
+					pck = ogame.AuctioneerTimeRemaining{Approx: approx * 60}
+				}
+			} else if strings.Contains(timeLeftMsg, "nextAuction") {
+				if doc, err := goquery.NewDocumentFromReader(strings.NewReader(timeLeftMsg)); err == nil {
+					rgx := regexp.MustCompile(`\d+`)
+					txt := rgx.FindString(doc.Find("span").Text())
+					secs := utils.DoParseI64(txt)
+					pck = ogame.AuctioneerNextAuction{Secs: secs}
+				}
 			}
 		}
+	} else if name == "new auction" {
+		if firstArg, ok := arg.(map[string]any); ok {
+			pck1 := ogame.AuctioneerNewAuction{
+				AuctionID: int64(utils.DoCastF64(firstArg["auctionId"])),
+			}
+			if infoMsg, ok := firstArg["info"].(string); ok {
+				if doc, err := goquery.NewDocumentFromReader(strings.NewReader(infoMsg)); err == nil {
+					rgx := regexp.MustCompile(`\d+`)
+					txt := rgx.FindString(doc.Find("b").Text())
+					approx := utils.DoParseI64(txt)
+					pck1.Approx = approx * 60
+				}
+			}
+			pck = pck1
+		}
+	} else if name == "auction finished" {
+		if firstArg, ok := arg.(map[string]any); ok {
+			pck1 := ogame.AuctioneerAuctionFinished{
+				Sum:  int64(utils.DoCastF64(firstArg["sum"])),
+				Bids: int64(utils.DoCastF64(firstArg["bids"])),
+			}
+			if player, ok := firstArg["player"].(map[string]any); ok {
+				pck1.Player.ID = int64(utils.DoCastF64(player["id"]))
+				pck1.Player.Name = utils.DoCastStr(player["name"])
+				pck1.Player.Link = utils.DoCastStr(player["link"])
+			}
+			pck = pck1
+		}
+	}
+	return pck, nil
+}
+
+func (b *OGame) logout() error {
+	_, err := b.getPage(LogoutPageName)
+	if err != nil {
+		return err
+	}
+	if j, ok := b.device.GetClient().Jar.(*cookiejar.Jar); ok {
+		if err := j.Save(); err != nil {
+			return err
+		}
+	}
+	b.softLogout()
+	return nil
+}
+
+// Simulate closing the browser without logging out
+func (b *OGame) softLogout() {
+	if b.isLoggedInAtom.CompareAndSwap(true, false) {
+		b.closeChatCancel()
 	}
 }
 
@@ -873,13 +859,16 @@ func canParseNewSystemInfos(by []byte) bool {
 }
 
 func (b *OGame) preRequestChecks() error {
+	if b.parentCtx.Err() != nil {
+		return b.parentCtx.Err()
+	}
 	if !b.IsEnabled() {
 		return ogame.ErrBotInactive
 	}
 	if !b.IsLoggedIn() {
 		return ogame.ErrBotLoggedOut
 	}
-	if b.serverURL == "" {
+	if b.cache.serverURL == "" {
 		return errors.New("serverURL is empty")
 	}
 	return nil
@@ -905,7 +894,15 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	}
 
 	req = req.WithContext(b.ctx)
-	resp, err := b.device.GetClient().Do(req)
+	var resp *http.Response
+	if vals.Get("component") == "support" {
+		err = b.device.GetClient().WithTransport(b.loginProxyTransport, func(client *httpclient.Client) error {
+			resp, err = client.Do(req)
+			return err
+		})
+	} else {
+		resp, err = b.device.GetClient().Do(req)
+	}
 	if err != nil {
 		return []byte{}, err
 	}
@@ -918,7 +915,7 @@ func (b *OGame) execRequest(method, finalURL string, payload, vals url.Values) (
 	if resp.StatusCode >= http.StatusInternalServerError {
 		return []byte{}, nil
 	}
-	return utils.ReadBody(resp)
+	return io.ReadAll(resp.Body)
 }
 
 func getPageName(vals url.Values) string {
@@ -934,10 +931,9 @@ func getPageName(vals url.Values) string {
 
 func getOptions(opts ...Option) (out Options) {
 	for _, opt := range opts {
-		if opt == nil {
-			continue
+		if opt != nil {
+			opt(&out)
 		}
-		opt(&out)
 	}
 	return
 }
@@ -969,11 +965,11 @@ func detectLoggedOut(method, page string, vals url.Values, pageHTML []byte) bool
 }
 
 func constructFinalURL(b *OGame, vals url.Values) string {
-	finalURL := b.serverURL + "/game/index.php?" + vals.Encode()
+	finalURL := b.cache.serverURL + "/game/index.php?" + vals.Encode()
 
 	allianceID := vals.Get("allianceId")
 	if allianceID != "" {
-		finalURL = b.serverURL + "/game/allianceInfo.php?allianceId=" + allianceID
+		finalURL = b.cache.serverURL + "/game/allianceInfo.php?allianceId=" + allianceID
 	}
 	return finalURL
 }
@@ -1007,9 +1003,11 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 	var pageHTMLBytes []byte
 
 	clb := func() (err error) {
-		if method == http.MethodPost {
+		if method == http.MethodPost || vals.Get("component") == "support" {
 			// Needs to be inside the withRetry, so if we need to re-login the redirect is back for the login call
 			// Prevent redirect (301) https://stackoverflow.com/a/38150816/4196220
+			// Content returned on "support" endpoint:
+			// <script>document.location.href='https://ogame.support.gameforge.com/index.php?fld=en&sso=login&key=100000-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX&origin=sXXX-en.ogame.gameforge.com'</script>
 			client := b.device.GetClient()
 			client.CheckRedirect = func(req *http.Request, via []*http.Request) error { return http.ErrUseLastResponse }
 			defer func() { client.CheckRedirect = nil }()
@@ -1026,37 +1024,7 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 
 		if detectLoggedOut(method, page, vals, pageHTMLBytes) {
 			b.error("Err not logged on page : ", page)
-
-			if home, err := os.UserHomeDir(); err == nil {
-				type FileInfo struct {
-					Name    string
-					ModTime time.Time
-				}
-				notLoggedPath := filepath.Join(home, ".ogame", "not_logged")
-				if err := os.MkdirAll(notLoggedPath, 0755); err == nil {
-					if files, err := ioutil.ReadDir(notLoggedPath); err == nil {
-						// Create a slice to hold file info
-						fileInfos := make([]FileInfo, 0, len(files))
-						for _, file := range files {
-							if !file.IsDir() {
-								fileInfos = append(fileInfos, FileInfo{
-									Name:    file.Name(),
-									ModTime: file.ModTime(),
-								})
-							}
-						}
-						sort.Slice(fileInfos, func(i, j int) bool { return fileInfos[i].ModTime.After(fileInfos[j].ModTime) })
-						if len(fileInfos) > 20 {
-							for _, file := range fileInfos[20:] {
-								_ = os.Remove(filepath.Join(notLoggedPath, file.Name))
-							}
-						}
-						filename := fmt.Sprintf("not_logged_%s_%s_.html", page, time.Now().Format("2006-01-02_15:04:05"))
-						_ = os.WriteFile(filepath.Join(notLoggedPath, filename), pageHTMLBytes, 0644)
-					}
-				}
-			}
-
+			saveNotLoggedHTML(page, pageHTMLBytes)
 			b.isConnectedAtom.Store(false)
 			return ogame.ErrNotLogged
 		}
@@ -1083,10 +1051,49 @@ func (b *OGame) pageContent(method string, vals, payload url.Values, opts ...Opt
 	return pageHTMLBytes, nil
 }
 
+// Save html when we detect a "notLogged", only keep last 20 files, delete others
+func saveNotLoggedHTML(page string, pageHTMLBytes []byte) {
+	if home, err := os.UserHomeDir(); err == nil {
+		type FileInfo struct {
+			Name    string
+			ModTime time.Time
+		}
+		notLoggedPath := filepath.Join(home, ".ogame", "not_logged")
+		if err := os.MkdirAll(notLoggedPath, 0755); err == nil {
+			if entries, err := os.ReadDir(notLoggedPath); err == nil {
+				// Create a slice to hold file info
+				fileInfos := make([]FileInfo, 0, len(entries))
+				for _, entry := range entries {
+					file, err := entry.Info()
+					if err != nil {
+						continue
+					}
+					if !file.IsDir() {
+						fileInfos = append(fileInfos, FileInfo{
+							Name:    file.Name(),
+							ModTime: file.ModTime(),
+						})
+					}
+				}
+				sort.Slice(fileInfos, func(i, j int) bool { return fileInfos[i].ModTime.After(fileInfos[j].ModTime) })
+				if len(fileInfos) > 20 {
+					for _, file := range fileInfos[20:] {
+						_ = os.Remove(filepath.Join(notLoggedPath, file.Name))
+					}
+				}
+				filename := fmt.Sprintf("not_logged_%s_%s_.html", page, time.Now().Format("2006-01-02_15:04:05"))
+				_ = os.WriteFile(filepath.Join(notLoggedPath, filename), pageHTMLBytes, 0644)
+			}
+		}
+	}
+}
+
 func applyDelay(b *OGame, delay time.Duration) error {
 	if delay > 0 {
 		select {
 		case <-time.After(delay):
+		case <-b.parentCtx.Done():
+			return b.parentCtx.Err()
 		case <-b.ctx.Done():
 			return ogame.ErrBotInactive
 		}
@@ -1097,13 +1104,30 @@ func applyDelay(b *OGame, delay time.Duration) error {
 func alterPayload(method string, b *OGame, vals, payload url.Values) {
 	switch method {
 	case http.MethodPost:
-		if vals.Get("page") == "ajaxChat" && payload.Get("mode") == "1" {
-			payload.Set("token", b.ajaxChatToken)
+		page := vals.Get("page")
+		if page == "ingame" {
+			page = vals.Get("component")
+		}
+		if page == "ajaxChat" && payload.Get("mode") == "1" {
+			payload.Set("token", b.cache.ajaxChatToken)
+		} else if (page == "fleetdispatch" && vals.Get("action") == "miniFleet") ||
+			(page == "movement" && vals.Get("action") == "recallFleetAjax") {
+			payload.Set("token", b.cache.token)
 		}
 	}
 }
 
 func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, payload, vals url.Values, SkipCacheFullPage bool) error {
+	extractNewAjaxToken := func() {
+		var res struct {
+			NewAjaxToken string `json:"newAjaxToken"`
+		}
+		if err := json.Unmarshal(pageHTML, &res); err == nil {
+			if res.NewAjaxToken != "" {
+				b.cache.token = res.NewAjaxToken
+			}
+		}
+	}
 	isAjax := IsAjaxPage(vals)
 	switch method {
 	case http.MethodGet:
@@ -1114,45 +1138,33 @@ func processResponseHTML(method string, b *OGame, pageHTML []byte, page string, 
 			}
 		} else if vals.Get("page") == "ajax" && vals.Get("component") == "lfbonuses" {
 			if bonuses, err := b.extractor.ExtractLfBonuses(pageHTML); err == nil {
-				b.lfBonuses = &bonuses
+				b.cache.lfBonuses = &bonuses
 			}
 		} else if isAjax && vals.Get("component") == "alliance" && vals.Get("tab") == "overview" && vals.Get("action") == "fetchOverview" {
 			if !SkipCacheFullPage {
 				var res parser.AllianceOverviewTabRes
 				if err := json.Unmarshal(pageHTML, &res); err == nil {
 					allianceClass, _ := b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
-					b.allianceClass = &allianceClass
-					b.token = res.NewAjaxToken
+					b.cache.allianceClass = &allianceClass
+					b.cache.token = res.NewAjaxToken
 				}
 			}
 		} else if isAjax {
-			var res struct {
-				NewAjaxToken string `json:"newAjaxToken"`
-			}
-			if err := json.Unmarshal(pageHTML, &res); err == nil {
-				if res.NewAjaxToken != "" {
-					b.token = res.NewAjaxToken
-				}
-			}
+			extractNewAjaxToken()
 		}
 
 	case http.MethodPost:
 		if page == PreferencesPageName {
-			b.token, _ = b.extractor.ExtractToken(pageHTML)
-			b.CachedPreferences = b.extractor.ExtractPreferences(pageHTML)
+			b.cache.token, _ = b.extractor.ExtractToken(pageHTML)
+			if prefs, err := b.extractor.ExtractPreferences(pageHTML); err == nil {
+				b.cache.CachedPreferences = prefs
+			}
 		} else if page == "ajaxChat" && (payload.Get("mode") == "1" || payload.Get("mode") == "3") {
 			if err := extractNewChatToken(b, pageHTML); err != nil {
 				return err
 			}
 		} else if isAjax {
-			var res struct {
-				NewAjaxToken string `json:"newAjaxToken"`
-			}
-			if err := json.Unmarshal(pageHTML, &res); err == nil {
-				if res.NewAjaxToken != "" {
-					b.token = res.NewAjaxToken
-				}
-			}
+			extractNewAjaxToken()
 		}
 	}
 	return nil
@@ -1163,7 +1175,7 @@ func extractNewChatToken(b *OGame, pageHTMLBytes []byte) error {
 	if err := json.Unmarshal(pageHTMLBytes, &res); err != nil {
 		return err
 	}
-	b.ajaxChatToken = res.NewToken
+	b.cache.ajaxChatToken = res.NewToken
 	return nil
 }
 
@@ -1179,27 +1191,16 @@ func (b *OGame) withoutRetry(fn func() error) error {
 
 func (b *OGame) withRetry(fn func() error) error {
 	maxRetry := 10
-	retryInterval := 1
-	retry := func(err error) error {
-		b.error(err.Error())
-		select {
-		case <-time.After(time.Duration(retryInterval) * time.Second):
-		case <-b.ctx.Done():
-			return ogame.ErrBotInactive
-		}
-		retryInterval *= 2
-		if retryInterval > 60 {
-			retryInterval = 60
-		}
-		return nil
-	}
-
-	for {
+	eb := exponentialBackoff.New(b.ctx, 60)
+	for range eb.Iterator() {
 		err := fn()
 		if err == nil {
-			break
+			return nil
 		}
 		// If we manually logged out, do not try to auto re login.
+		if err := b.parentCtx.Err(); err != nil {
+			return err
+		}
 		if !b.IsEnabled() {
 			return ogame.ErrBotInactive
 		}
@@ -1208,27 +1209,24 @@ func (b *OGame) withRetry(fn func() error) error {
 		}
 		maxRetry--
 		if maxRetry <= 0 {
-			return err2.Wrap(err, ogame.ErrFailedExecuteCallback.Error())
+			return fmt.Errorf("failed to execute callback: %w", err)
 		}
-
-		if retryErr := retry(err); retryErr != nil {
-			return retryErr
-		}
-
+		b.error(err.Error())
 		if errors.Is(err, ogame.ErrNotLogged) {
-			if _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
+			if _, _, loginErr := b.wrapLoginWithExistingCookies(); loginErr != nil {
 				b.error(loginErr.Error()) // log error
-				if errors.Is(loginErr, ogame.ErrAccountNotFound) ||
-					errors.Is(loginErr, ogame.ErrAccountBlocked) ||
-					errors.Is(loginErr, ogame.ErrBadCredentials) ||
-					errors.Is(loginErr, ogame.ErrOTPRequired) ||
-					errors.Is(loginErr, ogame.ErrOTPInvalid) {
+				var accountBlockedError *gameforge.AccountBlockedError
+				if errors.Is(loginErr, gameforge.ErrAccountNotFound) ||
+					errors.As(loginErr, &accountBlockedError) ||
+					errors.Is(loginErr, gameforge.ErrBadCredentials) ||
+					errors.Is(loginErr, gameforge.ErrOTPRequired) ||
+					errors.Is(loginErr, gameforge.ErrOTPInvalid) {
 					return loginErr
 				}
 			}
 		}
 	}
-	return nil
+	return ogame.ErrBotInactive
 }
 
 func (b *OGame) getPageJSON(vals url.Values, v any) error {
@@ -1248,11 +1246,18 @@ func (b *OGame) constructionTime(id ogame.ID, nbr int64, facilities ogame.Facili
 		return 0
 	}
 	lfBonuses, _ := b.getCachedLfBonuses()
-	return obj.ConstructionTime(nbr, b.getUniverseSpeed(), facilities, lfBonuses, b.characterClass, b.hasTechnocrat)
+	return obj.ConstructionTime(nbr, b.getUniverseSpeed(), facilities, lfBonuses, b.cache.characterClass, b.cache.hasTechnocrat)
+}
+
+func (b *OGame) setOGameCredentials(username, password, otpSecret, bearerToken string) {
+	b.username = username
+	b.password = password
+	b.otpSecret = otpSecret
+	b.bearerToken = bearerToken
 }
 
 func (b *OGame) enable() {
-	b.ctx, b.cancelCtx = context.WithCancel(context.Background())
+	b.ctx, b.cancelCtx = context.WithCancel(b.parentCtx)
 	b.isEnabledAtom.Store(true)
 	b.stateChanged(false, "Enable")
 }
@@ -1267,32 +1272,40 @@ func (b *OGame) isEnabled() bool {
 	return b.isEnabledAtom.Load()
 }
 
+func (b *OGame) isLoggedIn() bool {
+	return b.isLoggedInAtom.Load()
+}
+
+func (b *OGame) isConnected() bool {
+	return b.isConnectedAtom.Load()
+}
+
 func (b *OGame) isCollector() bool {
-	return b.characterClass == ogame.Collector
+	return b.cache.characterClass == ogame.Collector
 }
 
 func (b *OGame) isGeneral() bool {
-	return b.characterClass == ogame.General
+	return b.cache.characterClass == ogame.General
 }
 
 func (b *OGame) isDiscoverer() bool {
-	return b.characterClass == ogame.Discoverer
+	return b.cache.characterClass == ogame.Discoverer
 }
 
 func (b *OGame) getUniverseSpeed() int64 {
-	return b.serverData.Speed
+	return b.cache.serverData.Speed
 }
 
 func (b *OGame) getUniverseSpeedFleet() int64 {
-	return b.serverData.SpeedFleet
+	return b.cache.serverData.SpeedFleet
 }
 
 func (b *OGame) isDonutGalaxy() bool {
-	return b.serverData.DonutGalaxy
+	return b.cache.serverData.DonutGalaxy
 }
 
 func (b *OGame) isDonutSystem() bool {
-	return b.serverData.DonutSystem
+	return b.cache.serverData.DonutSystem
 }
 
 func (b *OGame) fetchEventbox() (res eventboxResp, err error) {
@@ -1495,7 +1508,10 @@ func (b *OGame) abandon(v IntoPlanet) error {
 		return errors.New("invalid parameter")
 	}
 	pageHTML, _ := b.getPage(PlanetlayerPageName, ChangePlanet(planet.GetID()))
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return err
+	}
 	abandonToken, token := b.extractor.ExtractAbandonInformation(doc)
 	payload := url.Values{
 		"abandon":  {abandonToken},
@@ -1547,7 +1563,7 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 	payload := url.Values{
 		"text":  {message + "\n"},
 		"ajax":  {"1"},
-		"token": {b.ajaxChatToken},
+		"token": {b.cache.ajaxChatToken},
 	}
 	if isPlayer {
 		payload.Set("playerId", utils.FI64(id))
@@ -1563,7 +1579,10 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 	if strings.Contains(string(bodyBytes), "INVALID_PARAMETERS") {
 		return errors.New("invalid parameters")
 	}
-	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(string(bodyBytes)))
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(string(bodyBytes)))
+	if err != nil {
+		return err
+	}
 	if doc.Find("title").Text() == "OGame Lobby" {
 		return ogame.ErrNotLogged
 	}
@@ -1571,23 +1590,32 @@ func (b *OGame) sendMessage(id int64, message string, isPlayer bool) error {
 	if err := json.Unmarshal(bodyBytes, &res); err != nil {
 		return err
 	}
-	b.ajaxChatToken = res.NewToken
+	b.cache.ajaxChatToken = res.NewToken
 	return nil
 }
 
-func (b *OGame) getFleetsFromEventList() []ogame.Fleet {
-	pageHTML, _ := b.getPageContent(url.Values{"eventList": {"movement"}, "ajax": {"1"}})
+func (b *OGame) getFleetsFromEventList() ([]ogame.Fleet, error) {
+	pageHTML, err := b.getPageContent(url.Values{"eventList": {"movement"}, "ajax": {"1"}})
+	if err != nil {
+		return nil, err
+	}
 	return b.extractor.ExtractFleetsFromEventList(pageHTML)
 }
 
-func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots) {
+func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	page, err := getPage[parser.MovementPage](b, opts...)
 	if err != nil {
-		return []ogame.Fleet{}, ogame.Slots{}
+		return []ogame.Fleet{}, ogame.Slots{}, err
 	}
-	fleets := page.ExtractFleets()
-	slots, _ := page.ExtractSlots()
-	return fleets, slots
+	fleets, err := page.ExtractFleets()
+	if err != nil {
+		return []ogame.Fleet{}, ogame.Slots{}, err
+	}
+	slots, err := page.ExtractSlots()
+	if err != nil {
+		return []ogame.Fleet{}, ogame.Slots{}, err
+	}
+	return fleets, slots, nil
 }
 
 func (b *OGame) cancelFleet(fleetID ogame.FleetID) error {
@@ -1606,14 +1634,19 @@ func (b *OGame) cancelFleet(fleetID ogame.FleetID) error {
 }
 
 func (b *OGame) getLastFleetFor(origin, destination ogame.Coordinate, mission ogame.MissionID) (ogame.Fleet, error) {
-	page, _ := getPage[parser.MovementPage](b)
-	fleets := page.ExtractFleets()
+	page, err := getPage[parser.MovementPage](b)
+	if err != nil {
+		return ogame.Fleet{}, err
+	}
+	fleets, err := page.ExtractFleets()
+	if err != nil {
+		return ogame.Fleet{}, err
+	}
 	return getLastFleetFor(fleets, origin, destination, mission)
 }
 
-func getLastFleetFor(fleets []ogame.Fleet, origin, destination ogame.Coordinate, mission ogame.MissionID) (ogame.Fleet, error) {
+func getLastFleetFor(fleets []ogame.Fleet, origin, destination ogame.Coordinate, mission ogame.MissionID) (maxV ogame.Fleet, err error) {
 	if len(fleets) > 0 {
-		maxV := ogame.MakeFleet()
 		for i, fleet := range fleets {
 			if fleet.ID > maxV.ID &&
 				fleet.Origin.Equal(origin) &&
@@ -1627,7 +1660,7 @@ func getLastFleetFor(fleets []ogame.Fleet, origin, destination ogame.Coordinate,
 			return maxV, nil
 		}
 	}
-	return ogame.Fleet{}, errors.New("could not find fleet")
+	return maxV, errors.New("could not find fleet")
 }
 
 func (b *OGame) getFleetDispatch(celestialID ogame.CelestialID, options ...Option) (out ogame.FleetDispatchInfos, err error) {
@@ -1661,36 +1694,32 @@ func (b *OGame) getSlots() (out ogame.Slots, err error) {
 }
 
 // Returns the distance between two galaxy
-func galaxyDistance(galaxy1, galaxy2, universeSize int64, donutGalaxy bool) (distance int64) {
-	if !donutGalaxy {
-		return int64(20000 * math.Abs(float64(galaxy2-galaxy1)))
+func galaxyDistance(galaxy1, galaxy2, universeSize int64, donutGalaxy bool) int64 {
+	distance := math.Abs(float64(galaxy2 - galaxy1))
+	if donutGalaxy {
+		distance = min(distance, float64(universeSize)-distance)
 	}
-	if galaxy1 > galaxy2 {
-		galaxy1, galaxy2 = galaxy2, galaxy1
-	}
-	val := math.Min(float64(galaxy2-galaxy1), float64((galaxy1+universeSize)-galaxy2))
-	return int64(20000 * val)
+	return int64(20_000 * distance)
 }
 
-func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) (distance int64) {
-	if !donutSystem {
-		return int64(math.Abs(float64(system2 - system1)))
+func systemDistance(nbSystems, system1, system2 int64, donutSystem bool) int64 {
+	distance := math.Abs(float64(system2 - system1))
+	if donutSystem {
+		distance = min(distance, float64(nbSystems)-distance)
 	}
-	if system1 > system2 {
-		system1, system2 = system2, system1
-	}
-	return utils.MinInt(system2-system1, (system1+nbSystems)-system2)
+	return int64(distance)
 }
 
 // Returns the distance between two systems
+// https://ogame.fandom.com/wiki/Distance
 func flightSystemDistance(nbSystems, system1, system2, systemsSkip int64, donutSystem bool) (distance int64) {
-	dist := utils.MaxInt(systemDistance(nbSystems, system1, system2, donutSystem)-systemsSkip, 0)
-	return 2700 + 95*dist
+	dist := max(systemDistance(nbSystems, system1, system2, donutSystem)-systemsSkip, 0)
+	return 2_700 + 95*dist
 }
 
 // Returns the distance between two planets
 func planetDistance(planet1, planet2 int64) (distance int64) {
-	return int64(1000 + 5*math.Abs(float64(planet2-planet1)))
+	return int64(1_000 + 5*math.Abs(float64(planet2-planet1)))
 }
 
 // Distance returns the distance between two coordinates
@@ -1707,41 +1736,22 @@ func Distance(c1, c2 ogame.Coordinate, universeSize, nbSystems, systemsSkip int6
 	return 5
 }
 
-func findSlowestSpeed(ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) int64 {
-	var minSpeed int64 = math.MaxInt64
-	for _, ship := range ogame.Ships {
-		shipID := ship.GetID()
-		if shipID == ogame.SolarSatelliteID || shipID == ogame.CrawlerID {
-			continue
-		}
-		shipSpeed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-		if ships.ByID(shipID) > 0 && shipSpeed < minSpeed {
-			minSpeed = shipSpeed
-		}
-	}
-	return minSpeed
-}
-
-func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
+func calcFuel(ships ogame.ShipsInfos, dist, duration, holdingTime int64, universeSpeedFleet, fleetDeutSaveFactor float64, techs ogame.Researches,
 	lfBonuses ogame.LfBonuses, characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass) (fuel int64) {
-	tmpFn := func(baseFuel, nbr, shipSpeed int64) float64 {
-		tmpSpeed := (35000 / (float64(duration)*universeSpeedFleet - 10)) * math.Sqrt(float64(dist)*10/float64(shipSpeed))
-		return float64(baseFuel*nbr*dist) / 35000 * math.Pow(tmpSpeed/10+1, 2)
-	}
+	var holdingCosts int64
 	tmpFuel := 0.0
-	for _, ship := range ogame.Ships {
-		shipID := ship.GetID()
-		if shipID == ogame.SolarSatelliteID || shipID == ogame.CrawlerID {
-			continue
-		}
-		nbr := ships.ByID(shipID)
-		if nbr > 0 {
-			getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
-			speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
-			tmpFuel += tmpFn(getFuelConsumption, nbr, speed)
-		}
+	for shipID, nb := range ships.IterFlyable() {
+		ship := ogame.Objs.GetShip(shipID)
+		getFuelConsumption := ship.GetFuelConsumption(techs, lfBonuses, characterClass, fleetDeutSaveFactor)
+		speed := ship.GetSpeed(techs, lfBonuses, characterClass, allianceClass)
+		holdingCosts += getFuelConsumption * nb * holdingTime
+		shipSpeedValue := (35_000 / max(0.5, float64(duration)*universeSpeedFleet-10)) * math.Sqrt(float64(dist)*10/float64(speed))
+		tmpFuel += max(float64(getFuelConsumption*nb*dist)/35_000*math.Pow(shipSpeedValue/10+1, 2), 1)
 	}
 	fuel = int64(1 + math.Round(tmpFuel))
+	if holdingTime > 0 {
+		fuel += max(int64(float64(holdingCosts)/10.0), 1)
+	}
 	return
 }
 
@@ -1752,34 +1762,42 @@ func calcFuel(ships ogame.ShipsInfos, dist, duration int64, universeSpeedFleet, 
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
 func CalcFlightTime(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool,
 	fleetDeutSaveFactor, speed float64, universeSpeedFleet int64, ships ogame.ShipsInfos, techs ogame.Researches, lfBonuses ogame.LfBonuses,
-	characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass, systemsSkip int64) (secs, fuel int64) {
+	characterClass ogame.CharacterClass, allianceClass ogame.AllianceClass, systemsSkip, holdingTime int64) (secs, fuel int64) {
 	if !ships.HasShips() {
 		return
 	}
-	v := findSlowestSpeed(ships, techs, lfBonuses, characterClass, allianceClass)
+	v := ships.Speed(techs, lfBonuses, characterClass, allianceClass)
 	secs = CalcFlightTimeWithBaseSpeed(origin, destination, universeSize, nbSystems, donutGalaxy, donutSystem, speed, v, universeSpeedFleet, systemsSkip)
 	d := float64(Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem))
-	fuel = calcFuel(ships, int64(d), secs, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass, allianceClass)
+	fuel = calcFuel(ships, int64(d), secs, holdingTime, float64(universeSpeedFleet), fleetDeutSaveFactor, techs, lfBonuses, characterClass, allianceClass)
 	return
 }
 
 // CalcFlightTimeWithBaseSpeed ...
 // baseSpeed is the speed of the slowest ship in a fleet
 // speed: 1 -> 100% | 0.5 -> 50% | 0.05 -> 5%
+// https://ogame.fandom.com/wiki/Distance
 func CalcFlightTimeWithBaseSpeed(origin, destination ogame.Coordinate, universeSize, nbSystems int64, donutGalaxy, donutSystem bool, speed float64, baseSpeed, universeSpeedFleet, systemsSkip int64) (secs int64) {
+	d := Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem)
+	return CalcFlightTimeWithBaseSpeedDistance(speed, baseSpeed, d, universeSpeedFleet)
+}
+
+// CalcFlightTimeWithBaseSpeedDistance ...
+func CalcFlightTimeWithBaseSpeedDistance(speed float64, baseSpeed, distance, universeSpeedFleet int64) (secs int64) {
 	s := speed
 	v := float64(baseSpeed)
 	a := float64(universeSpeedFleet)
-	d := float64(Distance(origin, destination, universeSize, nbSystems, systemsSkip, donutGalaxy, donutSystem))
-	return int64(math.Round(((3500/s)*math.Sqrt(d*10/v) + 10) / a))
+	d := float64(distance)
+	return int64(math.Round(((3_500/s)*math.Sqrt(d*10/v) + 10) / a))
 }
 
 // CalcFlightTime calculates the flight time and the fuel consumption
-func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float64, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
+func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float64, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
+	serverData := b.cache.serverData
 	lfBonuses, _ := b.GetCachedLfBonuses()
 	allianceClass, _ := b.GetCachedAllianceClass()
-	fleetIgnoreEmptySystems := b.serverData.FleetIgnoreEmptySystems
-	fleetIgnoreInactiveSystems := b.serverData.FleetIgnoreInactiveSystems
+	fleetIgnoreEmptySystems := b.cache.serverData.FleetIgnoreEmptySystems
+	fleetIgnoreInactiveSystems := b.cache.serverData.FleetIgnoreInactiveSystems
 	var systemsSkip int64
 	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
 		opts := make([]Option, 0)
@@ -1794,9 +1812,9 @@ func (b *OGame) CalcFlightTime(origin, destination ogame.Coordinate, speed float
 			systemsSkip += res.InactiveSystems
 		}
 	}
-	return CalcFlightTime(origin, destination, b.serverData.Galaxies, b.serverData.Systems, b.serverData.DonutGalaxy,
-		b.serverData.DonutSystem, b.serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(b.serverData, missionID), ships,
-		b.GetCachedResearch(), lfBonuses, b.characterClass, allianceClass, systemsSkip)
+	return CalcFlightTime(origin, destination, serverData.Galaxies, serverData.Systems, serverData.DonutGalaxy,
+		serverData.DonutSystem, serverData.GlobalDeuteriumSaveFactor, speed, GetFleetSpeedForMission(serverData, missionID), ships,
+		b.GetCachedResearch(), lfBonuses, b.cache.characterClass, allianceClass, systemsSkip, holdingTime)
 }
 
 // getPhalanx makes 3 calls to ogame server (2 validation, 1 scan)
@@ -1811,7 +1829,10 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 	if err != nil {
 		return res, errors.New("moon not found")
 	}
-	resources := b.extractor.ExtractResources(moonFacilitiesHTML)
+	resources, err := b.extractor.ExtractResources(moonFacilitiesHTML)
+	if err != nil {
+		return res, err
+	}
 	moonFacilities, _ := b.extractor.ExtractFacilities(moonFacilitiesHTML)
 	phalanxLvl := moonFacilities.SensorPhalanx
 
@@ -1821,13 +1842,14 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 
 	// Ensure we have the resources to scan the planet
 	if resources.Deuterium < ogame.SensorPhalanx.ScanConsumption() {
-		return res, errors.New("not enough deuterium")
+		return res, ogame.ErrNotEnoughDeuterium
 	}
 
 	// Verify that coordinate is in phalanx range
-	phalanxRange := ogame.SensorPhalanx.GetRange(phalanxLvl, b.isDiscoverer())
+	lfBonuses, _ := b.getCachedLfBonuses()
+	phalanxRange := ogame.SensorPhalanx.GetRange(phalanxLvl, b.isDiscoverer(), lfBonuses.MiscBonuses.PhalanxRange)
 	if moon.GetCoordinate().Galaxy != coord.Galaxy ||
-		systemDistance(b.serverData.Systems, moon.GetCoordinate().System, coord.System, b.serverData.DonutSystem) > phalanxRange {
+		systemDistance(b.cache.serverData.Systems, moon.GetCoordinate().System, coord.System, b.cache.serverData.DonutSystem) > phalanxRange {
 		return res, errors.New("coordinate not in phalanx range")
 	}
 
@@ -1838,7 +1860,7 @@ func (b *OGame) getPhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([]ogame
 		return nil, errors.New("invalid planet coordinate")
 	}
 	// Ensure you are not scanning your own planet
-	if target.Player.ID == b.Player.PlayerID {
+	if target.Player.ID == b.cache.player.PlayerID {
 		return nil, errors.New("cannot scan own planet")
 	}
 
@@ -1854,23 +1876,14 @@ func (b *OGame) getUnsafePhalanx(moonID ogame.MoonID, coord ogame.Coordinate) ([
 		"system":   {utils.FI64(coord.System)},
 		"position": {utils.FI64(coord.Position)},
 		"ajax":     {"1"},
-		"token":    {b.token},
+		"token":    {b.cache.token},
 	}
 	page, err := getAjaxPage[parser.PhalanxAjaxPage](b, vals, ChangePlanet(moonID.Celestial()))
 	if err != nil {
 		return []ogame.PhalanxFleet{}, err
 	}
-	b.token, _ = page.ExtractPhalanxNewToken()
+	b.cache.token, _ = page.ExtractPhalanxNewToken()
 	return page.ExtractPhalanx()
-}
-
-func moonIDInSlice(needle ogame.MoonID, haystack []ogame.MoonID) bool {
-	for _, element := range haystack {
-		if needle == element {
-			return true
-		}
-	}
-	return false
 }
 
 func (b *OGame) headersForPage(url string) (http.Header, error) {
@@ -1881,7 +1894,7 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 		return nil, ogame.ErrBotLoggedOut
 	}
 
-	if b.serverURL == "" {
+	if b.cache.serverURL == "" {
 		err := errors.New("serverURL is empty")
 		b.error(err)
 		return nil, err
@@ -1891,9 +1904,9 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 		url = "/" + url
 	}
 
-	finalURL := b.serverURL + url
+	finalURL := b.cache.serverURL + url
 
-	req, err := http.NewRequest("HEAD", finalURL, nil)
+	req, err := http.NewRequest(http.MethodHead, finalURL, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -1906,8 +1919,8 @@ func (b *OGame) headersForPage(url string) (http.Header, error) {
 	defer resp.Body.Close()
 	_, _ = io.Copy(io.Discard, resp.Body)
 
-	if resp.StatusCode >= 500 {
-		return nil, err
+	if resp.StatusCode >= http.StatusInternalServerError {
+		return nil, fmt.Errorf("gameforme internal server error : %s", resp.Status)
 	}
 
 	return resp.Header, err
@@ -1923,7 +1936,10 @@ func (b *OGame) jumpGateDestinations(originMoonID ogame.MoonID) ([]ogame.MoonID,
 	if err != nil {
 		return nil, 0, err
 	}
-	_, _, dests, wait := page.ExtractJumpGate()
+	_, _, dests, wait, err := page.ExtractJumpGate()
+	if err != nil {
+		return nil, 0, err
+	}
 	if wait > 0 {
 		return dests, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
 	}
@@ -1935,13 +1951,16 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 	if err != nil {
 		return false, 0, err
 	}
-	availShips, token, dests, wait := page.ExtractJumpGate()
+	availShips, token, dests, wait, err := page.ExtractJumpGate()
+	if err != nil {
+		return false, 0, err
+	}
 	if wait > 0 {
 		return false, wait, fmt.Errorf("jump gate is in recharge mode for %d seconds", wait)
 	}
 
 	// Validate destination moon id
-	if !moonIDInSlice(destMoonID, dests) {
+	if !utils.InArr(destMoonID, dests) {
 		return false, 0, errors.New("destination moon id invalid")
 	}
 
@@ -1950,7 +1969,7 @@ func (b *OGame) executeJumpGate(originMoonID, destMoonID ogame.MoonID, ships oga
 	// Add ships to payload
 	for _, s := range ogame.Ships {
 		// Get the min between what is available and what we want
-		nbr := utils.MinInt(ships.ByID(s.GetID()), availShips.ByID(s.GetID()))
+		nbr := min(ships.ByID(s.GetID()), availShips.ByID(s.GetID()))
 		if nbr > 0 {
 			payload.Add("ship_"+utils.FI64(s.GetID()), utils.FI64(nbr))
 		}
@@ -1997,7 +2016,7 @@ func (b *OGame) getEmpireJSON(celestialType ogame.CelestialType) (any, error) {
 		return nil, err
 	}
 	// Replace the Ogame hostname with our custom hostname
-	pageHTML := strings.Replace(string(pageHTMLBytes), b.serverURL, b.apiNewHostname, -1)
+	pageHTML := strings.Replace(string(pageHTMLBytes), b.cache.serverURL, b.apiNewHostname, -1)
 	return b.extractor.ExtractEmpireJSON([]byte(pageHTML))
 }
 
@@ -2005,8 +2024,14 @@ func (b *OGame) createUnion(fleet ogame.Fleet, unionUsers []string) (int64, erro
 	if fleet.ID == 0 {
 		return 0, errors.New("invalid fleet id")
 	}
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {utils.FI64(fleet.ID)}, "target": {utils.FI64(fleet.TargetPlanetID)}, "ajax": {"1"}})
-	payload := b.extractor.ExtractFederation(pageHTML)
+	pageHTML, err := b.getPageContent(url.Values{"page": {"federationlayer"}, "union": {"0"}, "fleet": {utils.FI64(fleet.ID)}, "target": {utils.FI64(fleet.TargetPlanetID)}, "ajax": {"1"}})
+	if err != nil {
+		return 0, err
+	}
+	payload, err := b.extractor.ExtractFederation(pageHTML)
+	if err != nil {
+		return 0, err
+	}
 
 	payloadUnionUsers := payload["unionUsers"]
 	for _, user := range payloadUnionUsers {
@@ -2059,7 +2084,10 @@ func (b *OGame) highscore(category, typ, page int64) (out ogame.Highscore, err e
 		"site":     {utils.FI64(page)},
 	}
 	payload := url.Values{}
-	pageHTML, _ := b.postPageContent(vals, payload)
+	pageHTML, err := b.postPageContent(vals, payload)
+	if err != nil {
+		return out, err
+	}
 	return b.extractor.ExtractHighscore(pageHTML)
 }
 
@@ -2072,7 +2100,10 @@ func (b *OGame) getAllResources() (map[ogame.CelestialID]ogame.Resources, error)
 		"show": {"auctioneer"},
 		"ajax": {"1"},
 	}
-	pageHTML, _ := b.postPageContent(vals, payload)
+	pageHTML, err := b.postPageContent(vals, payload)
+	if err != nil {
+		return nil, err
+	}
 	return b.extractor.ExtractAllResources(pageHTML)
 }
 
@@ -2237,8 +2268,11 @@ func (b *OGame) buyMarketplace(itemID int64, celestialID ogame.CelestialID) (err
 }
 
 func (b *OGame) getItems(celestialID ogame.CelestialID) (items []ogame.Item, err error) {
-	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
-	pageHTML, _ := b.getPageContent(params, ChangePlanet(celestialID))
+	params := url.Values{"page": {"ajax"}, "component": {"buffactivation"}, "ajax": {"1"}, "type": {"1"}}
+	pageHTML, err := b.getPageContent(params, ChangePlanet(celestialID))
+	if err != nil {
+		return nil, err
+	}
 	_, items, err = b.extractor.ExtractBuffActivation(pageHTML)
 	return
 }
@@ -2298,38 +2332,36 @@ type MessageSuccess struct {
 }
 
 func (b *OGame) activateItem(ref string, celestialID ogame.CelestialID) error {
-	params := url.Values{"page": {"buffActivation"}, "ajax": {"1"}, "type": {"1"}}
-	pageHTML, _ := b.getPageContent(params, ChangePlanet(celestialID))
-	token, _, err := b.extractor.ExtractBuffActivation(pageHTML)
-	if err != nil {
-		return err
-	}
-	params = url.Values{"page": {"inventory"}}
-	payload := url.Values{
-		"ajax":         {"1"},
-		"token":        {token},
+	params := url.Values{
+		"page":         {"componentOnly"},
+		"component":    {"itemactions"},
+		"asJson":       {"1"},
+		"itemUuid":     {ref},
+		"action":       {"activate"},
+		"token":        {b.cache.token},
 		"referrerPage": {"ingame"},
-		"item":         {ref},
+		"_":            {strconv.FormatInt(time.Now().UnixMilli(), 10)},
 	}
-	var res struct {
-		Message  any    `json:"message"`
-		Error    bool   `json:"error"`
-		NewToken string `json:"newToken"`
-	}
-	by, err := b.postPageContent(params, payload)
+	params.Add("itemUuid", ref)
+	pageHTML, err := b.getPageContent(params, ChangePlanet(celestialID))
 	if err != nil {
 		return err
 	}
-	if err := json.Unmarshal(by, &res); err != nil {
+	var responseStruct struct {
+		Status string `json:"status"`
+	}
+	if err := json.Unmarshal(pageHTML, &responseStruct); err != nil {
 		return err
 	}
-	if res.Error {
-		if msg, ok := res.Message.(string); ok {
-			return errors.New(msg)
-		}
-		return errors.New("unknown error")
+	if responseStruct.Status == "failure" {
+		return errors.New("failed to activate item")
 	}
-	return err
+	params = url.Values{"page": {"ajax"}, "component": {"buffactivation"}, "ajax": {"1"}}
+	payload := url.Values{"type": {ref}}
+	if _, err := b.postPageContent(params, payload); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (b *OGame) getAuction(celestialID ogame.CelestialID) (ogame.Auction, error) {
@@ -2477,7 +2509,10 @@ func (b *OGame) traderImportExportTrade(price int64, importToken string, planetR
 
 func (b *OGame) traderImportExportTakeItem(token string) error {
 	payload := url.Values{"action": {"takeItem"}, "token": {token}, "ajax": {"1"}}
-	pageHTML, _ := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload)
+	pageHTML, err := b.postPageContent(url.Values{"page": {"ajax"}, "component": {"traderimportexport"}, "ajax": {"1"}, "action": {"takeItem"}, "asJson": {"1"}}, payload)
+	if err != nil {
+		return err
+	}
 	var result struct {
 		Message      string
 		Error        bool
@@ -2532,7 +2567,7 @@ func (b *OGame) getAttacks(opts ...Option) (out []ogame.AttackEvent, err error) 
 	if err != nil {
 		return
 	}
-	planets := b.GetCachedPlanets()
+	planets := b.getCachedPlanets()
 	ownCoords := getOwnCoordinates(planets)
 	out, err = page.ExtractAttacks(ownCoords)
 	if err != nil {
@@ -2555,11 +2590,11 @@ func getOwnCoordinates(planets []Planet) (ownCoords []ogame.Coordinate) {
 func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemInfos, error) {
 	cfg := getOptions(opts...)
 	var res ogame.SystemInfos
-	if galaxy < 1 || galaxy > b.server.Settings.UniverseSize {
-		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.Settings.UniverseSize)
+	if galaxy < 1 || galaxy > b.server.OGameSettings().UniverseSize {
+		return res, fmt.Errorf("galaxy must be within [1, %d]", b.server.OGameSettings().UniverseSize)
 	}
-	if system < 1 || system > b.serverData.Systems {
-		return res, errors.New("system must be within [1, " + utils.FI64(b.serverData.Systems) + "]")
+	if system < 1 || system > b.cache.serverData.Systems {
+		return res, errors.New("system must be within [1, " + utils.FI64(b.cache.serverData.Systems) + "]")
 	}
 	payload := url.Values{
 		"galaxy": {utils.FI64(galaxy)},
@@ -2570,7 +2605,8 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 	if err != nil {
 		return res, err
 	}
-	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, b.Player.PlayerName, b.Player.PlayerID, b.Player.Rank)
+	player := b.cache.player
+	res, err = b.extractor.ExtractGalaxyInfos(pageHTML, player.PlayerName, player.PlayerID, player.Rank)
 	if err != nil {
 		if cfg.DebugGalaxy {
 			fmt.Println(string(pageHTML))
@@ -2578,7 +2614,7 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 		return res, err
 	}
 	if res.Galaxy() != galaxy || res.System() != system {
-		return ogame.SystemInfos{}, errors.New("not enough deuterium")
+		return ogame.SystemInfos{}, ogame.ErrNotEnoughDeuterium
 	}
 	return res, err
 }
@@ -2630,7 +2666,7 @@ func (b *OGame) setResourceSettings(planetID ogame.PlanetID, settings ogame.Reso
 		"last212":      {utils.FI64(settings.SolarSatellite)},
 		"last217":      {utils.FI64(settings.Crawler)},
 	}
-	url2 := b.serverURL + "/game/index.php?page=resourceSettings"
+	url2 := b.cache.serverURL + "/game/index.php?page=resourceSettings"
 	resp, err := b.device.GetClient().PostForm(url2, payload)
 	if err != nil {
 		return err
@@ -2640,11 +2676,11 @@ func (b *OGame) setResourceSettings(planetID ogame.PlanetID, settings ogame.Reso
 }
 
 func (b *OGame) getCachedResearch() ogame.Researches {
-	if b.researches == nil {
+	if b.cache.researches == nil {
 		researches, _ := b.getResearch()
 		return researches
 	}
-	return *b.researches
+	return *b.cache.researches
 }
 
 func (b *OGame) getResearch() (out ogame.Researches, err error) {
@@ -2653,15 +2689,15 @@ func (b *OGame) getResearch() (out ogame.Researches, err error) {
 		return
 	}
 	researches := page.ExtractResearch()
-	b.researches = &researches
+	b.cache.researches = &researches
 	return researches, nil
 }
 
 func (b *OGame) getCachedLfBonuses() (out ogame.LfBonuses, err error) {
-	if b.lfBonuses == nil {
+	if b.cache.lfBonuses == nil {
 		return b.getLfBonuses()
 	}
-	return *b.lfBonuses, nil
+	return *b.cache.lfBonuses, nil
 }
 
 func (b *OGame) getLfBonuses() (out ogame.LfBonuses, err error) {
@@ -2673,15 +2709,16 @@ func (b *OGame) getLfBonuses() (out ogame.LfBonuses, err error) {
 	if err != nil {
 		return
 	}
-	b.lfBonuses = &bonuses
+	b.cache.lfBonuses = &bonuses
 	return bonuses, nil
 }
 
 func (b *OGame) getCachedAllianceClass() (out ogame.AllianceClass, err error) {
-	if b.allianceClass == nil {
+	allianceClass := b.cache.allianceClass
+	if allianceClass == nil {
 		return b.getAllianceClass()
 	}
-	return *b.allianceClass, nil
+	return *allianceClass, nil
 }
 
 func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
@@ -2693,27 +2730,20 @@ func (b *OGame) getAllianceClass() (out ogame.AllianceClass, err error) {
 	if err != nil {
 		return
 	}
-	if bytes.Contains(pageHTML, []byte("createNewAlliance")) {
-		b.allianceClass = utils.Ptr(ogame.NoAllianceClass)
-		return *b.allianceClass, nil
+	allianceClass := ogame.NoAllianceClass
+	if !bytes.Contains(pageHTML, []byte("createNewAlliance")) {
+		vals := url.Values{"page": {"ingame"}, "component": {"alliance"}, "tab": {"overview"}, "action": {"fetchOverview"}, "ajax": {"1"}, "token": {token}}
+		pageHTML, err = b.getPageContent(vals, SkipCacheFullPage)
+		if err == nil && len(pageHTML) > 0 {
+			var res parser.AllianceOverviewTabRes
+			if err = json.Unmarshal(pageHTML, &res); err == nil {
+				allianceClass, _ = b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
+				b.cache.token = res.NewAjaxToken
+			}
+		}
 	}
-	vals := url.Values{"page": {"ingame"}, "component": {"alliance"}, "tab": {"overview"}, "action": {"fetchOverview"}, "ajax": {"1"}, "token": {token}}
-	pageHTML, err = b.getPageContent(vals, SkipCacheFullPage)
-	if err != nil {
-		return
-	}
-	if len(pageHTML) == 0 {
-		b.allianceClass = utils.Ptr(ogame.NoAllianceClass)
-		return *b.allianceClass, nil
-	}
-	var res parser.AllianceOverviewTabRes
-	if err = json.Unmarshal(pageHTML, &res); err != nil {
-		return
-	}
-	allianceClass, _ := b.extractor.ExtractAllianceClass([]byte(res.Content.AllianceAllianceOverview))
-	b.allianceClass = &allianceClass
-	b.token = res.NewAjaxToken
-	return *b.allianceClass, nil
+	b.cache.allianceClass = &allianceClass
+	return allianceClass, nil
 }
 
 func (b *OGame) getResourcesBuildings(celestialID ogame.CelestialID, options ...Option) (ogame.ResourcesBuildings, error) {
@@ -2791,11 +2821,11 @@ func (b *OGame) getFacilities(celestialID ogame.CelestialID, options ...Option) 
 	return page.ExtractFacilities()
 }
 
-func (b *OGame) getTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
+func (b *OGame) getTechs(celestialID ogame.CelestialID) (ogame.Techs, error) {
 	vals := url.Values{"page": {FetchTechsName}}
 	page, err := getAjaxPage[parser.FetchTechsAjaxPage](b, vals, ChangePlanet(celestialID))
 	if err != nil {
-		return ogame.ResourcesBuildings{}, ogame.Facilities{}, ogame.ShipsInfos{}, ogame.DefensesInfos{}, ogame.Researches{}, ogame.LfBuildings{}, ogame.LfResearches{}, err
+		return ogame.Techs{}, err
 	}
 	return page.ExtractTechs()
 }
@@ -2808,47 +2838,8 @@ func (b *OGame) getProduction(celestialID ogame.CelestialID) ([]ogame.Quantifiab
 	return page.ExtractProduction()
 }
 
-// IsV7 ...
-func (b *OGame) IsV7() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '7'
-}
-
-// IsV8 ...
-func (b *OGame) IsV8() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '8'
-}
-
-// IsV9 ...
-func (b *OGame) IsV9() bool {
-	return len(b.ServerVersion()) > 0 && b.ServerVersion()[0] == '9'
-}
-
-// IsV10 ...
-func (b *OGame) IsV10() bool {
-	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "10"
-}
-
-// IsV104 ...
-func (b *OGame) IsV104() bool {
-	return len(b.ServerVersion()) > 3 && b.ServerVersion()[:4] == "10.4"
-}
-
-// IsV11 ...
-func (b *OGame) IsV11() bool {
-	return len(b.ServerVersion()) > 1 && b.ServerVersion()[:2] == "11"
-}
-
-// IsVGreaterThanOrEqual ...
-func (b *OGame) IsVGreaterThanOrEqual(compareVersion string) bool {
-	return isVGreaterThanOrEqual(b.serverVersion, compareVersion)
-}
-
-func isVGreaterThanOrEqual(v *version.Version, compareVersion string) bool {
-	return v.GreaterThanOrEqual(version.Must(version.NewVersion(compareVersion)))
-}
-
 func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (ogame.TechnologyDetails, error) {
-	pageHTML, _ := b.getPageContent(url.Values{
+	pageHTML, err := b.getPageContent(url.Values{
 		"page":       {"ingame"},
 		"component":  {"technologydetails"},
 		"ajax":       {"1"},
@@ -2856,6 +2847,9 @@ func (b *OGame) technologyDetails(celestialID ogame.CelestialID, id ogame.ID) (o
 		"technology": {utils.FI64(id)},
 		"cp":         {utils.FI64(celestialID)},
 	})
+	if err != nil {
+		return ogame.TechnologyDetails{}, err
+	}
 	return b.extractor.ExtractTechnologyDetails(pageHTML)
 }
 
@@ -2880,7 +2874,7 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		return err
 	}
 
-	pageHTML, _ = b.getPageContent(url.Values{
+	pageHTML, err = b.getPageContent(url.Values{
 		"page":       {"ingame"},
 		"component":  {"technologydetails"},
 		"ajax":       {"1"},
@@ -2888,6 +2882,9 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		"technology": {utils.FI64(id)},
 		"cp":         {utils.FI64(celestialID)},
 	})
+	if err != nil {
+		return err
+	}
 
 	var jsonContent struct {
 		Target  string `json:"target"`
@@ -2911,7 +2908,7 @@ func (b *OGame) tearDown(celestialID ogame.CelestialID, id ogame.ID) error {
 		return err
 	}
 
-	if !b.extractor.ExtractTearDownButtonEnabled([]byte(jsonContent.Content.Technologydetails)) {
+	if ok, err := b.extractor.ExtractTearDownButtonEnabled([]byte(jsonContent.Content.Technologydetails)); err != nil || !ok {
 		return errors.New("tear down button is disabled")
 	}
 
@@ -2965,7 +2962,7 @@ func (b *OGame) build(celestialID ogame.CelestialID, id ogame.ID, nbr int64) err
 	var amount int64 = 1
 	if id.IsShip() || id.IsDefense() {
 		var maximumNbr int64 = 99999
-		amount = utils.MinInt(nbr, maximumNbr)
+		amount = min(nbr, maximumNbr)
 	}
 
 	payload := url.Values{
@@ -3045,17 +3042,20 @@ func (b *OGame) buildShips(celestialID ogame.CelestialID, shipID ogame.ID, nbr i
 	return b.buildProduction(celestialID, shipID, nbr)
 }
 
-func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
+func (b *OGame) constructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.Constructions, error) {
 	page, err := getPage[parser.OverviewPage](b, ChangePlanet(celestialID))
 	if err != nil {
-		return ogame.ID(0), 0, ogame.ID(0), 0, ogame.ID(0), 0, ogame.ID(0), 0
+		return ogame.Constructions{}, err
 	}
 	return page.ExtractConstructions()
 }
 
 func (b *OGame) cancel(token string, techID, listID int64) error {
-	_, _ = b.postPageContent(url.Values{"page": {"componentOnly"}, "component": {"buildlistactions"}, "action": {"cancelEntry"}, "asJson": {"1"}},
+	_, err := b.postPageContent(url.Values{"page": {"componentOnly"}, "component": {"buildlistactions"}, "action": {"cancelEntry"}, "asJson": {"1"}},
 		url.Values{"technologyId": {utils.FI64(techID)}, "listId": {utils.FI64(listID)}, "token": {token}})
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -3186,11 +3186,14 @@ func (b *OGame) sendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nbr int
 		return 0, err
 	}
 
-	duration, maxV, token := page.ExtractIPM()
+	duration, maxV, token, err := page.ExtractIPM()
+	if err != nil {
+		return 0, err
+	}
 	if maxV == 0 {
 		return 0, errors.New("no missile available")
 	}
-	nbr = utils.MinInt(nbr, maxV)
+	nbr = min(nbr, maxV)
 	params := url.Values{
 		"page":      {"ajax"},
 		"component": {"missileattacklayer"},
@@ -3274,10 +3277,10 @@ type CheckTargetResponse struct {
 
 func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate, opts ...Option) (out CheckTargetResponse, err error) {
 	payload := url.Values{}
-	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+	for shipID, nb := range ships.IterFlyable() {
 		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
-	})
-	payload.Set("token", b.token)
+	}
+	payload.Set("token", b.cache.token)
 	payload.Set("galaxy", utils.FI64(where.Galaxy))
 	payload.Set("system", utils.FI64(where.System))
 	payload.Set("position", utils.FI64(where.Position))
@@ -3295,98 +3298,89 @@ func (b *OGame) checkTarget(ships ogame.ShipsInfos, where ogame.Coordinate, opts
 
 func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos, speed ogame.Speed, where ogame.Coordinate,
 	mission ogame.MissionID, resources ogame.Resources, holdingTime, unionID int64, ensure bool) (ogame.Fleet, error) {
+	zeroFleet := ogame.MakeFleet()
 
 	// Get existing fleet, so we can ensure new fleet ID is greater
-	initialFleets, slots := b.getFleets()
+	initialFleets, slots, err := b.getFleets()
+	if err != nil {
+		return zeroFleet, err
+	}
 	maxInitialFleetID := ogame.FleetID(0)
 	for _, f := range initialFleets {
-		if f.ID > maxInitialFleetID {
-			maxInitialFleetID = f.ID
-		}
+		maxInitialFleetID = max(maxInitialFleetID, f.ID)
 	}
 
 	if slots.IsAllSlotsInUse(mission) {
-		return ogame.Fleet{}, ogame.ErrAllSlotsInUse
+		return zeroFleet, ogame.ErrAllSlotsInUse
 	}
 
 	// Page 1 : get to fleet page
 	pageHTML, err := b.getPage(FleetdispatchPageName, ChangePlanet(celestialID))
 	if err != nil {
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 
 	fleet1Doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
 	if err != nil {
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 	fleet1BodyID := b.extractor.ExtractBodyIDFromDoc(fleet1Doc)
 	if fleet1BodyID != FleetdispatchPageName {
-		b.error(ogame.ErrInvalidPlanetID.Error()+", planetID:", celestialID)
-		return ogame.Fleet{}, ogame.ErrInvalidPlanetID
+		return zeroFleet, ogame.ErrInvalidPlanetID
+	}
+
+	if attackBlockActivated, blockedUntil := b.extractor.ExtractAttackBlockFromDoc(fleet1Doc); attackBlockActivated {
+		return zeroFleet, ogame.NewAttackBlockActivatedErr(blockedUntil)
 	}
 
 	if b.extractor.ExtractIsInVacationFromDoc(fleet1Doc) {
-		return ogame.Fleet{}, ogame.ErrAccountInVacationMode
+		return zeroFleet, ogame.ErrAccountInVacationMode
 	}
 
 	// Ensure we're not trying to attack/spy ourselves
-	destinationIsMyOwnPlanet := false
 	myCelestials, _ := b.extractor.ExtractCelestialsFromDoc(fleet1Doc)
 	for _, c := range myCelestials {
-		if c.GetCoordinate().Equal(where) && c.GetID() == celestialID {
-			return ogame.Fleet{}, errors.New("origin and destination are the same")
-		}
 		if c.GetCoordinate().Equal(where) {
-			destinationIsMyOwnPlanet = true
+			if c.GetID() == celestialID {
+				return zeroFleet, errors.New("origin and destination are the same")
+			} else if mission == ogame.Spy {
+				return zeroFleet, errors.New("you cannot spy yourself")
+			} else if mission == ogame.Attack {
+				return zeroFleet, errors.New("you cannot attack yourself")
+			}
 			break
 		}
 	}
-	if destinationIsMyOwnPlanet {
-		switch mission {
-		case ogame.Spy:
-			return ogame.Fleet{}, errors.New("you cannot spy yourself")
-		case ogame.Attack:
-			return ogame.Fleet{}, errors.New("you cannot attack yourself")
-		}
+
+	availableShips, err := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
+	if err != nil {
+		return zeroFleet, err
 	}
 
-	availableShips := b.extractor.ExtractFleet1ShipsFromDoc(fleet1Doc)
-
 	atLeastOneShipSelected := false
-	if !ensure {
-		ships.EachFlyable(func(shipID ogame.ID, nb int64) {
-			avail := availableShips.ByID(shipID)
-			nb = utils.MinInt(nb, avail)
-			if nb > 0 {
-				atLeastOneShipSelected = true
-			}
-		})
-	} else {
-		var err1 error
-		ships.EachFlyable(func(shipID ogame.ID, nb int64) {
-			avail := availableShips.ByID(shipID)
-			if nb > avail {
-				err1 = fmt.Errorf("not enough ships to send, %s (%d > %d)", ogame.Objs.ByID(shipID).GetName(), nb, avail)
-			}
+	for shipID, nb := range ships.IterFlyable() {
+		avail := availableShips.ByID(shipID)
+		if ensure && nb > avail {
+			return zeroFleet, fmt.Errorf("%w, %s (%d > %d)", ogame.ErrNotEnoughShips, ogame.Objs.ByID(shipID).GetName(), nb, avail)
+		}
+		nb = min(nb, avail)
+		if nb > 0 {
 			atLeastOneShipSelected = true
-		})
-		if err1 != nil {
-			return ogame.Fleet{}, err1
 		}
 	}
 	if !atLeastOneShipSelected {
-		return ogame.Fleet{}, ogame.ErrNoShipSelected
+		return zeroFleet, ogame.ErrNoShipSelected
 	}
 
 	payload := b.extractor.ExtractHiddenFieldsFromDoc(fleet1Doc)
 	payload.Del("expeditionFleetTemplateId")
-	ships.EachFlyable(func(shipID ogame.ID, nb int64) {
+	for shipID, nb := range ships.IterFlyable() {
 		payload.Set("am"+utils.FI64(shipID), utils.FI64(nb))
-	})
+	}
 
 	token, err := b.extractor.ExtractToken(pageHTML)
 	if err != nil {
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 
 	payload.Set("token", token)
@@ -3402,65 +3396,54 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	payload.Set("union", "0")
 
 	if unionID != 0 {
-		found := false
 		acsArr := b.extractor.ExtractFleetDispatchACSFromDoc(fleet1Doc)
-		for _, acs := range acsArr {
-			if unionID == acs.Union {
-				found = true
-				payload.Add("acsValues", acs.ACSValues)
-				payload.Add("union", utils.FI64(acs.Union))
-				mission = ogame.GroupedAttack
-				break
-			}
+		acs := utils.Find(acsArr, func(v ogame.ACSValues) bool { return v.Union == unionID })
+		if acs == nil {
+			return zeroFleet, ogame.ErrUnionNotFound
 		}
-		if !found {
-			return ogame.Fleet{}, ogame.ErrUnionNotFound
-		}
+		payload.Add("acsValues", acs.ACSValues)
+		payload.Add("union", utils.FI64(acs.Union))
+		mission = ogame.GroupedAttack
 	}
 
 	// Check
 	by1, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"checkTarget"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
 	if err != nil {
-		b.error(err.Error())
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 	var checkRes CheckTargetResponse
 	if err := json.Unmarshal(by1, &checkRes); err != nil {
-		b.error(err.Error())
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
 
 	if !checkRes.TargetOk {
 		if len(checkRes.Errors) > 0 {
-			return ogame.Fleet{}, errors.New(checkRes.Errors[0].Message + " (" + strconv.Itoa(checkRes.Errors[0].Error) + ")")
+			return zeroFleet, errors.New(checkRes.Errors[0].Message + " (" + strconv.Itoa(checkRes.Errors[0].Error) + ")")
 		}
-		return ogame.Fleet{}, errors.New("target is not ok")
+		return zeroFleet, errors.New("target is not ok")
 	}
 
 	lfBonuses, err := b.getCachedLfBonuses()
 	if err != nil {
-		return ogame.Fleet{}, err
+		return zeroFleet, err
 	}
-	multiplier := float64(b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
-	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.characterClass, multiplier, b.server.ProbeRaidsEnabled())
+	serverData := b.getServerData()
+	multiplier := float64(serverData.CargoHyperspaceTechMultiplier) / 100.0
+	cargo := ships.Cargo(b.getCachedResearch(), lfBonuses, b.cache.characterClass, multiplier, b.server.OGameSettings().ProbeRaidsEnabled())
 	newResources := ogame.Resources{}
 	if resources.Total() > cargo {
-		newResources.Deuterium = utils.MinInt(resources.Deuterium, cargo)
+		newResources.Deuterium = utils.Clamp(resources.Deuterium, 0, cargo)
 		cargo -= newResources.Deuterium
-		newResources.Crystal = utils.MinInt(resources.Crystal, cargo)
+		newResources.Crystal = utils.Clamp(resources.Crystal, 0, cargo)
 		cargo -= newResources.Crystal
-		newResources.Metal = utils.MinInt(resources.Metal, cargo)
+		newResources.Metal = utils.Clamp(resources.Metal, 0, cargo)
 	} else {
 		newResources = resources
 	}
 
-	newResources.Metal = utils.MaxInt(newResources.Metal, 0)
-	newResources.Crystal = utils.MaxInt(newResources.Crystal, 0)
-	newResources.Deuterium = utils.MaxInt(newResources.Deuterium, 0)
-
 	// Page 3 : select coord, mission, speed
 	payload.Set("token", checkRes.NewAjaxToken)
-	payload.Set("speed", strconv.FormatInt(int64(speed), 10))
+	payload.Set("speed", utils.FI64(int64(speed)))
 	payload.Set("crystal", utils.FI64(newResources.Crystal))
 	payload.Set("deuterium", utils.FI64(newResources.Deuterium))
 	payload.Set("metal", utils.FI64(newResources.Metal))
@@ -3473,14 +3456,17 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 	if mission == ogame.ParkInThatAlly || mission == ogame.Expedition {
 		if mission == ogame.Expedition { // Expedition 1 to 18
 			holdingTime = utils.Clamp(holdingTime, 1, 18)
-		} else if mission == ogame.ParkInThatAlly { // ParkInThatAlly 0, 1, 2, 4, 8, 16, 32
+		} else { // ParkInThatAlly 0, 1, 2, 4, 8, 16, 32
 			holdingTime = utils.Clamp(holdingTime, 0, 32)
 		}
 		payload.Set("holdingtime", utils.FI64(holdingTime))
 	}
 
 	// Page 4 : send the fleet
-	res, _ := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"sendFleet"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+	res, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"fleetdispatch"}, "action": {"sendFleet"}, "ajax": {"1"}, "asJson": {"1"}}, payload)
+	if err != nil {
+		return zeroFleet, err
+	}
 	// {"success":true,"message":"Your fleet has been successfully sent.","redirectUrl":"https:\/\/s801-en.ogame.gameforge.com\/game\/index.php?page=ingame&component=fleetdispatch","components":[]}
 	// Insufficient resources. (4060)
 	// {"success":false,"errors":[{"message":"Not enough cargo space!","error":4029}],"fleetSendingToken":"b4786751c6d5e64e56d8eb94807fbf88","components":[]}
@@ -3504,38 +3490,36 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		} `json:"errors"`
 	}
 	if err := json.Unmarshal(res, &resStruct); err != nil {
-		return ogame.Fleet{}, errors.New("failed to unmarshal response: " + err.Error())
+		return zeroFleet, errors.New("failed to unmarshal response: " + err.Error())
 	}
 
 	if len(resStruct.Errors) > 0 {
-		return ogame.Fleet{}, errors.New(resStruct.Errors[0].Message + " (" + utils.FI64(resStruct.Errors[0].Error) + ")")
+		return zeroFleet, errors.New(resStruct.Errors[0].Message + " (" + utils.FI64(resStruct.Errors[0].Error) + ")")
 	}
 
 	// Page 5
-	page, _ := getPage[parser.MovementPage](b)
+	page, err := getPage[parser.MovementPage](b)
+	if err != nil {
+		return zeroFleet, err
+	}
 	originCoords, _ := page.ExtractPlanetCoordinate()
-	fleets := page.ExtractFleets()
+	fleets, err := page.ExtractFleets()
+	if err != nil {
+		return zeroFleet, err
+	}
 	if maxV, err := getLastFleetFor(fleets, originCoords, where, mission); err == nil && maxV.ID > maxInitialFleetID {
 		return maxV, nil
 	}
 
 	slots, _ = page.ExtractSlots()
-	if slots.InUse == slots.Total {
-		return ogame.Fleet{}, ogame.ErrAllSlotsInUse
+	if slots.IsAllSlotsInUse(mission) {
+		return zeroFleet, ogame.ErrAllSlotsInUse
 	}
 
-	if mission == ogame.Expedition {
-		if slots.ExpInUse == slots.ExpTotal {
-			return ogame.Fleet{}, ogame.ErrAllSlotsInUse
-		}
-	}
-
-	b.error(errors.New("could not find new fleet ID").Error()+", planetID:", celestialID)
-	return ogame.Fleet{}, errors.New("could not find new fleet ID")
+	return zeroFleet, errors.New("could not find new fleet ID")
 }
 
-func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) error {
-	token := ""
+func (b *OGame) fastMiniFleetSpy(coord ogame.Coordinate, shipCount int64, options ...Option) (ogame.MinifleetResponse, error) {
 	vals := url.Values{
 		"page":      {"ingame"},
 		"component": {"fleetdispatch"},
@@ -3548,41 +3532,75 @@ func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64) error {
 		"galaxy":    {utils.FI64(coord.Galaxy)},
 		"system":    {utils.FI64(coord.System)},
 		"position":  {utils.FI64(coord.Position)},
-		"type":      {"1"}, // ?
+		"type":      {utils.FI64(coord.Type)},
 		"shipCount": {utils.FI64(shipCount)},
-		"token":     {token},
+		"token":     {b.cache.token},
 	}
-	pageHTML, err := b.postPageContent(vals, payload)
+	var res ogame.MinifleetResponse
+	pageHTML, err := b.postPageContent(vals, payload, options...)
 	if err != nil {
-		return err
-	}
-	var res struct {
-		Response struct {
-			Message     string `json:"message"`
-			Type        int    `json:"type"`
-			Slots       int    `json:"slots"`
-			Probes      int    `json:"probes"`
-			Recyclers   int    `json:"recyclers"`
-			Explorers   int    `json:"explorers"`
-			Missiles    int    `json:"missiles"`
-			ShipsSent   int    `json:"shipsSent"`
-			Coordinates struct {
-				Galaxy   int `json:"galaxy"`
-				System   int `json:"system"`
-				Position int `json:"position"`
-			} `json:"coordinates"`
-			PlanetType int  `json:"planetType"`
-			Success    bool `json:"success"`
-		} `json:"response"`
-		NewAjaxToken string `json:"newAjaxToken"`
+		return res, err
 	}
 	if err := json.Unmarshal(pageHTML, &res); err != nil {
-		return err
+		return res, err
 	}
 	if !res.Response.Success {
-		return errors.New(res.Response.Message)
+		msg := res.Response.Message
+		rgx := regexp.MustCompile(`\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}`)
+		if match := rgx.FindString(msg); match != "" {
+			if blockedUntil, err := time.Parse("02.01.2006 15:04:05", match); err == nil {
+				return res, ogame.NewAttackBlockActivatedErr(blockedUntil)
+			}
+		}
+		return res, errors.New(msg)
 	}
-	return nil
+	return res, nil
+}
+
+func (b *OGame) miniFleetSpy(coord ogame.Coordinate, shipCount int64, options ...Option) (ogame.Fleet, error) {
+	fleet := ogame.MakeFleet()
+	if _, err := b.fastMiniFleetSpy(coord, shipCount, options...); err != nil {
+		return fleet, err
+	}
+	by, err := b.getPageContent(url.Values{"page": {"componentOnly"}, "component": {EventListAjaxPageName}, "ajax": {"1"}})
+	if err != nil {
+		return fleet, err
+	}
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(by))
+	if err != nil {
+		return fleet, err
+	}
+	type FleetRow struct {
+		ArrivalTs int64
+		FleetID   ogame.FleetID
+	}
+	rows := make([]FleetRow, 0)
+	for _, s := range doc.Find("tr.eventFleet").EachIter() {
+		arrivalTs := utils.DoParseI64(s.AttrOr("data-arrival-time", ""))
+		fleetID := ogame.FleetID(utils.DoParseI64(s.Find("a.recallFleet").AttrOr("data-fleet-id", "")))
+		rows = append(rows, FleetRow{ArrivalTs: arrivalTs, FleetID: fleetID})
+	}
+	maxRow := FleetRow{}
+	for _, row := range rows {
+		if row.FleetID > maxRow.FleetID {
+			maxRow = row
+		}
+	}
+	if maxRow.FleetID == 0 {
+		return fleet, errors.New("could not find fleet ID")
+	}
+	currCelestial, _ := b.getCachedCelestial(b.cache.planetID)
+	fleet.Mission = ogame.Spy
+	fleet.ID = maxRow.FleetID
+	fleet.Origin = currCelestial.GetCoordinate()
+	fleet.Destination = coord
+	fleet.Ships = ogame.ShipsInfos{EspionageProbe: shipCount}
+	fleet.StartTime = time.Now()
+	fleet.ArrivalTime = time.Unix(maxRow.ArrivalTs, 0)
+	fleet.ArriveIn = int64(time.Until(fleet.ArrivalTime).Seconds())
+	fleet.BackTime = fleet.ArrivalTime.Add(time.Duration(2*fleet.ArriveIn) * time.Second)
+	fleet.BackIn = int64(time.Until(fleet.BackTime).Seconds())
+	return fleet, nil
 }
 
 func (b *OGame) getPageMessages(page int64, tabid ogame.MessagesTabID) ([]byte, error) {
@@ -3718,10 +3736,10 @@ func (b *OGame) getExpeditionMessageAt(t time.Time) (ogame.ExpeditionMessage, er
 	return ogame.ExpeditionMessage{}, errors.New("expedition message not found for " + t.String())
 }
 
-func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSummary, error) {
+func (b *OGame) getCombatReportSummaries() ([]ogame.CombatReportSummary, error) {
 	pageHTML, err := b.getPageMessages(1, CombatReportsMessagesTabID)
 	if err != nil {
-		return ogame.CombatReportSummary{}, err
+		return nil, err
 	}
 	var res struct {
 		ServerLang   string `json:"js_serverlang"`
@@ -3741,6 +3759,27 @@ func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSu
 		newMessage, _, _ := b.extractor.ExtractCombatReportMessagesSummary(doc)
 		newMessages = append(newMessages, newMessage...)
 	}
+	return newMessages, nil
+}
+
+func (b *OGame) getCombatReportForFleet(fleetID ogame.FleetID) (ogame.CombatReportSummary, error) {
+	newMessages, err := b.getCombatReportSummaries()
+	if err != nil {
+		return ogame.CombatReportSummary{}, err
+	}
+	for _, m := range newMessages {
+		if m.FleetID == fleetID {
+			return m, nil
+		}
+	}
+	return ogame.CombatReportSummary{}, errors.New("combat report not found for " + fleetID.String())
+}
+
+func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSummary, error) {
+	newMessages, err := b.getCombatReportSummaries()
+	if err != nil {
+		return ogame.CombatReportSummary{}, err
+	}
 	for _, m := range newMessages {
 		if m.Destination.Equal(coord) {
 			return m, nil
@@ -3750,7 +3789,10 @@ func (b *OGame) getCombatReportFor(coord ogame.Coordinate) (ogame.CombatReportSu
 }
 
 func (b *OGame) getEspionageReport(msgID int64) (ogame.EspionageReport, error) {
-	pageHTML, _ := b.getPageContent(url.Values{"page": {"componentOnly"}, "component": {"messagedetails"}, "messageId": {utils.FI64(msgID)}})
+	pageHTML, err := b.getPageContent(url.Values{"page": {"componentOnly"}, "component": {"messagedetails"}, "messageId": {utils.FI64(msgID)}})
+	if err != nil {
+		return ogame.EspionageReport{}, err
+	}
 	return b.extractor.ExtractEspionageReport(pageHTML)
 }
 
@@ -3927,7 +3969,7 @@ func (b *OGame) getResourcesProductions(planetID ogame.PlanetID) (ogame.Resource
 	planet, _ := b.getPlanet(planetID)
 	resBuildings, _ := b.getResourcesBuildings(planetID.Celestial())
 	researches, _ := b.getResearch()
-	universeSpeed := b.serverData.Speed
+	universeSpeed := b.cache.serverData.Speed
 	resSettings, _ := b.getResourceSettings(planetID)
 	ratio := productionRatio(planet.Temperature, resBuildings, resSettings, researches.EnergyTechnology)
 	productions := getProductions(resBuildings, resSettings, researches, universeSpeed, planet.Temperature, ratio)
@@ -3955,7 +3997,7 @@ func (b *OGame) getPublicIP() (string, error) {
 		return "", err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
@@ -3987,9 +4029,9 @@ func (b *OGame) botUnlock(unlockedBy string) {
 	}
 }
 
-func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountRes, error) {
+func (b *OGame) addAccount(number int, lang string) (*gameforge.AddAccountResponse, error) {
 	accountGroup := fmt.Sprintf("%s_%d", lang, number)
-	return gameforge.AddAccount(b.device, b.ctx, b.lobby, accountGroup, b.bearerToken)
+	return gameforge.AddAccount(b.ctx, b.device, PLATFORM, b.lobby, accountGroup, b.bearerToken)
 }
 
 func (b *OGame) getCachedCelestial(v IntoCelestial) (Celestial, error) {
@@ -4018,8 +4060,12 @@ func (b *OGame) getCachedCelestial(v IntoCelestial) (Celestial, error) {
 		return getCachedCelestialByID(ogame.CelestialID(vv))
 	case float64:
 		return getCachedCelestialByID(ogame.CelestialID(vv))
-	case lua.LNumber:
-		return getCachedCelestialByID(ogame.CelestialID(vv))
+	case HasCoordinate:
+		coordinate, err := ConvertIntoCoordinate(b, vv)
+		if err != nil {
+			return nil, err
+		}
+		return getCachedCelestialByCoord(coordinate)
 	case ogame.Coordinate:
 		return getCachedCelestialByCoord(vv)
 	case string:
@@ -4055,14 +4101,12 @@ func (b *OGame) getCelestialByPredicateFn(clb func(Celestial) bool) (Celestial, 
 }
 
 func (b *OGame) getCachedPlanets() []Planet {
-	b.planetsMu.RLock()
-	defer b.planetsMu.RUnlock()
-	return b.planets
+	return b.cache.planets.Load()
 }
 
 func (b *OGame) getCachedMoons() []Moon {
 	var moons []Moon
-	for _, p := range b.GetCachedPlanets() {
+	for _, p := range b.getCachedPlanets() {
 		if p.Moon != nil {
 			moons = append(moons, *p.Moon)
 		}
@@ -4072,7 +4116,7 @@ func (b *OGame) getCachedMoons() []Moon {
 
 func (b *OGame) getCachedCelestials() []Celestial {
 	celestials := make([]Celestial, 0)
-	for _, p := range b.GetCachedPlanets() {
+	for _, p := range b.getCachedPlanets() {
 		celestials = append(celestials, p)
 		if p.Moon != nil {
 			celestials = append(celestials, *p.Moon)
@@ -4096,7 +4140,7 @@ func (b *OGame) getCachedMoon(v IntoMoon) (Moon, error) {
 			return moon, nil
 		}
 	}
-	return Moon{}, errors.New("invalid planet")
+	return Moon{}, errors.New("invalid moon")
 }
 
 func (b *OGame) getTasks() (out taskRunner.TasksOverview) {
@@ -4168,6 +4212,8 @@ func (b *OGame) sendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.C
 	}
 	select {
 	case <-time.After(utils.RandMs(250, 500)):
+	case <-b.parentCtx.Done():
+		return ogame.Fleet{}, b.parentCtx.Err()
 	case <-b.ctx.Done():
 		return ogame.Fleet{}, ogame.ErrBotInactive
 	}
@@ -4182,18 +4228,79 @@ func (b *OGame) sendDiscoveryFleet2(celestialID ogame.CelestialID, coord ogame.C
 	return fleet, nil
 }
 
-func (b *OGame) getAvailableDiscoveries(opts ...Option) int64 {
+func (b *OGame) sendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, system int64, options ...Option) ([]ogame.Coordinate, error) {
+	options = append(options, ChangePlanet(celestialID))
+	galaxyPage, err := b.getGalaxyPage(galaxy, system, options...)
+	if err != nil {
+		return nil, err
+	}
+	if _, ok := galaxyPage.System.CanSendSystemDiscovery.(string); ok {
+		return nil, errors.New("can't send system discovery")
+	}
+	// Send fleets.
+	res, err := b.postPageContent(url.Values{
+		"page":      {"ingame"},
+		"component": {"fleetdispatch"},
+		"action":    {"sendSystemDiscoveryFleet"},
+		"asJson":    {"1"},
+	}, url.Values{
+		"galaxy": {utils.FI64(galaxy)},
+		"system": {utils.FI64(system)},
+		"token":  {galaxyPage.Token},
+	})
+	if err != nil {
+		return nil, err
+	}
+	var resStruct struct {
+		Response struct {
+			Message           string `json:"message"`
+			ShipsSent         int    `json:"shipsSent"`
+			SentToCoordinates []struct {
+				Galaxy   int64 `json:"galaxy"`
+				System   int64 `json:"system"`
+				Position int64 `json:"position"`
+			} `json:"sentToCoordinates"`
+			Discovery struct {
+				CanSendDiscovery any    `json:"canSendDiscovery"` // `true` or `"Maximum number of fleets reached."`
+				DiscoveryCount   string `json:"discoveryCount"`
+				GalaxyHeader     struct {
+					LocaGalaxyLifeformDiscoveryCount string `json:"LOCA_GALAXY_LIFEFORM_DISCOVERY_COUNT"`
+				} `json:"galaxyHeader"`
+			} `json:"discovery"`
+			Success bool `json:"success"`
+		} `json:"response"`
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
+	if err := json.Unmarshal(res, &resStruct); err != nil {
+		return nil, errors.New("failed to unmarshal response: " + err.Error())
+	}
+	if !resStruct.Response.Success {
+		return nil, errors.New(resStruct.Response.Message)
+	}
+	coordinates := make([]ogame.Coordinate, 0)
+	for _, resCoord := range resStruct.Response.SentToCoordinates {
+		coord := ogame.NewPlanetCoordinate(resCoord.Galaxy, resCoord.System, resCoord.Position)
+		coordinates = append(coordinates, coord)
+	}
+	return coordinates, nil
+}
+
+func (b *OGame) getAvailableDiscoveries(opts ...Option) (int64, error) {
 	// Return the amount of available discoveries.
-	pageHTML, _ := b.getPageContent(url.Values{
+	pageHTML, err := b.getPageContent(url.Values{
 		"page":      {"ingame"},
 		"component": {"galaxy"},
 	}, opts...)
+	if err != nil {
+		return 0, err
+	}
 	return b.extractor.ExtractAvailableDiscoveries(pageHTML)
 }
 
 type GalaxyPageContent struct {
 	System struct {
-		GalaxyContent []struct {
+		CanSendSystemDiscovery any `json:"canSendSystemDiscovery"`
+		GalaxyContent          []struct {
 			Position          int64 `json:"position"`
 			AvailableMissions []struct {
 				CanSend     any             `json:"canSend,omitempty"`
@@ -4223,6 +4330,44 @@ func (b *OGame) getPositionsAvailableForDiscoveryFleet(galaxy int64, system int6
 	return availablePositions, nil
 }
 
+func (b *OGame) getChapter(chapterID int64) (ogame.Chapter, error) {
+	pageHTML, err := b.getPageContent(url.Values{
+		"page":      {"ajax"},
+		"component": {"ipioverview"},
+		"action":    {"overviewLayer"},
+		"ajax":      {"1"},
+		"chapterId": {utils.FI64(chapterID)},
+	})
+	if err != nil {
+		return ogame.Chapter{}, err
+	}
+	return b.extractor.ExtractChapter(pageHTML)
+}
+
+func (b *OGame) chapterClaimAll(chapterID int64) error {
+	_, err := b.getPageContent(url.Values{
+		"page":      {"ajax"},
+		"component": {"ipioverview"},
+		"action":    {"collectChapter"},
+		"ajax":      {"1"},
+		"token":     {b.cache.token},
+		"chapterId": {utils.FI64(chapterID)},
+	})
+	return err
+}
+
+func (b *OGame) chapterCollectReward(taskID int64) error {
+	_, err := b.getPageContent(url.Values{
+		"page":      {"ajax"},
+		"component": {"ipioverview"},
+		"action":    {"collectTask"},
+		"ajax":      {"1"},
+		"token":     {b.cache.token},
+		"taskId":    {utils.FI64(taskID)},
+	})
+	return err
+}
+
 func (b *OGame) selectLfResearchSelect(planetID ogame.PlanetID, slotNumber int64) error {
 	return b.selectLfResearch(planetID, slotNumber, "select", ogame.NoID)
 }
@@ -4247,7 +4392,7 @@ func (b *OGame) selectLfResearch(planetID ogame.PlanetID, slotNumber int64, acti
 		"planetId":  {planetID.String()},
 	}
 	payload := url.Values{
-		"token":      {b.token},
+		"token":      {b.cache.token},
 		"slotNumber": {utils.FI64(slotNumber)},
 	}
 	if techID.IsSet() {
@@ -4288,7 +4433,7 @@ func (b *OGame) resetTree(planetID ogame.PlanetID, tier int64, action string) er
 		"planetId":  {planetID.String()},
 	}
 	payload := url.Values{
-		"token": {b.token},
+		"token": {b.cache.token},
 		"tier":  {utils.FI64(tier)},
 	}
 	by, err := b.postPageContent(vals, payload)
@@ -4317,3 +4462,179 @@ type OGameError struct {
 	Message string `json:"message"`
 	Error   int    `json:"error"`
 }
+
+func (b *OGame) reconnectChat() bool {
+	if b.ws != nil {
+		_ = websocket.Message.Send(b.ws, "1::/chat")
+		return true
+	}
+	return false
+}
+
+func (b *OGame) setLoginWrapper(newWrapper func(LoginFn) error) {
+	b.loginWrapper = newWrapper
+}
+
+func (b *OGame) distance(origin, destination ogame.Coordinate) int64 {
+	serverData := b.cache.serverData
+	return Distance(origin, destination, serverData.Galaxies, serverData.Systems, 0, serverData.DonutGalaxy, serverData.DonutSystem)
+}
+
+func (b *OGame) systemDistance(system1, system2 int64) int64 {
+	serverData := b.cache.serverData
+	return systemDistance(serverData.Systems, system1, system2, serverData.DonutSystem)
+}
+
+func (b *OGame) getSession() string {
+	return b.cache.ogameSession
+}
+
+func (b *OGame) withPriority(priority taskRunner.Priority) *Prioritize {
+	return b.taskRunnerInst.WithPriority(priority)
+}
+
+func (b *OGame) getDevice() *device.Device {
+	return b.device
+}
+
+func (b *OGame) getClient() *httpclient.Client {
+	return b.device.GetClient()
+}
+
+func (b *OGame) setClient(client *httpclient.Client) {
+	b.device.SetClient(client)
+}
+
+func (b *OGame) onStateChange(clb func(locked bool, actor string)) {
+	b.stateChangeCallbacks = append(b.stateChangeCallbacks, clb)
+}
+
+func (b *OGame) getState() (bool, string) {
+	return b.lockedAtom.Load(), b.state
+}
+
+func (b *OGame) isLocked() bool {
+	return b.lockedAtom.Load()
+}
+
+func (b *OGame) getServer() gameforge.Server {
+	return b.server
+}
+
+func (b *OGame) planetID() ogame.CelestialID {
+	return b.cache.planetID
+}
+
+func (b *OGame) serverURL() string {
+	return b.cache.serverURL
+}
+
+func (b *OGame) getLanguage() string {
+	return b.language
+}
+
+func (b *OGame) bytesDownloaded() int64 {
+	return b.device.GetClient().BytesDownloaded()
+}
+
+func (b *OGame) bytesUploaded() int64 {
+	return b.device.GetClient().BytesUploaded()
+}
+
+func (b *OGame) getUniverseName() string {
+	return b.universe
+}
+
+func (b *OGame) getUsername() string {
+	return b.username
+}
+
+func (b *OGame) isPioneers() bool {
+	return b.lobby == gameforge.LobbyPioneers
+}
+
+func (b *OGame) getCachedPreferences() ogame.Preferences {
+	return b.cache.CachedPreferences
+}
+
+func (b *OGame) isVacationModeEnabled() bool {
+	return b.cache.isVacationModeEnabled
+}
+
+func (b *OGame) location() *time.Location {
+	return b.cache.location
+}
+
+func (b *OGame) getCachedToken() string {
+	return b.cache.token
+}
+
+func (b *OGame) getServerData() ServerData {
+	return b.cache.serverData
+}
+
+func (b *OGame) getResearchSpeed() int64 {
+	return b.cache.serverData.ResearchDurationDivisor
+}
+
+func (b *OGame) getNbSystems() int64 {
+	return b.cache.serverData.Systems
+}
+
+func (b *OGame) fleetDeutSaveFactor() float64 {
+	return b.cache.serverData.GlobalDeuteriumSaveFactor
+}
+
+func (b *OGame) serverVersion() string {
+	return b.cache.serverData.Version
+}
+
+func (b *OGame) characterClass() ogame.CharacterClass {
+	return b.cache.characterClass
+}
+
+func (b *OGame) countColonies() (int64, int64) {
+	return b.cache.coloniesCount, b.cache.coloniesPossible
+}
+
+func (b *OGame) getExtractor() extractor.Extractor {
+	return b.extractor
+}
+
+func (b *OGame) setAllianceClass(allianceClass ogame.AllianceClass) {
+	b.cache.allianceClass = &allianceClass
+}
+
+func (b *OGame) setResearches(researches ogame.Researches) {
+	b.cache.researches = &researches
+}
+
+func (b *OGame) setLfBonuses(lfBonuses ogame.LfBonuses) {
+	b.cache.lfBonuses = &lfBonuses
+}
+
+func (b *OGame) registerWSCallback(id string, fn func(msg []byte)) {
+	b.wsCallbacks.Insert(id, fn)
+}
+
+func (b *OGame) removeWSCallback(id string) {
+	b.wsCallbacks.Delete(id)
+}
+
+func (b *OGame) registerChatCallback(fn func(msg ogame.ChatMsg)) {
+	b.chatCallbacks = append(b.chatCallbacks, fn)
+}
+
+func (b *OGame) registerAuctioneerCallback(fn func(packet any)) {
+	b.auctioneerCallbacks = append(b.auctioneerCallbacks, fn)
+}
+
+func (b *OGame) registerHTMLInterceptor(fn func(method, url string, params, payload url.Values, pageHTML []byte)) {
+	b.interceptorCallbacks = append(b.interceptorCallbacks, fn)
+}
+
+func (b *OGame) setInitiator(_ string) Prioritizable {
+	return nil
+}
+
+func (b *OGame) done() {}

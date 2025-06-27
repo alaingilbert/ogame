@@ -13,20 +13,21 @@ import (
 )
 
 func extractResourceSettingsFromPage(pageHTML []byte) (ogame.ResourceSettings, string, error) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ogame.ResourceSettings{}, "", err
+	}
 	bodyID := v6.ExtractBodyIDFromDoc(doc)
 	if bodyID == "overview" {
 		return ogame.ResourceSettings{}, "", ogame.ErrInvalidPlanetID
 	}
 	vals := make([]int64, 0)
-	doc.Find("option").Each(func(i int, s *goquery.Selection) {
-		_, selectedExists := s.Attr("selected")
-		if selectedExists {
-			a, _ := s.Attr("value")
-			val := utils.DoParseI64(a)
+	for _, s := range doc.Find("option").EachIter() {
+		if _, selectedExists := s.Attr("selected"); selectedExists {
+			val := utils.DoParseI64(s.AttrOr("value", ""))
 			vals = append(vals, val)
 		}
-	})
+	}
 	if len(vals) != 7 {
 		return ogame.ResourceSettings{}, "", errors.New("failed to find all resource settings")
 	}
@@ -64,9 +65,12 @@ func ExtractCancelInfos(pageHTML []byte, fnName string, tableIdx int) (token str
 		return "", 0, 0, errors.New("unable to find token")
 	}
 	token = string(m1[1])
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return "", 0, 0, err
+	}
 	t := doc.Find("table.construction").Eq(tableIdx)
-	a, _ := t.Find("a").First().Attr("onclick")
+	a := t.Find("a").First().AttrOr("onclick", "")
 	r := regexp.MustCompile(fnName + `\((\d+),\s?(\d+),`)
 	m := r.FindStringSubmatch(a)
 	if len(m) < 3 {
@@ -104,28 +108,31 @@ func extractLifeformTypeFromDoc(doc *goquery.Document) ogame.LifeformType {
 	return ogame.NoneLfType
 }
 
-func extractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64) {
+func extractJumpGate(pageHTML []byte) (ogame.ShipsInfos, string, []ogame.MoonID, int64, error) {
 	m := regexp.MustCompile(`\$\("#cooldown"\), (\d+),`).FindSubmatch(pageHTML)
 	ships := ogame.ShipsInfos{}
 	var destinations []ogame.MoonID
 	if len(m) > 0 {
 		waitTime := int64(utils.ToInt(m[1]))
-		return ships, "", destinations, waitTime
+		return ships, "", destinations, waitTime, nil
 	}
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return ships, "", destinations, 0, err
+	}
 	for _, s := range ogame.Ships {
 		ships.Set(s.GetID(), utils.ParseInt(doc.Find("input#ship_"+utils.FI64(s.GetID())).AttrOr("rel", "0")))
 	}
 	token := doc.Find("input[name=token]").AttrOr("value", "")
 
-	doc.Find("select[name=targetSpaceObjectId] option").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("select[name=targetSpaceObjectId] option").EachIter() {
 		moonID := utils.ParseInt(s.AttrOr("value", "0"))
 		if moonID > 0 {
 			destinations = append(destinations, ogame.MoonID(moonID))
 		}
-	})
+	}
 
-	return ships, token, destinations, 0
+	return ships, token, destinations, 0, nil
 }
 
 func extractPreferencesFromDoc(doc *goquery.Document) ogame.Preferences {

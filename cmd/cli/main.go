@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/abiosoft/ishell.v2"
+	"github.com/abiosoft/ishell/v2"
 )
 
 const ascii = "" +
@@ -60,8 +60,9 @@ func main() {
 		Name: "Player",
 		Help: "Display player infos",
 		Func: func(c *ishell.Context) {
+			player := bot.GetCachedPlayer()
 			c.Printf("%s %d (%d/%d) %d \n",
-				bot.Player.PlayerName, bot.Player.Points, bot.Player.Rank, bot.Player.Total, bot.Player.HonourPoints)
+				player.PlayerName, player.Points, player.Rank, player.Total, player.HonourPoints)
 		},
 	})
 

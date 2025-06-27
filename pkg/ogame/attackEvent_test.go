@@ -1,10 +1,9 @@
 package ogame
 
 import (
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-
-	"github.com/magiconair/properties/assert"
 )
 
 func TestAttackEvent_String(t *testing.T) {

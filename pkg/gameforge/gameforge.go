@@ -4,14 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"encoding/xml"
 	"errors"
 	"fmt"
-	"github.com/alaingilbert/ogame/pkg/device"
-	"github.com/alaingilbert/ogame/pkg/httpclient"
-	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/alaingilbert/ogame/pkg/utils"
-	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"io"
 	"net/http"
@@ -20,7 +14,7 @@ import (
 	"time"
 )
 
-// TokenCookieName ogame cookie name for token id
+// TokenCookieName gameforge cookie name for token id
 const (
 	TokenCookieName         = "gf-token-production"
 	ChallengeIDCookieName   = "gf-challenge-id"
@@ -36,20 +30,70 @@ const (
 	endpointLoc             = "en-GB"
 )
 
+// Client ...
+type Client interface {
+	Login(params *LoginParams) (out *LoginResponse, err error)
+	Logout() error
+	GetUserAccounts() ([]Account, error)
+	GetServers() ([]Server, error)
+	StartChallenge(challengeID string) (question, icons []byte, err error)
+	SolveChallenge(challengeID string, answer int64) error
+	Register(email, password, lang string) error
+	RedeemCode(code string) error
+	AddAccount(serverName, lang string) (*AddAccountResponse, error)
+	ValidateAccount(code string) error
+	GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error)
+	GetLoginLink(userAccount Account) (string, error)
+	ExecLoginLink(loginLink string) ([]byte, error)
+	GenerateGiftingCode(userAccounts []Account) (giftingCode string, err error)
+	RevokeGiftingCode(userAccount Account) error
+	GenerateSittingCode(userAccounts []Account, duration int64) (sittingCode string, err error)
+}
+
+// Compile time checks to ensure type satisfies IGameforge interface
+var _ Client = (*Gameforge)(nil)
+
+type HttpClient interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+// Device is anything that can make http requests and solve the gameforge blackbox
+type Device interface {
+	HttpClient
+	GetBlackbox() (string, error)
+}
+
+func Ternary[T any](predicate bool, a, b T) T {
+	if predicate {
+		return a
+	}
+	return b
+}
+
+// Or return "a" if it is non-zero otherwise "b"
+func Or[T comparable](a, b T) (zero T) {
+	return Ternary(a != zero, a, b)
+}
+
+// CaptchaRequiredError ...
 type CaptchaRequiredError struct {
 	ChallengeID string
 }
 
+// NewCaptchaRequiredError ...
 func NewCaptchaRequiredError(challengeID string) *CaptchaRequiredError {
 	return &CaptchaRequiredError{ChallengeID: challengeID}
 }
 
+// Error ...
 func (e CaptchaRequiredError) Error() string {
 	return fmt.Sprintf("captcha required, %s", e.ChallengeID)
 }
 
+// RegisterError ...
 type RegisterError struct{ ErrorString string }
 
+// Error ...
 func (e *RegisterError) Error() string { return e.ErrorString }
 
 var (
@@ -58,15 +102,57 @@ var (
 	ErrPasswordInvalid = &RegisterError{"Must contain at least 10 characters including at least one upper and lowercase letter and a number."}
 )
 
-type GfLoginParams struct {
-	Ctx         context.Context
-	Device      *device.Device
-	Lobby       string
+// ErrBadCredentials returned when the provided credentials are invalid
+var ErrBadCredentials = errors.New("bad credentials")
+
+// ErrOTPRequired returned when the otp is required
+var ErrOTPRequired = errors.New("otp required")
+
+// ErrOTPInvalid returned when the otp is invalid
+var ErrOTPInvalid = errors.New("otp invalid")
+
+// ErrLoginLink returned when account is somewhat banned, cannot login for no apparent reason
+var ErrLoginLink = errors.New("failed to get login link")
+
+// ErrAccountNotFound returned when the account is not found
+var ErrAccountNotFound = errors.New("account not found")
+
+// ErrForbidden returned when receiving an http 403
+var ErrForbidden = errors.New("403 Forbidden")
+
+// AccountBlockedError ...
+type AccountBlockedError struct {
+	BannedReason string
+}
+
+// NewAccountBlockedError ...
+func NewAccountBlockedError(reason string) *AccountBlockedError {
+	return &AccountBlockedError{BannedReason: reason}
+}
+
+// Error ...
+func (e AccountBlockedError) Error() string {
+	return fmt.Sprintf("account is blocked, %s", e.BannedReason)
+}
+
+// LoginParams ...
+type LoginParams struct {
 	Username    string
 	Password    string
 	OtpSecret   string
 	ChallengeID string
 }
+
+type loginParams struct {
+	*LoginParams
+	Ctx      context.Context
+	Device   Device
+	platform Platform
+	lobby    string
+}
+
+// CaptchaSolver the returned answer should be one of "0" "1" "2" "3"
+type CaptchaSolver func(ctx context.Context, question, icons []byte) (int64, error)
 
 func getChallengeURL(base, challengeID string) string {
 	return fmt.Sprintf("%s/challenge/%s", base, challengeID)
@@ -74,17 +160,223 @@ func getChallengeURL(base, challengeID string) string {
 
 const blackboxPrefix = "tra:"
 
+// Platform ...
+type Platform string
+
+const (
+	OGAME   Platform = "ogame"
+	IKARIAM Platform = "ikariam"
+)
+
+// Lobby constants
+const (
+	Lobby         = "lobby"
+	LobbyPioneers = "lobby-pioneers"
+)
+
+func (p Platform) isValid() bool {
+	return p == OGAME || p == IKARIAM
+}
+
+// Gameforge ...
+type Gameforge struct {
+	ctx               context.Context
+	lobby             string
+	platform          Platform
+	device            Device
+	solver            CaptchaSolver
+	maxCaptchaRetries int
+	bearerToken       string
+}
+
+// Config ...
+type Config struct {
+	Ctx               context.Context
+	Device            Device
+	Solver            CaptchaSolver
+	MaxCaptchaRetries *int // default to 3
+	Platform          Platform
+	Lobby             string
+	BearerToken       string
+}
+
+// New return a new Gameforge instance
+func New(config *Config) (*Gameforge, error) {
+	if config == nil {
+		return nil, errors.New("config is required")
+	}
+	if config.Device == nil {
+		return nil, errors.New("device is required")
+	}
+	if !config.Platform.isValid() {
+		return nil, errors.New("invalid platform")
+	}
+	if config.Ctx == nil {
+		config.Ctx = context.Background()
+	}
+	if config.MaxCaptchaRetries == nil {
+		maxCaptchaRetries := 3
+		config.MaxCaptchaRetries = &maxCaptchaRetries
+	}
+	return &Gameforge{
+		ctx:               config.Ctx,
+		device:            config.Device,
+		platform:          config.Platform,
+		lobby:             config.Lobby,
+		solver:            config.Solver,
+		maxCaptchaRetries: *config.MaxCaptchaRetries,
+		bearerToken:       config.BearerToken,
+	}, nil
+}
+
+// Login do the gameforge login, if we get a captcha, solve the captcha and retry login.
+// If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
+func (g *Gameforge) Login(params *LoginParams) (out *LoginResponse, err error) {
+	err = g.handleCaptcha(func(challengeID string) error {
+		if params.ChallengeID == "" || challengeID != "" {
+			params.ChallengeID = challengeID
+		}
+		res, err := login(&loginParams{LoginParams: params, Ctx: g.ctx, Device: g.device, platform: g.platform, lobby: g.lobby})
+		if err != nil {
+			return err
+		}
+		out = res
+		g.bearerToken = res.Token
+		return nil
+	})
+	return
+}
+
+// Register a new gameforge account. Handle the captcha if needed.
+// If no "solver" have been set or "maxCaptchaRetries" is 0, then it will not try to solve the captcha
+func (g *Gameforge) Register(email, password, lang string) error {
+	return g.handleCaptcha(func(challengeID string) error {
+		return Register(g.ctx, g.device, g.platform, g.lobby, email, password, challengeID, lang)
+	})
+}
+
+// Logout ...
+func (g *Gameforge) Logout() error {
+	return Logout(g.ctx, g.device, g.platform, g.lobby, g.bearerToken)
+}
+
+// GetUserAccounts ...
+func (g *Gameforge) GetUserAccounts() ([]Account, error) {
+	return GetUserAccounts(g.ctx, g.device, g.platform, g.lobby, g.bearerToken)
+}
+
+// GetServers ...
+func (g *Gameforge) GetServers() ([]Server, error) {
+	return GetServers(g.ctx, g.device, g.platform, g.lobby)
+}
+
+// StartChallenge ...
+func (g *Gameforge) StartChallenge(challengeID string) (questionRaw, iconsRaw []byte, err error) {
+	return StartChallenge(g.ctx, g.device, challengeID)
+}
+
+// SolveChallenge ...
+func (g *Gameforge) SolveChallenge(challengeID string, answer int64) error {
+	return SolveChallenge(g.ctx, g.device, challengeID, answer)
+}
+
+// RedeemCode ...
+func (g *Gameforge) RedeemCode(code string) error {
+	return RedeemCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, code)
+}
+
+// AddAccount adds an account to a gameforge lobby
+func (g *Gameforge) AddAccount(serverName, lang string) (*AddAccountResponse, error) {
+	return AddAccountByServerNameLang(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, serverName, lang)
+}
+
+// ValidateAccount ...
+func (g *Gameforge) ValidateAccount(code string) error {
+	return ValidateAccount(g.ctx, g.device, g.platform, g.lobby, code)
+}
+
+// GetServerAccount first get the gameforge servers and user accounts,
+// then find the server and account that matches the given serverName, lang and playerID.
+// PlayerID is optional, when given the zero value, the first server/account that matches will be returned.
+func (g *Gameforge) GetServerAccount(serverName, lang string, playerID int64) (account Account, server Server, err error) {
+	return GetServerAccount(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, serverName, lang, playerID)
+}
+
+// GetLoginLink ...
+func (g *Gameforge) GetLoginLink(userAccount Account) (string, error) {
+	return GetLoginLink(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccount)
+}
+
+// ExecLoginLink ...
+func (g *Gameforge) ExecLoginLink(loginLink string) ([]byte, error) {
+	return ExecLoginLink(g.ctx, g.device, loginLink)
+}
+
+// GenerateGiftingCode ...
+func (g *Gameforge) GenerateGiftingCode(userAccounts []Account) (giftingCode string, err error) {
+	return GenerateGiftingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccounts)
+}
+
+// RevokeGiftingCode ...
+func (g *Gameforge) RevokeGiftingCode(userAccount Account) error {
+	return RevokeGiftingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccount)
+}
+
+// GenerateSittingCode ...
+func (g *Gameforge) GenerateSittingCode(userAccounts []Account, duration int64) (sittingCode string, err error) {
+	return GenerateSittingCode(g.ctx, g.device, g.platform, g.lobby, g.bearerToken, userAccounts, duration)
+}
+
+func (g *Gameforge) handleCaptcha(fn func(challengeID string) error) error {
+	solver := g.solver
+	maxTry := g.maxCaptchaRetries
+	ctx := g.ctx
+	device := g.device
+	challengeID := ""
+RETRY:
+	err := fn(challengeID)
+	if err == nil {
+		return nil
+	}
+	var captchaErr *CaptchaRequiredError
+	if errors.As(err, &captchaErr) {
+		if maxTry <= 0 || solver == nil {
+			return err
+		}
+		maxTry--
+		challengeID = captchaErr.ChallengeID
+		if err := solveCaptcha(ctx, device, challengeID, solver); err != nil {
+			return err
+		}
+		goto RETRY
+	}
+	return err
+}
+
+func solveCaptcha(ctx context.Context, client HttpClient, challengeID string, captchaCallback CaptchaSolver) error {
+	questionRaw, iconsRaw, err := StartChallenge(ctx, client, challengeID)
+	if err != nil {
+		return errors.New("failed to start captcha challenge: " + err.Error())
+	}
+	answer, err := captchaCallback(ctx, questionRaw, iconsRaw)
+	if err != nil {
+		return errors.New("failed to get answer for captcha challenge: " + err.Error())
+	}
+	if err := SolveChallenge(ctx, client, challengeID, answer); err != nil {
+		return errors.New("failed to solve captcha challenge: " + err.Error())
+	}
+	return err
+}
+
+func getGameforgeLobbyBaseURL(lobby string, platform Platform) string {
+	return fmt.Sprintf("https://%s.%s.gameforge.com", Or(lobby, Lobby), platform)
+}
+
 // Register a new gameforge lobby account
-func Register(device *device.Device, ctx context.Context, lobby, email, password, challengeID, lang string) error {
+func Register(ctx context.Context, device Device, platform Platform, lobby, email, password, challengeID, lang string) error {
 	blackbox, err := device.GetBlackbox()
 	if err != nil {
 		return err
-	}
-	if lang == "" {
-		lang = "en"
-	}
-	if lobby != LobbyPioneers {
-		lobby = Lobby
 	}
 	var payload struct {
 		Blackbox    string `json:"blackbox"`
@@ -98,12 +390,12 @@ func Register(device *device.Device, ctx context.Context, lobby, email, password
 	payload.Blackbox = blackboxPrefix + blackbox
 	payload.Credentials.Email = email
 	payload.Credentials.Password = password
-	payload.Language = lang
+	payload.Language = Or(lang, "en")
 	jsonPayloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return err
 	}
@@ -112,8 +404,8 @@ func Register(device *device.Device, ctx context.Context, lobby, email, password
 	}
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
-	resp, err := device.GetClient().Do(req)
+	req = req.WithContext(ctx)
+	resp, err := device.Do(req)
 	if err != nil {
 		return err
 	}
@@ -126,7 +418,7 @@ func Register(device *device.Device, ctx context.Context, lobby, email, password
 			return NewCaptchaRequiredError(newChallengeID)
 		}
 	}
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -149,16 +441,16 @@ func Register(device *device.Device, ctx context.Context, lobby, email, password
 	return nil
 }
 
-// ValidateAccount validate a gameforge account
-func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, code string) error {
+// ValidateAccount validate a gameforge account eg: ________-____-____-____-____________
+func ValidateAccount(ctx context.Context, client HttpClient, platform Platform, lobby, code string) error {
 	if len(code) != 36 {
 		return errors.New("invalid validation code")
 	}
-	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/validate/"+code, strings.NewReader(`{"language":"en"}`))
 	if err != nil {
 		return err
 	}
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -172,41 +464,14 @@ func ValidateAccount(client httpclient.IHttpClient, ctx context.Context, lobby, 
 
 func buildBearerHeaderValue(token string) string { return "Bearer " + token }
 
-// Lobby constants
-const (
-	Lobby         = "lobby"
-	LobbyPioneers = "lobby-pioneers"
-)
-
-func setDefaultParams(params *GfLoginParams) {
+func setDefaultParams(params *loginParams) {
 	if params.Ctx == nil {
 		params.Ctx = context.Background()
 	}
-	if params.Lobby == "" {
-		params.Lobby = Lobby
-	}
-}
-
-// LoginAndRedeemCode ...
-func LoginAndRedeemCode(params *GfLoginParams, code string) error {
-	postSessionsRes, err := GFLogin(params)
-	if err != nil {
-		return err
-	}
-	return RedeemCode(params.Device.GetClient(), params.Ctx, params.Lobby, postSessionsRes.Token, code)
-}
-
-// LoginAndAddAccount adds an account to a gameforge lobby
-func LoginAndAddAccount(params *GfLoginParams, universe, lang string) (*AddAccountRes, error) {
-	postSessionsRes, err := GFLogin(params)
-	if err != nil {
-		return nil, err
-	}
-	return AddAccountByUniverseLang(params.Device, params.Ctx, params.Lobby, postSessionsRes.Token, universe, lang)
 }
 
 // RedeemCode ...
-func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, bearerToken, code string) error {
+func RedeemCode(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken, code string) error {
 	var payload struct {
 		Token string `json:"token"`
 	}
@@ -215,21 +480,21 @@ func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, beare
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPost, getGameforgeLobbyBaseURL(lobby)+"/api/token", bytes.NewReader(jsonPayloadBytes))
+	req, err := http.NewRequest(http.MethodPost, getGameforgeLobbyBaseURL(lobby, platform)+"/api/token", bytes.NewReader(jsonPayloadBytes))
 	if err != nil {
 		return err
 	}
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 	// {"tokenType":"accountTrading"}
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -248,29 +513,20 @@ func RedeemCode(client httpclient.IHttpClient, ctx context.Context, lobby, beare
 	return nil
 }
 
-func FindServer(universe, lang string, servers []Server) (out Server, found bool) {
-	for _, s := range servers {
-		if s.Name == universe && s.Language == lang {
-			return s, true
-		}
-	}
-	return
-}
-
-func AddAccountByUniverseLang(device *device.Device, ctx context.Context, lobby, bearerToken, universe, lang string) (*AddAccountRes, error) {
-	servers, err := GetServers(lobby, device.GetClient(), ctx)
+func AddAccountByServerNameLang(ctx context.Context, device Device, platform Platform, lobby, bearerToken, serverName, lang string) (*AddAccountResponse, error) {
+	servers, err := GetServers(ctx, device, platform, lobby)
 	if err != nil {
 		return nil, err
 	}
-	server, found := FindServer(universe, lang, servers)
+	server, found := FindServer(serverName, lang, servers)
 	if !found {
 		return nil, errors.New("server not found")
 	}
-	return AddAccount(device, ctx, lobby, server.AccountGroup, bearerToken)
+	return AddAccount(ctx, device, platform, lobby, server.AccountGroup, bearerToken)
 }
 
-// AddAccountRes response from creating a new account
-type AddAccountRes struct {
+// AddAccountResponse response from creating a new account
+type AddAccountResponse struct {
 	ID     int `json:"id"`
 	Server struct {
 		Language string `json:"language"`
@@ -281,13 +537,9 @@ type AddAccountRes struct {
 	BearerToken  string `json:"bearerToken"` // Added by us; not part of ogame response
 }
 
-func (r AddAccountRes) GetBearerToken() string { return r.BearerToken }
+func (r AddAccountResponse) GetBearerToken() string { return r.BearerToken }
 
-func getGameforgeLobbyBaseURL(lobby string) string {
-	return fmt.Sprintf("https://%s.ogame.gameforge.com", lobby)
-}
-
-func AddAccount(device *device.Device, ctx context.Context, lobby, accountGroup, sessionToken string) (*AddAccountRes, error) {
+func AddAccount(ctx context.Context, device Device, platform Platform, lobby, accountGroup, sessionToken string) (*AddAccountResponse, error) {
 	blackbox, err := device.GetBlackbox()
 	if err != nil {
 		return nil, err
@@ -305,27 +557,27 @@ func AddAccount(device *device.Device, ctx context.Context, lobby, accountGroup,
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby)+"/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/accounts", strings.NewReader(string(jsonPayloadBytes)))
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(sessionToken))
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
-	resp, err := device.GetClient().Do(req)
+	req = req.WithContext(ctx)
+	resp, err := device.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 	if resp.StatusCode == http.StatusBadRequest { // Same status is returned when IP is temporarily blocked
 		return nil, errors.New("invalid request, account already in lobby ?")
 	}
-	var newAccount AddAccountRes
+	var newAccount AddAccountResponse
 	if err := json.Unmarshal(by, &newAccount); err != nil {
 		return nil, errors.New(err.Error() + " : " + string(by))
 	}
@@ -336,7 +588,7 @@ func AddAccount(device *device.Device, ctx context.Context, lobby, accountGroup,
 	return &newAccount, nil
 }
 
-type GFLoginRes struct {
+type LoginResponse struct {
 	Token                     string `json:"token"`
 	IsPlatformLogin           bool   `json:"isPlatformLogin"`
 	IsGameAccountMigrated     bool   `json:"isGameAccountMigrated"`
@@ -345,7 +597,7 @@ type GFLoginRes struct {
 	HasUnmigratedGameAccounts bool   `json:"hasUnmigratedGameAccounts"`
 }
 
-func (r GFLoginRes) GetBearerToken() string { return r.Token }
+func (r LoginResponse) GetBearerToken() string { return r.Token }
 
 func extractChallengeID(resp *http.Response) (challengeID string) {
 	gfChallengeID := resp.Header.Get(ChallengeIDCookieName)
@@ -357,14 +609,14 @@ func extractChallengeID(resp *http.Response) (challengeID string) {
 	return
 }
 
-func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
+func login(params *loginParams) (out *LoginResponse, err error) {
 	setDefaultParams(params)
 	if params.Device == nil {
 		return out, errors.New("device is nil")
 	}
-	client := params.Device.GetClient()
+	client := params.Device
 	ctx := params.Ctx
-	gameEnvironmentID, platformGameID, err := getConfiguration(client, ctx, params.Lobby)
+	gameEnvironmentID, platformGameID, err := getConfiguration(ctx, client, params.platform, params.lobby)
 	if err != nil {
 		return out, err
 	}
@@ -380,7 +632,7 @@ func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 	}
 	defer resp.Body.Close()
 
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return out, err
 	}
@@ -392,17 +644,20 @@ func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 	}
 
 	if resp.StatusCode == http.StatusForbidden {
+		if string(by) == `{"error":{"message":"Forbidden"}}` {
+			return out, ErrForbidden
+		}
 		return out, errors.New(resp.Status + " : " + string(by))
 	} else if resp.StatusCode >= http.StatusInternalServerError {
-		return out, errors.New("OGame server error code : " + resp.Status)
+		return out, errors.New("gameforge server error code : " + resp.Status)
 	} else if resp.StatusCode != http.StatusCreated {
 		if string(by) == `{"reason":"OTP_REQUIRED"}` {
-			return out, ogame.ErrOTPRequired
+			return out, ErrOTPRequired
 		}
 		if string(by) == `{"reason":"OTP_INVALID"}` {
-			return out, ogame.ErrOTPInvalid
+			return out, ErrOTPInvalid
 		}
-		return out, ogame.ErrBadCredentials
+		return out, ErrBadCredentials
 	}
 
 	if err := json.Unmarshal(by, &out); err != nil {
@@ -411,20 +666,42 @@ func GFLogin(params *GfLoginParams) (out *GFLoginRes, err error) {
 	return out, nil
 }
 
-func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby string) (string, string, error) {
-	ogURL := getGameforgeLobbyBaseURL(lobby) + "/config/configuration.js"
+// Logout ...
+func Logout(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string) error {
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/logout", nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req = req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_, _ = io.Copy(io.Discard, resp.Body)
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("failed to logout: " + resp.Status)
+	}
+	return nil
+}
+
+func getConfiguration(ctx context.Context, client HttpClient, platform Platform, lobby string) (string, string, error) {
+	ogURL := getGameforgeLobbyBaseURL(lobby, platform) + "/config/configuration.js"
 	req, err := http.NewRequest(http.MethodGet, ogURL, nil)
 	if err != nil {
 		return "", "", err
 	}
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return "", "", err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", "", err
 	}
@@ -446,7 +723,7 @@ func getConfiguration(client httpclient.IHttpClient, ctx context.Context, lobby 
 	return string(gameEnvironmentID), string(platformGameID), nil
 }
 
-func postSessionsReq(params *GfLoginParams, gameEnvironmentID, platformGameID string) (*http.Request, error) {
+func postSessionsReq(params *loginParams, gameEnvironmentID, platformGameID string) (*http.Request, error) {
 	dev := params.Device
 	ctx := params.Ctx
 	username := params.Username
@@ -492,12 +769,7 @@ func postSessionsReq(params *GfLoginParams, gameEnvironmentID, platformGameID st
 	}
 
 	if otpSecret != "" {
-		passcode, err := totp.GenerateCodeCustom(otpSecret, time.Now(), totp.ValidateOpts{
-			Period:    30,
-			Skew:      1,
-			Digits:    otp.DigitsSix,
-			Algorithm: otp.AlgorithmSHA1,
-		})
+		passcode, err := totp.GenerateCode(otpSecret, time.Now())
 		if err != nil {
 			return nil, err
 		}
@@ -507,18 +779,18 @@ func postSessionsReq(params *GfLoginParams, gameEnvironmentID, platformGameID st
 
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	return req, nil
 }
 
-func StartCaptchaChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string) (questionRaw, iconsRaw []byte, err error) {
+func StartChallenge(ctx context.Context, client HttpClient, challengeID string) (questionRaw, iconsRaw []byte, err error) {
 	doReq := func(u string) ([]byte, error) {
 		req, err := http.NewRequest(http.MethodGet, u, nil)
 		if err != nil {
 			return nil, err
 		}
 		req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-		req.WithContext(ctx)
+		req = req.WithContext(ctx)
 		resp, err := client.Do(req)
 		if err != nil {
 			return nil, err
@@ -547,13 +819,13 @@ func StartCaptchaChallenge(client httpclient.IHttpClient, ctx context.Context, c
 	return
 }
 
-func SolveChallenge(client httpclient.IHttpClient, ctx context.Context, challengeID string, answer int64) error {
+func SolveChallenge(ctx context.Context, client HttpClient, challengeID string, answer int64) error {
 	challengeURL := getChallengeURL(imgDropChallengeBaseURL, challengeID) + "/" + endpointLoc
-	body := strings.NewReader(`{"answer":` + utils.FI64(answer) + `}`)
+	body := strings.NewReader(fmt.Sprintf(`{"answer":%d}`, answer))
 	req, _ := http.NewRequest(http.MethodPost, challengeURL, body)
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -566,7 +838,7 @@ func SolveChallenge(client httpclient.IHttpClient, ctx context.Context, challeng
 	return nil
 }
 
-// Server ogame information for their servers
+// Server gameforge information for their servers
 type Server struct {
 	Language      string
 	Number        int64
@@ -582,43 +854,95 @@ type Server struct {
 	SignupClosed  int64
 	MultiLanguage int64
 	AvailableOn   []string
-	Settings      struct {
-		AKS                      int64
-		FleetSpeedWar            int64
-		FleetSpeedHolding        int64
-		FleetSpeedPeaceful       int64
-		WreckField               int64
-		ServerLabel              string
-		EconomySpeed             any // can be 8 or "x8"
-		PlanetFields             int64
-		UniverseSize             int64 // Nb of galaxies
-		ServerCategory           string
-		EspionageProbeRaids      int64
-		PremiumValidationGift    int64
-		DebrisFieldFactorShips   int64
-		ResearchDurationDivisor  float64
-		DebrisFieldFactorDefence int64
+	Settings      any
+	MaintenanceOn any // 0 for false, <unknown> for true
+}
+
+func (s Server) OGameSettings() OGameServerSettings {
+	return convertToStruct[OGameServerSettings](s.Settings)
+}
+
+func (s Server) IkariamSettings() IkariamServerSettings {
+	return convertToStruct[IkariamServerSettings](s.Settings)
+}
+
+func convertToStruct[T any](v any) (out T) {
+	by, err := json.Marshal(v)
+	if err != nil {
+		panic(err)
 	}
+	if err := json.Unmarshal(by, &out); err != nil {
+		panic(err)
+	}
+	return out
 }
 
-func (s Server) ProbeRaidsEnabled() bool {
-	return s.Settings.EspionageProbeRaids == 1
+// OGameServerSettings ...
+type OGameServerSettings struct {
+	AKS                      int64
+	FleetSpeedWar            int64
+	FleetSpeedHolding        int64
+	FleetSpeedPeaceful       int64
+	WreckField               int64
+	ServerLabel              string
+	EconomySpeed             any // can be 8 or "x8"
+	PlanetFields             int64
+	UniverseSize             int64 // Nb of galaxies
+	ServerCategory           string
+	EspionageProbeRaids      int64
+	PremiumValidationGift    int64
+	DebrisFieldFactorShips   int64
+	ResearchDurationDivisor  float64
+	DebrisFieldFactorDefence int64
 }
 
-func GetServers(lobby string, client httpclient.IHttpClient, ctx context.Context) ([]Server, error) {
+// IkariamServerSettings ...
+type IkariamServerSettings struct {
+	MaxCities                  int64   `json:"maxCities"`
+	FleetSpeed                 int64   `json:"fleetSpeed"`
+	ServerType                 string  `json:"serverType"`
+	ServerLabel                string  `json:"serverLabel"`
+	EconomySpeed               int64   `json:"economySpeed"`
+	ArmyCostFactor             float64 `json:"armyCostFactor"`
+	ServerCategory             string  `json:"serverCategory"`
+	ArmySpeedFactor            float64 `json:"armySpeedFactor"`
+	ResearchCostFactor         float64 `json:"researchCostFactor"`
+	CombatWithoutMorale        bool    `json:"combatWithoutMorale"`
+	WineProductionFactor       float64 `json:"wineProductionFactor"`
+	GoldPlunderingAllowed      bool    `json:"goldPlunderingAllowed"`
+	PremiumValidationGift      int64   `json:"premiumValidationGift"`
+	ArmyConstructionFactor     float64 `json:"armyConstructionFactor"`
+	MarbleProductionFactor     float64 `json:"marbleProductionFactor"`
+	SatisfactionWineFactor     float64 `json:"satisfactionWineFactor"`
+	SulfurProductionFactor     float64 `json:"sulfurProductionFactor"`
+	TransporterSpeedFactor     float64 `json:"transporterSpeedFactor"`
+	CrystalProductionFactor    float64 `json:"crystalProductionFactor"`
+	FleetConstructionFactor    float64 `json:"fleetConstructionFactor"`
+	GoldSafeCapacityPerLevel   int64   `json:"goldSafeCapacityPerLevel"`
+	ResearchProductionFactor   float64 `json:"researchProductionFactor"`
+	ResourceProductionFactor   float64 `json:"resourceProductionFactor"`
+	BuildingConstructionFactor float64 `json:"buildingConstructionFactor"`
+	ConversionProductionFactor float64 `json:"conversionProductionFactor"`
+}
+
+func (s OGameServerSettings) ProbeRaidsEnabled() bool {
+	return s.EspionageProbeRaids == 1
+}
+
+func GetServers(ctx context.Context, client HttpClient, platform Platform, lobby string) ([]Server, error) {
 	var servers []Server
-	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby)+"/api/servers", nil)
+	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby, platform)+"/api/servers", nil)
 	if err != nil {
 		return servers, err
 	}
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return servers, err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return servers, err
 	}
@@ -628,83 +952,17 @@ func GetServers(lobby string, client httpclient.IHttpClient, ctx context.Context
 	return servers, nil
 }
 
-// ServerData represent api result from https://s157-ru.ogame.gameforge.com/api/serverData.xml
-type ServerData struct {
-	Name                          string  `xml:"name"`                          // Europa
-	Number                        int64   `xml:"number"`                        // 157
-	Language                      string  `xml:"language"`                      // ru
-	Timezone                      string  `xml:"timezone"`                      // Europe/Moscow
-	TimezoneOffset                string  `xml:"timezoneOffset"`                // +03:00
-	Domain                        string  `xml:"domain"`                        // s157-ru.ogame.gameforge.com
-	Version                       string  `xml:"version"`                       // 6.8.8-pl2
-	Speed                         int64   `xml:"speed"`                         // 6
-	SpeedFleetPeaceful            int64   `xml:"speedFleetPeaceful"`            // 1
-	SpeedFleetWar                 int64   `xml:"speedFleetWar"`                 // 1
-	SpeedFleetHolding             int64   `xml:"speedFleetHolding"`             // 1
-	Galaxies                      int64   `xml:"galaxies"`                      // 4
-	Systems                       int64   `xml:"systems"`                       // 499
-	ACS                           bool    `xml:"acs"`                           // 1
-	RapidFire                     bool    `xml:"rapidFire"`                     // 1
-	DefToTF                       bool    `xml:"defToTF"`                       // 0
-	DebrisFactor                  float64 `xml:"debrisFactor"`                  // 0.5
-	DebrisFactorDef               float64 `xml:"debrisFactorDef"`               // 0
-	RepairFactor                  float64 `xml:"repairFactor"`                  // 0.7
-	NewbieProtectionLimit         int64   `xml:"newbieProtectionLimit"`         // 500000
-	NewbieProtectionHigh          int64   `xml:"newbieProtectionHigh"`          // 50000
-	TopScore                      float64 `xml:"topScore"`                      // 60259362 / 1.0363090034999E+17
-	BonusFields                   int64   `xml:"bonusFields"`                   // 30
-	DonutGalaxy                   bool    `xml:"donutGalaxy"`                   // 1
-	DonutSystem                   bool    `xml:"donutSystem"`                   // 1
-	WfEnabled                     bool    `xml:"wfEnabled"`                     // 1 (WreckField)
-	WfMinimumRessLost             int64   `xml:"wfMinimumRessLost"`             // 150000
-	WfMinimumLossPercentage       int64   `xml:"wfMinimumLossPercentage"`       // 5
-	WfBasicPercentageRepairable   int64   `xml:"wfBasicPercentageRepairable"`   // 45
-	GlobalDeuteriumSaveFactor     float64 `xml:"globalDeuteriumSaveFactor"`     // 0.5
-	Bashlimit                     int64   `xml:"bashlimit"`                     // 0
-	ProbeCargo                    int64   `xml:"probeCargo"`                    // 5
-	ResearchDurationDivisor       int64   `xml:"researchDurationDivisor"`       // 2
-	DarkMatterNewAcount           int64   `xml:"darkMatterNewAcount"`           // 8000
-	CargoHyperspaceTechMultiplier int64   `xml:"cargoHyperspaceTechMultiplier"` // 5
-	SpeedFleet                    int64   `xml:"speedFleet"`                    // 6 // Deprecated in 8.1.0
-	FleetIgnoreEmptySystems       bool    `xml:"fleetIgnoreEmptySystems"`       // 1
-	FleetIgnoreInactiveSystems    bool    `xml:"fleetIgnoreInactiveSystems"`    // 1
-}
-
-// GetServerData gets the server data from xml api
-func GetServerData(client httpclient.IHttpClient, ctx context.Context, serverNumber int64, serverLang string) (ServerData, error) {
-	var serverData ServerData
-	serverDataURL := "https://s" + utils.FI64(serverNumber) + "-" + serverLang + ".ogame.gameforge.com/api/serverData.xml"
-	req, err := http.NewRequest(http.MethodGet, serverDataURL, nil)
-	if err != nil {
-		return serverData, err
-	}
-	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
-	resp, err := client.Do(req)
-	if err != nil {
-		return serverData, err
-	}
-	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
-	if err != nil {
-		return serverData, err
-	}
-	if err := xml.Unmarshal(by, &serverData); err != nil {
-		return serverData, fmt.Errorf("failed to xml unmarshal %s : %w", serverDataURL, err)
-	}
-	return serverData, nil
-}
-
 type Account struct {
 	Server struct {
 		Language string
 		Number   int64
 	}
-	ID         int64 // player ID
-	Name       string
-	LastPlayed string
-	Blocked    bool
-	Details    []struct {
+	ID           int64 // player ID
+	Name         string
+	LastPlayed   string
+	Blocked      bool
+	BannedReason string
+	Details      []struct {
 		Type  string
 		Title string
 		Value any // Can be string or int
@@ -716,21 +974,37 @@ type Account struct {
 	}
 }
 
-func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, bearerToken string) ([]Account, error) {
+func GetServerAccount(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken, serverName, lang string, playerID int64) (account Account, server Server, err error) {
+	accounts, err := GetUserAccounts(ctx, client, platform, lobby, bearerToken)
+	if err != nil {
+		return
+	}
+	servers, err := GetServers(ctx, client, platform, lobby)
+	if err != nil {
+		return
+	}
+	account, server, err = FindAccount(serverName, lang, playerID, accounts, servers)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func GetUserAccounts(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string) ([]Account, error) {
 	var userAccounts []Account
-	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby)+"/api/users/me/accounts", nil)
+	req, err := http.NewRequest(http.MethodGet, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/accounts", nil)
 	if err != nil {
 		return userAccounts, err
 	}
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
+	req = req.WithContext(ctx)
 	resp, err := client.Do(req)
 	if err != nil {
 		return userAccounts, err
 	}
 	defer resp.Body.Close()
-	by, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return userAccounts, err
 	}
@@ -740,8 +1014,8 @@ func GetUserAccounts(client httpclient.IHttpClient, ctx context.Context, lobby, 
 	return userAccounts, nil
 }
 
-func GetLoginLink(device *device.Device, ctx context.Context, lobby string, userAccount Account, bearerToken string) (string, error) {
-	ogURL := getGameforgeLobbyBaseURL(lobby) + "/api/users/me/loginLink"
+func GetLoginLink(ctx context.Context, device Device, platform Platform, lobby, bearerToken string, userAccount Account) (string, error) {
+	ogURL := getGameforgeLobbyBaseURL(lobby, platform) + "/api/users/me/loginLink"
 
 	blackbox, err := device.GetBlackbox()
 	if err != nil {
@@ -765,36 +1039,224 @@ func GetLoginLink(device *device.Device, ctx context.Context, lobby string, user
 	payload.Server.Language = userAccount.Server.Language
 	payload.Server.Number = userAccount.Server.Number
 
-	by, err := json.Marshal(&payload)
+	payloadBytes, err := json.Marshal(&payload)
 	if err != nil {
 		return "", err
 	}
-	req, err := http.NewRequest(http.MethodPost, ogURL, bytes.NewReader(by))
+	req, err := http.NewRequest(http.MethodPost, ogURL, bytes.NewReader(payloadBytes))
 	if err != nil {
 		return "", err
 	}
 	req.Header.Set(contentTypeHeaderKey, applicationJson)
 	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
 	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
-	req.WithContext(ctx)
-	resp, err := device.GetClient().Do(req)
+	req = req.WithContext(ctx)
+	resp, err := device.Do(req)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
 
-	by2, err := utils.ReadBody(resp)
+	by, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
 
-	if resp.StatusCode == http.StatusBadRequest && string(by2) == `[]` {
-		return "", ogame.ErrLoginLink
+	if resp.StatusCode == http.StatusBadRequest && string(by) == `[]` {
+		return "", ErrLoginLink
 	}
 
 	var loginLink struct{ URL string }
-	if err := json.Unmarshal(by2, &loginLink); err != nil {
-		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by2))
+	if err := json.Unmarshal(by, &loginLink); err != nil {
+		return "", errors.New("failed to get login link : " + err.Error() + " : " + string(by))
 	}
 	return loginLink.URL, nil
+}
+
+// ExecLoginLink ...
+// https://sXXX-en.ogame.gameforge.com/game/lobbylogin.php?id=100000&token=XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+func ExecLoginLink(ctx context.Context, client HttpClient, loginLink string) ([]byte, error) {
+	req, err := http.NewRequest(http.MethodGet, loginLink, nil)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Add(acceptEncodingHeaderKey, gzipEncoding)
+	req = req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	return io.ReadAll(resp.Body)
+}
+
+// GenerateGiftingCode ...
+func GenerateGiftingCode(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string, userAccounts []Account) (string, error) {
+	type RowServer struct {
+		Language string `json:"language"`
+		Number   int64  `json:"number"`
+	}
+	type Row struct {
+		GameAccountId int64     `json:"gameAccountId"`
+		Server        RowServer `json:"server"`
+	}
+	type Payload struct {
+		Accounts []Row `json:"accounts"`
+	}
+	var payload Payload
+	for _, account := range userAccounts {
+		payload.Accounts = append(payload.Accounts, Row{
+			GameAccountId: account.ID,
+			Server: RowServer{
+				Language: account.Server.Language,
+				Number:   account.Server.Number,
+			},
+		})
+	}
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/accountTrading", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req = req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", errors.New("failed to generate gifting code: " + resp.Status)
+	}
+	by, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	type GenerateGiftingCodeResponse struct {
+		Token string `json:"token"`
+	}
+	var tokenResponse GenerateGiftingCodeResponse
+	if err := json.Unmarshal(by, &tokenResponse); err != nil {
+		return "", errors.New(err.Error() + " : " + string(by))
+	}
+	return tokenResponse.Token, nil
+}
+
+// RevokeGiftingCode ...
+func RevokeGiftingCode(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string, userAccount Account) error {
+	u := getGameforgeLobbyBaseURL(lobby, platform) + fmt.Sprintf("/api/users/me/accountTrading/en/%d/%d", userAccount.Server.Number, userAccount.ID)
+	req, err := http.NewRequest(http.MethodDelete, u, nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req = req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return errors.New("failed to revoke gift code: " + resp.Status)
+	}
+	return nil
+}
+
+// GenerateSittingCode (24h -> 86400 | 48h -> 172800)
+func GenerateSittingCode(ctx context.Context, client HttpClient, platform Platform, lobby, bearerToken string, userAccounts []Account, duration int64) (string, error) {
+	type RowServer struct {
+		Language string `json:"language"`
+		Number   int64  `json:"number"`
+	}
+	type Row struct {
+		GameAccountId int64     `json:"gameAccountId"`
+		Server        RowServer `json:"server"`
+	}
+	type Payload struct {
+		Accounts []Row `json:"accounts"`
+		Duration int64 `json:"duration"`
+	}
+	var payload Payload
+	for _, account := range userAccounts {
+		payload.Accounts = append(payload.Accounts, Row{
+			GameAccountId: account.ID,
+			Server: RowServer{
+				Language: account.Server.Language,
+				Number:   account.Server.Number,
+			},
+		})
+	}
+	payload.Duration = duration
+	jsonPayloadBytes, err := json.Marshal(&payload)
+	if err != nil {
+		return "", err
+	}
+	req, err := http.NewRequest(http.MethodPut, getGameforgeLobbyBaseURL(lobby, platform)+"/api/users/me/sitting", strings.NewReader(string(jsonPayloadBytes)))
+	if err != nil {
+		return "", err
+	}
+	req.Header.Set(authorizationHeaderKey, buildBearerHeaderValue(bearerToken))
+	req.Header.Set(contentTypeHeaderKey, applicationJson)
+	req.Header.Set(acceptEncodingHeaderKey, gzipEncoding)
+	req = req.WithContext(ctx)
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", errors.New("failed to generate sitting code: " + resp.Status)
+	}
+	by, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	type GenerateSittingCodeResponse struct {
+		Token string `json:"token"`
+	}
+	var tokenResponse GenerateSittingCodeResponse
+	if err := json.Unmarshal(by, &tokenResponse); err != nil {
+		return "", errors.New(err.Error() + " : " + string(by))
+	}
+	return tokenResponse.Token, nil
+}
+
+// FindServer ...
+func FindServer(serverName, lang string, servers []Server) (out Server, found bool) {
+	for _, s := range servers {
+		if s.Name == serverName && s.Language == lang {
+			return s, true
+		}
+	}
+	return
+}
+
+// FindAccount ...
+func FindAccount(serverName, lang string, playerID int64, accounts []Account, servers []Server) (Account, Server, error) {
+	if lang == "ba" {
+		lang = "yu"
+	}
+	var account Account
+	server, found := FindServer(serverName, lang, servers)
+	if !found {
+		return Account{}, Server{}, fmt.Errorf("server %s, %s not found", serverName, lang)
+	}
+	for _, a := range accounts {
+		if a.Server.Language == server.Language && a.Server.Number == server.Number {
+			if playerID == 0 || a.ID == playerID {
+				account = a
+				break
+			}
+		}
+	}
+	if account.ID == 0 {
+		return Account{}, Server{}, ErrAccountNotFound
+	}
+	return account, server, nil
 }

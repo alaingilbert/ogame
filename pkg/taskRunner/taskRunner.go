@@ -68,7 +68,13 @@ func NewTaskRunner[T ITask](ctx context.Context, factory func() T) *TaskRunner[T
 
 func (r *TaskRunner[T]) start() {
 	go func() {
-		for t := range r.tasksPushCh {
+		for {
+			var t *item
+			select {
+			case t = <-r.tasksPushCh:
+			case <-r.ctx.Done():
+				return
+			}
 			r.tasksLock.Lock()
 			r.tasks.Push(t)
 			r.tasksLock.Unlock()
@@ -80,7 +86,12 @@ func (r *TaskRunner[T]) start() {
 		}
 	}()
 	go func() {
-		for range r.tasksPopCh {
+		for {
+			select {
+			case <-r.tasksPopCh:
+			case <-r.ctx.Done():
+				return
+			}
 			r.tasksLock.Lock()
 			task := r.tasks.Pop()
 			r.tasksLock.Unlock()
@@ -97,12 +108,16 @@ func (r *TaskRunner[T]) start() {
 func (r *TaskRunner[T]) WithPriority(priority Priority) T {
 	canBeProcessedCh := make(chan struct{})
 	taskIsDoneCh := make(chan struct{})
-	task := new(item)
-	task.priority = priority
-	task.canBeProcessedCh = canBeProcessedCh
-	task.isDoneCh = taskIsDoneCh
+	task := &item{
+		priority:         priority,
+		canBeProcessedCh: canBeProcessedCh,
+		isDoneCh:         taskIsDoneCh,
+	}
 	r.tasksPushCh <- task
-	<-canBeProcessedCh
+	select {
+	case <-canBeProcessedCh:
+	case <-r.ctx.Done():
+	}
 	t := r.factory()
 	t.SetTaskDoneCh(taskIsDoneCh)
 	return t
@@ -110,10 +125,10 @@ func (r *TaskRunner[T]) WithPriority(priority Priority) T {
 
 // TasksOverview overview of tasks in heap
 type TasksOverview struct {
-	Low       Priority
-	Normal    Priority
-	Important Priority
-	Critical  Priority
+	Low       int64
+	Normal    int64
+	Important int64
+	Critical  int64
 	Total     int64
 }
 

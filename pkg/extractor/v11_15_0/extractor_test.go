@@ -1,6 +1,7 @@
 package v11_15_0
 
 import (
+	"encoding/json"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 	"github.com/alaingilbert/ogame/pkg/utils"
 	"github.com/stretchr/testify/assert"
@@ -57,4 +58,26 @@ func TestExtractPhalanx(t *testing.T) {
 	assert.Equal(t, int64(1_111_111), res[13].Ships.Bomber)
 	assert.Equal(t, ogame.DoParseCoord("M:6:228:7"), res[18].Origin)
 	assert.Equal(t, int64(997), res[18].Ships.Battleship)
+}
+
+func TestExtractCombatReports(t *testing.T) {
+	pageHTMLBytes, _ := os.ReadFile("../../../samples/v12.0.29/en/combat_reports.json")
+	e := NewExtractor()
+	e.SetLocation(time.FixedZone("OGT", 3600))
+	var res struct {
+		ServerLang   string `json:"js_serverlang"`
+		ServerID     string `json:"js_serverid"`
+		Status       string `json:"status"`
+		Messages     []any  `json:"messages"`
+		Components   []any  `json:"components"`
+		NewAjaxToken string `json:"newAjaxToken"`
+	}
+	_ = json.Unmarshal(pageHTMLBytes, &res)
+	msgs := make([]ogame.CombatReportSummary, 0)
+	for _, m := range res.Messages {
+		doc := ([]byte)(m.(string))
+		newMessage, _, _ := e.ExtractCombatReportMessagesSummary(doc)
+		msgs = append(msgs, newMessage...)
+	}
+	assert.Equal(t, ogame.FleetID(14238943), msgs[0].FleetID)
 }

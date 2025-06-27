@@ -18,7 +18,7 @@ func TestExtractEspionageReport(t *testing.T) {
 
 func TestExtractPlanets(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/overview.html")
-	planets := NewExtractor().ExtractPlanets(pageHTMLBytes)
+	planets, _ := NewExtractor().ExtractPlanets(pageHTMLBytes)
 	assert.Equal(t, 1, len(planets))
 	assert.Equal(t, ogame.PlanetID(34071290), planets[0].ID)
 	assert.Equal(t, ogame.Coordinate{Galaxy: 4, System: 292, Position: 4, Type: ogame.PlanetType}, planets[0].Coordinate)

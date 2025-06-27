@@ -2,12 +2,11 @@ package wrapper
 
 import (
 	"errors"
-	"github.com/alaingilbert/ogame/pkg/gameforge"
 	"github.com/alaingilbert/ogame/pkg/ogame"
 )
 
 // GetFleetSpeedForMission ...
-func GetFleetSpeedForMission(serverData gameforge.ServerData, missionID ogame.MissionID) int64 {
+func GetFleetSpeedForMission(serverData ServerData, missionID ogame.MissionID) int64 {
 	if missionID == ogame.Attack ||
 		missionID == ogame.GroupedAttack ||
 		missionID == ogame.Destroy ||
@@ -19,6 +18,11 @@ func GetFleetSpeedForMission(serverData gameforge.ServerData, missionID ogame.Mi
 	return serverData.SpeedFleetPeaceful
 }
 
+// HasCoordinate ...
+type HasCoordinate interface {
+	GetCoordinate() ogame.Coordinate
+}
+
 // ConvertIntoCoordinate helper that turns any type into a coordinate
 func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error) {
 	switch vv := v.(type) {
@@ -26,11 +30,7 @@ func ConvertIntoCoordinate(w Wrapper, v IntoCoordinate) (ogame.Coordinate, error
 		return ogame.ParseCoord(vv)
 	case ogame.Coordinate:
 		return vv, nil
-	case ogame.Celestial:
-		return vv.GetCoordinate(), nil
-	case ogame.Planet:
-		return vv.GetCoordinate(), nil
-	case ogame.Moon:
+	case HasCoordinate:
 		return vv.GetCoordinate(), nil
 	case ogame.CelestialID, ogame.PlanetID, ogame.MoonID:
 		c, err := w.GetCachedCelestial(vv)

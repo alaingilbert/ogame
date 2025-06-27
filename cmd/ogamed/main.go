@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"crypto/subtle"
 	"github.com/alaingilbert/ogame/pkg/device"
+	"github.com/alaingilbert/ogame/pkg/gameforge/solvers"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
-	"github.com/alaingilbert/ogame/pkg/wrapper/solvers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"gopkg.in/urfave/cli.v2"
+	"github.com/urfave/cli/v3"
 	"log"
 	"os"
 	"strconv"
@@ -18,10 +19,8 @@ var commit = ""
 var date = ""
 
 func main() {
-	app := cli.App{}
-	app.Authors = []*cli.Author{
-		{Name: "Alain Gilbert", Email: "alain.gilbert.15@gmail.com"},
-	}
+	app := cli.Command{}
+	app.Authors = []any{"Alain Gilbert <alain.gilbert.15@gmail.com>"}
 	app.Name = "ogamed"
 	app.Usage = "ogame deamon service"
 	app.Version = version
@@ -30,149 +29,149 @@ func main() {
 			Name:    "universe",
 			Usage:   "Universe name",
 			Aliases: []string{"u"},
-			EnvVars: []string{"OGAMED_UNIVERSE"},
+			Sources: cli.EnvVars("OGAMED_UNIVERSE"),
 		},
 		&cli.StringFlag{
 			Name:    "username",
 			Usage:   "Email address to login on ogame",
 			Aliases: []string{"e"},
-			EnvVars: []string{"OGAMED_USERNAME"},
+			Sources: cli.EnvVars("OGAMED_USERNAME"),
 		},
 		&cli.StringFlag{
 			Name:    "password",
 			Usage:   "Password to login on ogame",
 			Aliases: []string{"p"},
-			EnvVars: []string{"OGAMED_PASSWORD"},
+			Sources: cli.EnvVars("OGAMED_PASSWORD"),
 		},
 		&cli.StringFlag{
 			Name:    "language",
 			Usage:   "Language to login on ogame",
 			Value:   "en",
 			Aliases: []string{"l"},
-			EnvVars: []string{"OGAMED_LANGUAGE"},
+			Sources: cli.EnvVars("OGAMED_LANGUAGE"),
 		},
 		&cli.StringFlag{
 			Name:    "host",
 			Usage:   "HTTP host",
 			Value:   "127.0.0.1",
-			EnvVars: []string{"OGAMED_HOST"},
+			Sources: cli.EnvVars("OGAMED_HOST"),
 		},
 		&cli.IntFlag{
 			Name:    "port",
 			Usage:   "HTTP port",
 			Value:   8080,
-			EnvVars: []string{"OGAMED_PORT"},
+			Sources: cli.EnvVars("OGAMED_PORT"),
 		},
 		&cli.BoolFlag{
 			Name:    "auto-login",
 			Usage:   "Login when process starts",
 			Value:   true,
-			EnvVars: []string{"OGAMED_AUTO_LOGIN"},
+			Sources: cli.EnvVars("OGAMED_AUTO_LOGIN"),
 		},
 		&cli.StringFlag{
 			Name:    "proxy",
 			Usage:   "Proxy address",
 			Value:   "",
-			EnvVars: []string{"OGAMED_PROXY"},
+			Sources: cli.EnvVars("OGAMED_PROXY"),
 		},
 		&cli.StringFlag{
 			Name:    "proxy-username",
 			Usage:   "Proxy username",
 			Value:   "",
-			EnvVars: []string{"OGAMED_PROXY_USERNAME"},
+			Sources: cli.EnvVars("OGAMED_PROXY_USERNAME"),
 		},
 		&cli.StringFlag{
 			Name:    "proxy-password",
 			Usage:   "Proxy password",
 			Value:   "",
-			EnvVars: []string{"OGAMED_PROXY_PASSWORD"},
+			Sources: cli.EnvVars("OGAMED_PROXY_PASSWORD"),
 		},
 		&cli.StringFlag{
 			Name:    "proxy-type",
 			Usage:   "Proxy type (socks5/http)",
 			Value:   "socks5",
-			EnvVars: []string{"OGAMED_PROXY_TYPE"},
+			Sources: cli.EnvVars("OGAMED_PROXY_TYPE"),
 		},
 		&cli.BoolFlag{
 			Name:    "proxy-login-only",
 			Usage:   "Proxy login requests only",
 			Value:   false,
-			EnvVars: []string{"OGAMED_PROXY_LOGIN_ONLY"},
+			Sources: cli.EnvVars("OGAMED_PROXY_LOGIN_ONLY"),
 		},
 		&cli.StringFlag{
 			Name:    "lobby",
 			Usage:   "Lobby to use (lobby | lobby-pioneers)",
 			Value:   "lobby",
-			EnvVars: []string{"OGAMED_LOBBY"},
+			Sources: cli.EnvVars("OGAMED_LOBBY"),
 		},
 		&cli.StringFlag{
 			Name:    "api-new-hostname",
 			Usage:   "New OGame Hostname eg: https://someuniverse.example.com",
 			Value:   "http://127.0.0.1:8080",
-			EnvVars: []string{"OGAMED_NEW_HOSTNAME"},
+			Sources: cli.EnvVars("OGAMED_NEW_HOSTNAME"),
 		},
 		&cli.StringFlag{
 			Name:    "basic-auth-username",
 			Usage:   "Basic auth username eg: admin",
 			Value:   "",
-			EnvVars: []string{"OGAMED_AUTH_USERNAME"},
+			Sources: cli.EnvVars("OGAMED_AUTH_USERNAME"),
 		},
 		&cli.StringFlag{
 			Name:    "basic-auth-password",
 			Usage:   "Basic auth password eg: secret",
 			Value:   "",
-			EnvVars: []string{"OGAMED_AUTH_PASSWORD"},
+			Sources: cli.EnvVars("OGAMED_AUTH_PASSWORD"),
 		},
 		&cli.StringFlag{
 			Name:    "enable-tls",
 			Usage:   "Enable TLS. Needs key.pem and cert.pem",
 			Value:   "false",
-			EnvVars: []string{"OGAMED_ENABLE_TLS"},
+			Sources: cli.EnvVars("OGAMED_ENABLE_TLS"),
 		},
 		&cli.StringFlag{
 			Name:    "tls-key-file",
 			Usage:   "Path to key.pem",
 			Value:   "~/.ogame/key.pem",
-			EnvVars: []string{"OGAMED_TLS_CERTFILE"},
+			Sources: cli.EnvVars("OGAMED_TLS_CERTFILE"),
 		},
 		&cli.StringFlag{
 			Name:    "tls-cert-file",
 			Usage:   "Path to cert.pem",
 			Value:   "~/.ogame/cert.pem",
-			EnvVars: []string{"OGAMED_TLS_KEYFILE"},
+			Sources: cli.EnvVars("OGAMED_TLS_KEYFILE"),
 		},
 		&cli.BoolFlag{
 			Name:    "cors-enabled",
 			Usage:   "Enable CORS",
 			Value:   true,
-			EnvVars: []string{"CORS_ENABLED"},
+			Sources: cli.EnvVars("CORS_ENABLED"),
 		},
 		&cli.StringFlag{
 			Name:    "nja-api-key",
 			Usage:   "Ninja API key",
 			Value:   "",
-			EnvVars: []string{"NJA_API_KEY"},
+			Sources: cli.EnvVars("NJA_API_KEY"),
 		}, &cli.StringFlag{
 			Name:    "device-name",
 			Usage:   "Set the Device Name",
 			Value:   "device_name",
-			EnvVars: []string{"OGAMED_DEVICENAME"},
+			Sources: cli.EnvVars("OGAMED_DEVICENAME"),
 		},
 	}
 	app.Action = start
-	if err := app.Run(os.Args); err != nil {
+	if err := app.Run(context.Background(), os.Args); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func start(c *cli.Context) error {
+func start(ctx context.Context, c *cli.Command) error {
 	universe := c.String("universe")
 	username := c.String("username")
 	password := c.String("password")
 	language := c.String("language")
 	autoLogin := c.Bool("auto-login")
 	host := c.String("host")
-	port := c.Int("port")
+	port := int(c.Int("port"))
 	proxyAddr := c.String("proxy")
 	proxyUsername := c.String("proxy-username")
 	proxyPassword := c.String("proxy-password")
@@ -205,6 +204,7 @@ func start(c *cli.Context) error {
 	}
 
 	params := wrapper.Params{
+		Ctx:            ctx,
 		Device:         deviceInst,
 		Universe:       universe,
 		Username:       username,
@@ -220,7 +220,7 @@ func start(c *cli.Context) error {
 		APINewHostname: apiNewHostname,
 	}
 	if njaApiKey != "" {
-		params.CaptchaCallback = solvers.NinjaSolver(njaApiKey)
+		params.CaptchaSolver = solvers.NinjaSolver(njaApiKey)
 	}
 
 	bot, err := wrapper.NewWithParams(params)

@@ -14,35 +14,33 @@ import (
 	"time"
 )
 
-func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (buildingID ogame.ID, buildingCountdown int64,
-	researchID ogame.ID, researchCountdown int64,
-	lfBuildingID ogame.ID, lfBuildingCountdown int64,
-	lfResearchID ogame.ID, lfResearchCountdown int64) {
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
-	buildingDataEnd := utils.DoParseI64(doc.Find("time.buildingCountdown").AttrOr("data-end", "0"))
-	if buildingDataEnd > 0 {
-		buildingCountdown = buildingDataEnd - clock.Now().Unix()
-		buildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
-		buildingID = ogame.ID(buildingIDInt)
+func ExtractConstructions(pageHTML []byte, clock clockwork.Clock) (out ogame.Constructions, err error) {
+	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(pageHTML))
+	if err != nil {
+		return
 	}
-	researchDataEnd := utils.DoParseI64(doc.Find("time.researchCountdown").AttrOr("data-end", "0"))
-	if researchDataEnd > 0 {
-		researchCountdown = researchDataEnd - clock.Now().Unix()
-		researchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancelresearch\((\d+),`).FindSubmatch(pageHTML)[1])
-		researchID = ogame.ID(researchIDInt)
+	data := [][]string{
+		{"buildingCountdown", "cancelbuilding"},
+		{"researchCountdown", "cancelresearch"},
+		{"lfbuildingCountdown", "cancellfbuilding"},
+		{"lfResearchCountdown", "cancellfresearch"},
 	}
-	lfBuildingDataEnd := utils.DoParseI64(doc.Find("time.lfbuildingCountdown").AttrOr("data-end", "0"))
-	if lfBuildingDataEnd > 0 {
-		lfBuildingCountdown = lfBuildingDataEnd - clock.Now().Unix()
-		lfBuildingIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfbuilding\((\d+),`).FindSubmatch(pageHTML)[1])
-		lfBuildingID = ogame.ID(lfBuildingIDInt)
+	constructionRows := make([]ogame.Construction, 4)
+	for i, d := range data {
+		s := doc.Find("time." + d[0])
+		parent := s.Parent().Parent().Parent()
+		buildingDataEnd := utils.DoParseI64(s.AttrOr("data-end", "0"))
+		if buildingDataEnd > 0 {
+			countdown := time.Duration(buildingDataEnd-clock.Now().Unix()) * time.Second
+			id := ogame.ID(utils.ToInt(regexp.MustCompile(`onclick="` + d[1] + `\((\d+),`).FindSubmatch(pageHTML)[1]))
+			level := utils.DoParseI64(regexp.MustCompile(`(\d+)`).FindStringSubmatch(parent.Find("span.level").Text())[1])
+			constructionRows[i] = ogame.Construction{ID: id, Countdown: countdown, Level: level}
+		}
 	}
-	lfResearchDataEnd := utils.DoParseI64(doc.Find("time.lfResearchCountdown").AttrOr("data-end", "0"))
-	if lfResearchDataEnd > 0 {
-		lfResearchCountdown = lfResearchDataEnd - clock.Now().Unix()
-		lfResearchIDInt := utils.ToInt(regexp.MustCompile(`onclick="cancellfresearch\((\d+),`).FindSubmatch(pageHTML)[1])
-		lfResearchID = ogame.ID(lfResearchIDInt)
-	}
+	out.Building = constructionRows[0]
+	out.Research = constructionRows[1]
+	out.LfBuilding = constructionRows[2]
+	out.LfResearch = constructionRows[3]
 	return
 }
 
@@ -55,10 +53,10 @@ func extractOverviewShipSumCountdownFromBytes(pageHTML []byte) int64 {
 	return shipSumCountdown
 }
 
-func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifeformEnabled bool) (res []ogame.Fleet) {
+func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifeformEnabled bool) (res []ogame.Fleet, err error) {
 	res = make([]ogame.Fleet, 0)
 	script := doc.Find("body script").Text()
-	doc.Find("div.fleetDetails").Each(func(i int, s *goquery.Selection) {
+	for _, s := range doc.Find("div.fleetDetails").EachIter() {
 		originText := s.Find("span.originCoords a").Text()
 		origin := v6.ExtractCoord(originText)
 		origin.Type = ogame.PlanetType
@@ -112,7 +110,10 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 		shipment.Deuterium = utils.ParseInt(trs.Eq(trs.Size() - DeuteriumTrOffset).Find("td").Eq(1).Text())
 
 		fedAttackHref := s.Find("span.fedAttack a").AttrOr("href", "")
-		fedAttackURL, _ := url.Parse(fedAttackHref)
+		fedAttackURL, err := url.Parse(fedAttackHref)
+		if err != nil {
+			return nil, err
+		}
 		fedAttackQuery := fedAttackURL.Query()
 		targetPlanetID := utils.DoParseI64(fedAttackQuery.Get("target"))
 		unionID := utils.DoParseI64(fedAttackQuery.Get("union"))
@@ -160,6 +161,6 @@ func extractFleetsFromDoc(doc *goquery.Document, location *time.Location, lifefo
 		}
 
 		res = append(res, fleet)
-	})
+	}
 	return
 }

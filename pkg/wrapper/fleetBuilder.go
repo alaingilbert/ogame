@@ -86,19 +86,19 @@ func (f *FleetBuilder) SetResources(resources ogame.Resources) *FleetBuilder {
 
 // SetMetal ...
 func (f *FleetBuilder) SetMetal(metal int64) *FleetBuilder {
-	f.resources.Metal = utils.MaxInt(metal, -1)
+	f.resources.Metal = max(metal, -1)
 	return f
 }
 
 // SetCrystal ...
 func (f *FleetBuilder) SetCrystal(crystal int64) *FleetBuilder {
-	f.resources.Crystal = utils.MaxInt(crystal, -1)
+	f.resources.Crystal = max(crystal, -1)
 	return f
 }
 
 // SetDeuterium ...
 func (f *FleetBuilder) SetDeuterium(deuterium int64) *FleetBuilder {
-	f.resources.Deuterium = utils.MaxInt(deuterium, -1)
+	f.resources.Deuterium = max(deuterium, -1)
 	return f
 }
 
@@ -176,6 +176,44 @@ func (f *FleetBuilder) SetRecallIn(secs int64) *FleetBuilder {
 
 // FlightTime ...
 func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
+	return f.flightTime(true)
+}
+
+// FastFlightTime ...
+func (f *FleetBuilder) FastFlightTime() (secs, fuel int64) {
+	return f.flightTime(false)
+}
+
+// Cargo get the fleet cargo capacity
+func (f *FleetBuilder) Cargo() int64 {
+	return f.cargo()
+}
+
+// CargoUsing get the fleet cargo capacity using the provided techs & lfBonuses
+func (f *FleetBuilder) CargoUsing(techs ogame.IResearches, lfBonuses ogame.LfBonuses) int64 {
+	return f.cargoUsing(techs, lfBonuses)
+}
+
+func (f *FleetBuilder) cargo() int64 {
+	var w Prioritizable = f.b
+	if f.tx != nil {
+		w = f.tx
+	}
+	techs := w.GetCachedResearch()
+	lfBonuses, _ := w.GetCachedLfBonuses()
+	return f.cargoUsing(techs, lfBonuses)
+}
+
+func (f *FleetBuilder) cargoUsing(techs ogame.IResearches, lfBonuses ogame.LfBonuses) int64 {
+	multiplier := float64(f.b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
+	return f.ships.Cargo(techs, lfBonuses, f.b.CharacterClass(), multiplier, f.b.GetServer().OGameSettings().ProbeRaidsEnabled())
+}
+
+func (f *FleetBuilder) flightTime(checkTarget bool) (secs, fuel int64) {
+	var w Prioritizable = f.b
+	if f.tx != nil {
+		w = f.tx
+	}
 	origin := f.origin
 	if origin == nil {
 		f.err = ErrInvalidOrigin
@@ -183,16 +221,10 @@ func (f *FleetBuilder) FlightTime() (secs, fuel int64) {
 	}
 	ships := f.ships
 	if f.allShips {
-		if f.tx != nil {
-			ships, _ = f.tx.GetShips(origin.GetID())
-		} else {
-			ships, _ = f.b.GetShips(origin.GetID())
-		}
+		ships, _ = w.GetShips(origin.GetID())
 	}
-	if f.tx != nil {
-		return f.tx.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
-	}
-	return f.b.FlightTime(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission)
+	flightTimeFn := utils.Ternary(checkTarget, w.FlightTime, w.FastFlightTime)
+	return flightTimeFn(origin.GetCoordinate(), f.destination, f.speed, ships, f.mission, f.holdingTime)
 }
 
 func (f *FleetBuilder) sendNow(tx Prioritizable) error {
@@ -210,24 +242,19 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 	var planetResources ogame.Resources
 	if f.minimumDeuterium > 0 {
 		planetResources, _ = tx.GetResources(f.origin.GetID())
-		_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships, f.mission)
+		_, fuel = tx.FlightTime(f.origin.GetCoordinate(), f.destination, f.speed, f.ships, f.mission, f.holdingTime)
 	}
 
 	if f.minimumDeuterium > 0 && f.resources.Deuterium > 0 {
 		planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
-		if f.resources.Deuterium > planetResources.Deuterium {
-			f.resources.Deuterium = planetResources.Deuterium
-		}
+		f.resources.Deuterium = min(f.resources.Deuterium, planetResources.Deuterium)
 	}
 
 	payload := f.resources
 	// Send all resources
 	if f.resources.Metal == -1 || f.resources.Crystal == -1 || f.resources.Deuterium == -1 {
 		// Calculate cargo
-		techs, _ := tx.GetResearch()
-		lfBonuses, _ := tx.GetCachedLfBonuses()
-		multiplier := float64(f.b.GetServerData().CargoHyperspaceTechMultiplier) / 100.0
-		cargoCapacity := f.ships.Cargo(techs, lfBonuses, f.b.CharacterClass(), multiplier, f.b.GetServer().ProbeRaidsEnabled())
+		cargoCapacity := f.cargo()
 		if f.minimumDeuterium <= 0 {
 			planetResources, _ = tx.GetResources(f.origin.GetID())
 		}
@@ -235,15 +262,15 @@ func (f *FleetBuilder) sendNow(tx Prioritizable) error {
 			if f.minimumDeuterium > 0 {
 				planetResources.Deuterium = planetResources.Deuterium - (fuel + 10) - f.minimumDeuterium
 			}
-			payload.Deuterium = utils.MinInt(cargoCapacity, planetResources.Deuterium)
+			payload.Deuterium = min(cargoCapacity, planetResources.Deuterium)
 			cargoCapacity -= payload.Deuterium
 		}
 		if f.resources.Crystal == -1 {
-			payload.Crystal = utils.MinInt(cargoCapacity, planetResources.Crystal)
+			payload.Crystal = min(cargoCapacity, planetResources.Crystal)
 			cargoCapacity -= payload.Crystal
 		}
 		if f.resources.Metal == -1 {
-			payload.Metal = utils.MinInt(cargoCapacity, planetResources.Metal)
+			payload.Metal = min(cargoCapacity, planetResources.Metal)
 		}
 	}
 

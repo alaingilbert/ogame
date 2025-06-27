@@ -12,19 +12,29 @@ type ExponentialBackoff struct {
 	ctx   context.Context
 	clock clockwork.Clock
 	val   uint32 // atomic
-	max   int
+	max   uint32
 }
 
 // New ...
-func New(ctx context.Context, clock clockwork.Clock, max int) *ExponentialBackoff {
-	if max < 0 {
-		max = 0
-	}
+func New(ctx context.Context, max int) *ExponentialBackoff {
+	return NewWithClock(ctx, clockwork.NewRealClock(), max)
+}
+
+// NewWithClock ...
+func NewWithClock(ctx context.Context, clock clockwork.Clock, maxSleep int) *ExponentialBackoff {
+	maxSleep = max(maxSleep, 0)
 	e := new(ExponentialBackoff)
 	e.ctx = ctx
 	e.clock = clock
-	e.max = max
+	e.max = uint32(max(maxSleep, 0))
 	return e
+}
+
+// Iterator implements iterator so that we can use the backoff in a for loop and avoid having to deal with closure
+func (e *ExponentialBackoff) Iterator() func(func() bool) {
+	return func(yield func() bool) {
+		e.LoopForever(yield)
+	}
 }
 
 // LoopForever execute the callback with exponential backoff
@@ -37,10 +47,8 @@ func (e *ExponentialBackoff) LoopForever(clb func() bool) {
 			return
 		}
 		e.Wait()
-		select {
-		case <-e.ctx.Done():
+		if e.ctx.Err() != nil {
 			return
-		default:
 		}
 	}
 }
@@ -48,20 +56,17 @@ func (e *ExponentialBackoff) LoopForever(clb func() bool) {
 // Wait ...
 func (e *ExponentialBackoff) Wait() {
 	currVal := atomic.LoadUint32(&e.val)
-	if currVal == 0 {
-		atomic.StoreUint32(&e.val, 1)
-		return
-	}
-
-	newVal := currVal * 2
-	if e.max > 0 && newVal > uint32(e.max) {
-		newVal = uint32(e.max)
+	newVal := uint32(1)
+	if currVal > 0 {
+		newVal = currVal * 2
+		if e.max > 0 {
+			newVal = min(newVal, e.max)
+		}
 	}
 	atomic.StoreUint32(&e.val, newVal)
 	select {
-	case <-e.clock.After(time.Duration(currVal) * time.Second):
+	case <-e.clock.After(time.Duration(newVal) * time.Second):
 	case <-e.ctx.Done():
-		return
 	}
 }
 

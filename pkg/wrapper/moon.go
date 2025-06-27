@@ -1,8 +1,8 @@
 package wrapper
 
 import (
+	"errors"
 	"github.com/alaingilbert/ogame/pkg/ogame"
-	"github.com/go-errors/errors"
 )
 
 // Moon ogame moon object
@@ -18,7 +18,7 @@ func (m Moon) GetProduction() ([]ogame.Quantifiable, int64, error) {
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (m Moon) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
+func (m Moon) ConstructionsBeingBuilt() (ogame.Constructions, error) {
 	return m.ogame.ConstructionsBeingBuilt(ogame.CelestialID(m.ID))
 }
 
@@ -149,6 +149,6 @@ func (m Moon) GetLfResearch(options ...Option) (ogame.LfResearches, error) {
 }
 
 // GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)
-func (m Moon) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
+func (m Moon) GetTechs() (ogame.Techs, error) {
 	return m.ogame.GetTechs(m.ID.Celestial())
 }

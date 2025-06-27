@@ -63,22 +63,28 @@ func unique(s string) string {
 	return strings.Join(arr, "")
 }
 
+// MetalStrings ...
+var MetalStrings = []string{"metalli", "métal", "metal", "metall", "kov", "kovy", "металл", "metallo", "metaal", "メタル", "金屬", "μέταλλο"}
+
+// CrystalStrings ...
+var CrystalStrings = []string{"kristalli", "kristal", "cristal", "crystal", "krystal", "kryštály", "kryształ", "kristall", "krystall", "cristallo", "кристалл", "krystaly", "クリスタル", "晶體", "κρύσταλλο"}
+
+// DeuteriumStrings ...
+var DeuteriumStrings = []string{"deuter", "deuterij", "deutérium", "deuterium", "deuterio", "дейтерий", "deutério", "deuteriu", "デューテリウム", "重氫", "δευτέριο"}
+
 // IsStrMetal ...
 func IsStrMetal(name string) bool {
-	arr := []string{"metalli", "métal", "metal", "metall", "kov", "kovy", "металл", "metallo", "metaal", "メタル", "金屬", "μέταλλο"}
-	return utils.InArr(name, arr)
+	return utils.InArr(name, MetalStrings)
 }
 
 // IsStrCrystal ...
 func IsStrCrystal(name string) bool {
-	arr := []string{"kristalli", "kristal", "cristal", "crystal", "krystal", "kryštály", "kryształ", "kristall", "krystall", "cristallo", "кристалл", "krystaly", "クリスタル", "晶體", "κρύσταλλο"}
-	return utils.InArr(name, arr)
+	return utils.InArr(name, CrystalStrings)
 }
 
 // IsStrDeuterium ...
 func IsStrDeuterium(name string) bool {
-	arr := []string{"deuter", "deuterij", "deutérium", "deuterium", "deuterio", "дейтерий", "deutério", "deuteriu", "デューテリウム", "重氫", "δευτέριο"}
-	return utils.InArr(name, arr)
+	return utils.InArr(name, DeuteriumStrings)
 }
 
 // DefenceName2ID ...

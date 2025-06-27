@@ -10,6 +10,11 @@ func TestByID(t *testing.T) {
 	assert.Equal(t, int64(0), ShipsInfos{}.ByID(123456))
 }
 
+func TestByShip(t *testing.T) {
+	assert.Equal(t, int64(0), ShipsInfos{}.ByShip(Ships[0]))
+	assert.Equal(t, int64(123), ShipsInfos{LightFighter: 123}.ByShip(Ships[0]))
+}
+
 func TestShipsInfos_Cargo(t *testing.T) {
 	ships := ShipsInfos{
 		SmallCargo: 2,
@@ -152,6 +157,7 @@ func TestShipsInfos_FromQuantifiables(t *testing.T) {
 }
 
 func TestShipsInfos_Speed(t *testing.T) {
+	assert.Equal(t, int64(8000), ShipsInfos{SmallCargo: 1, LargeCargo: 1}.Speed(Researches{CombustionDrive: 6}, LfBonuses{}, NoClass, NoAllianceClass))
 	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2}.Speed(Researches{CombustionDrive: 17}, LfBonuses{}, NoClass, NoAllianceClass))
 	assert.Equal(t, int64(20250), ShipsInfos{LargeCargo: 2, SolarSatellite: 1}.Speed(Researches{CombustionDrive: 17}, LfBonuses{}, NoClass, NoAllianceClass))
 }
@@ -160,4 +166,31 @@ func TestShipsInfos_ToPtr(t *testing.T) {
 	ships := ShipsInfos{SmallCargo: 2, LargeCargo: 3}
 	shipsPtr := ships.ToPtr()
 	assert.Equal(t, &ships, shipsPtr)
+}
+
+func TestIterFlyable(t *testing.T) {
+	ships := ShipsInfos{SmallCargo: 2, LargeCargo: 3, Crawler: 3}
+	var nbFlyable int64
+	for _, nb := range ships.IterFlyable() {
+		nbFlyable += nb
+	}
+	assert.Equal(t, int64(5), nbFlyable)
+}
+
+func TestHasFlyableShips(t *testing.T) {
+	assert.False(t, ShipsInfos{Crawler: 1, SolarSatellite: 1}.HasFlyableShips())
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1}.HasFlyableShips())
+}
+
+func TestHasCombatShips(t *testing.T) {
+	assert.False(t, ShipsInfos{Crawler: 1, SolarSatellite: 1}.HasCombatShips())
+	assert.False(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1}.HasCombatShips())
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1, Cruiser: 1}.HasCombatShips())
+}
+
+func TestHasCivilShips(t *testing.T) {
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1}.HasCivilShips())
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1}.HasCivilShips())
+	assert.True(t, ShipsInfos{Crawler: 1, SolarSatellite: 1, SmallCargo: 1, Cruiser: 1}.HasCivilShips())
+	assert.False(t, ShipsInfos{Cruiser: 1}.HasCivilShips())
 }

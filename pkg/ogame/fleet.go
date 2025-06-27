@@ -23,6 +23,11 @@ type Fleet struct {
 	TargetPlanetID int64
 }
 
+// IsCancellable returns either or not a fleet can be recalled
+func (f Fleet) IsCancellable() bool {
+	return !f.ReturnFlight && !f.InDeepSpace && f.Mission != MissileAttack
+}
+
 // MakeFleet make a new Fleet object
 func MakeFleet() Fleet {
 	return Fleet{}

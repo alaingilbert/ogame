@@ -3,6 +3,7 @@ package v9
 import (
 	"bytes"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/alaingilbert/ogame/pkg/utils"
 	"os"
 	"testing"
 	"time"
@@ -14,7 +15,7 @@ import (
 
 func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/overview2.html")
-	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
 	assert.Equal(t, int64(6182), res.Metal.Available)
 	assert.Equal(t, int64(10060), res.Metal.CurrentProduction)
 	assert.Equal(t, int64(1590000), res.Metal.StorageCapacity)
@@ -34,7 +35,7 @@ func TestExtractResourcesDetailsFromFullPage(t *testing.T) {
 
 func TestExtractResourcesDetailsFromFullPagePopulation(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.4/en/lifeform/overview.html")
-	res := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResourcesDetailsFromFullPage(pageHTMLBytes)
 	assert.Equal(t, int64(1974118), res.Population.Available)
 	assert.Equal(t, 0.233, res.Population.Hungry)
 	assert.Equal(t, 61.983, res.Population.GrowthRate)
@@ -42,7 +43,7 @@ func TestExtractResourcesDetailsFromFullPagePopulation(t *testing.T) {
 
 func TestExtractResources(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.0/en/overview.html")
-	res := NewExtractor().ExtractResources(pageHTMLBytes)
+	res, _ := NewExtractor().ExtractResources(pageHTMLBytes)
 	assert.Equal(t, int64(10000), res.Metal)
 	assert.Equal(t, int64(10000), res.Crystal)
 	assert.Equal(t, int64(7829), res.Deuterium)
@@ -114,20 +115,20 @@ func TestGetConstructions(t *testing.T) {
 	// Without lifeform
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v9.0.2/en/overview_all_queues.html")
 	clock := clockwork.NewFakeClockAt(time.Date(2022, 8, 20, 12, 43, 11, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ := ExtractConstructions(pageHTMLBytes, clock)
-	assert.Equal(t, ogame.MetalMineID, buildingID)
-	assert.Equal(t, int64(5413), buildingCountdown)
-	assert.Equal(t, ogame.ComputerTechnologyID, researchID)
-	assert.Equal(t, int64(7), researchCountdown)
+	constructions := ExtractConstructions(pageHTMLBytes, clock)
+	assert.Equal(t, ogame.MetalMineID, constructions.Building.ID)
+	assert.Equal(t, int64(5413), int64(constructions.Building.Countdown.Seconds()))
+	assert.Equal(t, ogame.ComputerTechnologyID, constructions.Research.ID)
+	assert.Equal(t, int64(7), int64(constructions.Research.Countdown.Seconds()))
 
 	// With lifeform
 	pageHTMLBytes, _ = os.ReadFile("../../../samples/v9.0.2/en/lifeform/overview_all_queues2.html")
 	clock = clockwork.NewFakeClockAt(time.Date(2022, 8, 28, 17, 22, 26, 0, time.UTC))
-	buildingID, buildingCountdown, researchID, researchCountdown, _, _, _, _ = ExtractConstructions(pageHTMLBytes, clock)
-	assert.Equal(t, ogame.MetalStorageID, buildingID)
-	assert.Equal(t, int64(33483), buildingCountdown)
-	assert.Equal(t, ogame.ComputerTechnologyID, researchID)
-	assert.Equal(t, int64(18355), researchCountdown)
+	constructions = ExtractConstructions(pageHTMLBytes, clock)
+	assert.Equal(t, ogame.MetalStorageID, constructions.Building.ID)
+	assert.Equal(t, int64(33483), int64(constructions.Building.Countdown.Seconds()))
+	assert.Equal(t, ogame.ComputerTechnologyID, constructions.Research.ID)
+	assert.Equal(t, int64(18355), int64(constructions.Research.Countdown.Seconds()))
 }
 
 func TestExtractUserInfos(t *testing.T) {
@@ -144,7 +145,7 @@ func TestExtractFleetResources(t *testing.T) {
 	e := NewExtractor()
 	e.SetLocation(time.FixedZone("OGT", 3600))
 	e.SetLifeformEnabled(true)
-	fleets := e.ExtractFleets(pageHTMLBytes)
+	fleets, _ := e.ExtractFleets(pageHTMLBytes)
 	assert.Equal(t, int64(1), fleets[0].Resources.Metal)
 	assert.Equal(t, int64(2), fleets[0].Resources.Crystal)
 	assert.Equal(t, int64(3), fleets[0].Resources.Deuterium)
@@ -232,7 +233,7 @@ func TestExtractOverviewProduction_ships(t *testing.T) {
 
 func TestExtractArtefactsFromDoc(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.16.0/en/lfresearch_1.html")
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	doc := utils.First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	collected, limit := NewExtractor().ExtractArtefactsFromDoc(doc)
 	assert.Equal(t, int64(3607), collected)
 	assert.Equal(t, int64(3600), limit)
@@ -240,7 +241,7 @@ func TestExtractArtefactsFromDoc(t *testing.T) {
 
 func TestExtractLfSlotsFromDoc(t *testing.T) {
 	pageHTMLBytes, _ := os.ReadFile("../../../samples/v11.16.0/en/lfresearch_1.html")
-	doc, _ := goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	doc := utils.First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	slots := NewExtractor().ExtractLfSlotsFromDoc(doc)
 	assert.Equal(t, ogame.IntergalacticEnvoysID, slots[0].TechID)
 	assert.Equal(t, int64(0), slots[0].Level)
@@ -255,7 +256,7 @@ func TestExtractLfSlotsFromDoc(t *testing.T) {
 	assert.False(t, slots[8].Allowed)
 
 	pageHTMLBytes, _ = os.ReadFile("../../../samples/v11.16.0/en/lfresearch_2.html")
-	doc, _ = goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes))
+	doc = utils.First(goquery.NewDocumentFromReader(bytes.NewReader(pageHTMLBytes)))
 	slots = NewExtractor().ExtractLfSlotsFromDoc(doc)
 	assert.Equal(t, ogame.IntergalacticEnvoysID, slots[0].TechID)
 	assert.Equal(t, int64(14), slots[0].Level)

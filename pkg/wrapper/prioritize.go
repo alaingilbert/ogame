@@ -77,7 +77,7 @@ func (b *Prioritize) TxNamed(name string, clb func(Prioritizable) error) error {
 
 // LoginWithBearerToken to ogame server reusing existing token
 // Returns either or not the bot logged in using the existing cookies
-func (b *Prioritize) LoginWithBearerToken(token string) (bool, error) {
+func (b *Prioritize) LoginWithBearerToken(token string) (bool, bool, error) {
 	b.begin("LoginWithBearerToken")
 	defer b.done()
 	return b.bot.wrapLoginWithBearerToken(token)
@@ -85,7 +85,7 @@ func (b *Prioritize) LoginWithBearerToken(token string) (bool, error) {
 
 // LoginWithExistingCookies to ogame server reusing existing cookies
 // Returns either or not the bot logged in using the existing cookies
-func (b *Prioritize) LoginWithExistingCookies() (bool, error) {
+func (b *Prioritize) LoginWithExistingCookies() (bool, bool, error) {
 	b.begin("LoginWithExistingCookies")
 	defer b.done()
 	return b.bot.wrapLoginWithExistingCookies()
@@ -100,10 +100,10 @@ func (b *Prioritize) Login() error {
 }
 
 // Logout the bot from ogame server
-func (b *Prioritize) Logout() {
+func (b *Prioritize) Logout() error {
 	b.begin("Logout")
 	defer b.done()
-	b.bot.logout()
+	return b.bot.logout()
 }
 
 // GetPageContent gets the html for a specific ogame page
@@ -238,14 +238,14 @@ func (b *Prioritize) SendMessageAlliance(associationID int64, message string) er
 }
 
 // GetFleets get the player's own fleets activities
-func (b *Prioritize) GetFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots) {
+func (b *Prioritize) GetFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	b.begin("GetFleets")
 	defer b.done()
 	return b.bot.getFleets(opts...)
 }
 
 // GetFleetsFromEventList get the player's own fleets activities
-func (b *Prioritize) GetFleetsFromEventList() []ogame.Fleet {
+func (b *Prioritize) GetFleetsFromEventList() ([]ogame.Fleet, error) {
 	b.begin("GetFleets")
 	defer b.done()
 	return b.bot.getFleetsFromEventList()
@@ -436,7 +436,7 @@ func (b *Prioritize) BuildShips(celestialID ogame.CelestialID, shipID ogame.ID, 
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
+func (b *Prioritize) ConstructionsBeingBuilt(celestialID ogame.CelestialID) (ogame.Constructions, error) {
 	b.begin("ConstructionsBeingBuilt")
 	defer b.done()
 	return b.bot.constructionsBeingBuilt(celestialID)
@@ -485,7 +485,7 @@ func (b *Prioritize) GetResourcesDetails(celestialID ogame.CelestialID) (ogame.R
 }
 
 // GetTechs gets a celestial supplies/facilities/ships/researches
-func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
+func (b *Prioritize) GetTechs(celestialID ogame.CelestialID) (ogame.Techs, error) {
 	b.begin("GetTechs")
 	defer b.done()
 	return b.bot.getTechs(celestialID)
@@ -497,6 +497,20 @@ func (b *Prioritize) SendFleet(celestialID ogame.CelestialID, ships ogame.ShipsI
 	b.begin("SendFleet")
 	defer b.done()
 	return b.bot.sendFleet(celestialID, ships, speed, where, mission, resources, holdingTime, unionID, false)
+}
+
+// FastMiniFleetSpy sends a minifleet spy mission
+func (b *Prioritize) FastMiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (ogame.MinifleetResponse, error) {
+	b.begin("FastMiniFleetSpy")
+	defer b.done()
+	return b.bot.fastMiniFleetSpy(coordinate, nbShips, options...)
+}
+
+// MiniFleetSpy sends a minifleet spy mission
+func (b *Prioritize) MiniFleetSpy(coordinate ogame.Coordinate, nbShips int64, options ...Option) (ogame.Fleet, error) {
+	b.begin("MiniFleetSpy")
+	defer b.done()
+	return b.bot.miniFleetSpy(coordinate, nbShips, options...)
 }
 
 // SendDiscoveryFleet sends a discovery fleet
@@ -511,6 +525,13 @@ func (b *Prioritize) SendDiscoveryFleet2(celestialID ogame.CelestialID, coord og
 	b.begin("SendDiscoveryFleet2")
 	defer b.done()
 	return b.bot.sendDiscoveryFleet2(celestialID, coord, options...)
+}
+
+// SendSystemDiscoveryFleet sends a discovery fleets to all positions in a system
+func (b *Prioritize) SendSystemDiscoveryFleet(celestialID ogame.CelestialID, galaxy, system int64, options ...Option) ([]ogame.Coordinate, error) {
+	b.begin("SendSystemDiscoveryFleet")
+	defer b.done()
+	return b.bot.sendSystemDiscoveryFleet(celestialID, galaxy, system, options...)
 }
 
 // EnsureFleet either sends all the requested ships or fail
@@ -533,6 +554,13 @@ func (b *Prioritize) SendIPM(planetID ogame.PlanetID, coord ogame.Coordinate, nb
 	b.begin("SendIPM")
 	defer b.done()
 	return b.bot.sendIPM(planetID, coord, nbr, priority)
+}
+
+// GetCombatReportSummaryForFleet gets the latest combat report for a given FleetID
+func (b *Prioritize) GetCombatReportSummaryForFleet(fleetID ogame.FleetID) (ogame.CombatReportSummary, error) {
+	b.begin("GetCombatReportSummaryForFleet")
+	defer b.done()
+	return b.bot.getCombatReportForFleet(fleetID)
 }
 
 // GetCombatReportSummaryFor gets the latest combat report for a given coordinate
@@ -618,35 +646,43 @@ func (b *Prioritize) GetResourcesProductionsLight(resBuildings ogame.ResourcesBu
 	resSettings ogame.ResourceSettings, temp ogame.Temperature) ogame.Resources {
 	b.begin("GetResourcesProductionsLight")
 	defer b.done()
-	return getResourcesProductionsLight(resBuildings, researches, resSettings, temp, b.bot.serverData.Speed)
+	return getResourcesProductionsLight(resBuildings, researches, resSettings, temp, b.bot.cache.serverData.Speed)
 }
 
 // FlightTime calculate flight time and fuel needed
-func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
+func (b *Prioritize) FlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
 	b.begin("FlightTime")
 	defer b.done()
+	return b.flightTime(origin, destination, speed, ships, missionID, holdingTime, true)
+}
+
+// FastFlightTime calculate flight time and fuel needed. Does not call ogame for TargetCheck to get empty/inactive systems
+func (b *Prioritize) FastFlightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
+	b.begin("FastFlightTime")
+	defer b.done()
+	return b.flightTime(origin, destination, speed, ships, missionID, holdingTime, false)
+}
+
+func (b *Prioritize) flightTime(origin, destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64, checkTarget bool) (secs, fuel int64) {
+	serverData := b.bot.cache.serverData
 	researches := b.bot.getCachedResearch()
-	lfbonuses, _ := b.bot.getCachedLfBonuses()
+	lfBonuses, _ := b.bot.getCachedLfBonuses()
 	allianceClass, _ := b.bot.getCachedAllianceClass()
-	fleetIgnoreEmptySystems := b.bot.serverData.FleetIgnoreEmptySystems
-	fleetIgnoreInactiveSystems := b.bot.serverData.FleetIgnoreInactiveSystems
 	var systemsSkip int64
-	if fleetIgnoreEmptySystems || fleetIgnoreInactiveSystems {
+	if checkTarget {
+		fleetIgnoreEmptySystems := serverData.FleetIgnoreEmptySystems
+		fleetIgnoreInactiveSystems := serverData.FleetIgnoreInactiveSystems
 		opts := make([]Option, 0)
 		if originCelestial, err := b.bot.GetCachedCelestial(origin); err == nil {
 			opts = append(opts, ChangePlanet(originCelestial.GetID()))
 		}
 		res, _ := b.bot.checkTarget(ships, destination, opts...)
-		if fleetIgnoreEmptySystems {
-			systemsSkip += res.EmptySystems
-		}
-		if fleetIgnoreInactiveSystems {
-			systemsSkip += res.InactiveSystems
-		}
+		systemsSkip += utils.TernaryOrZero(fleetIgnoreEmptySystems, res.EmptySystems)
+		systemsSkip += utils.TernaryOrZero(fleetIgnoreInactiveSystems, res.InactiveSystems)
 	}
-	return CalcFlightTime(origin, destination, b.bot.serverData.Galaxies, b.bot.serverData.Systems,
-		b.bot.serverData.DonutGalaxy, b.bot.serverData.DonutSystem, b.bot.serverData.GlobalDeuteriumSaveFactor,
-		float64(speed)/10, GetFleetSpeedForMission(b.bot.serverData, missionID), ships, researches, lfbonuses, b.bot.characterClass, allianceClass, systemsSkip)
+	return CalcFlightTime(origin, destination, serverData.Galaxies, serverData.Systems,
+		serverData.DonutGalaxy, serverData.DonutSystem, serverData.GlobalDeuteriumSaveFactor,
+		float64(speed)/10, GetFleetSpeedForMission(serverData, missionID), ships, researches, lfBonuses, b.bot.cache.characterClass, allianceClass, systemsSkip, holdingTime)
 }
 
 // Phalanx scan a coordinate from a moon to get fleets information
@@ -822,7 +858,7 @@ func (b *Prioritize) GetLfResearchDetails(celestialID ogame.CelestialID, options
 }
 
 // GetAvailableDiscoveries ...
-func (b *Prioritize) GetAvailableDiscoveries(opts ...Option) int64 {
+func (b *Prioritize) GetAvailableDiscoveries(opts ...Option) (int64, error) {
 	b.begin("GetAvailableDiscoveries")
 	defer b.done()
 	return b.bot.getAvailableDiscoveries(opts...)
@@ -833,6 +869,27 @@ func (b *Prioritize) GetPositionsAvailableForDiscoveryFleet(galaxy int64, system
 	b.begin("GetPositionsAvailableForDiscoveryFleet")
 	defer b.done()
 	return b.bot.getPositionsAvailableForDiscoveryFleet(galaxy, system, opts...)
+}
+
+// GetChapter ...
+func (b *Prioritize) GetChapter(chapterID int64) (ogame.Chapter, error) {
+	b.begin("GetChapter")
+	defer b.done()
+	return b.bot.getChapter(chapterID)
+}
+
+// ChapterClaimAll ...
+func (b *Prioritize) ChapterClaimAll(chapterID int64) error {
+	b.begin("GetChapter")
+	defer b.done()
+	return b.bot.chapterClaimAll(chapterID)
+}
+
+// ChapterCollectReward ...
+func (b *Prioritize) ChapterCollectReward(taskID int64) error {
+	b.begin("GetChapter")
+	defer b.done()
+	return b.bot.chapterCollectReward(taskID)
 }
 
 // SelectLfResearchSelect select a lifeform research

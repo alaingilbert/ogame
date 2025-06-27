@@ -1,12 +1,11 @@
 package utils
 
 import (
-	"compress/gzip"
+	"cmp"
 	"github.com/PuerkitoBio/goquery"
-	"io"
+	"iter"
 	"math"
 	"math/rand"
-	"net/http"
 	"regexp"
 	"strconv"
 	"strings"
@@ -33,32 +32,13 @@ func I64Ptr(v int64) *int64 {
 	return &v
 }
 
-// MinInt returns the minimum int64 value
-func MinInt(vals ...int64) int64 {
-	minV := vals[0]
-	for _, num := range vals {
-		if num < minV {
-			minV = num
-		}
-	}
-	return minV
-}
-
-// MaxInt returns the minimum int64 value
-func MaxInt(vals ...int64) int64 {
-	maxV := vals[0]
-	for _, num := range vals {
-		if num > maxV {
-			maxV = num
-		}
-	}
-	return maxV
-}
+// Noop ...
+func Noop(_ ...any) {}
 
 // Clamp ensure the value is within a range
-func Clamp(val, min, max int64) int64 {
-	val = MinInt(val, max)
-	val = MaxInt(val, min)
+func Clamp[T cmp.Ordered](val, pMin, pMax T) T {
+	val = min(val, pMax)
+	val = max(val, pMin)
 	return val
 }
 
@@ -112,21 +92,6 @@ func GetNbrShips(doc *goquery.Document, name string) int64 {
 		return 0
 	}
 	return ParseInt(m[1])
-}
-
-func ReadBody(resp *http.Response) (respContent []byte, err error) {
-	var reader io.ReadCloser
-	switch resp.Header.Get("Content-Encoding") {
-	case "gzip":
-		reader, err = gzip.NewReader(resp.Body)
-		if err != nil {
-			return
-		}
-		defer reader.Close()
-	default:
-		reader = resp.Body
-	}
-	return io.ReadAll(reader)
 }
 
 type Equalable[T any] interface {
@@ -195,6 +160,34 @@ func RandFloat(min, max float64) float64 {
 	return rand.Float64()*(max-min) + min
 }
 
+// Count2 counts element in an iter.Seq2
+func Count2[K, V any](it iter.Seq2[K, V]) (out int) {
+	for range it {
+		out++
+	}
+	return
+}
+
+// Any2 return true if calling clb with any item in Seq2 return true
+func Any2[K, V any](it iter.Seq2[K, V], clb func(K, V) bool) bool {
+	for k, v := range it {
+		if clb(k, v) {
+			return true
+		}
+	}
+	return false
+}
+
+// All return true if calling clb with all item in Seq return true
+func All[V any](it iter.Seq[V], clb func(V) bool) bool {
+	for v := range it {
+		if !clb(v) {
+			return false
+		}
+	}
+	return true
+}
+
 func Ternary[T any](predicate bool, a, b T) T {
 	if predicate {
 		return a
@@ -207,6 +200,11 @@ func TernaryOrZero[T any](predicate bool, a T) T {
 	return Ternary(predicate, a, zero)
 }
 
+// Or return "a" if it is non-zero otherwise "b"
+func Or[T comparable](a, b T) (zero T) {
+	return Ternary(a != zero, a, b)
+}
+
 // RoundThousandth round value to the nearest thousandth
 func RoundThousandth(n float64) float64 {
 	return math.Floor(n*1000) / 1000
@@ -214,3 +212,40 @@ func RoundThousandth(n float64) float64 {
 
 // Ptr return a pointer to v
 func Ptr[T any](v T) *T { return &v }
+
+func First[T any](a T, _ ...any) T { return a }
+
+func Second[T any](_ any, a T, _ ...any) T { return a }
+
+// Find looks through each value in the list, returning the first one that passes a truth test (predicate),
+// or nil if no value passes the test.
+// The function returns as soon as it finds an acceptable element, and doesn't traverse the entire list
+func Find[T any](arr []T, predicate func(T) bool) (out *T) {
+	return First(FindIdx(arr, predicate))
+}
+
+func FindIdx[T any](arr []T, predicate func(T) bool) (*T, int) {
+	for i, el := range arr {
+		if predicate(el) {
+			return &el, i
+		}
+	}
+	return nil, -1
+}
+
+// Deref generic deref return the zero value if v is nil
+func Deref[T any](v *T) T {
+	var zero T
+	if v == nil {
+		return zero
+	}
+	return *v
+}
+
+// Default ...
+func Default[T any](v *T, d T) T {
+	if v == nil {
+		return d
+	}
+	return *v
+}

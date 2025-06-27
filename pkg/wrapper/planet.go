@@ -109,7 +109,7 @@ func (p Planet) EnsureFleet(ships ogame.ShipsInfos, speed ogame.Speed, where oga
 }
 
 // ConstructionsBeingBuilt returns the building & research being built, and the time remaining (secs)
-func (p Planet) ConstructionsBeingBuilt() (ogame.ID, int64, ogame.ID, int64, ogame.ID, int64, ogame.ID, int64) {
+func (p Planet) ConstructionsBeingBuilt() (ogame.Constructions, error) {
 	return p.ogame.ConstructionsBeingBuilt(ogame.CelestialID(p.ID))
 }
 
@@ -144,8 +144,8 @@ func (p Planet) GetResourcesProductions() (ogame.Resources, error) {
 }
 
 // FlightTime calculate flight time and fuel needed
-func (p Planet) FlightTime(destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID) (secs, fuel int64) {
-	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships, missionID)
+func (p Planet) FlightTime(destination ogame.Coordinate, speed ogame.Speed, ships ogame.ShipsInfos, missionID ogame.MissionID, holdingTime int64) (secs, fuel int64) {
+	return p.ogame.FlightTime(p.Coordinate, destination, speed, ships, missionID, holdingTime)
 }
 
 // SendIPM send interplanetary missiles
@@ -164,6 +164,6 @@ func (p Planet) GetLfResearch(options ...Option) (ogame.LfResearches, error) {
 }
 
 // GetTechs gets (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches)
-func (p Planet) GetTechs() (ogame.ResourcesBuildings, ogame.Facilities, ogame.ShipsInfos, ogame.DefensesInfos, ogame.Researches, ogame.LfBuildings, ogame.LfResearches, error) {
+func (p Planet) GetTechs() (ogame.Techs, error) {
 	return p.ogame.GetTechs(p.ID.Celestial())
 }
