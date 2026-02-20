@@ -10,3 +10,4 @@ vendor
 cmd/ogamed/bin
 /.vs
 *.png
+/ogamed
