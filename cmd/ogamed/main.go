@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/subtle"
+	"github.com/alaingilbert/ogame/pkg/defender"
 	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/gameforge/solvers"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
@@ -228,6 +229,9 @@ func start(ctx context.Context, c *cli.Command) error {
 		return err
 	}
 
+	// Initialize the defender with default config
+	def := defender.New(bot, defender.DefaultConfig())
+
 	e := echo.New()
 	if corsEnabled {
 		e.Use(middleware.CORS())
@@ -367,6 +371,13 @@ func start(ctx context.Context, c *cli.Command) error {
 	*/
 	e.GET("/api/*", wrapper.GetStaticHandler)
 	e.HEAD("/api/*", wrapper.GetStaticHEADHandler) // AntiGame uses this to check if the cached XML files need to be refreshed
+
+	// Defender endpoints
+	e.GET("/bot/defender", defender.GetStatusHandler(def))
+	e.POST("/bot/defender/config", defender.SetConfigHandler(def))
+	e.POST("/bot/defender/start", defender.StartHandler(def))
+	e.POST("/bot/defender/stop", defender.StopHandler(def))
+	e.POST("/bot/defender/origin", defender.SetOriginHandler(def))
 
 	if enableTLS {
 		log.Println("Enable TLS Support")
