@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defender Configuration</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container { max-width: 640px; margin: 0 auto; }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #00d4ff;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-running { background: #0f5132; color: #75b798; }
+        .status-stopped { background: #58151c; color: #ea868f; }
+
+        .card {
+            background: #16213e;
+            border: 1px solid #0f3460;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .card h2 {
+            font-size: 1rem;
+            color: #00d4ff;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #0f3460;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        button {
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        button:hover { opacity: 0.85; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-start { background: #198754; color: #fff; }
+        .btn-stop { background: #dc3545; color: #fff; }
+        .btn-save { background: #0d6efd; color: #fff; }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            font-size: 0.85rem;
+            color: #adb5bd;
+            margin-bottom: 0.3rem;
+        }
+        .form-group input[type="number"],
+        .form-group select {
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            color: #e0e0e0;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .form-check input[type="checkbox"] {
+            width: 1.1rem;
+            height: 1.1rem;
+            accent-color: #00d4ff;
+        }
+        .form-check label {
+            font-size: 0.85rem;
+            color: #adb5bd;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+        .toast-ok { background: #0f5132; color: #75b798; }
+        .toast-err { background: #58151c; color: #ea868f; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            Defender
+            <span id="status-badge" class="status-badge {{if .Running}}status-running{{else}}status-stopped{{end}}">
+                {{if .Running}}Running{{else}}Stopped{{end}}
+            </span>
+        </h1>
+
+        <div class="actions">
+            <button class="btn-start" id="btn-start" onclick="startDefender()">Start</button>
+            <button class="btn-stop" id="btn-stop" onclick="stopDefender()">Stop</button>
+        </div>
+
+        <form id="config-form" onsubmit="saveConfig(event)">
+            <div class="card">
+                <h2>Timing</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="checkInterval">Check Interval (sec)</label>
+                        <input type="number" id="checkInterval" min="60" value="{{.Config.CheckIntervalSec}}">
+                    </div>
+                    <div class="form-group">
+                        <label for="evacSecondsBefore">Evac Seconds Before</label>
+                        <input type="number" id="evacSecondsBefore" min="5" value="{{.Config.EvacSecondsBefore}}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="evacSpeed">Evac Speed</label>
+                        <select id="evacSpeed">
+                            {{range $speed := .Speeds}}
+                            <option value="{{$speed.Value}}" {{if eq $speed.Value $.Config.EvacSpeed}}selected{{end}}>{{$speed.Label}}</option>
+                            {{end}}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="recallSecondsAfter">Recall After (sec, 0 = off)</label>
+                        <input type="number" id="recallSecondsAfter" min="0" value="{{.Config.RecallSecondsAfter}}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Origin</h2>
+                <div class="form-check">
+                    <input type="checkbox" id="originRandom" {{if .Config.Origin.Random}}checked{{end}} onchange="toggleOrigin()">
+                    <label for="originRandom">Random Celestial</label>
+                </div>
+                <div class="form-group" id="celestialGroup">
+                    <label for="originCelestialID">Celestial ID</label>
+                    <input type="number" id="originCelestialID" value="{{.Config.Origin.CelestialID}}" {{if .Config.Origin.Random}}disabled{{end}}>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Options</h2>
+                <div class="form-check">
+                    <input type="checkbox" id="dumpDefense" {{if .Config.DumpResourcesToDefense}}checked{{end}}>
+                    <label for="dumpDefense">Dump Resources to Defense (Planets)</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="dumpDefenseMoons" {{if .Config.DumpResourcesToDefenseMoons}}checked{{end}}>
+                    <label for="dumpDefenseMoons">Dump Resources to Defense (Moons)</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-save" style="width:100%;">Save Configuration</button>
+        </form>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        function toggleOrigin() {
+            var el = document.getElementById('originCelestialID');
+            el.disabled = document.getElementById('originRandom').checked;
+        }
+
+        function showToast(msg, ok) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + (ok ? 'toast-ok' : 'toast-err') + ' show';
+            setTimeout(function() { t.className = 'toast'; }, 2500);
+        }
+
+        function updateStatus(data) {
+            var badge = document.getElementById('status-badge');
+            if (data.running) {
+                badge.textContent = 'Running';
+                badge.className = 'status-badge status-running';
+            } else {
+                badge.textContent = 'Stopped';
+                badge.className = 'status-badge status-stopped';
+            }
+        }
+
+        function startDefender() {
+            fetch('/bot/defender/start', {method:'POST'})
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    updateStatus(data);
+                    showToast('Defender started', true);
+                })
+                .catch(function(e) { showToast('Error: ' + e, false); });
+        }
+
+        function stopDefender() {
+            fetch('/bot/defender/stop', {method:'POST'})
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    updateStatus(data);
+                    showToast('Defender stopped', true);
+                })
+                .catch(function(e) { showToast('Error: ' + e, false); });
+        }
+
+        function saveConfig(ev) {
+            ev.preventDefault();
+            var body = {
+                checkIntervalSec:            parseInt(document.getElementById('checkInterval').value, 10),
+                evacSpeed:                   parseFloat(document.getElementById('evacSpeed').value),
+                evacSecondsBefore:           parseInt(document.getElementById('evacSecondsBefore').value, 10),
+                recallSecondsAfter:          parseInt(document.getElementById('recallSecondsAfter').value, 10),
+                dumpResourcesToDefense:       document.getElementById('dumpDefense').checked,
+                dumpResourcesToDefenseMoons:  document.getElementById('dumpDefenseMoons').checked,
+                originRandom:                document.getElementById('originRandom').checked,
+                originCelestialID:           parseInt(document.getElementById('originCelestialID').value, 10) || 0
+            };
+            fetch('/bot/defender/config', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(body)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                updateStatus(data);
+                showToast('Configuration saved', true);
+            })
+            .catch(function(e) { showToast('Error: ' + e, false); });
+        }
+    </script>
+</body>
+</html>

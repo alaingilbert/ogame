@@ -374,6 +374,7 @@ func start(ctx context.Context, c *cli.Command) error {
 
 	// Defender endpoints
 	e.GET("/bot/defender", defender.GetStatusHandler(def))
+	e.GET("/bot/defender/page", defender.PageHandler(def))
 	e.POST("/bot/defender/config", defender.SetConfigHandler(def))
 	e.POST("/bot/defender/start", defender.StartHandler(def))
 	e.POST("/bot/defender/stop", defender.StopHandler(def))

@@ -1,6 +1,8 @@
 package defender
 
 import (
+	"embed"
+	"html/template"
 	"net/http"
 	"strconv"
 
@@ -8,10 +10,53 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+//go:embed templates/defender.gohtml
+var defenderTemplateFS embed.FS
+
+var defenderTmpl = template.Must(template.ParseFS(defenderTemplateFS, "templates/defender.gohtml"))
+
 // StatusResponse represents the defender status returned by the API.
 type StatusResponse struct {
 	Running bool   `json:"running"`
 	Config  Config `json:"config"`
+}
+
+// speedOption is used by the template to render the speed dropdown.
+type speedOption struct {
+	Label string
+	Value ogame.Speed
+}
+
+// pageData holds data passed to the gohtml template.
+type pageData struct {
+	Running bool
+	Config  Config
+	Speeds  []speedOption
+}
+
+// PageHandler renders the defender configuration HTML page.
+func PageHandler(d *Defender) echo.HandlerFunc {
+	speeds := []speedOption{
+		{"10%", ogame.TenPercent},
+		{"20%", ogame.TwentyPercent},
+		{"30%", ogame.ThirtyPercent},
+		{"40%", ogame.FourtyPercent},
+		{"50%", ogame.FiftyPercent},
+		{"60%", ogame.SixtyPercent},
+		{"70%", ogame.SeventyPercent},
+		{"80%", ogame.EightyPercent},
+		{"90%", ogame.NinetyPercent},
+		{"100%", ogame.HundredPercent},
+	}
+	return func(c echo.Context) error {
+		data := pageData{
+			Running: d.IsRunning(),
+			Config:  d.GetConfig(),
+			Speeds:  speeds,
+		}
+		c.Response().Header().Set("Content-Type", "text/html; charset=utf-8")
+		return defenderTmpl.Execute(c.Response().Writer, data)
+	}
 }
 
 // GetStatusHandler returns the current defender status and config.
