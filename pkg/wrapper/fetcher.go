@@ -10,7 +10,7 @@ import (
 const (
 	OverviewPageName         = "overview"
 	PreferencesPageName      = "preferences"
-	ResourceSettingsPageName = "resourceSettings"
+	ResourceSettingsPageName = "resourcesettings"
 	DefensesPageName         = "defenses"
 	LfBuildingsPageName      = "lfbuildings"
 	LfResearchPageName       = "lfresearch"
@@ -41,6 +41,7 @@ const (
 	RocketlayerPageName            = "rocketlayer"
 	FetchEventboxAjaxPageName      = "fetchEventbox"
 	FetchResourcesAjaxPageName     = "fetchResources"
+	FetchResourcesbarAjaxPageName  = "resourcesbar"
 	GalaxyContentAjaxPageName      = "galaxyContent"
 	GalaxyAjaxPageName             = "galaxy"
 	EventListAjaxPageName          = "eventList"

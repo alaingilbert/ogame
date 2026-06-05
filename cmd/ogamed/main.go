@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"crypto/subtle"
+	"log"
+	"os"
+	"strconv"
+
 	"github.com/alaingilbert/ogame/pkg/device"
 	"github.com/alaingilbert/ogame/pkg/gameforge/solvers"
 	"github.com/alaingilbert/ogame/pkg/wrapper"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/urfave/cli/v3"
-	"log"
-	"os"
-	"strconv"
 )
 
 var version = "0.0.0"
@@ -198,6 +199,7 @@ func start(ctx context.Context, c *cli.Command) error {
 		SetScreenHeight(900).
 		SetTimezone("America/Los_Angeles").
 		SetLanguages("en-US,en").
+		SetUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36").
 		Build()
 	if err != nil {
 		panic(err)
