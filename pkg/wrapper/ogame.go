@@ -2822,12 +2822,25 @@ func (b *OGame) getFacilities(celestialID ogame.CelestialID, options ...Option) 
 }
 
 func (b *OGame) getTechs(celestialID ogame.CelestialID) (ogame.Techs, error) {
-	vals := url.Values{"page": {FetchTechsName}}
-	page, err := getAjaxPage[parser.FetchTechsAjaxPage](b, vals, ChangePlanet(celestialID))
-	if err != nil {
-		return ogame.Techs{}, err
+	// OGame 13.x dropped page=fetchTechs (302 -> overview, errorNumber=404): the levels
+	// come from the empire view instead, which lists every planet (or moon) at once.
+	kinds := []ogame.CelestialType{ogame.PlanetType, ogame.MoonType}
+	if c, err := b.getCachedCelestial(celestialID); err == nil && c.GetType() == ogame.MoonType {
+		kinds = []ogame.CelestialType{ogame.MoonType}
 	}
-	return page.ExtractTechs()
+	for _, kind := range kinds {
+		list, err := b.getEmpire(kind)
+		if err != nil {
+			return ogame.Techs{}, err
+		}
+		for _, c := range list {
+			if c.ID == celestialID {
+				return ogame.Techs{ResourcesBuildings: c.Supplies, Facilities: c.Facilities, ShipsInfos: c.Ships, DefensesInfos: c.Defenses,
+					Researches: c.Researches, LfBuildings: c.LfBuildings, LfResearches: c.LfResearches}, nil
+			}
+		}
+	}
+	return ogame.Techs{}, ogame.ErrInvalidPlanetID
 }
 
 func (b *OGame) getProduction(celestialID ogame.CelestialID) ([]ogame.Quantifiable, int64, error) {
