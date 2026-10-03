@@ -3429,7 +3429,9 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		return zeroFleet, err
 	}
 
-	if !checkRes.TargetOk {
+	// OGame 13.x answers {"status":"success","success":true,…} and no longer sends
+	// targetOk: without this every send ended in "target is not ok"
+	if !checkRes.TargetOk && checkRes.Status != "success" {
 		if len(checkRes.Errors) > 0 {
 			return zeroFleet, errors.New(checkRes.Errors[0].Message + " (" + strconv.Itoa(checkRes.Errors[0].Error) + ")")
 		}
