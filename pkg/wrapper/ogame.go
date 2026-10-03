@@ -1618,7 +1618,38 @@ func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	return fleets, slots, nil
 }
 
+var movementTokenRgx = regexp.MustCompile(`var token\s*=\s*"([0-9a-f]+)"`)
+
 func (b *OGame) cancelFleet(fleetID ogame.FleetID) error {
+	// OGame 13.x: the recall is a POST of the page's AJAX token to action=recallFleet
+	// (movementRecallFleet in the game's script); the recall link with its own token is gone.
+	if pageHTML, err := b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}}); err == nil && bytes.Contains(pageHTML, []byte("action=recallFleet")) {
+		m := movementTokenRgx.FindSubmatch(pageHTML)
+		if m == nil {
+			return errors.New("recall token not found")
+		}
+		by, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "action": {"recallFleet"}, "fleetId": {fleetID.String()}, "asJson": {"1"}},
+			url.Values{"token": {string(m[1])}})
+		if err != nil {
+			return err
+		}
+		var res struct {
+			Status string `json:"status"`
+			Errors []struct {
+				Message string `json:"message"`
+			} `json:"errors"`
+		}
+		if err := json.Unmarshal(by, &res); err != nil {
+			return errors.New("failed to unmarshal recall response: " + err.Error())
+		}
+		if res.Status != "success" {
+			if len(res.Errors) > 0 {
+				return errors.New(res.Errors[0].Message)
+			}
+			return errors.New("recall refused")
+		}
+		return nil
+	}
 	page, err := getPage[parser.MovementPage](b)
 	if err != nil {
 		return err
@@ -2077,18 +2108,28 @@ func (b *OGame) highscore(category, typ, page int64) (out ogame.Highscore, err e
 	if page < 1 {
 		return out, errors.New("page must be greater than or equal to 1")
 	}
+	// OGame 13 has no page=highscoreContent (it answers with the
+	// overview: "failed to find site"); the ranking is the ingame component, a full page
+	// the extractor reads through #stat_list_content.
 	vals := url.Values{
-		"page":     {HighscoreContentAjaxPageName},
-		"category": {utils.FI64(category)},
-		"type":     {utils.FI64(typ)},
-		"site":     {utils.FI64(page)},
+		"page":      {"ingame"},
+		"component": {"highscore"},
+		"category":  {utils.FI64(category)},
+		"type":      {utils.FI64(typ)},
+		"site":      {utils.FI64(page)},
 	}
-	payload := url.Values{}
-	pageHTML, err := b.postPageContent(vals, payload)
+	pageHTML, err := b.getPageContent(vals)
 	if err != nil {
 		return out, err
 	}
-	return b.extractor.ExtractHighscore(pageHTML)
+	out, err = b.extractor.ExtractHighscore(pageHTML)
+	// the first three places are drawn as medals, without a number
+	for i := range out.Players {
+		if out.Players[i].Position == 0 {
+			out.Players[i].Position = (page-1)*100 + int64(i) + 1
+		}
+	}
+	return out, err
 }
 
 func (b *OGame) getAllResources() (map[ogame.CelestialID]ogame.Resources, error) {
@@ -2600,7 +2641,8 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 		"galaxy": {utils.FI64(galaxy)},
 		"system": {utils.FI64(system)},
 	}
-	vals := url.Values{"page": {"ingame"}, "component": {"galaxy"}, "action": {"fetchGalaxyContent"}, "ajax": {"1"}, "asJson": {"1"}}
+	// OGame 13.x renamed the action (fetchGalaxyContent answers {"status":"failure"})
+	vals := url.Values{"page": {"ingame"}, "component": {"galaxy"}, "action": {"fetchSolarSystemData"}, "asJson": {"1"}}
 	pageHTML, err := b.postPageContent(vals, payload, opts...)
 	if err != nil {
 		return res, err
@@ -2624,8 +2666,7 @@ func (b *OGame) getGalaxyPage(galaxy int64, system int64, opts ...Option) (*Gala
 	by, err := b.postPageContent(url.Values{
 		"page":      {"ingame"},
 		"component": {"galaxy"},
-		"action":    {"fetchGalaxyContent"},
-		"ajax":      {"1"},
+		"action":    {"fetchSolarSystemData"},
 		"asJson":    {"1"},
 	}, url.Values{
 		"galaxy": {strconv.Itoa(int(galaxy))},
@@ -2822,12 +2863,25 @@ func (b *OGame) getFacilities(celestialID ogame.CelestialID, options ...Option) 
 }
 
 func (b *OGame) getTechs(celestialID ogame.CelestialID) (ogame.Techs, error) {
-	vals := url.Values{"page": {FetchTechsName}}
-	page, err := getAjaxPage[parser.FetchTechsAjaxPage](b, vals, ChangePlanet(celestialID))
-	if err != nil {
-		return ogame.Techs{}, err
+	// OGame 13.x dropped page=fetchTechs (302 -> overview, errorNumber=404): the levels
+	// come from the empire view instead, which lists every planet (or moon) at once.
+	kinds := []ogame.CelestialType{ogame.PlanetType, ogame.MoonType}
+	if c, err := b.getCachedCelestial(celestialID); err == nil && c.GetType() == ogame.MoonType {
+		kinds = []ogame.CelestialType{ogame.MoonType}
 	}
-	return page.ExtractTechs()
+	for _, kind := range kinds {
+		list, err := b.getEmpire(kind)
+		if err != nil {
+			return ogame.Techs{}, err
+		}
+		for _, c := range list {
+			if c.ID == celestialID {
+				return ogame.Techs{ResourcesBuildings: c.Supplies, Facilities: c.Facilities, ShipsInfos: c.Ships, DefensesInfos: c.Defenses,
+					Researches: c.Researches, LfBuildings: c.LfBuildings, LfResearches: c.LfResearches}, nil
+			}
+		}
+	}
+	return ogame.Techs{}, ogame.ErrInvalidPlanetID
 }
 
 func (b *OGame) getProduction(celestialID ogame.CelestialID) ([]ogame.Quantifiable, int64, error) {
@@ -3416,7 +3470,9 @@ func (b *OGame) sendFleet(celestialID ogame.CelestialID, ships ogame.ShipsInfos,
 		return zeroFleet, err
 	}
 
-	if !checkRes.TargetOk {
+	// OGame 13.x answers {"status":"success","success":true,…} and no longer sends
+	// targetOk: without this every send ended in "target is not ok"
+	if !checkRes.TargetOk && checkRes.Status != "success" {
 		if len(checkRes.Errors) > 0 {
 			return zeroFleet, errors.New(checkRes.Errors[0].Message + " (" + strconv.Itoa(checkRes.Errors[0].Error) + ")")
 		}

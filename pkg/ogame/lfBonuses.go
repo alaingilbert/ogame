@@ -10,12 +10,17 @@ type LfBonuses struct {
 	// Following lifeform buildings decreases the costs and duration for researching new technologies.
 	// Humans ResearchCentre / Rocktal RuneTechnologium / Mechas RoboticsResearchCentre / Kaelesh VortexChamber
 	PlanetLfResearchCostTimeBonus CostTimeBonus
+
+	// LifeformLevels is the experience level of each discovered lifeform (lfbonuses page).
+	// It adds level x 0.1 % to every lifeform technology on planets where it is active.
+	LifeformLevels map[LifeformType]int64
 }
 
 func NewLfBonuses() *LfBonuses {
 	return &LfBonuses{
 		LfShipBonuses:   make(LfShipBonuses),
 		CostTimeBonuses: make(CostTimeBonuses),
+		LifeformLevels:  make(map[LifeformType]int64),
 	}
 }
 
