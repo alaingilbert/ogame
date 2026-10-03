@@ -2600,7 +2600,8 @@ func (b *OGame) galaxyInfos(galaxy, system int64, opts ...Option) (ogame.SystemI
 		"galaxy": {utils.FI64(galaxy)},
 		"system": {utils.FI64(system)},
 	}
-	vals := url.Values{"page": {"ingame"}, "component": {"galaxy"}, "action": {"fetchGalaxyContent"}, "ajax": {"1"}, "asJson": {"1"}}
+	// OGame 13.x renamed the action (fetchGalaxyContent answers {"status":"failure"})
+	vals := url.Values{"page": {"ingame"}, "component": {"galaxy"}, "action": {"fetchSolarSystemData"}, "asJson": {"1"}}
 	pageHTML, err := b.postPageContent(vals, payload, opts...)
 	if err != nil {
 		return res, err
@@ -2624,8 +2625,7 @@ func (b *OGame) getGalaxyPage(galaxy int64, system int64, opts ...Option) (*Gala
 	by, err := b.postPageContent(url.Values{
 		"page":      {"ingame"},
 		"component": {"galaxy"},
-		"action":    {"fetchGalaxyContent"},
-		"ajax":      {"1"},
+		"action":    {"fetchSolarSystemData"},
 		"asJson":    {"1"},
 	}, url.Values{
 		"galaxy": {strconv.Itoa(int(galaxy))},
