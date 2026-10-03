@@ -1618,7 +1618,38 @@ func (b *OGame) getFleets(opts ...Option) ([]ogame.Fleet, ogame.Slots, error) {
 	return fleets, slots, nil
 }
 
+var movementTokenRgx = regexp.MustCompile(`var token\s*=\s*"([0-9a-f]+)"`)
+
 func (b *OGame) cancelFleet(fleetID ogame.FleetID) error {
+	// OGame 13.x: the recall is a POST of the page's AJAX token to action=recallFleet
+	// (movementRecallFleet in the game's script); the recall link with its own token is gone.
+	if pageHTML, err := b.getPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}}); err == nil && bytes.Contains(pageHTML, []byte("action=recallFleet")) {
+		m := movementTokenRgx.FindSubmatch(pageHTML)
+		if m == nil {
+			return errors.New("recall token not found")
+		}
+		by, err := b.postPageContent(url.Values{"page": {"ingame"}, "component": {"movement"}, "action": {"recallFleet"}, "fleetId": {fleetID.String()}, "asJson": {"1"}},
+			url.Values{"token": {string(m[1])}})
+		if err != nil {
+			return err
+		}
+		var res struct {
+			Status string `json:"status"`
+			Errors []struct {
+				Message string `json:"message"`
+			} `json:"errors"`
+		}
+		if err := json.Unmarshal(by, &res); err != nil {
+			return errors.New("failed to unmarshal recall response: " + err.Error())
+		}
+		if res.Status != "success" {
+			if len(res.Errors) > 0 {
+				return errors.New(res.Errors[0].Message)
+			}
+			return errors.New("recall refused")
+		}
+		return nil
+	}
 	page, err := getPage[parser.MovementPage](b)
 	if err != nil {
 		return err
