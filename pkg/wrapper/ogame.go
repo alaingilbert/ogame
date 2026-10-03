@@ -2108,18 +2108,28 @@ func (b *OGame) highscore(category, typ, page int64) (out ogame.Highscore, err e
 	if page < 1 {
 		return out, errors.New("page must be greater than or equal to 1")
 	}
+	// OGame 13 has no page=highscoreContent (it answers with the
+	// overview: "failed to find site"); the ranking is the ingame component, a full page
+	// the extractor reads through #stat_list_content.
 	vals := url.Values{
-		"page":     {HighscoreContentAjaxPageName},
-		"category": {utils.FI64(category)},
-		"type":     {utils.FI64(typ)},
-		"site":     {utils.FI64(page)},
+		"page":      {"ingame"},
+		"component": {"highscore"},
+		"category":  {utils.FI64(category)},
+		"type":      {utils.FI64(typ)},
+		"site":      {utils.FI64(page)},
 	}
-	payload := url.Values{}
-	pageHTML, err := b.postPageContent(vals, payload)
+	pageHTML, err := b.getPageContent(vals)
 	if err != nil {
 		return out, err
 	}
-	return b.extractor.ExtractHighscore(pageHTML)
+	out, err = b.extractor.ExtractHighscore(pageHTML)
+	// the first three places are drawn as medals, without a number
+	for i := range out.Players {
+		if out.Players[i].Position == 0 {
+			out.Players[i].Position = (page-1)*100 + int64(i) + 1
+		}
+	}
+	return out, err
 }
 
 func (b *OGame) getAllResources() (map[ogame.CelestialID]ogame.Resources, error) {
