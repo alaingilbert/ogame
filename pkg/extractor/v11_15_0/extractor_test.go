@@ -36,6 +36,7 @@ func TestExtractLfBonuses(t *testing.T) {
 	assert.Equal(t, -0.0019, bonuses.LfShipBonuses[ogame.LightFighterID].FuelConsumption)
 	assert.Equal(t, 0.006, bonuses.CostTimeBonuses[ogame.AllianceDepotID].Cost)
 	assert.Equal(t, 0.012, bonuses.CostTimeBonuses[ogame.AllianceDepotID].Duration)
+	assert.Equal(t, map[ogame.LifeformType]int64{ogame.Humans: 4, ogame.Mechas: 4, ogame.Kaelesh: 0}, bonuses.LifeformLevels)
 }
 
 func TestExtractAllianceClass(t *testing.T) {

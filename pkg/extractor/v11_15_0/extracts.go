@@ -469,7 +469,25 @@ func extractLfBonusesFromDoc(doc *goquery.Document) (ogame.LfBonuses, error) {
 			}
 		}
 	}
+	extractLifeformLevels(doc, b)
 	return *b, nil
+}
+
+var lifeformIconRgx = regexp.MustCompile(`\blifeform(\d)\b`)
+
+// extractLifeformLevels reads the experience level of each lifeform the player discovered.
+func extractLifeformLevels(doc *goquery.Document, b *ogame.LfBonuses) {
+	for _, s := range doc.Find("lifeform-level-bonuses lifeform-item").EachIter() {
+		m := lifeformIconRgx.FindStringSubmatch(s.Find(".lifeform-item-icon").AttrOr("class", ""))
+		if len(m) != 2 {
+			continue
+		}
+		lvl, err := utils.ParseI64(strings.TrimSpace(s.Find(".currentlevel strong").Text()))
+		if err != nil {
+			continue
+		}
+		b.LifeformLevels[ogame.LifeformType(utils.DoParseI64(m[1]))] = lvl
+	}
 }
 
 func extractCategories(g *goquery.Selection, category string) (string, string) {
