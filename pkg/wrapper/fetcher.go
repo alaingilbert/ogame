@@ -69,7 +69,12 @@ const (
 
 func (b *OGame) getPage(page string, opts ...Option) ([]byte, error) {
 	vals := url.Values{"page": {"ingame"}, "component": {page}}
-	if page == FetchResourcesPageName || page == FetchTechsName || page == LogoutPageName {
+	if page == FetchResourcesPageName {
+		// OGame 13.x serves the resource box JSON from the resourcesbar component
+		// (ajaxResourceboxURI in the game pages); the old page=fetchResources answers
+		// 302 -> overview with errorNumber=404 and the JSON parse fails.
+		vals = url.Values{"page": {"componentOnly"}, "component": {"resourcesbar"}, "action": {"fetchResources"}, "asJson": {"1"}}
+	} else if page == FetchTechsName || page == LogoutPageName {
 		vals = url.Values{"page": {page}}
 	}
 	return b.getPageContent(vals, opts...)
